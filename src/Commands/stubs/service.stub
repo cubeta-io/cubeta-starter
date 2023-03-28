@@ -1,0 +1,18 @@
+<?php
+
+namespace {namespace};
+
+use Cubeta\CubetaStarter\Service;
+use {repositoryInterfaceNamespace}\{repositoryInterface};
+
+class {serviceName} extends Service {
+
+     protected $mainInterface;
+
+    public function __construct({repositoryInterface} $mainInterface)
+    {
+      $this->mainInterface = $mainInterface;
+    }
+
+
+}

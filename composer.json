@@ -1,0 +1,40 @@
+{
+    "name": "cubeta/cubeta-starter",
+    "description": "Project starter kit to generate everything and make things easier!",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "cubeta",
+            "email": "development@cubeta.io"
+        }
+    ],
+    "require": {
+        "php": "^7.3|^8.0",
+        "intervention/image": "^2.7",
+        "spatie/laravel-package-tools": "^1.11"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^7.5"
+    },
+    "autoload": {
+        "psr-4" : {
+            "Cubeta\\CubetaStarter\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4" : {
+            "Cubeta\\CubetaStarter\\tests\\": "tests/"
+        }
+    },
+    "extra" : {
+        "laravel": {
+            "providers": [
+                "Cubeta\\CubetaStarter\\CubetaRepositoryServiceProvider",
+                "Cubeta\\CubetaStarter\\RepositoryServiceProvider"
+            ],
+            "aliases": {
+                "CubetaRepository": "Cubeta\\CubetaStarter\\CubetaRepositoryFacade"
+            }
+        }
+    }
+}

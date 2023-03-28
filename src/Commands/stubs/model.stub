@@ -1,0 +1,19 @@
+<?php
+
+namespace {namespace};
+
+use Cubeta\CubetaStarter\BaseModel;
+
+{properties}
+class {modelName} extends BaseModel {
+
+    {relations}
+
+    public function files_keys(){
+        return [
+            //files_keys
+        ];
+    }
+
+    {images}
+}

@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Requests\{class}Request;
+use Illuminate\Http\Request;
+use App\Models\{class};
+use App\Http\Resources\{class}Resource;
+{namespace}
+
+class {class}Controller extends ApiController{
+    {traits}
+    private $mainService;
+    public function __construct(UserService $mainService) {
+        $this->mainService = $mainService;
+    }
+
+    public function index(Request $request){
+        return $this->mainService->all([]);
+    }
+
+    public function show(Request $request , $id){
+        return $this->mainService->find($id,[]);
+    }
+
+    public function store(StoreUserRequest $request ){
+        return $this->mainService->create($request->validated(),['image']);
+    }
+
+    public function update(UpdateUserRequest $request ,$id ){
+        return $this->mainService->update($id,$request->validated(),['image']);
+    }
+
+    public function destroy( $id ){
+        return $this->mainService->delete($id);
+    }
+
+    public function delete_multi( DestroyMultiUserRequest $request ){
+        return $this->mainService->destroy($request['ids']);
+    }
+    public function deleteImage($id,{{class}}DeleteImageRequest $request)
+    {
+        $model={{class}}::find($id);
+        $this->deleteFile($model->column);
+        return $this->apiResponse(null, ApiController::STATUS_OK, __('site.data_have_been_retrieved_successfully'));
+    }
+    // add new function
+}

@@ -1,0 +1,9 @@
+<?php
+
+namespace {namespace};
+
+use Cubeta\CubetaStarter\Repository;
+
+interface {repositoryInterfaceName} extends Repository{
+
+}
