@@ -31,7 +31,7 @@ class CreateFile
     /**
      * The filesystem instance.
      *
-     * @property \Illuminate\Filesystem\Filesystem
+     * @property Filesystem
      */
     protected FileSystem $files;
 
