@@ -3,12 +3,14 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\Enums\CommandTypeEnum;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\CreateFile;
-use File;
+use Illuminate\Support\Facades\File;
+use JetBrains\PhpStorm\ArrayShape;
 
 class MakeModel extends Command
 {
@@ -55,14 +57,15 @@ class MakeModel extends Command
             'timestamp',
             'file',
             'key',
-            'manyToMany'
+            RelationsTypeEnum::ManyToMany
         ];
     }
 
     /**
+     * @return false|void
      * @throws BindingResolutionException
      */
-    public function handle(): bool|int
+    public function handle()
     {
         $name = $this->argument("name");
         $option = $this->argument('option');
@@ -86,7 +89,7 @@ class MakeModel extends Command
 
         // removing the many-to-many relations from migration attributes
         $fixedAttributes = $attributes;
-        $manyToManyAttributes = array_keys($attributes, 'manyToMany');
+        $manyToManyAttributes = array_keys($attributes, RelationsTypeEnum::ManyToMany);
         foreach ($fixedAttributes as $attribute => $value) {
             if (in_array($attribute, $manyToManyAttributes)) {
                 unset($fixedAttributes[$attribute]);
@@ -122,7 +125,7 @@ class MakeModel extends Command
 //            $this->call('create:service', ["name" => $name]);
         }
 
-        return Command::SUCCESS;
+        $this->info('Migration created successfully.');
     }
 
     /**
@@ -157,7 +160,7 @@ class MakeModel extends Command
         foreach ($attributes as $col) {
             $this->line("================ $col Is Foreign Key !!! ====================");
             $result = $this->choice("What type of relationship does the $col column indicate ?", ['One To One', 'One To Many']);
-            $results[str_replace('_id', '', $col)] = $result == 'One To Many' ? 'hasMany' : 'hasOne';
+            $results[str_replace('_id', '', $col)] = $result == 'One To Many' ? RelationsTypeEnum::HasMany : RelationsTypeEnum::HasOne;
         }
 
         return $results;
@@ -172,17 +175,18 @@ class MakeModel extends Command
      */
     public function createModel(string $className, array $attributes): void
     {
-        //TODO:: tell mohammad that you commented this
-//        $nameOfModel = $this->getModelName($className);
-//        $modelName = $nameOfModel;
         $namespace = $this->getNameSpace();
+
+        $imagesAttribute = $this->getModelImage($attributes , $className) ;
+
         $stubProperties = [
             "{namespace}" => $namespace,
             "{modelName}" => $className,
             "{properties}" => $this->getModelProperty($attributes),
-            "{images}" => $this->getModelImage($attributes, $className),
+            "{images}" => $imagesAttribute['appends'] ,
+            "{imageAttribute}" => $imagesAttribute['image'],
             "{relations}" => $this->getModelRelation($attributes),
-            "{scopes}" => $this->boolValuesScope($attributes) ,
+            "{scopes}" => $this->boolValuesScope($attributes),
         ];
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
@@ -200,36 +204,36 @@ class MakeModel extends Command
 
     private function getModelRelation($attributes): string
     {
-        $relations_functions = "";
-        $foreign_keys = $this->checkForeignKeyExists($attributes);
-        foreach ($foreign_keys as $name => $type) {
-            $relationName = $type == 'hasMany' ? Str::plural($name) : $name;
-            $relations_functions .= "
-            public function " . $relationName . "():". (($type == 'hasMany') ? "\Illuminate\Database\Eloquent\Relations\HasMany" : "\Illuminate\Database\Eloquent\Relations\HasOne").
-            "{
+        $relationsFunctions = "";
+        $foreignKeys = $this->checkForeignKeyExists($attributes);
+        foreach ($foreignKeys as $name => $type) {
+            $relationName = $type == RelationsTypeEnum::HasMany ? Str::plural($name) : $name;
+            $relationsFunctions .= "
+            public function " . $relationName . "():" . (($type == RelationsTypeEnum::HasMany) ? "HasMany" : "HasOne") .
+                "{
                 return \$this->" . $type . "(" . ucfirst($name) . "::class);
              }\n";
         }
 
-        $manyToManyRelations = array_keys($attributes, 'manyToMany');
+        $manyToManyRelations = array_keys($attributes, RelationsTypeEnum::ManyToMany);
 
         foreach ($manyToManyRelations as $rel) {
             $relationName = $rel;
-            $relations_functions .= "
-            public function " . $relationName . "() : \Illuminate\Database\Eloquent\Relations\BelongsToMany
+            $relationsFunctions .= "
+            public function " . $relationName . "() : BelongsToMany
             {
                 return \$this->belongsToMany(" . ucfirst(Str::singular($relationName)) . "::class);
             }\n";
         }
-        return $relations_functions;
+        return $relationsFunctions;
     }
 
     private function getModelProperty($attributes): string
     {
         $properties = "/**  \n";
         foreach ($attributes as $name => $type) {
-            if ($type == 'manyToMany') {
-                $properties .= "* @property \Illuminate\Database\Eloquent\Relations\BelongsToMany ". $name ."\n";
+            if ($type == RelationsTypeEnum::ManyToMany) {
+                $properties .= "* @property BelongsToMany " . $name . "\n";
             } else  $properties .= "* @property $type $name \n";
         }
         $properties .= "*/ \n";
@@ -237,20 +241,28 @@ class MakeModel extends Command
     }
 
     /**
+     * @param $attributes
+     * @param $modelName
+     * @return string[]
      * @throws BindingResolutionException
      */
-    private function getModelImage($attributes, $modelName): string
+    #[ArrayShape(['image' => "string", 'appends' => "string"])]
+    private function getModelImage($attributes, $modelName): array
     {
         $image = "";
-        $columns_names = array_keys($attributes, 'file');
-        foreach ($columns_names as $colName) {
+        $columnsNames = array_keys($attributes, 'file');
+        $appends = '' ;
+        foreach ($columnsNames as $colName) {
             $image .=
-                "public function get" . ucfirst($colName) . "Path(){
-                return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
-            }\n";
+                "public function get" . ucfirst(Str::camel(Str::studly($colName))) . "Attribute()
+                {
+                    return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
+                }\n";
+
+            $appends = "'$colName'," ;
             $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
         }
-        return $image;
+        return ['image' => $image , 'appends' => $appends];
     }
 
     /**
@@ -281,7 +293,6 @@ class MakeModel extends Command
      * get namespace
      * @return string
      */
-    // TODO :: removed $className parameter from the function
     private function getNameSpace(): string
     {
         return config("repository.model_namespace");
@@ -289,17 +300,17 @@ class MakeModel extends Command
 
     public function boolValuesScope($attributes): string
     {
-        $bools = array_keys($attributes , 'boolean') ;
+        $booleans = array_keys($attributes, 'boolean');
 
-        $scopes = "" ;
+        $scopes = "";
 
-        foreach ($bools as $boolCol) {
-            $scopes.="public function scope".ucfirst(Str::studly($boolCol))."(\$query)
+        foreach ($booleans as $boolCol) {
+            $scopes .= "public function scope" . ucfirst(Str::studly($boolCol)) . "(\$query)
             {
-                return \$query->where('".$boolCol."' , 1);
+                return \$query->where('" . $boolCol . "' , 1);
             } \n";
         }
 
-        return $scopes ;
+        return $scopes;
     }
 }

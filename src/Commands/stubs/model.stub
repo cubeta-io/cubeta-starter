@@ -2,12 +2,21 @@
 
 namespace {namespace};
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany ;
+use Illuminate\Database\Eloquent\Relations\HasOne ;
+
 use Cubeta\CubetaStarter\BaseModel;
 
 {properties}
 class {modelName} extends BaseModel {
 
-{relations}
+    protected $appends = [{images}] ;
+
+    {imageAttribute}
+
+    {relations}
+
 
     public function files_keys() : array
     {
@@ -15,8 +24,6 @@ class {modelName} extends BaseModel {
             //files_keys
         ];
     }
-
-    {images}
 
     {scopes}
 }
