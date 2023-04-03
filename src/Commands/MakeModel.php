@@ -5,7 +5,6 @@ namespace Cubeta\CubetaStarter\Commands;
 use Cubeta\CubetaStarter\Enums\CommandTypeEnum;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\CreateFile;
@@ -139,7 +138,7 @@ class MakeModel extends Command
             $type = $this->choice(
                 "What is the data type of the (( $field field )) ? default is ",
                 $this->types,
-                16,
+                6,
             );
             $fieldsWithDataType[$field] = $type;
         }
@@ -183,6 +182,7 @@ class MakeModel extends Command
             "{properties}" => $this->getModelProperty($attributes),
             "{images}" => $this->getModelImage($attributes, $className),
             "{relations}" => $this->getModelRelation($attributes),
+            "{scopes}" => $this->boolValuesScope($attributes) ,
         ];
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
@@ -285,5 +285,21 @@ class MakeModel extends Command
     private function getNameSpace(): string
     {
         return config("repository.model_namespace");
+    }
+
+    public function boolValuesScope($attributes): string
+    {
+        $bools = array_keys($attributes , 'boolean') ;
+
+        $scopes = "" ;
+
+        foreach ($bools as $boolCol) {
+            $scopes.="public function scope".ucfirst(Str::studly($boolCol))."(\$query)
+            {
+                return \$query->where('".$boolCol."' , 1);
+            } \n";
+        }
+
+        return $scopes ;
     }
 }
