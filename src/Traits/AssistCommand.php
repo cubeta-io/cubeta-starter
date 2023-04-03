@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Filesystem\Filesystem;
 
 trait AssistCommand
@@ -30,9 +31,9 @@ trait AssistCommand
      *
      * @param string $path
      * @return void
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
-    public function ensureDirectoryExists($path)
+    public function ensureDirectoryExists($path): void
     {
         app()->make(Filesystem::class)->ensureDirectoryExists($path);
     }

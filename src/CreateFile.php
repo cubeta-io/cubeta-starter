@@ -48,11 +48,11 @@ class CreateFile
     /**
      * Check if file already exists
      *
-     * @return bool
+     * @return void
      */
-    private function fileExists()
+    private function fileExists(): void
     {
-        return $this->files->exists($this->path) ? new Exception("The class exists!") : false;
+        $this->files->exists($this->path) ? new Exception("The class exists!") : false;
     }
 
     /**

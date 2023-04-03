@@ -2,6 +2,8 @@
 
 namespace Cubeta\CubetaStarter;
 
+use Cubeta\CubetaStarter\Commands\CreatePivotTable;
+use Cubeta\CubetaStarter\Commands\MakeController;
 use Cubeta\CubetaStarter\Commands\MakeFactory;
 use Cubeta\CubetaStarter\Commands\MakeMigration;
 use Cubeta\CubetaStarter\Commands\MakeModel;
@@ -48,6 +50,8 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
         $package
             ->name('repository')
             ->hasConfigFile()
+            ->hasCommand(CreatePivotTable::class)
+            ->hasCommand(MakeController::class)
             ->hasCommand(MakeModel::class)
             ->hasCommand(MakeMigration::class)
             ->hasCommand(MakeFactory::class)

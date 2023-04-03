@@ -2,7 +2,7 @@
 
 namespace {namespace};
 
-use Cubeta\CubetaStarter\Repository;
+use Cubeta\cubeta-starter\Repository;
 
 interface {repositoryInterfaceName} extends Repository{
 

@@ -7,7 +7,7 @@ use Cubeta\CubetaStarter\BaseModel;
 {properties}
 class {modelName} extends BaseModel {
 
-    {relations}
+{relations}
 
     public function files_keys(){
         return [
