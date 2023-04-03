@@ -3,9 +3,10 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\CreateFile;
-use Illuminate\Console\Command;
-use Illuminate\Support\Str;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Illuminate\Console\Command;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class MakeResource extends Command
 {
@@ -20,51 +21,67 @@ class MakeResource extends Command
     /**
      * Handle the command
      *
-     * @return void
+     * @throws BindingResolutionException
      */
-    public function handle()
+    public function handle(): void
     {
-        $modelName = $this->argument("name");
-        $attributes = $this->argument("attributes");
+        $modelName = $this->argument('name');
+        $attributes = $this->argument('attributes');
 
-        $this->createResource($modelName,$attributes);
+        $this->createResource($modelName, $attributes);
     }
 
-    private function createResource($modelName , array $attributes){
-
+    /**
+     * @throws BindingResolutionException
+     */
+    private function createResource($modelName, array $attributes)
+    {
         $resourceName = $this->getResourceName($modelName);
 
         $stubProperties = [
-            "{class}" => $resourceName,
-            "{resource_fields}" => $this->generateCols($attributes),
+            '{class}' => $resourceName,
+            '{resource_fields}' => $this->generateCols($attributes),
         ];
 
         new CreateFile(
             $stubProperties,
             $this->getResourcePath($resourceName),
-            __DIR__ . "/stubs/resource.stub"
+            __DIR__.'/stubs/resource.stub'
         );
         $this->line("<info>Created resource:</info> {$resourceName}");
     }
 
-    private function getResourceName($modelName){
-        return $modelName."Resource";
+    private function getResourceName($modelName): string
+    {
+        return $modelName.'Resource';
     }
 
-    private function generateCols(array $attributes){
-        $columns = "'id'=>\$this->id,";
-        foreach ($attributes as $name => $type){
-            $columns .= "'$name'=>\$this->$name,\n\t\t\t";
+    private function generateCols(array $attributes): string
+    {
+        $columns = "'id'     =>  \$this->id, \n\t\t\t";
+        foreach ($attributes as $name => $value) {
+            if ($value == 'key') {
+                $relation = str_replace('_id', '', $name);
+                $columns .= "'$name'     =>  \$this->whenLoaded('$relation') , \n\t\t\t";
+            } elseif ($value == RelationsTypeEnum::ManyToMany) {
+                $columns .= "'$name'     =>  \$this->whenLoaded('$name') , \n\t\t\t";
+            } else {
+                $columns .= "'$name'     =>  \$this->$name,\n\t\t\t";
+            }
         }
+
         return $columns;
     }
 
-    private function getResourcePath($ResourceName)
+    /**
+     * @throws BindingResolutionException
+     */
+    private function getResourcePath($ResourceName): string
     {
-        $path = $this->appPath() . "/app/Http/Resources/";
+        $path = $this->appPath().'/app/Http/Resources/';
 
         $this->ensureDirectoryExists($path);
 
-        return $path. "$ResourceName" . ".php";
+        return $path."$ResourceName".'.php';
     }
 }

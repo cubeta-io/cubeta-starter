@@ -9,6 +9,7 @@ use Cubeta\CubetaStarter\Commands\MakeMigration;
 use Cubeta\CubetaStarter\Commands\MakeModel;
 use Cubeta\CubetaStarter\Commands\MakeRepository;
 use Cubeta\CubetaStarter\Commands\MakeRequest;
+use Cubeta\CubetaStarter\Commands\MakeResource;
 use Cubeta\CubetaStarter\Commands\MakeSeeder;
 use Cubeta\CubetaStarter\Commands\MakeService;
 use Cubeta\CubetaStarter\Commands\ModelMakeCommand;
@@ -36,7 +37,7 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
             $this->mergeConfigFrom($this->package->basePath("/../config/{$configFileName}.php"), $configFileName);
         }
 
-        $this->mergeConfigFrom(__DIR__ . "/../config/repository.php", "repository");
+        $this->mergeConfigFrom(__DIR__.'/../config/repository.php', 'repository');
 
         $this->packageRegistered();
 
@@ -52,6 +53,7 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasCommand(CreatePivotTable::class)
             ->hasCommand(MakeController::class)
+            ->hasCommand(MakeResource::class)
             ->hasCommand(MakeModel::class)
             ->hasCommand(MakeMigration::class)
             ->hasCommand(MakeFactory::class)

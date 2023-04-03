@@ -4,9 +4,9 @@ namespace Cubeta\CubetaStarter\Commands;
 
 use Carbon\Carbon;
 use Cubeta\CubetaStarter\CreateFile;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 
 class MakeMigration extends Command
 {
@@ -20,32 +20,30 @@ class MakeMigration extends Command
 
     /**
      * Handle the command
-     *
-     * @return void
      */
     public function handle(): void
     {
-        $modelName = $this->argument("name");
-        $attributes = $this->argument("attributes");
+        $modelName = $this->argument('name');
+        $attributes = $this->argument('attributes');
 
-        $this->createMigration($modelName,$attributes);
+        $this->createMigration($modelName, $attributes);
     }
 
-    private function createMigration($modelName , array $attributes){
-
+    private function createMigration($modelName, array $attributes)
+    {
         $migrationName = $this->getMigrationName($modelName);
 
         $tableName = Str::plural(strtolower($modelName));
 
         $stubProperties = [
-            "{table}" => $tableName,
-            "{col}" => $this->generateCols($attributes),
+            '{table}' => $tableName,
+            '{col}' => $this->generateCols($attributes),
         ];
 
         new CreateFile(
             $stubProperties,
             $this->getMigrationsPath($migrationName),
-            __DIR__ . "/stubs/migration.stub"
+            __DIR__.'/stubs/migration.stub'
         );
         $this->line("<info>Created migration:</info> $migrationName");
     }
@@ -53,24 +51,27 @@ class MakeMigration extends Command
     private function getMigrationName($modelName): string
     {
         $date = Carbon::now()->format('Y_m_d_').time();
-        return $date . '_create_'. Str::plural(strtolower($modelName)) .'_table';
+
+        return $date.'_create_'.Str::plural(strtolower($modelName)).'_table';
     }
 
     private function generateCols(array $attributes): string
     {
         $columns = '';
         foreach ($attributes as $name => $type) {
-            if($type == 'key')
+            if ($type == 'key') {
                 $columns .= "\t\t\t\$table->foreignId('$name')->constrained()->onDelete('cascade'); \n";
-            else
-                $columns .= "\t\t\t\$table->".($type=='file'?'string':$type)."('$name')".($type=='file'?"->nullable()":'')."; \n";
+            } else {
+                $columns .= "\t\t\t\$table->".($type == 'file' ? 'string' : $type)."('$name')".($type == 'file' ? '->nullable()' : '')."; \n";
+            }
         }
+
         return $columns;
     }
 
     private function getMigrationsPath($migrationName): string
     {
-        return $this->appDatabasePath() . "/migrations" .
-            "/$migrationName" . ".php";
+        return $this->appDatabasePath().'/migrations'.
+            "/$migrationName".'.php';
     }
 }

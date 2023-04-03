@@ -2,14 +2,14 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\CommandTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Str;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Cubeta\CubetaStarter\CreateFile;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ArrayShape;
 
 class MakeModel extends Command
@@ -21,19 +21,17 @@ class MakeModel extends Command
         {option? : string to generate a single file (migration,request,resource,factory,seeder,controller-api,controller-base,repository,service)}';
 
     /**
-     * @var string $description
+     * @var string
      */
     public $description = 'Create a new model class';
 
     /**
      * model properties type
-     * @var string[] $types
+     *
+     * @var string[]
      */
     private array $types;
 
-    /**
-     * @var string
-     */
     private string $containerType;
 
     public function __construct()
@@ -57,21 +55,23 @@ class MakeModel extends Command
             'timestamp',
             'file',
             'key',
-            RelationsTypeEnum::ManyToMany
+            RelationsTypeEnum::ManyToMany,
         ];
     }
 
     /**
      * @return false|void
+     *
      * @throws BindingResolutionException
      */
     public function handle()
     {
-        $name = $this->argument("name");
+        $name = $this->argument('name');
         $option = $this->argument('option');
 
-        if (!$name) {
+        if (! $name) {
             $this->error('Please specify a valid model');
+
             return false;
         }
 
@@ -102,24 +102,25 @@ class MakeModel extends Command
 
         //call to command base on the option flag
         $result = match ($option) {
-            'migration' => $this->call('create:migration', ["name" => $name, 'attributes' => $fixedAttributes]),
-//            'request' => $this->call('create:request', ["name" => $name, 'attributes' => $fixedAttributes]),
-//            'resource' => $this->call('create:resource', ["name" => $name, 'attributes' => $attributes]),
+            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $fixedAttributes]),
+            'controller' => $this->call('create:controller', ['name' => $name]) ,
+            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $fixedAttributes]),
+            'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes]),
 //            'factory' => $this->call('create:factory', ["name" => $name, 'attributes' => $fixedAttributes]),
 //            'seeder' => $this->call('create:seeder', ["name" => $name]),
 //            'controller-api' => $this->call('create:controller --api', ["name" => $name, 'attributes' => $attributes]),
 //            'controller-base' => $this->call('create:controller --base', ["name" => $name, 'attributes' => $attributes]),
 //            'repository' => $this->call('create:repository', ["name" => $name]),
 //            'service' => $this->call('create:service', ["name" => $name]),
-            '', null => "all",
+            '', null => 'all',
         };
-        if ($result === "all") {
-            $this->call('create:migration', ["name" => $name, 'attributes' => $fixedAttributes]);
+        if ($result === 'all') {
+            $this->call('create:migration', ['name' => $name, 'attributes' => $fixedAttributes]);
 //            $this->call('create:factory', ["name" => $name, 'attributes' => $fixedAttributes]);
 //            $this->call('create:seeder', ["name" => $name]);
-//            $this->call('create:request', ["name" => $name, 'attributes' => $fixedAttributes]);
-//            $this->call('create:resource', ["name" => $name, 'attributes' => $attributes]);
-//            $this->call('create:controller', ["name" => $name, 'attributes' => $attributes]);
+            $this->call('create:request', ['name' => $name, 'attributes' => $fixedAttributes]);
+            $this->call('create:resource', ['name' => $name, 'attributes' => $attributes]);
+            $this->call('create:controller', ['name' => $name]);
 //            $this->call('create:controller --base', ["name" => $name, 'attributes' => $attributes]);
 //            $this->call('create:repository', ["name" => $name]);
 //            $this->call('create:service', ["name" => $name]);
@@ -130,8 +131,6 @@ class MakeModel extends Command
 
     /**
      * convert an array of attributes to array with attributes and their types
-     * @param $fields
-     * @return array
      */
     private function convertToArrayOfAttributes($fields): array
     {
@@ -145,13 +144,12 @@ class MakeModel extends Command
             );
             $fieldsWithDataType[$field] = $type;
         }
+
         return $fieldsWithDataType;
     }
 
     /**
      * this function checking the existence of foreign keys
-     * @param $attributes
-     * @return array
      */
     private function checkForeignKeyExists($attributes): array
     {
@@ -168,50 +166,48 @@ class MakeModel extends Command
 
     /**
      * Create the service
-     * @param string $className
-     * @param array $attributes
-     * @return void
+     *
      * @throws BindingResolutionException
      */
     public function createModel(string $className, array $attributes): void
     {
         $namespace = $this->getNameSpace();
 
-        $imagesAttribute = $this->getModelImage($attributes , $className) ;
+        $imagesAttribute = $this->getModelImage($attributes, $className);
 
         $stubProperties = [
-            "{namespace}" => $namespace,
-            "{modelName}" => $className,
-            "{properties}" => $this->getModelProperty($attributes),
-            "{images}" => $imagesAttribute['appends'] ,
-            "{imageAttribute}" => $imagesAttribute['image'],
-            "{relations}" => $this->getModelRelation($attributes),
-            "{scopes}" => $this->boolValuesScope($attributes),
+            '{namespace}' => $namespace,
+            '{modelName}' => $className,
+            '{properties}' => $this->getModelProperty($attributes),
+            '{images}' => $imagesAttribute['appends'],
+            '{imageAttribute}' => $imagesAttribute['image'],
+            '{relations}' => $this->getModelRelation($attributes),
+            '{scopes}' => $this->boolValuesScope($attributes),
         ];
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
-        if (!file_exists($folder)) {
+        if (! file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
         // create file
         new CreateFile(
             $stubProperties,
             $this->getModelPath($className),
-            __DIR__ . "/stubs/model.stub"
+            __DIR__.'/stubs/model.stub'
         );
         $this->line("<info>Created model:</info> $className");
     }
 
     private function getModelRelation($attributes): string
     {
-        $relationsFunctions = "";
+        $relationsFunctions = '';
         $foreignKeys = $this->checkForeignKeyExists($attributes);
         foreach ($foreignKeys as $name => $type) {
             $relationName = $type == RelationsTypeEnum::HasMany ? Str::plural($name) : $name;
-            $relationsFunctions .= "
-            public function " . $relationName . "():" . (($type == RelationsTypeEnum::HasMany) ? "HasMany" : "HasOne") .
-                "{
-                return \$this->" . $type . "(" . ucfirst($name) . "::class);
+            $relationsFunctions .= '
+            public function '.$relationName.'():'.(($type == RelationsTypeEnum::HasMany) ? 'HasMany' : 'HasOne').
+                '{
+                return $this->'.$type.'('.ucfirst($name)."::class);
              }\n";
         }
 
@@ -219,12 +215,13 @@ class MakeModel extends Command
 
         foreach ($manyToManyRelations as $rel) {
             $relationName = $rel;
-            $relationsFunctions .= "
-            public function " . $relationName . "() : BelongsToMany
+            $relationsFunctions .= '
+            public function '.$relationName.'() : BelongsToMany
             {
-                return \$this->belongsToMany(" . ucfirst(Str::singular($relationName)) . "::class);
+                return $this->belongsToMany('.ucfirst(Str::singular($relationName))."::class);
             }\n";
         }
+
         return $relationsFunctions;
     }
 
@@ -233,81 +230,79 @@ class MakeModel extends Command
         $properties = "/**  \n";
         foreach ($attributes as $name => $type) {
             if ($type == RelationsTypeEnum::ManyToMany) {
-                $properties .= "* @property BelongsToMany " . $name . "\n";
-            } else  $properties .= "* @property $type $name \n";
+                $properties .= '* @property BelongsToMany '.$name."\n";
+            } else {
+                $properties .= "* @property $type $name \n";
+            }
         }
         $properties .= "*/ \n";
+
         return $properties;
     }
 
     /**
-     * @param $attributes
-     * @param $modelName
      * @return string[]
+     *
      * @throws BindingResolutionException
      */
-    #[ArrayShape(['image' => "string", 'appends' => "string"])]
+    #[ArrayShape(['image' => 'string', 'appends' => 'string'])]
     private function getModelImage($attributes, $modelName): array
     {
-        $image = "";
+        $image = '';
         $columnsNames = array_keys($attributes, 'file');
-        $appends = '' ;
+        $appends = '';
         foreach ($columnsNames as $colName) {
             $image .=
-                "public function get" . ucfirst(Str::camel(Str::studly($colName))) . "Attribute()
+                'public function get'.ucfirst(Str::camel(Str::studly($colName)))."Attribute()
                 {
                     return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
                 }\n";
 
-            $appends = "'$colName'," ;
-            $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
+            $appends = "'$colName',";
+            $this->ensureDirectoryExists(storage_path('app/public/'.Str::lower($modelName).'/'.Str::plural($colName)));
         }
-        return ['image' => $image , 'appends' => $appends];
+
+        return ['image' => $image, 'appends' => $appends];
     }
 
     /**
      * Get service path
-     *
-     * @param $className
-     * @return string
      */
     private function getModelPath($className): string
     {
-        return $this->appPath() . "/" .
-            config("repository.model_directory") .
-            "/$className" . ".php";
+        return $this->appPath().'/'.
+            config('repository.model_directory').
+            "/$className".'.php';
     }
 
     /**
      * Check to make sure if all required directories are available
      *
-     * @return void
      * @throws BindingResolutionException
      */
     private function checkIfRequiredDirectoriesExist(): void
     {
-        $this->ensureDirectoryExists(config("repository.model_directory"));
+        $this->ensureDirectoryExists(config('repository.model_directory'));
     }
 
     /**
      * get namespace
-     * @return string
      */
     private function getNameSpace(): string
     {
-        return config("repository.model_namespace");
+        return config('repository.model_namespace');
     }
 
     public function boolValuesScope($attributes): string
     {
         $booleans = array_keys($attributes, 'boolean');
 
-        $scopes = "";
+        $scopes = '';
 
         foreach ($booleans as $boolCol) {
-            $scopes .= "public function scope" . ucfirst(Str::studly($boolCol)) . "(\$query)
+            $scopes .= 'public function scope'.ucfirst(Str::studly($boolCol))."(\$query)
             {
-                return \$query->where('" . $boolCol . "' , 1);
+                return \$query->where('".$boolCol."' , 1);
             } \n";
         }
 

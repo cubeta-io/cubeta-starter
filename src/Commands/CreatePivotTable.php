@@ -6,13 +6,12 @@ use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Str;
 use Illuminate\Filesystem\Filesystem;
-
+use Illuminate\Support\Str;
 
 class CreatePivotTable extends Command
 {
-    use AssistCommand ;
+    use AssistCommand;
 
     protected $signature = 'create:pivot {table1} {table2}';
 
@@ -26,9 +25,9 @@ class CreatePivotTable extends Command
         $table1 = $this->argument('table1');
         $table2 = $this->argument('table2');
 
-        $pivotTableName = Str::singular($table1) . '_' . $table2;
+        $pivotTableName = Str::singular($table1).'_'.$table2;
 
-        $this->info('Creating migration for pivot table ' . $pivotTableName);
+        $this->info('Creating migration for pivot table '.$pivotTableName);
 
         $this->createMigration($table1, $table2, $pivotTableName);
 
@@ -41,24 +40,24 @@ class CreatePivotTable extends Command
      */
     protected function createMigration($table1, $table2, $pivotTableName)
     {
-        $migrationName = 'create_' . $pivotTableName . '_table';
+        $migrationName = 'create_'.$pivotTableName.'_table';
 
-        $migrationPath = database_path('migrations/' . date('Y_m_d_His', time()) . '_' . $migrationName . '.php');
+        $migrationPath = database_path('migrations/'.date('Y_m_d_His', time()).'_'.$migrationName.'.php');
 
-        $stub = file_get_contents(__DIR__ . '/stubs/pivot-migration.stub');
+        $stub = file_get_contents(__DIR__.'/stubs/pivot-migration.stub');
 
-        $className1 = ucfirst(Str::singular($table1)) ;
-        $className2 = ucfirst(Str::singular($table2)) ;
+        $className1 = ucfirst(Str::singular($table1));
+        $className2 = ucfirst(Str::singular($table2));
 
         $files = app()->make(Filesystem::class);
 
-        if($files->exists($migrationPath)){
-            new Exception("The Pivot Table Migration For ".$className1 ."And ".$className2 ."  Exists");
+        if ($files->exists($migrationPath)) {
+            new Exception('The Pivot Table Migration For '.$className1.'And '.$className2.'  Exists');
         }
 
         $stub = str_replace(
-            ['{pivotTableName}' , '{className1}' , '{className2}'],
-            [$pivotTableName , $className1 , $className2],
+            ['{pivotTableName}', '{className1}', '{className2}'],
+            [$pivotTableName, $className1, $className2],
             $stub
         );
 

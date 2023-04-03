@@ -1,48 +1,69 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API\v1;
 
-use App\Http\Requests\{class}Request;
-use Illuminate\Http\Request;
-use App\Models\{class};
-use App\Http\Resources\{class}Resource;
-{namespace}
+use App\Http\Requests\{modelName}Requests\StoreUpdate{modelName}Request;
+use App\Http\Resources\{modelName}Resource;
+use cubeta\CubetaStarter\Contracts\ApiController;
+use App\Services\{modelName}\I{modelName}Service;
 
-class {class}Controller extends ApiController{
-    {traits}
-    private $mainService;
-    public function __construct(UserService $mainService) {
-        $this->mainService = $mainService;
+class {modelName}Controller extends ApiController{
+
+    private ${modelNameLower}Service;
+
+    public function __construct(I{modelName}Service ${modelNameLower}Service) {
+
+        $this->{modelNameLower}Service = ${modelNameLower}Service;
+
     }
 
-    public function index(Request $request){
-        return $this->mainService->all([]);
-    }
-
-    public function show(Request $request , $id){
-        return $this->mainService->find($id,[]);
-    }
-
-    public function store(StoreUserRequest $request ){
-        return $this->mainService->create($request->validated(),['image']);
-    }
-
-    public function update(UpdateUserRequest $request ,$id ){
-        return $this->mainService->update($id,$request->validated(),['image']);
-    }
-
-    public function destroy( $id ){
-        return $this->mainService->delete($id);
-    }
-
-    public function delete_multi( DestroyMultiUserRequest $request ){
-        return $this->mainService->destroy($request['ids']);
-    }
-    public function deleteImage($id,{{class}}DeleteImageRequest $request)
+     public function index()
     {
-        $model={{class}}::find($id);
-        $this->deleteFile($model->column);
-        return $this->apiResponse(null, ApiController::STATUS_OK, __('site.data_have_been_retrieved_successfully'));
+        $items = $this->{modelNameLower}Service->indexWithPagination([]);
+        if ($items) {
+            return $this->apiResponse({modelName}Resource::collection($items['data']), self::STATUS_OK, __('site.get_successfully'), $items['pagination_data']);
+        }
+
+        return $this->apiResponse([], self::STATUS_OK, __('site.there_is_no_data'));
     }
-    // add new function
+
+    public function show(${modelNameLower}_id)
+    {
+        $item = $this->{modelNameLower}Service->view(${modelNameLower}_id, []);
+        if ($item) {
+            return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.get_successfully'));
+        }
+
+        return $this->apiResponse(null, self::STATUS_OK, __('site.there_is_no_data'));
+    }
+
+    public function store(StoreUpdate{modelName}Request $request)
+    {
+        $item = $this->{modelNameLower}Service->store($request->validated());
+        if ($item) {
+            return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.created_successfully'));
+        }
+
+        return $this->apiResponse(null, self::STATUS_OK, __('site.there_is_no_data'));
+    }
+
+    public function update(${modelNameLower}_id, StoreUpdate{modelName}Request $request)
+    {
+        $item = $this->{modelNameLower}Service->update($request->validated(), ${modelNameLower}_id);
+        if ($item) {
+            return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.updated_successfully'));
+        }
+
+        return $this->apiResponse(null, self::STATUS_OK, __('site.there_is_no_data'));
+    }
+
+    public function destroy(${modelNameLower}_id)
+    {
+        $item = $this->{modelNameLower}Service->delete(${modelNameLower}_id);
+        if ($item) {
+            return $this->apiResponse(true, self::STATUS_OK, __('site.delete_successfully'));
+        }
+
+        return $this->apiResponse(false, self::STATUS_OK, __('site.there_is_no_data'));
+    }
 }

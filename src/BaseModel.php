@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Cubeta\CubetaStarter;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +11,8 @@ class BaseModel extends Model
 
     protected $guarded = ['id'];
 
-    public function files_keys(){
+    public function files_keys()
+    {
         return [];
     }
 }

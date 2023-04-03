@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter;
 
-
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
@@ -50,12 +49,12 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         $repositoryInterfaces = $this->getRepositoryInterfaces();
         foreach ($repositoryInterfaces as $key => $repositoryInterface) {
-            $className = str_replace(config("repository.repository_interface_suffix"), "", $repositoryInterface);
+            $className = str_replace(config('repository.repository_interface_suffix'), '', $repositoryInterface);
             $repositoryName = $this->getRepositoryFileName($className);
             $repositories = $this->getRepositoryFiles();
             if ($repositories->contains($repositoryName)) {
-                $repositoryInterface = $this->getRepositoryInterfaceNamespace() . $repositoryInterface;
-                $repository = $this->getRepositoryNamespace() . "\\" . $repositoryName;
+                $repositoryInterface = $this->getRepositoryInterfaceNamespace().$repositoryInterface;
+                $repository = $this->getRepositoryNamespace().'\\'.$repositoryName;
                 $this->app->bind($repositoryInterface, $repository);
             }
         }
@@ -75,7 +74,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $files = $this->files->files($directory);
         if (is_array($files)) {
             $interfaces = collect($files)->map(function (SplFileInfo $file) {
-                return str_replace(".php", "", $file->getFilename());
+                return str_replace('.php', '', $file->getFilename());
             });
         }
 
@@ -89,9 +88,9 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     private function getRepositoryInterfacesPath()
     {
-        return $this->app->basePath() .
-            "/" . config("repository.repository_directory") .
-            "/Interfaces";
+        return $this->app->basePath().
+            '/'.config('repository.repository_directory').
+            '/Interfaces';
     }
 
     /**
@@ -101,9 +100,9 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     private function getRepositoryCurrentImplementationPath()
     {
-        return $this->app->basePath() .
-            "/" . config("repository.repository_directory") .
-            "/" . config("repository.current_repository_implementation");
+        return $this->app->basePath().
+            '/'.config('repository.repository_directory').
+            '/'.config('repository.current_repository_implementation');
     }
 
     /**
@@ -113,7 +112,7 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     private function getRepositoryInterfaceNamespace()
     {
-        return config("repository.repository_namespace") . "\Interfaces\\";
+        return config('repository.repository_namespace')."\Interfaces\\";
     }
 
     /**
@@ -123,8 +122,8 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     private function getRepositoryNamespace()
     {
-        return config("repository.repository_namespace") .
-            "\\" . config("repository.current_repository_implementation");
+        return config('repository.repository_namespace').
+            '\\'.config('repository.current_repository_implementation');
     }
 
     /**
@@ -134,7 +133,7 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     private function getRepositoryFileName($className)
     {
-        return $className . config("repository.repository_suffix");
+        return $className.config('repository.repository_suffix');
     }
 
     /**
@@ -151,7 +150,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $files = $this->files->files($repositoryDirectory);
         if (is_array($files)) {
             $repositories = collect($files)->map(function (SplFileInfo $file) {
-                return str_replace(".php", "", $file->getFilename());
+                return str_replace('.php', '', $file->getFilename());
             });
         }
 
@@ -165,7 +164,7 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     private function isConfigPublished()
     {
-        $path = config_path("repository.php");
+        $path = config_path('repository.php');
         $exists = file_exists($path);
 
         return $exists;

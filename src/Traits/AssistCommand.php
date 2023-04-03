@@ -16,6 +16,7 @@ trait AssistCommand
     {
         return app()->basePath();
     }
+
     /**
      * Get the database path
      *
@@ -29,8 +30,8 @@ trait AssistCommand
     /**
      * Ensure a directory exists.
      *
-     * @param string $path
-     * @return void
+     * @param  string  $path
+     *
      * @throws BindingResolutionException
      */
     public function ensureDirectoryExists($path): void

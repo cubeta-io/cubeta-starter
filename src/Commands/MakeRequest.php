@@ -3,8 +3,9 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\CreateFile;
-use Illuminate\Console\Command;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Illuminate\Console\Command;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 
 class MakeRequest extends Command
@@ -20,70 +21,106 @@ class MakeRequest extends Command
     /**
      * Handle the command
      *
-     * @return void
+     * @throws BindingResolutionException
      */
-    public function handle()
+    public function handle(): void
     {
-        $modelName = $this->argument("name");
-        $attributes = $this->argument("attributes");
+        $modelName = $this->argument('name');
+        $attributes = $this->argument('attributes');
 
-        $this->createRequest($modelName,$attributes);
+        $this->createRequest($modelName, $attributes);
     }
 
-    private function createRequest($modelName,$attributes){
-
+    /**
+     * @throws BindingResolutionException
+     */
+    private function createRequest($modelName, $attributes)
+    {
         $requestName = $this->getRequestName($modelName);
 
         $stubProperties = [
-            "{class}" => $modelName ,
-            "{rules}" => $this->generateCols($attributes) ,
+            '{class}' => $requestName,
+            '{rules}' => $this->generateCols($attributes),
         ];
 
         new CreateFile(
             $stubProperties,
-            $this->getRequestPath($requestName,$modelName),
-            __DIR__ . "/stubs/request.stub"
+            $this->getRequestPath($requestName, $modelName),
+            __DIR__.'/stubs/request.stub'
         );
         $this->line("<info>Created request:</info> {$requestName}");
     }
 
-    private function getRequestName($modelName){
-        return $modelName."Request";
+    private function getRequestName($modelName): string
+    {
+        return 'StoreUpdate'.$modelName.'Request';
     }
 
-    private function generateCols($attributes){
-        $rules = "";
-        foreach ($attributes as $name => $type){
-            if(Str::endsWith($name,'_at')){
-                $rules .= "\t\t\t'$name' => 'required|date',\n";
+    private function generateCols($attributes): string
+    {
+        $rules = '';
+        foreach ($attributes as $name => $type) {
+            if ($name == 'name' || $name == 'first_name' || $name == 'last_name') {
+                $rules .= "\t\t\t'$name'        =>      'required|string|max:255',\n";
+
                 continue;
             }
-            if(Str::startsWith($name,'is_')){
-                $rules .= "\t\t\t'$name' => 'required|boolean',\n";
+
+            if ($name == 'email') {
+                $rules .= "\t\t\t'$name'        =>      'required|string|max:255|email',\n";
+
                 continue;
             }
-            if(Str::endsWith($name,"_id")){
-                $relationModel = str_replace("_id","",$name);
+
+            if ($name == 'password') {
+                $rules .= "\t\t\t'$name'        =>      'required|string|max:255|min:6|confirmed',\n";
+
+                continue;
+            }
+
+            if ($name == 'phone' || $name == 'phone_number' || $name == 'number') {
+                $rules .= "\t\t\t'$name'        =>      'required|string|max:255|min:6',\n";
+
+                continue;
+            }
+
+            if (Str::endsWith($name, '_at')) {
+                $rules .= "\t\t\t'$name'        =>      'required|date',\n";
+
+                continue;
+            }
+            if (Str::startsWith($name, 'is_')) {
+                $rules .= "\t\t\t'$name'        =>      'required|boolean',\n";
+
+                continue;
+            }
+            if (Str::endsWith($name, '_id')) {
+                $relationModel = str_replace('_id', '', $name);
                 $relationModelPluralName = Str::plural(strtolower($relationModel));
-                $rules .= "\t\t\t'$name' => 'required|integer|exists:$relationModelPluralName,id',\n";
+                $rules .= "\t\t\t'$name'        =>      'required|integer|exists:$relationModelPluralName,id',\n";
+
                 continue;
             }
-            if($type == "file"){
+            if ($type == 'file') {
                 $rules .= "\t\t\t'$name'=>'nullable|image|mimes:jpeg,png,jpg|max:2048',\n";
+
                 continue;
             }
-            $rules .= "\t\t\t'$name' => 'required|$type',\n";
+            $rules .= "\t\t\t'$name'        =>      'required|$type',\n";
         }
+
         return $rules;
     }
 
-    private function getRequestPath($requestName,$modelName)
+    /**
+     * @throws BindingResolutionException
+     */
+    private function getRequestPath($requestName, $modelName): string
     {
-        $path = $this->appPath() . "/app/Http/Requests/$modelName/";
+        $path = $this->appPath()."/app/Http/Requests/$modelName/";
 
         $this->ensureDirectoryExists($path);
 
-        return  $path . "$requestName" . ".php";
-
+        return  $path."$requestName".'.php';
     }
 }

@@ -2,11 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\CreateFile;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
+use File;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Cubeta\CubetaStarter\CreateFile;
-use File;
 
 class MakeService extends Command
 {
@@ -19,7 +19,7 @@ class MakeService extends Command
 
     public function handle()
     {
-        $name = str_replace(config("repository.service_suffix"), "", $this->argument("name"));
+        $name = str_replace(config('repository.service_suffix'), '', $this->argument('name'));
         $className = Str::studly($name);
 
         $this->checkIfRequiredDirectoriesExist();
@@ -30,30 +30,29 @@ class MakeService extends Command
     /**
      * Create the service
      *
-     * @param string $className
      * @return void
      */
     public function createService(string $className)
     {
         $nameOfService = $this->getServiceName($className);
-        $serviceName = $nameOfService . config("repository.service_suffix");
+        $serviceName = $nameOfService.config('repository.service_suffix');
         $namespace = $this->getNameSpace($className);
         $stubProperties = [
-            "{namespace}" => $namespace,
-            "{serviceName}" => $serviceName,
-            "{repositoryInterface}" => $this->getRepositoryInterfaceName($nameOfService),
-            "{repositoryInterfaceNamespace}" => $this->getRepositoryInterfaceNamespace($nameOfService),
+            '{namespace}' => $namespace,
+            '{serviceName}' => $serviceName,
+            '{repositoryInterface}' => $this->getRepositoryInterfaceName($nameOfService),
+            '{repositoryInterfaceNamespace}' => $this->getRepositoryInterfaceNamespace($nameOfService),
         ];
         // check folder exist
-        $folder = str_replace('\\','/', $namespace);
-        if (!file_exists($folder)) {
+        $folder = str_replace('\\', '/', $namespace);
+        if (! file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
         // create file
         new CreateFile(
             $stubProperties,
             $this->getServicePath($className),
-            __DIR__ . "/stubs/service.stub"
+            __DIR__.'/stubs/service.stub'
         );
         $this->line("<info>Created service:</info> {$serviceName}");
     }
@@ -65,9 +64,9 @@ class MakeService extends Command
      */
     private function getServicePath($className)
     {
-        return $this->appPath() . "/" .
-            config("repository.service_directory") .
-            "/$className" . "Service.php";
+        return $this->appPath().'/'.
+            config('repository.service_directory').
+            "/$className".'Service.php';
     }
 
     /**
@@ -77,7 +76,7 @@ class MakeService extends Command
      */
     private function getRepositoryInterfaceNamespace(string $className)
     {
-        return config("repository.repository_namespace") . "\Interfaces";
+        return config('repository.repository_namespace')."\Interfaces";
     }
 
     /**
@@ -87,7 +86,7 @@ class MakeService extends Command
      */
     private function getRepositoryInterfaceName(string $className)
     {
-        return $className . "RepositoryInterface";
+        return $className.'RepositoryInterface';
     }
 
     /**
@@ -97,34 +96,34 @@ class MakeService extends Command
      */
     private function checkIfRequiredDirectoriesExist()
     {
-        $this->ensureDirectoryExists(config("repository.service_directory"));
+        $this->ensureDirectoryExists(config('repository.service_directory'));
     }
 
     /**
      * get service name
-     * @param $className
-     * @return string
      */
-    private function getServiceName($className):string {
+    private function getServiceName($className): string
+    {
         $explode = explode('/', $className);
+
         return $explode[array_key_last($explode)];
     }
 
     /**
      * get namespace
-     * @param $className
-     * @return string
      */
-    private function getNameSpace($className):string {
+    private function getNameSpace($className): string
+    {
         $explode = explode('/', $className);
         if (count($explode) > 1) {
             $namespace = '';
-            for($i=0; $i < count($explode)-1; $i++) {
+            for ($i = 0; $i < count($explode) - 1; $i++) {
                 $namespace .= '\\'.$explode[$i];
             }
-            return config("repository.service_namespace").$namespace;
+
+            return config('repository.service_namespace').$namespace;
         } else {
-            return config("repository.service_namespace");
+            return config('repository.service_namespace');
         }
     }
 }
