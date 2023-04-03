@@ -79,8 +79,6 @@ class MakeModel extends Command
 
         $this->containerType = $this->choice('What Is Container Type ?', [CommandTypeEnum::API, CommandTypeEnum::WEB, CommandTypeEnum::BOTH], 0);
 
-        $this->checkForeignKeyExists($attributes);
-
         $className = Str::studly($name);
 
         $this->checkIfRequiredDirectoriesExist();
@@ -111,7 +109,7 @@ class MakeModel extends Command
 //            'controller-base' => $this->call('create:controller --base', ["name" => $name, 'attributes' => $attributes]),
 //            'repository' => $this->call('create:repository', ["name" => $name]),
 //            'service' => $this->call('create:service', ["name" => $name]),
-//            '', null => "all",
+            '', null => "all",
         };
         if ($result === "all") {
             $this->call('create:migration', ["name" => $name, 'attributes' => $fixedAttributes]);
@@ -156,7 +154,7 @@ class MakeModel extends Command
     private function checkForeignKeyExists($attributes): array
     {
         $results = [];
-        $attributes = array_keys($attributes, ['key']);
+        $attributes = array_keys($attributes, 'key');
         foreach ($attributes as $col) {
             $this->line("================ $col Is Foreign Key !!! ====================");
             $result = $this->choice("What type of relationship does the $col column indicate ?", ['One To One', 'One To Many']);
@@ -203,13 +201,14 @@ class MakeModel extends Command
     private function getModelRelation($attributes): string
     {
         $relations_functions = "";
-        $foreign_keys = array_keys($attributes, 'key');
+        $foreign_keys = $this->checkForeignKeyExists($attributes);
         foreach ($foreign_keys as $name => $type) {
             $relationName = $type == 'hasMany' ? Str::plural($name) : $name;
             $relations_functions .= "
-            public function " . $relationName . "(){
+            public function " . $relationName . "():". (($type == 'hasMany') ? "\Illuminate\Database\Eloquent\Relations\HasMany" : "\Illuminate\Database\Eloquent\Relations\HasOne").
+            "{
                 return \$this->" . $type . "(" . ucfirst($name) . "::class);
-            }\n";
+             }\n";
         }
 
         $manyToManyRelations = array_keys($attributes, 'manyToMany');
@@ -217,7 +216,8 @@ class MakeModel extends Command
         foreach ($manyToManyRelations as $rel) {
             $relationName = $rel;
             $relations_functions .= "
-            public function " . $relationName . "(){
+            public function " . $relationName . "() : \Illuminate\Database\Eloquent\Relations\BelongsToMany
+            {
                 return \$this->belongsToMany(" . ucfirst(Str::singular($relationName)) . "::class);
             }\n";
         }

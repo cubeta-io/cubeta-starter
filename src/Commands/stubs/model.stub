@@ -9,7 +9,8 @@ class {modelName} extends BaseModel {
 
 {relations}
 
-    public function files_keys(){
+    public function files_keys() : array
+    {
         return [
             //files_keys
         ];

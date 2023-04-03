@@ -23,7 +23,7 @@ class MakeMigration extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $modelName = $this->argument("name");
         $attributes = $this->argument("attributes");
@@ -35,12 +35,9 @@ class MakeMigration extends Command
 
         $migrationName = $this->getMigrationName($modelName);
 
-        $className = 'Create'.ucfirst($modelName).'Table';
-
         $tableName = Str::plural(strtolower($modelName));
 
         $stubProperties = [
-            "{class}" => $className,
             "{table}" => $tableName,
             "{col}" => $this->generateCols($attributes),
         ];
@@ -50,26 +47,28 @@ class MakeMigration extends Command
             $this->getMigrationsPath($migrationName),
             __DIR__ . "/stubs/migration.stub"
         );
-        $this->line("<info>Created migration:</info> {$migrationName}");
+        $this->line("<info>Created migration:</info> $migrationName");
     }
 
-    private function getMigrationName($modelName){
+    private function getMigrationName($modelName): string
+    {
         $date = Carbon::now()->format('Y_m_d_').time();
-        return $date . '_create_'. strtolower($modelName) .'_table';
+        return $date . '_create_'. Str::plural(strtolower($modelName)) .'_table';
     }
 
-    private function generateCols(array $attributes){
+    private function generateCols(array $attributes): string
+    {
         $columns = '';
         foreach ($attributes as $name => $type) {
             if($type == 'key')
-                $columns .= "\t\t\t\$table->foreignId('{$name}')->constrained()->onDelete('cascade'); \n";
+                $columns .= "\t\t\t\$table->foreignId('$name')->constrained()->onDelete('cascade'); \n";
             else
-                $columns .= "\t\t\t\$table->".($type=='file'?'string':$type)."('{$name}')".($type=='file'?"->nullable()":'')."; \n";
+                $columns .= "\t\t\t\$table->".($type=='file'?'string':$type)."('$name')".($type=='file'?"->nullable()":'')."; \n";
         }
         return $columns;
     }
 
-    private function getMigrationsPath($migrationName)
+    private function getMigrationsPath($migrationName): string
     {
         return $this->appDatabasePath() . "/migrations" .
             "/$migrationName" . ".php";
