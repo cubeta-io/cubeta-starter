@@ -6,41 +6,43 @@ use App\Http\Resources\{modelName}Resource;
 use App\Models\{modelName};
 use Tests\TestCase;
 
-class BrandTest extends TestCase
+class {modelName}Test extends TestCase
 {
     protected $model = {modelName}::class;
 
     protected $resource = {modelName}Resource::class;
 
-    protected $userType = 'admin';
+    // put customer or admin
+    protected $userType = '';
 
-    protected $baseUrl = 'admin.v1.admin.brands.';
+    // the named route
+    protected $baseUrl = '';
 
-    public function test_admin_can_index_brands()
+    public function test_user_can_index_{modelName}s()
     {
         $this->requestPathHook($this->baseUrl.'index');
         $this->indexTest();
     }
 
-    public function test_admin_can_show_a_brand()
+    public function test_user_can_show_a_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'show');
         $this->showTest();
     }
 
-    public function test_admin_can_create_a_brand()
+    public function test_user_can_create_a_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'store');
         $this->storeTest();
     }
 
-    public function test_admin_can_update_brand()
+    public function test_user_can_update_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'update');
         $this->updateTest();
     }
 
-    public function test_admin_can_delete_a_brand()
+    public function test_user_can_delete_a_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'destroy');
         $this->deleteTest();

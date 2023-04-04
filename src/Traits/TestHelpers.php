@@ -67,7 +67,6 @@ trait TestHelpers
 
     public function setUp(): void
     {
-        parent::setUp();
         Artisan::call('db:seed RoleSeeder');
         $this->signIn($this->userType);
     }
