@@ -61,7 +61,7 @@ class MakeMigration extends Command
         $columns = '';
         foreach ($attributes as $name => $type) {
             if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
-                $modelName = ucfirst(Str::singular(str_replace('_id' , '' , $name))) ;
+                $modelName = ucfirst(Str::singular(str_replace('_id', '', $name)));
                 $columns .= "\t\t\t\$table->foreignIdFor(App\Models\\$modelName::class)->constrained()->cascadeOnDelete(); \n";
             } else {
                 $columns .= "\t\t\t\$table->".($type == 'file' ? 'string' : $type)."('$name')".($type == 'file' ? '->nullable()' : '')."; \n";

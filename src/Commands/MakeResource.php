@@ -66,7 +66,7 @@ class MakeResource extends Command
                 $relation = lcfirst(Str::singular(str_replace('_id', '', $name)));
                 $columns .= "'$relation'     =>  \$this->whenLoaded('$relation') , \n\t\t\t";
             } elseif ($value == RelationsTypeEnum::ManyToMany || $value == RelationsTypeEnum::HasMany) {
-                $relation = lcfirst(Str::plural($name)) ;
+                $relation = lcfirst(Str::plural($name));
                 $columns .= "'$relation'     =>  \$this->whenLoaded('$relation') , \n\t\t\t";
             } else {
                 $columns .= "'$name'         =>  \$this->$name,\n\t\t\t";

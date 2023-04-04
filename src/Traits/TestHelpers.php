@@ -43,7 +43,6 @@ trait TestHelpers
      *
      * @param  mixed  $data the data that  has to be converted
      * @param  bool  $multiple if you want to return an array of data
-     * @return array
      */
     public function convertResourceToArray(mixed $data, bool $multiple = false): array
     {
@@ -74,7 +73,7 @@ trait TestHelpers
     public function customer(): void
     {
         $customer = User::factory()->create();
-        $customer->assignRole('customer') ;
+        $customer->assignRole('customer');
         $this->be($customer);
         $this->user = $customer;
     }
@@ -82,7 +81,7 @@ trait TestHelpers
     public function admin(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin') ;
+        $admin->assignRole('admin');
         $this->be($admin);
         $this->user = $admin;
     }
@@ -100,10 +99,6 @@ trait TestHelpers
 
     /**
      * this function for login using email address and default password is 12345678
-     *
-     * @param  string  $email
-     * @param  string  $password
-     * @return void
      */
     public function login(string $email, string $password = '12345678'): void
     {

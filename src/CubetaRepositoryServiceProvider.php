@@ -62,8 +62,7 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeRequest::class)
             ->hasCommand(MakeRepository::class)
             ->hasCommand(MakeService::class)
-            ->hasCommand(MakeTest::class)
-        ;
+            ->hasCommand(MakeTest::class);
     }
 
     public function overrideCommands()

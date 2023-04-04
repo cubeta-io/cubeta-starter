@@ -74,13 +74,11 @@ class MakeFactory extends Command
                 continue;
             }
 
-            if(in_array($type , RelationsTypeEnum::ALL)){
-
-                if($type == RelationsTypeEnum::BelongsTo || $type == RelationsTypeEnum::HasOne){
-                    $relatedModel = ucfirst(Str::singular(str_replace('_id' , '' , $name))) ;
-                }
-                else {
-                    $relatedModel = ucfirst(Str::singular($name)) ;
+            if (in_array($type, RelationsTypeEnum::ALL)) {
+                if ($type == RelationsTypeEnum::BelongsTo || $type == RelationsTypeEnum::HasOne) {
+                    $relatedModel = ucfirst(Str::singular(str_replace('_id', '', $name)));
+                } else {
+                    $relatedModel = ucfirst(Str::singular($name));
                 }
 
                 $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";

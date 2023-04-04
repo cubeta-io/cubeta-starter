@@ -37,9 +37,6 @@ class CreateFile
     protected FileSystem $files;
 
     /**
-     * @param array $stubProperties
-     * @param string $path
-     * @param string $stubPath
      * @throws BindingResolutionException
      */
     public function __construct(array $stubProperties, string $path, string $stubPath)

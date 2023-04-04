@@ -19,22 +19,18 @@ class MakeRepository extends Command
 
     /**
      * Handle the command
-     *
-     * @return void
      */
     public function handle(): void
     {
-        $name = $this->argument('name') ;
+        $name = $this->argument('name');
 
-        $modelName = ucfirst(Str::singular($name)) ;
+        $modelName = ucfirst(Str::singular($name));
 
         $this->createRepository($modelName);
     }
 
     /**
      * Create repository
-     * @param $modelName
-     * @return void
      */
     private function createRepository($modelName): void
     {
@@ -65,9 +61,6 @@ class MakeRepository extends Command
 
     /**
      * Get repository path
-     *
-     * @param $repositoryName
-     * @return string
      */
     private function getRepositoryPath($repositoryName): string
     {

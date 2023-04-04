@@ -2,17 +2,15 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-
 use App\Models\User;
 
 trait MainTestCase
 {
-    use TestHelpers ;
+    use TestHelpers;
+
     /**
      * @param  array  $additionalFactoryData optional data to the factories
-     * @param  bool   $ownership determine if the action has to be on the authenticated user data
-     * @param  bool   $isDebug
-     * @return void
+     * @param  bool  $ownership determine if the action has to be on the authenticated user data
      */
     public function indexTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
     {
@@ -55,8 +53,6 @@ trait MainTestCase
     /**
      * @param  array  $additionalFactoryData optional data to the factories
      * @param  bool  $ownership determine if the action has to be on the authenticated user data
-     * @param  bool  $isDebug
-     * @return void
      */
     public function showTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
     {
@@ -97,8 +93,6 @@ trait MainTestCase
 
     /**
      * @param  array  $additionalAttributes optional data to the factories
-     * @param  bool  $isDebug
-     * @return void
      */
     public function storeTest(array $additionalAttributes = [], mixed $requestParams = null, bool $isDebug = false): void
     {
@@ -125,8 +119,6 @@ trait MainTestCase
      * @param  array  $attributes if you are trying to send a custom attributes to the update request send an array of it
      * @param  bool  $ownership determine if the action has to be on the authenticated user data
      * @param  bool  $replacing this var pointing to the case where the update endpoint creating a new record to the database
-     * @param  bool  $isDebug
-     * @return void
      */
     public function updateTest(array $additionalFactoryData = [], array $attributes = [], bool $ownership = false, bool $replacing = true, bool $isDebug = false): void
     {
@@ -176,8 +168,6 @@ trait MainTestCase
     /**
      * @param  array  $additionalFactoryData optional data to the factories
      * @param  bool  $ownership determine if the action has to be on the authenticated user data
-     * @param  bool  $isDebug
-     * @return void
      */
     public function deleteTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
     {

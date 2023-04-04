@@ -21,8 +21,6 @@ abstract class BaseRepository implements IBaseRepository
 
     /**
      * BaseRepository constructor.
-     *
-     * @param  Model  $model
      */
     public function __construct(Model $model)
     {
@@ -30,7 +28,6 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @param  array  $relationships
      * @return mixed
      */
     public function all(array $relationships = [])
@@ -41,7 +38,6 @@ abstract class BaseRepository implements IBaseRepository
     /**
      * paginated data
      *
-     * @param  array  $relationships
      * @param  int  $per_page
      * @return mixed
      */
@@ -74,7 +70,6 @@ abstract class BaseRepository implements IBaseRepository
     /**
      * make directory for files
      *
-     * @param $path
      * @return mixed
      */
     private function makeDirectory($path)
@@ -85,8 +80,6 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @param  array  $data
-     * @param  array  $relations
      * @return mixed
      */
     public function create(array $data, array $relations = [])
@@ -107,7 +100,6 @@ abstract class BaseRepository implements IBaseRepository
     /**
      * this function search in file columns name and return the name of the col
      *
-     * @param $data
      * @return int|string
      */
     private function fileColName($data)
@@ -124,8 +116,6 @@ abstract class BaseRepository implements IBaseRepository
     /**
      * store file in directory same as table name in the storage and return the image
      *
-     * @param $col_name
-     * @param $data
      * @param  bool  $is_store
      * @param  null  $item
      * @return string
@@ -158,10 +148,6 @@ abstract class BaseRepository implements IBaseRepository
     /**
      * this method connect the stored file with the model after saving it
      *
-     * @param $file
-     * @param $model
-     * @param $data
-     * @param $col_name
      * @return mixed
      */
     private function addFileToModel($file, $model, &$data, $col_name)
@@ -177,9 +163,7 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @param  array  $data
      * @param  int  $id
-     * @param  array  $relations
      * @return mixed
      */
     public function update(array $data, $id, array $relations = [])
@@ -202,7 +186,6 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @param $id
      * @return mixed
      */
     public function delete($id)
@@ -218,8 +201,6 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @param $id
-     * @param  array  $relationships
      * @return mixed
      */
     public function find($id, array $relationships = [])

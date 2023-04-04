@@ -19,34 +19,30 @@ class MakeService extends Command
 
     /**
      * Handle the command
-     *
-     * @return void
      */
     public function handle(): void
     {
-        $name = $this->argument('name') ;
+        $name = $this->argument('name');
 
-        $modelName = ucfirst(Str::singular($name)) ;
+        $modelName = ucfirst(Str::singular($name));
 
         $this->createService($modelName);
-        $this->createServiceInterface($modelName) ;
+        $this->createServiceInterface($modelName);
     }
 
     /**
      * Create Service
-     * @param $modelName
-     * @return void
      */
     private function createService($modelName): void
     {
-        $namespace = $this->getNameSpace()."\\$modelName" ;
+        $namespace = $this->getNameSpace()."\\$modelName";
 
         $repositoryName = $modelName.'Repository';
-        $serviceName = $modelName.'Service' ;
+        $serviceName = $modelName.'Service';
 
         $stubProperties = [
             '{modelName}' => $modelName,
-            '{repositoryName}' => $repositoryName ,
+            '{repositoryName}' => $repositoryName,
         ];
 
         // check folder exist
@@ -66,12 +62,12 @@ class MakeService extends Command
 
     public function createServiceInterface($modelName)
     {
-        $namespace = $this->getNameSpace()."\\$modelName" ;
+        $namespace = $this->getNameSpace()."\\$modelName";
 
-        $serviceInterfaceName = "I".$modelName."Service" ;
+        $serviceInterfaceName = 'I'.$modelName.'Service';
         $stubProperties = [
-            '{modelName}' => $modelName ,
-        ] ;
+            '{modelName}' => $modelName,
+        ];
 
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
@@ -80,23 +76,21 @@ class MakeService extends Command
         }
 
         new CreateFile(
-            $stubProperties ,
-            $this->getServiceInterfacePath($modelName) ,
+            $stubProperties,
+            $this->getServiceInterfacePath($modelName),
             __DIR__.'/stubs/service-interface.stub'
-        ) ;
+        );
 
         $this->line("<info>Created Service Interface:</info> $serviceInterfaceName");
     }
 
     /**
      * Get Service path
-     *
-     * @param $modelName
-     * @return string
      */
     private function getServicePath($modelName): string
     {
-        $serviceName = $modelName.'Service' ;
+        $serviceName = $modelName.'Service';
+
         return $this->appPath().'/'.
             config('repository.service_directory').
             "/$modelName/$serviceName".'.php';
@@ -104,13 +98,10 @@ class MakeService extends Command
 
     /**
      * Get Service path
-     *
-     * @param $modelName
-     * @return string
      */
     private function getServiceInterfacePath($modelName): string
     {
-        $serviceInterfaceName = 'I'.$modelName.'Service' ;
+        $serviceInterfaceName = 'I'.$modelName.'Service';
 
         return $this->appPath().'/'.
             config('repository.service_directory').

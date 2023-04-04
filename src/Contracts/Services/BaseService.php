@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Contracts\Services;
 
-
 use Cubeta\CubetaStarter\Contracts\Repositories\IBaseRepository;
 
 abstract class BaseService implements IBaseService
