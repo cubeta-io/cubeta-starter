@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\API\v1;
 
-use App\Http\Requests\{modelName}Requests\StoreUpdate{modelName}Request;
+use App\Http\Requests\{modelName}\StoreUpdate{modelName}Request;
 use App\Http\Resources\{modelName}Resource;
 use Cubeta\CubetaStarter\Contracts\ApiController;
 use App\Services\{modelName}\I{modelName}Service;
