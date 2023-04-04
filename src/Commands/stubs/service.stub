@@ -3,7 +3,7 @@
 namespace App\Services\{modelName};
 
 use App\Repositories\{repositoryName};
-use cubeta\CubetaStarter\Contracts\Services\BaseService;
+use Cubeta\CubetaStarter\Contracts\Services\BaseService;
 
 /**
  * Class BrandService

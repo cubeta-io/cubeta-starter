@@ -2,7 +2,7 @@
 
 namespace App\Services\{modelName};
 
-use cubeta\CubetaStarter\Contracts\Services\IBaseService;
+use Cubeta\CubetaStarter\Contracts\Services\IBaseService;
 
 /**
  * Interface IBrandService

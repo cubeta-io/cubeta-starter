@@ -1,9 +1,9 @@
 <?php
 
-namespace cubeta\CubetaStarter\Contracts\Services;
+namespace Cubeta\CubetaStarter\Contracts\Services;
 
 
-use cubeta\CubetaStarter\Contracts\Repositories\IBaseRepository;
+use Cubeta\CubetaStarter\Contracts\Repositories\IBaseRepository;
 
 abstract class BaseService implements IBaseService
 {

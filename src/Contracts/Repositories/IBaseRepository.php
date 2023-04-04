@@ -1,6 +1,6 @@
 <?php
 
-namespace cubeta\CubetaStarter\Contracts\Repositories;
+namespace Cubeta\CubetaStarter\Contracts\Repositories;
 
 /**
  * Interface IBaseRepository

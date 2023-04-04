@@ -98,16 +98,17 @@ class MakeModel extends Command
 
         //call to command base on the option flag
         $result = match ($option) {
-            'migration'     => $this->call('create:migration'   , ['name' => $name, 'attributes' => $fixedAttributes]),
-            'controller'    => $this->call('create:controller'  , ['name' => $name]) ,
-            'request'       => $this->call('create:request'     , ['name' => $name, 'attributes' => $fixedAttributes]),
-            'resource'      => $this->call('create:resource'    , ['name' => $name, 'attributes' => $attributes]),
-            'factory'       => $this->call('create:factory'     , ["name" => $name, 'attributes' => $attributes]),
-            'seeder'        => $this->call('create:seeder'      , ["name" => $name]),
-//            'controller-api' => $this->call('create:controller --api', ["name" => $name, 'attributes' => $attributes]),
-//            'controller-base' => $this->call('create:controller --base', ["name" => $name, 'attributes' => $attributes]),
-            'repository'    => $this->call('create:repository'  , ["name" => $name]),
-            'service'       => $this->call('create:service'     , ["name" => $name]),
+            'migration'         => $this->call('create:migration'           , ['name' => $name, 'attributes' => $fixedAttributes]),
+            'controller'        => $this->call('create:controller'          , ['name' => $name]) ,
+            'request'           => $this->call('create:request'             , ['name' => $name, 'attributes' => $fixedAttributes]),
+            'resource'          => $this->call('create:resource'            , ['name' => $name, 'attributes' => $attributes]),
+            'factory'           => $this->call('create:factory'             , ["name" => $name, 'attributes' => $attributes]),
+            'seeder'            => $this->call('create:seeder'              , ["name" => $name]),
+            'repository'        => $this->call('create:repository'          , ["name" => $name]),
+            'service'           => $this->call('create:service'             , ["name" => $name]),
+            'test'              => $this->call('create:test'                , ["name" => $name]),
+//            'controller-api'    => $this->call('create:controller --api'    , ["name" => $name, 'attributes' => $attributes]),
+//            'controller-base'   => $this->call('create:controller --base'   , ["name" => $name, 'attributes' => $attributes]),
             '', null => 'all',
         };
         if ($result === 'all') {
@@ -117,9 +118,10 @@ class MakeModel extends Command
             $this->call('create:request'            , ['name' => $name, 'attributes' => $fixedAttributes]);
             $this->call('create:resource'           , ['name' => $name, 'attributes' => $attributes]);
             $this->call('create:controller'         , ['name' => $name]);
-//            $this->call('create:controller --base', ["name" => $name, 'attributes' => $attributes]);
             $this->call('create:repository'         , ["name" => $name]);
             $this->call('create:service'            , ["name" => $name]);
+            $this->call('create:test'               , ["name" => $name]);
+//            $this->call('create:controller --base'  , ["name" => $name, 'attributes' => $attributes]);
         }
 
         $this->info('Migration created successfully.');

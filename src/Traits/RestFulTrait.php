@@ -1,8 +1,8 @@
 <?php
 
-namespace cubeta\CubetaStarter\Traits;
+namespace Cubeta\CubetaStarter\Traits;
 
-use cubeta\CubetaStarter\Contracts\ApiController;
+use Cubeta\CubetaStarter\Contracts\ApiController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use JetBrains\PhpStorm\ArrayShape;

@@ -1,6 +1,6 @@
 <?php
 
-namespace cubeta\CubetaStarter\Contracts\Repositories;
+namespace Cubeta\CubetaStarter\Contracts\Repositories;
 
 use Cubeta\CubetaStarter\Traits\FileHandler;
 use Illuminate\Database\Eloquent\Model;

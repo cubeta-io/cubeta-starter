@@ -73,14 +73,16 @@ trait TestHelpers
 
     public function customer(): void
     {
-        $customer = User::factory()->customer()->create();
+        $customer = User::factory()->create();
+        $customer->assignRole('customer') ;
         $this->be($customer);
         $this->user = $customer;
     }
 
     public function admin(): void
     {
-        $admin = User::factory()->admin()->create();
+        $admin = User::factory()->create();
+        $admin->assignRole('admin') ;
         $this->be($admin);
         $this->user = $admin;
     }

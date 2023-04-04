@@ -1,6 +1,6 @@
 <?php
 
-namespace cubeta\CubetaStarter\Contracts\Services;
+namespace Cubeta\CubetaStarter\Contracts\Services;
 
 interface IBaseService
 {

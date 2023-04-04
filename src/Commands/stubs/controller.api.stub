@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Http\Requests\{modelName}Requests\StoreUpdate{modelName}Request;
 use App\Http\Resources\{modelName}Resource;
-use cubeta\CubetaStarter\Contracts\ApiController;
+use Cubeta\CubetaStarter\Contracts\ApiController;
 use App\Services\{modelName}\I{modelName}Service;
 
 class {modelName}Controller extends ApiController{

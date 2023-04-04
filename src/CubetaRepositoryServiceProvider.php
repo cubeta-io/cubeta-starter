@@ -12,6 +12,7 @@ use Cubeta\CubetaStarter\Commands\MakeRequest;
 use Cubeta\CubetaStarter\Commands\MakeResource;
 use Cubeta\CubetaStarter\Commands\MakeSeeder;
 use Cubeta\CubetaStarter\Commands\MakeService;
+use Cubeta\CubetaStarter\Commands\MakeTest;
 use Cubeta\CubetaStarter\Commands\ModelMakeCommand;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
@@ -60,7 +61,9 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeSeeder::class)
             ->hasCommand(MakeRequest::class)
             ->hasCommand(MakeRepository::class)
-            ->hasCommand(MakeService::class);
+            ->hasCommand(MakeService::class)
+            ->hasCommand(MakeTest::class)
+        ;
     }
 
     public function overrideCommands()
