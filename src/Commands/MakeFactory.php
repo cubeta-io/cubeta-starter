@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\CreateFile;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -63,24 +64,28 @@ class MakeFactory extends Command
         $useStatements = '';
         foreach ($attributes as $name => $type) {
             if (Str::endsWith($name, '_at')) {
-                $rows .= "\t\t\t'$name' => \$this->faker->date,\n";
+                $rows .= "\t\t\t'$name' => \$this->faker->date(),\n";
 
                 continue;
             }
             if (Str::startsWith($name, 'is_')) {
-                $rows .= "\t\t\t'$name' => \$this->faker->boolean,\n";
+                $rows .= "\t\t\t'$name' => \$this->faker->boolean(),\n";
 
                 continue;
             }
-            if (Str::endsWith($name, '_id')) {
-                $relationModel = ucfirst(str_replace('_id', '', $name));
-                $relationModelPluralName = Str::plural(strtolower($relationModel));
-                $useStatements .= "use App\Models\\$relationModel;\n";
-                $relations_random .= "\$$relationModelPluralName = $relationModel::all()->pluck('id')->toArray();\n";
-                $rows .= "\t\t\t'$name'=> \$$relationModelPluralName".'[array_rand('."\$$relationModelPluralName)],\n";
 
-                continue;
+            if(in_array($type , RelationsTypeEnum::ALL)){
+
+                if($type == RelationsTypeEnum::BelongsTo || $type == RelationsTypeEnum::HasOne){
+                    $relatedModel = ucfirst(Str::singular(str_replace('_id' , '' , $name))) ;
+                }
+                else {
+                    $relatedModel = ucfirst(Str::singular($name)) ;
+                }
+
+                $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";
             }
+
             if (array_key_exists($type, $this->typeFaker)) {
                 $faker = $this->typeFaker["$type"];
                 $rows .= "\t\t\t'$name' => $faker, \n";

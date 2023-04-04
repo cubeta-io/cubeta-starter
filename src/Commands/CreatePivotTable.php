@@ -52,7 +52,7 @@ class CreatePivotTable extends Command
         $files = app()->make(Filesystem::class);
 
         if ($files->exists($migrationPath)) {
-            new Exception('The Pivot Table Migration For '.$className1.'And '.$className2.'  Exists');
+            throw new Exception('The Pivot Table Migration For '.$className1.'And '.$className2.'  Exists');
         }
 
         $stub = str_replace(

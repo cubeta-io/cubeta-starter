@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Commands;
 
 use Carbon\Carbon;
 use Cubeta\CubetaStarter\CreateFile;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -59,8 +60,9 @@ class MakeMigration extends Command
     {
         $columns = '';
         foreach ($attributes as $name => $type) {
-            if ($type == 'key') {
-                $columns .= "\t\t\t\$table->foreignId('$name')->constrained()->onDelete('cascade'); \n";
+            if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
+                $modelName = ucfirst(Str::singular(str_replace('_id' , '' , $name))) ;
+                $columns .= "\t\t\t\$table->foreignIdFor(App\Models\\$modelName::class)->constrained()->cascadeOnDelete(); \n";
             } else {
                 $columns .= "\t\t\t\$table->".($type == 'file' ? 'string' : $type)."('$name')".($type == 'file' ? '->nullable()' : '')."; \n";
             }

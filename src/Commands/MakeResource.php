@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Str;
 
 class MakeResource extends Command
 {
@@ -58,15 +59,17 @@ class MakeResource extends Command
 
     private function generateCols(array $attributes): string
     {
-        $columns = "'id'     =>  \$this->id, \n\t\t\t";
+        $columns = "'id'                     =>  \$this->id, \n\t\t\t";
         foreach ($attributes as $name => $value) {
-            if ($value == 'key') {
-                $relation = str_replace('_id', '', $name);
-                $columns .= "'$name'     =>  \$this->whenLoaded('$relation') , \n\t\t\t";
-            } elseif ($value == RelationsTypeEnum::ManyToMany) {
-                $columns .= "'$name'     =>  \$this->whenLoaded('$name') , \n\t\t\t";
+            if ($value == RelationsTypeEnum::HasOne || $value == RelationsTypeEnum::BelongsTo) {
+                $columns .= "'$name'         =>  \$this->$name,\n\t\t\t";
+                $relation = lcfirst(Str::singular(str_replace('_id', '', $name)));
+                $columns .= "'$relation'     =>  \$this->whenLoaded('$relation') , \n\t\t\t";
+            } elseif ($value == RelationsTypeEnum::ManyToMany || $value == RelationsTypeEnum::HasMany) {
+                $relation = lcfirst(Str::plural($name)) ;
+                $columns .= "'$relation'     =>  \$this->whenLoaded('$relation') , \n\t\t\t";
             } else {
-                $columns .= "'$name'     =>  \$this->$name,\n\t\t\t";
+                $columns .= "'$name'         =>  \$this->$name,\n\t\t\t";
             }
         }
 

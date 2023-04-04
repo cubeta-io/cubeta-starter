@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Commands;
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class MakeSeeder extends Command
 {
@@ -29,10 +30,11 @@ class MakeSeeder extends Command
 
     private function createSeeder($modelName)
     {
-        $seederName = $this->getSeederName($modelName);
+        $modelName = Str::singular(ucfirst($modelName)) ;
+        $seederName = $this->getSeederName($modelName) ;
 
         $stubProperties = [
-            '{class}' => $modelName,
+            '{modelName}' => $modelName,
         ];
 
         new CreateFile(
@@ -40,7 +42,7 @@ class MakeSeeder extends Command
             $this->getSeederPath($seederName),
             __DIR__.'/stubs/seeder.stub'
         );
-        $this->line("<info>Created seeder:</info> {$seederName}");
+        $this->line("<info>Created seeder:</info> $seederName");
     }
 
     private function getSeederName($modelName)
