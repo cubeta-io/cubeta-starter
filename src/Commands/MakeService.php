@@ -4,8 +4,8 @@ namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
-use File;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 class MakeService extends Command
@@ -17,113 +17,111 @@ class MakeService extends Command
 
     public $description = 'Create a new service class';
 
-    public function handle()
-    {
-        $name = str_replace(config('repository.service_suffix'), '', $this->argument('name'));
-        $className = Str::studly($name);
-
-        $this->checkIfRequiredDirectoriesExist();
-
-        $this->createService($className);
-    }
-
     /**
-     * Create the service
+     * Handle the command
      *
      * @return void
      */
-    public function createService(string $className)
+    public function handle(): void
     {
-        $nameOfService = $this->getServiceName($className);
-        $serviceName = $nameOfService.config('repository.service_suffix');
-        $namespace = $this->getNameSpace($className);
+        $name = $this->argument('name') ;
+
+        $modelName = ucfirst(Str::singular($name)) ;
+
+        $this->createService($modelName);
+        $this->createServiceInterface($modelName) ;
+    }
+
+    /**
+     * Create Service
+     * @param $modelName
+     * @return void
+     */
+    private function createService($modelName): void
+    {
+        $namespace = $this->getNameSpace()."\\$modelName" ;
+
+        $repositoryName = $modelName.'Repository';
+        $serviceName = $modelName.'Service' ;
+
         $stubProperties = [
-            '{namespace}' => $namespace,
-            '{serviceName}' => $serviceName,
-            '{repositoryInterface}' => $this->getRepositoryInterfaceName($nameOfService),
-            '{repositoryInterfaceNamespace}' => $this->getRepositoryInterfaceNamespace($nameOfService),
+            '{modelName}' => $modelName,
+            '{repositoryName}' => $repositoryName ,
         ];
+
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
         if (! file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
+
         // create file
         new CreateFile(
             $stubProperties,
-            $this->getServicePath($className),
+            $this->getServicePath($modelName),
             __DIR__.'/stubs/service.stub'
         );
-        $this->line("<info>Created service:</info> {$serviceName}");
+        $this->line("<info>Created Service:</info> $serviceName");
+    }
+
+    public function createServiceInterface($modelName)
+    {
+        $namespace = $this->getNameSpace()."\\$modelName" ;
+
+        $serviceInterfaceName = "I".$modelName."Service" ;
+        $stubProperties = [
+            '{modelName}' => $modelName ,
+        ] ;
+
+        // check folder exist
+        $folder = str_replace('\\', '/', $namespace);
+        if (! file_exists($folder)) {
+            File::makeDirectory($folder, 0775, true, true);
+        }
+
+        new CreateFile(
+            $stubProperties ,
+            $this->getServiceInterfacePath($modelName) ,
+            __DIR__.'/stubs/service-interface.stub'
+        ) ;
+
+        $this->line("<info>Created Service Interface:</info> $serviceInterfaceName");
     }
 
     /**
-     * Get service path
+     * Get Service path
      *
+     * @param $modelName
      * @return string
      */
-    private function getServicePath($className)
+    private function getServicePath($modelName): string
     {
+        $serviceName = $modelName.'Service' ;
         return $this->appPath().'/'.
             config('repository.service_directory').
-            "/$className".'Service.php';
+            "/$modelName/$serviceName".'.php';
     }
 
     /**
-     * Get repository interface namespace
+     * Get Service path
      *
+     * @param $modelName
      * @return string
      */
-    private function getRepositoryInterfaceNamespace(string $className)
+    private function getServiceInterfacePath($modelName): string
     {
-        return config('repository.repository_namespace')."\Interfaces";
-    }
+        $serviceInterfaceName = 'I'.$modelName.'Service' ;
 
-    /**
-     * Get repository interface name
-     *
-     * @return string
-     */
-    private function getRepositoryInterfaceName(string $className)
-    {
-        return $className.'RepositoryInterface';
-    }
-
-    /**
-     * Check to make sure if all required directories are available
-     *
-     * @return void
-     */
-    private function checkIfRequiredDirectoriesExist()
-    {
-        $this->ensureDirectoryExists(config('repository.service_directory'));
-    }
-
-    /**
-     * get service name
-     */
-    private function getServiceName($className): string
-    {
-        $explode = explode('/', $className);
-
-        return $explode[array_key_last($explode)];
+        return $this->appPath().'/'.
+            config('repository.service_directory').
+            "/$modelName/$serviceInterfaceName".'.php';
     }
 
     /**
      * get namespace
      */
-    private function getNameSpace($className): string
+    private function getNameSpace(): string
     {
-        $explode = explode('/', $className);
-        if (count($explode) > 1) {
-            $namespace = '';
-            for ($i = 0; $i < count($explode) - 1; $i++) {
-                $namespace .= '\\'.$explode[$i];
-            }
-
-            return config('repository.service_namespace').$namespace;
-        } else {
-            return config('repository.service_namespace');
-        }
+        return config('repository.service_namespace');
     }
 }

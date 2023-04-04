@@ -106,8 +106,8 @@ class MakeModel extends Command
             'seeder'        => $this->call('create:seeder'      , ["name" => $name]),
 //            'controller-api' => $this->call('create:controller --api', ["name" => $name, 'attributes' => $attributes]),
 //            'controller-base' => $this->call('create:controller --base', ["name" => $name, 'attributes' => $attributes]),
-//            'repository' => $this->call('create:repository', ["name" => $name]),
-//            'service' => $this->call('create:service', ["name" => $name]),
+            'repository'    => $this->call('create:repository'  , ["name" => $name]),
+            'service'       => $this->call('create:service'     , ["name" => $name]),
             '', null => 'all',
         };
         if ($result === 'all') {
@@ -118,8 +118,8 @@ class MakeModel extends Command
             $this->call('create:resource'           , ['name' => $name, 'attributes' => $attributes]);
             $this->call('create:controller'         , ['name' => $name]);
 //            $this->call('create:controller --base', ["name" => $name, 'attributes' => $attributes]);
-//            $this->call('create:repository', ["name" => $name]);
-//            $this->call('create:service', ["name" => $name]);
+            $this->call('create:repository'         , ["name" => $name]);
+            $this->call('create:service'            , ["name" => $name]);
         }
 
         $this->info('Migration created successfully.');

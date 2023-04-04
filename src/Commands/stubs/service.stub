@@ -1,18 +1,22 @@
 <?php
 
-namespace {namespace};
+namespace App\Services\{modelName};
 
-use Cubeta\CubetaStarter\Service;
-use {repositoryInterfaceNamespace}\{repositoryInterface};
+use App\Repositories\{repositoryName};
+use cubeta\CubetaStarter\Contracts\Services\BaseService;
 
-class {serviceName} extends Service {
-
-     protected $mainInterface;
-
-    public function __construct({repositoryInterface} $mainInterface)
+/**
+ * Class BrandService
+ */
+class {modelName}Service extends BaseService implements I{modelName}Service
+{
+    /**
+     * {modelName}Service constructor.
+     *
+     * @param  {modelName}Repository  $repository
+     */
+    public function __construct({modelName}Repository $repository)
     {
-      $this->mainInterface = $mainInterface;
+        parent::__construct($repository);
     }
-
-
 }

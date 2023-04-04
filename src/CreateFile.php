@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter;
 
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Filesystem\Filesystem;
 
 class CreateFile
@@ -35,6 +36,12 @@ class CreateFile
      */
     protected FileSystem $files;
 
+    /**
+     * @param array $stubProperties
+     * @param string $path
+     * @param string $stubPath
+     * @throws BindingResolutionException
+     */
     public function __construct(array $stubProperties, string $path, string $stubPath)
     {
         $this->stubPath = $stubPath;

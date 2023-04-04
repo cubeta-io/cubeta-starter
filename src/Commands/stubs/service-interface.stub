@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Services\{modelName};
+
+use cubeta\CubetaStarter\Contracts\Services\IBaseService;
+
+/**
+ * Interface IBrandService
+ */
+interface I{modelName}Service extends IBaseService
+{
+    //
+}
