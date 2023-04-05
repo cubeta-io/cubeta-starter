@@ -54,10 +54,7 @@ class MakeModel extends Command
             'dateTime',
             'timestamp',
             'file',
-            RelationsTypeEnum::HasOne,
-            RelationsTypeEnum::HasMany,
-            RelationsTypeEnum::BelongsTo,
-            RelationsTypeEnum::ManyToMany,
+            'key'
         ];
     }
 
@@ -71,7 +68,7 @@ class MakeModel extends Command
         $name = $this->argument('name');
         $option = $this->argument('option');
 
-        if (! $name) {
+        if (!$name) {
             $this->error('Please specify a valid model');
 
             return false;
@@ -89,18 +86,11 @@ class MakeModel extends Command
 
         $this->createModel($className, $attributes);
 
-        $fixedAttributes = $this->fixingAttributesForMigrations($attributes);
-
-        $manyToManyAttributes = array_keys($attributes, RelationsTypeEnum::ManyToMany);
-        foreach ($manyToManyAttributes as $attribute) {
-            $this->call('create:pivot', ['table1' => Str::lower($name), 'table2' => $attribute]);
-        }
-
         //call to command base on the option flag
         $result = match ($option) {
-            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $fixedAttributes]),
-            'controller' => $this->call('create:controller', ['name' => $name]) ,
-            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $fixedAttributes]),
+            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes]),
+            'controller' => $this->call('create:controller', ['name' => $name]),
+            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes]),
             'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes]),
             'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes]),
             'seeder' => $this->call('create:seeder', ['name' => $name]),
@@ -112,10 +102,10 @@ class MakeModel extends Command
             '', null => 'all',
         };
         if ($result === 'all') {
-            $this->call('create:migration', ['name' => $name, 'attributes' => $fixedAttributes]);
+            $this->call('create:migration', ['name' => $name, 'attributes' => $attributes]);
             $this->call('create:factory', ['name' => $name, 'attributes' => $attributes]);
             $this->call('create:seeder', ['name' => $name]);
-            $this->call('create:request', ['name' => $name, 'attributes' => $fixedAttributes]);
+            $this->call('create:request', ['name' => $name, 'attributes' => $attributes]);
             $this->call('create:resource', ['name' => $name, 'attributes' => $attributes]);
             $this->call('create:controller', ['name' => $name]);
             $this->call('create:repository', ['name' => $name]);
@@ -163,71 +153,111 @@ class MakeModel extends Command
             '{properties}' => $this->getModelProperty($attributes),
             '{images}' => $imagesAttribute['appends'],
             '{imageAttribute}' => $imagesAttribute['image'],
-            '{relations}' => $this->getModelRelation($attributes),
+            '{relations}' => $this->getModelRelation($attributes , $className),
             '{scopes}' => $this->boolValuesScope($attributes),
         ];
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
-        if (! file_exists($folder)) {
+        if (!file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
         // create file
         new CreateFile(
             $stubProperties,
             $this->getModelPath($className),
-            __DIR__.'/stubs/model.stub'
+            __DIR__ . '/stubs/model.stub'
         );
         $this->line("<info>Created model:</info> $className");
     }
 
-    private function getModelRelation($attributes): string
+    private function getModelRelation($attributes, $modelName): string
     {
         $relationsFunctions = '';
 
-        // HasOne relations
-        $hasOne = array_keys($attributes, RelationsTypeEnum::HasOne);
-        foreach ($hasOne as $name) {
-            $relationName = str_replace('_id', '', $name);
-            $relationName = lcfirst(Str::singular($relationName));
-            $relationsFunctions .= '
-            public function '.$relationName.'():hasOne
-            {
-                return $this->hasOne('.Str::singular(ucfirst($relationName))."::class);
-            }\n";
+        $foreignKeys = array_keys($attributes, 'key');
+
+        foreach ($foreignKeys as $key => $value) {
+
+            $result = $this->choice('The ' . $key . ' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
+
+            if ($result == RelationsTypeEnum::HasOne) {
+
+                $relationName = str_replace('_id', '', $value);
+                $relationName = lcfirst(Str::singular($relationName));
+
+                $relationsFunctions .= '
+                public function ' . $relationName . '():hasOne
+                {
+                    return $this->hasOne(' . Str::singular(ucfirst($relationName)) . "::class);
+                }\n";
+
+            }
+
+            if ($result == RelationsTypeEnum::BelongsTo) {
+
+                $relationName = str_replace('_id', '', $value);
+                $relationName = lcfirst(Str::singular($relationName));
+
+                $relationsFunctions .= '
+                public function ' . $relationName . '():belongsTo
+                {
+                    return $this->belongsTo(' . Str::singular(ucfirst($relationName)) . "::class);
+                }\n";
+
+            }
         }
 
-        // HasMany Relations
-        $hasMany = array_keys($attributes, RelationsTypeEnum::HasMany);
-        foreach ($hasMany as $name) {
-            $relationName = lcfirst(Str::plural($name));
-            $relationsFunctions .= '
-            public function '.$relationName.'():hasMany
-            {
-                return $this->hasMany('.Str::singular(ucfirst($name))."::class);
-            }\n";
+        $thereIsHasMany = true;
+
+        while ($thereIsHasMany) {
+            $result = $this->choice('Does this model related with another model by has many relation ?', ['No', 'Yes'], 'No');
+
+            $decision = 'No';
+
+            if ($result == 'Yes') {
+                $table = $this->ask('What is the name of the related model table ? ');
+
+                $relationName = lcfirst(Str::plural($table));
+
+                $relationsFunctions .= '
+                public function ' . $relationName . '():hasMany
+                {
+                    return $this->hasMany(' . Str::singular(ucfirst($table)) . "::class);
+                }\n";
+
+                $decision = $this->choice('Does it has another has many relation ? ', ['No', 'Yes'], 'No');
+            }
+
+            $thereIsHasMany = $decision == 'Yes';
         }
 
-        // belongsTo relations
-        $belongsTo = array_keys($attributes, RelationsTypeEnum::BelongsTo);
-        foreach ($belongsTo as $name) {
-            $relationName = str_replace('_id', '', $name);
-            $relationName = lcfirst(Str::singular($relationName));
-            $relationsFunctions .= '
-            public function '.$relationName.'():belongsTo
-            {
-                return $this->belongsTo('.Str::singular(ucfirst($relationName))."::class);
-            }\n";
-        }
+        $thereIsManyToMany = true;
 
-        // ManyToMany Relations
-        $manyToManyRelations = array_keys($attributes, RelationsTypeEnum::ManyToMany);
-        foreach ($manyToManyRelations as $rel) {
-            $relationName = $rel;
-            $relationsFunctions .= '
-            public function '.$relationName.'() : BelongsToMany
-            {
-                return $this->belongsToMany('.ucfirst(Str::singular($relationName))."::class);
-            }\n";
+        while ($thereIsManyToMany) {
+            $result = $this->choice('Does this model related with another model by many to many relation ?', ['No', 'Yes'], 'No');
+
+            $decision = 'No';
+
+            if ($result == 'Yes') {
+                $table = $this->ask('What is the name of the related model table ? ');
+
+                $relationName = lcfirst(Str::plural($table));
+
+                $relationsFunctions .= '
+                 public function ' . $relationName . '() : BelongsToMany
+                 {
+                     return $this->belongsToMany(' . ucfirst(Str::singular($relationName)) . "::class);
+                 }\n";
+
+                $this->call('create:pivot', [
+                    'table1' => Str::plural(Str::lower($modelName)),
+                    'table2' => Str::plural(Str::lower($relationName))
+                ]);
+
+                $decision = $this->choice('Does it has another has many relation ? ', ['No', 'Yes'], 'No');
+            }
+
+            $thereIsManyToMany = $decision == 'Yes';
         }
 
         return $relationsFunctions;
@@ -238,7 +268,7 @@ class MakeModel extends Command
         $properties = "/**  \n";
         foreach ($attributes as $name => $type) {
             if ($type == RelationsTypeEnum::ManyToMany) {
-                $properties .= '* @property BelongsToMany '.$name."\n";
+                $properties .= '* @property BelongsToMany ' . $name . "\n";
             } else {
                 $properties .= "* @property $type $name \n";
             }
@@ -261,13 +291,13 @@ class MakeModel extends Command
         $appends = '';
         foreach ($columnsNames as $colName) {
             $image .=
-                'public function get'.ucfirst(Str::camel(Str::studly($colName)))."Attribute()
+                'public function get' . ucfirst(Str::camel(Str::studly($colName))) . "Attribute()
                 {
                     return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
                 }\n";
 
             $appends = "'$colName',";
-            $this->ensureDirectoryExists(storage_path('app/public/'.Str::lower($modelName).'/'.Str::plural($colName)));
+            $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
         }
 
         return ['image' => $image, 'appends' => $appends];
@@ -278,9 +308,9 @@ class MakeModel extends Command
      */
     private function getModelPath($className): string
     {
-        return $this->appPath().'/'.
-            config('repository.model_directory').
-            "/$className".'.php';
+        return $this->appPath() . '/' .
+            config('repository.model_directory') .
+            "/$className" . '.php';
     }
 
     /**
@@ -308,9 +338,9 @@ class MakeModel extends Command
         $scopes = '';
 
         foreach ($booleans as $boolCol) {
-            $scopes .= 'public function scope'.ucfirst(Str::studly($boolCol))."(\$query)
+            $scopes .= 'public function scope' . ucfirst(Str::studly($boolCol)) . "(\$query)
             {
-                return \$query->where('".$boolCol."' , 1);
+                return \$query->where('" . $boolCol . "' , 1);
             } \n";
         }
 
@@ -331,9 +361,7 @@ class MakeModel extends Command
             // removing the many-to-many relations from migration attributes
             if (in_array($attribute, $manyToManyAttributes)) {
                 unset($fixedAttributes[$attribute]);
-            }
-
-            // removing hasMany relations from migration attributes
+            } // removing hasMany relations from migration attributes
             elseif (in_array($attribute, $hasManyAttributes)) {
                 unset($fixedAttributes[$attribute]);
             }
