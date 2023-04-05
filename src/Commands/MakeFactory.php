@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 
 class MakeFactory extends Command
@@ -13,8 +14,10 @@ class MakeFactory extends Command
     use AssistCommand;
 
     public $signature = 'create:factory
-        {name : The name of the model }
-        {attributes : columns with data types}?';
+        {name       : The name of the model }
+        {attributes : columns with data types}?
+        {relations  : the model relations}?';
+
 
     public $description = 'Create a new factory';
 
@@ -22,46 +25,49 @@ class MakeFactory extends Command
      * Handle the command
      *
      * @return void
+     * @throws BindingResolutionException
      */
     public function handle()
     {
         $modelName = $this->argument('name');
         $attributes = $this->argument('attributes');
+        $relations = $this->argument('relations');
 
-        $this->createFactory($modelName, $attributes);
+        $this->createFactory($modelName, $attributes , $relations);
     }
 
-    private function createFactory($modelName, array $attributes)
+    /**
+     * @throws BindingResolutionException
+     */
+    private function createFactory($modelName, array $attributes , array $relations)
     {
         $factoryName = $this->getFactoryName($modelName);
 
-        $factoryAttributes = $this->generateCols($attributes);
+        $factoryAttributes = $this->generateCols($attributes , $relations);
 
         $stubProperties = [
             '{class}' => $modelName,
-            '{useStatements}' => $factoryAttributes['useStatements'],
-            '{relations_random}' => $factoryAttributes['relations_random'],
             '{rows}' => $factoryAttributes['rows'],
+            '//relationFactories' => $factoryAttributes['relatedFactories'],
         ];
 
         new CreateFile(
             $stubProperties,
             $this->getFactoryPath($factoryName),
-            __DIR__.'/stubs/factory.stub'
+            __DIR__ . '/stubs/factory.stub'
         );
         $this->line("<info>Created factory:</info> {$factoryName}");
     }
 
     private function getFactoryName($modelName)
     {
-        return $modelName.'Factory';
+        return $modelName . 'Factory';
     }
 
-    private function generateCols(array $attributes)
+    private function generateCols(array $attributes , array $relations)
     {
         $rows = '';
-        $relations_random = '';
-        $useStatements = '';
+        $relatedFactories = '';
         foreach ($attributes as $name => $type) {
             if (Str::endsWith($name, '_at')) {
                 $rows .= "\t\t\t'$name' => \$this->faker->date(),\n";
@@ -74,13 +80,8 @@ class MakeFactory extends Command
                 continue;
             }
 
-            if (in_array($type, RelationsTypeEnum::ALL)) {
-                if ($type == RelationsTypeEnum::BelongsTo || $type == RelationsTypeEnum::HasOne) {
-                    $relatedModel = ucfirst(Str::singular(str_replace('_id', '', $name)));
-                } else {
-                    $relatedModel = ucfirst(Str::singular($name));
-                }
-
+            if ($type == 'key') {
+                $relatedModel = ucfirst(Str::singular(str_replace('_id', '', $name)));
                 $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";
             }
 
@@ -90,13 +91,26 @@ class MakeFactory extends Command
             }
         }
 
-        return ['rows' => $rows, 'relations_random' => $relations_random, 'useStatements' => $useStatements];
+        foreach ($relations as $rel => $type) {
+           if($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany){
+               $functionName = 'with'.ucfirst(Str::plural($rel)) ;
+               $className = ucfirst(Str::singular($rel)) ;
+
+               $relatedFactories.="
+                public function $functionName(\$count = 1)
+                {
+                    return \$this->has(\App\Models\\$className::factory(\$count),);
+                } \n" ;
+           }
+        }
+
+        return ['rows' => $rows , 'relatedFactories' => $relatedFactories];
     }
 
     private function getFactoryPath($factoryName)
     {
-        return $this->appDatabasePath().'/factories'.
-            "/$factoryName".'.php';
+        return $this->appDatabasePath() . '/factories' .
+            "/$factoryName" . '.php';
     }
 
     private array $typeFaker = [
@@ -108,6 +122,6 @@ class MakeFactory extends Command
         'float' => '$this->faker->randomFloat(1,2000)',
         'string' => '$this->faker->sentence',
         'text' => '$this->faker->text',
-        'json' => "{'".'$this->faker->word'."':'".'$this->faker->word'."'}",
+        'json' => "{'" . '$this->faker->word' . "':'" . '$this->faker->word' . "'}",
     ];
 }
