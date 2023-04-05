@@ -214,12 +214,13 @@ class MakeModel extends Command
         }
 
         $thereIsHasMany = true;
+        $decision = 'No';
 
         while ($thereIsHasMany) {
 
-            $result = $this->choice('Does this model related with another model by has many relation ?', ['No', 'Yes'], 'No');
-
-            $decision = 'No';
+            if($decision == 'No'){
+                $result = $this->choice('Does this model related with another model by has many relation ?', ['No', 'Yes'], 'No');
+            }
 
             if ($result == 'Yes') {
                 $table = $this->ask('What is the name of the related model table ? ');
@@ -240,12 +241,15 @@ class MakeModel extends Command
             $thereIsHasMany = $decision == 'Yes';
         }
 
+
         $thereIsManyToMany = true;
+        $decision = 'No';
 
         while ($thereIsManyToMany) {
-            $result = $this->choice('Does this model related with another model by many to many relation ?', ['No', 'Yes'], 'No');
 
-            $decision = 'No';
+            if($decision == 'No'){
+                $result = $this->choice('Does this model related with another model by many to many relation ?', ['No', 'Yes'], 'No');
+            }
 
             if ($result == 'Yes') {
                 $table = $this->ask('What is the name of the related model table ? ');
