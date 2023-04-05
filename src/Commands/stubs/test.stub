@@ -11,7 +11,7 @@ class {modelName}Test extends TestCase
     protected $resource = {modelName}Resource::class;
 
     // put customer or admin
-    protected $userType = '';
+    protected $userType = null;
 
     // the named route
     protected $baseUrl = '';

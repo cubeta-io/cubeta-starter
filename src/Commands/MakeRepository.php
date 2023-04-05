@@ -56,6 +56,16 @@ class MakeRepository extends Command
             $this->getRepositoryPath($repositoryName),
             __DIR__.'/stubs/repository.stub'
         );
+
+        if(! file_exists($this->appPath().'/app/providers/RepositoryServiceProvider.php')){
+            // create file
+            new CreateFile(
+                [] ,
+                $this->getRepositoryPath($repositoryName),
+                __DIR__.'/stubs/repository.stub'
+            );
+        }
+
         $this->line("<info>Created Repository:</info> $repositoryName");
     }
 
