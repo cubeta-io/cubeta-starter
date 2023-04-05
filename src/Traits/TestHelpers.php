@@ -13,7 +13,7 @@ trait TestHelpers
 
     protected $user;
 
-    protected $userType;
+    protected $userType = null;
 
     protected $model;
 
@@ -66,35 +66,22 @@ trait TestHelpers
 
     public function setUp(): void
     {
-        Artisan::call('db:seed RoleSeeder');
+        if(isset($this->userType)){
+            Artisan::call('db:seed RoleSeeder');
+        }
+
         $this->signIn($this->userType);
     }
 
-    public function customer(): void
+    public function signIn($type = null): void
     {
-        $customer = User::factory()->create();
-        $customer->assignRole('customer');
-        $this->be($customer);
-        $this->user = $customer;
-    }
+        $this->user = User::factory()->create() ;
 
-    public function admin(): void
-    {
-        $admin = User::factory()->create();
-        $admin->assignRole('admin');
-        $this->be($admin);
-        $this->user = $admin;
-    }
-
-    public function signIn($type = 'customer'): void
-    {
-        if ($type == 'guest') {
-            return;
-        } elseif ($type == 'customer') {
-            $this->customer();
-        } elseif ($type == 'admin') {
-            $this->admin();
+        if(isset($null)){
+            $this->user->assignRole($this->userType) ;
         }
+
+        $this->be($this->user) ;
     }
 
     /**
