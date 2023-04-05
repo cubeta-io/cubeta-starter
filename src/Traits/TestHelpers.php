@@ -64,24 +64,24 @@ trait TestHelpers
         $this->requestPath = $data;
     }
 
+    public function signIn($type = null): void
+    {
+        $this->user = User::factory()->create();
+
+        if (isset($null)) {
+            $this->user->assignRole($this->userType);
+        }
+
+        $this->be($this->user);
+    }
+
     public function setUp(): void
     {
-        if(isset($this->userType)){
+        if (isset($this->userType)) {
             Artisan::call('db:seed RoleSeeder');
         }
 
         $this->signIn($this->userType);
-    }
-
-    public function signIn($type = null): void
-    {
-        $this->user = User::factory()->create() ;
-
-        if(isset($null)){
-            $this->user->assignRole($this->userType) ;
-        }
-
-        $this->be($this->user) ;
     }
 
     /**

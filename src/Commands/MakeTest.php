@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Str;
 
 class MakeTest extends Command
 {
@@ -33,6 +34,7 @@ class MakeTest extends Command
      */
     private function createTest($modelName)
     {
+        $modelName = ucfirst(Str::singular($modelName));
         $testName = $this->getTestName($modelName);
 
         $stubProperties = [

@@ -72,12 +72,12 @@ class MakeFactory extends Command
         $relatedFactories = '';
         foreach ($attributes as $name => $type) {
             if (Str::endsWith($name, '_at')) {
-                $rows .= "\t\t\t'$name' => \$this->faker->date(),\n";
+                $rows .= "\t\t\t'$name' => fake()->date(),\n";
 
                 continue;
             }
             if (Str::startsWith($name, 'is_')) {
-                $rows .= "\t\t\t'$name' => \$this->faker->boolean(),\n";
+                $rows .= "\t\t\t'$name' => fake()->boolean(),\n";
 
                 continue;
             }
@@ -116,14 +116,14 @@ class MakeFactory extends Command
     }
 
     private array $typeFaker = [
-        'integer' => '$this->faker->numberBetween(1,2000)',
-        'bigInteger' => '$this->faker->numberBetween(1,2000)',
-        'unsignedBigInteger' => '$this->faker->numberBetween(1,2000)',
-        'unsignedDouble' => '$this->faker->randomFloat(1,2000)',
-        'double' => '$this->faker->randomFloat(1,2000)',
-        'float' => '$this->faker->randomFloat(1,2000)',
-        'string' => '$this->faker->sentence',
-        'text' => '$this->faker->text',
-        'json' => "{'".'$this->faker->word'."':'".'$this->faker->word'."'}",
+        'integer' => 'fake()->numberBetween(1,2000)',
+        'bigInteger' => 'fake()->numberBetween(1,2000)',
+        'unsignedBigInteger' => 'fake()->numberBetween(1,2000)',
+        'unsignedDouble' => 'fake()->randomFloat(1,2000)',
+        'double' => 'fake()->randomFloat(1,2000)',
+        'float' => 'fake()->randomFloat(1,2000)',
+        'string' => 'fake()->sentence()',
+        'text' => 'fake()->text()',
+        'json' => "{'".'fake()->word()'."':'".'fake()->word()'."'}",
     ];
 }
