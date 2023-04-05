@@ -128,7 +128,7 @@ class MakeModel extends Command
             ]);
         }
 
-        $this->line(exec($this->appPath().'/vendor/bin/pint'));
+//        $this->line(exec($this->appPath().'/vendor/bin/pint'));
     }
 
     /**
