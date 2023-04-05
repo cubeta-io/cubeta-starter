@@ -27,7 +27,7 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         $this->files = $this->app->make(Filesystem::class);
         if ($this->isConfigPublished()) {
-            $this->bindAllRepositories();
+            $this->bindAllServices();
         }
     }
 
@@ -47,7 +47,7 @@ class RepositoryServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    private function bindAllRepositories(): void
+    private function bindAllServices(): void
     {
         $repositories = $this->getRepositories();
         foreach ($repositories as $key => $repository) {
