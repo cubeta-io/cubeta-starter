@@ -15,7 +15,8 @@ class MakeResource extends Command
 
     public $signature = 'create:resource
         {name : The name of the model }
-        {attributes : columns with data types}?';
+        {attributes : columns with data types}?
+        {relations : the model relations}?';
 
     public $description = 'Create a new resource';
 
@@ -28,20 +29,21 @@ class MakeResource extends Command
     {
         $modelName = $this->argument('name');
         $attributes = $this->argument('attributes');
+        $relations = $this->argument('relations') ;
 
-        $this->createResource($modelName, $attributes);
+        $this->createResource($modelName, $attributes , $relations);
     }
 
     /**
      * @throws BindingResolutionException
      */
-    private function createResource($modelName, array $attributes)
+    private function createResource($modelName, array $attributes , $relations)
     {
         $resourceName = $this->getResourceName($modelName);
 
         $stubProperties = [
             '{class}' => $resourceName,
-            '{resource_fields}' => $this->generateCols($attributes),
+            '{resource_fields}' => $this->generateCols($attributes , $relations),
         ];
 
         new CreateFile(
@@ -57,22 +59,26 @@ class MakeResource extends Command
         return $modelName.'Resource';
     }
 
-    private function generateCols(array $attributes): string
+    private function generateCols(array $attributes , $relations): string
     {
         $columns = "'id'                     =>  \$this->id, \n\t\t\t";
         foreach ($attributes as $name => $value) {
-            if ($value == RelationsTypeEnum::HasOne || $value == RelationsTypeEnum::BelongsTo) {
-                $columns .= "'$name'         =>  \$this->$name,\n\t\t\t";
-                $relation = lcfirst(Str::singular(str_replace('_id', '', $name)));
-                $columns .= "'$relation'     =>  \$this->whenLoaded('$relation') , \n\t\t\t";
-            } elseif ($value == RelationsTypeEnum::ManyToMany || $value == RelationsTypeEnum::HasMany) {
-                $relation = lcfirst(Str::plural($name));
-                $columns .= "'$relation'     =>  \$this->whenLoaded('$relation') , \n\t\t\t";
-            } else {
-                $columns .= "'$name'         =>  \$this->$name,\n\t\t\t";
-            }
+            $columns .= "'$name'         =>  \$this->$name,\n\t\t\t";
         }
 
+        foreach ($relations as $rel => $type){
+            if($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo){
+                $relation = lcfirst(Str::singular(str_replace('_id', '', $rel)));
+                $relatedModelResource = ucfirst($relation).'Resource' ;
+                $columns .= "'$relation'     =>  new $relatedModelResource(\$this->whenLoaded('$relation')) , \n\t\t\t";
+            }
+
+            elseif ($type == RelationsTypeEnum::ManyToMany || $type == RelationsTypeEnum::HasMany) {
+                $relation = lcfirst(Str::plural($rel));
+                $relatedModelResource = ucfirst(Str::singular($relation)).'Resource' ;
+                $columns .= "'$relation'     =>  $relatedModelResource::collection(\$this->whenLoaded('$relation')) , \n\t\t\t";
+            }
+        }
         return $columns;
     }
 

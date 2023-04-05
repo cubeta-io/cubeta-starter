@@ -16,6 +16,12 @@ class MakeModel extends Command
 {
     use AssistCommand;
 
+    /**
+     *  a variable to store the many to many and has many relations to pass them to the resource
+     * @var array
+     */
+    protected array $relations = [];
+
     public $signature = 'create:model
         {name : The name of the model }
         {option? : string to generate a single file (migration,request,resource,factory,seeder,controller-api,controller-base,repository,service)}';
@@ -91,7 +97,7 @@ class MakeModel extends Command
             'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes]),
             'controller' => $this->call('create:controller', ['name' => $name]),
             'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes]),
-            'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes]),
+            'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
             'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes]),
             'seeder' => $this->call('create:seeder', ['name' => $name]),
             'repository' => $this->call('create:repository', ['name' => $name]),
@@ -106,15 +112,13 @@ class MakeModel extends Command
             $this->call('create:factory', ['name' => $name, 'attributes' => $attributes]);
             $this->call('create:seeder', ['name' => $name]);
             $this->call('create:request', ['name' => $name, 'attributes' => $attributes]);
-            $this->call('create:resource', ['name' => $name, 'attributes' => $attributes]);
+            $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
             $this->call('create:controller', ['name' => $name]);
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
             $this->call('create:test', ['name' => $name]);
 //            $this->call('create:controller --base'  , ["name" => $name, 'attributes' => $attributes]);
         }
-
-        $this->info('Migration created successfully.');
     }
 
     /**
@@ -150,10 +154,10 @@ class MakeModel extends Command
         $stubProperties = [
             '{namespace}' => $namespace,
             '{modelName}' => $className,
-            '{properties}' => $this->getModelProperty($attributes),
+            '{relations}' => $this->getModelRelation($attributes, $className),
+            '{properties}' => $this->getModelProperty($attributes, $this->relations),
             '{images}' => $imagesAttribute['appends'],
             '{imageAttribute}' => $imagesAttribute['image'],
-            '{relations}' => $this->getModelRelation($attributes , $className),
             '{scopes}' => $this->boolValuesScope($attributes),
         ];
         // check folder exist
@@ -178,7 +182,7 @@ class MakeModel extends Command
 
         foreach ($foreignKeys as $key => $value) {
 
-            $result = $this->choice('The ' . $key . ' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
+            $result = $this->choice('The ' . $value . ' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
 
             if ($result == RelationsTypeEnum::HasOne) {
 
@@ -191,6 +195,7 @@ class MakeModel extends Command
                     return $this->hasOne(' . Str::singular(ucfirst($relationName)) . "::class);
                 }\n";
 
+                $this->relations[$relationName] = RelationsTypeEnum::HasOne;
             }
 
             if ($result == RelationsTypeEnum::BelongsTo) {
@@ -204,12 +209,14 @@ class MakeModel extends Command
                     return $this->belongsTo(' . Str::singular(ucfirst($relationName)) . "::class);
                 }\n";
 
+                $this->relations[$relationName] = RelationsTypeEnum::BelongsTo;
             }
         }
 
         $thereIsHasMany = true;
 
         while ($thereIsHasMany) {
+
             $result = $this->choice('Does this model related with another model by has many relation ?', ['No', 'Yes'], 'No');
 
             $decision = 'No';
@@ -226,6 +233,8 @@ class MakeModel extends Command
                 }\n";
 
                 $decision = $this->choice('Does it has another has many relation ? ', ['No', 'Yes'], 'No');
+
+                $this->relations[$relationName] = RelationsTypeEnum::HasMany;
             }
 
             $thereIsHasMany = $decision == 'Yes';
@@ -254,7 +263,9 @@ class MakeModel extends Command
                     'table2' => Str::plural(Str::lower($relationName))
                 ]);
 
-                $decision = $this->choice('Does it has another has many relation ? ', ['No', 'Yes'], 'No');
+                $decision = $this->choice('Does it has another many to many relation ? ', ['No', 'Yes'], 'No');
+
+                $this->relations[$relationName] = RelationsTypeEnum::ManyToMany;
             }
 
             $thereIsManyToMany = $decision == 'Yes';
@@ -263,16 +274,28 @@ class MakeModel extends Command
         return $relationsFunctions;
     }
 
-    private function getModelProperty($attributes): string
+    private function getModelProperty($attributes, $relations): string
     {
         $properties = "/**  \n";
-        foreach ($attributes as $name => $type) {
+        foreach ($relations as $name => $type) {
             if ($type == RelationsTypeEnum::ManyToMany) {
                 $properties .= '* @property BelongsToMany ' . $name . "\n";
-            } else {
-                $properties .= "* @property $type $name \n";
+            } elseif ($type == RelationsTypeEnum::HasMany) {
+                $properties .= '* @property HasMany ' . $name . "\n";
+            } elseif ($type == RelationsTypeEnum::BelongsTo) {
+                $properties .= "* @property BelongsTo $name \n";
+            } elseif ($type == RelationsTypeEnum::HasOne) {
+                $properties .= "* @property HasOne $name \n";
             }
         }
+
+        foreach ($attributes as $name => $type) {
+            if ($type == 'key') {
+                continue;
+            }
+            $properties .= "* @property $type $name \n";
+        }
+
         $properties .= "*/ \n";
 
         return $properties;
@@ -345,28 +368,5 @@ class MakeModel extends Command
         }
 
         return $scopes;
-    }
-
-    /**
-     * some relations don't need a columns in the same table such many to many this function will remove these columns from the attributes array, so they wouldn't be created
-     */
-    public function fixingAttributesForMigrations(array $attributes): array
-    {
-        $fixedAttributes = $attributes;
-
-        $manyToManyAttributes = array_keys($fixedAttributes, RelationsTypeEnum::ManyToMany);
-        $hasManyAttributes = array_keys($fixedAttributes, RelationsTypeEnum::HasMany);
-
-        foreach ($fixedAttributes as $attribute => $value) {
-            // removing the many-to-many relations from migration attributes
-            if (in_array($attribute, $manyToManyAttributes)) {
-                unset($fixedAttributes[$attribute]);
-            } // removing hasMany relations from migration attributes
-            elseif (in_array($attribute, $hasManyAttributes)) {
-                unset($fixedAttributes[$attribute]);
-            }
-        }
-
-        return $fixedAttributes;
     }
 }
