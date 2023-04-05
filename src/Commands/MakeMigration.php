@@ -15,7 +15,8 @@ class MakeMigration extends Command
 
     public $signature = 'create:migration
         {name : The name of the model }
-        {attributes : columns with data types}?';
+        {attributes? : columns with data types}
+        {relations?  : related models}';
 
     public $description = 'Create a new migration';
 
@@ -25,12 +26,13 @@ class MakeMigration extends Command
     public function handle(): void
     {
         $modelName = $this->argument('name');
-        $attributes = $this->argument('attributes');
+        $attributes = $this->argument('attributes') ?? [];
+        $relations = $this->argument('relations') ?? [];
 
-        $this->createMigration($modelName, $attributes);
+        $this->createMigration($modelName, $attributes, $relations);
     }
 
-    private function createMigration($modelName, array $attributes)
+    private function createMigration($modelName, array $attributes, array $relations)
     {
         $migrationName = $this->getMigrationName($modelName);
 
@@ -38,7 +40,7 @@ class MakeMigration extends Command
 
         $stubProperties = [
             '{table}' => $tableName,
-            '{col}' => $this->generateCols($attributes),
+            '{col}' => $this->generateCols($attributes, $relations),
         ];
 
         new CreateFile(
@@ -51,20 +53,26 @@ class MakeMigration extends Command
 
     private function getMigrationName($modelName): string
     {
-        $date = Carbon::now()->format('Y_m_d_').time();
+        $date = Carbon::now()->subSecond()->format('Y_m_d_His');
 
         return $date.'_create_'.Str::plural(strtolower($modelName)).'_table';
     }
 
-    private function generateCols(array $attributes): string
+    private function generateCols(array $attributes, array $relations): string
     {
         $columns = '';
         foreach ($attributes as $name => $type) {
-            if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
-                $modelName = ucfirst(Str::singular(str_replace('_id', '', $name)));
-                $columns .= "\t\t\t\$table->foreignIdFor(App\Models\\$modelName::class)->constrained()->cascadeOnDelete(); \n";
+            if ($type == 'key') {
+                continue;
             } else {
                 $columns .= "\t\t\t\$table->".($type == 'file' ? 'string' : $type)."('$name')".($type == 'file' ? '->nullable()' : '')."; \n";
+            }
+        }
+
+        foreach ($relations as $rel => $type) {
+            if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
+                $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
+                $columns .= "\t\t\t\$table->foreignIdFor(App\Models\\$modelName::class)->constrained()->cascadeOnDelete(); \n";
             }
         }
 

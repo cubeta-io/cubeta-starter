@@ -122,6 +122,6 @@ class MakeRequest extends Command
 
         $this->ensureDirectoryExists($path);
 
-        return  $path."$requestName".'.php';
+        return $path."$requestName".'.php';
     }
 }

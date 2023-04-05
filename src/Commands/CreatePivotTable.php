@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Carbon\Carbon;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Exception;
 use Illuminate\Console\Command;
@@ -25,7 +26,7 @@ class CreatePivotTable extends Command
         $table1 = $this->argument('table1');
         $table2 = $this->argument('table2');
 
-        $pivotTableName = Str::singular($table1).'_'.$table2;
+        $pivotTableName = lcfirst(Str::singular($table1)).'_'.lcfirst(Str::plural($table2));
 
         $this->info('Creating migration for pivot table '.$pivotTableName);
 
@@ -42,7 +43,9 @@ class CreatePivotTable extends Command
     {
         $migrationName = 'create_'.$pivotTableName.'_table';
 
-        $migrationPath = database_path('migrations/'.date('Y_m_d_His', time()).'_'.$migrationName.'.php');
+        $date = Carbon::now()->addSecond()->format('Y_m_d_His');
+
+        $migrationPath = database_path('migrations/'.$date.'_'.$migrationName.'.php');
 
         $stub = file_get_contents(__DIR__.'/stubs/pivot-migration.stub');
 
