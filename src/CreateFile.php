@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter;
 
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 
 class CreateFile
@@ -70,12 +71,10 @@ class CreateFile
     }
 
     /**
-     * Populate stub with the provided array data, the key is dummy value on stub,
-     * the value is the value to replace
-     *
-     * @return mixed|string
+     * @param string $stub
+     * @return array|string|string[]
      */
-    private function populateStub(string $stub)
+    private function populateStub(string $stub): array|string
     {
         foreach ($this->stubProperties as $replacer => $replaceBy) {
             $stub = str_replace($replacer, $replaceBy, $stub);
@@ -85,11 +84,10 @@ class CreateFile
     }
 
     /**
-     * Get stub from the provided path
-     *
-     * @return mixed|string
+     * @return string
+     * @throws FileNotFoundException
      */
-    private function getStub()
+    private function getStub(): string
     {
         return $this->files->get($this->stubPath);
     }
@@ -100,7 +98,7 @@ class CreateFile
      * @param  string|mixed  $stub
      * @return void
      */
-    private function writeFile($stub)
+    private function writeFile(mixed $stub): void
     {
         $this->files->put($this->path, $stub);
     }

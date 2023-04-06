@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use SplFileInfo;
 
@@ -21,13 +21,12 @@ class RepositoryServiceProvider extends ServiceProvider
      * Register any application services.
      *
      * @return void
-     * @throws BindingResolutionException
      */
     public function register(): void
     {
         $this->files = $this->app->make(Filesystem::class);
         if ($this->isConfigPublished()) {
-            $this->bindAllServices();
+            $this->bindAllRepositories();
         }
     }
 
@@ -47,17 +46,16 @@ class RepositoryServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    private function bindAllServices(): void
+    private function bindAllRepositories(): void
     {
-        $repositories = $this->getRepositories();
-        foreach ($repositories as $key => $repository) {
-            $modelName = str_replace('Repository' , '' , $repository) ;
+        $repositoryFiles = File::allFiles(app_path().'/Repositories') ;
+        foreach ($repositoryFiles as $repositoryFile){
+            $repositoryFileName = $repositoryFile->getBasename() ;
+            $repository = str_replace('.php' , '' , $repositoryFileName) ;
+            $model = str_replace('Repository' , '' , $repository) ;
 
-            $models = $this->getModelsFiles();
-            if ($repositories->contains($modelName)) {
-                $repository = $this->getRepositoryNamespace() . '\\' . $modelName.'Repository';
-                $model = $this->getModelNameSpace() . $modelName;
-                $this->app->bind($modelName, $repository);
+            if(file_exists(app_path().'/Models/'.$model.'php')){
+                $this->app->bind('\App\Repositories\\'.$repository , '\App\Models\\'.$model);
             }
         }
     }
@@ -70,10 +68,85 @@ class RepositoryServiceProvider extends ServiceProvider
     private function getRepositories(): Collection
     {
         $repositories = collect([]);
-        if (!$this->files->isDirectory($directory = $this->getRepositoryPath())) {
+        if (! $this->files->isDirectory($directory = $this->getRepositoryPath())) {
             return $repositories;
         }
         $files = $this->files->files($directory);
+        if (is_array($files)) {
+            $interfaces = collect($files)->map(function (SplFileInfo $file) {
+                return str_replace('.php', '', $file->getFilename());
+            });
+        }
+
+        return $interfaces;
+    }
+
+    /**
+     * Get repositories path
+     *
+     * @return string
+     */
+    private function getRepositoryPath()
+    {
+        return $this->app->basePath().
+            '/'.config('repository.repository_directory');
+    }
+
+    /**
+     * Get current repository implementation path
+     *
+     * @return string
+     */
+    private function getRepositoryCurrentImplementationPath()
+    {
+        return $this->app->basePath().
+            '/'.config('repository.repository_directory').
+            '/'.config('repository.current_repository_implementation');
+    }
+
+    /**
+     * Get repository interface namespace
+     *
+     * @return string
+     */
+    private function getRepositoryInterfaceNamespace()
+    {
+        return config('repository.repository_namespace')."\Interfaces\\";
+    }
+
+    /**
+     * Get repository namespace
+     *
+     * @return string
+     */
+    private function getRepositoryNamespace()
+    {
+        return config('repository.repository_namespace').
+            '\\'.config('repository.current_repository_implementation');
+    }
+
+    /**
+     * Get repository file name
+     *
+     * @return string
+     */
+    private function getRepositoryFileName($className)
+    {
+        return $className.config('repository.repository_suffix');
+    }
+
+    /**
+     * Get repository names
+     *
+     * @return Collection
+     */
+    private function getRepositoryFiles()
+    {
+        $repositories = collect([]);
+        if (! $this->files->isDirectory($repositoryDirectory = $this->getRepositoryCurrentImplementationPath())) {
+            return $repositories;
+        }
+        $files = $this->files->files($repositoryDirectory);
         if (is_array($files)) {
             $repositories = collect($files)->map(function (SplFileInfo $file) {
                 return str_replace('.php', '', $file->getFilename());
@@ -84,78 +157,15 @@ class RepositoryServiceProvider extends ServiceProvider
     }
 
     /**
-     * Get repositories path
-     *
-     * @return string
-     */
-    private function getRepositoryPath(): string
-    {
-        return $this->app->basePath() .
-            '/' . config('repository.repository_directory');
-    }
-
-    /**
-     * Get current repository implementation path
-     *
-     * @return string
-     */
-    private function getModelsPath(): string
-    {
-        return $this->app->basePath() .
-            '/' . config('repository.model_directory');
-    }
-
-    /**
-     * Get repository interface namespace
-     *
-     * @return string
-     */
-    private function getModelNameSpace(): string
-    {
-        return config('repository.model_namespace');
-    }
-
-    /**
-     * Get repository namespace
-     *
-     * @return string
-     */
-    private function getRepositoryNamespace(): string
-    {
-        return config('repository.repository_namespace');
-    }
-
-    /**
-     * Get repository names
-     *
-     * @return Collection
-     */
-    private function getModelsFiles(): Collection
-    {
-        $models = collect([]);
-
-        if (!$this->files->isDirectory($modelDirectory = $this->getModelsPath())) {
-            return $models;
-        }
-
-        $files = $this->files->files($modelDirectory);
-        if (is_array($files)) {
-            $models = collect($files)->map(function (SplFileInfo $file) {
-                return str_replace('.php', '', $file->getFilename());
-            });
-        }
-
-        return $models;
-    }
-
-    /**
      * Check if config is published
      *
      * @return bool
      */
-    private function isConfigPublished(): bool
+    private function isConfigPublished()
     {
         $path = config_path('repository.php');
-        return file_exists($path);
+        $exists = file_exists($path);
+
+        return $exists;
     }
 }
