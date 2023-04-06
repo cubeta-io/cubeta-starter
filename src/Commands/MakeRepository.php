@@ -59,30 +59,6 @@ class MakeRepository extends Command
             __DIR__ . '/stubs/repository.stub'
         );
 
-//        if (!file_exists($this->appPath() . '/app/providers/RepositoryServiceProvider.php')) {
-//            // create file
-//            File::put($this->appPath() . '/app/providers/RepositoryServiceProvider.php' ,
-//                File::get(__DIR__ . '/stubs/RepositoryServiceProvider.stub'));
-//        }
-//
-//        $path = $this->appPath().'/app/Providers/RepositoryServiceProvider.php';
-//        $path = str_replace('\\', '/', $path);
-//        $contents = File::get($path);
-//
-//        // Modify the contents as needed
-//        $newContents = str_replace(
-//            '//add-bindings',
-//            "\$this->app->bind('App\Repositories\\".$modelName."Repository', function (\$app) {
-//                        return new ".$modelName."Repository(
-//                            \$app->make(.$modelName.::class)
-//                        );
-//                    }); \n \n
-//                    //add-bindings",
-//            $contents
-//        );
-//
-//        File::put($path, $newContents);
-
         $this->line("<info>Created Repository:</info> $repositoryName");
     }
 
@@ -102,10 +78,5 @@ class MakeRepository extends Command
     private function getNameSpace(): string
     {
         return config('repository.repository_namespace');
-    }
-
-    private function getProviderPath(): string
-    {
-        return $this->appPath().'/app/Repositories/RepositoryServiceProvider.php' ;
     }
 }
