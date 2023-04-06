@@ -64,9 +64,13 @@ class RepositoryServiceProvider extends ServiceProvider
             $serviceFileName = $serviceFile->getBasename() ;
             $service = str_replace('.php' , '' , $serviceFileName) ;
             $IService = 'I'.$service ;
+            $modelName = str_replace('Service', '', $service);
 
             if(file_exists(app_path().'/Services/'.$IService.'php')){
-                $this->app->bind('\App\Services\\'.$service , '\App\Services\\'.$IService);
+                $this->app->bind(
+                    '\App\Services\\' . $modelName . '\\' . $iService,
+                    '\App\Services\\' . $modelName . '\\' . $service
+                );
             }
         }
     }
