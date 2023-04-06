@@ -48,28 +48,30 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     private function bindAllRepositories(): void
     {
-        $repositoryFiles = File::allFiles(app_path().'/Repositories') ;
-        foreach ($repositoryFiles as $repositoryFile){
-            $repositoryFileName = $repositoryFile->getBasename() ;
-            $repository = str_replace('.php' , '' , $repositoryFileName) ;
-            $model = str_replace('Repository' , '' , $repository) ;
+        $repositoryFiles = File::allFiles(app_path() . DIRECTORY_SEPARATOR . 'Repositories');
+        foreach ($repositoryFiles as $repositoryFile) {
+            $repositoryFileName = $repositoryFile->getBasename('.php');
+            $repository = str_replace('Repository', '', $repositoryFileName);
+            $model = str_replace('Repository', '', $repository);
 
-            if(file_exists(app_path().'/Models/'.$model.'php')){
-                $this->app->bind('\App\Repositories\\'.$repository , '\App\Models\\'.$model);
+            $modelPath = app_path() . DIRECTORY_SEPARATOR . 'Models' . DIRECTORY_SEPARATOR . $model . '.php';
+            if (file_exists($modelPath) && class_exists('\App\Models\\' . $model)) {
+                $this->app->bind('\App\Repositories\\' . $repository.'php', '\App\Models\\' . $model .'php');
             }
         }
 
-        $serviceFiles = File::allFiles(app_path().'/Services') ;
-        foreach ($serviceFiles as $serviceFile){
-            $serviceFileName = $serviceFile->getBasename() ;
-            $service = str_replace('.php' , '' , $serviceFileName) ;
-            $IService = 'I'.$service ;
+        $serviceFiles = File::allFiles(app_path() . DIRECTORY_SEPARATOR . 'Services');
+        foreach ($serviceFiles as $serviceFile) {
+            $serviceFileName = $serviceFile->getBasename('.php');
+            $service = str_replace('Service', '', $serviceFileName);
+            $iService = 'I' . $service;
             $modelName = str_replace('Service', '', $service);
 
-            if(file_exists(app_path().'/Services/'.$IService.'php')){
+            $iServicePath = app_path() . DIRECTORY_SEPARATOR . 'Services' . DIRECTORY_SEPARATOR . $iService . '.php';
+            if (file_exists($iServicePath) && class_exists('\App\Services\\' . $modelName . '\\' . $service)) {
                 $this->app->bind(
-                    '\App\Services\\' . $modelName . '\\' . $iService,
-                    '\App\Services\\' . $modelName . '\\' . $service
+                    '\App\Services\\' . $modelName . '\\' . $iService.'php',
+                    '\App\Services\\' . $modelName . '\\' . $service.'php'
                 );
             }
         }
