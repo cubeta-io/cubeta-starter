@@ -58,6 +58,17 @@ class RepositoryServiceProvider extends ServiceProvider
                 $this->app->bind('\App\Repositories\\'.$repository , '\App\Models\\'.$model);
             }
         }
+
+        $serviceFiles = File::allFiles(app_path().'/Services') ;
+        foreach ($serviceFiles as $serviceFile){
+            $serviceFileName = $serviceFile->getBasename() ;
+            $service = str_replace('.php' , '' , $serviceFileName) ;
+            $IService = 'I'.$service ;
+
+            if(file_exists(app_path().'/Services/'.$IService.'php')){
+                $this->app->bind('\App\Services\\'.$service , '\App\Services\\'.$IService);
+            }
+        }
     }
 
     /**
