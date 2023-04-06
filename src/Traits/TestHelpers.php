@@ -13,7 +13,7 @@ trait TestHelpers
 
     protected $user;
 
-    protected $userType = null;
+    protected $userType;
 
     protected $model;
 
@@ -43,6 +43,7 @@ trait TestHelpers
      *
      * @param  mixed  $data the data that  has to be converted
      * @param  bool  $multiple if you want to return an array of data
+     * @return array
      */
     public function convertResourceToArray(mixed $data, bool $multiple = false): array
     {
@@ -64,28 +65,32 @@ trait TestHelpers
         $this->requestPath = $data;
     }
 
-    public function signIn($type = null): void
-    {
-        $this->user = User::factory()->create();
-
-        if (isset($null)) {
-            $this->user->assignRole($this->userType);
-        }
-
-        $this->be($this->user);
-    }
-
     public function setUp(): void
     {
-        if (isset($this->userType)) {
+        parent::setUp();
+
+        if (isset($this->userType)){
             Artisan::call('db:seed RoleSeeder');
         }
 
         $this->signIn($this->userType);
     }
 
+    public function signIn($type = null): void
+    {
+        $this->user = User::factory()->create() ;
+        if(isset($type)){
+            $this->user->assignRole($type) ;
+        }
+        $this->be($this->user) ;
+    }
+
     /**
      * this function for login using email address and default password is 12345678
+     *
+     * @param  string  $email
+     * @param  string  $password
+     * @return void
      */
     public function login(string $email, string $password = '12345678'): void
     {
@@ -95,19 +100,31 @@ trait TestHelpers
         ]);
     }
 
+    /**
+     * data = [] ||| message = there is no data
+     * @return void
+     */
     public function failedMultiResponse()
     {
         $this->responseBody['data'] = [];
         $this->responseBody['message'] = __('site.there_is_no_data');
     }
 
-    public function failedFalseResponse()
+    /**
+     * data = false ||| message  = there is no data
+     * @return void
+     */
+    public function failedFalseResponse(): void
     {
         $this->responseBody['data'] = false;
         $this->responseBody['message'] = __('site.there_is_no_data');
     }
 
-    public function checkSoftDeleteColumn()
+    /**
+     * check if the model can softdelete
+     * @return bool
+     */
+    public function checkSoftDeleteColumn(): bool
     {
         $tableName = (new $this->model)->getTable();
         $columns = Schema::getColumnListing($tableName);
