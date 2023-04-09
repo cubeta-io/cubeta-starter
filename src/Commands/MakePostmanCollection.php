@@ -37,7 +37,7 @@ class MakePostmanCollection extends Command
     private function createPostmanCollection($modelName, $attributes)
     {
         $modelName = Str::singular(ucfirst($modelName));
-        $routeName = 'api.' . $modelName;
+        $endpoint = env('APP_URL').'/'.Str::plural(Str::lower($modelName)) ;
         $projetName = env('APP_NAME');
         $collectionPath = base_path() . "/$projetName.postman_collection.json";
 
@@ -45,11 +45,11 @@ class MakePostmanCollection extends Command
 
         $stubProperties = [
             '{modelName}' => $modelName,
-            '{indexRoute}' => $routeName . '.index',
-            '{showRoute}' => $routeName . '.show',
-            '{storeRoute}' => $routeName . '.store',
-            '{updateRoute}' => $routeName . '.update',
-            '{deleteRoute}' => $routeName . '.delete',
+            '{indexRoute}' => $endpoint,
+            '{showRoute}' => $endpoint.'/1',
+            '{storeRoute}' => $endpoint,
+            '{updateRoute}' => $endpoint.'/1',
+            '{deleteRoute}' => $endpoint.'/1',
             '{formData}' => $this->generateBodyData($attributes)
         ];
 

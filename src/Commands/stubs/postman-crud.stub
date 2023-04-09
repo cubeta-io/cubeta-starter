@@ -9,7 +9,7 @@
 						"url": {
 							"raw": "{indexRoute}",
 							"host": [
-								"{{localhost}}/{indexRoute}"
+								"{indexRoute}"
 							]
 						}
 					},
@@ -23,7 +23,7 @@
 						"url": {
 							"raw": "{showRoute}",
 							"host": [
-								"{{localhost}}/{showRoute}"
+								"{showRoute}"
 							]
 						}
 					},
@@ -43,7 +43,7 @@
 						"url": {
 							"raw": "{storeRoute}",
 							"host": [
-								"{{localhost}}/{storeRoute}"
+								"{storeRoute}"
 							]
 						}
 					},
@@ -63,7 +63,7 @@
 						"url": {
 							"raw": "{updateRoute}",
 							"host": [
-								"{{localhost}}/{updateRoute}"
+								"{updateRoute}"
 							]
 						}
 					},
@@ -77,7 +77,7 @@
 						"url": {
 							"raw": "{deleteRoute}",
 							"host": [
-								"{{localhost}}/{deleteRoute}"
+								"{deleteRoute}"
 							]
 						}
 					},
