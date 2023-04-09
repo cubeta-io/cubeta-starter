@@ -7,9 +7,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{indexRoute}",
+							"raw": "{{local}}/{indexRoute}",
 							"host": [
-								"{indexRoute}"
+								"{{local}}/{indexRoute}"
 							]
 						}
 					},
@@ -21,9 +21,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{showRoute}",
+							"raw": "{{local}}/{showRoute}",
 							"host": [
-								"{showRoute}"
+								"{{local}}/{showRoute}"
 							]
 						}
 					},
@@ -41,9 +41,9 @@
 							]
 						},
 						"url": {
-							"raw": "{storeRoute}",
+							"raw": "{{local}}/{storeRoute}",
 							"host": [
-								"{storeRoute}"
+								"{{local}}/{storeRoute}"
 							]
 						}
 					},
@@ -61,9 +61,9 @@
 							]
 						},
 						"url": {
-							"raw": "{updateRoute}",
+							"raw": "{{local}}/{updateRoute}",
 							"host": [
-								"{updateRoute}"
+								"{{local}}/{updateRoute}"
 							]
 						}
 					},
@@ -75,9 +75,9 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{deleteRoute}",
+							"raw": "{{local}}/{deleteRoute}",
 							"host": [
-								"{deleteRoute}"
+								"{{local}}/{deleteRoute}"
 							]
 						}
 					},

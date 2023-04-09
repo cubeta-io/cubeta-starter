@@ -14,7 +14,7 @@ class CreateFile
      *
      * @property string $path
      */
-    private $path;
+    private string $path;
 
     /**
      * The stubProperties to replace
@@ -39,6 +39,7 @@ class CreateFile
 
     /**
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     public function __construct(array $stubProperties, string $path, string $stubPath)
     {
@@ -62,8 +63,9 @@ class CreateFile
      * Create the stub file by replacing all the keys
      *
      * @return void
+     * @throws FileNotFoundException
      */
-    private function createStub()
+    private function createStub(): void
     {
         $stub = $this->getStub();
         $populatedStub = $this->populateStub($stub);

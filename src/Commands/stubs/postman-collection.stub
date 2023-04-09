@@ -8,5 +8,12 @@
 
 	"item": [
 		// add-your-cruds-here
+	] , 
+	"variable": [
+		{
+			"key": "local",
+			"value": "",
+			"type": "string"
+		}
 	]
 }
