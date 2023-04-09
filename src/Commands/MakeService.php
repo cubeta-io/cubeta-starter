@@ -35,10 +35,10 @@ class MakeService extends Command
      */
     private function createService($modelName): void
     {
-        $namespace = $this->getNameSpace()."\\$modelName";
+        $namespace = $this->getNameSpace() . "\\$modelName";
 
-        $repositoryName = $modelName.'Repository';
-        $serviceName = $modelName.'Service';
+        $repositoryName = $modelName . 'Repository';
+        $serviceName = $modelName . 'Service';
 
         $stubProperties = [
             '{modelName}' => $modelName,
@@ -47,7 +47,7 @@ class MakeService extends Command
 
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
-        if (! file_exists($folder)) {
+        if (!file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
 
@@ -55,57 +55,9 @@ class MakeService extends Command
         new CreateFile(
             $stubProperties,
             $this->getServicePath($modelName),
-            __DIR__.'/stubs/service.stub'
+            __DIR__ . '/stubs/service.stub'
         );
         $this->line("<info>Created Service:</info> $serviceName");
-    }
-
-    public function createServiceInterface($modelName)
-    {
-        $namespace = $this->getNameSpace()."\\$modelName";
-
-        $serviceInterfaceName = 'I'.$modelName.'Service';
-        $stubProperties = [
-            '{modelName}' => $modelName,
-        ];
-
-        // check folder exist
-        $folder = str_replace('\\', '/', $namespace);
-        if (! file_exists($folder)) {
-            File::makeDirectory($folder, 0775, true, true);
-        }
-
-        new CreateFile(
-            $stubProperties,
-            $this->getServiceInterfacePath($modelName),
-            __DIR__.'/stubs/service-interface.stub'
-        );
-
-        $this->line("<info>Created Service Interface:</info> $serviceInterfaceName");
-    }
-
-    /**
-     * Get Service path
-     */
-    private function getServicePath($modelName): string
-    {
-        $serviceName = $modelName.'Service';
-
-        return $this->appPath().'/'.
-            config('repository.service_directory').
-            "/$modelName/$serviceName".'.php';
-    }
-
-    /**
-     * Get Service path
-     */
-    private function getServiceInterfacePath($modelName): string
-    {
-        $serviceInterfaceName = 'I'.$modelName.'Service';
-
-        return $this->appPath().'/'.
-            config('repository.service_directory').
-            "/$modelName/$serviceInterfaceName".'.php';
     }
 
     /**
@@ -114,5 +66,53 @@ class MakeService extends Command
     private function getNameSpace(): string
     {
         return config('repository.service_namespace');
+    }
+
+    /**
+     * Get Service path
+     */
+    private function getServicePath($modelName): string
+    {
+        $serviceName = $modelName . 'Service';
+
+        return $this->appPath() . '/' .
+            config('repository.service_directory') .
+            "/$modelName/$serviceName" . '.php';
+    }
+
+    public function createServiceInterface($modelName)
+    {
+        $namespace = $this->getNameSpace() . "\\$modelName";
+
+        $serviceInterfaceName = 'I' . $modelName . 'Service';
+        $stubProperties = [
+            '{modelName}' => $modelName,
+        ];
+
+        // check folder exist
+        $folder = str_replace('\\', '/', $namespace);
+        if (!file_exists($folder)) {
+            File::makeDirectory($folder, 0775, true, true);
+        }
+
+        new CreateFile(
+            $stubProperties,
+            $this->getServiceInterfacePath($modelName),
+            __DIR__ . '/stubs/service-interface.stub'
+        );
+
+        $this->line("<info>Created Service Interface:</info> $serviceInterfaceName");
+    }
+
+    /**
+     * Get Service path
+     */
+    private function getServiceInterfacePath($modelName): string
+    {
+        $serviceInterfaceName = 'I' . $modelName . 'Service';
+
+        return $this->appPath() . '/' .
+            config('repository.service_directory') .
+            "/$modelName/$serviceInterfaceName" . '.php';
     }
 }

@@ -44,14 +44,14 @@ class MakeTest extends Command
         new CreateFile(
             $stubProperties,
             $this->getTestPath($testName),
-            __DIR__.'/stubs/test.stub'
+            __DIR__ . '/stubs/test.stub'
         );
         $this->line("<info>Created Test:</info> $testName");
     }
 
     private function getTestName($modelName): string
     {
-        return $modelName.'Test';
+        return $modelName . 'Test';
     }
 
     /**
@@ -59,10 +59,10 @@ class MakeTest extends Command
      */
     private function getTestPath($testName): string
     {
-        $path = $this->appPath().'/tests/Feature/';
+        $path = $this->appPath() . '/tests/Feature/';
 
         $this->ensureDirectoryExists($path);
 
-        return $path."$testName".'.php';
+        return $path . "$testName" . '.php';
     }
 }

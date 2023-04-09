@@ -46,14 +46,14 @@ class MakeController extends Command
         new CreateFile(
             $stubProperties,
             $this->getControllerPath($controllerName),
-            __DIR__.'/stubs/controller.api.stub'
+            __DIR__ . '/stubs/controller.api.stub'
         );
         $this->line("<info>Created controller:</info> $controllerName");
     }
 
     private function getControllerName($modelName): string
     {
-        return $modelName.'Controller';
+        return $modelName . 'Controller';
     }
 
     /**
@@ -61,10 +61,10 @@ class MakeController extends Command
      */
     private function getControllerPath($controllerName): string
     {
-        $path = $this->appPath().'/app/Http/Controllers/API/v1';
+        $path = $this->appPath() . '/app/Http/Controllers/API/v1';
 
         $this->ensureDirectoryExists($path);
 
-        return $path."/$controllerName".'.php';
+        return $path . "/$controllerName" . '.php';
     }
 }

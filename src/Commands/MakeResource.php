@@ -50,14 +50,14 @@ class MakeResource extends Command
         new CreateFile(
             $stubProperties,
             $this->getResourcePath($resourceName),
-            __DIR__.'/stubs/resource.stub'
+            __DIR__ . '/stubs/resource.stub'
         );
         $this->line("<info>Created resource:</info> {$resourceName}");
     }
 
     private function getResourceName($modelName): string
     {
-        return $modelName.'Resource';
+        return $modelName . 'Resource';
     }
 
     private function generateCols(array $attributes, $relations): string
@@ -70,11 +70,11 @@ class MakeResource extends Command
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
                 $relation = lcfirst(Str::singular(str_replace('_id', '', $rel)));
-                $relatedModelResource = ucfirst($relation).'Resource';
+                $relatedModelResource = ucfirst($relation) . 'Resource';
                 $columns .= "'$relation'     =>  new $relatedModelResource(\$this->whenLoaded('$relation')) , \n\t\t\t";
             } elseif ($type == RelationsTypeEnum::ManyToMany || $type == RelationsTypeEnum::HasMany) {
                 $relation = lcfirst(Str::plural($rel));
-                $relatedModelResource = ucfirst(Str::singular($relation)).'Resource';
+                $relatedModelResource = ucfirst(Str::singular($relation)) . 'Resource';
                 $columns .= "'$relation'     =>  $relatedModelResource::collection(\$this->whenLoaded('$relation')) , \n\t\t\t";
             }
         }
@@ -87,10 +87,10 @@ class MakeResource extends Command
      */
     private function getResourcePath($ResourceName): string
     {
-        $path = $this->appPath().'/app/Http/Resources/';
+        $path = $this->appPath() . '/app/Http/Resources/';
 
         $this->ensureDirectoryExists($path);
 
-        return $path."$ResourceName".'.php';
+        return $path . "$ResourceName" . '.php';
     }
 }

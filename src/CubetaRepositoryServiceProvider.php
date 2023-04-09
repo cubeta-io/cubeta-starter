@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Commands\MakeController;
 use Cubeta\CubetaStarter\Commands\MakeFactory;
 use Cubeta\CubetaStarter\Commands\MakeMigration;
 use Cubeta\CubetaStarter\Commands\MakeModel;
+use Cubeta\CubetaStarter\Commands\MakePostmanCollection;
 use Cubeta\CubetaStarter\Commands\MakeRepository;
 use Cubeta\CubetaStarter\Commands\MakeRequest;
 use Cubeta\CubetaStarter\Commands\MakeResource;
@@ -62,7 +63,8 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeRequest::class)
             ->hasCommand(MakeRepository::class)
             ->hasCommand(MakeService::class)
-            ->hasCommand(MakeTest::class);
+            ->hasCommand(MakeTest::class)
+            ->hasCommand(MakePostmanCollection::class) ;
     }
 
     public function overrideCommands()

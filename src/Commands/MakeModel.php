@@ -16,20 +16,17 @@ class MakeModel extends Command
 {
     use AssistCommand;
 
-    /**
-     *  a variable to store the many to many and has many relations to pass them to the resource
-     */
-    protected array $relations = [];
-
     public $signature = 'create:model
         {name : The name of the model }
         {option? : string to generate a single file (migration,request,resource,factory,seeder,controller-api,controller-base,repository,service)}';
-
     /**
      * @var string
      */
     public $description = 'Create a new model class';
-
+    /**
+     *  a variable to store the many to many and has many relations to pass them to the resource
+     */
+    protected array $relations = [];
     /**
      * model properties type
      *
@@ -102,6 +99,7 @@ class MakeModel extends Command
             'repository' => $this->call('create:repository', ['name' => $name]),
             'service' => $this->call('create:service', ['name' => $name]),
             'test' => $this->call('create:test', ['name' => $name]),
+            'postman-collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
 //            'controller-api'    => $this->call('create:controller --api'    , ["name" => $name, 'attributes' => $attributes]),
 //            'controller-base'   => $this->call('create:controller --base'   , ["name" => $name, 'attributes' => $attributes]),
             '', null => 'all',
@@ -116,6 +114,7 @@ class MakeModel extends Command
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
             $this->call('create:test', ['name' => $name]);
+            $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
 //            $this->call('create:controller --base'  , ["name" => $name, 'attributes' => $attributes]);
         }
 
@@ -151,6 +150,16 @@ class MakeModel extends Command
     }
 
     /**
+     * Check to make sure if all required directories are available
+     *
+     * @throws BindingResolutionException
+     */
+    private function checkIfRequiredDirectoriesExist(): void
+    {
+        $this->ensureDirectoryExists(config('repository.model_directory'));
+    }
+
+    /**
      * Create the service
      *
      * @throws BindingResolutionException
@@ -165,7 +174,7 @@ class MakeModel extends Command
         $stubProperties = [
             '{namespace}' => $namespace,
             '{modelName}' => $className,
-            '{relations}' => $this->getModelRelation($attributes, $className),
+            '{relations}' => $this->getModelRelation($attributes),
             '{properties}' => $this->getModelProperty($attributes, $this->relations),
             '{images}' => $imagesAttribute['appends'],
             '{imageAttribute}' => $imagesAttribute['image'],
@@ -185,7 +194,40 @@ class MakeModel extends Command
         $this->line("<info>Created model:</info> $className");
     }
 
-    private function getModelRelation($attributes, $modelName): string
+    /**
+     * get namespace
+     */
+    private function getNameSpace(): string
+    {
+        return config('repository.model_namespace');
+    }
+
+    /**
+     * @return string[]
+     *
+     * @throws BindingResolutionException
+     */
+    #[ArrayShape(['image' => 'string', 'appends' => 'string'])]
+    private function getModelImage($attributes, $modelName): array
+    {
+        $image = '';
+        $columnsNames = array_keys($attributes, 'file');
+        $appends = '';
+        foreach ($columnsNames as $colName) {
+            $image .=
+                'public function get' . ucfirst(Str::camel(Str::studly($colName))) . "Attribute()
+                {
+                    return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
+                }\n";
+
+            $appends = "'$colName',";
+            $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
+        }
+
+        return ['image' => $image, 'appends' => $appends];
+    }
+
+    private function getModelRelation($attributes): string
     {
         $relationsFunctions = '';
 
@@ -229,6 +271,8 @@ class MakeModel extends Command
 
         while ($thereIsHasMany) {
 
+            $result = 'No';
+
             if ($decision == 'No') {
                 $result = $this->choice('Does this model related with another model by has many relation ?', ['No', 'Yes'], 'No');
             }
@@ -256,6 +300,8 @@ class MakeModel extends Command
         $decision = 'No';
 
         while ($thereIsManyToMany) {
+
+            $result = 'No';
 
             if ($decision == 'No') {
                 $result = $this->choice('Does this model related with another model by many to many relation ?', ['No', 'Yes'], 'No');
@@ -310,59 +356,6 @@ class MakeModel extends Command
         return $properties;
     }
 
-    /**
-     * @return string[]
-     *
-     * @throws BindingResolutionException
-     */
-    #[ArrayShape(['image' => 'string', 'appends' => 'string'])]
-    private function getModelImage($attributes, $modelName): array
-    {
-        $image = '';
-        $columnsNames = array_keys($attributes, 'file');
-        $appends = '';
-        foreach ($columnsNames as $colName) {
-            $image .=
-                'public function get' . ucfirst(Str::camel(Str::studly($colName))) . "Attribute()
-                {
-                    return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
-                }\n";
-
-            $appends = "'$colName',";
-            $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
-        }
-
-        return ['image' => $image, 'appends' => $appends];
-    }
-
-    /**
-     * Get service path
-     */
-    private function getModelPath($className): string
-    {
-        return $this->appPath() . '/' .
-            config('repository.model_directory') .
-            "/$className" . '.php';
-    }
-
-    /**
-     * Check to make sure if all required directories are available
-     *
-     * @throws BindingResolutionException
-     */
-    private function checkIfRequiredDirectoriesExist(): void
-    {
-        $this->ensureDirectoryExists(config('repository.model_directory'));
-    }
-
-    /**
-     * get namespace
-     */
-    private function getNameSpace(): string
-    {
-        return config('repository.model_namespace');
-    }
-
     public function boolValuesScope($attributes): string
     {
         $booleans = array_keys($attributes, 'boolean');
@@ -377,5 +370,15 @@ class MakeModel extends Command
         }
 
         return $scopes;
+    }
+
+    /**
+     * Get service path
+     */
+    private function getModelPath($className): string
+    {
+        return $this->appPath() . '/' .
+            config('repository.model_directory') .
+            "/$className" . '.php';
     }
 }

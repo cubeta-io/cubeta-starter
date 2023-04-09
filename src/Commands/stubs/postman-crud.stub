@@ -1,0 +1,90 @@
+{
+	"name": "{modelName}",
+	"item": [
+		{
+					"name": "index {modelName}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{indexRoute}",
+							"host": [
+								"{{localhost}}/{indexRoute}"
+							]
+						}
+					},
+					"response": []
+		},
+		{
+					"name": "show {modelName}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{showRoute}",
+							"host": [
+								"{{localhost}}/{showRoute}"
+							]
+						}
+					},
+					"response": []
+		},
+		{
+					"name": "store {modelName}",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{formData}
+							]
+						},
+						"url": {
+							"raw": "{storeRoute}",
+							"host": [
+								"{{localhost}}/{storeRoute}"
+							]
+						}
+					},
+					"response": []
+		} , 
+		{
+					"name": "update {modelName}",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{formData}
+							]
+						},
+						"url": {
+							"raw": "{updateRoute}",
+							"host": [
+								"{{localhost}}/{updateRoute}"
+							]
+						}
+					},
+					"response": []
+		} , 
+		{
+					"name": "delete {modelName}",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{deleteRoute}",
+							"host": [
+								"{{localhost}}/{deleteRoute}"
+							]
+						}
+					},
+					"response": []
+		} 
+	] 
+} , 
+"// add-your-cruds-here"
+
+

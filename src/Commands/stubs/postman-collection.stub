@@ -1,0 +1,12 @@
+{
+	"info": {
+		"_postman_id": "2876ce15-b05c-44cd-b53e-17d1fc51d81f",
+		"name": "{projetcName}",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25683379"
+	} ,	
+
+	"item": [
+		// add-your-cruds-here
+	]
+}

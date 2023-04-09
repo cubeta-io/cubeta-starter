@@ -19,6 +19,17 @@ class MakeFactory extends Command
         {relations  : the model relations}?';
 
     public $description = 'Create a new factory';
+    private array $typeFaker = [
+        'integer' => 'fake()->numberBetween(1,2000)',
+        'bigInteger' => 'fake()->numberBetween(1,2000)',
+        'unsignedBigInteger' => 'fake()->numberBetween(1,2000)',
+        'unsignedDouble' => 'fake()->randomFloat(1,2000)',
+        'double' => 'fake()->randomFloat(1,2000)',
+        'float' => 'fake()->randomFloat(1,2000)',
+        'string' => 'fake()->sentence()',
+        'text' => 'fake()->text()',
+        'json' => "{'" . 'fake()->word()' . "':'" . 'fake()->word()' . "'}",
+    ];
 
     /**
      * Handle the command
@@ -56,14 +67,14 @@ class MakeFactory extends Command
         new CreateFile(
             $stubProperties,
             $this->getFactoryPath($factoryName),
-            __DIR__.'/stubs/factory.stub'
+            __DIR__ . '/stubs/factory.stub'
         );
         $this->line("<info>Created factory:</info> {$factoryName}");
     }
 
     private function getFactoryName($modelName)
     {
-        return $modelName.'Factory';
+        return $modelName . 'Factory';
     }
 
     private function generateCols(array $attributes, array $relations)
@@ -94,16 +105,16 @@ class MakeFactory extends Command
         }
 
         foreach ($relations as $rel => $type) {
-           if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
-               $functionName = 'with'.ucfirst(Str::plural($rel));
-               $className = ucfirst(Str::singular($rel));
+            if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
+                $functionName = 'with' . ucfirst(Str::plural($rel));
+                $className = ucfirst(Str::singular($rel));
 
-               $relatedFactories .= "
+                $relatedFactories .= "
                 public function $functionName(\$count = 1)
                 {
                     return \$this->has(\App\Models\\$className::factory(\$count),);
                 } \n";
-           }
+            }
         }
 
         return ['rows' => $rows, 'relatedFactories' => $relatedFactories];
@@ -111,19 +122,7 @@ class MakeFactory extends Command
 
     private function getFactoryPath($factoryName)
     {
-        return $this->appDatabasePath().'/factories'.
-            "/$factoryName".'.php';
+        return $this->appDatabasePath() . '/factories' .
+            "/$factoryName" . '.php';
     }
-
-    private array $typeFaker = [
-        'integer' => 'fake()->numberBetween(1,2000)',
-        'bigInteger' => 'fake()->numberBetween(1,2000)',
-        'unsignedBigInteger' => 'fake()->numberBetween(1,2000)',
-        'unsignedDouble' => 'fake()->randomFloat(1,2000)',
-        'double' => 'fake()->randomFloat(1,2000)',
-        'float' => 'fake()->randomFloat(1,2000)',
-        'string' => 'fake()->sentence()',
-        'text' => 'fake()->text()',
-        'json' => "{'".'fake()->word()'."':'".'fake()->word()'."'}",
-    ];
 }

@@ -63,6 +63,14 @@ class MakeRepository extends Command
     }
 
     /**
+     * get namespace
+     */
+    private function getNameSpace(): string
+    {
+        return config('repository.repository_namespace');
+    }
+
+    /**
      * Get repository path
      */
     private function getRepositoryPath($repositoryName): string
@@ -70,13 +78,5 @@ class MakeRepository extends Command
         return $this->appPath() . '/' .
             config('repository.repository_directory') .
             "/$repositoryName" . '.php';
-    }
-
-    /**
-     * get namespace
-     */
-    private function getNameSpace(): string
-    {
-        return config('repository.repository_namespace');
     }
 }
