@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class MakeController extends Command
@@ -97,7 +98,6 @@ class MakeController extends Command
                 $this->line("<info>Failed to Append a Route For This Controller</info>");
             }
         } else {
-//            dd(dirname($apiPath)) ;
             !(File::makeDirectory(dirname($apiPath), 0777, true, true)) ??
             $this->line("<info>Failed To Create Your Route Specified Directory</info>");
 
@@ -108,6 +108,7 @@ class MakeController extends Command
             );
 
             $this->addImportStatement($importStatement, $apiPath);
+            $this->addApiFileToServiceProvider($demandedRouteDirectory);
             $this->line("<info>Controller Route Appended Successfully</info>");
         }
     }
@@ -145,11 +146,38 @@ class MakeController extends Command
         $lowerModelName = Str::lower($modelName);
 
         $routeName = str_replace(
-                ['/' , '//' , '\\' , '\\\\'],
+                ['/', '//', '\\', '\\\\'],
                 '.',
                 str_replace('.php', '', $filePath)
             ) . '.' . $lowerModelName;
 
         return $routeName;
+    }
+
+
+    /**
+     * @param string $apiFilePath
+     * @return void
+     */
+    public function addApiFileToServiceProvider(string $apiFilePath): void
+    {
+        $routeServiceProvider = app_path('Providers/RouteServiceProvider.php');
+        $line_to_add = "\t\t Route::middleware('api')\n" .
+            "\t\t\t->prefix('api')\n" .
+            "\t\t\t->group(base_path('routes/$apiFilePath'));\n" ;
+
+        // Read the contents of the file
+        $file_contents = file_get_contents($routeServiceProvider);
+
+        // Check if the line to add already exists in the file
+        if (!str_contains($file_contents, $line_to_add)) {
+            // If the line does not exist, add it to the boot() method
+            $pattern = '/\$this->routes\(function\s*\(\)\s*{\s*/';
+            $replacement = "$0{$line_to_add}";
+
+            $file_contents = preg_replace($pattern, $replacement, $file_contents, 1);
+            // Write the modified contents back to the file
+            !(file_put_contents($routeServiceProvider, $file_contents)) ?? Log::info('succee    d');
+        }
     }
 }
