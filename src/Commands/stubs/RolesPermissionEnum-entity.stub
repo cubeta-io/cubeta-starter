@@ -1,0 +1,8 @@
+
+    //**********{enum}***********//
+    const {enum} = [
+    	'name' => '{roleValue}' , 
+    	'permissions' => {permissions} ,
+    ] ;
+    //*************************//
+

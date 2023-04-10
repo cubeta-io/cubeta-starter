@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Enums;
+
+/**
+ * Class RolesPermissionEnum
+ */
+class RolesPermissionEnum
+{
+    //add-your-roles
+
+
+    const ALL = [
+        //add-all-your-enums-here
+    ];
+}

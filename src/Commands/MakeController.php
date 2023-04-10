@@ -52,7 +52,7 @@ class MakeController extends Command
             __DIR__ . '/stubs/controller.api.stub'
         );
         $this->line("<info>Created controller:</info> $controllerName");
-        $this->addRoute($modelName);
+//        $this->addRoute($modelName);
     }
 
     private function getControllerName($modelName): string

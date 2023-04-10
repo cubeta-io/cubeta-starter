@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter;
 
 use Cubeta\CubetaStarter\Commands\CreatePivotTable;
+use Cubeta\CubetaStarter\Commands\InitialProject;
 use Cubeta\CubetaStarter\Commands\MakeController;
 use Cubeta\CubetaStarter\Commands\MakeFactory;
 use Cubeta\CubetaStarter\Commands\MakeMigration;
@@ -39,7 +40,7 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
             $this->mergeConfigFrom($this->package->basePath("/../config/{$configFileName}.php"), $configFileName);
         }
 
-        $this->mergeConfigFrom(__DIR__.'/../config/repository.php', 'repository');
+        $this->mergeConfigFrom(__DIR__ . '/../config/repository.php', 'repository');
 
         $this->packageRegistered();
 
@@ -64,7 +65,8 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeRepository::class)
             ->hasCommand(MakeService::class)
             ->hasCommand(MakeTest::class)
-            ->hasCommand(MakePostmanCollection::class) ;
+            ->hasCommand(MakePostmanCollection::class)
+            ->hasCommand(InitialProject::class);
     }
 
     public function overrideCommands()

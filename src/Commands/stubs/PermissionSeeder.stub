@@ -1,0 +1,32 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use App\Enums\RolesPermissionEnum;
+
+class PermissionSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run(): void
+    {
+        $roles = RolesPermissionEnum::ALL ; 
+
+        foreach ($roles as $role) {
+
+            $permissions = $role['permissions'] ; 
+
+            foreach ($permissions as $permission) {
+                Permission::updateOrCreate([
+                    'name' => $permission,
+                    'guard_name' => 'api',
+                ], []);
+            }
+        }
+    }
+}
