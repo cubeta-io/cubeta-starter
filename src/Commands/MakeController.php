@@ -6,7 +6,7 @@ use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Filesystem\Filesystem;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -72,8 +72,7 @@ class MakeController extends Command
     }
 
     /**
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
-     * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     public function addRoute($modelName)
     {
@@ -82,43 +81,34 @@ class MakeController extends Command
           if you want to chose api.php just type api.php
           <info>type like this : customer/protected.php</info>");
 
-        $files = new Filesystem;
         $apiPath = base_path() . '\routes\\' . $demandedRouteDirectory;
 
         $pluralLowerModelName = Str::singular(Str::lower($modelName));
-        $lowerModelName = Str::lower($modelName);
+        $routeName = $this->getRouteName($demandedRouteDirectory, $modelName);
 
-        $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("api.' . $lowerModelName . '") ;' . "\n";
+        $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
         $importStatement = "\n" . "use App\Http\Controllers\API\\v1 ;" . "\n";
 
-        if ($demandedRouteDirectory == 'api.php') {
-            $this->addImportStatement($importStatement);
-            if ($files->exists($apiPath)) {
-                if (file_put_contents($apiPath, $route, FILE_APPEND)) {
-                    $this->line("<info>Route Added Successfully</info>");
-                } else {
-                    $this->line("<info>Route didn\'t Add Successfully</info>");
-                }
+        if (file_exists($apiPath)) {
+            $this->addImportStatement($importStatement, $apiPath);
+            if (file_put_contents($apiPath, $route, FILE_APPEND)) {
+                $this->line("<info>Controller Route Appended Successfully</info>");
             } else {
-                $this->line("<info>api.php file doesn\'t exist:</info>");
+                $this->line("<info>Failed to Append a Route For This Controller</info>");
             }
         } else {
-            if ($files->exists($apiPath)) {
-//                if (file_put_contents($apiPath, $route, FILE_APPEND)) {
-//                    $this->addImportStatement($importStatement);
-//                    $this->line("<info>Route Added Successfully</info>");
-//                } else {
-//                    $this->line("<info>Route didn\'t Add Successfully</info>");
-//                }
-            } else {
-                File::makeDirectory($apiPath, 0755, true, true);
-                new CreateFile(
-                    ['{route}' => $route],
-                    $apiPath,
-                    __DIR__ . '/stubs/api.stub'
-                );
+//            dd(dirname($apiPath)) ;
+            !(File::makeDirectory(dirname($apiPath), 0777, true, true)) ??
+            $this->line("<info>Failed To Create Your Route Specified Directory</info>");
 
-            }
+            new CreateFile(
+                ['{route}' => $route],
+                $apiPath,
+                __DIR__ . '/stubs/api.stub'
+            );
+
+            $this->addImportStatement($importStatement, $apiPath);
+            $this->line("<info>Controller Route Appended Successfully</info>");
         }
     }
 
@@ -129,8 +119,7 @@ class MakeController extends Command
      */
     function addImportStatement($importStatement, string $filePath = 'routes/api.php'): void
     {
-        $filename = base_path($filePath);
-        $contents = file_get_contents($filename);
+        $contents = file_get_contents($filePath);
 
         // Check if import statement already exists
         if (str_contains($contents, $importStatement)) {
@@ -143,6 +132,24 @@ class MakeController extends Command
         $contents = substr_replace($contents, $importStatement . "\n", $insertIndex, 0);
 
         // Write the updated contents back to the file
-        file_put_contents($filename, $contents);
+        file_put_contents($filePath, $contents);
+    }
+
+    /**
+     * @param $filePath
+     * @param $modelName
+     * @return array|string|string[]
+     */
+    public function getRouteName($filePath, $modelName): array|string
+    {
+        $lowerModelName = Str::lower($modelName);
+
+        $routeName = str_replace(
+                ['/' , '//' , '\\' , '\\\\'],
+                '.',
+                str_replace('.php', '', $filePath)
+            ) . '.' . $lowerModelName;
+
+        return $routeName;
     }
 }
