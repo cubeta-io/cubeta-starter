@@ -6,7 +6,7 @@ use App\Repositories\{repositoryName};
 use Cubeta\CubetaStarter\Contracts\Services\BaseService;
 
 /**
- * Class BrandService
+ * Class {{modelName}}Service
  */
 class {modelName}Service extends BaseService implements I{modelName}Service
 {

@@ -40,7 +40,7 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
             $this->mergeConfigFrom($this->package->basePath("/../config/{$configFileName}.php"), $configFileName);
         }
 
-        $this->mergeConfigFrom(__DIR__ . '/../config/repository.php', 'repository');
+        $this->mergeConfigFrom(__DIR__.'/../config/repository.php', 'repository');
 
         $this->packageRegistered();
 

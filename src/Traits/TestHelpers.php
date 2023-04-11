@@ -43,7 +43,6 @@ trait TestHelpers
      *
      * @param  mixed  $data the data that  has to be converted
      * @param  bool  $multiple if you want to return an array of data
-     * @return array
      */
     public function convertResourceToArray(mixed $data, bool $multiple = false): array
     {
@@ -69,7 +68,7 @@ trait TestHelpers
     {
         parent::setUp();
 
-        if (isset($this->userType)){
+        if (isset($this->userType)) {
             Artisan::call('db:seed RoleSeeder');
         }
 
@@ -78,19 +77,15 @@ trait TestHelpers
 
     public function signIn($type = null): void
     {
-        $this->user = User::factory()->create() ;
-        if(isset($type)){
-            $this->user->assignRole($type) ;
+        $this->user = User::factory()->create();
+        if (isset($type) && $type != 'none') {
+            $this->user->assignRole($type);
         }
-        $this->be($this->user) ;
+        $this->be($this->user);
     }
 
     /**
      * this function for login using email address and default password is 12345678
-     *
-     * @param  string  $email
-     * @param  string  $password
-     * @return void
      */
     public function login(string $email, string $password = '12345678'): void
     {
@@ -102,6 +97,7 @@ trait TestHelpers
 
     /**
      * data = [] ||| message = there is no data
+     *
      * @return void
      */
     public function failedMultiResponse()
@@ -112,7 +108,6 @@ trait TestHelpers
 
     /**
      * data = false ||| message  = there is no data
-     * @return void
      */
     public function failedFalseResponse(): void
     {
@@ -122,7 +117,6 @@ trait TestHelpers
 
     /**
      * check if the model can softdelete
-     * @return bool
      */
     public function checkSoftDeleteColumn(): bool
     {

@@ -37,9 +37,9 @@ class MakePostmanCollection extends Command
     private function createPostmanCollection($modelName, $attributes)
     {
         $modelName = Str::singular(ucfirst($modelName));
-        $endpoint = '/'.Str::plural(Str::lower($modelName)) ;
+        $endpoint = '/'.Str::plural(Str::lower($modelName));
         $projetName = env('APP_NAME');
-        $collectionPath = base_path() . "/$projetName.postman_collection.json";
+        $collectionPath = base_path()."/$projetName.postman_collection.json";
 
         $files = app()->make(Filesystem::class);
 
@@ -50,10 +50,10 @@ class MakePostmanCollection extends Command
             '{storeRoute}' => $endpoint,
             '{updateRoute}' => $endpoint.'/1',
             '{deleteRoute}' => $endpoint.'/1',
-            '{formData}' => $this->generateBodyData($attributes)
+            '{formData}' => $this->generateBodyData($attributes),
         ];
 
-        $crudStub = file_get_contents(__DIR__ . '/stubs/postman-crud.stub');
+        $crudStub = file_get_contents(__DIR__.'/stubs/postman-crud.stub');
 
         $crudStub = str_replace(['{modelName}', '{indexRoute}', '{showRoute}', '{storeRoute}', '{updateRoute}', '{deleteRoute}', '{formData}'],
             $stubProperties,
@@ -65,7 +65,7 @@ class MakePostmanCollection extends Command
             $collection = str_replace('"// add-your-cruds-here"', $crudStub, $collection);
             file_put_contents($collectionPath, $collection);
         } else {
-            $collectionStub = file_get_contents(__DIR__ . '/stubs/postman-collection.stub');
+            $collectionStub = file_get_contents(__DIR__.'/stubs/postman-collection.stub');
             $collectionStub = str_replace(['{projetcName}', '// add-your-cruds-here'], [$projetName, $crudStub], $collectionStub);
             file_put_contents($collectionPath, $collectionStub);
         }
@@ -73,10 +73,6 @@ class MakePostmanCollection extends Command
         $this->line("<info>Created Postman Collection:</info> $projetName.postman_collection.json ");
     }
 
-    /**
-     * @param $attributes
-     * @return string
-     */
     public function generateBodyData($attributes): string
     {
         $fields = '';
@@ -89,6 +85,7 @@ class MakePostmanCollection extends Command
             );
             $attributesCount--;
         }
+
         return $fields;
     }
 }

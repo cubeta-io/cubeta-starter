@@ -16,10 +16,10 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
 
-        $roles = RolesPermissionEnum::ALL ; 
+        $roles = RolesPermissionEnum::ALLROLES ;
 
         foreach ($roles as $role) {
-            Role::updateOrCreate(['name' => $role['name'] , 'guard_name' => 'api'] , []) ; 
+            Role::updateOrCreate(['name' => $role['name'] , 'guard_name' => 'api'] , []) ;
         }
 
     }

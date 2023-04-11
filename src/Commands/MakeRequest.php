@@ -44,17 +44,22 @@ class MakeRequest extends Command
             '{rules}' => $this->generateCols($attributes),
         ];
 
+        $requestPath = base_path().'/app/Http/Requests/'.$modelName.'/'.$requestName.'.php';
+        if (file_exists($requestPath)) {
+            return;
+        }
+
         new CreateFile(
             $stubProperties,
             $this->getRequestPath($requestName, $modelName),
-            __DIR__ . '/stubs/request.stub'
+            __DIR__.'/stubs/request.stub'
         );
         $this->line("<info>Created request:</info> {$requestName}");
     }
 
     private function getRequestName($modelName): string
     {
-        return 'StoreUpdate' . $modelName . 'Request';
+        return 'StoreUpdate'.$modelName.'Request';
     }
 
     private function generateCols($attributes): string
@@ -118,10 +123,10 @@ class MakeRequest extends Command
      */
     private function getRequestPath($requestName, $modelName): string
     {
-        $path = $this->appPath() . "/app/Http/Requests/$modelName/";
+        $path = $this->appPath()."/app/Http/Requests/$modelName/";
 
         $this->ensureDirectoryExists($path);
 
-        return $path . "$requestName" . '.php';
+        return $path."$requestName".'.php';
     }
 }

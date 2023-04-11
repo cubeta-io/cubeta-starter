@@ -26,9 +26,9 @@ class CreatePivotTable extends Command
         $table1 = $this->argument('table1');
         $table2 = $this->argument('table2');
 
-        $pivotTableName = lcfirst(Str::singular($table1)) . '_' . lcfirst(Str::plural($table2));
+        $pivotTableName = lcfirst(Str::singular($table1)).'_'.lcfirst(Str::plural($table2));
 
-        $this->info('Creating migration for pivot table ' . $pivotTableName);
+        $this->info('Creating migration for pivot table '.$pivotTableName);
 
         $this->createMigration($table1, $table2, $pivotTableName);
 
@@ -41,13 +41,13 @@ class CreatePivotTable extends Command
      */
     protected function createMigration($table1, $table2, $pivotTableName)
     {
-        $migrationName = 'create_' . $pivotTableName . '_table';
+        $migrationName = 'create_'.$pivotTableName.'_table';
 
         $date = Carbon::now()->addSecond()->format('Y_m_d_His');
 
-        $migrationPath = database_path('migrations/' . $date . '_' . $migrationName . '.php');
+        $migrationPath = database_path('migrations/'.$date.'_'.$migrationName.'.php');
 
-        $stub = file_get_contents(__DIR__ . '/stubs/pivot-migration.stub');
+        $stub = file_get_contents(__DIR__.'/stubs/pivot-migration.stub');
 
         $className1 = ucfirst(Str::singular($table1));
         $className2 = ucfirst(Str::singular($table2));
@@ -55,7 +55,7 @@ class CreatePivotTable extends Command
         $files = app()->make(Filesystem::class);
 
         if ($files->exists($migrationPath)) {
-            throw new Exception('The Pivot Table Migration For ' . $className1 . 'And ' . $className2 . '  Exists');
+            throw new Exception('The Pivot Table Migration For '.$className1.'And '.$className2.'  Exists');
         }
 
         $stub = str_replace(

@@ -2,8 +2,6 @@
 
 namespace Cubeta\CubetaStarter;
 
-use App\Models\Book;
-use App\Services\Address\AddressService;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
@@ -19,8 +17,6 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Register any application services.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -29,8 +25,6 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
     public function boot(): void
     {
@@ -40,20 +34,18 @@ class RepositoryServiceProvider extends ServiceProvider
     /**
      * Loop through the repository interfaces and bind each interface to its
      * Repository inside the implementations
-     *
-     * @return void
      */
     private function bindAllRepositoriesAndServices(): void
     {
-        if (file_exists(app_path() . '/Repositories')) {
-            $repositoryFiles = File::allFiles(app_path() . '/Repositories');
+        if (file_exists(app_path().'/Repositories')) {
+            $repositoryFiles = File::allFiles(app_path().'/Repositories');
             foreach ($repositoryFiles as $repositoryFile) {
                 $repositoryFileName = $repositoryFile->getBasename();
                 $repository = str_replace('.php', '', $repositoryFileName);
                 $model = str_replace('Repository', '', $repository);
-                $path = str_replace('/', '\\', app_path() . '/Models/' . $model . '.php');
+                $path = str_replace('/', '\\', app_path().'/Models/'.$model.'.php');
                 if (file_exists($path)) {
-                    $this->app->bind('App\Repositories\\'.$repository, function ($app) use ($repository , $model) {
+                    $this->app->bind('App\Repositories\\'.$repository, function ($app) use ($repository, $model) {
                         return new ('\App\Repositories\\'.$repository)(
                             $app->make('\App\Models\\'.$model)
                         );
@@ -62,16 +54,16 @@ class RepositoryServiceProvider extends ServiceProvider
             }
         }
 
-        if (file_exists(app_path() . '/Repositories')){
-            $serviceFiles = File::allFiles(app_path() . '/Services');
+        if (file_exists(app_path().'/Repositories')) {
+            $serviceFiles = File::allFiles(app_path().'/Services');
             $services = [];
             foreach ($serviceFiles as $serviceFile) {
                 $serviceFileName = $serviceFile->getBasename();
                 $service = str_replace('.php', '', $serviceFileName);
-                $iService = 'I' . $service;
+                $iService = 'I'.$service;
                 $modelName = str_replace('Service', '', $service);
 
-                $path = str_replace('/', '\\', app_path() . '/Services/' . $modelName . '/' . $iService . '.php');
+                $path = str_replace('/', '\\', app_path().'/Services/'.$modelName.'/'.$iService.'.php');
 
                 if (in_array($service, $services)) {
                     continue;
@@ -79,8 +71,8 @@ class RepositoryServiceProvider extends ServiceProvider
 
                 if (file_exists($path)) {
                     $this->app->bind(
-                        'App\Services\\' . $modelName . '\\' . $iService,
-                        'App\Services\\' . $modelName . '\\' . $service
+                        'App\Services\\'.$modelName.'\\'.$iService,
+                        'App\Services\\'.$modelName.'\\'.$service
                     );
 
                     $services[] = $service;

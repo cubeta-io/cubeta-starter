@@ -62,7 +62,6 @@ class CreateFile
     /**
      * Create the stub file by replacing all the keys
      *
-     * @return void
      * @throws FileNotFoundException
      */
     private function createStub(): void
@@ -73,7 +72,6 @@ class CreateFile
     }
 
     /**
-     * @param string $stub
      * @return array|string|string[]
      */
     private function populateStub(string $stub): array|string
@@ -86,7 +84,6 @@ class CreateFile
     }
 
     /**
-     * @return string
      * @throws FileNotFoundException
      */
     private function getStub(): string
@@ -98,7 +95,6 @@ class CreateFile
      * Write to the file specified in the path
      *
      * @param  string|mixed  $stub
-     * @return void
      */
     private function writeFile(mixed $stub): void
     {

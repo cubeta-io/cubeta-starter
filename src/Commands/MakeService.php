@@ -5,6 +5,8 @@ namespace Cubeta\CubetaStarter\Commands;
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -23,31 +25,35 @@ class MakeService extends Command
     public function handle(): void
     {
         $name = $this->argument('name');
-
-        $modelName = ucfirst(Str::singular($name));
-
-        $this->createService($modelName);
-        $this->createServiceInterface($modelName);
+        $this->createService($name);
+        $this->createServiceInterface($name);
     }
 
     /**
-     * Create Service
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     private function createService($modelName): void
     {
-        $namespace = $this->getNameSpace() . "\\$modelName";
+        $modelName = ucfirst(Str::singular($modelName));
+        $namespace = $this->getNameSpace()."\\$modelName";
 
-        $repositoryName = $modelName . 'Repository';
-        $serviceName = $modelName . 'Service';
+        $repositoryName = $modelName.'Repository';
+        $serviceName = $modelName.'Service';
 
         $stubProperties = [
             '{modelName}' => $modelName,
             '{repositoryName}' => $repositoryName,
         ];
 
+        $servicePath = base_path().'/app/Services/'.$modelName.'/'.$serviceName.'.php';
+        if (file_exists($servicePath)) {
+            return;
+        }
+
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
-        if (!file_exists($folder)) {
+        if (! file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
 
@@ -55,7 +61,7 @@ class MakeService extends Command
         new CreateFile(
             $stubProperties,
             $this->getServicePath($modelName),
-            __DIR__ . '/stubs/service.stub'
+            __DIR__.'/stubs/service.stub'
         );
         $this->line("<info>Created Service:</info> $serviceName");
     }
@@ -73,32 +79,37 @@ class MakeService extends Command
      */
     private function getServicePath($modelName): string
     {
-        $serviceName = $modelName . 'Service';
+        $serviceName = $modelName.'Service';
 
-        return $this->appPath() . '/' .
-            config('repository.service_directory') .
-            "/$modelName/$serviceName" . '.php';
+        return $this->appPath().'/'.
+            config('repository.service_directory').
+            "/$modelName/$serviceName".'.php';
     }
 
     public function createServiceInterface($modelName)
     {
-        $namespace = $this->getNameSpace() . "\\$modelName";
+        $namespace = $this->getNameSpace()."\\$modelName";
 
-        $serviceInterfaceName = 'I' . $modelName . 'Service';
+        $serviceInterfaceName = 'I'.$modelName.'Service';
         $stubProperties = [
             '{modelName}' => $modelName,
         ];
 
+        $serviceInterfacePath = base_path().'/app/Services/'.$modelName.'/'.$serviceInterfaceName.'.php';
+        if (file_exists($serviceInterfacePath)) {
+            return;
+        }
+
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
-        if (!file_exists($folder)) {
+        if (! file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
 
         new CreateFile(
             $stubProperties,
             $this->getServiceInterfacePath($modelName),
-            __DIR__ . '/stubs/service-interface.stub'
+            __DIR__.'/stubs/service-interface.stub'
         );
 
         $this->line("<info>Created Service Interface:</info> $serviceInterfaceName");
@@ -109,10 +120,10 @@ class MakeService extends Command
      */
     private function getServiceInterfacePath($modelName): string
     {
-        $serviceInterfaceName = 'I' . $modelName . 'Service';
+        $serviceInterfaceName = 'I'.$modelName.'Service';
 
-        return $this->appPath() . '/' .
-            config('repository.service_directory') .
-            "/$modelName/$serviceInterfaceName" . '.php';
+        return $this->appPath().'/'.
+            config('repository.service_directory').
+            "/$modelName/$serviceInterfaceName".'.php';
     }
 }

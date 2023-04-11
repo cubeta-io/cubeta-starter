@@ -10,8 +10,8 @@ class {modelName}Test extends TestCase
 
     protected $resource = {modelName}Resource::class;
 
-    // put customer or admin
-    protected $userType = null;
+    // define the actor
+    protected $userType = "{{actor}}";
 
     // the named route
     protected $baseUrl = '';

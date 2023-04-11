@@ -22,7 +22,7 @@ class ModelMakeCommand extends ConsoleModelMakeCommand
      */
     public function handle()
     {
-        if (parent::handle() === false && !$this->option('force')) {
+        if (parent::handle() === false && ! $this->option('force')) {
             return false;
         }
 
