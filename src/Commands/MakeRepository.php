@@ -26,11 +26,7 @@ class MakeRepository extends Command
     {
         $name = $this->argument('name');
 
-        try {
-            $this->createRepository($name);
-        } catch (BindingResolutionException|FileNotFoundException $e) {
-            $this->line("<info>$e</info>");
-        }
+        $this->createRepository($name);
     }
 
     /**

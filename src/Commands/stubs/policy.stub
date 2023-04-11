@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Policies;
+
+use Cubeta\CubetaStarter\Contracts\Policy\BasePolicy;
+
+class {modelName}Policy extends BasePolicy
+{
+	//add-your-policies
+}

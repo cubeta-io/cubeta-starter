@@ -106,6 +106,7 @@ class MakeModel extends Command
             'service' => $this->call('create:service', ['name' => $name]),
             'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor]),
             'postman-collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
+            'policy' => $this->call('create:policy', ['name' => $name]) ,
 //            'controller-api'    => $this->call('create:controller --api'    , ["name" => $name, 'attributes' => $attributes]),
 //            'controller-base'   => $this->call('create:controller --base'   , ["name" => $name, 'attributes' => $attributes]),
             '', null => 'all',
@@ -121,6 +122,7 @@ class MakeModel extends Command
             $this->call('create:service', ['name' => $name]);
             $this->call('create:test', ['name' => $name, 'actor' => $actor]);
             $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
+            $this->call('create:policy', ['name' => $name]);
 //            $this->call('create:controller --base'  , ["name" => $name, 'attributes' => $attributes]);
         }
 
