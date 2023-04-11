@@ -47,7 +47,7 @@ class InitialProject extends Command
 
                     $this->createRolesEnum($role, $permissions);
                     $this->addApiFile($role);
-                    $this->createRoleSeeder() ;
+                    $this->createRoleSeeder();
                     $this->createPermissionSeeder();
 
                     $this->line("<info>$role role created successfully</info>");
@@ -90,7 +90,7 @@ class InitialProject extends Command
 
         $enumFile = str_replace(
             ['//add-your-roles', '//add-all-your-enums-here'],
-            [$enum . "\n", 'self::'.$roleEnum . ", \n //add-all-your-enums-here \n"],
+            [$enum . "\n", 'self::' . $roleEnum . ", \n //add-all-your-enums-here \n"],
             $enumFile);
 
         $enumDirectory = base_path() . '/app/Enums/';
@@ -108,7 +108,7 @@ class InitialProject extends Command
                 $enumFileContent = preg_replace($pattern, $replacement, $enumFileContent, 1);
                 $enumFileContent = str_replace(
                     '//add-all-your-enums-here',
-                    'self::'.$roleEnum . ", \n //add-all-your-enums-here \n",
+                    'self::' . $roleEnum . "['role'], \n //add-all-your-enums-here \n",
                     $enumFileContent);
 
                 // Write the modified contents back to the file
@@ -180,18 +180,18 @@ class InitialProject extends Command
     public function createRoleSeeder(): void
     {
         new CreateFile(
-            [] ,
-            database_path('seeders/RoleSeeder.php') ,
-            __DIR__.'/stubs/RoleSeeder.stub'
-        ) ;
+            [],
+            database_path('seeders/RoleSeeder.php'),
+            __DIR__ . '/stubs/RoleSeeder.stub'
+        );
     }
 
-    public function createPermissionSeeder() :void
+    public function createPermissionSeeder(): void
     {
         new CreateFile(
-            [] ,
-            database_path('seeders/PermissionSeeder.php') ,
-            __DIR__.'/stubs/PermissionSeeder.stub'
-        ) ;
+            [],
+            database_path('seeders/PermissionSeeder.php'),
+            __DIR__ . '/stubs/PermissionSeeder.stub'
+        );
     }
 }

@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -16,26 +17,29 @@ class MakeController extends Command
     use AssistCommand;
 
     protected $signature = 'create:controller
-        {name : The name of the model }?';
+        {name : The name of the model }?
+        {actor : The actor of the endpoint of this model }?';
 
     protected $description = 'Create a new controller';
 
     /**
      * Handle the command
      *
-     * @throws BindingResolutionException
+     * @throws BindingResolutionException|FileNotFoundException
      */
     public function handle(): void
     {
         $modelName = $this->argument('name');
+        $actor = $this->argument('actor');
 
-        $this->createController($modelName);
+        $this->createController($modelName, $actor);
     }
 
     /**
-     * @throws BindingResolutionException
+     * @throws BindingResolutionException|FileNotFoundException
+     * @throws Exception
      */
-    private function createController($modelName)
+    private function createController($modelName, $actor)
     {
         $modelName = ucfirst($modelName);
         $stubProperties = [
@@ -52,7 +56,7 @@ class MakeController extends Command
             __DIR__ . '/stubs/controller.api.stub'
         );
         $this->line("<info>Created controller:</info> $controllerName");
-//        $this->addRoute($modelName);
+        $this->addRoute($modelName, $actor);
     }
 
     private function getControllerName($modelName): string
@@ -73,22 +77,25 @@ class MakeController extends Command
     }
 
     /**
-     * @throws FileNotFoundException
+     * @param $modelName
+     * @param $actor
+     * @throws Exception
      */
-    public function addRoute($modelName)
+    public function addRoute($modelName, $actor)
     {
-        $demandedRouteDirectory = $this->ask("What is The directory of your controller route file ? \n
-         !!consider you are know in route directory!! \n
-          if you want to chose api.php just type api.php
-          <info>type like this : customer/protected.php</info>");
-
-        $apiPath = base_path() . '\routes\\' . $demandedRouteDirectory;
-
         $pluralLowerModelName = Str::singular(Str::lower($modelName));
-        $routeName = $this->getRouteName($demandedRouteDirectory, $modelName);
+
+        if (isset($actor) && $actor != 'none') {
+            $actor = Str::singular(Str::lower($actor));
+            $apiPath = base_path() . '\routes\api\\' . $actor . '.php';
+            $routeName = $this->getRouteName($actor, $modelName);
+        } else {
+            $apiPath = base_path() . '\routes\\api.php';
+            $routeName = 'api.' . $pluralLowerModelName;
+        }
 
         $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
-        $importStatement = "\n" . "use App\Http\Controllers\API\\v1 ;" . "\n";
+        $importStatement = 'use App\Http\Controllers\API\v1;';
 
         if (file_exists($apiPath)) {
             $this->addImportStatement($importStatement, $apiPath);
@@ -98,18 +105,7 @@ class MakeController extends Command
                 $this->line("<info>Failed to Append a Route For This Controller</info>");
             }
         } else {
-            !(File::makeDirectory(dirname($apiPath), 0777, true, true)) ??
-            $this->line("<info>Failed To Create Your Route Specified Directory</info>");
-
-            new CreateFile(
-                ['{route}' => $route],
-                $apiPath,
-                __DIR__ . '/stubs/api.stub'
-            );
-
-            $this->addImportStatement($importStatement, $apiPath);
-            $this->addApiFileToServiceProvider($demandedRouteDirectory);
-            $this->line("<info>Controller Route Appended Successfully</info>");
+            $this->line("<danger>Actor Routes Files Deosn't exist</danger>");
         }
     }
 
@@ -117,41 +113,41 @@ class MakeController extends Command
      * @param $importStatement
      * @param string $filePath
      * @return void
+     * @throws Exception
      */
     function addImportStatement($importStatement, string $filePath = 'routes/api.php'): void
     {
         $contents = file_get_contents($filePath);
 
         // Check if import statement already exists
-        if (str_contains($contents, $importStatement)) {
-            return; // Import statement already exists, do nothing
+        $fileLines = File::lines($filePath);
+        Log::info($fileLines);
+        foreach ($fileLines as $line) {
+            $cleanLine = trim($line);
+            if (Str::contains($cleanLine, $importStatement)) {
+                return;
+            }
         }
 
         // Find the last "use" statement and insert the new import statement after it
         $lastUseIndex = strrpos($contents, 'use ');
         $insertIndex = $lastUseIndex !== false ? $lastUseIndex - 1 : 0;
-        $contents = substr_replace($contents, $importStatement . "\n", $insertIndex, 0);
+        $contents = substr_replace($contents, "\n" . $importStatement . "\n", $insertIndex, 0);
 
         // Write the updated contents back to the file
         file_put_contents($filePath, $contents);
     }
 
     /**
-     * @param $filePath
+     * @param $actor
      * @param $modelName
      * @return array|string|string[]
      */
-    public function getRouteName($filePath, $modelName): array|string
+    public function getRouteName($actor, $modelName): array|string
     {
         $lowerModelName = Str::lower($modelName);
 
-        $routeName = str_replace(
-                ['/', '//', '\\', '\\\\'],
-                '.',
-                str_replace('.php', '', $filePath)
-            ) . '.' . $lowerModelName;
-
-        return $routeName;
+        return 'api.' . $actor . '.' . $lowerModelName;
     }
 
 
@@ -164,7 +160,7 @@ class MakeController extends Command
         $routeServiceProvider = app_path('Providers/RouteServiceProvider.php');
         $line_to_add = "\t\t Route::middleware('api')\n" .
             "\t\t\t->prefix('api')\n" .
-            "\t\t\t->group(base_path('routes/$apiFilePath'));\n" ;
+            "\t\t\t->group(base_path('routes/$apiFilePath'));\n";
 
         // Read the contents of the file
         $file_contents = file_get_contents($routeServiceProvider);
@@ -177,7 +173,7 @@ class MakeController extends Command
 
             $file_contents = preg_replace($pattern, $replacement, $file_contents, 1);
             // Write the modified contents back to the file
-            !(file_put_contents($routeServiceProvider, $file_contents)) ?? Log::info('succee    d');
+            file_put_contents($routeServiceProvider, $file_contents);
         }
     }
 }

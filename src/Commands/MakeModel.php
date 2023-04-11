@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use App\Enums\RolesPermissionEnum;
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\CommandTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
@@ -88,10 +89,12 @@ class MakeModel extends Command
 
         $this->createModel($className, $attributes);
 
+        $actor = $this->checkTheActor()  ;
+
         //call to command base on the option flag
         $result = match ($option) {
             'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
-            'controller' => $this->call('create:controller', ['name' => $name]),
+            'controller' => $this->call('create:controller', ['name' => $name , 'actor' => $actor]),
             'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes]),
             'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
             'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
@@ -110,7 +113,7 @@ class MakeModel extends Command
             $this->call('create:seeder', ['name' => $name]);
             $this->call('create:request', ['name' => $name, 'attributes' => $attributes]);
             $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
-            $this->call('create:controller', ['name' => $name]);
+            $this->call('create:controller', ['name' => $name , 'actor' => $actor]);
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
             $this->call('create:test', ['name' => $name]);
@@ -380,5 +383,17 @@ class MakeModel extends Command
         return $this->appPath() . '/' .
             config('repository.model_directory') .
             "/$className" . '.php';
+    }
+
+    /**
+     * @return array|string
+     */
+    public function checkTheActor(): array|string|null
+    {
+        if (file_exists(base_path() . '/app/Enums/RolesPermissionEnum.php')) {
+            $roles = RolesPermissionEnum::ALL  ;
+            $roles[] = 'none';
+            return $this->choice("Who Is The Actor Of this Endpoint ? ", $roles , 'none');
+        } else return null ;
     }
 }
