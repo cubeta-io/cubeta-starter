@@ -16,7 +16,7 @@ class MakeResource extends Command
     public $signature = 'create:resource
         {name : The name of the model }
         {attributes : columns with data types}?
-        {relations : the model relations}?';
+        {relations? : the model relations}?';
 
     public $description = 'Create a new resource';
 

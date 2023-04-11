@@ -15,7 +15,7 @@ class MakeTest extends Command
 
     public $signature = 'create:test
         {name : The name of the model }
-        {actor : The actor of the endpoint } ?';
+        {actor? : The actor of the endpoint } ?';
 
     public $description = 'Create a new feature test';
 

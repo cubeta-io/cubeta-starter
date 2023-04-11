@@ -15,7 +15,8 @@ class MakePolicy extends Command
     use AssistCommand;
 
     public $signature = 'create:policy
-        {name : The name of the repository }';
+        {name : The name of the repository }
+        {actor? : The actor of the endpoint of this model }';
 
     public $description = 'Create a new repository class';
 
@@ -25,8 +26,11 @@ class MakePolicy extends Command
     public function handle(): void
     {
         $name = $this->argument('name');
+        $actor = $this->argument('actor');
 
-        $this->createPolicy($name);
+        if (isset($actor) && $actor = ! 'none') {
+            $this->createPolicy($name);
+        }
     }
 
     /**
