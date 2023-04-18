@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
 
 class MakeResource extends Command
@@ -21,8 +22,7 @@ class MakeResource extends Command
     public $description = 'Create a new resource';
 
     /**
-     * Handle the command
-     *
+     * @return void
      * @throws BindingResolutionException
      */
     public function handle(): void
@@ -35,9 +35,14 @@ class MakeResource extends Command
     }
 
     /**
+     * @param $modelName
+     * @param array $attributes
+     * @param $relations
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function createResource($modelName, array $attributes, $relations)
+    private function createResource($modelName, array $attributes, $relations): void
     {
         $modelName = ucfirst(Str::singular($modelName));
         $resourceName = $this->getResourceName($modelName);
@@ -60,11 +65,20 @@ class MakeResource extends Command
         $this->line("<info>Created resource:</info> {$resourceName}");
     }
 
+    /**
+     * @param $modelName
+     * @return string
+     */
     private function getResourceName($modelName): string
     {
         return $modelName.'Resource';
     }
 
+    /**
+     * @param array $attributes
+     * @param $relations
+     * @return string
+     */
     private function generateCols(array $attributes, $relations): string
     {
         $columns = "'id'                     =>  \$this->id, \n\t\t\t";
@@ -88,6 +102,8 @@ class MakeResource extends Command
     }
 
     /**
+     * @param $ResourceName
+     * @return string
      * @throws BindingResolutionException
      */
     private function getResourcePath($ResourceName): string

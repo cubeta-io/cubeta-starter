@@ -4,9 +4,10 @@ namespace Cubeta\CubetaStarter\Commands;
 
 use Carbon\Carbon;
 use Cubeta\CubetaStarter\CreateFile;
-use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
 
 class MakeMigration extends Command
@@ -21,7 +22,9 @@ class MakeMigration extends Command
     public $description = 'Create a new migration';
 
     /**
-     * Handle the command
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     public function handle(): void
     {
@@ -32,7 +35,15 @@ class MakeMigration extends Command
         $this->createMigration($modelName, $attributes, $relations);
     }
 
-    private function createMigration($modelName, array $attributes, array $relations)
+    /**
+     * @param $modelName
+     * @param array $attributes
+     * @param array $relations
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    private function createMigration($modelName, array $attributes, array $relations): void
     {
         $migrationName = $this->getMigrationName($modelName);
 
@@ -40,48 +51,35 @@ class MakeMigration extends Command
 
         $stubProperties = [
             '{table}' => $tableName,
-            '{col}' => $this->generateCols($attributes, $relations),
+            '{col}' => $this->generateMigrationCols($attributes, $relations),
         ];
 
         new CreateFile(
             $stubProperties,
             $this->getMigrationsPath($migrationName),
-            __DIR__.'/stubs/migration.stub'
+            __DIR__ . '/stubs/migration.stub'
         );
         $this->line("<info>Created migration:</info> $migrationName");
     }
 
+    /**
+     * @param $migrationName
+     * @return string
+     */
+    private function getMigrationsPath($migrationName): string
+    {
+        return $this->appDatabasePath() . '/migrations' .
+            "/$migrationName" . '.php';
+    }
+
+    /**
+     * @param $modelName
+     * @return string
+     */
     private function getMigrationName($modelName): string
     {
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
 
-        return $date.'_create_'.Str::plural(strtolower($modelName)).'_table';
-    }
-
-    private function generateCols(array $attributes, array $relations): string
-    {
-        $columns = '';
-        foreach ($attributes as $name => $type) {
-            if ($type == 'key') {
-                continue;
-            } else {
-                $columns .= "\t\t\t\$table->".($type == 'file' ? 'string' : $type)."('$name')".($type == 'file' ? '->nullable()' : '')."; \n";
-            }
-        }
-
-        foreach ($relations as $rel => $type) {
-            if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
-                $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
-                $columns .= "\t\t\t\$table->foreignIdFor(App\Models\\$modelName::class)->constrained()->cascadeOnDelete(); \n";
-            }
-        }
-
-        return $columns;
-    }
-
-    private function getMigrationsPath($migrationName): string
-    {
-        return $this->appDatabasePath().'/migrations'.
-            "/$migrationName".'.php';
+        return $date . '_create_' . Str::plural(strtolower($modelName)) . '_table';
     }
 }

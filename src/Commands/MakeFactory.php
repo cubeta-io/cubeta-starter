@@ -7,7 +7,9 @@ use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
+use JetBrains\PhpStorm\ArrayShape;
 
 class MakeFactory extends Command
 {
@@ -29,17 +31,14 @@ class MakeFactory extends Command
         'float' => 'fake()->randomFloat(1,2000)',
         'string' => 'fake()->sentence()',
         'text' => 'fake()->text()',
-        'json' => "{'".'fake()->word()'."':'".'fake()->word()'."'}",
+        'json' => "{'" . 'fake()->word()' . "':'" . 'fake()->word()' . "'}",
     ];
 
     /**
-     * Handle the command
-     *
      * @return void
-     *
      * @throws BindingResolutionException
      */
-    public function handle()
+    public function handle(): void
     {
         $modelName = $this->argument('name');
         $attributes = $this->argument('attributes');
@@ -49,9 +48,14 @@ class MakeFactory extends Command
     }
 
     /**
+     * @param $modelName
+     * @param array $attributes
+     * @param array $relations
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function createFactory($modelName, array $attributes, array $relations)
+    private function createFactory($modelName, array $attributes, array $relations): void
     {
         $modelName = ucfirst(Str::singular($modelName));
 
@@ -59,7 +63,7 @@ class MakeFactory extends Command
 
         $factoryAttributes = $this->generateCols($attributes, $relations);
 
-        $factoryPath = base_path().'/database/factories/'.$factoryName.'.php';
+        $factoryPath = base_path() . '/database/factories/' . $factoryName . '.php';
         if (file_exists($factoryPath)) {
             return;
         }
@@ -73,17 +77,27 @@ class MakeFactory extends Command
         new CreateFile(
             $stubProperties,
             $this->getFactoryPath($factoryName),
-            __DIR__.'/stubs/factory.stub'
+            __DIR__ . '/stubs/factory.stub'
         );
         $this->line("<info>Created factory:</info> {$factoryName}");
     }
 
-    private function getFactoryName($modelName)
+    /**
+     * @param $modelName
+     * @return string
+     */
+    private function getFactoryName($modelName): string
     {
-        return $modelName.'Factory';
+        return $modelName . 'Factory';
     }
 
-    private function generateCols(array $attributes, array $relations)
+    /**
+     * @param array $attributes
+     * @param array $relations
+     * @return string[]
+     */
+    #[ArrayShape(['rows' => "string", 'relatedFactories' => "string"])]
+    private function generateCols(array $attributes, array $relations): array
     {
         $rows = '';
         $relatedFactories = '';
@@ -112,7 +126,7 @@ class MakeFactory extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
-                $functionName = 'with'.ucfirst(Str::plural($rel));
+                $functionName = 'with' . ucfirst(Str::plural($rel));
                 $className = ucfirst(Str::singular($rel));
 
                 $relatedFactories .= "
@@ -126,9 +140,13 @@ class MakeFactory extends Command
         return ['rows' => $rows, 'relatedFactories' => $relatedFactories];
     }
 
-    private function getFactoryPath($factoryName)
+    /**
+     * @param $factoryName
+     * @return string
+     */
+    private function getFactoryPath($factoryName): string
     {
-        return $this->appDatabasePath().'/factories'.
-            "/$factoryName".'.php';
+        return $this->appDatabasePath() . '/factories' .
+            "/$factoryName" . '.php';
     }
 }

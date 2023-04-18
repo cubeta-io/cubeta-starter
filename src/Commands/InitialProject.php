@@ -53,8 +53,14 @@ class InitialProject extends Command
                 $this->line("<info>$role role created successfully</info>");
             }
         }
+
+        $this->configureTranslationPackage();
     }
 
+    /**
+     * @param string|null $permissions
+     * @return array|null
+     */
     public function convertPermissionStringToArray(string $permissions = null): ?array
     {
         if (is_null($permissions)) {
@@ -66,9 +72,14 @@ class InitialProject extends Command
         return explode(',', $permissions);
     }
 
+    /**
+     * @param string $role
+     * @param array|null $permissions
+     * @return void
+     */
     public function createRolesEnum(string $role, array $permissions = null): void
     {
-        $enum = file_get_contents(__DIR__.'/stubs/RolesPermissionEnum-entity.stub');
+        $enum = file_get_contents(__DIR__ . '/stubs/RolesPermissionEnum-entity.stub');
         $roleEnum = Str::singular(Str::upper($role));
         $roleEnumValue = Str::singular(Str::lower($role));
 
@@ -85,17 +96,17 @@ class InitialProject extends Command
             [$roleEnum, $roleEnumValue, $placedPermission],
             $enum);
 
-        $enumDirectory = base_path().'/app/Enums/';
+        $enumDirectory = base_path() . '/app/Enums/';
 
         $files = new Filesystem();
         $files->makeDirectory($enumDirectory, 0777, true, true);
 
-        if (file_exists($enumDirectory.'RolesPermissionEnum.php')) {
-            $enumFileContent = file_get_contents($enumDirectory.'RolesPermissionEnum.php');
-            if (! str_contains($enumFileContent, $enum)) {
+        if (file_exists($enumDirectory . 'RolesPermissionEnum.php')) {
+            $enumFileContent = file_get_contents($enumDirectory . 'RolesPermissionEnum.php');
+            if (!str_contains($enumFileContent, $enum)) {
                 // If the new code does not exist, add it to the end of the class definition
                 $pattern = '/}\s*$/';
-                $replacement = "{$enum}}";
+                $replacement = "$enum}";
 
                 $enumFileContent = preg_replace($pattern, $replacement, $enumFileContent, 1);
                 $enumFileContent = str_replace(
@@ -106,16 +117,16 @@ class InitialProject extends Command
                     ],
                     [
                         $enum,
-                        'self::'.$roleEnum."['role'], \n //add-all-your-enums-roles-here \n",
-                        'self::'.$roleEnum.", \n //add-all-your-enums-here \n",
+                        'self::' . $roleEnum . "['role'], \n //add-all-your-enums-roles-here \n",
+                        'self::' . $roleEnum . ", \n //add-all-your-enums-here \n",
                     ],
                     $enumFileContent);
 
                 // Write the modified contents back to the file
-                file_put_contents($enumDirectory.'RolesPermissionEnum.php', $enumFileContent);
+                file_put_contents($enumDirectory . 'RolesPermissionEnum.php', $enumFileContent);
             }
         } else {
-            $enumFile = file_get_contents(__DIR__.'/stubs/RolesPermissionEnum.stub');
+            $enumFile = file_get_contents(__DIR__ . '/stubs/RolesPermissionEnum.stub');
 
             $enumFile = str_replace(
                 [
@@ -125,15 +136,17 @@ class InitialProject extends Command
                 ],
                 [
                     $enum,
-                    'self::'.$roleEnum."['role'], \n //add-all-your-enums-roles-here \n",
-                    'self::'.$roleEnum.", \n //add-all-your-enums-here \n",
+                    'self::' . $roleEnum . "['role'], \n //add-all-your-enums-roles-here \n",
+                    'self::' . $roleEnum . ", \n //add-all-your-enums-here \n",
                 ],
                 $enumFile);
-            file_put_contents($enumDirectory.'RolesPermissionEnum.php', $enumFile);
+            file_put_contents($enumDirectory . 'RolesPermissionEnum.php', $enumFile);
         }
     }
 
     /**
+     * @param $role
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -141,37 +154,41 @@ class InitialProject extends Command
     {
         $role = Str::singular(Str::lower($role));
 
-        $apiFile = 'api/'.$role.'.php';
+        $apiFile = 'api/' . $role . '.php';
 
-        $apiPath = base_path().'\routes\\'.$apiFile;
+        $apiPath = base_path() . '\routes\\' . $apiFile;
 
-        ! (File::makeDirectory(dirname($apiPath), 0777, true, true)) ??
+        !(File::makeDirectory(dirname($apiPath), 0777, true, true)) ??
         $this->line('<info>Failed To Create Your Route Specified Directory</info>');
 
         new CreateFile(
             ['{route}' => '//add-your-routes-here'],
             $apiPath,
-            __DIR__.'/stubs/api.stub'
+            __DIR__ . '/stubs/api.stub'
         );
 
         $this->addApiFileToServiceProvider($apiFile);
     }
 
+    /**
+     * @param string $apiFilePath
+     * @return void
+     */
     public function addApiFileToServiceProvider(string $apiFilePath): void
     {
         $routeServiceProvider = app_path('Providers/RouteServiceProvider.php');
-        $line_to_add = "\t\t Route::middleware('api')\n".
-            "\t\t\t->prefix('api')\n".
+        $line_to_add = "\t\t Route::middleware('api')\n" .
+            "\t\t\t->prefix('api')\n" .
             "\t\t\t->group(base_path('routes/$apiFilePath'));\n";
 
         // Read the contents of the file
         $file_contents = file_get_contents($routeServiceProvider);
 
         // Check if the line to add already exists in the file
-        if (! str_contains($file_contents, $line_to_add)) {
+        if (!str_contains($file_contents, $line_to_add)) {
             // If the line does not exist, add it to the boot() method
             $pattern = '/\$this->routes\(function\s*\(\)\s*{\s*/';
-            $replacement = "$0{$line_to_add}";
+            $replacement = "$0$line_to_add";
 
             $file_contents = preg_replace($pattern, $replacement, $file_contents, 1);
             // Write the modified contents back to the file
@@ -180,6 +197,7 @@ class InitialProject extends Command
     }
 
     /**
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -188,16 +206,39 @@ class InitialProject extends Command
         new CreateFile(
             [],
             database_path('seeders/RoleSeeder.php'),
-            __DIR__.'/stubs/RoleSeeder.stub'
+            __DIR__ . '/stubs/RoleSeeder.stub'
         );
     }
 
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
     public function createPermissionSeeder(): void
     {
         new CreateFile(
             [],
             database_path('seeders/PermissionSeeder.php'),
-            __DIR__.'/stubs/PermissionSeeder.stub'
+            __DIR__ . '/stubs/PermissionSeeder.stub'
         );
+    }
+
+    /**
+     * @return void
+     */
+    public function configureTranslationPackage(): void
+    {
+        $result = $this->choice('Does Your Project Need To Use Translation Package ? (astrotomic/laravel-translatable)', ['No', 'Yes'], 'No');
+        if ($result == 'Yes') {
+            $installCommand = 'composer require astrotomic/laravel-translatable';
+            $this->excuteCommandInTheBaseDirectory($installCommand);
+            // publishing translatable config
+            $publishCommand = 'php artisan vendor:publish --tag=translatable';
+            $this->excuteCommandInTheBaseDirectory($publishCommand);
+
+            return;
+        }
+
     }
 }

@@ -19,8 +19,7 @@ class MakePostmanCollection extends Command
     public $description = 'Create a new postman collection';
 
     /**
-     * Handle the command
-     *
+     * @return void
      * @throws BindingResolutionException
      */
     public function handle(): void
@@ -32,9 +31,12 @@ class MakePostmanCollection extends Command
     }
 
     /**
+     * @param $modelName
+     * @param $attributes
+     * @return void
      * @throws BindingResolutionException
      */
-    private function createPostmanCollection($modelName, $attributes)
+    private function createPostmanCollection($modelName, $attributes): void
     {
         $modelName = Str::singular(ucfirst($modelName));
         $endpoint = '/'.Str::plural(Str::lower($modelName));
@@ -73,6 +75,10 @@ class MakePostmanCollection extends Command
         $this->line("<info>Created Postman Collection:</info> $projetName.postman_collection.json ");
     }
 
+    /**
+     * @param $attributes
+     * @return string
+     */
     public function generateBodyData($attributes): string
     {
         $fields = '';

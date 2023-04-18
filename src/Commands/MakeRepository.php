@@ -20,7 +20,9 @@ class MakeRepository extends Command
     public $description = 'Create a new repository class';
 
     /**
-     * Handle the command
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     public function handle(): void
     {
@@ -30,16 +32,17 @@ class MakeRepository extends Command
     }
 
     /**
-     * Create repository
-     *
-     * @throws BindingResolutionException|FileNotFoundException
+     * @param $modelName
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     private function createRepository($modelName): void
     {
         $namespace = $this->getNameSpace();
         $modelName = Str::singular(ucfirst($modelName));
 
-        $repositoryName = $modelName.'Repository';
+        $repositoryName = $modelName . 'Repository';
         $modelVar = Str::singular(lcfirst($modelName));
 
         $stubProperties = [
@@ -47,14 +50,14 @@ class MakeRepository extends Command
             '{modelVar}' => $modelVar,
         ];
 
-        $repositoryPath = base_path().'/app/Repositories/'.$repositoryName.'.php';
+        $repositoryPath = base_path() . '/app/Repositories/' . $repositoryName . '.php';
         if (file_exists($repositoryPath)) {
             return;
         }
 
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
-        if (! file_exists($folder)) {
+        if (!file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
 
@@ -62,14 +65,14 @@ class MakeRepository extends Command
         new CreateFile(
             $stubProperties,
             $this->getRepositoryPath($repositoryName),
-            __DIR__.'/stubs/repository.stub'
+            __DIR__ . '/stubs/repository.stub'
         );
 
         $this->line("<info>Created Repository:</info> $repositoryName");
     }
 
     /**
-     * get namespace
+     * @return string
      */
     private function getNameSpace(): string
     {
@@ -77,12 +80,13 @@ class MakeRepository extends Command
     }
 
     /**
-     * Get repository path
+     * @param $repositoryName
+     * @return string
      */
     private function getRepositoryPath($repositoryName): string
     {
-        return $this->appPath().'/'.
-            config('repository.repository_directory').
-            "/$repositoryName".'.php';
+        return $this->appPath() . '/' .
+            config('repository.repository_directory') .
+            "/$repositoryName" . '.php';
     }
 }

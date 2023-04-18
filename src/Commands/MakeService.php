@@ -20,7 +20,9 @@ class MakeService extends Command
     public $description = 'Create a new service class';
 
     /**
-     * Handle the command
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     public function handle(): void
     {
@@ -30,6 +32,8 @@ class MakeService extends Command
     }
 
     /**
+     * @param $modelName
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -67,7 +71,7 @@ class MakeService extends Command
     }
 
     /**
-     * get namespace
+     * @return string
      */
     private function getNameSpace(): string
     {
@@ -75,7 +79,8 @@ class MakeService extends Command
     }
 
     /**
-     * Get Service path
+     * @param $modelName
+     * @return string
      */
     private function getServicePath($modelName): string
     {
@@ -86,7 +91,13 @@ class MakeService extends Command
             "/$modelName/$serviceName".'.php';
     }
 
-    public function createServiceInterface($modelName)
+    /**
+     * @param $modelName
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function createServiceInterface($modelName): void
     {
         $namespace = $this->getNameSpace()."\\$modelName";
 
@@ -116,7 +127,8 @@ class MakeService extends Command
     }
 
     /**
-     * Get Service path
+     * @param $modelName
+     * @return string
      */
     private function getServiceInterfacePath($modelName): string
     {

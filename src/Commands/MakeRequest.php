@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
 
 class MakeRequest extends Command
@@ -19,8 +20,7 @@ class MakeRequest extends Command
     public $description = 'Create a new request';
 
     /**
-     * Handle the command
-     *
+     * @return void
      * @throws BindingResolutionException
      */
     public function handle(): void
@@ -32,9 +32,13 @@ class MakeRequest extends Command
     }
 
     /**
+     * @param $modelName
+     * @param $attributes
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function createRequest($modelName, $attributes)
+    private function createRequest($modelName, $attributes): void
     {
         $modelName = ucfirst($modelName);
         $requestName = $this->getRequestName($modelName);
@@ -44,7 +48,7 @@ class MakeRequest extends Command
             '{rules}' => $this->generateCols($attributes),
         ];
 
-        $requestPath = base_path().'/app/Http/Requests/'.$modelName.'/'.$requestName.'.php';
+        $requestPath = base_path() . '/app/Http/Requests/' . $modelName . '/' . $requestName . '.php';
         if (file_exists($requestPath)) {
             return;
         }
@@ -52,16 +56,24 @@ class MakeRequest extends Command
         new CreateFile(
             $stubProperties,
             $this->getRequestPath($requestName, $modelName),
-            __DIR__.'/stubs/request.stub'
+            __DIR__ . '/stubs/request.stub'
         );
         $this->line("<info>Created request:</info> {$requestName}");
     }
 
+    /**
+     * @param $modelName
+     * @return string
+     */
     private function getRequestName($modelName): string
     {
-        return 'StoreUpdate'.$modelName.'Request';
+        return 'StoreUpdate' . $modelName . 'Request';
     }
 
+    /**
+     * @param $attributes
+     * @return string
+     */
     private function generateCols($attributes): string
     {
         $rules = '';
@@ -119,14 +131,17 @@ class MakeRequest extends Command
     }
 
     /**
+     * @param $requestName
+     * @param $modelName
+     * @return string
      * @throws BindingResolutionException
      */
     private function getRequestPath($requestName, $modelName): string
     {
-        $path = $this->appPath()."/app/Http/Requests/$modelName/";
+        $path = $this->appPath() . "/app/Http/Requests/$modelName/";
 
         $this->ensureDirectoryExists($path);
 
-        return $path."$requestName".'.php';
+        return $path . "$requestName" . '.php';
     }
 }

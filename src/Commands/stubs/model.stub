@@ -6,13 +6,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany ;
 use Illuminate\Database\Eloquent\Relations\HasOne ;
+{importStatement}
 
 use Cubeta\CubetaStarter\BaseModel;
 
 {properties}
-class {modelName} extends BaseModel {
+class {modelName} extends BaseModel {implementStatement} {
+
+    {useTrait}
 
     protected $appends = [{images}] ;
+
+    {translatedAttributes}
 
     {imageAttribute}
 

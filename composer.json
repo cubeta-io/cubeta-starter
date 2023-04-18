@@ -11,7 +11,8 @@
     "require": {
         "php": "^7.3|^8.0",
         "intervention/image": "^2.7",
-        "spatie/laravel-package-tools": "^1.11"
+        "spatie/laravel-package-tools": "^1.11",
+        "astrotomic/laravel-translatable": "^11.12"
     },
     "require-dev": {
         "orchestra/testbench": "^7.5",

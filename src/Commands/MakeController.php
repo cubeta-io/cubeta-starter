@@ -22,9 +22,9 @@ class MakeController extends Command
     protected $description = 'Create a new controller';
 
     /**
-     * Handle the command
-     *
-     * @throws BindingResolutionException|FileNotFoundException
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     public function handle(): void
     {
@@ -35,10 +35,13 @@ class MakeController extends Command
     }
 
     /**
-     * @throws BindingResolutionException|FileNotFoundException
-     * @throws Exception
+     * @param $modelName
+     * @param $actor
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function createController($modelName, $actor)
+    private function createController($modelName, $actor): void
     {
         $modelName = ucfirst($modelName);
         $stubProperties = [
@@ -58,12 +61,18 @@ class MakeController extends Command
         $this->addRoute($modelName, $actor);
     }
 
+    /**
+     * @param $modelName
+     * @return string
+     */
     private function getControllerName($modelName): string
     {
         return $modelName.'Controller';
     }
 
     /**
+     * @param $controllerName
+     * @return string
      * @throws BindingResolutionException
      */
     private function getControllerPath($controllerName): string
@@ -76,7 +85,9 @@ class MakeController extends Command
     }
 
     /**
-     * @throws Exception
+     * @param $modelName
+     * @param $actor
+     * @return void
      */
     public function addRoute($modelName, $actor): void
     {
@@ -111,6 +122,11 @@ class MakeController extends Command
         }
     }
 
+    /**
+     * @param string $importStatement
+     * @param string $filePath
+     * @return void
+     */
     public function addImportStatement(string $importStatement, string $filePath = 'routes/api.php'): void
     {
         $contents = file_get_contents($filePath);
@@ -138,7 +154,9 @@ class MakeController extends Command
     }
 
     /**
-     * @return array|string|string[]
+     * @param $actor
+     * @param $modelName
+     * @return array|string
      */
     public function getRouteName($actor, $modelName): array|string
     {
@@ -147,6 +165,11 @@ class MakeController extends Command
         return 'api.'.$actor.'.'.$lowerModelName;
     }
 
+    /**
+     * @param string $apiPath
+     * @param string $route
+     * @return bool
+     */
     public function checkIfRouteExist(string $apiPath, string $route): bool
     {
         $file = file_get_contents($apiPath);
