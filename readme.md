@@ -42,7 +42,7 @@ then in the require-dev entity add this line : `"cubeta/cubeta-starter" : "@dev"
 
 **Usage**
 
-1 - run this command : php artisan create:model <YourMoodel> then an output will show : 
+1 - run this command : `php artisan create:model <YourMoodel>` then an output will show : 
 
 `Enter your params like "name,started_at,...":`
 
@@ -128,4 +128,13 @@ so you will find a :
 1. a service class and its interface for your model in the `app/Services/YourModelName` directory 
 1. a test class for your model with a test for CRUD operations in the `tests/Feature` directory
 1. a postman collection in your project root directory 
+
+**cubeta-init command**
+
+now this command will Initialize your project on specific roles : 
+
+**how to use it : **
+
+1- run this command : `php artisan cubeta-init`
+
 
