@@ -18,6 +18,8 @@ Each created model will has a :
 
 and a postman collection file will be generated for the whole model created (models creat by the package)
 
+<hr>
+
 **installation**
 
 1 - in your project root directory open packages directory (if it doesn't create it) then add this directory : `cubeta/cubeta-starter` then in the created directory clone this project
@@ -38,6 +40,8 @@ then in the require-dev entity add this line : `"cubeta/cubeta-starter" : "@dev"
 
 3 - run composer install
 
+
+<hr>
 
 
 **Usage**
