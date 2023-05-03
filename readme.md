@@ -115,15 +115,17 @@ so just like before type the model name if you're willing to hit yes
 now we're done for this part
 
 so you will find a : 
-1- your model calss in your `app/models` directory
-2- a migration for your model in `database/migrations` directory
-3- a factory for your model in database/factories directory
-4- a seeder for your model in database/seeders directory
-5- a request for your model in app/Http/Requests/YourModelName directory
-6- a resource for Your model in app/Http/Resources directory 
-7- a controller in the app/Http/controllers/API/v1 directory filled with CRUD methodes
-8- a named apiresource rout for your controller will be appended in the routes/api.php file
-9- a repository class for your model in the app/Repositories directory
-10- a service class and its interface for your model in the app/Services/YourModelName directory 
-11- a test class for your model with a test for CRUD operations in the tests/Feature directory
-12- a postman collection in your project root directory 
+
+1. your model calss in your `app/models` directory
+1. a migration for your model in `database/migrations` directory
+1. a factory for your model in `database/factories` directory
+1. a seeder for your model in `database/seeders` directory
+1. a request for your model in `app/Http/Requests/YourModelName` directory
+1. a resource for Your model in `app/Http/Resources` directory 
+1. a controller in the `app/Http/controllers/API/v1 directory` filled with CRUD methodes
+1. a named apiresource rout for your controller will be appended in the `routes/api.php` file
+1. a repository class for your model in the `app/Repositories` directory
+1. a service class and its interface for your model in the `app/Services/YourModelName` directory 
+1. a test class for your model with a test for CRUD operations in the `tests/Feature` directory
+1. a postman collection in your project root directory 
+
