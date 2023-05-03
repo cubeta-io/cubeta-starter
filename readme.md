@@ -48,7 +48,7 @@ then in the require-dev entity add this line : `"cubeta/cubeta-starter" : "@dev"
 
 2 - write your model properties that will correspond to its table columns like this : 
 
-`name,emai,password`
+`name,email,password`
 
 then an output for each property of your model will appear like this : 
 ```
