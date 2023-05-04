@@ -1,8 +1,8 @@
-**Introduction**
+<h1 id="introduction">Introduction</h1>
 
  cubeta-starter is a package that will help you create your CRUDES easier than before with a pretty much        everything you will need
 
- **it is using Repository and Service design pattern so every model created there will be a corresponding repository class and service class**
+_<p> it is using Repository and Service design pattern so every model created there will be a corresponding repository class and service class</p>_
 
 Each created model will has a : 
 - migration file 
@@ -20,7 +20,7 @@ and a postman collection file will be generated for the whole model created (mod
 
 <hr>
 
-**installation**
+**<h1 id="installation">installation<h1>**
 
 1 - in your project root directory open packages directory (if it doesn't create it) then add this directory : `cubeta/cubeta-starter` then in the created directory clone this project
 
@@ -44,7 +44,7 @@ then in the require-dev entity add this line : `"cubeta/cubeta-starter" : "@dev"
 <hr>
 
 
-**Usage**
+**<h1 id="usage">Usage</h1>**
 
 1 - run this command : `php artisan create:model <YourMoodel>` then an output will show : 
 
@@ -133,11 +133,11 @@ so you will find a :
 1. a test class for your model with a test for CRUD operations in the `tests/Feature` directory
 1. a postman collection in your project root directory 
 
-**cubeta-init command**
+**<h2 id="cubeta-init-command">cubeta-init command</h2>**
 
 now this command will Initialize your project on specific roles : 
 
-**how to use it : **
+**<label for="cubeta-init-command">how to use it :</label>**
 
 1- run this command : `php artisan cubeta-init`
 
