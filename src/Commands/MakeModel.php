@@ -66,7 +66,7 @@ class MakeModel extends Command
         $name = $this->argument('name');
         $option = $this->argument('option');
 
-        if (!$name) {
+        if (! $name) {
             $this->error('Please specify a valid model');
 
             return false;
@@ -130,13 +130,11 @@ class MakeModel extends Command
             ]);
         }
 
-        $this->line(exec($this->appPath() . '/vendor/bin/pint'));
+        $this->line(exec($this->appPath().'/vendor/bin/pint'));
     }
 
     /**
      * convert an array of attributes to array with attributes and their types
-     * @param $fields
-     * @return array
      */
     private function convertToArrayOfAttributes($fields): array
     {
@@ -156,7 +154,7 @@ class MakeModel extends Command
 
     /**
      * Check to make sure if all required directories are available
-     * @return void
+     *
      * @throws BindingResolutionException
      */
     private function checkIfRequiredDirectoriesExist(): void
@@ -165,10 +163,6 @@ class MakeModel extends Command
     }
 
     /**
-     * @param string $className
-     * @param array $attributes
-     * @param array $translatedAttributes
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -196,40 +190,36 @@ class MakeModel extends Command
             '{translatedAttributes}' => $emptyTranslations ? '' : $this->fillTranslatedAttributesArray($translatedAttributes),
         ];
 
-        $modelPath = base_path() . '/app/Models/' . $className . '.php';
+        $modelPath = base_path().'/app/Models/'.$className.'.php';
         if (file_exists($modelPath)) {
             return;
         }
 
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
-        if (!file_exists($folder)) {
+        if (! file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
         // create file
         new CreateFile(
             $stubProperties,
             $this->getModelPath($className),
-            __DIR__ . '/stubs/model.stub'
+            __DIR__.'/stubs/model.stub'
         );
         $this->line("<info>Created model:</info> $className");
     }
 
-    /**
-     * @return string
-     */
     private function getNameSpace(): string
     {
         return config('repository.model_namespace');
     }
 
     /**
-     * @param $attributes
-     * @param $modelName
      * @return string[]
+     *
      * @throws BindingResolutionException
      */
-    #[ArrayShape(['image' => "string", 'appends' => "string"])]
+    #[ArrayShape(['image' => 'string', 'appends' => 'string'])]
     private function getModelImage($attributes, $modelName): array
     {
         $image = '';
@@ -237,22 +227,18 @@ class MakeModel extends Command
         $appends = '';
         foreach ($columnsNames as $colName) {
             $image .=
-                'public function get' . ucfirst(Str::camel(Str::studly($colName))) . "Attribute()
+                'public function get'.ucfirst(Str::camel(Str::studly($colName)))."Attribute()
                 {
                     return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
                 }\n";
 
             $appends = "'$colName',";
-            $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
+            $this->ensureDirectoryExists(storage_path('app/public/'.Str::lower($modelName).'/'.Str::plural($colName)));
         }
 
         return ['image' => $image, 'appends' => $appends];
     }
 
-    /**
-     * @param $attributes
-     * @return string
-     */
     private function getModelRelation($attributes): string
     {
         $relationsFunctions = '';
@@ -261,7 +247,7 @@ class MakeModel extends Command
 
         foreach ($foreignKeys as $key => $value) {
 
-            $result = $this->choice('The ' . $value . ' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
+            $result = $this->choice('The '.$value.' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
 
             if ($result == RelationsTypeEnum::HasOne) {
 
@@ -269,9 +255,9 @@ class MakeModel extends Command
                 $relationName = lcfirst(Str::singular($relationName));
 
                 $relationsFunctions .= '
-                public function ' . $relationName . '():hasOne
+                public function '.$relationName.'():hasOne
                 {
-                    return $this->hasOne(' . Str::singular(ucfirst($relationName)) . "::class);
+                    return $this->hasOne('.Str::singular(ucfirst($relationName))."::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::HasOne;
@@ -283,9 +269,9 @@ class MakeModel extends Command
                 $relationName = lcfirst(Str::singular($relationName));
 
                 $relationsFunctions .= '
-                public function ' . $relationName . '():belongsTo
+                public function '.$relationName.'():belongsTo
                 {
-                    return $this->belongsTo(' . Str::singular(ucfirst($relationName)) . "::class);
+                    return $this->belongsTo('.Str::singular(ucfirst($relationName))."::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::BelongsTo;
@@ -309,9 +295,9 @@ class MakeModel extends Command
                 $relationName = lcfirst(Str::plural($table));
 
                 $relationsFunctions .= '
-                public function ' . $relationName . '():hasMany
+                public function '.$relationName.'():hasMany
                 {
-                    return $this->hasMany(' . Str::singular(ucfirst($table)) . "::class);
+                    return $this->hasMany('.Str::singular(ucfirst($table))."::class);
                 }\n";
 
                 $decision = $this->choice('Does it has another <fg=red>has many</fg=red> relation ? ', ['No', 'Yes'], 'No');
@@ -339,9 +325,9 @@ class MakeModel extends Command
                 $relationName = lcfirst(Str::plural($table));
 
                 $relationsFunctions .= '
-                 public function ' . $relationName . '() : BelongsToMany
+                 public function '.$relationName.'() : BelongsToMany
                  {
-                     return $this->belongsToMany(' . ucfirst(Str::singular($relationName)) . "::class);
+                     return $this->belongsToMany('.ucfirst(Str::singular($relationName))."::class);
                  }\n";
 
                 $decision = $this->choice('Does it has another <fg=red>many to many</fg=red> relation ? ', ['No', 'Yes'], 'No');
@@ -355,19 +341,14 @@ class MakeModel extends Command
         return $relationsFunctions;
     }
 
-    /**
-     * @param $attributes
-     * @param $relations
-     * @return string
-     */
     private function getModelProperty($attributes, $relations): string
     {
         $properties = "/**  \n";
         foreach ($relations as $name => $type) {
             if ($type == RelationsTypeEnum::ManyToMany) {
-                $properties .= '* @property BelongsToMany ' . $name . "\n";
+                $properties .= '* @property BelongsToMany '.$name."\n";
             } elseif ($type == RelationsTypeEnum::HasMany) {
-                $properties .= '* @property HasMany ' . $name . "\n";
+                $properties .= '* @property HasMany '.$name."\n";
             } elseif ($type == RelationsTypeEnum::BelongsTo) {
                 $properties .= "* @property BelongsTo $name \n";
             } elseif ($type == RelationsTypeEnum::HasOne) {
@@ -387,10 +368,6 @@ class MakeModel extends Command
         return $properties;
     }
 
-    /**
-     * @param $attributes
-     * @return string
-     */
     public function boolValuesScope($attributes): string
     {
         $booleans = array_keys($attributes, 'boolean');
@@ -398,32 +375,25 @@ class MakeModel extends Command
         $scopes = '';
 
         foreach ($booleans as $boolCol) {
-            $scopes .= 'public function scope' . ucfirst(Str::studly($boolCol)) . "(\$query)
+            $scopes .= 'public function scope'.ucfirst(Str::studly($boolCol))."(\$query)
             {
-                return \$query->where('" . $boolCol . "' , 1);
+                return \$query->where('".$boolCol."' , 1);
             } \n";
         }
 
         return $scopes;
     }
 
-    /**
-     * @param $className
-     * @return string
-     */
     private function getModelPath($className): string
     {
-        return $this->appPath() . '/' .
-            config('repository.model_directory') .
-            "/$className" . '.php';
+        return $this->appPath().'/'.
+            config('repository.model_directory').
+            "/$className".'.php';
     }
 
-    /**
-     * @return array|string|null
-     */
     public function checkTheActor(): array|string|null
     {
-        if (file_exists(base_path() . '/app/Enums/RolesPermissionEnum.php')) {
+        if (file_exists(base_path().'/app/Enums/RolesPermissionEnum.php')) {
             $roles = RolesPermissionEnum::ALLROLES;
             $roles[] = 'none';
 
@@ -434,9 +404,6 @@ class MakeModel extends Command
     }
 
     /**
-     * @param $modelName
-     * @param $attributes
-     * @return array
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -453,11 +420,11 @@ class MakeModel extends Command
 
         do {
             $translatedAttributes = $this->ask("Enter The Attributes That's Have Translations :
-                                                \n Your Model Attributes :<fg=red>" . implode(',', array_map('trim', array_keys($attributes))) . "</fg=red>
+                                                \n Your Model Attributes :<fg=red>".implode(',', array_map('trim', array_keys($attributes)))."</fg=red>
                                                 \n Take Care Of Writing The Attributes in The Same Names \n");
             $translatedAttributes = explode(',', $translatedAttributes);
             $intersection = array_intersect(array_keys($attributes), $translatedAttributes);
-        } while (!$intersection == $translatedAttributes);
+        } while (! $intersection == $translatedAttributes);
 
         $translatedAttributesWithTypes = Arr::only($attributes, $translatedAttributes);
         $this->createTranslationMigration($modelName, $translatedAttributesWithTypes);
@@ -469,20 +436,17 @@ class MakeModel extends Command
     }
 
     /**
-     * @param $modelName
-     * @param $attributes
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
     public function createTranslationMigration($modelName, $attributes): void
     {
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
-        $migrationName = $date . '_create_' . Str::singular(strtolower($modelName)) . '_translations_table.php';
+        $migrationName = $date.'_create_'.Str::singular(strtolower($modelName)).'_translations_table.php';
 
         $modelLower = Str::singular(Str::lower($modelName));
         $modelNamePlural = Str::plural($modelLower);
-        $tableName = $modelLower . '_translations';
+        $tableName = $modelLower.'_translations';
         $columns = $this->generateMigrationCols($attributes, []);
 
         $stubProperties = [
@@ -494,20 +458,16 @@ class MakeModel extends Command
 
         new CreateFile(
             $stubProperties,
-            database_path('migrations') . '/' . $migrationName,
-            __DIR__ . '/stubs/translation-migration.stub'
+            database_path('migrations').'/'.$migrationName,
+            __DIR__.'/stubs/translation-migration.stub'
         );
     }
 
-    /**
-     * @param array $translatedAttribute
-     * @return string
-     */
     public function fillTranslatedAttributesArray(array $translatedAttribute): string
     {
         $array = 'public array $translatedAttributes = [';
         foreach (array_keys($translatedAttribute) as $item) {
-            $array .= "'" . "$item" . "',";
+            $array .= "'"."$item"."',";
         }
         $array .= '];';
 

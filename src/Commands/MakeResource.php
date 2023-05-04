@@ -22,7 +22,6 @@ class MakeResource extends Command
     public $description = 'Create a new resource';
 
     /**
-     * @return void
      * @throws BindingResolutionException
      */
     public function handle(): void
@@ -35,10 +34,6 @@ class MakeResource extends Command
     }
 
     /**
-     * @param $modelName
-     * @param array $attributes
-     * @param $relations
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -65,20 +60,11 @@ class MakeResource extends Command
         $this->line("<info>Created resource:</info> {$resourceName}");
     }
 
-    /**
-     * @param $modelName
-     * @return string
-     */
     private function getResourceName($modelName): string
     {
         return $modelName.'Resource';
     }
 
-    /**
-     * @param array $attributes
-     * @param $relations
-     * @return string
-     */
     private function generateCols(array $attributes, $relations): string
     {
         $columns = "'id'                     =>  \$this->id, \n\t\t\t";
@@ -102,8 +88,6 @@ class MakeResource extends Command
     }
 
     /**
-     * @param $ResourceName
-     * @return string
      * @throws BindingResolutionException
      */
     private function getResourcePath($ResourceName): string

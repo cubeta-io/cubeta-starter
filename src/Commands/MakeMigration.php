@@ -22,7 +22,6 @@ class MakeMigration extends Command
     public $description = 'Create a new migration';
 
     /**
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -36,10 +35,6 @@ class MakeMigration extends Command
     }
 
     /**
-     * @param $modelName
-     * @param array $attributes
-     * @param array $relations
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -57,29 +52,21 @@ class MakeMigration extends Command
         new CreateFile(
             $stubProperties,
             $this->getMigrationsPath($migrationName),
-            __DIR__ . '/stubs/migration.stub'
+            __DIR__.'/stubs/migration.stub'
         );
         $this->line("<info>Created migration:</info> $migrationName");
     }
 
-    /**
-     * @param $migrationName
-     * @return string
-     */
     private function getMigrationsPath($migrationName): string
     {
-        return $this->appDatabasePath() . '/migrations' .
-            "/$migrationName" . '.php';
+        return $this->appDatabasePath().'/migrations'.
+            "/$migrationName".'.php';
     }
 
-    /**
-     * @param $modelName
-     * @return string
-     */
     private function getMigrationName($modelName): string
     {
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
 
-        return $date . '_create_' . Str::plural(strtolower($modelName)) . '_table';
+        return $date.'_create_'.Str::plural(strtolower($modelName)).'_table';
     }
 }

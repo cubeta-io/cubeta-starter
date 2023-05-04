@@ -4,7 +4,6 @@ namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -22,7 +21,6 @@ class MakeController extends Command
     protected $description = 'Create a new controller';
 
     /**
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -35,9 +33,6 @@ class MakeController extends Command
     }
 
     /**
-     * @param $modelName
-     * @param $actor
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -61,18 +56,12 @@ class MakeController extends Command
         $this->addRoute($modelName, $actor);
     }
 
-    /**
-     * @param $modelName
-     * @return string
-     */
     private function getControllerName($modelName): string
     {
         return $modelName.'Controller';
     }
 
     /**
-     * @param $controllerName
-     * @return string
      * @throws BindingResolutionException
      */
     private function getControllerPath($controllerName): string
@@ -84,11 +73,6 @@ class MakeController extends Command
         return $path."/$controllerName".'.php';
     }
 
-    /**
-     * @param $modelName
-     * @param $actor
-     * @return void
-     */
     public function addRoute($modelName, $actor): void
     {
         $pluralLowerModelName = Str::singular(Str::lower($modelName));
@@ -122,11 +106,6 @@ class MakeController extends Command
         }
     }
 
-    /**
-     * @param string $importStatement
-     * @param string $filePath
-     * @return void
-     */
     public function addImportStatement(string $importStatement, string $filePath = 'routes/api.php'): void
     {
         $contents = file_get_contents($filePath);
@@ -153,11 +132,6 @@ class MakeController extends Command
         file_put_contents($filePath, $contents);
     }
 
-    /**
-     * @param $actor
-     * @param $modelName
-     * @return array|string
-     */
     public function getRouteName($actor, $modelName): array|string
     {
         $lowerModelName = Str::lower($modelName);
@@ -165,11 +139,6 @@ class MakeController extends Command
         return 'api.'.$actor.'.'.$lowerModelName;
     }
 
-    /**
-     * @param string $apiPath
-     * @param string $route
-     * @return bool
-     */
     public function checkIfRouteExist(string $apiPath, string $route): bool
     {
         $file = file_get_contents($apiPath);

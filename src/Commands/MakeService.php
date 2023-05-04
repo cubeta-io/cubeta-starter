@@ -20,7 +20,6 @@ class MakeService extends Command
     public $description = 'Create a new service class';
 
     /**
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -32,8 +31,6 @@ class MakeService extends Command
     }
 
     /**
-     * @param $modelName
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -70,18 +67,11 @@ class MakeService extends Command
         $this->line("<info>Created Service:</info> $serviceName");
     }
 
-    /**
-     * @return string
-     */
     private function getNameSpace(): string
     {
         return config('repository.service_namespace');
     }
 
-    /**
-     * @param $modelName
-     * @return string
-     */
     private function getServicePath($modelName): string
     {
         $serviceName = $modelName.'Service';
@@ -92,8 +82,6 @@ class MakeService extends Command
     }
 
     /**
-     * @param $modelName
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -126,10 +114,6 @@ class MakeService extends Command
         $this->line("<info>Created Service Interface:</info> $serviceInterfaceName");
     }
 
-    /**
-     * @param $modelName
-     * @return string
-     */
     private function getServiceInterfacePath($modelName): string
     {
         $serviceInterfaceName = 'I'.$modelName.'Service';

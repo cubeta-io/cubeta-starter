@@ -20,7 +20,6 @@ class MakeTest extends Command
     public $description = 'Create a new feature test';
 
     /**
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -33,9 +32,6 @@ class MakeTest extends Command
     }
 
     /**
-     * @param $modelName
-     * @param $actor
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -62,18 +58,12 @@ class MakeTest extends Command
         $this->line("<info>Created Test:</info> $testName");
     }
 
-    /**
-     * @param $modelName
-     * @return string
-     */
     private function getTestName($modelName): string
     {
         return $modelName.'Test';
     }
 
     /**
-     * @param $testName
-     * @return string
      * @throws BindingResolutionException
      */
     private function getTestPath($testName): string

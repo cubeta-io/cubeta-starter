@@ -19,7 +19,6 @@ class MakeSeeder extends Command
     public $description = 'Create a new seeder';
 
     /**
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -31,8 +30,6 @@ class MakeSeeder extends Command
     }
 
     /**
-     * @param $modelName
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -45,7 +42,7 @@ class MakeSeeder extends Command
             '{modelName}' => $modelName,
         ];
 
-        $seederPath = base_path() . '/database/seeders/' . $seederName . '.php';
+        $seederPath = base_path().'/database/seeders/'.$seederName.'.php';
         if (file_exists($seederPath)) {
             return;
         }
@@ -53,27 +50,19 @@ class MakeSeeder extends Command
         new CreateFile(
             $stubProperties,
             $this->getSeederPath($seederName),
-            __DIR__ . '/stubs/seeder.stub'
+            __DIR__.'/stubs/seeder.stub'
         );
         $this->line("<info>Created seeder:</info> $seederName");
     }
 
-    /**
-     * @param $modelName
-     * @return string
-     */
     private function getSeederName($modelName): string
     {
-        return $modelName . 'Seeder';
+        return $modelName.'Seeder';
     }
 
-    /**
-     * @param $seederName
-     * @return string
-     */
     private function getSeederPath($seederName): string
     {
-        return $this->appDatabasePath() . '/seeders' .
-            "/$seederName" . '.php';
+        return $this->appDatabasePath().'/seeders'.
+            "/$seederName".'.php';
     }
 }
