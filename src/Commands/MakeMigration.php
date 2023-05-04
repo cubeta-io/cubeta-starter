@@ -40,6 +40,11 @@ class MakeMigration extends Command
      */
     private function createMigration($modelName, array $attributes, array $relations): void
     {
+
+        if ($this->checkIfMigrationExists(Str::plural(strtolower($modelName)))) {
+            return;
+        }
+
         $migrationName = $this->getMigrationName($modelName);
 
         $tableName = Str::plural(strtolower($modelName));

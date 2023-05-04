@@ -41,6 +41,11 @@ class CreatePivotTable extends Command
      */
     protected function createMigration($table1, $table2, $pivotTableName)
     {
+
+        if ($this->checkIfMigrationExists($pivotTableName)) {
+            return;
+        }
+
         $migrationName = 'create_'.$pivotTableName.'_table';
 
         $date = Carbon::now()->addSecond()->format('Y_m_d_His');

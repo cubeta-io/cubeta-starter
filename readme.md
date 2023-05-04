@@ -1,5 +1,16 @@
-<h1 id="introduction">Introduction</h1>
+<h1>Content</h1>
 
+- <a href="#introduction">Introduction</a>
+- <a href="#installation">Installation</a>
+- <a href="#usage">Usage</a>
+    - <a href="#cubeta-init-command">cubeta-init Command</a>
+- <a href= "#created-classes-and-files">Created Classes And Files</a>
+    - <a href = "#models">Models</a>
+
+<hr>
+
+<h1 id="introduction">Introduction</h1>
+<p>
 cubeta-starter is a package that will help you create your CRUDS easier than before with a pretty much everything you
 will need
 
@@ -20,11 +31,12 @@ Each created model will have a :
 - policy
 
 and a postman collection file will be generated for the whole model created (models creat by the package)
+</p>
 
 <hr>
 
 **<h1 id="installation">installation</h1>**
-
+<p>
 1 - in your project root directory open packages directory (if it doesn't create it) then add this
 directory : `cubeta/cubeta-starter` then in the created directory clone this project
 
@@ -45,13 +57,13 @@ directory : `cubeta/cubeta-starter` then in the created directory clone this pro
 then in the require-dev entity add this line : `"cubeta/cubeta-starter" : "@dev",`
 
 3 - run composer install
-
+</p>
 
 <hr>
 
 
 **<h1 id="usage">Usage</h1>**
-
+<p>
 1 - run this command : `php artisan create:model <YourMoodel>` then an output will show :
 
 `Enter your params like "name,started_at,...":`
@@ -143,8 +155,10 @@ so you will find a :
 1. a test class for your model with a test for CRUD operations in the `tests/Feature` directory
 1. a postman collection in your project root directory
 
-**<h2 id="cubeta-init-command">cubeta-init command</h2>**
+</p>
 
+**<h2 id="cubeta-init-command">cubeta-init command</h2>**
+<p>
 now this command will Initialize your project on specific roles :
 
 **<label for="cubeta-init-command">how to use it :</label>**
@@ -193,3 +207,48 @@ and their permissions (_it is better to check on them_) <br>
 
 if you have translations for a specific model then you need to hit yes <br>
 _(for that when the model command asked you about cubeta-init command)_
+
+**note:** if you ran this command and and your choice was to have multi actors then on each created model an output will ask
+you about its controller actor and based on your choice the route for this controller will placed in the compitable
+route file
+
+</p>
+
+<hr>
+
+<h1 id="created-classes-and-files">Created Classes And Files</h1>
+
+<hr>
+
+<h2 id="models">Models</h2>
+<p>
+
+As mentioned before you'll find a model class corresponding to the name you entered in the `app/Models` directory
+
+- the model will has the needed functions to represent your relations
+- it will has an attribute for your file type property named after it so you can access its storage path and will append
+  it to your model
+- if you have a property of type `bool` you'll see a scope for it to make it easier too query data based on this
+  property
+- if you have translated attributes you'll see the array that contains them with the name of `$translatedAttributes`
+
+</p>
+
+<h2 id="migrations">Migrations</h2>
+<p>
+
+
+
+
+
+the corresponding created migration will match the types of the columns you entered before
+
+**notice 1:** columns of type files will be placed on the migration file as a string columns with a nullable
+attribute <br>
+**notice 2:** columns of type key will be placed on the migration file as a `foreignIdFor` columns with this
+attributes : <br>
+
+- constrained
+- cascadeOnDelete
+
+</p>

@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Traits;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 trait AssistCommand
@@ -12,7 +13,7 @@ trait AssistCommand
     /**
      * Get the app root path
      *
-     * @return string|mixed
+     * @return string
      */
     public function appPath()
     {
@@ -22,7 +23,7 @@ trait AssistCommand
     /**
      * Get the database path
      *
-     * @return string|mixed
+     * @return string
      */
     public function appDatabasePath()
     {
@@ -70,5 +71,20 @@ trait AssistCommand
         $rootPath = base_path();
         $output = shell_exec("cd {$rootPath} && {$command}");
         $this->output->write($output);
+    }
+
+    /** check if the migration is exists
+     */
+    public function checkIfMigrationExists($tableName): bool
+    {
+        $allMigrations = File::allFiles(base_path().'/database/migrations');
+        foreach ($allMigrations as $migration) {
+            $migrationName = $migration->getBasename();
+            if (Str::contains($migrationName, '_create_'.$tableName.'_table')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
