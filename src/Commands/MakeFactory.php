@@ -121,7 +121,7 @@ class MakeFactory extends Command
                 $relatedFactories .= "
                 public function $functionName(\$count = 1)
                 {
-                    return \$this->has(\App\Models\\$className::factory(\$count),);
+                    return \$this->has(\App\Models\\$className::factory(\$count));
                 } \n";
             }
         }

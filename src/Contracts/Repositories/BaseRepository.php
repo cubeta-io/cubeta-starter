@@ -38,10 +38,11 @@ abstract class BaseRepository implements IBaseRepository
     /**
      * paginated data
      *
-     * @param  int  $per_page
-     * @return mixed
+     * @param array $relationships
+     * @param int $per_page
+     * @return array|null
      */
-    public function all_with_pagination(array $relationships = [], $per_page = 10)
+    public function all_with_pagination(array $relationships = [], $per_page = 10): ?array
     {
         $all = $this->model->with($relationships)->orderBy('created_at', 'desc')->paginate($per_page);
         $pagination_data = null;

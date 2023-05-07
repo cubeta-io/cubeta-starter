@@ -67,7 +67,7 @@ class MakeRequest extends Command
         $rules = '';
         foreach ($attributes as $name => $type) {
             if ($name == 'name' || $name == 'first_name' || $name == 'last_name') {
-                $rules .= "\t\t\t'$name'        =>      'required|string|max:255',\n";
+                $rules .= "\t\t\t'$name'        =>      'required|string|min:3|max:255',\n";
 
                 continue;
             }
