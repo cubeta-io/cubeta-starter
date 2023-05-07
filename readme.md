@@ -212,7 +212,7 @@ hitting yes will output this :
 
 just type your actor permissions and you're okay . <br>
 
-this will initialize your actors permissions in the database seeders and make them in one Enum so you can reach
+this will initialize your actors permissions in the database seeders and make them in one Enum, so you can reach
 them <br>
 and in the `routes/api` directory you will find a routes file named after your actor where each actor will have his
 endpoints in it <br>
@@ -228,9 +228,9 @@ and their permissions (_it is better to check on them_) <br>
 if you have translations for a specific model then you need to hit yes <br>
 _(for that when the model command asked you about cubeta-init command)_
 
-**note:** if you ran this command and and your choice was to have multi actors then on each created model an output will
+**note:** if you ran this command and your choice was to have multi actors then on each created model an output will
 ask
-you about its controller actor and based on your choice the route for this controller will placed in the compitable
+you about its controller actor and based on your choice the route for this controller will be placed in the compatible
 route file</p>
 
 <h1 id="created-classes-and-files">Created Classes And Files</h1>
@@ -243,9 +243,9 @@ route file</p>
 As mentioned before you'll find a model class corresponding to the name you entered in the `app/Models` directory
 
 - the model will has the needed functions to represent your relations
-- it will has an attribute for your file type property named after it so you can access its storage path and will append
+- it will have an attribute for your file type property named after it, so you can access its storage path and will append
   it to your model
-- if you have a property of type `bool` you'll see a scope for it to make it easier too query data based on this
+- if you have a property of type `bool` you'll see a scope for it to make it easier to query data based on this
   property
 - if you have translated attributes you'll see the array that contains them with the name of `$translatedAttributes`
 
@@ -259,13 +259,13 @@ the corresponding created migration will match the types of the columns you ente
 
 **notice 1:** columns of type files will be placed on the migration file as a string columns with a nullable
 attribute <br>
-**notice 2:** columns of type key will be placed on the migration file as a `foreignIdFor` columns with this
+**notice 2:** columns of type key will be placed on the migration file as a `foreignIdFor` columns with these
 attributes : <br>
 
 - constrained
 - cascadeOnDelete <br>
 
-<div class="alert alert-danger" style="color: crimson"> it is allways better to check on the created files</div>
+<div class="alert alert-danger" style="color: crimson"> it is always better to check on the created files</div>
 
 </p>
 
@@ -349,14 +349,14 @@ required|integer|exists:_parent table_,id
 <br>
 
 **notice** : it is important to check on the rules of the created form request after each created model to 
-make sure that this rules are compitable with your application purposes and to check if there is any invalid rule usage
+make sure that these rules are compatible with your application purposes and to check if there is any invalid rule usage
 
 </p>
 
 <h1 id="resources">Resources</h1>
 <hr>
 <p>
-if you have checked on the created controllers you should notice that their return value is a resource created after a the model name
+if you have checked on the created controllers you should notice that their return value is a resource created after the model name
 this resource will structure your json response to be in a united structure across your application 
 
 **notice:** this resource will return the relations of this model also` (it is better to check on its code)`
@@ -502,28 +502,28 @@ the seeder will call the corresponding factory with `10` as the factory count pa
 
 
 
-if you're not familiare with the repository design pattern I'll give you a brief : 
+if you're not familiar with the repository design pattern I'll give you a brief : 
 <br>
 
 The main idea behind the Repository pattern is to create an abstraction layer between the application and the data source. This abstraction layer is called the repository. The repository acts as a mediator between the application and the data store. It encapsulates the logic required to access the data and provides a simple and consistent interface for the application to interact with the data.
 
-may you want to read more so we recommend this article : [introduction to repository design pattern](https://cubettech.com/resources/blog/introduction-to-repository-design-pattern/)
+may you want to read more, so we recommend this article : [introduction to repository design pattern](https://cubettech.com/resources/blog/introduction-to-repository-design-pattern/)
 
 and based on that we placed the code that handle the database operations and queries on the repository layer and this layer will be placed above the model layer and before the service layer (we will talk about it later) . 
 
-so any database operation related to your model we prefer you do it in the corresponding repositry class .
+so any database operation related to your model we prefer you do it in the corresponding repository class .
 
 each repository class will be bind in the service provider by default (if it was created by the package)
 
 
-if you opened the creaeted repositroy class which will be in `app/Repositories` directory you'll notice that the repository class extends another class named BaseRepository this class contain the following methods : 
+if you opened the created repository class which will be in `app/Repositories` directory you'll notice that the repository class extends another class named BaseRepository this class contain the following methods : 
 
 - `all(array $relations = [])` : <br>
   this method will return all the corresponding model records without any format 
 
   if there is no data the function return `null`
 
-  the relations parameter is to return the related models data within the response so you just have to pass the relation name for the desired relations data as an array like this `['products' , 'users']` <br> 
+  the relations parameter is to return the related models data within the response, so you just have to pass the relation name for the desired relations data as an array like this `['products' , 'users']` <br> 
 
 - `all_with_pagination(array $relationships = [], $per_page = 10)` : <br>
   as above this method return all the data but paginated 
@@ -535,7 +535,7 @@ if you opened the creaeted repositroy class which will be in `app/Repositories` 
 
 
 - `create(array $data, array $relations = [])` : <br>
-  as its name this function accept an array of data and create an instance from the corresponding model and then it returns the created model with the choice of relations to be in the response
+  as its name this function accept an array of data and create an instance from the corresponding model, and then it returns the created model with the choice of relations to be in the response
 
   it will return null if something happened and the data hasn't created
 
@@ -557,7 +557,7 @@ if you opened the creaeted repositroy class which will be in `app/Repositories` 
 <p>
 
 
-if you're not familiare with the service design pattern I'll give you a brief : 
+if you're not familiar with the service design pattern I'll give you a brief : 
 <br>
 
 The Service Design Pattern consists of two main components: the service layer and the service interface. The service layer is responsible for implementing the business logic and data access of the application. It typically contains classes and methods that perform specific tasks, such as retrieving data from a database, performing calculations, or sending emails. The service layer should be designed to be reusable and easy to test.
@@ -565,12 +565,12 @@ The Service Design Pattern consists of two main components: the service layer an
 The service interface is a set of methods that the presentation layer can call to access the service layer. It defines the contract between the presentation layer and the service layer, including the input parameters and return values of each method.
 
 
-may you want to read more so we recommend this article : [Service Design Patterns](https://davislevine.medium.com/service-design-patterns-930203c8df37#:~:text=A%20service%20design%20pattern%20describes,design%20patterns%20and%20form%20patterns)
+may you want to read more, so we recommend this article : [Service Design Patterns](https://davislevine.medium.com/service-design-patterns-930203c8df37#:~:text=A%20service%20design%20pattern%20describes,design%20patterns%20and%20form%20patterns)
 
 and based on that we placed the code that handle the logic on the service layer and this layer will be placed above the repository layer . 
 
 
-after your model creation is done you'll find this directory : `app/Services/YourModelName`  in it you will find 2 php files : 
+after your model creation is done you'll find this directory : `app/Services/YourModelName`  in it, you will find 2 php files : 
 1. `YourModelService.php` this is the service class
 2. `IYourModelService.php` this is the service interface
 
@@ -580,4 +580,83 @@ if you remember the BaseRepository class  methods you'll find that BaseService c
 
 
 </p>
+
+<h2 id="tests">Tests</h2>
+<hr>
+<p>
+
+
+
+each created model there will be a corresponding test class for its controller
+you can find it in the `tests/Feature` directory 
+
+this test class will test the CRUD endpoints
+
+in the created test you'll see the following variables : `$model , $resource , $userType , $baseUrl` and you'll see that the two of them have a value 
+
+but if we go to the others you need to know : 
+1. `$userType` : if your application use multi actors by this package so in this variable just give it the actor role for those endpoints if there is not just leave it as 'none'
+
+2. `$baseUrl` : if you've checked on the appended rout of your model you'll notice that this route is named so here you just put the name of it like if the route name is 'brands' just put the value of it as 'brands' .
+
+
+another thing you have to do is to use MainTestCase trait in the TestCase Class in the `tests` directory (just put this line inside the class : `use \Cubeta\CubetaStarter\Traits\MainTestCase;`) . <br>
+
+maybe you want to check on MainTestCase trait to know how the test methods work and see if they are good for you, or you have to create another ones .
+
+- <h3>MainTestCase Methods</h3>
+
+**notice :** those methods depends on the model resource and factory . <br>
+ 
+
+  - `indexTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false)` : <br> 
+    this method will test the index endpoint by creating 5 records of fake data and try to get them
+
+    `$additionalFactoryData` : <br> maybe your model factory doesn't contain info about some columns on your table but their exists in the desired response, or you want to test this endpoint on a specific columns values , so this array will give you the ability to pass the required columns with their desired value to the factory .
+
+    `$ownership` determine if the action has to be on the authenticated user data so if it has to be the test will check if the ordered data belongs to the current user or not
+
+    `$isDebug`  if it true it will dd() the endpoint response
+
+- `showTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false)` : <br> the parameters of this method are the same of the `indexTest` method
+   in brief this function run the model factory and try to get one instance of the model by its `id` . 
+
+- `storeTest(array $additionalAttributes = [], mixed $requestParams = null, bool $isDebug = false)` : <br> regardless `$additionalAttributes , $isDebug` which we talked about here there is a new parameter `$requestParams` : <br>  
+  sometimes your endpoint needs a parameter to perform its action like this route `/category/{category_id}/products/create` as you see to create a product you have to pass a category id, so you can pass it in this parameter and if they were a punch of parameters just pass them as an associative array . 
+
+
+- `updateTest(array $additionalFactoryData = [], array $attributes = [], bool $ownership = false, bool $replacing = true, bool $isDebug = false)` : <br> 
+`$attributes` : if your requests needs data that your factory doesn't create it just send those data within this parameter, and it will be merged within the test request. <br>
+`$replacing` : sometimes your update endpoint doesn't edit the selected database record it is just create another one with the desired edits so if this wat happens in your endpoint just make this parameter false . <br>
+
+
+**notice :** it is important to mention that the storeTest and updateTest methods generate their requests body data from the model factory .<br>
+
+
+- `deleteTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false)` : <br> 
+all the parameters of this method has explained before . <br>
+
+
+**notice :** all of these methods expect the response as it formed in the RestfulTrait which we talked about before in the <a href="#controllers">controllers section</a> <br>
+
+**notice :** you have to configure the `phpunit.xml` file before running any test check on [Laravel Testing documentation](https://laravel.com/docs/10.x/testing) <br>
+
+<h4 style="color:red;">I truly recommend to check on the MainTestCase Trait </h4>
+
+</p>
+
+<h2 id="policies">Policies</h2>
+<hr>
+<p>
+
+
+
+a policy will be created just if there is an actor for this model, and you'll find it in  `app/Policies` directory. <br>
+
+if you opened it you'll see that it extends the BasePolicy Class which contains the policy functions for the CRUDS actions and those functions depends on the roles given to each actor on the model but assuming your model name is : Brand then the policy will make sure that this user has this roles : `('index brand , show brand , store brand , update brand' , 'delete brand')`
+
+
+
+</p>
+
 

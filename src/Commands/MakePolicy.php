@@ -29,7 +29,7 @@ class MakePolicy extends Command
         $name = $this->argument('name');
         $actor = $this->argument('actor');
 
-        if (isset($actor) && $actor = ! 'none') {
+        if (isset($actor) && $actor != 'none') {
             $this->createPolicy($name);
         }
     }

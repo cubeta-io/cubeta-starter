@@ -4,14 +4,13 @@ namespace Cubeta\CubetaStarter\Contracts\Policy;
 
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Auth\Access\Response;
 use Illuminate\Support\Str;
 
 class BasePolicy
 {
     use HandlesAuthorization;
 
-    protected $modelName;
+    protected string $modelName;
 
     public function __construct()
     {
@@ -23,10 +22,8 @@ class BasePolicy
 
     /**
      * Determine whether the user can view any models.
-     *
-     * @return Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         if ($user->can('index '.$this->modelName)) {
             return true;
@@ -37,10 +34,8 @@ class BasePolicy
 
     /**
      * Determine whether the user can view the model.
-     *
-     * @return Response|bool
      */
-    public function view(User $user)
+    public function view(User $user): bool
     {
         if ($user->can('show '.$this->modelName)) {
             return true;
@@ -51,10 +46,8 @@ class BasePolicy
 
     /**
      * Determine whether the user can create models.
-     *
-     * @return Response|bool
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
         if ($user->can('store '.$this->modelName)) {
             return true;
@@ -65,10 +58,8 @@ class BasePolicy
 
     /**
      * Determine whether the user can update the model.
-     *
-     * @return Response|bool
      */
-    public function update(User $user)
+    public function update(User $user): bool
     {
         if ($user->can('update '.$this->modelName)) {
             return true;
@@ -79,10 +70,8 @@ class BasePolicy
 
     /**
      * Determine whether the user can delete the model.
-     *
-     * @return Response|bool
      */
-    public function delete(User $user)
+    public function delete(User $user): bool
     {
         if ($user->can('delete '.$this->modelName)) {
             return true;

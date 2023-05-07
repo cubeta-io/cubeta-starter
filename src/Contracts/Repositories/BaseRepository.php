@@ -38,9 +38,7 @@ abstract class BaseRepository implements IBaseRepository
     /**
      * paginated data
      *
-     * @param array $relationships
-     * @param int $per_page
-     * @return array|null
+     * @param  int  $per_page
      */
     public function all_with_pagination(array $relationships = [], $per_page = 10): ?array
     {
