@@ -18,7 +18,6 @@
     - <a href="#policies">Policies</a>
     - <a href="#postman">Postman Collection</a>
 
-<hr>
 
 <h1 id="introduction">Introduction</h1>
 <p>
@@ -45,7 +44,6 @@ and a postman collection file will be generated for the whole model created (mod
 
 </p>
 
-<hr>
 
 **<h1 id="installation">installation</h1>**
 
@@ -73,7 +71,6 @@ then in the require-dev entity add this line : `"cubeta/cubeta-starter" : "@dev"
 
 </p>
 
-<hr>
 
 **<h1 id="usage">Usage</h1>**
 
@@ -237,7 +234,6 @@ route file</p>
 
 
 <h2 id="models">Models</h2>
-<hr>
 <p>
 
 As mentioned before you'll find a model class corresponding to the name you entered in the `app/Models` directory
@@ -252,7 +248,6 @@ As mentioned before you'll find a model class corresponding to the name you ente
 </p>
 
 <h2 id="migrations">Migrations</h2>
-<hr>
 <p>
 
 the corresponding created migration will match the types of the columns you entered before
@@ -354,7 +349,6 @@ make sure that these rules are compatible with your application purposes and to 
 </p>
 
 <h1 id="resources">Resources</h1>
-<hr>
 <p>
 if you have checked on the created controllers you should notice that their return value is a resource created after the model name
 this resource will structure your json response to be in a united structure across your application 
@@ -367,7 +361,6 @@ the created resource will be placed in `app/Http/Resources` directory
 
 
 <h2 id="factories">Factories</h2>
-<hr>
 <p>
 the created factory fill the database according to this : 
 
@@ -483,7 +476,6 @@ the created factory will be placed in `database\factories` directory
 </p>
 
 <h2 id="seeders">Seeders</h2>
-<hr>
 <p>
 
 
@@ -497,7 +489,6 @@ the seeder will call the corresponding factory with `10` as the factory count pa
 
 
 <h2 id="repositories">Repositories</h2>
-<hr>
 <p>
 
 
@@ -553,7 +544,6 @@ if you opened the created repository class which will be in `app/Repositories` d
 </p>
 
 <h2 id="services">Services</h2>
-<hr>
 <p>
 
 
@@ -582,7 +572,6 @@ if you remember the BaseRepository class  methods you'll find that BaseService c
 </p>
 
 <h2 id="tests">Tests</h2>
-<hr>
 <p>
 
 
@@ -646,7 +635,6 @@ all the parameters of this method has explained before . <br>
 </p>
 
 <h2 id="policies">Policies</h2>
-<hr>
 <p>
 
 
