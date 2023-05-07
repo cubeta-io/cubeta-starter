@@ -19,7 +19,7 @@ class RoleSeeder extends Seeder
         $roles = RolesPermissionEnum::ALLROLES ;
 
         foreach ($roles as $role) {
-            Role::updateOrCreate(['name' => $role['name'] , 'guard_name' => 'api'] , []) ;
+            Role::updateOrCreate(['name' => $role , 'guard_name' => 'api'] , []) ;
         }
 
     }
