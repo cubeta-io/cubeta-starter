@@ -26,8 +26,8 @@ abstract class BaseRepository implements IBaseRepository
     {
         $this->model = $model;
 
-        if (method_exists($this->model , 'files_keys')){
-            $this->file_columns_name = $this->model->files_keys() ;
+        if (method_exists($this->model, 'files_keys')) {
+            $this->file_columns_name = $this->model->files_keys();
         }
     }
 

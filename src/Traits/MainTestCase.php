@@ -60,8 +60,8 @@ trait MainTestCase
         $this->responseBody['message'] = __('site.there_is_no_data');
 
         $this->get(route($this->requestPath, fake()->uuid()))
-        ->assertExactJson($this->responseBody)
-        ->assertOk();
+            ->assertExactJson($this->responseBody)
+            ->assertOk();
 
         if ($ownership) {
             // the user tried to show another user data
