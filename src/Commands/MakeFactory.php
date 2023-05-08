@@ -31,7 +31,7 @@ class MakeFactory extends Command
         'float' => 'fake()->randomFloat(1,2000)',
         'string' => 'fake()->sentence()',
         'text' => 'fake()->text()',
-        'json' => "{'".'fake()->word()'."':'".'fake()->word()'."'}",
+        'json' => "{'" . 'fake()->word()' . "':'" . 'fake()->word()' . "'}",
     ];
 
     /**
@@ -58,7 +58,7 @@ class MakeFactory extends Command
 
         $factoryAttributes = $this->generateCols($attributes, $relations);
 
-        $factoryPath = base_path().'/database/factories/'.$factoryName.'.php';
+        $factoryPath = base_path() . '/database/factories/' . $factoryName . '.php';
         if (file_exists($factoryPath)) {
             return;
         }
@@ -72,14 +72,14 @@ class MakeFactory extends Command
         new CreateFile(
             $stubProperties,
             $this->getFactoryPath($factoryName),
-            __DIR__.'/stubs/factory.stub'
+            __DIR__ . '/stubs/factory.stub'
         );
         $this->line("<info>Created factory:</info> {$factoryName}");
     }
 
     private function getFactoryName($modelName): string
     {
-        return $modelName.'Factory';
+        return $modelName . 'Factory';
     }
 
     /**
@@ -103,7 +103,7 @@ class MakeFactory extends Command
             }
 
             if ($type == 'key') {
-                $relatedModel = ucfirst(Str::singular(str_replace('_id', '', $name)));
+                $relatedModel = ucfirst(Str::singular(Str::studly(str_replace('_id', '', $name))));
                 $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";
             }
 
@@ -115,7 +115,7 @@ class MakeFactory extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
-                $functionName = 'with'.ucfirst(Str::plural($rel));
+                $functionName = 'with' . ucfirst(Str::plural($rel));
                 $className = ucfirst(Str::singular($rel));
 
                 $relatedFactories .= "
@@ -131,7 +131,7 @@ class MakeFactory extends Command
 
     private function getFactoryPath($factoryName): string
     {
-        return $this->appDatabasePath().'/factories'.
-            "/$factoryName".'.php';
+        return $this->appDatabasePath() . '/factories' .
+            "/$factoryName" . '.php';
     }
 }
