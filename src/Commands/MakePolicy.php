@@ -15,10 +15,10 @@ class MakePolicy extends Command
     use AssistCommand;
 
     public $signature = 'create:policy
-        {name : The name of the repository }
-        {actor? : The actor of the endpoint of this model }';
+        {name : The name of the Policy }
+        {actor : The actor of the endpoint of this model }';
 
-    public $description = 'Create a new repository class';
+    public $description = 'Create a new Policy class';
 
     /**
      * @throws BindingResolutionException

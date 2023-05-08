@@ -216,9 +216,6 @@ class InitialProject extends Command
             // publishing translatable config
             $publishCommand = 'php artisan vendor:publish --tag=translatable';
             $this->excuteCommandInTheBaseDirectory($publishCommand);
-
-            return;
         }
-
     }
 }

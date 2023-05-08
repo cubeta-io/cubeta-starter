@@ -17,7 +17,7 @@ abstract class BaseRepository implements IBaseRepository
 
     private $files;
 
-    private $file_columns_name = ['image', 'icon', 'image_profile', 'slot_icon', 'logo', 'image_url'];
+    private array $file_columns_name = [];
 
     /**
      * BaseRepository constructor.
@@ -25,6 +25,10 @@ abstract class BaseRepository implements IBaseRepository
     public function __construct(Model $model)
     {
         $this->model = $model;
+
+        if (method_exists($this->model , 'files_keys')){
+            $this->file_columns_name = $this->model->files_keys() ;
+        }
     }
 
     /**
