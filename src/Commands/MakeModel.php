@@ -382,8 +382,8 @@ class MakeModel extends Command
             $tables = [$modelName , $relation] ;
             asort($tables) ;
             $this->call('create:pivot', [
-                'table1' => Str::plural(Str::lower($tables[0])),
-                'table2' => Str::plural(Str::lower($tables[1])),
+                'table1' => $modelName,
+                'table2' => $relation,
             ]);
         }
     }
