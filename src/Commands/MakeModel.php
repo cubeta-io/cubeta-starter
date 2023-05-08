@@ -272,12 +272,13 @@ class MakeModel extends Command
                     return $this->hasMany(' . Str::singular(ucfirst($table)) . "::class);
                 }\n";
 
-                $decision = $this->choice('Does it has another <fg=red>has many</fg=red> relation ? ', ['No', 'Yes'], 'No');
+                $result = $this->choice('Does it has another <fg=red>has many</fg=red> relation ? ', ['No', 'Yes'], 'No');
 
                 $this->relations[$relationName] = RelationsTypeEnum::HasMany;
             }
 
-            $thereIsHasMany = $decision == 'Yes';
+            $thereIsHasMany = $result == 'Yes';
+            $decision = $result != 'Yes';
         }
 
         $thereIsManyToMany = true;
@@ -302,12 +303,13 @@ class MakeModel extends Command
                      return $this->belongsToMany(' . ucfirst(Str::singular($relationName)) . "::class);
                  }\n";
 
-                $decision = $this->choice('Does it has another <fg=red>many to many</fg=red> relation ? ', ['No', 'Yes'], 'No');
+                $result = $this->choice('Does it has another <fg=red>many to many</fg=red> relation ? ', ['No', 'Yes'], 'No');
 
                 $this->relations[$relationName] = RelationsTypeEnum::ManyToMany;
             }
 
-            $thereIsManyToMany = $decision == 'Yes';
+            $thereIsManyToMany = $result == 'Yes';
+            $decision = $result != 'Yes';
         }
 
         return $relationsFunctions;
