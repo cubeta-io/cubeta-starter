@@ -16,7 +16,6 @@
     - <a href="#services">Services</a>
     - <a href="#tests">Tests</a>
     - <a href="#policies">Policies</a>
-    - <a href="#postman">Postman Collection</a>
 
 
 <h1 id="introduction">Introduction</h1>
