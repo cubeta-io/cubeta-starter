@@ -36,7 +36,7 @@ class MakeService extends Command
      */
     private function createService($modelName): void
     {
-        $modelName = ucfirst(Str::singular($modelName));
+        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
         $namespace = $this->getNameSpace()."\\$modelName";
 
         $repositoryName = $modelName.'Repository';

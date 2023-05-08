@@ -38,7 +38,7 @@ class MakeController extends Command
      */
     private function createController($modelName, $actor): void
     {
-        $modelName = ucfirst($modelName);
+        $modelName = ucfirst(Str::singular(Str::studly($modelName)));
         $stubProperties = [
             '{modelName}' => $modelName,
             '{modelNameLower}' => Str::lower($modelName),

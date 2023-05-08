@@ -40,7 +40,7 @@ class MakePolicy extends Command
      */
     private function createPolicy($modelName): void
     {
-        $modelName = Str::singular(ucfirst($modelName));
+        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
 
         $policyName = $modelName.'Policy';
 

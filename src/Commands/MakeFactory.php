@@ -52,7 +52,7 @@ class MakeFactory extends Command
      */
     private function createFactory($modelName, array $attributes, array $relations): void
     {
-        $modelName = ucfirst(Str::singular($modelName));
+        $modelName = ucfirst(Str::singular(Str::studly($modelName)));
 
         $factoryName = $this->getFactoryName($modelName);
 

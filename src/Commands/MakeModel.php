@@ -69,7 +69,7 @@ class MakeModel extends Command
             return false;
         }
 
-        $modelName = ucfirst(Str::singular($name));
+        $modelName = ucfirst(Str::singular(Str::studly($name)));
 
         $paramsString = $this->ask('Enter your params like "name,started_at,..."');
 
@@ -224,7 +224,7 @@ class MakeModel extends Command
             if ($result == RelationsTypeEnum::HasOne) {
 
                 $relationName = str_replace('_id', '', $value);
-                $relationName = lcfirst(Str::singular($relationName));
+                $relationName = lcfirst(Str::singular(Str::studly($relationName)));
 
                 $relationsFunctions .= '
                 public function ' . $relationName . '():hasOne
