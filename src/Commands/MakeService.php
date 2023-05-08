@@ -26,8 +26,9 @@ class MakeService extends Command
     public function handle(): void
     {
         $name = $this->argument('name');
-        $this->createService($name);
-        $this->createServiceInterface($name);
+        $modelName = Str::singular(ucfirst(Str::studly($name)));
+        $this->createService($modelName);
+        $this->createServiceInterface($modelName);
     }
 
     /**
@@ -36,9 +37,7 @@ class MakeService extends Command
      */
     private function createService($modelName): void
     {
-        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
         $namespace = $this->getNameSpace()."\\$modelName";
-
         $repositoryName = $modelName.'Repository';
         $serviceName = $modelName.'Service';
 
