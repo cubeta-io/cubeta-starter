@@ -379,8 +379,6 @@ class MakeModel extends Command
     {
         $manyToManyRelations = array_keys($this->relations, RelationsTypeEnum::ManyToMany);
         foreach ($manyToManyRelations as $relation) {
-            $tables = [$modelName , $relation] ;
-            asort($tables) ;
             $this->call('create:pivot', [
                 'table1' => $modelName,
                 'table2' => $relation,
