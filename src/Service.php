@@ -18,9 +18,9 @@ class Service
     public function find(int $id, array $relations = [])
     {
         $this->setCode(200)
-                ->setMessage(__('cubeta.get_successfully'))
-                ->setResult($this->mainInterface->find($id, $relations))
-                ->setStatus(true);
+            ->setMessage(__('cubeta.get_successfully'))
+            ->setResult($this->mainInterface->find($id, $relations))
+            ->setStatus(true);
 
         return $this->toJson();
     }

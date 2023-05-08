@@ -162,7 +162,7 @@ class MakeWebController extends Command
             if ($action == 'create') {
                 $fields = str_replace('{{value}}', "{{old('$attributeName')}}", $fields);
             } else {
-            $fields = str_replace('{{value}}', "{{\$model->$attributeName}}", $fields);
+                $fields = str_replace('{{value}}', "{{\$model->$attributeName}}", $fields);
             }
         }
 
