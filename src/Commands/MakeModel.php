@@ -224,12 +224,12 @@ class MakeModel extends Command
             if ($result == RelationsTypeEnum::HasOne) {
 
                 $relationName = str_replace('_id', '', $value);
-                $relationName = lcfirst(Str::singular(Str::studly($relationName)));
+                $relationName = Str::camel(lcfirst(Str::singular(Str::studly($relationName))));
 
                 $relationsFunctions .= '
                 public function '.$relationName.'():hasOne
                 {
-                    return $this->hasOne('.Str::singular(ucfirst($relationName))."::class);
+                    return $this->hasOne('.ucfirst(Str::singular(Str::studly($relationName)))."::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::HasOne;
@@ -238,12 +238,12 @@ class MakeModel extends Command
             if ($result == RelationsTypeEnum::BelongsTo) {
 
                 $relationName = str_replace('_id', '', $value);
-                $relationName = lcfirst(Str::singular($relationName));
+                $relationName = Str::camel(lcfirst(Str::singular(Str::studly($relationName))));
 
                 $relationsFunctions .= '
                 public function '.$relationName.'():belongsTo
                 {
-                    return $this->belongsTo('.Str::singular(ucfirst($relationName))."::class);
+                    return $this->belongsTo('.ucfirst(Str::singular(Str::studly($relationName)))."::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::BelongsTo;
