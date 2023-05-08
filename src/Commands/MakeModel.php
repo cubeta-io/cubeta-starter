@@ -3,15 +3,12 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use App\Enums\RolesPermissionEnum;
-use Carbon\Carbon;
 use Cubeta\CubetaStarter\CreateFile;
-use Cubeta\CubetaStarter\Enums\CommandTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ArrayShape;
@@ -66,29 +63,21 @@ class MakeModel extends Command
         $name = $this->argument('name');
         $option = $this->argument('option');
 
-        if (! $name) {
+        if (!$name) {
             $this->error('Please specify a valid model');
 
             return false;
         }
 
+        $modelName = ucfirst(Str::singular($name));
+
         $paramsString = $this->ask('Enter your params like "name,started_at,..."');
 
         $attributes = $this->convertToArrayOfAttributes($paramsString);
 
-        $this->containerType = $this->choice('What Is Container Type ?', [CommandTypeEnum::API, CommandTypeEnum::WEB, CommandTypeEnum::BOTH], 0);
-
-        // configuring the translation case //
-        $translationResult = $this->createTranslation($name, $attributes);
-        $attributes = $translationResult['normalAttributes'];
-        $translatedAttributes = $translationResult['translatedAttributes'];
-        //********************************//
-
-        $className = Str::studly($name);
-
         $this->checkIfRequiredDirectoriesExist();
 
-        $this->createModel($className, $attributes, $translatedAttributes);
+        $this->createModel($modelName, $attributes);
 
         $actor = $this->checkTheActor();
 
@@ -121,16 +110,7 @@ class MakeModel extends Command
             $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
         }
 
-        $modelName = ucfirst(Str::singular($name));
-        $manyToManyRelations = array_keys($this->relations, RelationsTypeEnum::ManyToMany);
-        foreach ($manyToManyRelations as $relation) {
-            $this->call('create:pivot', [
-                'table1' => Str::plural(Str::lower($modelName)),
-                'table2' => Str::plural(Str::lower($relation)),
-            ]);
-        }
-
-        $this->line(exec($this->appPath().'/vendor/bin/pint'));
+        $this->createPivots($modelName);
     }
 
     /**
@@ -166,15 +146,11 @@ class MakeModel extends Command
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function createModel(string $className, array $attributes, array $translatedAttributes = []): void
+    public function createModel(string $className, array $attributes): void
     {
-        $className = ucfirst(Str::singular($className));
         $namespace = $this->getNameSpace();
 
         $imagesAttribute = $this->getModelImage($attributes, $className);
-
-        $emptyTranslations = empty($translatedAttributes);
-        $translatedAttributesAsString = implode(', ', array_keys($translatedAttributes));
 
         $stubProperties = [
             '{namespace}' => $namespace,
@@ -184,27 +160,23 @@ class MakeModel extends Command
             '{images}' => $imagesAttribute['appends'],
             '{imageAttribute}' => $imagesAttribute['image'],
             '{scopes}' => $this->boolValuesScope($attributes),
-            '{importStatement}' => $emptyTranslations ? '' : "use Astrotomic\Translatable\Contracts\Translatable as TranslatableContract; \n use Astrotomic\Translatable\Translatable; \n",
-            '{implementStatement}' => $emptyTranslations ? '' : 'implements TranslatableContract',
-            '{useTrait}' => $emptyTranslations ? '' : 'use Translatable;',
-            '{translatedAttributes}' => $emptyTranslations ? '' : $this->fillTranslatedAttributesArray($translatedAttributes),
         ];
 
-        $modelPath = base_path().'/app/Models/'.$className.'.php';
+        $modelPath = base_path() . '/app/Models/' . $className . '.php';
         if (file_exists($modelPath)) {
             return;
         }
 
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
-        if (! file_exists($folder)) {
+        if (!file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
         // create file
         new CreateFile(
             $stubProperties,
             $this->getModelPath($className),
-            __DIR__.'/stubs/model.stub'
+            __DIR__ . '/stubs/model.stub'
         );
         $this->line("<info>Created model:</info> $className");
     }
@@ -227,13 +199,13 @@ class MakeModel extends Command
         $appends = '';
         foreach ($columnsNames as $colName) {
             $image .=
-                'public function get'.ucfirst(Str::camel(Str::studly($colName)))."Attribute()
+                'public function get' . ucfirst(Str::camel(Str::studly($colName))) . "Attribute()
                 {
                     return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
                 }\n";
 
             $appends = "'$colName',";
-            $this->ensureDirectoryExists(storage_path('app/public/'.Str::lower($modelName).'/'.Str::plural($colName)));
+            $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
         }
 
         return ['image' => $image, 'appends' => $appends];
@@ -247,7 +219,7 @@ class MakeModel extends Command
 
         foreach ($foreignKeys as $key => $value) {
 
-            $result = $this->choice('The '.$value.' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
+            $result = $this->choice('The ' . $value . ' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
 
             if ($result == RelationsTypeEnum::HasOne) {
 
@@ -255,9 +227,9 @@ class MakeModel extends Command
                 $relationName = lcfirst(Str::singular($relationName));
 
                 $relationsFunctions .= '
-                public function '.$relationName.'():hasOne
+                public function ' . $relationName . '():hasOne
                 {
-                    return $this->hasOne('.Str::singular(ucfirst($relationName))."::class);
+                    return $this->hasOne(' . Str::singular(ucfirst($relationName)) . "::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::HasOne;
@@ -269,9 +241,9 @@ class MakeModel extends Command
                 $relationName = lcfirst(Str::singular($relationName));
 
                 $relationsFunctions .= '
-                public function '.$relationName.'():belongsTo
+                public function ' . $relationName . '():belongsTo
                 {
-                    return $this->belongsTo('.Str::singular(ucfirst($relationName))."::class);
+                    return $this->belongsTo(' . Str::singular(ucfirst($relationName)) . "::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::BelongsTo;
@@ -295,9 +267,9 @@ class MakeModel extends Command
                 $relationName = lcfirst(Str::plural($table));
 
                 $relationsFunctions .= '
-                public function '.$relationName.'():hasMany
+                public function ' . $relationName . '():hasMany
                 {
-                    return $this->hasMany('.Str::singular(ucfirst($table))."::class);
+                    return $this->hasMany(' . Str::singular(ucfirst($table)) . "::class);
                 }\n";
 
                 $decision = $this->choice('Does it has another <fg=red>has many</fg=red> relation ? ', ['No', 'Yes'], 'No');
@@ -325,9 +297,9 @@ class MakeModel extends Command
                 $relationName = lcfirst(Str::plural($table));
 
                 $relationsFunctions .= '
-                 public function '.$relationName.'() : BelongsToMany
+                 public function ' . $relationName . '() : BelongsToMany
                  {
-                     return $this->belongsToMany('.ucfirst(Str::singular($relationName))."::class);
+                     return $this->belongsToMany(' . ucfirst(Str::singular($relationName)) . "::class);
                  }\n";
 
                 $decision = $this->choice('Does it has another <fg=red>many to many</fg=red> relation ? ', ['No', 'Yes'], 'No');
@@ -346,9 +318,9 @@ class MakeModel extends Command
         $properties = "/**  \n";
         foreach ($relations as $name => $type) {
             if ($type == RelationsTypeEnum::ManyToMany) {
-                $properties .= '* @property BelongsToMany '.$name."\n";
+                $properties .= '* @property BelongsToMany ' . $name . "\n";
             } elseif ($type == RelationsTypeEnum::HasMany) {
-                $properties .= '* @property HasMany '.$name."\n";
+                $properties .= '* @property HasMany ' . $name . "\n";
             } elseif ($type == RelationsTypeEnum::BelongsTo) {
                 $properties .= "* @property BelongsTo $name \n";
             } elseif ($type == RelationsTypeEnum::HasOne) {
@@ -375,9 +347,9 @@ class MakeModel extends Command
         $scopes = '';
 
         foreach ($booleans as $boolCol) {
-            $scopes .= 'public function scope'.ucfirst(Str::studly($boolCol))."(\$query)
+            $scopes .= 'public function scope' . ucfirst(Str::studly($boolCol)) . "(\$query)
             {
-                return \$query->where('".$boolCol."' , 1);
+                return \$query->where('" . $boolCol . "' , 1);
             } \n";
         }
 
@@ -386,14 +358,14 @@ class MakeModel extends Command
 
     private function getModelPath($className): string
     {
-        return $this->appPath().'/'.
-            config('repository.model_directory').
-            "/$className".'.php';
+        return $this->appPath() . '/' .
+            config('repository.model_directory') .
+            "/$className" . '.php';
     }
 
     public function checkTheActor(): array|string|null
     {
-        if (file_exists(base_path().'/app/Enums/RolesPermissionEnum.php')) {
+        if (file_exists(base_path() . '/app/Enums/RolesPermissionEnum.php')) {
             $roles = RolesPermissionEnum::ALLROLES;
             $roles[] = 'none';
 
@@ -403,78 +375,14 @@ class MakeModel extends Command
         }
     }
 
-    /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    public function createTranslation($modelName, $attributes): array
+    public function createPivots($modelName)
     {
-        $choice = $this->choice("Does This Model Has Translations ? \n Notice That You Need To Run <fg=red>php artisan cubeta-init</fg=red> And Initialize Translatable Package", ['No', 'Yes'], 'No');
-
-        if ($choice == 'No') {
-            return [
-                'normalAttributes' => $attributes,
-                'translatedAttributes' => [],
-            ];
+        $manyToManyRelations = array_keys($this->relations, RelationsTypeEnum::ManyToMany);
+        foreach ($manyToManyRelations as $relation) {
+            $this->call('create:pivot', [
+                'table1' => Str::plural(Str::lower($modelName)),
+                'table2' => Str::plural(Str::lower($relation)),
+            ]);
         }
-
-        do {
-            $translatedAttributes = $this->ask("Enter The Attributes That's Have Translations :
-                                                \n Your Model Attributes :<fg=red>".implode(',', array_map('trim', array_keys($attributes)))."</fg=red>
-                                                \n Take Care Of Writing The Attributes in The Same Names \n");
-            $translatedAttributes = explode(',', $translatedAttributes);
-            $intersection = array_intersect(array_keys($attributes), $translatedAttributes);
-        } while (! $intersection == $translatedAttributes);
-
-        $translatedAttributesWithTypes = Arr::only($attributes, $translatedAttributes);
-        $this->createTranslationMigration($modelName, $translatedAttributesWithTypes);
-
-        return [
-            'normalAttributes' => array_diff($attributes, $translatedAttributesWithTypes),
-            'translatedAttributes' => $translatedAttributesWithTypes,
-        ];
-    }
-
-    /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    public function createTranslationMigration($modelName, $attributes): void
-    {
-        if ($this->checkIfMigrationExists(Str::singular(strtolower($modelName)))) {
-            return;
-        }
-
-        $date = Carbon::now()->subSecond()->format('Y_m_d_His');
-        $migrationName = $date.'_create_'.Str::singular(strtolower($modelName)).'_translations_table.php';
-
-        $modelLower = Str::singular(Str::lower($modelName));
-        $modelNamePlural = Str::plural($modelLower);
-        $tableName = $modelLower.'_translations';
-        $columns = $this->generateMigrationCols($attributes, []);
-
-        $stubProperties = [
-            '{{table}}' => $tableName,
-            '{{modelLower}}' => $modelLower,
-            '{{modelNamePlural}}' => $modelNamePlural,
-            '{{col}}' => $columns,
-        ];
-
-        new CreateFile(
-            $stubProperties,
-            database_path('migrations').'/'.$migrationName,
-            __DIR__.'/stubs/translation-migration.stub'
-        );
-    }
-
-    public function fillTranslatedAttributesArray(array $translatedAttribute): string
-    {
-        $array = 'public array $translatedAttributes = [';
-        foreach (array_keys($translatedAttribute) as $item) {
-            $array .= "'"."$item"."',";
-        }
-        $array .= '];';
-
-        return $array;
     }
 }
