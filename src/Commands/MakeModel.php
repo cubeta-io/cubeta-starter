@@ -252,10 +252,9 @@ class MakeModel extends Command
 
         $thereIsHasMany = true;
         $decision = 'No';
+        $result = 'No';
 
         while ($thereIsHasMany) {
-
-            $result = 'No';
 
             if ($decision == 'No') {
                 $result = $this->choice('Does this model related with another model by <fg=red>has many</fg=red> relation ?', ['No', 'Yes'], 'No');
@@ -278,15 +277,14 @@ class MakeModel extends Command
             }
 
             $thereIsHasMany = $result == 'Yes';
-            $decision = $result != 'Yes';
+            $decision = 'Yes' ;
         }
 
         $thereIsManyToMany = true;
         $decision = 'No';
+        $result = 'No';
 
         while ($thereIsManyToMany) {
-
-            $result = 'No';
 
             if ($decision == 'No') {
                 $result = $this->choice('Does this model related with another model by <fg=red>many to many</fg=red> relation ?', ['No', 'Yes'], 'No');
@@ -309,7 +307,7 @@ class MakeModel extends Command
             }
 
             $thereIsManyToMany = $result == 'Yes';
-            $decision = $result != 'Yes';
+            $decision = 'Yes';
         }
 
         return $relationsFunctions;
