@@ -37,7 +37,7 @@ class MakeRepository extends Command
     private function createRepository($modelName): void
     {
         $namespace = $this->getNameSpace();
-        $modelName = Str::singular(ucfirst($modelName));
+        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
 
         $repositoryName = $modelName.'Repository';
         $modelVar = Str::singular(lcfirst($modelName));

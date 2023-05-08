@@ -36,7 +36,7 @@ class MakeRequest extends Command
      */
     private function createRequest($modelName, $attributes): void
     {
-        $modelName = ucfirst($modelName);
+        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
         $requestName = $this->getRequestName($modelName);
 
         $stubProperties = [

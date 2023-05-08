@@ -35,7 +35,7 @@ class MakeSeeder extends Command
      */
     private function createSeeder($modelName): void
     {
-        $modelName = Str::singular(ucfirst($modelName));
+        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
         $seederName = $this->getSeederName($modelName);
 
         $stubProperties = [

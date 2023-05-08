@@ -57,21 +57,21 @@ class MakeMigration extends Command
         new CreateFile(
             $stubProperties,
             $this->getMigrationsPath($migrationName),
-            __DIR__.'/stubs/migration.stub'
+            __DIR__ . '/stubs/migration.stub'
         );
         $this->line("<info>Created migration:</info> $migrationName");
     }
 
     private function getMigrationsPath($migrationName): string
     {
-        return $this->appDatabasePath().'/migrations'.
-            "/$migrationName".'.php';
+        return $this->appDatabasePath() . '/migrations' .
+            "/$migrationName" . '.php';
     }
 
     private function getMigrationName($modelName): string
     {
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
 
-        return $date.'_create_'.Str::plural(strtolower($modelName)).'_table';
+        return $date . '_create_' . Str::plural(strtolower(Str::snake($modelName))) . '_table';
     }
 }

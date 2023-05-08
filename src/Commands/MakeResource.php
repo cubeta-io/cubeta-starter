@@ -39,7 +39,7 @@ class MakeResource extends Command
      */
     private function createResource($modelName, array $attributes, $relations): void
     {
-        $modelName = ucfirst(Str::singular($modelName));
+        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
         $resourceName = $this->getResourceName($modelName);
 
         $stubProperties = [

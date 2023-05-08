@@ -37,7 +37,7 @@ class MakeTest extends Command
      */
     private function createTest($modelName, $actor): void
     {
-        $modelName = ucfirst(Str::singular($modelName));
+        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
         $testName = $this->getTestName($modelName);
 
         $stubProperties = [

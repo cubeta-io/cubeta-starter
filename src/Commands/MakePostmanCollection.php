@@ -34,7 +34,7 @@ class MakePostmanCollection extends Command
      */
     private function createPostmanCollection($modelName, $attributes): void
     {
-        $modelName = Str::singular(ucfirst($modelName));
+        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
         $endpoint = '/'.Str::plural(Str::lower($modelName));
         $projetName = env('APP_NAME');
         $collectionPath = base_path()."/$projetName.postman_collection.json";
