@@ -52,7 +52,7 @@ class MakeFactory extends Command
      */
     private function createFactory($modelName, array $attributes, array $relations): void
     {
-        $modelName = ucfirst(Str::singular(Str::studly($modelName)));
+        $modelName = $this->modelNaming($modelName) ;
 
         $factoryName = $this->getFactoryName($modelName);
 
@@ -103,7 +103,7 @@ class MakeFactory extends Command
             }
 
             if ($type == 'key') {
-                $relatedModel = ucfirst(Str::singular(Str::studly(str_replace('_id', '', $name))));
+                $relatedModel = $this->modelNaming(str_replace('_id', '', $name));
                 $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";
             }
 
@@ -115,8 +115,8 @@ class MakeFactory extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
-                $functionName = 'with' . ucfirst(Str::plural($rel));
-                $className = ucfirst(Str::singular($rel));
+                $functionName = 'with' . ucfirst(Str::plural(Str::studly($rel)));
+                $className = $this->modelNaming($rel);
 
                 $relatedFactories .= "
                 public function $functionName(\$count = 1)

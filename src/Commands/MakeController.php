@@ -38,10 +38,10 @@ class MakeController extends Command
      */
     private function createController($modelName, $actor): void
     {
-        $modelName = ucfirst(Str::singular(Str::studly($modelName)));
+        $modelName = $this->modelNaming($modelName);
         $stubProperties = [
             '{modelName}' => $modelName,
-            '{modelNameLower}' => Str::lower($modelName),
+            '{modelNameLower}' => strtolower($modelName),
         ];
 
         $controllerName = $this->getControllerName($modelName);
@@ -49,7 +49,7 @@ class MakeController extends Command
         new CreateFile(
             $stubProperties,
             $this->getControllerPath($controllerName),
-            __DIR__.'/stubs/controller.api.stub'
+            __DIR__ . '/stubs/controller.api.stub'
         );
         $this->line("<info>Created controller:</info> $controllerName");
         $this->addRoute($modelName, $actor);
@@ -57,7 +57,7 @@ class MakeController extends Command
 
     private function getControllerName($modelName): string
     {
-        return $modelName.'Controller';
+        return $modelName . 'Controller';
     }
 
     /**
@@ -65,33 +65,33 @@ class MakeController extends Command
      */
     private function getControllerPath($controllerName): string
     {
-        $path = $this->appPath().'/app/Http/Controllers/API/v1';
+        $path = $this->appPath() . '/app/Http/Controllers/API/v1';
 
         $this->ensureDirectoryExists($path);
 
-        return $path."/$controllerName".'.php';
+        return $path . "/$controllerName" . '.php';
     }
 
     public function addRoute($modelName, $actor): void
     {
-        $pluralLowerModelName = Str::singular(Str::lower($modelName));
+        $pluralLowerModelName = $this->routeNaming($modelName);
 
         if (isset($actor) && $actor != 'none') {
             $actor = Str::singular(Str::lower($actor));
-            $apiPath = base_path().'\routes\api\\'.$actor.'.php';
+            $apiPath = base_path() . '\routes\api\\' . $actor . '.php';
             $routeName = $this->getRouteName($actor, $modelName);
         } else {
-            $apiPath = base_path().'\routes\\api.php';
-            $routeName = 'api.'.$pluralLowerModelName;
+            $apiPath = base_path() . '\routes\\api.php';
+            $routeName = 'api.' . $pluralLowerModelName;
         }
 
-        $route = 'Route::apiResource("/'.$pluralLowerModelName.'" , v1\\'.$modelName.'Controller::class)->names("'.$routeName.'") ;'."\n";
+        $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
         $importStatement = 'use App\Http\Controllers\API\v1;';
 
         if (file_exists($apiPath)) {
             $this->addImportStatement($importStatement, $apiPath);
 
-            if (! ($this->checkIfRouteExist($apiPath, $route))) {
+            if (!($this->checkIfRouteExist($apiPath, $route))) {
                 return;
             }
 
@@ -101,7 +101,7 @@ class MakeController extends Command
                 $this->line('<info>Failed to Append a Route For This Controller</info>');
             }
         } else {
-            $this->line("<danger>Actor Routes Files Deosn't exist</danger>");
+            $this->line("<danger>Actor Routes Files Doesn't exist</danger>");
         }
     }
 
@@ -125,7 +125,7 @@ class MakeController extends Command
         // Find the last "use" statement and insert the new import statement after it
         $lastUseIndex = strrpos($contents, 'use ');
         $insertIndex = $lastUseIndex !== false ? $lastUseIndex - 1 : 0;
-        $contents = substr_replace($contents, "\n".$importStatement."\n", $insertIndex, 0);
+        $contents = substr_replace($contents, "\n" . $importStatement . "\n", $insertIndex, 0);
 
         // Write the updated contents back to the file
         file_put_contents($filePath, $contents);
@@ -133,9 +133,9 @@ class MakeController extends Command
 
     public function getRouteName($actor, $modelName): array|string
     {
-        $lowerModelName = Str::lower($modelName);
+        $lowerModelName = $this->routeNaming($modelName);
 
-        return 'api.'.$actor.'.'.$lowerModelName;
+        return 'api.' . $actor . '.' . $lowerModelName;
     }
 
     public function checkIfRouteExist(string $apiPath, string $route): bool

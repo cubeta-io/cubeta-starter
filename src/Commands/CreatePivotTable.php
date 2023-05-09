@@ -8,7 +8,6 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
 
 class CreatePivotTable extends Command
 {
@@ -28,7 +27,8 @@ class CreatePivotTable extends Command
 
         $tables = [$table1, $table2];
         sort($tables);
-        $pivotTableName = lcfirst(Str::snake(Str::singular($tables[0]))) . '_' . Str::snake(lcfirst(Str::plural($tables[1])));
+
+        $pivotTableName = $this->tableNaming($tables[0]) . '_' . $this->tableNaming($tables[1]);
 
         $this->info('Creating migration for pivot table ' . $pivotTableName);
 
@@ -56,8 +56,8 @@ class CreatePivotTable extends Command
 
         $stub = file_get_contents(__DIR__ . '/stubs/pivot-migration.stub');
 
-        $className1 = ucfirst(Str::singular($table1));
-        $className2 = ucfirst(Str::singular($table2));
+        $className1 = $this->modelNaming($table1);
+        $className2 = $this->modelNaming($table2);
 
         $files = app()->make(Filesystem::class);
 

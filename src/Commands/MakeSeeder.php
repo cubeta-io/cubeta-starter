@@ -7,7 +7,6 @@ use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Str;
 
 class MakeSeeder extends Command
 {
@@ -35,14 +34,14 @@ class MakeSeeder extends Command
      */
     private function createSeeder($modelName): void
     {
-        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
+        $modelName = $this->modelNaming($modelName);
         $seederName = $this->getSeederName($modelName);
 
         $stubProperties = [
             '{modelName}' => $modelName,
         ];
 
-        $seederPath = base_path().'/database/seeders/'.$seederName.'.php';
+        $seederPath = base_path() . '/database/seeders/' . $seederName . '.php';
         if (file_exists($seederPath)) {
             return;
         }
@@ -50,19 +49,19 @@ class MakeSeeder extends Command
         new CreateFile(
             $stubProperties,
             $this->getSeederPath($seederName),
-            __DIR__.'/stubs/seeder.stub'
+            __DIR__ . '/stubs/seeder.stub'
         );
         $this->line("<info>Created seeder:</info> $seederName");
     }
 
     private function getSeederName($modelName): string
     {
-        return $modelName.'Seeder';
+        return $modelName . 'Seeder';
     }
 
     private function getSeederPath($seederName): string
     {
-        return $this->appDatabasePath().'/seeders'.
-            "/$seederName".'.php';
+        return $this->appDatabasePath() . '/seeders' .
+            "/$seederName" . '.php';
     }
 }

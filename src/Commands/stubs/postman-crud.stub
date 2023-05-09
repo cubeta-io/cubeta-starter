@@ -5,11 +5,17 @@
 					"name": "index {modelName}",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{local}}/{indexRoute}",
+							"raw": "{{local}}{indexRoute}",
 							"host": [
-								"{{local}}/{indexRoute}"
+								"{{local}}{indexRoute}"
 							]
 						}
 					},
@@ -19,11 +25,17 @@
 					"name": "show {modelName}",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{local}}/{showRoute}",
+							"raw": "{{local}}{showRoute}",
 							"host": [
-								"{{local}}/{showRoute}"
+								"{{local}}{showRoute}"
 							]
 						}
 					},
@@ -33,7 +45,13 @@
 					"name": "store {modelName}",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "formdata",
 							"formdata": [
@@ -41,9 +59,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{storeRoute}",
+							"raw": "{{local}}{storeRoute}",
 							"host": [
-								"{{local}}/{storeRoute}"
+								"{{local}}{storeRoute}"
 							]
 						}
 					},
@@ -53,7 +71,13 @@
 					"name": "update {modelName}",
 					"request": {
 						"method": "PUT",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "urlencoded",
 							"urlencoded": [
@@ -61,9 +85,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{updateRoute}",
+							"raw": "{{local}}{updateRoute}",
 							"host": [
-								"{{local}}/{updateRoute}"
+								"{{local}}{updateRoute}"
 							]
 						}
 					},
@@ -73,11 +97,17 @@
 					"name": "delete {modelName}",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{local}}/{deleteRoute}",
+							"raw": "{{local}}{deleteRoute}",
 							"host": [
-								"{{local}}/{deleteRoute}"
+								"{{local}}{deleteRoute}"
 							]
 						}
 					},

@@ -41,13 +41,13 @@ class MakeMigration extends Command
     private function createMigration($modelName, array $attributes, array $relations): void
     {
 
-        if ($this->checkIfMigrationExists(Str::plural(strtolower($modelName)))) {
+        $migrationName = $this->getMigrationName($modelName);
+
+        if ($this->checkIfMigrationExists($migrationName)) {
             return;
         }
 
-        $migrationName = $this->getMigrationName($modelName);
-
-        $tableName = Str::plural(strtolower($modelName));
+        $tableName = $this->tableNaming($modelName);
 
         $stubProperties = [
             '{table}' => $tableName,
@@ -72,6 +72,6 @@ class MakeMigration extends Command
     {
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
 
-        return $date . '_create_' . Str::plural(strtolower(Str::snake($modelName))) . '_table';
+        return $date . '_create_' . $this->tableNaming($modelName) . '_table';
     }
 }

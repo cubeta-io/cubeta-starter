@@ -39,7 +39,7 @@ class MakeResource extends Command
      */
     private function createResource($modelName, array $attributes, $relations): void
     {
-        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
+        $modelName = $this->modelNaming($modelName);
         $resourceName = $this->getResourceName($modelName);
 
         $stubProperties = [
@@ -74,12 +74,12 @@ class MakeResource extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
-                $relation = lcfirst(Str::singular(str_replace('_id', '', $rel)));
-                $relatedModelResource = ucfirst(Str::studly($relation)) . 'Resource';
+                $relation = $this->relationFunctionNaming(str_replace('_id', '', $rel));
+                $relatedModelResource = $this->modelNaming($relation) . 'Resource';
                 $columns .= "'$relation'     =>  new $relatedModelResource(\$this->whenLoaded('$relation')) , \n\t\t\t";
             } elseif ($type == RelationsTypeEnum::ManyToMany || $type == RelationsTypeEnum::HasMany) {
-                $relation = lcfirst(Str::plural($rel));
-                $relatedModelResource = ucfirst(Str::singular($relation)) . 'Resource';
+                $relation = $this->relationFunctionNaming(($rel) , true);
+                $relatedModelResource = $this->modelNaming($relation) . 'Resource';
                 $columns .= "'$relation'     =>  $relatedModelResource::collection(\$this->whenLoaded('$relation')) , \n\t\t\t";
             }
         }

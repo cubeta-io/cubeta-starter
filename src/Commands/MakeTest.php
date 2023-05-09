@@ -7,7 +7,6 @@ use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Str;
 
 class MakeTest extends Command
 {
@@ -37,7 +36,7 @@ class MakeTest extends Command
      */
     private function createTest($modelName, $actor): void
     {
-        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
+        $modelName = $this->modelNaming($modelName);
         $testName = $this->getTestName($modelName);
 
         $stubProperties = [
@@ -45,7 +44,7 @@ class MakeTest extends Command
             '{{actor}}' => $actor,
         ];
 
-        $testPath = base_path().'/tests/Feature/'.$testName.'.php';
+        $testPath = base_path() . '/tests/Feature/' . $testName . '.php';
         if (file_exists($testPath)) {
             return;
         }
@@ -53,14 +52,14 @@ class MakeTest extends Command
         new CreateFile(
             $stubProperties,
             $this->getTestPath($testName),
-            __DIR__.'/stubs/test.stub'
+            __DIR__ . '/stubs/test.stub'
         );
         $this->line("<info>Created Test:</info> $testName");
     }
 
     private function getTestName($modelName): string
     {
-        return $modelName.'Test';
+        return $modelName . 'Test';
     }
 
     /**
@@ -68,10 +67,10 @@ class MakeTest extends Command
      */
     private function getTestPath($testName): string
     {
-        $path = $this->appPath().'/tests/Feature/';
+        $path = $this->appPath() . '/tests/Feature/';
 
         $this->ensureDirectoryExists($path);
 
-        return $path."$testName".'.php';
+        return $path . "$testName" . '.php';
     }
 }

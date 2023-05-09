@@ -6,7 +6,6 @@ use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
 
 class MakePostmanCollection extends Command
 {
@@ -34,24 +33,24 @@ class MakePostmanCollection extends Command
      */
     private function createPostmanCollection($modelName, $attributes): void
     {
-        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
-        $endpoint = '/'.Str::plural(Str::lower($modelName));
-        $projetName = env('APP_NAME');
-        $collectionPath = base_path()."/$projetName.postman_collection.json";
+        $modelName = $this->modelNaming($modelName);
+        $endpoint = '/' . $this->routeNaming($modelName);
+        $projectName = env('APP_NAME');
+        $collectionPath = base_path() . "/$projectName.postman_collection.json";
 
         $files = app()->make(Filesystem::class);
 
         $stubProperties = [
             '{modelName}' => $modelName,
             '{indexRoute}' => $endpoint,
-            '{showRoute}' => $endpoint.'/1',
+            '{showRoute}' => $endpoint . '/1',
             '{storeRoute}' => $endpoint,
-            '{updateRoute}' => $endpoint.'/1',
-            '{deleteRoute}' => $endpoint.'/1',
+            '{updateRoute}' => $endpoint . '/1',
+            '{deleteRoute}' => $endpoint . '/1',
             '{formData}' => $this->generateBodyData($attributes),
         ];
 
-        $crudStub = file_get_contents(__DIR__.'/stubs/postman-crud.stub');
+        $crudStub = file_get_contents(__DIR__ . '/stubs/postman-crud.stub');
 
         $crudStub = str_replace(['{modelName}', '{indexRoute}', '{showRoute}', '{storeRoute}', '{updateRoute}', '{deleteRoute}', '{formData}'],
             $stubProperties,
@@ -63,12 +62,12 @@ class MakePostmanCollection extends Command
             $collection = str_replace('"// add-your-cruds-here"', $crudStub, $collection);
             file_put_contents($collectionPath, $collection);
         } else {
-            $collectionStub = file_get_contents(__DIR__.'/stubs/postman-collection.stub');
-            $collectionStub = str_replace(['{projetcName}', '// add-your-cruds-here'], [$projetName, $crudStub], $collectionStub);
+            $collectionStub = file_get_contents(__DIR__ . '/stubs/postman-collection.stub');
+            $collectionStub = str_replace(['{projectName}', '// add-your-cruds-here'], [$projectName, $crudStub], $collectionStub);
             file_put_contents($collectionPath, $collectionStub);
         }
 
-        $this->line("<info>Created Postman Collection:</info> $projetName.postman_collection.json ");
+        $this->line("<info>Created Postman Collection:</info> $projectName.postman_collection.json ");
     }
 
     public function generateBodyData($attributes): string

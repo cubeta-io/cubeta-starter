@@ -36,7 +36,7 @@ class MakeRequest extends Command
      */
     private function createRequest($modelName, $attributes): void
     {
-        $modelName = Str::singular(ucfirst(Str::studly($modelName)));
+        $modelName = $this->modelNaming($modelName);
         $requestName = $this->getRequestName($modelName);
 
         $stubProperties = [
@@ -44,7 +44,7 @@ class MakeRequest extends Command
             '{rules}' => $this->generateCols($attributes),
         ];
 
-        $requestPath = base_path().'/app/Http/Requests/'.$modelName.'/'.$requestName.'.php';
+        $requestPath = base_path() . '/app/Http/Requests/' . $modelName . '/' . $requestName . '.php';
         if (file_exists($requestPath)) {
             return;
         }
@@ -52,14 +52,14 @@ class MakeRequest extends Command
         new CreateFile(
             $stubProperties,
             $this->getRequestPath($requestName, $modelName),
-            __DIR__.'/stubs/request.stub'
+            __DIR__ . '/stubs/request.stub'
         );
         $this->line("<info>Created request:</info> {$requestName}");
     }
 
     private function getRequestName($modelName): string
     {
-        return 'StoreUpdate'.$modelName.'Request';
+        return 'StoreUpdate' . $modelName . 'Request';
     }
 
     private function generateCols($attributes): string
@@ -102,7 +102,7 @@ class MakeRequest extends Command
             }
             if (Str::endsWith($name, '_id')) {
                 $relationModel = str_replace('_id', '', $name);
-                $relationModelPluralName = Str::plural(strtolower($relationModel));
+                $relationModelPluralName = $this->tableNaming($relationModel);
                 $rules .= "\t\t\t'$name'        =>      'required|integer|exists:$relationModelPluralName,id',\n";
 
                 continue;
@@ -123,10 +123,10 @@ class MakeRequest extends Command
      */
     private function getRequestPath($requestName, $modelName): string
     {
-        $path = $this->appPath()."/app/Http/Requests/$modelName/";
+        $path = $this->appPath() . "/app/Http/Requests/$modelName/";
 
         $this->ensureDirectoryExists($path);
 
-        return $path."$requestName".'.php';
+        return $path . "$requestName" . '.php';
     }
 }
