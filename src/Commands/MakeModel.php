@@ -156,7 +156,7 @@ class MakeModel extends Command
             '{modelName}' => $className,
             '{relations}' => $this->getModelRelation($attributes),
             '{properties}' => $this->getModelProperty($attributes, $this->relations),
-            '{imageAttribute}' => $fileGetter,
+            '{fileGetter}' => $fileGetter,
             '{scopes}' => $this->boolValuesScope($attributes),
         ];
 

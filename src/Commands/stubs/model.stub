@@ -13,9 +13,7 @@ use Cubeta\CubetaStarter\BaseModel;
 class {modelName} extends BaseModel {
 
 
-    protected $appends = [{images}] ;
-
-    {imageAttribute}
+    {fileGetter}
 
     {relations}
 
