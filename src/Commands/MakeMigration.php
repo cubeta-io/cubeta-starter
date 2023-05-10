@@ -9,6 +9,7 @@ use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Str;
 
 class MakeMigration extends Command
 {
