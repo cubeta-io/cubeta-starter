@@ -12,24 +12,23 @@
         "php": "^7.3|^8.0",
         "intervention/image": "^2.7",
         "spatie/laravel-package-tools": "^1.11",
-        "astrotomic/laravel-translatable": "^11.12"
+        "friendsofphp/php-cs-fixer": "^3.1"
     },
     "require-dev": {
         "orchestra/testbench": "^7.5",
-        "laravel/pint": "^1.7",
-        "friendsofphp/php-cs-fixer": "^3.1"
+        "laravel/pint": "^1.7"
     },
     "autoload": {
-        "psr-4" : {
+        "psr-4": {
             "Cubeta\\CubetaStarter\\": "src/"
         }
     },
     "autoload-dev": {
-        "psr-4" : {
+        "psr-4": {
             "Cubeta\\CubetaStarter\\tests\\": "tests/"
         }
     },
-    "extra" : {
+    "extra": {
         "laravel": {
             "providers": [
                 "Cubeta\\CubetaStarter\\CubetaRepositoryServiceProvider",
