@@ -160,7 +160,7 @@ class MakeModel extends Command
             '{scopes}' => $this->boolValuesScope($attributes),
         ];
 
-        $modelPath = base_path() . '/app/Models/' . $className . '.php';
+        $modelPath = $this->getModelPath($className);
         if (file_exists($modelPath)) {
             return;
         }
@@ -173,9 +173,11 @@ class MakeModel extends Command
         // create file
         new CreateFile(
             $stubProperties,
-            $this->getModelPath($className),
+            $modelPath,
             __DIR__ . '/stubs/model.stub'
         );
+
+        $this->formatfile($modelPath);
         $this->line("<info>Created model:</info> $className");
     }
 

@@ -72,5 +72,7 @@ class CreatePivotTable extends Command
         );
 
         file_put_contents($migrationPath, $stub);
+
+        $this->formatfile($migrationPath);
     }
 }

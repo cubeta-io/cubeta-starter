@@ -58,7 +58,7 @@ class MakeFactory extends Command
 
         $factoryAttributes = $this->generateCols($attributes, $relations);
 
-        $factoryPath = base_path() . '/database/factories/' . $factoryName . '.php';
+        $factoryPath = $this->getFactoryPath($factoryName);
         if (file_exists($factoryPath)) {
             return;
         }
@@ -71,9 +71,10 @@ class MakeFactory extends Command
 
         new CreateFile(
             $stubProperties,
-            $this->getFactoryPath($factoryName),
+            $factoryPath,
             __DIR__ . '/stubs/factory.stub'
         );
+        $this->formatfile($factoryPath);
         $this->line("<info>Created factory:</info> {$factoryName}");
     }
 

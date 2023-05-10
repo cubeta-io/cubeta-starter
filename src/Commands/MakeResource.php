@@ -47,16 +47,18 @@ class MakeResource extends Command
             '{resource_fields}' => $this->generateCols($attributes, $relations),
         ];
 
-        $resourcePath = base_path() . '/app/Http/Resources/' . $resourceName . '.php';
+        $resourcePath = $this->getResourcePath($resourceName);
         if (file_exists($resourcePath)) {
             return;
         }
 
         new CreateFile(
             $stubProperties,
-            $this->getResourcePath($resourceName),
+            $resourcePath,
             __DIR__ . '/stubs/resource.stub'
         );
+
+        $this->formatfile($resourcePath);
         $this->line("<info>Created resource:</info> {$resourceName}");
     }
 
@@ -70,7 +72,8 @@ class MakeResource extends Command
         $columns = "'id'                     =>  \$this->id, \n\t\t\t";
         foreach ($attributes as $name => $value) {
             if ($value == 'file') {
-                $columns .= "'$name'         =>  \$this->get" . ucfirst(Str::camel(Str::studly($name))) . "Path()";
+                $columns .= "'$name'         =>  \$this->get" . ucfirst(Str::camel(Str::studly($name))) . "Path(), \n\t\t\t";
+                continue;
             }
             $columns .= "'$name'         =>  \$this->$name,\n\t\t\t";
         }

@@ -42,30 +42,6 @@ trait AssistCommand
         app()->make(Filesystem::class)->ensureDirectoryExists($path);
     }
 
-    /**
-     * return the columns of the migration file
-     */
-    public function generateMigrationCols(array $attributes, array $relations): string
-    {
-        $columns = '';
-        foreach ($attributes as $name => $type) {
-            if ($type == 'key') {
-                continue;
-            } else {
-                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('$name')" . ($type == 'file' ? '->nullable()' : '') . "; \n";
-            }
-        }
-
-        foreach ($relations as $rel => $type) {
-            if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
-                $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
-                $columns .= "\t\t\t\$table->foreignIdFor(App\Models\\$modelName::class)->constrained()->cascadeOnDelete(); \n";
-            }
-        }
-
-        return $columns;
-    }
-
     public function excuteCommandInTheBaseDirectory(string $command): void
     {
         $rootPath = base_path();
@@ -127,5 +103,15 @@ trait AssistCommand
         else
             return Str::camel(lcfirst(Str::plural(Str::studly($name))));
 
+    }
+
+    /**
+     * format the file on the given path
+     * @param $filePath string the procject path of the file eg:app/Models/MyModel.php
+     * @return void
+     */
+    public function formatfile(string $filePath): void
+    {
+        $this->excuteCommandInTheBaseDirectory("vendor/bin/php-cs-fixer fix $filePath");
     }
 }

@@ -20,7 +20,7 @@ class MakeRequest extends Command
     public $description = 'Create a new request';
 
     /**
-     * @throws BindingResolutionException
+     * @throws BindingResolutionException|FileNotFoundException
      */
     public function handle(): void
     {
@@ -44,16 +44,18 @@ class MakeRequest extends Command
             '{rules}' => $this->generateCols($attributes),
         ];
 
-        $requestPath = base_path() . '/app/Http/Requests/' . $modelName . '/' . $requestName . '.php';
+        $requestPath = $this->getRequestPath($requestName , $modelName);
         if (file_exists($requestPath)) {
             return;
         }
 
         new CreateFile(
             $stubProperties,
-            $this->getRequestPath($requestName, $modelName),
+            $requestPath,
             __DIR__ . '/stubs/request.stub'
         );
+
+        $this->formatfile($requestPath);
         $this->line("<info>Created request:</info> {$requestName}");
     }
 

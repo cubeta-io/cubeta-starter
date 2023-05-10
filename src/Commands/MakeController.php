@@ -45,14 +45,16 @@ class MakeController extends Command
         ];
 
         $controllerName = $this->getControllerName($modelName);
+        $controllerPath = $this->getControllerPath($controllerName);
 
         new CreateFile(
             $stubProperties,
-            $this->getControllerPath($controllerName),
+            $controllerPath,
             __DIR__ . '/stubs/controller.api.stub'
         );
         $this->line("<info>Created controller:</info> $controllerName");
         $this->addRoute($modelName, $actor);
+        $this->formatfile($controllerPath);
     }
 
     private function getControllerName($modelName): string
@@ -96,6 +98,7 @@ class MakeController extends Command
             }
 
             if (file_put_contents($apiPath, $route, FILE_APPEND)) {
+                $this->formatfile($apiPath);
                 $this->line('<info>Controller Route Appended Successfully</info>');
             } else {
                 $this->line('<info>Failed to Append a Route For This Controller</info>');
@@ -129,6 +132,7 @@ class MakeController extends Command
 
         // Write the updated contents back to the file
         file_put_contents($filePath, $contents);
+        $this->formatfile($filePath);
     }
 
     public function getRouteName($actor, $modelName): array|string

@@ -153,6 +153,7 @@ class InitialProject extends Command
                 $enumFile);
             file_put_contents($enumDirectory . 'RolesPermissionEnum.php', $enumFile);
         }
+        $this->formatfile($enumDirectory . 'RolesPermissionEnum.php');
     }
 
     /**
@@ -177,6 +178,7 @@ class InitialProject extends Command
         );
 
         $this->addApiFileToServiceProvider($apiFile);
+        $this->formatfile($apiPath);
     }
 
     /**
@@ -203,6 +205,8 @@ class InitialProject extends Command
             // Write the modified contents back to the file
             file_put_contents($routeServiceProvider, $file_contents);
         }
+
+        $this->formatfile($routeServiceProvider);
     }
 
     /**
@@ -242,6 +246,7 @@ class InitialProject extends Command
             File::makeDirectory($handlerPath, 077, true, true);
         }
         file_put_contents($handlerPath, $handlerStub);
+        $this->formatfile($handlerPath);
 
         $this->line('<info>Your handler file in ```app/Exceptions/handler.php``` has been initialized</info>');
     }

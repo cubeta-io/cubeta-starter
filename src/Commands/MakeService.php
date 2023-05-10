@@ -45,7 +45,7 @@ class MakeService extends Command
             '{repositoryName}' => $repositoryName,
         ];
 
-        $servicePath = base_path() . '/app/Services/' . $modelName . '/' . $serviceName . '.php';
+        $servicePath = $this->getServicePath($modelName);
         if (file_exists($servicePath)) {
             return;
         }
@@ -59,9 +59,11 @@ class MakeService extends Command
         // create file
         new CreateFile(
             $stubProperties,
-            $this->getServicePath($modelName),
+            $servicePath,
             __DIR__ . '/stubs/service.stub'
         );
+
+        $this->formatfile($servicePath);
         $this->line("<info>Created Service:</info> $serviceName");
     }
 
@@ -92,7 +94,7 @@ class MakeService extends Command
             '{modelName}' => $modelName,
         ];
 
-        $serviceInterfacePath = base_path() . '/app/Services/' . $modelName . '/' . $serviceInterfaceName . '.php';
+        $serviceInterfacePath = $this->getServiceInterfacePath($modelName);
         if (file_exists($serviceInterfacePath)) {
             return;
         }
@@ -105,10 +107,11 @@ class MakeService extends Command
 
         new CreateFile(
             $stubProperties,
-            $this->getServiceInterfacePath($modelName),
+            $serviceInterfacePath,
             __DIR__ . '/stubs/service-interface.stub'
         );
 
+        $this->formatfile($serviceInterfacePath);
         $this->line("<info>Created Service Interface:</info> $serviceInterfaceName");
     }
 

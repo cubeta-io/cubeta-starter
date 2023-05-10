@@ -44,16 +44,18 @@ class MakeTest extends Command
             '{{actor}}' => $actor,
         ];
 
-        $testPath = base_path() . '/tests/Feature/' . $testName . '.php';
+        $testPath = $this->getTestPath($testName);
         if (file_exists($testPath)) {
             return;
         }
 
         new CreateFile(
             $stubProperties,
-            $this->getTestPath($testName),
+            $testPath,
             __DIR__ . '/stubs/test.stub'
         );
+
+        $this->formatfile($testPath);
         $this->line("<info>Created Test:</info> $testName");
     }
 

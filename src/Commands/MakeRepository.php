@@ -65,6 +65,7 @@ class MakeRepository extends Command
             __DIR__ . '/stubs/repository.stub'
         );
 
+        $this->formatfile($repositoryPath);
         $this->line("<info>Created Repository:</info> $repositoryName");
     }
 

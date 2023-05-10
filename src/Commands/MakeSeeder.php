@@ -41,16 +41,18 @@ class MakeSeeder extends Command
             '{modelName}' => $modelName,
         ];
 
-        $seederPath = base_path() . '/database/seeders/' . $seederName . '.php';
+        $seederPath = $this->getSeederPath($seederName);
         if (file_exists($seederPath)) {
             return;
         }
 
         new CreateFile(
             $stubProperties,
-            $this->getSeederPath($seederName),
+            $seederPath,
             __DIR__ . '/stubs/seeder.stub'
         );
+
+        $this->formatfile($seederPath);
         $this->line("<info>Created seeder:</info> $seederName");
     }
 
