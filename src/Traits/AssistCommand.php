@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\File;
@@ -45,8 +44,7 @@ trait AssistCommand
     public function excuteCommandInTheBaseDirectory(string $command): void
     {
         $rootPath = base_path();
-        $output = shell_exec("cd {$rootPath} && {$command}");
-        $this->output->write($output);
+        shell_exec("cd {$rootPath} && {$command}");
     }
 
     /** check if the migration is exists
@@ -93,9 +91,10 @@ trait AssistCommand
 
     /** return the name based on name convention for relation functions in the models
      * @param $name
+     * @param bool $singular
      * @return string
      */
-    public function relationFunctionNaming($name, $singular = true): string
+    public function relationFunctionNaming($name, bool $singular = true): string
     {
         if ($singular)
             return Str::camel(lcfirst(Str::singular(Str::studly($name))));
