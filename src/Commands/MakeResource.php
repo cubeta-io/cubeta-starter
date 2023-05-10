@@ -55,7 +55,7 @@ class MakeResource extends Command
         new CreateFile(
             $stubProperties,
             $resourcePath,
-            __DIR__ . '/stubs/resource.stub'
+            __DIR__.'/stubs/resource.stub'
         );
 
         $this->formatfile($resourcePath);
@@ -64,7 +64,7 @@ class MakeResource extends Command
 
     private function getResourceName($modelName): string
     {
-        return $modelName . 'Resource';
+        return $modelName.'Resource';
     }
 
     private function generateCols(array $attributes, $relations): string
@@ -72,7 +72,8 @@ class MakeResource extends Command
         $columns = "'id'                     =>  \$this->id, \n\t\t\t";
         foreach ($attributes as $name => $value) {
             if ($value == 'file') {
-                $columns .= "'$name'         =>  \$this->get" . ucfirst(Str::camel(Str::studly($name))) . "Path(), \n\t\t\t";
+                $columns .= "'$name'         =>  \$this->get".ucfirst(Str::camel(Str::studly($name)))."Path(), \n\t\t\t";
+
                 continue;
             }
             $columns .= "'$name'         =>  \$this->$name,\n\t\t\t";
@@ -81,11 +82,11 @@ class MakeResource extends Command
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
                 $relation = $this->relationFunctionNaming(str_replace('_id', '', $rel));
-                $relatedModelResource = $this->modelNaming($relation) . 'Resource';
+                $relatedModelResource = $this->modelNaming($relation).'Resource';
                 $columns .= "'$relation'     =>  new $relatedModelResource(\$this->whenLoaded('$relation')) , \n\t\t\t";
             } elseif ($type == RelationsTypeEnum::ManyToMany || $type == RelationsTypeEnum::HasMany) {
                 $relation = $this->relationFunctionNaming(($rel), true);
-                $relatedModelResource = $this->modelNaming($relation) . 'Resource';
+                $relatedModelResource = $this->modelNaming($relation).'Resource';
                 $columns .= "'$relation'     =>  $relatedModelResource::collection(\$this->whenLoaded('$relation')) , \n\t\t\t";
             }
         }
@@ -98,10 +99,10 @@ class MakeResource extends Command
      */
     private function getResourcePath($ResourceName): string
     {
-        $path = $this->appPath() . '/app/Http/Resources/';
+        $path = $this->appPath().'/app/Http/Resources/';
 
         $this->ensureDirectoryExists($path);
 
-        return $path . "$ResourceName" . '.php';
+        return $path."$ResourceName".'.php';
     }
 }

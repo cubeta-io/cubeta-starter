@@ -31,7 +31,7 @@ class MakeFactory extends Command
         'float' => 'fake()->randomFloat(1,2000)',
         'string' => 'fake()->sentence()',
         'text' => 'fake()->text()',
-        'json' => "{'" . 'fake()->word()' . "':'" . 'fake()->word()' . "'}",
+        'json' => "{'".'fake()->word()'."':'".'fake()->word()'."'}",
     ];
 
     /**
@@ -72,7 +72,7 @@ class MakeFactory extends Command
         new CreateFile(
             $stubProperties,
             $factoryPath,
-            __DIR__ . '/stubs/factory.stub'
+            __DIR__.'/stubs/factory.stub'
         );
         $this->formatfile($factoryPath);
         $this->line("<info>Created factory:</info> {$factoryName}");
@@ -80,7 +80,7 @@ class MakeFactory extends Command
 
     private function getFactoryName($modelName): string
     {
-        return $modelName . 'Factory';
+        return $modelName.'Factory';
     }
 
     /**
@@ -94,96 +94,115 @@ class MakeFactory extends Command
         foreach ($attributes as $name => $type) {
             if (in_array($name, ['name', 'username', 'first_name', 'last_name', 'user_name'])) {
                 $rows .= "\t\t\t'$name' => fake()->firstName(),\n";
+
                 continue;
             }
 
             if ($name == 'email') {
                 $rows .= "\t\t\t'$name' => fake()->email(),\n";
+
                 continue;
             }
 
             if (in_array($name, ['cost', 'price', 'value', 'expense']) || Str::contains($name, ['price', 'cost'])) {
                 $rows .= "\t\t\t'$name' => fake()->randomFloat(2, 0, 1000),\n";
+
                 continue;
             }
 
             if (Str::contains($name, 'description')) {
                 $rows .= "\t\t\t'$name' => fake()->text(),\n";
+
                 continue;
             }
 
             if (Str::contains($name, 'phone')) {
                 $rows .= "\t\t\t'$name' => fake()->phoneNumber(),\n";
+
                 continue;
             }
 
             if (Str::contains($name, ['image', 'icon', 'logo', 'photo'])) {
                 $rows .= "\t\t\t'$name' => fake()->imageUrl(),\n";
+
                 continue;
             }
 
             if (Str::contains($name, ['longitude', '_lon', '_lng', 'lon_', 'lng_']) || $name == 'lng' || $name == 'lon') {
                 $rows .= "\t\t\t'$name' => fake()->longitude(),\n";
+
                 continue;
             }
 
             if (Str::contains($name, ['latitude ', '_lat', 'lat_']) || $name == 'lat') {
                 $rows .= "\t\t\t'$name' => fake()->latitude(),\n";
+
                 continue;
             }
 
             if (Str::contains($name, 'address')) {
                 $rows .= "\t\t\t'$name' => fake()->address(),\n";
+
                 continue;
             }
 
             if (Str::contains($name, 'street')) {
                 $rows .= "\t\t\t'$name' => fake()->streetName(),\n";
+
                 continue;
             }
 
             if (Str::contains($name, 'city')) {
                 $rows .= "\t\t\t'$name' => fake()->city(),\n";
+
                 continue;
             }
 
             if (Str::contains($name, ['zip', 'post_code', 'postcode', 'PostCode', 'postCode', 'ZIP'])) {
                 $rows .= "\t\t\t'$name' => fake()->postcode(),\n";
+
                 continue;
             }
 
             if (Str::contains($name, 'country')) {
                 $rows .= "\t\t\t'$name' => fake()->country(),\n";
+
                 continue;
             }
 
             if (Str::contains($name, 'age')) {
                 $rows .= "\t\t\t'$name' => fake()->numberBetween(15,60),\n";
+
                 continue;
             }
 
             if (Str::contains($name, 'gender')) {
                 $rows .= "\t\t\t'$name' => fake()->randomElement(['male' , 'female']),\n";
+
                 continue;
             }
 
             if (Str::contains($name, 'time')) {
                 $rows .= "\t\t\t'$name' => fake()->time(),\n";
+
                 continue;
             }
 
             if (Str::endsWith($name, '_at') || Str::contains($name, 'date')) {
                 $rows .= "\t\t\t'$name' => fake()->date(),\n";
+
                 continue;
             }
             if (Str::startsWith($name, 'is_')) {
                 $rows .= "\t\t\t'$name' => fake()->boolean(),\n";
+
                 continue;
             }
 
             if ($type == 'key') {
                 $relatedModel = $this->modelNaming(str_replace('_id', '', $name));
                 $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";
+
                 continue;
             }
 
@@ -195,7 +214,7 @@ class MakeFactory extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
-                $functionName = 'with' . ucfirst(Str::plural(Str::studly($rel)));
+                $functionName = 'with'.ucfirst(Str::plural(Str::studly($rel)));
                 $className = $this->modelNaming($rel);
 
                 $relatedFactories .= "
@@ -211,7 +230,7 @@ class MakeFactory extends Command
 
     private function getFactoryPath($factoryName): string
     {
-        return $this->appDatabasePath() . '/factories' .
-            "/$factoryName" . '.php';
+        return $this->appDatabasePath().'/factories'.
+            "/$factoryName".'.php';
     }
 }

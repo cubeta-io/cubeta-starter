@@ -32,7 +32,7 @@ trait AssistCommand
     /**
      * Ensure a directory exists.
      *
-     * @param string $path
+     * @param  string  $path
      *
      * @throws BindingResolutionException
      */
@@ -41,20 +41,22 @@ trait AssistCommand
         app()->make(Filesystem::class)->ensureDirectoryExists($path);
     }
 
-    public function excuteCommandInTheBaseDirectory(string $command): void
+    public function excuteCommandInTheBaseDirectory(string $command): string|null|bool
     {
-        $rootPath = base_path();
-        shell_exec("cd {$rootPath} && {$command}");
+        $rootDirectory = base_path();
+        $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
+
+        return shell_exec($fullCommand);
     }
 
     /** check if the migration is exists
      */
     public function checkIfMigrationExists($tableName): bool
     {
-        $allMigrations = File::allFiles(base_path() . '/database/migrations');
+        $allMigrations = File::allFiles(base_path().'/database/migrations');
         foreach ($allMigrations as $migration) {
             $migrationName = $migration->getBasename();
-            if (Str::contains($migrationName, '_create_' . $tableName . '_table')) {
+            if (Str::contains($migrationName, '_create_'.$tableName.'_table')) {
                 return true;
             }
         }
@@ -63,8 +65,6 @@ trait AssistCommand
     }
 
     /** return the name based on name convention for models
-     * @param $name
-     * @return string
      */
     public function modelNaming($name): string
     {
@@ -72,8 +72,6 @@ trait AssistCommand
     }
 
     /** return the name based on name convention for tables
-     * @param $name
-     * @return string
      */
     public function tableNaming($name): string
     {
@@ -81,8 +79,6 @@ trait AssistCommand
     }
 
     /** return the name based on name convention for routes
-     * @param $name
-     * @return string
      */
     public function routeNaming($name): string
     {
@@ -90,27 +86,26 @@ trait AssistCommand
     }
 
     /** return the name based on name convention for relation functions in the models
-     * @param $name
-     * @param bool $singular
-     * @return string
      */
     public function relationFunctionNaming($name, bool $singular = true): string
     {
-        if ($singular)
+        if ($singular) {
             return Str::camel(lcfirst(Str::singular(Str::studly($name))));
-
-        else
+        } else {
             return Str::camel(lcfirst(Str::plural(Str::studly($name))));
+        }
 
     }
 
     /**
      * format the file on the given path
+     *
      * @param $filePath string the procject path of the file eg:app/Models/MyModel.php
-     * @return void
      */
     public function formatfile(string $filePath): void
     {
-        $this->excuteCommandInTheBaseDirectory("vendor/bin/php-cs-fixer fix $filePath");
+        $command = base_path()."/vendor/bin/php-cs-fixer fix $filePath";
+        $output = $this->excuteCommandInTheBaseDirectory($command);
+        $this->line((string) $output);
     }
 }

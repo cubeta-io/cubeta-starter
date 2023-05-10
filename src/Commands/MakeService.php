@@ -36,9 +36,9 @@ class MakeService extends Command
      */
     private function createService($modelName): void
     {
-        $namespace = $this->getNameSpace() . "\\$modelName";
-        $repositoryName = $modelName . 'Repository';
-        $serviceName = $modelName . 'Service';
+        $namespace = $this->getNameSpace()."\\$modelName";
+        $repositoryName = $modelName.'Repository';
+        $serviceName = $modelName.'Service';
 
         $stubProperties = [
             '{modelName}' => $modelName,
@@ -52,7 +52,7 @@ class MakeService extends Command
 
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
-        if (!file_exists($folder)) {
+        if (! file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
 
@@ -60,7 +60,7 @@ class MakeService extends Command
         new CreateFile(
             $stubProperties,
             $servicePath,
-            __DIR__ . '/stubs/service.stub'
+            __DIR__.'/stubs/service.stub'
         );
 
         $this->formatfile($servicePath);
@@ -74,11 +74,11 @@ class MakeService extends Command
 
     private function getServicePath($modelName): string
     {
-        $serviceName = $modelName . 'Service';
+        $serviceName = $modelName.'Service';
 
-        return $this->appPath() . '/' .
-            config('repository.service_directory') .
-            "/$modelName/$serviceName" . '.php';
+        return $this->appPath().'/'.
+            config('repository.service_directory').
+            "/$modelName/$serviceName".'.php';
     }
 
     /**
@@ -87,9 +87,9 @@ class MakeService extends Command
      */
     public function createServiceInterface($modelName): void
     {
-        $namespace = $this->getNameSpace() . "\\$modelName";
+        $namespace = $this->getNameSpace()."\\$modelName";
 
-        $serviceInterfaceName = 'I' . $modelName . 'Service';
+        $serviceInterfaceName = 'I'.$modelName.'Service';
         $stubProperties = [
             '{modelName}' => $modelName,
         ];
@@ -101,14 +101,14 @@ class MakeService extends Command
 
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
-        if (!file_exists($folder)) {
+        if (! file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
 
         new CreateFile(
             $stubProperties,
             $serviceInterfacePath,
-            __DIR__ . '/stubs/service-interface.stub'
+            __DIR__.'/stubs/service-interface.stub'
         );
 
         $this->formatfile($serviceInterfacePath);
@@ -117,10 +117,10 @@ class MakeService extends Command
 
     private function getServiceInterfacePath($modelName): string
     {
-        $serviceInterfaceName = 'I' . $modelName . 'Service';
+        $serviceInterfaceName = 'I'.$modelName.'Service';
 
-        return $this->appPath() . '/' .
-            config('repository.service_directory') .
-            "/$modelName/$serviceInterfaceName" . '.php';
+        return $this->appPath().'/'.
+            config('repository.service_directory').
+            "/$modelName/$serviceInterfaceName".'.php';
     }
 }

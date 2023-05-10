@@ -73,7 +73,6 @@ trait TestHelpers
             Artisan::call('db:seed RoleSeeder');
         }
 
-
         $this->signIn($this->userType);
     }
 

@@ -41,28 +41,28 @@ class MakePolicy extends Command
     {
         $modelName = $this->modelNaming($modelName);
 
-        $policyName = $modelName . 'Policy';
+        $policyName = $modelName.'Policy';
 
         $stubProperties = [
             '{modelName}' => $modelName,
         ];
 
-        $policyPath = base_path() . '/app/Policies/' . $policyName . '.php';
+        $policyPath = base_path().'/app/Policies/'.$policyName.'.php';
         if (file_exists($policyPath)) {
             return;
         }
 
         // check folder exist
-        $folder = base_path() . '/app/Policies/';
-        if (!file_exists($folder)) {
+        $folder = base_path().'/app/Policies/';
+        if (! file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
 
         // create file
         new CreateFile(
             $stubProperties,
-            $folder . $policyName . '.php',
-            __DIR__ . '/stubs/policy.stub'
+            $folder.$policyName.'.php',
+            __DIR__.'/stubs/policy.stub'
         );
 
         $this->formatfile($policyPath);

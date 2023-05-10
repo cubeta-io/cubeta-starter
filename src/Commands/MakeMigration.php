@@ -58,7 +58,7 @@ class MakeMigration extends Command
         new CreateFile(
             $stubProperties,
             $migrationPath,
-            __DIR__ . '/stubs/migration.stub'
+            __DIR__.'/stubs/migration.stub'
         );
 
         $this->formatfile($migrationPath);
@@ -67,15 +67,15 @@ class MakeMigration extends Command
 
     private function getMigrationsPath($migrationName): string
     {
-        return $this->appDatabasePath() . '/migrations' .
-            "/$migrationName" . '.php';
+        return $this->appDatabasePath().'/migrations'.
+            "/$migrationName".'.php';
     }
 
     private function getMigrationName($modelName): string
     {
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
 
-        return $date . '_create_' . $this->tableNaming($modelName) . '_table';
+        return $date.'_create_'.$this->tableNaming($modelName).'_table';
     }
 
     /**
@@ -88,7 +88,7 @@ class MakeMigration extends Command
             if ($type == 'key') {
                 continue;
             } else {
-                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('$name')" . ($type == 'file' ? '->nullable()' : '') . "; \n";
+                $columns .= "\t\t\t\$table->".($type == 'file' ? 'string' : $type)."('$name')".($type == 'file' ? '->nullable()' : '')."; \n";
             }
         }
 

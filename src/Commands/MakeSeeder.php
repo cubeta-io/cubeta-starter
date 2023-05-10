@@ -49,7 +49,7 @@ class MakeSeeder extends Command
         new CreateFile(
             $stubProperties,
             $seederPath,
-            __DIR__ . '/stubs/seeder.stub'
+            __DIR__.'/stubs/seeder.stub'
         );
 
         $this->formatfile($seederPath);
@@ -58,12 +58,12 @@ class MakeSeeder extends Command
 
     private function getSeederName($modelName): string
     {
-        return $modelName . 'Seeder';
+        return $modelName.'Seeder';
     }
 
     private function getSeederPath($seederName): string
     {
-        return $this->appDatabasePath() . '/seeders' .
-            "/$seederName" . '.php';
+        return $this->appDatabasePath().'/seeders'.
+            "/$seederName".'.php';
     }
 }
