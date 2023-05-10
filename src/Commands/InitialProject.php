@@ -40,9 +40,12 @@ class InitialProject extends Command
      */
     public function handleActorsExistence(): void
     {
-        $hasActors = $this->choice('Does Your Project Has Multi Actors ?', ['No', 'Yes'], 'No') == 'Yes';
+        $hasActors = $this->choice('Does Your Project Has Multi Actors (<info>Notice : That if you hit yes spatie/laravel-permission will be installed</info>) ?', ['No', 'Yes'], 'No') == 'Yes';
 
         if ($hasActors) {
+
+            $this->instalSpatie() ;
+
             $actorsNumber = $this->ask('How Many Are They  ?', 2);
 
             for ($i = 0; $i < $actorsNumber; $i++) {
@@ -249,5 +252,13 @@ class InitialProject extends Command
         $this->formatfile($handlerPath);
 
         $this->line('<info>Your handler file in ```app/Exceptions/handler.php``` has been initialized</info>');
+    }
+
+    public function instalSpatie()
+    {
+        $this->excuteCommandInTheBaseDirectory('composer require spatie/laravel-permission');
+        $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
+        $this->excuteCommandInTheBaseDirectory($spatiePublishCommand);
+        $this->excuteCommandInTheBaseDirectory('php artisan migrate');
     }
 }
