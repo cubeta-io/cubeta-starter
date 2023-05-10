@@ -104,7 +104,7 @@ trait AssistCommand
      */
     public function formatfile(string $filePath): void
     {
-        $command = base_path()."/vendor/bin/php-cs-fixer fix $filePath";
+        $command = base_path()."./vendor/bin/pint $filePath";
         $output = $this->excuteCommandInTheBaseDirectory($command);
         $this->line((string) $output);
     }
