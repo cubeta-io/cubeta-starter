@@ -237,7 +237,7 @@ class InitialProject extends Command
     public function editExceptionHandler(): void
     {
         $handlerStub = file_get_contents(__DIR__ . '/stubs/handler.stub');
-        $handlerPath = base_path() . 'app/Exceptions/Handler.php';
+        $handlerPath = base_path() . '/app/Exceptions/Handler.php';
         if (!file_exists($handlerPath)) {
             File::makeDirectory($handlerPath, 077, true, true);
         }
