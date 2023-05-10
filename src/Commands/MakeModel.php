@@ -11,7 +11,6 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use JetBrains\PhpStorm\ArrayShape;
 
 class MakeModel extends Command
 {
@@ -150,15 +149,14 @@ class MakeModel extends Command
     {
         $namespace = $this->getNameSpace();
 
-        $imagesAttribute = $this->getModelImage($attributes, $className);
+        $fileGetter = $this->getModelImage($attributes, $className);
 
         $stubProperties = [
             '{namespace}' => $namespace,
             '{modelName}' => $className,
             '{relations}' => $this->getModelRelation($attributes),
             '{properties}' => $this->getModelProperty($attributes, $this->relations),
-            '{images}' => $imagesAttribute['appends'],
-            '{imageAttribute}' => $imagesAttribute['image'],
+            '{imageAttribute}' => $fileGetter,
             '{scopes}' => $this->boolValuesScope($attributes),
         ];
 
@@ -187,28 +185,26 @@ class MakeModel extends Command
     }
 
     /**
-     * @return string[]
-     *
+     * @param $attributes
+     * @param $modelName
+     * @return string
      * @throws BindingResolutionException
      */
-    #[ArrayShape(['image' => 'string', 'appends' => 'string'])]
-    private function getModelImage($attributes, $modelName): array
+    private function getModelImage($attributes, $modelName): string
     {
-        $image = '';
+        $file = '';
         $columnsNames = array_keys($attributes, 'file');
-        $appends = '';
         foreach ($columnsNames as $colName) {
-            $image .=
-                'public function get' . ucfirst(Str::camel(Str::studly($colName))) . "Attribute()
+            $file .=
+                'public function get' . ucfirst(Str::camel(Str::studly($colName))) . "Path()
                 {
                     return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
                 }\n";
 
-            $appends = "'$colName',";
             $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
         }
 
-        return ['image' => $image, 'appends' => $appends];
+        return $file;
     }
 
     private function getModelRelation($attributes): string

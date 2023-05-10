@@ -52,7 +52,7 @@ class MakeFactory extends Command
      */
     private function createFactory($modelName, array $attributes, array $relations): void
     {
-        $modelName = $this->modelNaming($modelName) ;
+        $modelName = $this->modelNaming($modelName);
 
         $factoryName = $this->getFactoryName($modelName);
 
@@ -91,20 +91,99 @@ class MakeFactory extends Command
         $rows = '';
         $relatedFactories = '';
         foreach ($attributes as $name => $type) {
-            if (Str::endsWith($name, '_at')) {
-                $rows .= "\t\t\t'$name' => fake()->date(),\n";
+            if (in_array($name, ['name', 'username', 'first_name', 'last_name', 'user_name'])) {
+                $rows .= "\t\t\t'$name' => fake()->firstName(),\n";
+                continue;
+            }
 
+            if ($name == 'email') {
+                $rows .= "\t\t\t'$name' => fake()->email(),\n";
+                continue;
+            }
+
+            if (in_array($name, ['cost', 'price', 'value', 'expense']) || Str::contains($name, ['price', 'cost'])) {
+                $rows .= "\t\t\t'$name' => fake()->randomFloat(2, 0, 1000),\n";
+                continue;
+            }
+
+            if (Str::contains($name, 'description')) {
+                $rows .= "\t\t\t'$name' => fake()->text(),\n";
+                continue;
+            }
+
+            if (Str::contains($name, 'phone')) {
+                $rows .= "\t\t\t'$name' => fake()->phoneNumber(),\n";
+                continue;
+            }
+
+            if (Str::contains($name, ['image', 'icon', 'logo', 'photo'])) {
+                $rows .= "\t\t\t'$name' => fake()->imageUrl(),\n";
+                continue;
+            }
+
+            if (Str::contains($name, ['longitude', '_lon', '_lng', 'lon_', 'lng_']) || $name == 'lng' || $name == 'lon') {
+                $rows .= "\t\t\t'$name' => fake()->longitude(),\n";
+                continue;
+            }
+
+            if (Str::contains($name, ['latitude ', '_lat', 'lat_']) || $name == 'lat') {
+                $rows .= "\t\t\t'$name' => fake()->latitude(),\n";
+                continue;
+            }
+
+            if (Str::contains($name, 'address')) {
+                $rows .= "\t\t\t'$name' => fake()->address(),\n";
+                continue;
+            }
+
+            if (Str::contains($name, 'street')) {
+                $rows .= "\t\t\t'$name' => fake()->streetName(),\n";
+                continue;
+            }
+
+            if (Str::contains($name, 'city')) {
+                $rows .= "\t\t\t'$name' => fake()->city(),\n";
+                continue;
+            }
+
+            if (Str::contains($name, ['zip', 'post_code', 'postcode', 'PostCode', 'postCode', 'ZIP'])) {
+                $rows .= "\t\t\t'$name' => fake()->postcode(),\n";
+                continue;
+            }
+
+            if (Str::contains($name, 'country')) {
+                $rows .= "\t\t\t'$name' => fake()->country(),\n";
+                continue;
+            }
+
+            if (Str::contains($name, 'age')) {
+                $rows .= "\t\t\t'$name' => fake()->numberBetween(15,60),\n";
+                continue;
+            }
+
+            if (Str::contains($name, 'gender')) {
+                $rows .= "\t\t\t'$name' => fake()->randomElement(['male' , 'female']),\n";
+                continue;
+            }
+
+            if (Str::contains($name, 'time')) {
+                $rows .= "\t\t\t'$name' => fake()->time(),\n";
+                continue;
+            }
+
+            if (Str::endsWith($name, '_at') || Str::contains($name, 'date')) {
+                $rows .= "\t\t\t'$name' => fake()->date(),\n";
                 continue;
             }
             if (Str::startsWith($name, 'is_')) {
                 $rows .= "\t\t\t'$name' => fake()->boolean(),\n";
-
                 continue;
             }
 
             if ($type == 'key') {
                 $relatedModel = $this->modelNaming(str_replace('_id', '', $name));
                 $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";
+                continue;
             }
 
             if (array_key_exists($type, $this->typeFaker)) {
