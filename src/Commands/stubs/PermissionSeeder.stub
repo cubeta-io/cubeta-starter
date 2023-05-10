@@ -15,16 +15,16 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        $roles = RolesPermissionEnum::ALL ; 
+        $roles = RolesPermissionEnum::ALL ;
 
         foreach ($roles as $role) {
 
-            $permissions = $role['permissions'] ; 
+            $permissions = $role['permissions'] ;
 
             foreach ($permissions as $permission) {
                 Permission::updateOrCreate([
                     'name' => $permission,
-                    'guard_name' => 'api',
+                    'guard_name' => 'api'
                 ], []);
             }
         }

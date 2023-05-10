@@ -13,8 +13,11 @@ class {modelName}Test extends TestCase
     // define the actor
     protected $userType = "{{actor}}";
 
-    // the named route
+    // the named route eg: 'user.products'
     protected $baseUrl = '';
+
+    // if your endpoints return the model with its relation put the relations in the array
+    protected $relations = [];
 
     public function test_user_can_index_{modelName}s()
     {

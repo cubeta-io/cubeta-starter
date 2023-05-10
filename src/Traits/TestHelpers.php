@@ -68,9 +68,11 @@ trait TestHelpers
     {
         parent::setUp();
 
-        if (isset($this->userType)) {
+        if (isset($this->userType) && $this->userType != 'none') {
+            Artisan::call('db:seed PermissionSeeder');
             Artisan::call('db:seed RoleSeeder');
         }
+
 
         $this->signIn($this->userType);
     }
