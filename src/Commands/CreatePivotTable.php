@@ -26,9 +26,9 @@ class CreatePivotTable extends Command
         $table2 = $this->argument('table2');
 
         $tables = [$table1, $table2];
-        sort($tables);
+        $collectionTable = collect($tables)->sortKeys()->reverse() ;
 
-        $pivotTableName = $this->tableNaming($tables[0]).'_'.$this->tableNaming($tables[1]);
+        $pivotTableName = $this->tableNaming($collectionTable->first().'_'.$collectionTable->last());
 
         $this->info('Creating migration for pivot table '.$pivotTableName);
 
