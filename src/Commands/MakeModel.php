@@ -62,7 +62,7 @@ class MakeModel extends Command
         $name = $this->argument('name');
         $option = $this->argument('option');
 
-        if (! $name) {
+        if (!$name) {
             $this->error('Please specify a valid model');
 
             return false;
@@ -71,6 +71,11 @@ class MakeModel extends Command
         $modelName = $this->modelNaming($name);
 
         $paramsString = $this->ask('Enter your params like "name,started_at,..."');
+
+        while (empty(trim($paramsString))) {
+            $this->line('<fg=red>Invalid Input</fg=red>');
+            $paramsString = $this->ask('Enter your params like "name,started_at,..."');
+        }
 
         $attributes = $this->convertToArrayOfAttributes($paramsString);
 
@@ -91,7 +96,6 @@ class MakeModel extends Command
             'repository' => $this->call('create:repository', ['name' => $name]),
             'service' => $this->call('create:service', ['name' => $name]),
             'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor]),
-            'policy' => $this->call('create:policy', ['name' => $name, 'actor' => $actor]),
             'postman-collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
             '', null => 'all',
         };
@@ -105,7 +109,6 @@ class MakeModel extends Command
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
             $this->call('create:test', ['name' => $name, 'actor' => $actor]);
-            $this->call('create:policy', ['name' => $name, 'actor' => $actor]);
             $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
         }
 
@@ -167,14 +170,14 @@ class MakeModel extends Command
 
         // check folder exist
         $folder = str_replace('\\', '/', $namespace);
-        if (! file_exists($folder)) {
+        if (!file_exists($folder)) {
             File::makeDirectory($folder, 0775, true, true);
         }
         // create file
         new CreateFile(
             $stubProperties,
             $modelPath,
-            __DIR__.'/stubs/model.stub'
+            __DIR__ . '/stubs/model.stub'
         );
 
         $this->formatfile($modelPath);
@@ -195,12 +198,12 @@ class MakeModel extends Command
         $columnsNames = array_keys($attributes, 'file');
         foreach ($columnsNames as $colName) {
             $file .=
-                'public function get'.ucfirst(Str::camel(Str::studly($colName)))."Path()
+                'public function get' . ucfirst(Str::camel(Str::studly($colName))) . "Path()
                 {
                     return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
                 }\n";
 
-            $this->ensureDirectoryExists(storage_path('app/public/'.Str::lower($modelName).'/'.Str::plural($colName)));
+            $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
         }
 
         return $file;
@@ -214,16 +217,16 @@ class MakeModel extends Command
 
         foreach ($foreignKeys as $key => $value) {
 
-            $result = $this->choice('The '.$value.' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
+            $result = $this->choice('The ' . $value . ' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
 
             if ($result == RelationsTypeEnum::HasOne) {
 
                 $relationName = $this->relationFunctionNaming(str_replace('_id', '', $value));
 
                 $relationsFunctions .= '
-                public function '.$relationName.'():hasOne
+                public function ' . $relationName . '():hasOne
                 {
-                    return $this->hasOne('.$this->modelNaming($relationName)."::class);
+                    return $this->hasOne(' . $this->modelNaming($relationName) . "::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::HasOne;
@@ -234,9 +237,9 @@ class MakeModel extends Command
                 $relationName = $this->relationFunctionNaming(str_replace('_id', '', $value));
 
                 $relationsFunctions .= '
-                public function '.$relationName.'():belongsTo
+                public function ' . $relationName . '():belongsTo
                 {
-                    return $this->belongsTo('.$this->modelNaming($relationName)."::class);
+                    return $this->belongsTo(' . $this->modelNaming($relationName) . "::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::BelongsTo;
@@ -256,12 +259,17 @@ class MakeModel extends Command
             if ($result == 'Yes') {
                 $table = $this->ask('What is the name of the related model table ? ');
 
+                while (empty(trim($table))) {
+                    $this->line('<fg=red>Invalid Input</fg=red>');
+                    $table = $this->ask('What is the name of the related model table ? ');
+                }
+
                 $relationName = $this->relationFunctionNaming($table, false);
 
                 $relationsFunctions .= '
-                public function '.$relationName.'():hasMany
+                public function ' . $relationName . '():hasMany
                 {
-                    return $this->hasMany('.$this->modelNaming($table)."::class);
+                    return $this->hasMany(' . $this->modelNaming($table) . "::class);
                 }\n";
 
                 $result = $this->choice('Does it has another <fg=red>has many</fg=red> relation ? ', ['No', 'Yes'], 'No');
@@ -286,12 +294,17 @@ class MakeModel extends Command
             if ($result == 'Yes') {
                 $table = $this->ask('What is the name of the related model table ? ');
 
+                while (empty(trim($table))) {
+                    $this->line('<fg=red>Invalid Input</fg=red>');
+                    $table = $this->ask('What is the name of the related model table ? ');
+                }
+
                 $relationName = $this->relationFunctionNaming($table, false);
 
                 $relationsFunctions .= '
-                 public function '.$relationName.'() : BelongsToMany
+                 public function ' . $relationName . '() : BelongsToMany
                  {
-                     return $this->belongsToMany('.$this->modelNaming($table)."::class);
+                     return $this->belongsToMany(' . $this->modelNaming($table) . "::class);
                  }\n";
 
                 $result = $this->choice('Does it has another <fg=red>many to many</fg=red> relation ? ', ['No', 'Yes'], 'No');
@@ -311,9 +324,9 @@ class MakeModel extends Command
         $properties = "/**  \n";
         foreach ($relations as $name => $type) {
             if ($type == RelationsTypeEnum::ManyToMany) {
-                $properties .= '* @property BelongsToMany '.$name."\n";
+                $properties .= '* @property BelongsToMany ' . $name . "\n";
             } elseif ($type == RelationsTypeEnum::HasMany) {
-                $properties .= '* @property HasMany '.$name."\n";
+                $properties .= '* @property HasMany ' . $name . "\n";
             } elseif ($type == RelationsTypeEnum::BelongsTo) {
                 $properties .= "* @property BelongsTo $name \n";
             } elseif ($type == RelationsTypeEnum::HasOne) {
@@ -340,9 +353,9 @@ class MakeModel extends Command
         $scopes = '';
 
         foreach ($booleans as $boolCol) {
-            $scopes .= 'public function scope'.ucfirst(Str::studly($boolCol))."(\$query)
+            $scopes .= 'public function scope' . ucfirst(Str::studly($boolCol)) . "(\$query)
             {
-                return \$query->where('".$boolCol."' , 1);
+                return \$query->where('" . $boolCol . "' , 1);
             } \n";
         }
 
@@ -351,14 +364,14 @@ class MakeModel extends Command
 
     private function getModelPath($className): string
     {
-        return $this->appPath().'/'.
-            config('repository.model_directory').
-            "/$className".'.php';
+        return $this->appPath() . '/' .
+            config('repository.model_directory') .
+            "/$className" . '.php';
     }
 
     public function checkTheActor(): array|string|null
     {
-        if (file_exists(base_path().'/app/Enums/RolesPermissionEnum.php')) {
+        if (file_exists(base_path() . '/app/Enums/RolesPermissionEnum.php')) {
             $roles = RolesPermissionEnum::ALLROLES;
             $roles[] = 'none';
 
