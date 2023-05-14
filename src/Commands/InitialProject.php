@@ -196,7 +196,6 @@ class InitialProject extends Command
         );
 
         $this->addApiFileToServiceProvider($apiFile);
-        $this->formatfile($apiPath);
     }
 
     public function addApiFileToServiceProvider(string $apiFilePath): void
