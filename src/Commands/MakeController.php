@@ -98,9 +98,7 @@ class MakeController extends Command
             }
 
             if (file_put_contents($apiPath, $route, FILE_APPEND)) {
-                $this->formatfile($apiPath);
                 $this->line('<info>Controller Route Appended Successfully</info>');
-                $this->formatfile($apiPath);
             } else {
                 $this->line('<info>Failed to Append a Route For This Controller</info>');
             }

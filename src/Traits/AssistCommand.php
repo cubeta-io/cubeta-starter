@@ -32,7 +32,7 @@ trait AssistCommand
     /**
      * Ensure a directory exists.
      *
-     * @param  string  $path
+     * @param string $path
      *
      * @throws BindingResolutionException
      */
@@ -53,10 +53,10 @@ trait AssistCommand
      */
     public function checkIfMigrationExists($tableName): bool
     {
-        $allMigrations = File::allFiles(base_path().'/database/migrations');
+        $allMigrations = File::allFiles(base_path() . '/database/migrations');
         foreach ($allMigrations as $migration) {
             $migrationName = $migration->getBasename();
-            if (Str::contains($migrationName, '_create_'.$tableName.'_table')) {
+            if (Str::contains($migrationName, '_create_' . $tableName . '_table')) {
                 return true;
             }
         }
@@ -104,8 +104,8 @@ trait AssistCommand
      */
     public function formatfile(string $filePath): void
     {
-        $command = base_path()."./vendor/bin/pint $filePath";
+        $command = base_path() . "./vendor/bin/pint $filePath";
         $output = $this->excuteCommandInTheBaseDirectory($command);
-        $this->line((string) $output);
+        $this->line((string)$output);
     }
 }
