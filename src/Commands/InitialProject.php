@@ -123,7 +123,7 @@ class InitialProject extends Command
 
         if (file_exists($enumDirectory . 'RolesPermissionEnum.php')) {
             $enumFileContent = file_get_contents($enumDirectory . 'RolesPermissionEnum.php');
-            if (!str_contains($enumFileContent, $enum)) {
+            if (!str_contains($enumFileContent, $role)) {
                 // If the new code does not exist, add it to the end of the class definition
                 $pattern = '/}\s*$/';
                 $replacement = "$enum}";
@@ -144,6 +144,8 @@ class InitialProject extends Command
 
                 // Write the modified contents back to the file
                 file_put_contents($enumDirectory . 'RolesPermissionEnum.php', $enumFileContent);
+            } else {
+                $this->line("<info>The role : $role already exists</info>");
             }
         } else {
             $enumFile = file_get_contents(__DIR__ . '/stubs/RolesPermissionEnum.stub');
@@ -255,12 +257,20 @@ class InitialProject extends Command
         $this->line('<info>Your handler file in ```app/Exceptions/handler.php``` has been initialized</info>');
     }
 
-    public function installSpatie()
+    /**
+     * @return void
+     */
+    public function installSpatie(): void
     {
-        $this->line('<info>Please wait until spatie/laravel-permission installed</info>');
-        $this->line($this->excuteCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
-        $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
-        $this->line($this->excuteCommandInTheBaseDirectory($spatiePublishCommand));
-        $this->line("<info>Don't forgot to run <fg=blue>php artisan migrate</fg=blue></info>");
+        $install = $this->choice("</info>Using multi actors need to install <fg=red>spatie/permission</fg=red> do you want to install it ? </info>", ['No', 'Yes'], 'No');
+        if ($install == 'Yes') {
+            $this->line('<info>Please wait until spatie/laravel-permission installed</info>');
+            $this->line($this->excuteCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
+            $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
+            $this->line($this->excuteCommandInTheBaseDirectory($spatiePublishCommand));
+            $this->line("<info>Don't forgot to run <fg=blue>php artisan migrate</fg=blue></info>");
+        } else {
+            return;
+        }
     }
 }
