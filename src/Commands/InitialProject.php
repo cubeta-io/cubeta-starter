@@ -21,6 +21,8 @@ class InitialProject extends Command
 
     protected Filesystem $files;
 
+    protected bool $roleExist = false;
+
     /**
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -39,7 +41,7 @@ class InitialProject extends Command
      */
     public function handleActorsExistence(): void
     {
-        $hasActors = $this->choice('Does Your Project Has Multi Actors (<info>Notice : That if you hit yes spatie/laravel-permission will be installed</info>) ?', ['No', 'Yes'], 'No') == 'Yes';
+        $hasActors = $this->choice('Does Your Project Has Multi Actors ?', ['No', 'Yes'], 'No') == 'Yes';
 
         if ($hasActors) {
 
@@ -78,10 +80,14 @@ class InitialProject extends Command
                 }
 
                 $this->createRolesEnum($role, $permissions);
-                $this->addApiFile($role);
-                $this->createRoleSeeder();
-                $this->createPermissionSeeder();
-                $this->line("<info>$role role created successfully</info>");
+
+                if (!$this->roleExist) {
+                    $this->addApiFile($role);
+                    $this->createRoleSeeder();
+                    $this->createPermissionSeeder();
+                    $this->line("<info>$role role created successfully</info>");
+                }
+
             }
         }
     }
@@ -146,6 +152,7 @@ class InitialProject extends Command
                 file_put_contents($enumDirectory . 'RolesPermissionEnum.php', $enumFileContent);
             } else {
                 $this->line("<info>The role : $role already exists</info>");
+                $this->roleExist = true;
             }
         } else {
             $enumFile = file_get_contents(__DIR__ . '/stubs/RolesPermissionEnum.stub');
@@ -269,8 +276,6 @@ class InitialProject extends Command
             $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
             $this->line($this->excuteCommandInTheBaseDirectory($spatiePublishCommand));
             $this->line("<info>Don't forgot to run <fg=blue>php artisan migrate</fg=blue></info>");
-        } else {
-            return;
         }
     }
 }
