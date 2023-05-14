@@ -252,6 +252,13 @@ class InitialProject extends Command
      */
     public function editExceptionHandler(): void
     {
+        $this->line("We have an exception handler for you and it will replace <fg=yellow>app/Exceptions/handler.php</fg=yellow> file with a file of the same name");
+        $useHandler = $this->choice("<info>Do you want us to do that ? <fg=yellow>(note : the created feature tests depends on our handler)</fg=yellow></info>", ['No', 'Yes'], 'Yes');
+
+        if ($useHandler == 'No') {
+            return;
+        }
+
         $handlerStub = file_get_contents(__DIR__ . '/stubs/handler.stub');
         $handlerPath = base_path() . '/app/Exceptions/Handler.php';
         if (!file_exists($handlerPath)) {
@@ -276,5 +283,37 @@ class InitialProject extends Command
             $this->line($this->excuteCommandInTheBaseDirectory($spatiePublishCommand));
             $this->line("<info>Don't forgot to run <fg=blue>php artisan migrate</fg=blue></info>");
         }
+    }
+
+
+    public function initForWeb()
+    {
+        $this->excuteCommandInTheBaseDirectory('composer require yajra/laravel-datatables');
+        $this->excuteCommandInTheBaseDirectory('npm i laravel-datatables-vite --save-dev');
+
+       $this->importJsLibs() ; 
+
+
+    }
+
+    public function importJsLibs()
+    {
+        $jsPath = base_path('resources/js/app.js');
+
+        if (file_exists($jsPath)) {
+            $jsContent = file_get_contents($jsPath);
+
+            $newContent = $jsContent . "\n import 'laravel-datatables-vite';";
+            file_put_contents($jsPath, $newContent);
+        } else {
+            File::makeDirectory($jsPath, 077, true, true);
+            $content = "import './bootstrap'; \n import 'laravel-datatables-vite';";
+            file_put_contents($jsPath, $content);
+        }
+    }
+
+    public function importScsslins()
+    {
+        
     }
 }
