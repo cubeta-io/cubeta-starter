@@ -41,7 +41,7 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
             $this->mergeConfigFrom($this->package->basePath("/../config/{$configFileName}.php"), $configFileName);
         }
 
-        $this->mergeConfigFrom(__DIR__.'/../config/repository.php', 'repository');
+        $this->mergeConfigFrom(__DIR__ . '/../config/repository.php', 'repository');
 
         $this->packageRegistered();
 
@@ -76,5 +76,12 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
         $this->app->extend('command.model.make', function () {
             return app()->make(ModelMakeCommand::class);
         });
+    }
+
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__ . '/../resources' => resource_path(),
+        ], 'cubeta-starter-components');
     }
 }

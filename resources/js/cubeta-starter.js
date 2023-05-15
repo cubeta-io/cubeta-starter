@@ -1,3 +1,4 @@
+import './cubeta-starter-bootstrap';
 import 'laravel-datatables-vite';
 
 // JQuery

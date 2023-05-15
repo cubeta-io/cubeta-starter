@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0c515a45cf42a530fd4e1798f828175a",
+    "content-hash": "886081cbe3c7a01360cefe3eef592e36",
     "packages": [
         {
             "name": "brick/math",
@@ -5574,16 +5574,16 @@
         },
         {
             "name": "yajra/laravel-datatables-oracle",
-            "version": "v10.4.0",
+            "version": "v10.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yajra/laravel-datatables.git",
-                "reference": "2e641c3a5d4414dc2b0fce89ab0c74d73fbf7eb3"
+                "reference": "dc699abd8f297ece464f3e3889cc6d4f07a82549"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yajra/laravel-datatables/zipball/2e641c3a5d4414dc2b0fce89ab0c74d73fbf7eb3",
-                "reference": "2e641c3a5d4414dc2b0fce89ab0c74d73fbf7eb3",
+                "url": "https://api.github.com/repos/yajra/laravel-datatables/zipball/dc699abd8f297ece464f3e3889cc6d4f07a82549",
+                "reference": "dc699abd8f297ece464f3e3889cc6d4f07a82549",
                 "shasum": ""
             },
             "require": {
@@ -5646,7 +5646,7 @@
             ],
             "support": {
                 "issues": "https://github.com/yajra/laravel-datatables/issues",
-                "source": "https://github.com/yajra/laravel-datatables/tree/v10.4.0"
+                "source": "https://github.com/yajra/laravel-datatables/tree/v10.3.1"
             },
             "funding": [
                 {
@@ -5654,7 +5654,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-28T07:33:58+00:00"
+            "time": "2023-02-20T06:45:10+00:00"
         }
     ],
     "packages-dev": [
@@ -6676,16 +6676,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.6.7",
+            "version": "9.6.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "c993f0d3b0489ffc42ee2fe0bd645af1538a63b2"
+                "reference": "17d621b3aff84d0c8b62539e269e87d8d5baa76e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c993f0d3b0489ffc42ee2fe0bd645af1538a63b2",
-                "reference": "c993f0d3b0489ffc42ee2fe0bd645af1538a63b2",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/17d621b3aff84d0c8b62539e269e87d8d5baa76e",
+                "reference": "17d621b3aff84d0c8b62539e269e87d8d5baa76e",
                 "shasum": ""
             },
             "require": {
@@ -6759,7 +6759,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.7"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.8"
             },
             "funding": [
                 {
@@ -6775,7 +6775,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-04-14T08:58:40+00:00"
+            "time": "2023-05-11T05:14:45+00:00"
         },
         {
             "name": "pimple/pimple",

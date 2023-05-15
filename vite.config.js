@@ -7,11 +7,6 @@ export default defineConfig({
             input: ['resources/sass/cubeta-starter.scss', 'resources/js/cubeta-starter.js'],
             refresh: true,
         }),
-        'bootstrap',
-        'jquery' ,
-        'baguettebox',
-        'trumbowyg',
-        'sweetalert2',
     ],
 
     assets: {

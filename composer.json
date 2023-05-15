@@ -12,7 +12,8 @@
         "php": "^7.3|^8.0",
         "intervention/image": "^2.7",
         "spatie/laravel-package-tools": "^1.11",
-        "yajra/laravel-datatables": "^9.0"
+        "yajra/laravel-datatables": "^9.0",
+        "yajra/laravel-datatables-oracle": "10.3.1"
     },
     "require-dev": {
         "orchestra/testbench": "^7.5",
