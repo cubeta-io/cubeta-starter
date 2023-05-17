@@ -16,6 +16,7 @@ class MakeWebController extends Command
 
     protected $signature = 'create:web-controller
         {name : The name of the model }
+        {attributes : the model attributes}
         {actor? : The actor of the endpoint of this model }';
 
     protected $description = 'Create a new web controller';
@@ -28,6 +29,7 @@ class MakeWebController extends Command
     {
         $name = $this->argument('name');
         $actor = $this->argument('actor');
+        $attributes = $this->argument('attributes');
 
         $modelName = $this->modelNaming($name);
 
@@ -38,7 +40,7 @@ class MakeWebController extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    public function createWebController(string $modelName, $actor = null)
+    public function createWebController(string $modelName, array $attributes, $actor = null)
     {
         $modelNameLower = strtolower($modelName);
 
@@ -70,10 +72,11 @@ class MakeWebController extends Command
             '{indexView}' => $views['index'],
             '{showView}' => $views['show'],
             '{editForm}' => $views['edit'],
+            '{columns}' => $this->generateDataTableColumns($attributes, $modelNameLower)
         ];
 
-        if (!is_dir(base_path('app/Http/Controllers/WEB/'))){
-            mkdir(base_path('app/Http/Controllers/WEB/') ,  0777, true) ;
+        if (!is_dir(base_path('app/Http/Controllers/WEB/'))) {
+            mkdir(base_path('app/Http/Controllers/WEB/'), 0777, true);
         }
 
         new CreateFile(
@@ -87,6 +90,7 @@ class MakeWebController extends Command
 
     /**
      * @param string $modelName
+     * @param null $actor
      * @return string
      */
     public function getRouteName(string $modelName, $actor = null): string
@@ -94,7 +98,9 @@ class MakeWebController extends Command
         $modelLowerPluralName = strtolower(Str::plural($modelName));
         if (!isset($actor) || $actor == '' || $actor = 'none') {
             return 'web.' . $modelLowerPluralName;
-        } else return 'web.' . $actor . '.' . $modelLowerPluralName;
+        } else {
+            return 'web.' . $actor . '.' . $modelLowerPluralName;
+        }
     }
 
     /**
@@ -113,11 +119,34 @@ class MakeWebController extends Command
                 'create' => 'dashboard.' . $modelLowerPluralName . '.create',
                 'show' => 'dashboard.' . $modelLowerPluralName . '.show',
             ];
-        } else return [
-            'index' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.index',
-            'edit' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.edit',
-            'create' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.create',
-            'show' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.show',
-        ];
+        } else {
+            return [
+                'index' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.index',
+                'edit' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.edit',
+                'create' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.create',
+                'show' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.show',
+            ];
+        }
+    }
+
+    /**
+     * generate the data tables columns query
+     * @param $attributes
+     * @param $modelNameLower
+     * @return string
+     */
+    public function generateDataTableColumns($attributes, $modelNameLower): string
+    {
+        $columns = '';
+        foreach ($attributes as $attribute => $key) {
+            $columns .= "->addColumn('name', function (\$$modelNameLower) {
+                return \$$modelNameLower->$attribute;
+            })
+            ->filterColumn('$attribute', function (\$query,\$keyword) {
+                    \$query->where('$attribute', 'like', '\" % \$keyword % \"');
+                });";
+        }
+
+        return $columns;
     }
 }

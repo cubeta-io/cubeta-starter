@@ -11,6 +11,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use JetBrains\PhpStorm\ArrayShape;
 
 class MakeModel extends Command
 {
@@ -62,20 +63,14 @@ class MakeModel extends Command
         $name = $this->argument('name');
         $option = $this->argument('option');
 
-        if (!$name) {
+        if (!$name || empty(trim($name))) {
             $this->error('Please specify a valid model');
-
             return false;
         }
 
         $modelName = $this->modelNaming($name);
 
-        $paramsString = $this->ask('Enter your params like "name,started_at,..."');
-
-        while (empty(trim($paramsString))) {
-            $this->line('<fg=red>Invalid Input</fg=red>');
-            $paramsString = $this->ask('Enter your params like "name,started_at,..."');
-        }
+        $paramsString = $this->getUserModelAttributes();
 
         $attributes = $this->convertToArrayOfAttributes($paramsString);
 
@@ -85,38 +80,15 @@ class MakeModel extends Command
 
         $actor = $this->checkTheActor();
 
-        //call to command base on the option flag
-        $result = match ($option) {
-            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
-            'controller' => $this->call('create:controller', ['name' => $name, 'actor' => $actor]),
-            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes]),
-            'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
-            'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
-            'seeder' => $this->call('create:seeder', ['name' => $name]),
-            'repository' => $this->call('create:repository', ['name' => $name]),
-            'service' => $this->call('create:service', ['name' => $name]),
-            'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor]),
-            'postman-collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
-            '', null => 'all',
-        };
-        if ($result === 'all') {
-            $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
-            $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
-            $this->call('create:seeder', ['name' => $name]);
-            $this->call('create:request', ['name' => $name, 'attributes' => $attributes]);
-            $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
-            $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
-            $this->call('create:repository', ['name' => $name]);
-            $this->call('create:service', ['name' => $name]);
-            $this->call('create:test', ['name' => $name, 'actor' => $actor]);
-            $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
-        }
+        $this->callAppropriateCommand($name, $attributes, $option, $actor);
 
         $this->createPivots($modelName);
     }
 
     /**
      * convert an array of attributes to array with attributes and their types
+     * @param $fields
+     * @return array
      */
     private function convertToArrayOfAttributes($fields): array
     {
@@ -146,6 +118,9 @@ class MakeModel extends Command
     }
 
     /**
+     * @param string $className
+     * @param array $attributes
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -210,6 +185,10 @@ class MakeModel extends Command
         return $file;
     }
 
+    /**
+     * @param $attributes
+     * @return string
+     */
     private function getModelRelation($attributes): string
     {
         $relationsFunctions = '';
@@ -320,6 +299,11 @@ class MakeModel extends Command
         return $relationsFunctions;
     }
 
+    /**
+     * @param $attributes
+     * @param $relations
+     * @return string
+     */
     private function getModelProperty($attributes, $relations): string
     {
         $properties = "/**  \n";
@@ -347,6 +331,10 @@ class MakeModel extends Command
         return $properties;
     }
 
+    /**
+     * @param $attributes
+     * @return string
+     */
     public function boolValuesScope($attributes): string
     {
         $booleans = array_keys($attributes, 'boolean');
@@ -363,6 +351,10 @@ class MakeModel extends Command
         return $scopes;
     }
 
+    /**
+     * @param $className
+     * @return string
+     */
     private function getModelPath($className): string
     {
         return $this->appPath() . '/' .
@@ -370,6 +362,9 @@ class MakeModel extends Command
             "/$className" . '.php';
     }
 
+    /**
+     * @return array|string|null
+     */
     public function checkTheActor(): array|string|null
     {
         if (file_exists(base_path() . '/app/Enums/RolesPermissionEnum.php')) {
@@ -382,7 +377,11 @@ class MakeModel extends Command
         }
     }
 
-    public function createPivots($modelName)
+    /**
+     * @param $modelName
+     * @return void
+     */
+    public function createPivots($modelName): void
     {
         $manyToManyRelations = array_keys($this->relations, RelationsTypeEnum::ManyToMany);
         foreach ($manyToManyRelations as $relation) {
@@ -390,6 +389,80 @@ class MakeModel extends Command
                 'table1' => $modelName,
                 'table2' => $relation,
             ]);
+        }
+    }
+
+    /**
+     * get the container type from the user
+     * @return bool[]
+     */
+    #[ArrayShape(['api' => "bool", 'web' => "bool"])]
+    public function checkContainer(): array
+    {
+        $container = $this->choice("<info>What is the container type of this model controller</info>", ['api', 'web', 'both'], 'api');
+        return [
+            'api' => $container == 'api' || $container == 'both',
+            'web' => $container == 'web' || $container == 'both',
+        ];
+    }
+
+    /**
+     * get the model attributes from the user
+     * @return mixed
+     */
+    public function getUserModelAttributes(): mixed
+    {
+        $paramsString = $this->ask('Enter your params like "name,started_at,..."');
+
+        while (empty(trim($paramsString))) {
+            $this->line('<fg=red>Invalid Input</fg=red>');
+            $paramsString = $this->ask('Enter your params like "name,started_at,..."');
+        }
+
+        return $paramsString;
+    }
+
+    /**
+     * call to command base on the option flag
+     * @param $name
+     * @param $attributes
+     * @param $option
+     * @param $actor
+     * @return void
+     */
+    public function callAppropriateCommand($name, $attributes, $option, $actor): void
+    {
+        $container = $this->checkContainer();
+        $result = match ($option) {
+            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
+            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes]),
+            'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
+            'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
+            'seeder' => $this->call('create:seeder', ['name' => $name]),
+            'repository' => $this->call('create:repository', ['name' => $name]),
+            'service' => $this->call('create:service', ['name' => $name]),
+            'controller' => $container['api'] ? $this->call('create:controller', ['name' => $name, 'actor' => $actor]) : null,
+            'web-controller' => $container['web'] ? $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]) : null,
+            'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor]),
+            'postman-collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
+            '', null => 'all',
+        };
+        if ($result === 'all') {
+            $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
+            $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
+            $this->call('create:seeder', ['name' => $name]);
+            $this->call('create:request', ['name' => $name, 'attributes' => $attributes]);
+            $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
+            $this->call('create:repository', ['name' => $name]);
+            $this->call('create:service', ['name' => $name]);
+            $this->call('create:test', ['name' => $name, 'actor' => $actor]);
+            $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
+
+            if ($container['api']) {
+                $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
+            } elseif ($container['web']) {
+                $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
+            }
         }
     }
 }
