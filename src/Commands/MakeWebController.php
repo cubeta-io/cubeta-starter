@@ -33,7 +33,7 @@ class MakeWebController extends Command
 
         $modelName = $this->modelNaming($name);
 
-        $this->createWebController($modelName, $actor);
+        $this->createWebController($modelName, $attributes, $actor);
     }
 
     /**
@@ -144,7 +144,7 @@ class MakeWebController extends Command
             })
             ->filterColumn('$attribute', function (\$query,\$keyword) {
                     \$query->where('$attribute', 'like', '\" % \$keyword % \"');
-                });";
+                }) \n";
         }
 
         return $columns;
