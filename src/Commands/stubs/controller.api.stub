@@ -39,7 +39,7 @@ class {modelName}Controller extends ApiController{
 
     public function store(StoreUpdate{modelName}Request $request)
     {
-        $item = $this->{modelNameLower}Service->store($request->validated());
+        $item = $this->{modelNameLower}Service->store($request->validated() , []);
         if ($item) {
             return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.created_successfully'));
         }

@@ -1,0 +1,124 @@
+<?php
+
+namespace App\Http\WEP\Admin\Controllers;
+
+use App\Http\Requests\{modelName}\StoreUpdate{modelName}Request;
+use App\Models\{modelName};
+use App\Services\{modelName}\I{modelName}Service;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\JsonResponse as JsonResponseAlias;
+use Illuminate\Http\RedirectResponse as RedirectResponseAlias;
+use Illuminate\Routing\Redirector;
+use Yajra\DataTables\Facades\DataTables;
+
+class {modelName}Controller extends Controller
+{
+    private ${modelLowerName}Service;
+
+    public function __construct(I{modelName}Service ${modelLowerName}Service)
+    {
+        $this->{modelLowerName}Service = ${modelLowerName}Service;
+    }
+
+    /**
+     * @return JsonResponseAlias
+     */
+    public function data(): JsonResponseAlias
+    {
+        ${modelLowerPluralName} = {modelName}::query();
+
+
+        return DataTables::eloquent(${{modelLowerPluralName}})
+            {columns}
+            ->addColumn('action', function (${modelLowerName}) {
+                return "
+                    <div class='d-flex'>
+                        <a href='" . route('{showRouteName}', ${modelLowerName}->id) . "' class='btn btn-xs btn-info'>
+                            <i class='bi bi-chevron-bar-right'></i>
+                        </a>
+                        <button type='button' class='btn btn-xs btn-danger remove-item-from-table-btn'
+                                data-deleteurl ='" . route('{deleteRouteName}', ${modelLowerName}->id) . "' >
+                            <i class='bi bi-trash3-fill'></i>
+                        </button>
+                    </div>";
+            })
+            ->toJson();
+    }
+
+    /**
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+     */
+    public function index(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        return view('{indexView}');
+    }
+
+    /**
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+     */
+    public function create(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        return view('{createForm}');
+    }
+
+    /**
+     * @param ${modelLowerName}_id
+     * @return \Illuminate\Contracts\Foundation\Application|Factory|View|Application
+     */
+    public function show(${modelLowerName}_id): Application|View|Factory|\Illuminate\Contracts\Foundation\Application
+    {
+        ${modelLowerName} = $this->{modelLowerName}Service->view(${modelLowerName}_id, []);
+        if (${modelLowerName}) {
+            return view('{showView}', compact('{modelLowerName}'));
+        }
+        abort(404, 'Item Not Found');
+    }
+
+    /**
+     * @param StoreUpdate{modelName}Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|Application|RedirectResponseAlias|Redirector
+     */
+    public function store(StoreUpdate{modelName}Request $request): Application|Redirector|RedirectResponseAlias|\Illuminate\Contracts\Foundation\Application
+    {
+        ${modelLowerName} = $this->{modelLowerName}Service->store($request->validated(), []);
+        if (${modelLowerName}) {
+            return redirect()->route('{showRouteName}', ${modelLowerName}->id);
+        }
+        abort(500);
+    }
+
+    /**
+     * @param ${modelLowerName}_id
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+     */
+    public function edit(${modelLowerName}_id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        ${modelLowerName} = {modelName}::findOrFail(${modelLowerName}_id);
+        return view('{editForm}', compact(['{modelLowerName}']));
+    }
+
+    /**
+     * @param StoreUpdate{modelName}Request $request
+     * @param ${modelLowerName}_id
+     * @return \Illuminate\Contracts\Foundation\Application|Application|RedirectResponseAlias|Redirector
+     */
+    public function update(StoreUpdate{modelName}Request $request, ${modelLowerName}_id): Application|Redirector|RedirectResponseAlias|\Illuminate\Contracts\Foundation\Application
+    {
+        ${modelLowerName} = $this->{modelLowerName}Service->update($request->validated(), ${modelLowerName}_id, []);
+        if (${modelLowerName}) {
+            return redirect()->route('{editRouteName}', ${modelLowerName}_id);
+        }
+    }
+
+    /**
+     * @param ${modelLowerName}_id
+     * @return JsonResponseAlias
+     */
+    public function destroy(${modelLowerName}_id): JsonResponseAlias
+    {
+        {modelName}::findOrFail(${modelLowerName}_id)->delete();
+        return redirect()->route('{indexRouteName}') ;
+    }
+}

@@ -16,13 +16,18 @@ use Cubeta\CubetaStarter\Commands\MakeResource;
 use Cubeta\CubetaStarter\Commands\MakeSeeder;
 use Cubeta\CubetaStarter\Commands\MakeService;
 use Cubeta\CubetaStarter\Commands\MakeTest;
+use Cubeta\CubetaStarter\Commands\MakeWebController;
 use Cubeta\CubetaStarter\Commands\ModelMakeCommand;
+use Illuminate\Support\Facades\Blade;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class CubetaRepositoryServiceProvider extends PackageServiceProvider
 {
+    /**
+     * @throws InvalidPackage
+     */
     public function register()
     {
         $this->registeringPackage();
@@ -68,6 +73,7 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeTest::class)
             ->hasCommand(MakePostmanCollection::class)
             ->hasCommand(InitialProject::class)
+            ->hasCommand(MakeWebController::class)
             ->hasCommand(MakePolicy::class);
     }
 
@@ -80,8 +86,27 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
 
     public function boot()
     {
+        $this->publishAssets();
+
+        $this->loadComponents();
+    }
+
+    /**
+     * @return void
+     */
+    protected function loadComponents(): void
+    {
+        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components');
+    }
+
+    protected function publishAssets()
+    {
         $this->publishes([
-            __DIR__ . '/../resources' => resource_path(),
-        ], 'cubeta-starter-components');
+            __DIR__ . '/../resources/views/includes' => resource_path(),
+            __DIR__ . '/../resources/views/layout.blade.php' => resource_path(),
+            __DIR__ . '/../resources/js' => resource_path(),
+            __DIR__ . '/../resources/sass' => resource_path(),
+            __DIR__ . '/../public' => public_path()
+        ], 'cubeta-starter-assets');
     }
 }

@@ -1,4 +1,4 @@
-@props(['imageStoragePath' , 'deleteRoute'])
+@props(['imageStoragePath' , 'deleteRoute' => "#"])
 
 <div class="image-container">
     <a href="{{asset("storage/$imageStoragePath")}}" data-caption="Image caption">

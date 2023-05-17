@@ -123,6 +123,7 @@ class MakeModel extends Command
         $fields = explode(',', $fields);
         $fieldsWithDataType = [];
         foreach ($fields as $field) {
+            $field = Str::snake($field);
             $type = $this->choice(
                 "What is the data type of the (( $field field )) ? default is ",
                 $this->types,
