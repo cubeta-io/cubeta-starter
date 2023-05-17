@@ -38,12 +38,12 @@ class MakeWebController extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    public function createWebController(string $modelName, string $actor = null)
+    public function createWebController(string $modelName, $actor = null)
     {
         $modelNameLower = strtolower($modelName);
 
         $controllerName = $modelName . 'Controller';
-        $controllerPath = base_path('app/Http/Controllers/WEB/' . $controllerName . 'php');
+        $controllerPath = base_path('app/Http/Controllers/WEB/' . $controllerName . '.php');
 
         if (file_exists($controllerPath)) {
             $this->line("<info>The Controller $controllerName <fg=red>Already Exists</fg=red></info>");
@@ -52,15 +52,15 @@ class MakeWebController extends Command
 
         $modelLowerPluralName = strtolower(Str::plural($modelName));
         $baseRouteName = $this->getRouteName($modelName, $actor);
-        $showRouteName = $baseRouteName . 'show';
-        $deleteRouteName = $baseRouteName . 'destroy';
-        $editRouteName = $baseRouteName . 'edit';
-        $indexRouteName = $baseRouteName . 'index';
+        $showRouteName = $baseRouteName . '.show';
+        $deleteRouteName = $baseRouteName . '.destroy';
+        $editRouteName = $baseRouteName . '.edit';
+        $indexRouteName = $baseRouteName . '.index';
         $views = $this->getViewsNames($modelName, $actor);
 
         $stubProperties = [
             '{modelName}' => $modelName,
-            '{modelNameLower}' => $modelNameLower,
+            '{modelLowerName}' => $modelNameLower,
             '{modelLowerPluralName}' => $modelLowerPluralName,
             '{indexRouteName}' => $indexRouteName,
             '{showRouteName}' => $showRouteName,
@@ -71,6 +71,10 @@ class MakeWebController extends Command
             '{showView}' => $views['show'],
             '{editForm}' => $views['edit'],
         ];
+
+        if (!is_dir(base_path('app/Http/Controllers/WEB/'))){
+            mkdir(base_path('app/Http/Controllers/WEB/') ,  0777, true) ;
+        }
 
         new CreateFile(
             $stubProperties,
@@ -83,10 +87,9 @@ class MakeWebController extends Command
 
     /**
      * @param string $modelName
-     * @param string|null $actor
      * @return string
      */
-    public function getRouteName(string $modelName, string $actor = null): string
+    public function getRouteName(string $modelName, $actor = null): string
     {
         $modelLowerPluralName = strtolower(Str::plural($modelName));
         if (!isset($actor) || $actor == '' || $actor = 'none') {
@@ -96,11 +99,11 @@ class MakeWebController extends Command
 
     /**
      * @param string $modelName
-     * @param string $actor
+     * @param null $actor
      * @return string[]
      */
     #[ArrayShape(['index' => "string", 'edit' => "string", 'create' => "string", 'show' => "string"])]
-    public function getViewsNames(string $modelName, string $actor): array
+    public function getViewsNames(string $modelName, $actor = null): array
     {
         $modelLowerPluralName = strtolower(Str::plural($modelName));
         if (!isset($actor) || $actor == '' || $actor = 'none') {

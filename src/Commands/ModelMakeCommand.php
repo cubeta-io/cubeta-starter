@@ -15,11 +15,6 @@ class ModelMakeCommand extends ConsoleModelMakeCommand
      */
     protected $description = 'Create a new Eloquent model class';
 
-    /**
-     * Execute the console command.
-     *
-     * @return void
-     */
     public function handle()
     {
         if (parent::handle() === false && ! $this->option('force')) {

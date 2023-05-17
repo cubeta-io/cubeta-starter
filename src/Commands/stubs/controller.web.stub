@@ -30,7 +30,7 @@ class {modelName}Controller extends Controller
         ${modelLowerPluralName} = {modelName}::query();
 
 
-        return DataTables::eloquent(${{modelLowerPluralName}})
+        return DataTables::eloquent(${modelLowerPluralName})
             {columns}
             ->addColumn('action', function (${modelLowerName}) {
                 return "
@@ -110,6 +110,7 @@ class {modelName}Controller extends Controller
         if (${modelLowerName}) {
             return redirect()->route('{editRouteName}', ${modelLowerName}_id);
         }
+        else abort(404) ; 
     }
 
     /**

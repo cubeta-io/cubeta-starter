@@ -25,6 +25,29 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class CubetaRepositoryServiceProvider extends PackageServiceProvider
 {
+    public function configurePackage(Package $package): void
+    {
+        $package
+            ->name('repository')
+            ->hasConfigFile()
+            ->hasCommand(CreatePivotTable::class)
+            ->hasCommand(MakeController::class)
+            ->hasCommand(MakeResource::class)
+            ->hasCommand(MakeModel::class)
+            ->hasCommand(MakeMigration::class)
+            ->hasCommand(MakeFactory::class)
+            ->hasCommand(MakeSeeder::class)
+            ->hasCommand(MakeRequest::class)
+            ->hasCommand(MakeRepository::class)
+            ->hasCommand(MakeService::class)
+            ->hasCommand(MakeTest::class)
+            ->hasCommand(MakePostmanCollection::class)
+            ->hasCommand(InitialProject::class)
+            ->hasCommand(MakeWebController::class)
+            ->hasCommand(MakePolicy::class);
+    }
+
+
     /**
      * @throws InvalidPackage
      */
@@ -55,28 +78,6 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
         return $this;
     }
 
-    public function configurePackage(Package $package): void
-    {
-        $package
-            ->name('repository')
-            ->hasConfigFile()
-            ->hasCommand(CreatePivotTable::class)
-            ->hasCommand(MakeController::class)
-            ->hasCommand(MakeResource::class)
-            ->hasCommand(MakeModel::class)
-            ->hasCommand(MakeMigration::class)
-            ->hasCommand(MakeFactory::class)
-            ->hasCommand(MakeSeeder::class)
-            ->hasCommand(MakeRequest::class)
-            ->hasCommand(MakeRepository::class)
-            ->hasCommand(MakeService::class)
-            ->hasCommand(MakeTest::class)
-            ->hasCommand(MakePostmanCollection::class)
-            ->hasCommand(InitialProject::class)
-            ->hasCommand(MakeWebController::class)
-            ->hasCommand(MakePolicy::class);
-    }
-
     public function overrideCommands()
     {
         $this->app->extend('command.model.make', function () {
@@ -86,27 +87,29 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
 
     public function boot()
     {
-        $this->publishAssets();
+        parent::boot();
 
         $this->loadComponents();
+        $this->publishAssets();
     }
+
 
     /**
      * @return void
      */
     protected function loadComponents(): void
     {
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components');
+        Blade::componentNamespace('Cubeta\\CubetaStarter\\Components', 'cubeta-starter');
     }
 
     protected function publishAssets()
     {
         $this->publishes([
-            __DIR__ . '/../resources/views/includes' => resource_path(),
-            __DIR__ . '/../resources/views/layout.blade.php' => resource_path(),
-            __DIR__ . '/../resources/js' => resource_path(),
-            __DIR__ . '/../resources/sass' => resource_path(),
-            __DIR__ . '/../public' => public_path()
+            __DIR__ . '/../resources/views/includes' => resource_path('views/includes'),
+            __DIR__ . '/../resources/views/layout.blade.php' => resource_path('views/layout.blade.php'),
+            __DIR__ . '/../resources/js' => resource_path('js'),
+            __DIR__ . '/../resources/sass' => resource_path('sass'),
+            __DIR__ . '/../public' => public_path(),
         ], 'cubeta-starter-assets');
     }
 }
