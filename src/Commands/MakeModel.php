@@ -460,7 +460,8 @@ class MakeModel extends Command
 
             if ($container['api']) {
                 $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
-            } elseif ($container['web']) {
+            }
+            if ($container['web']) {
                 $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
             }
         }
