@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\WEP\Admin\Controllers;
+namespace App\Http\Controllers\WEB;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\{modelName}\StoreUpdate{modelName}Request;
 use App\Models\{modelName};
 use App\Services\{modelName}\I{modelName}Service;
@@ -22,10 +23,8 @@ class {modelName}Controller extends Controller
         $this->{modelLowerName}Service = ${modelLowerName}Service;
     }
 
-    /**
-     * @return JsonResponseAlias
-     */
-    public function data(): JsonResponseAlias
+   
+    public function data()
     {
         ${modelLowerPluralName} = {modelName}::query();
 
@@ -47,27 +46,18 @@ class {modelName}Controller extends Controller
             ->toJson();
     }
 
-    /**
-     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application
-     */
-    public function index(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+
+    public function index()
     {
         return view('{indexView}');
     }
 
-    /**
-     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application
-     */
-    public function create(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    public function create()
     {
         return view('{createForm}');
     }
 
-    /**
-     * @param ${modelLowerName}_id
-     * @return \Illuminate\Contracts\Foundation\Application|Factory|View|Application
-     */
-    public function show(${modelLowerName}_id): Application|View|Factory|\Illuminate\Contracts\Foundation\Application
+    public function show(${modelLowerName}_id)
     {
         ${modelLowerName} = $this->{modelLowerName}Service->view(${modelLowerName}_id, []);
         if (${modelLowerName}) {
@@ -76,11 +66,7 @@ class {modelName}Controller extends Controller
         abort(404, 'Item Not Found');
     }
 
-    /**
-     * @param StoreUpdate{modelName}Request $request
-     * @return \Illuminate\Contracts\Foundation\Application|Application|RedirectResponseAlias|Redirector
-     */
-    public function store(StoreUpdate{modelName}Request $request): Application|Redirector|RedirectResponseAlias|\Illuminate\Contracts\Foundation\Application
+    public function store(StoreUpdate{modelName}Request $request)
     {
         ${modelLowerName} = $this->{modelLowerName}Service->store($request->validated(), []);
         if (${modelLowerName}) {
@@ -89,11 +75,7 @@ class {modelName}Controller extends Controller
         abort(500);
     }
 
-    /**
-     * @param ${modelLowerName}_id
-     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application
-     */
-    public function edit(${modelLowerName}_id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    public function edit(${modelLowerName}_id)
     {
         ${modelLowerName} = ${modelLowerName} = $this->{modelLowerName}Service->view(${modelLowerName}_id, []);
         
@@ -104,12 +86,7 @@ class {modelName}Controller extends Controller
          abort(404) ; 
     }
 
-    /**
-     * @param StoreUpdate{modelName}Request $request
-     * @param ${modelLowerName}_id
-     * @return \Illuminate\Contracts\Foundation\Application|Application|RedirectResponseAlias|Redirector
-     */
-    public function update(StoreUpdate{modelName}Request $request, ${modelLowerName}_id): Application|Redirector|RedirectResponseAlias|\Illuminate\Contracts\Foundation\Application
+    public function update(StoreUpdate{modelName}Request $request, ${modelLowerName}_id)
     {
         ${modelLowerName} = $this->{modelLowerName}Service->update($request->validated(), ${modelLowerName}_id, []);
         if (${modelLowerName}) {
@@ -118,11 +95,7 @@ class {modelName}Controller extends Controller
         else abort(404) ; 
     }
 
-    /**
-     * @param ${modelLowerName}_id
-     * @return JsonResponseAlias
-     */
-    public function destroy(${modelLowerName}_id): JsonResponseAlias
+    public function destroy(${modelLowerName}_id)
     {
         ${modelLowerName} = $this->{modelLowerName}Service->delete(${modelLowerName}_id);
 
