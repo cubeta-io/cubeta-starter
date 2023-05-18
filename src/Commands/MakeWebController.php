@@ -143,8 +143,9 @@ class MakeWebController extends Command
                 return \$$modelNameLower->$attribute;
             })
             ->filterColumn('$attribute', function (\$query,\$keyword) {
-                    \$query->where('$attribute', 'like', '\" % \$keyword % \"');
-                }) \n";
+                    \$query->where('$attribute', 'like', \" % \$keyword % \");
+                })
+            ";
         }
 
         return $columns;

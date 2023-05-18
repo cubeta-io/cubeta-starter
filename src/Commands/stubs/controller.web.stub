@@ -95,8 +95,13 @@ class {modelName}Controller extends Controller
      */
     public function edit(${modelLowerName}_id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
-        ${modelLowerName} = {modelName}::findOrFail(${modelLowerName}_id);
-        return view('{editForm}', compact(['{modelLowerName}']));
+        ${modelLowerName} = ${modelLowerName} = $this->{modelLowerName}Service->view(${modelLowerName}_id, []);
+        
+        if (${modelLowerName}) {
+            return view('{editForm}', compact(['{modelLowerName}']));
+        }
+
+         abort(404) ; 
     }
 
     /**
@@ -119,7 +124,12 @@ class {modelName}Controller extends Controller
      */
     public function destroy(${modelLowerName}_id): JsonResponseAlias
     {
-        {modelName}::findOrFail(${modelLowerName}_id)->delete();
-        return redirect()->route('{indexRouteName}') ;
+        ${modelLowerName} = $this->{modelLowerName}Service->delete(${modelLowerName}_id);
+
+        if (${modelLowerName}) {
+            return redirect()->route('{indexRouteName}') ;
+        }
+
+        abort(404) ;
     }
 }
