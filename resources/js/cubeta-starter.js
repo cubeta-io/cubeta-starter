@@ -13,7 +13,7 @@ import 'bootstrap';
 import 'select2';
 
 
-// baguettebox
+// baguette box
 import 'baguettebox.js';
 
 
