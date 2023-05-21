@@ -22,8 +22,8 @@ trait RouteBinding
             $routePath = base_path() . "\\routes\\$container\\" . $actor . '.php';
             $routeName = $this->getRouteName($modelName, $container, $actor);
         } else {
-            $routePath = base_path() . '\routes\\api.php';
-            $routeName = $container . '.' . $pluralLowerModelName;
+            $routePath = base_path() . "\\routes\\$container.php";
+            $routeName = $this->getRouteName($modelName , $container);
         }
 
         if ($container == 'web') {

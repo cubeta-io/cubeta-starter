@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\WEB;
+namespace App\Http\Controllers\WEB\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\{modelName}\StoreUpdate{modelName}Request;
@@ -23,7 +23,7 @@ class {modelName}Controller extends Controller
         $this->{modelLowerName}Service = ${modelLowerName}Service;
     }
 
-   
+
     public function data()
     {
         ${modelLowerPluralName} = {modelName}::query();
@@ -78,12 +78,12 @@ class {modelName}Controller extends Controller
     public function edit(${modelLowerName}_id)
     {
         ${modelLowerName} = ${modelLowerName} = $this->{modelLowerName}Service->view(${modelLowerName}_id, []);
-        
+
         if (${modelLowerName}) {
             return view('{editForm}', compact(['{modelLowerName}']));
         }
 
-         abort(404) ; 
+         abort(404) ;
     }
 
     public function update(StoreUpdate{modelName}Request $request, ${modelLowerName}_id)
@@ -92,7 +92,7 @@ class {modelName}Controller extends Controller
         if (${modelLowerName}) {
             return redirect()->route('{editRouteName}', ${modelLowerName}_id);
         }
-        else abort(404) ; 
+        else abort(404) ;
     }
 
     public function destroy(${modelLowerName}_id)

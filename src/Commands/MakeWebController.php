@@ -47,7 +47,7 @@ class MakeWebController extends Command
         $modelNameLower = strtolower($modelName);
 
         $controllerName = $modelName . 'Controller';
-        $controllerPath = base_path('app/Http/Controllers/WEB/v1' . $controllerName . '.php');
+        $controllerPath = base_path('app/Http/Controllers/WEB/v1/' . $controllerName . '.php');
 
         if (file_exists($controllerPath)) {
             $this->line("<info>The Controller $controllerName <fg=red>Already Exists</fg=red></info>");
@@ -75,8 +75,8 @@ class MakeWebController extends Command
             '{columns}' => $this->generateDataTableColumns($attributes, $modelNameLower)
         ];
 
-        if (!is_dir(base_path('app/Http/Controllers/WEB/'))) {
-            mkdir(base_path('app/Http/Controllers/WEB/'), 0777, true);
+        if (!is_dir(base_path('app/Http/Controllers/WEB/v1/'))) {
+            mkdir(base_path('app/Http/Controllers/WEB/v1/'), 0777, true);
         }
 
         new CreateFile(
@@ -170,13 +170,13 @@ class MakeWebController extends Command
 
         $formDirectory = base_path("resources/views/$lowerPluralModelName/create.blade.php");
 
-        if (!file_exists($formDirectory)) {
-            $this->line("<info>Create Form Already Created</info>");
-            return;
+        if (!is_dir(base_path("resources/views/$lowerPluralModelName/"))) {
+            mkdir(base_path("resources/views/$lowerPluralModelName/"), 0777, true);
         }
 
-        if (!is_dir(base_path("resources/views/$$lowerPluralModelName/"))) {
-            mkdir(base_path("resources/views/$$lowerPluralModelName/"), 0777, true);
+        if (file_exists($formDirectory)) {
+            $this->line("<info>Create Form Already Created</info>");
+            return;
         }
 
         new CreateFile(
