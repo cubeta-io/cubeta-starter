@@ -12,5 +12,4 @@ export default defineConfig({
     assets: {
         path: 'public/assets',
     },
-
 });

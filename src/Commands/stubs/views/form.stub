@@ -1,10 +1,10 @@
 @extends('layout')
 @section('content')
 
-<x-forms.form formTitle="Create {modelName}" action="{{route('{storeRoute}')}}" method="{method}">
+<x-form formTitle="Create {modelName}" action="{{route('{storeRoute}')}}" method="{method}">
 
 	{components}
 
-</x-forms.form>
+</x-form>
 
 @endsection

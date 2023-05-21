@@ -23,7 +23,7 @@ trait RouteBinding
             $routeName = $this->getRouteName($modelName, $container, $actor);
         } else {
             $routePath = base_path() . "\\routes\\$container.php";
-            $routeName = $this->getRouteName($modelName , $container);
+            $routeName = $this->getRouteName($modelName, $container);
         }
 
         if ($container == 'web') {
@@ -42,6 +42,7 @@ trait RouteBinding
 
             if (file_put_contents($routePath, $route, FILE_APPEND)) {
                 $this->line('<info>Controller Route Appended Successfully</info>');
+                $this->formatFile($routePath);
             } else {
                 $this->line('<info>Failed to Append a Route For This Controller</info>');
             }
@@ -79,7 +80,6 @@ trait RouteBinding
 
         // Write the updated contents back to the file
         file_put_contents($filePath, $contents);
-        $this->formatFile($filePath);
     }
 
     /**
@@ -91,18 +91,10 @@ trait RouteBinding
     public function getRouteName(string $modelName, string $container = 'api', $actor = null): string
     {
         $modelLowerPluralName = strtolower(Str::plural($modelName));
-        if ($container == 'web') {
-            if (!isset($actor) || $actor == '' || $actor = 'none') {
-                return 'web.' . $modelLowerPluralName;
-            } else {
-                return 'web.' . $actor . '.' . $modelLowerPluralName;
-            }
+        if (!isset($actor) || $actor == '' || $actor = 'none') {
+            return $container . '.' . $modelLowerPluralName;
         } else {
-            if (!isset($actor) || $actor == '' || $actor = 'none') {
-                return 'api.' . $modelLowerPluralName;
-            } else {
-                return 'api.' . $actor . '.' . $modelLowerPluralName;
-            }
+            return $container . '.' . $actor . '.' . $modelLowerPluralName;
         }
     }
 

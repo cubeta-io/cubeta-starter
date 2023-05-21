@@ -16,11 +16,11 @@ use Yajra\DataTables\Facades\DataTables;
 
 class {modelName}Controller extends Controller
 {
-    private ${modelLowerName}Service;
+    private ${modelNameCamelCase}Service;
 
-    public function __construct(I{modelName}Service ${modelLowerName}Service)
+    public function __construct(I{modelName}Service ${modelNameCamelCase}Service)
     {
-        $this->{modelLowerName}Service = ${modelLowerName}Service;
+        $this->{modelNameCamelCase}Service = ${modelNameCamelCase}Service;
     }
 
 
@@ -31,14 +31,14 @@ class {modelName}Controller extends Controller
 
         return DataTables::eloquent(${modelLowerPluralName})
             {columns}
-            ->addColumn('action', function (${modelLowerName}) {
+            ->addColumn('action', function (${modelNameCamelCase}) {
                 return "
                     <div class='d-flex'>
-                        <a href='" . route('{showRouteName}', ${modelLowerName}->id) . "' class='btn btn-xs btn-info'>
+                        <a href='" . route('{showRouteName}', ${modelNameCamelCase}->id) . "' class='btn btn-xs btn-info'>
                             <i class='bi bi-chevron-bar-right'></i>
                         </a>
                         <button type='button' class='btn btn-xs btn-danger remove-item-from-table-btn'
-                                data-deleteurl ='" . route('{deleteRouteName}', ${modelLowerName}->id) . "' >
+                                data-deleteurl ='" . route('{deleteRouteName}', ${modelNameCamelCase}->id) . "' >
                             <i class='bi bi-trash3-fill'></i>
                         </button>
                     </div>";
@@ -57,49 +57,49 @@ class {modelName}Controller extends Controller
         return view('{createForm}');
     }
 
-    public function show(${modelLowerName}_id)
+    public function show(${modelNameCamelCase}_id)
     {
-        ${modelLowerName} = $this->{modelLowerName}Service->view(${modelLowerName}_id, []);
-        if (${modelLowerName}) {
-            return view('{showView}', compact('{modelLowerName}'));
+        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->view(${modelNameCamelCase}_id, []);
+        if (${modelNameCamelCase}) {
+            return view('{showView}', compact('{modelNameCamelCase}'));
         }
         abort(404, 'Item Not Found');
     }
 
     public function store(StoreUpdate{modelName}Request $request)
     {
-        ${modelLowerName} = $this->{modelLowerName}Service->store($request->validated(), []);
-        if (${modelLowerName}) {
-            return redirect()->route('{showRouteName}', ${modelLowerName}->id);
+        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->store($request->validated(), []);
+        if (${modelNameCamelCase}) {
+            return redirect()->route('{showRouteName}', ${modelNameCamelCase}->id);
         }
         abort(500);
     }
 
-    public function edit(${modelLowerName}_id)
+    public function edit(${modelNameCamelCase}_id)
     {
-        ${modelLowerName} = ${modelLowerName} = $this->{modelLowerName}Service->view(${modelLowerName}_id, []);
+        ${modelNameCamelCase} = ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->view(${modelNameCamelCase}_id, []);
 
-        if (${modelLowerName}) {
-            return view('{editForm}', compact(['{modelLowerName}']));
+        if (${modelNameCamelCase}) {
+            return view('{editForm}', compact(['{modelNameCamelCase}']));
         }
 
          abort(404) ;
     }
 
-    public function update(StoreUpdate{modelName}Request $request, ${modelLowerName}_id)
+    public function update(StoreUpdate{modelName}Request $request, ${modelNameCamelCase}_id)
     {
-        ${modelLowerName} = $this->{modelLowerName}Service->update($request->validated(), ${modelLowerName}_id, []);
-        if (${modelLowerName}) {
-            return redirect()->route('{editRouteName}', ${modelLowerName}_id);
+        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->update($request->validated(), ${modelNameCamelCase}_id, []);
+        if (${modelNameCamelCase}) {
+            return redirect()->route('{editRouteName}', ${modelNameCamelCase}_id);
         }
         else abort(404) ;
     }
 
-    public function destroy(${modelLowerName}_id)
+    public function destroy(${modelNameCamelCase}_id)
     {
-        ${modelLowerName} = $this->{modelLowerName}Service->delete(${modelLowerName}_id);
+        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->delete(${modelNameCamelCase}_id);
 
-        if (${modelLowerName}) {
+        if (${modelNameCamelCase}) {
             return redirect()->route('{indexRouteName}') ;
         }
 

@@ -36,6 +36,7 @@ class MakeWebController extends Command
         $modelName = $this->modelNaming($name);
 
         $this->createWebController($modelName, $attributes, $actor);
+        $this->addRoute($modelName, $actor, 'web');
     }
 
     /**
@@ -44,7 +45,7 @@ class MakeWebController extends Command
      */
     public function createWebController(string $modelName, array $attributes, $actor = null)
     {
-        $modelNameLower = strtolower($modelName);
+        $modelNameCamelCase = Str::camel($modelName);
 
         $controllerName = $modelName . 'Controller';
         $controllerPath = base_path('app/Http/Controllers/WEB/v1/' . $controllerName . '.php');
@@ -62,7 +63,7 @@ class MakeWebController extends Command
 
         $stubProperties = [
             '{modelName}' => $modelName,
-            '{modelLowerName}' => $modelNameLower,
+            '{modelNameCamelCase}' => $modelNameCamelCase,
             '{modelLowerPluralName}' => $modelLowerPluralName,
             '{indexRouteName}' => $routesNames['index'],
             '{showRouteName}' => $routesNames['show'],
@@ -72,7 +73,7 @@ class MakeWebController extends Command
             '{indexView}' => $views['index'],
             '{showView}' => $views['show'],
             '{editForm}' => $views['edit'],
-            '{columns}' => $this->generateDataTableColumns($attributes, $modelNameLower)
+            '{columns}' => $this->generateDataTableColumns($attributes, $modelNameCamelCase)
         ];
 
         if (!is_dir(base_path('app/Http/Controllers/WEB/v1/'))) {
@@ -86,7 +87,6 @@ class MakeWebController extends Command
         );
 
         $this->line("<info> $controllerName Created </info>");
-        $this->addRoute($modelName, $actor, 'web');
     }
 
     /**
@@ -118,15 +118,15 @@ class MakeWebController extends Command
     /**
      * generate the data tables columns query
      * @param array $attributes
-     * @param string $modelNameLower
+     * @param string $modelVar
      * @return string
      */
-    public function generateDataTableColumns(array $attributes, string $modelNameLower): string
+    public function generateDataTableColumns(array $attributes, string $modelVar): string
     {
         $columns = '';
         foreach ($attributes as $attribute => $key) {
-            $columns .= "->addColumn('name', function (\$$modelNameLower) {
-                return \$$modelNameLower->$attribute;
+            $columns .= "->addColumn('name', function (\$$modelVar) {
+                return \$$modelVar->$attribute;
             })
             ->filterColumn('$attribute', function (\$query,\$keyword) {
                     \$query->where('$attribute', 'like', \" % \$keyword % \");
@@ -146,11 +146,11 @@ class MakeWebController extends Command
     {
         $baseRouteName = $this->getRouteName($modelName, 'web', $actor);
         return [
-            'index' => $baseRouteName . 'index',
-            'show' => $baseRouteName . 'show',
-            'edit' => $baseRouteName . 'edit',
-            'destroy' => $baseRouteName . 'destroy',
-            'store' => $baseRouteName . 'store',
+            'index' => 'dashboard.' . $baseRouteName . '.index',
+            'show' => 'dashboard.' . $baseRouteName . '.show',
+            'edit' => 'dashboard.' . $baseRouteName . '.edit',
+            'destroy' => 'dashboard.' . $baseRouteName . '.destroy',
+            'store' => 'dashboard.' . $baseRouteName . '.store',
         ];
     }
 
@@ -168,10 +168,10 @@ class MakeWebController extends Command
             "{components}" => $inputs
         ];
 
-        $formDirectory = base_path("resources/views/$lowerPluralModelName/create.blade.php");
+        $formDirectory = base_path("resources/views/dashboard/$lowerPluralModelName/create.blade.php");
 
-        if (!is_dir(base_path("resources/views/$lowerPluralModelName/"))) {
-            mkdir(base_path("resources/views/$lowerPluralModelName/"), 0777, true);
+        if (!is_dir(base_path("resources/views/dashboard/$lowerPluralModelName/"))) {
+            mkdir(base_path("resources/views/dashboard/$lowerPluralModelName/"), 0777, true);
         }
 
         if (file_exists($formDirectory)) {
@@ -199,51 +199,58 @@ class MakeWebController extends Command
             $label = $this->getInputLabel($attribute);
 
             if ($attribute == 'email') {
-                $inputs .= "\n <x-forms.input label=\"$label\" type=\"email\"></x-forms.input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"email\"></x-input> \n";
                 continue;
             }
 
             if ($attribute == 'password') {
-                $inputs .= "\n <x-forms.input label=\"$label\" type=\"password\"></x-forms.input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"password\"></x-input> \n";
                 continue;
             }
 
             if (in_array($attribute, ['phone', 'phone_number', 'home_number', 'work_number', 'tele', 'telephone'])) {
-                $inputs .= "\n <x-forms.input label=\"$label\" type=\"tel\"></x-forms.input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"tel\"></x-input> \n";
                 continue;
             }
 
             if (Str::contains($attribute, ['_url', 'url_', 'URL_', '_URL'])) {
-                $inputs .= "\n <x-forms.input label=\"$label\" type=\"url\"></x-forms.input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"url\"></x-input> \n";
                 continue;
             }
 
             if (in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])) {
-                $inputs .= "\n <x-forms.input label=\"$label\" type=\"number\"></x-forms.input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"number\"></x-input> \n";
             }
 
             if (in_array($type, ['string', 'json'])) {
-                $inputs .= "\n <x-forms.input label=\"$label\" type=\"text\"></x-forms.input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"text\"></x-input> \n";
             }
 
             if ($type == 'text') {
-                $inputs .= "\n <x-forms.texteditor label=\"$label\"></x-forms.texteditor> \n";
+                $inputs .= "\n <x-texteditor label=\"$label\"></x-texteditor> \n";
             }
 
             if ($type == 'date') {
-                $inputs .= "\n <x-forms.input label=\"$label\" type=\"date\"></x-forms.input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"date\"></x-input> \n";
             }
 
             if ($type == 'time') {
-                $inputs .= "\n <x-forms.input label=\"$label\" type=\"time\"></x-forms.input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"time\"></x-input> \n";
             }
 
             if (in_array($type, ['dateTime', 'timestamp'])) {
-                $inputs .= "\n <x-forms.input label=\"$label\" type=\"datetime-local\"></x-forms.input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"datetime-local\"></x-input> \n";
             }
 
             if ($type == 'file') {
-                $inputs .= "\n <x-forms.input label=\"$label\" type=\"file\"></x-forms.input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"file\"></x-input> \n";
+            }
+
+            if ($type == 'boolean') {
+                $inputs .= "\n <x-formcheck>
+                                    <x-formcheckradio name=\"$attribute\" value=\"is $attribute\" checked></x-formcheckradio>
+                                    <x-formcheckradio name=\"$attribute\" value=\"not $attribute\"></x-formcheckradio>
+                               </x-formcheck>";
             }
         }
 
