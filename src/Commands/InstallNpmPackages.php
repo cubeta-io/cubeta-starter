@@ -5,11 +5,11 @@ namespace Cubeta\CubetaStarter\Commands;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 
-class MakeSeeder extends Command
+class InstallNpmPackages extends Command
 {
     use AssistCommand;
 
-    public $signature = 'install npm packages';
+    public $signature = 'install-npm-packages';
 
     public $description = 'install required npm packages';
 

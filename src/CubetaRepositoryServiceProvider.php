@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter;
 
 use Cubeta\CubetaStarter\Commands\CreatePivotTable;
 use Cubeta\CubetaStarter\Commands\InitialProject;
+use Cubeta\CubetaStarter\Commands\InstallNpmPackages;
 use Cubeta\CubetaStarter\Commands\MakeController;
 use Cubeta\CubetaStarter\Commands\MakeFactory;
 use Cubeta\CubetaStarter\Commands\MakeMigration;
@@ -44,7 +45,8 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
             ->hasCommand(MakePostmanCollection::class)
             ->hasCommand(InitialProject::class)
             ->hasCommand(MakeWebController::class)
-            ->hasCommand(MakePolicy::class);
+            ->hasCommand(MakePolicy::class)
+            ->hasCommand(InstallNpmPackages::class);
     }
 
 
