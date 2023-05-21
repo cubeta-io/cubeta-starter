@@ -9,7 +9,6 @@
         }
     ],
     "require": {
-        "php": "^7.3|^8.0",
         "intervention/image": "^2.7",
         "spatie/laravel-package-tools": "^1.11",
         "yajra/laravel-datatables": "^9.0",
