@@ -52,7 +52,7 @@ class MakeSeeder extends Command
             __DIR__.'/stubs/seeder.stub'
         );
 
-        $this->formatfile($seederPath);
+        $this->formatFile($seederPath);
         $this->line("<info>Created seeder:</info> $seederName");
     }
 

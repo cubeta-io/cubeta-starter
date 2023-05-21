@@ -55,7 +55,7 @@ class MakeRequest extends Command
             __DIR__.'/stubs/request.stub'
         );
 
-        $this->formatfile($requestPath);
+        $this->formatFile($requestPath);
         $this->line("<info>Created request:</info> {$requestName}");
     }
 

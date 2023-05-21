@@ -61,7 +61,7 @@ class MakePolicy extends Command
             __DIR__ . '/stubs/policy.stub'
         );
 
-        $this->formatfile($policyPath);
+        $this->formatFile($policyPath);
         $this->line("<info>Created Repository:</info> $policyName");
     }
 }

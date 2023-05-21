@@ -55,7 +55,7 @@ class MakeTest extends Command
             __DIR__.'/stubs/test.stub'
         );
 
-        $this->formatfile($testPath);
+        $this->formatFile($testPath);
         $this->line("<info>Created Test:</info> $testName");
     }
 

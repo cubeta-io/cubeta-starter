@@ -74,7 +74,7 @@ class MakeFactory extends Command
             $factoryPath,
             __DIR__.'/stubs/factory.stub'
         );
-        $this->formatfile($factoryPath);
+        $this->formatFile($factoryPath);
         $this->line("<info>Created factory:</info> {$factoryName}");
     }
 

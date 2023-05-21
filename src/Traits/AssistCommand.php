@@ -11,37 +11,33 @@ trait AssistCommand
 {
     /**
      * Get the app root path
-     *
      * @return string
      */
-    public function appPath()
+    public function appPath(): string
     {
         return app()->basePath();
     }
 
     /**
      * Get the database path
-     *
      * @return string
      */
-    public function appDatabasePath()
+    public function appDatabasePath(): string
     {
         return app()->databasePath();
     }
 
     /**
      * Ensure a directory exists.
-     *
      * @param string $path
-     *
      * @throws BindingResolutionException
      */
-    public function ensureDirectoryExists($path): void
+    public function ensureDirectoryExists(string $path): void
     {
         app()->make(Filesystem::class)->ensureDirectoryExists($path);
     }
 
-    public function excuteCommandInTheBaseDirectory(string $command): string|null|bool
+    public function executeCommandInTheBaseDirectory(string $command): string|null|bool
     {
         $rootDirectory = base_path();
         $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
@@ -99,13 +95,12 @@ trait AssistCommand
 
     /**
      * format the file on the given path
-     *
-     * @param $filePath string the procject path of the file eg:app/Models/MyModel.php
+     * @param $filePath string the project path of the file eg:app/Models/MyModel.php
      */
-    public function formatfile(string $filePath): void
+    public function formatFile(string $filePath): void
     {
         $command = base_path() . "./vendor/bin/pint $filePath";
-        $output = $this->excuteCommandInTheBaseDirectory($command);
+        $output = $this->executeCommandInTheBaseDirectory($command);
         $this->line((string)$output);
     }
 }

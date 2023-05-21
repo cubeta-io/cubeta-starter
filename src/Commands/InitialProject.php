@@ -171,7 +171,7 @@ class InitialProject extends Command
                 $enumFile);
             file_put_contents($enumDirectory . 'RolesPermissionEnum.php', $enumFile);
         }
-        $this->formatfile($enumDirectory . 'RolesPermissionEnum.php');
+        $this->formatFile($enumDirectory . 'RolesPermissionEnum.php');
     }
 
     /**
@@ -219,7 +219,7 @@ class InitialProject extends Command
             file_put_contents($routeServiceProvider, $file_contents);
         }
 
-        $this->formatfile($routeServiceProvider);
+        $this->formatFile($routeServiceProvider);
     }
 
     /**
@@ -265,7 +265,7 @@ class InitialProject extends Command
             File::makeDirectory($handlerPath, 077, true, true);
         }
         file_put_contents($handlerPath, $handlerStub);
-        $this->formatfile($handlerPath);
+        $this->formatFile($handlerPath);
 
         $this->line('<info>Your handler file in ```app/Exceptions/handler.php``` has been initialized</info>');
     }
@@ -278,9 +278,9 @@ class InitialProject extends Command
         $install = $this->choice("</info>Using multi actors need to install <fg=red>spatie/permission</fg=red> do you want to install it ? </info>", ['No', 'Yes'], 'No');
         if ($install == 'Yes') {
             $this->line('<info>Please wait until spatie/laravel-permission installed</info>');
-            $this->line($this->excuteCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
+            $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
             $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
-            $this->line($this->excuteCommandInTheBaseDirectory($spatiePublishCommand));
+            $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
             $this->line("<info>Don't forgot to run <fg=blue>php artisan migrate</fg=blue></info>");
         }
     }
@@ -288,10 +288,10 @@ class InitialProject extends Command
 
     public function initForWeb()
     {
-        $this->excuteCommandInTheBaseDirectory('composer require yajra/laravel-datatables');
-        $this->excuteCommandInTheBaseDirectory('npm i laravel-datatables-vite --save-dev');
+        $this->executeCommandInTheBaseDirectory('composer require yajra/laravel-datatables');
+        $this->executeCommandInTheBaseDirectory('npm i laravel-datatables-vite --save-dev');
 
-       $this->importJsLibs() ; 
+       $this->importJsLibs() ;
 
 
     }
@@ -314,6 +314,6 @@ class InitialProject extends Command
 
     public function importScsslins()
     {
-        
+
     }
 }

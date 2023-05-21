@@ -156,7 +156,7 @@ class MakeModel extends Command
             __DIR__ . '/stubs/model.stub'
         );
 
-        $this->formatfile($modelPath);
+        $this->formatFile($modelPath);
         $this->line("<info>Created model:</info> $className");
     }
 
@@ -433,6 +433,7 @@ class MakeModel extends Command
     public function callAppropriateCommand($name, $attributes, $option, $actor): void
     {
         $container = $this->checkContainer();
+
         $result = match ($option) {
             'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
             'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes]),
@@ -442,7 +443,7 @@ class MakeModel extends Command
             'repository' => $this->call('create:repository', ['name' => $name]),
             'service' => $this->call('create:service', ['name' => $name]),
             'controller' => $container['api'] ? $this->call('create:controller', ['name' => $name, 'actor' => $actor]) : null,
-            'web-controller' => $container['web'] ? $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]) : null,
+            'web-controller' => $container['web'] ? $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $this->relations]) : null,
             'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor]),
             'postman-collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
             '', null => 'all',

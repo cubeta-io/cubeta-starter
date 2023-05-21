@@ -62,7 +62,7 @@ class MakeMigration extends Command
             __DIR__.'/stubs/migration.stub'
         );
 
-        $this->formatfile($migrationPath);
+        $this->formatFile($migrationPath);
         $this->line("<info>Created migration:</info> $migrationName");
     }
 

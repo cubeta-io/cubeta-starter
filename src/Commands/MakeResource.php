@@ -58,7 +58,7 @@ class MakeResource extends Command
             __DIR__ . '/stubs/resource.stub'
         );
 
-        $this->formatfile($resourcePath);
+        $this->formatFile($resourcePath);
         $this->line("<info>Created resource:</info> $resourceName");
     }
 

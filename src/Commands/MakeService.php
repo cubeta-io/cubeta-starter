@@ -63,7 +63,7 @@ class MakeService extends Command
             __DIR__.'/stubs/service.stub'
         );
 
-        $this->formatfile($servicePath);
+        $this->formatFile($servicePath);
         $this->line("<info>Created Service:</info> $serviceName");
     }
 
@@ -111,7 +111,7 @@ class MakeService extends Command
             __DIR__.'/stubs/service-interface.stub'
         );
 
-        $this->formatfile($serviceInterfacePath);
+        $this->formatFile($serviceInterfacePath);
         $this->line("<info>Created Service Interface:</info> $serviceInterfaceName");
     }
 
