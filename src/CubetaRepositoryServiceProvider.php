@@ -99,7 +99,7 @@ class CubetaRepositoryServiceProvider extends PackageServiceProvider
      */
     protected function loadComponents(): void
     {
-        Blade::componentNamespace('Cubeta\\CubetaStarter\\Components', 'cubeta-starter');
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/form', 'form');
     }
 
     protected function publishAssets()
