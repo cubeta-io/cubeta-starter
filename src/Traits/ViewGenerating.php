@@ -40,7 +40,7 @@ trait ViewGenerating
         new CreateFile(
             $stubProperties,
             $formDirectory,
-            __DIR__ . "/stubs/views/form.stub"
+            __DIR__ . "/../Commands/stubs/views/form.stub"
         );
 
         echo("<info>A create form for $lowerPluralModelName created</info>");
@@ -154,7 +154,7 @@ trait ViewGenerating
         new CreateFile(
             $stubProperties,
             $showDirectory,
-            __DIR__ . "/stubs/views/show/show.stub"
+            __DIR__ . "/../Commands/stubs/views/show.stub"
         );
 
         echo("<info>A show view for $lowerPluralModelName created</info>");
