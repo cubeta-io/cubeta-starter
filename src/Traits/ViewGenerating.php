@@ -33,7 +33,7 @@ trait ViewGenerating
         }
 
         if (file_exists($formDirectory)) {
-            ModelMakeCommand::line("<info>Create Form Already Created</info>");
+            echo("<info>Create Form Already Created</info>");
             return;
         }
 
@@ -43,7 +43,7 @@ trait ViewGenerating
             __DIR__ . "/stubs/views/form.stub"
         );
 
-        ModelMakeCommand::line("<info>A create form for $lowerPluralModelName created</info>");
+        echo("<info>A create form for $lowerPluralModelName created</info>");
     }
 
     /**
@@ -147,7 +147,7 @@ trait ViewGenerating
         }
 
         if (file_exists($showDirectory)) {
-            ModelMakeCommand::line("<info>Show View Already Created</info>");
+            echo("<info>Show View Already Created</info>");
             return;
         }
 
@@ -157,7 +157,7 @@ trait ViewGenerating
             __DIR__ . "/stubs/views/show/.stub"
         );
 
-        ModelMakeCommand::line("<info>A show view for $lowerPluralModelName created</info>");
+        echo("<info>A show view for $lowerPluralModelName created</info>");
     }
 
     /**
