@@ -154,7 +154,7 @@ trait ViewGenerating
         new CreateFile(
             $stubProperties,
             $showDirectory,
-            __DIR__ . "/stubs/views/show/.stub"
+            __DIR__ . "/stubs/views/show/show.stub"
         );
 
         echo("<info>A show view for $lowerPluralModelName created</info>");
