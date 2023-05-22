@@ -108,7 +108,7 @@ trait ViewGenerating
                 $inputs .= "\n <x-form-check>
                                     <x-form-check-radio name=\"$attribute\" value=\"is $attribute\" checked></x-form-check-radio>
                                     <x-form-check-radio name=\"$attribute\" value=\"not $attribute\"></x-form-check-radio>
-                               </x-form-check>";
+                               </x-form-check> \n";
             }
         }
 
@@ -171,13 +171,13 @@ trait ViewGenerating
         foreach ($attributes as $attribute => $type) {
             $label = $this->getLabelName($attribute);
             if ($type == 'text') {
-                $components .= "<long-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></long-text-field>";
+                $components .= "<x-long-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></x-long-text-field> \n";
                 continue;
             }
             if ($type == 'file') {
-                $components .= "<image-preview imagePath=\"\$$modelVariable->$attribute\"></image-preview>";
+                $components .= "<x-image-preview imagePath=\"\$$modelVariable->$attribute\"></x-image-preview> \n";
             } else {
-                $components .= "<small-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></small-text-field>";
+                $components .= "<x-small-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></x-small-text-field> \n";
             }
         }
         return $components;
