@@ -1,4 +1,4 @@
-function initTrunbowyg(className) {
+function initTrumbowyg(className) {
     $(className).trumbowyg({
         autogrow: true,
         btns: [
@@ -41,15 +41,15 @@ function initBaguetteBox(className) {
 
 
 function initPluginsByClass() {
-    let elements = document.querySelectorAll('.select-2, .multiple-select-2, .Trunbowyg-text-editor, .gallery');
+    let elements = document.querySelectorAll('.select-2, .multiple-select-2, .Trumbowyg-text-editor, .gallery');
 
     let initSelect2State = true;
     let initMultipleSelect2State = true;
-    let initTrunbowygState = true;
+    let initTrumbowygState = true;
     let initBaguetteBoxState = true;
 
     for (let i = 0; i < elements.length; i++) {
-        if (!initMultipleSelect2State && !initSelect2State && !initTrunbowygState && !initBaguetteBoxState) {
+        if (!initMultipleSelect2State && !initSelect2State && !initTrumbowygState && !initBaguetteBoxState) {
             break;
         }
 
@@ -63,9 +63,9 @@ function initPluginsByClass() {
             initMultipleSelect2State = false;
         }
 
-        if (elements[i].classList.contains('Trunbowyg-text-editor') && initTrunbowygState) {
-            initTrunbowyg('.Trunbowyg-text-editor');
-            initTrunbowygState = false;
+        if (elements[i].classList.contains('Trumbowyg-text-editor') && initTrumbowygState) {
+            initTrumbowyg('.Trumbowyg-text-editor');
+            initTrumbowygState = false;
         }
 
         if (elements[i].classList.contains('gallery') && initBaguetteBoxState) {

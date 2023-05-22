@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Commands;
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Cubeta\CubetaStarter\Traits\ViewGenerating;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -15,6 +16,7 @@ class MakeWebController extends Command
 {
     use AssistCommand;
     use RouteBinding;
+    use ViewGenerating;
 
     protected $signature = 'create:web-controller
         {name : The name of the model }
@@ -59,7 +61,8 @@ class MakeWebController extends Command
         $routesNames = $this->getRoutesNames($modelName, $actor);
         $views = $this->getViewsNames($modelName, $actor);
 
-        $this->generateCreateForm($modelName, $routesNames['store'], $attributes);
+        $this->generateCreateForm($modelName, $attributes, $routesNames['store']);
+        $this->generateShowView($modelName, $attributes, $routesNames['edit']);
 
         $stubProperties = [
             '{modelName}' => $modelName,
@@ -146,123 +149,11 @@ class MakeWebController extends Command
     {
         $baseRouteName = $this->getRouteName($modelName, 'web', $actor);
         return [
-            'index' => 'dashboard.' . $baseRouteName . '.index',
-            'show' => 'dashboard.' . $baseRouteName . '.show',
-            'edit' => 'dashboard.' . $baseRouteName . '.edit',
-            'destroy' => 'dashboard.' . $baseRouteName . '.destroy',
-            'store' => 'dashboard.' . $baseRouteName . '.store',
+            'index' => $baseRouteName . '.index',
+            'show' => $baseRouteName . '.show',
+            'edit' => $baseRouteName . '.edit',
+            'destroy' => $baseRouteName . '.destroy',
+            'store' => $baseRouteName . '.store',
         ];
-    }
-
-    /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    public function generateCreateForm(string $modelName, string $storeRoute, array $attributes)
-    {
-        $lowerPluralModelName = strtolower(Str::plural($modelName));
-        $inputs = $this->generateInputs($attributes);
-        $stubProperties = [
-            "{modelName}" => $modelName,
-            "{storeRoute}" => $storeRoute,
-            "{components}" => $inputs
-        ];
-
-        $formDirectory = base_path("resources/views/dashboard/$lowerPluralModelName/create.blade.php");
-
-        if (!is_dir(base_path("resources/views/dashboard/$lowerPluralModelName/"))) {
-            mkdir(base_path("resources/views/dashboard/$lowerPluralModelName/"), 0777, true);
-        }
-
-        if (file_exists($formDirectory)) {
-            $this->line("<info>Create Form Already Created</info>");
-            return;
-        }
-
-        new CreateFile(
-            $stubProperties,
-            $formDirectory,
-            __DIR__ . "/stubs/views/form.stub"
-        );
-
-        $this->line("<info>A create form for $lowerPluralModelName created</info>");
-    }
-
-    /**
-     * @param array $attributes
-     * @return string
-     */
-    public function generateInputs(array $attributes): string
-    {
-        $inputs = '';
-        foreach ($attributes as $attribute => $type) {
-            $label = $this->getInputLabel($attribute);
-
-            if ($attribute == 'email') {
-                $inputs .= "\n <x-input label=\"$label\" type=\"email\"></x-input> \n";
-                continue;
-            }
-
-            if ($attribute == 'password') {
-                $inputs .= "\n <x-input label=\"$label\" type=\"password\"></x-input> \n";
-                continue;
-            }
-
-            if (in_array($attribute, ['phone', 'phone_number', 'home_number', 'work_number', 'tele', 'telephone'])) {
-                $inputs .= "\n <x-input label=\"$label\" type=\"tel\"></x-input> \n";
-                continue;
-            }
-
-            if (Str::contains($attribute, ['_url', 'url_', 'URL_', '_URL'])) {
-                $inputs .= "\n <x-input label=\"$label\" type=\"url\"></x-input> \n";
-                continue;
-            }
-
-            if (in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])) {
-                $inputs .= "\n <x-input label=\"$label\" type=\"number\"></x-input> \n";
-            }
-
-            if (in_array($type, ['string', 'json'])) {
-                $inputs .= "\n <x-input label=\"$label\" type=\"text\"></x-input> \n";
-            }
-
-            if ($type == 'text') {
-                $inputs .= "\n <x-texteditor label=\"$label\"></x-texteditor> \n";
-            }
-
-            if ($type == 'date') {
-                $inputs .= "\n <x-input label=\"$label\" type=\"date\"></x-input> \n";
-            }
-
-            if ($type == 'time') {
-                $inputs .= "\n <x-input label=\"$label\" type=\"time\"></x-input> \n";
-            }
-
-            if (in_array($type, ['dateTime', 'timestamp'])) {
-                $inputs .= "\n <x-input label=\"$label\" type=\"datetime-local\"></x-input> \n";
-            }
-
-            if ($type == 'file') {
-                $inputs .= "\n <x-input label=\"$label\" type=\"file\"></x-input> \n";
-            }
-
-            if ($type == 'boolean') {
-                $inputs .= "\n <x-formcheck>
-                                    <x-formcheckradio name=\"$attribute\" value=\"is $attribute\" checked></x-formcheckradio>
-                                    <x-formcheckradio name=\"$attribute\" value=\"not $attribute\"></x-formcheckradio>
-                               </x-formcheck>";
-            }
-        }
-
-        return $inputs;
-    }
-
-    /**
-     * @param string $attribute
-     * @return array|string
-     */
-    public function getInputLabel(string $attribute): array|string
-    {
-        return str_replace('_', ' ', Str::title(Str::singular($attribute)));
     }
 }
