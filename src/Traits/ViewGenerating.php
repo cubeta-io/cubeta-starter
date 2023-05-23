@@ -5,14 +5,18 @@ namespace Cubeta\CubetaStarter\Traits;
 use Cubeta\CubetaStarter\CreateFile;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Foundation\Console\ModelMakeCommand;
 use Illuminate\Support\Str;
+use JetBrains\PhpStorm\ArrayShape;
 
 trait ViewGenerating
 {
     use NamingTrait;
 
     /**
+     * @param string $modelName
+     * @param array $attributes
+     * @param string $storeRoute
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -33,7 +37,7 @@ trait ViewGenerating
         }
 
         if (file_exists($formDirectory)) {
-            echo("<info>Create Form Already Created</info>");
+            echo(" \n Create Form Already Created \n");
             return;
         }
 
@@ -43,7 +47,7 @@ trait ViewGenerating
             __DIR__ . "/../Commands/stubs/views/form.stub"
         );
 
-        echo("<info>A create form for $lowerPluralModelName created</info>");
+        echo(" \n A create form for $lowerPluralModelName created \n");
     }
 
     /**
@@ -125,8 +129,12 @@ trait ViewGenerating
     }
 
     /**
-     * @throws FileNotFoundException
+     * @param string $modelName
+     * @param array $attributes
+     * @param string $editRoute
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     public function generateShowView(string $modelName, array $attributes, string $editRoute): void
     {
@@ -147,7 +155,7 @@ trait ViewGenerating
         }
 
         if (file_exists($showDirectory)) {
-            echo("<info>Show View Already Created</info>");
+            echo(" \n Show View Already Created \n");
             return;
         }
 
@@ -157,7 +165,7 @@ trait ViewGenerating
             __DIR__ . "/../Commands/stubs/views/show.stub"
         );
 
-        echo("<info>A show view for $lowerPluralModelName created</info>");
+        echo(" \n A show view for $lowerPluralModelName created \n");
     }
 
     /**
@@ -175,11 +183,71 @@ trait ViewGenerating
                 continue;
             }
             if ($type == 'file') {
-                $components .= "<x-image-preview imagePath=\"\$$modelVariable->$attribute\"></x-image-preview> \n";
+                $components .= "<x-image-preview :imagePath=\"\$$modelVariable->$attribute\"></x-image-preview> \n";
             } else {
                 $components .= "<x-small-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></x-small-text-field> \n";
             }
         }
         return $components;
+    }
+
+    /**
+     * @param string $modelName
+     * @param array $attributes
+     * @param string $creatRoute
+     * @param string $dataRoute
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function generateIndexView(string $modelName, array $attributes, string $creatRoute, string $dataRoute): void
+    {
+        $lowerPluralModelName = $this->lowerPluralName($modelName);
+        $dataColumns = $this->generateViewDataColumns($attributes) ;
+
+        $stubProperties = [
+            "{modelName}" => $modelName,
+            "{createRouteName}" => $creatRoute,
+            "{htmlColumns}" => $dataColumns['html'],
+            "{dataTableColumns}" => $dataColumns['json'],
+            "{dataTableDataRouteName}" => $dataRoute
+        ];
+
+        $indexDirectory = base_path("resources/views/dashboard/$lowerPluralModelName/index.blade.php");
+
+        if (!is_dir(base_path("resources/views/dashboard/$lowerPluralModelName/"))) {
+            mkdir(base_path("resources/views/dashboard/$lowerPluralModelName/"), 0777, true);
+        }
+
+        if (file_exists($indexDirectory)) {
+            echo(" \n Index View Already Created \n");
+            return;
+        }
+
+        new CreateFile(
+            $stubProperties,
+            $indexDirectory,
+            __DIR__ . "/../Commands/stubs/views/index.stub"
+        );
+
+        echo(" \n A index view for $lowerPluralModelName created \n");
+    }
+
+    /**
+     * @param array $attributes
+     * @return string[]
+     */
+    #[ArrayShape(['html' => "string", 'json' => "string"])]
+    public function generateViewDataColumns(array $attributes): array
+    {
+        $html = '';
+        $json = '';
+
+        foreach ($attributes as $attribute => $type) {
+            $html .= "\n<th>$attribute</th>\n";
+            $json .= "{\"data\": '$attribute', searchable: true, orderable: true}, \n";
+        }
+
+        return ['html' => $html , 'json' => $json] ;
     }
 }

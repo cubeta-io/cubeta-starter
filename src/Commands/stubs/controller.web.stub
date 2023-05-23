@@ -100,7 +100,7 @@ class {modelName}Controller extends Controller
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->delete(${modelNameCamelCase}_id);
 
         if (${modelNameCamelCase}) {
-            return redirect()->route('{indexRouteName}') ;
+            response()->json(['message' => 'deleted successfully']) ;
         }
 
         abort(404) ;

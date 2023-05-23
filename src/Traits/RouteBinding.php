@@ -27,7 +27,8 @@ trait RouteBinding
         }
 
         if ($container == 'web') {
-            $route = 'Route::Resource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
+            $route = 'Route::Resource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n"
+            ."Route::get(\"$pluralLowerModelName/data\", [v1\\$modelName"."Controller::class, \"data\"])->name(\"$routeName\"); \n";
             $importStatement = 'use App\Http\Controllers\WEB\v1;';
         } else {
             $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";

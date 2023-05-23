@@ -63,12 +63,12 @@ class MakeWebController extends Command
 
         $this->generateCreateForm($modelName, $attributes, $routesNames['store']);
         $this->generateShowView($modelName, $attributes, $routesNames['edit']);
+        $this->generateIndexView($modelName , $attributes , $routesNames['create'] , $routesNames['data']);
 
         $stubProperties = [
             '{modelName}' => $modelName,
             '{modelNameCamelCase}' => $modelNameCamelCase,
             '{modelLowerPluralName}' => $modelLowerPluralName,
-            '{indexRouteName}' => $routesNames['index'],
             '{showRouteName}' => $routesNames['show'],
             '{editRouteName}' => $routesNames['edit'],
             '{deleteRouteName}' => $routesNames['destroy'],
@@ -144,7 +144,7 @@ class MakeWebController extends Command
      * @param $actor
      * @return string[]
      */
-    #[ArrayShape(['index' => "string", 'show' => "string", 'edit' => "string", 'destroy' => "string", 'store' => "string"])]
+    #[ArrayShape(['index' => "string", 'show' => "string", 'edit' => "string", 'destroy' => "string", 'store' => "string", 'create' => "string", 'data' => "string"])]
     public function getRoutesNames(string $modelName, $actor = null): array
     {
         $baseRouteName = $this->getRouteName($modelName, 'web', $actor);
@@ -154,6 +154,8 @@ class MakeWebController extends Command
             'edit' => $baseRouteName . '.edit',
             'destroy' => $baseRouteName . '.destroy',
             'store' => $baseRouteName . '.store',
+            'create' => $baseRouteName . '.create',
+            'data' => $baseRouteName.'.data' ,
         ];
     }
 }
