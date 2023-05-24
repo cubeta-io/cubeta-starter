@@ -57,26 +57,26 @@ class MakeWebController extends Command
             return;
         }
 
-        $modelLowerPluralName = strtolower(Str::plural($modelName));
+        $tableName = $this->tableNaming($modelName);
         $routesNames = $this->getRoutesNames($modelName, $actor);
         $views = $this->getViewsNames($modelName, $actor);
 
-        $this->generateCreateForm($modelName, $attributes, $routesNames['store']);
+        $this->generateCreateOrUpdateForm($modelName, $attributes, $routesNames['store']);
         $this->generateShowView($modelName, $attributes, $routesNames['edit']);
-        $this->generateIndexView($modelName , $attributes , $routesNames['create'] , $routesNames['data']);
+        $this->generateIndexView($modelName, $attributes, $routesNames['create'], $routesNames['data']);
+        $this->generateCreateOrUpdateForm($modelName, $attributes, null, $routesNames['update']);
 
         $stubProperties = [
             '{modelName}' => $modelName,
             '{modelNameCamelCase}' => $modelNameCamelCase,
-            '{modelLowerPluralName}' => $modelLowerPluralName,
+            '{tableName}' => $tableName,
             '{showRouteName}' => $routesNames['show'],
             '{editRouteName}' => $routesNames['edit'],
             '{deleteRouteName}' => $routesNames['destroy'],
             '{createForm}' => $views['create'],
             '{indexView}' => $views['index'],
             '{showView}' => $views['show'],
-            '{editForm}' => $views['edit'],
-            '{columns}' => $this->generateDataTableColumns($attributes, $modelNameCamelCase)
+            '{editForm}' => $views['edit']
         ];
 
         if (!is_dir(base_path('app/Http/Controllers/WEB/v1/'))) {
@@ -119,32 +119,11 @@ class MakeWebController extends Command
     }
 
     /**
-     * generate the data tables columns query
-     * @param array $attributes
-     * @param string $modelVar
-     * @return string
-     */
-    public function generateDataTableColumns(array $attributes, string $modelVar): string
-    {
-        $columns = '';
-        foreach ($attributes as $attribute => $key) {
-            $columns .= "->addColumn('name', function (\$$modelVar) {
-                return \$$modelVar->$attribute;
-            })
-            ->filterColumn('$attribute', function (\$query,\$keyword) {
-                    \$query->where('$attribute', 'like', \" % \$keyword % \");
-                })
-            ";
-        }
-        return $columns;
-    }
-
-    /**
      * @param string $modelName
      * @param $actor
      * @return string[]
      */
-    #[ArrayShape(['index' => "string", 'show' => "string", 'edit' => "string", 'destroy' => "string", 'store' => "string", 'create' => "string", 'data' => "string"])]
+    #[ArrayShape(['index' => "string", 'show' => "string", 'edit' => "string", 'destroy' => "string", 'store' => "string", 'create' => "string", 'data' => "string", 'update' => 'string'])]
     public function getRoutesNames(string $modelName, $actor = null): array
     {
         $baseRouteName = $this->getRouteName($modelName, 'web', $actor);
@@ -155,7 +134,8 @@ class MakeWebController extends Command
             'destroy' => $baseRouteName . '.destroy',
             'store' => $baseRouteName . '.store',
             'create' => $baseRouteName . '.create',
-            'data' => $baseRouteName.'.data' ,
+            'data' => $baseRouteName . '.data',
+            'update' => $baseRouteName . '.update'
         ];
     }
 }

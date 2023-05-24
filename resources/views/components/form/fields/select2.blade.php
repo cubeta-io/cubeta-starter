@@ -2,7 +2,7 @@
 
 <div class="col-md-6 p-2">
     <label for="{{\Illuminate\Support\Str::snake($label)}}">{{$label}}</label>
-    <select class="form-select select-2"
+    <select class="form-select select-2 @error(Illuminate\Support\Str::snake($label)) is-invalid @enderror"
             id="{{\Illuminate\Support\Str::snake($label)}}"
             data-placeholder="Chose A {{$label}}"
             name="{{\Illuminate\Support\Str::snake($label)}}"

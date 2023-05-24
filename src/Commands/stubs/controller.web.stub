@@ -6,12 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\{modelName}\StoreUpdate{modelName}Request;
 use App\Models\{modelName};
 use App\Services\{modelName}\I{modelName}Service;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
-use Illuminate\Http\JsonResponse as JsonResponseAlias;
-use Illuminate\Http\RedirectResponse as RedirectResponseAlias;
-use Illuminate\Routing\Redirector;
 use Yajra\DataTables\Facades\DataTables;
 
 class {modelName}Controller extends Controller
@@ -24,26 +18,31 @@ class {modelName}Controller extends Controller
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function data()
     {
-        ${modelLowerPluralName} = {modelName}::query();
+        $data = {modelName}::query()->select('{tableName}.*');
 
-
-        return DataTables::eloquent(${modelLowerPluralName})
-            {columns}
-            ->addColumn('action', function (${modelNameCamelCase}) {
+        return DataTables::eloquent($data)
+            ->addColumn('action', function ($row) {
                 return "
                     <div class='d-flex'>
-                        <a href='" . route('{showRouteName}', ${modelNameCamelCase}->id) . "' class='btn btn-xs btn-info'>
-                            <i class='bi bi-chevron-bar-right'></i>
-                        </a>
-                        <button type='button' class='btn btn-xs btn-danger remove-item-from-table-btn'
-                                data-deleteurl ='" . route('{deleteRouteName}', ${modelNameCamelCase}->id) . "' >
-                            <i class='bi bi-trash3-fill'></i>
-                        </button>
+                        <div class='p-1'>
+                            <a href='" . route('{showRouteName}', $row->id) . "' class='btn btn-xs btn-info'>
+                                <i class='bi bi-chevron-bar-right'></i>
+                            </a>
+                        </div>
+                        <div class='p-1'>
+                            <button type='button' class='btn btn-xs btn-danger remove-item-from-table-btn'
+                                    data-deleteurl ='" . route('{deleteRouteName}', $row->id) . "' >
+                                <i class='bi bi-trash3-fill'></i>
+                            </button>
+                        </div>
                     </div>";
             })
-            ->toJson();
+            ->make(true);
     }
 
 
@@ -100,7 +99,7 @@ class {modelName}Controller extends Controller
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->delete(${modelNameCamelCase}_id);
 
         if (${modelNameCamelCase}) {
-            response()->json(['message' => 'deleted successfully']) ;
+            return response()->json(['message' => 'deleted successfully']) ;
         }
 
         abort(404) ;

@@ -1,9 +1,10 @@
-import 'laravel-datatables-vite';
-
 // JQuery
 import $ from 'jquery';
 window.$ = $;
 window.jQuery = $ ;
+
+//data tables
+import 'laravel-datatables-vite';
 
 //Bootstrap
 import 'bootstrap';

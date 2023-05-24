@@ -13,31 +13,37 @@ trait ViewGenerating
     use NamingTrait;
 
     /**
+     * create an update or a create form
      * @param string $modelName
      * @param array $attributes
-     * @param string $storeRoute
+     * @param $storeRoute
+     * @param $updateRoute
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function generateCreateForm(string $modelName, array $attributes, string $storeRoute): void
+    public function generateCreateOrUpdateForm(string $modelName, array $attributes, $storeRoute = null, $updateRoute = null): void
     {
         $lowerPluralModelName = $this->lowerPluralName($modelName);
-        $inputs = $this->generateInputs($attributes);
+        $modelVariable = $this->variableNaming($modelName);
+        $inputs = $storeRoute ? $this->generateInputs($attributes) : $this->generateInputs($attributes, $modelVariable, true);
+        $createdForm = $storeRoute ? 'Create' : 'Update';
+
         $stubProperties = [
-            "{modelName}" => $modelName,
-            "{storeRoute}" => $storeRoute,
-            "{components}" => $inputs
+            "{title}" => $createdForm . $modelName,
+            "{submitRoute}" => $storeRoute ?? $updateRoute,
+            "{components}" => $inputs,
+            "{method}" => $updateRoute ? 'PUT' : 'POST'
         ];
 
-        $formDirectory = base_path("resources/views/dashboard/$lowerPluralModelName/create.blade.php");
+        $formDirectory = base_path("resources/views/dashboard/$lowerPluralModelName/" . strtolower($createdForm) . ".blade.php");
 
         if (!is_dir(base_path("resources/views/dashboard/$lowerPluralModelName/"))) {
             mkdir(base_path("resources/views/dashboard/$lowerPluralModelName/"), 0777, true);
         }
 
         if (file_exists($formDirectory)) {
-            echo(" \n Create Form Already Created \n");
+            echo(" \n $createdForm Form Already Created \n");
             return;
         }
 
@@ -47,71 +53,76 @@ trait ViewGenerating
             __DIR__ . "/../Commands/stubs/views/form.stub"
         );
 
-        echo(" \n A create form for $lowerPluralModelName created \n");
+        echo(" \n $createdForm form for $lowerPluralModelName created \n");
     }
 
     /**
+     * generate input fields for create or update form
      * @param array $attributes
+     * @param string $modelVariable
+     * @param bool $updateInput
      * @return string
      */
-    public function generateInputs(array $attributes): string
+    public function generateInputs(array $attributes, string $modelVariable = '', bool $updateInput = false): string
     {
         $inputs = '';
         foreach ($attributes as $attribute => $type) {
             $label = $this->getLabelName($attribute);
+            $value = $updateInput ? ":value=\"\$$modelVariable->$attribute\"" : null;
+            $checked = $updateInput ? ":checked=\"\$$modelVariable->$attribute\"" : "checked";
 
             if ($attribute == 'email') {
-                $inputs .= "\n <x-input label=\"$label\" type=\"email\"></x-input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"email\" $value></x-input> \n";
                 continue;
             }
 
             if ($attribute == 'password') {
-                $inputs .= "\n <x-input label=\"$label\" type=\"password\"></x-input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"password\" $value></x-input> \n";
                 continue;
             }
 
             if (in_array($attribute, ['phone', 'phone_number', 'home_number', 'work_number', 'tele', 'telephone'])) {
-                $inputs .= "\n <x-input label=\"$label\" type=\"tel\"></x-input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"tel\" $value></x-input> \n";
                 continue;
             }
 
             if (Str::contains($attribute, ['_url', 'url_', 'URL_', '_URL'])) {
-                $inputs .= "\n <x-input label=\"$label\" type=\"url\"></x-input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"url\" $value></x-input> \n";
                 continue;
             }
 
             if (in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])) {
-                $inputs .= "\n <x-input label=\"$label\" type=\"number\"></x-input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"number\" $value></x-input> \n";
             }
 
             if (in_array($type, ['string', 'json'])) {
-                $inputs .= "\n <x-input label=\"$label\" type=\"text\"></x-input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"text\" $value></x-input> \n";
             }
 
             if ($type == 'text') {
-                $inputs .= "\n <x-text-editor label=\"$label\"></x-text-editor> \n";
+                $inputs .= "\n <x-text-editor label=\"$label\" $value></x-text-editor> \n";
             }
 
             if ($type == 'date') {
-                $inputs .= "\n <x-input label=\"$label\" type=\"date\"></x-input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"date\" $value></x-input> \n";
             }
 
             if ($type == 'time') {
-                $inputs .= "\n <x-input label=\"$label\" type=\"time\"></x-input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"time\" $value></x-input> \n";
             }
 
             if (in_array($type, ['dateTime', 'timestamp'])) {
-                $inputs .= "\n <x-input label=\"$label\" type=\"datetime-local\"></x-input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"datetime-local\" $value></x-input> \n";
             }
 
             if ($type == 'file') {
-                $inputs .= "\n <x-input label=\"$label\" type=\"file\"></x-input> \n";
+                $inputs .= "\n <x-input label=\"$label\" type=\"file\" $value></x-input> \n";
             }
 
             if ($type == 'boolean') {
                 $inputs .= "\n <x-form-check>
-                                    <x-form-check-radio name=\"$attribute\" value=\"is $attribute\" checked></x-form-check-radio>
-                                    <x-form-check-radio name=\"$attribute\" value=\"not $attribute\"></x-form-check-radio>
+                                    <x-form-check-radio name=\"$attribute\" value=\"is $attribute\" $checked></x-form-check-radio>
+                                    <x-form-check-radio name=\"$attribute\" value=\"not $attribute\" $checked></x-form-check-radio>
                                </x-form-check> \n";
             }
         }
@@ -203,7 +214,7 @@ trait ViewGenerating
     public function generateIndexView(string $modelName, array $attributes, string $creatRoute, string $dataRoute): void
     {
         $lowerPluralModelName = $this->lowerPluralName($modelName);
-        $dataColumns = $this->generateViewDataColumns($attributes) ;
+        $dataColumns = $this->generateViewDataColumns($attributes);
 
         $stubProperties = [
             "{modelName}" => $modelName,
@@ -244,10 +255,11 @@ trait ViewGenerating
         $json = '';
 
         foreach ($attributes as $attribute => $type) {
-            $html .= "\n<th>$attribute</th>\n";
+            $label = $this->getLabelName($attribute);
+            $html .= "\n<th>$label</th>\n";
             $json .= "{\"data\": '$attribute', searchable: true, orderable: true}, \n";
         }
 
-        return ['html' => $html , 'json' => $json] ;
+        return ['html' => $html, 'json' => $json];
     }
 }
