@@ -4,7 +4,6 @@
 <script>
     const _CSRF_TOKEN = "{{csrf_token()}}";
 </script>
-@vite(['resources/js/cubeta-starter.js' , 'resources/sass/cubeta-starter.scss'])
 
 <script src="{{ asset('js/main.js') }}"></script>
 <script src="{{asset('js/PluginsInitializer.js')}}"></script>

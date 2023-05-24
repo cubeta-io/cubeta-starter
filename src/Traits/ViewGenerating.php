@@ -33,7 +33,8 @@ trait ViewGenerating
             "{title}" => $createdForm . $modelName,
             "{submitRoute}" => $storeRoute ?? $updateRoute,
             "{components}" => $inputs,
-            "{method}" => $updateRoute ? 'PUT' : 'POST'
+            "{method}" => $updateRoute ? 'PUT' : 'POST',
+            "{updateParameter}" => $updateRoute ? ", \$$modelVariable"."->id" : ''
         ];
 
         $formDirectory = base_path("resources/views/dashboard/$lowerPluralModelName/" . strtolower($createdForm) . ".blade.php");
@@ -176,7 +177,7 @@ trait ViewGenerating
             __DIR__ . "/../Commands/stubs/views/show.stub"
         );
 
-        echo(" \n A show view for $lowerPluralModelName created \n");
+        echo(" \n show view for $lowerPluralModelName created \n");
     }
 
     /**
@@ -241,7 +242,7 @@ trait ViewGenerating
             __DIR__ . "/../Commands/stubs/views/index.stub"
         );
 
-        echo(" \n A index view for $lowerPluralModelName created \n");
+        echo(" \n index view for $lowerPluralModelName created \n");
     }
 
     /**
@@ -257,7 +258,10 @@ trait ViewGenerating
         foreach ($attributes as $attribute => $type) {
             $label = $this->getLabelName($attribute);
             $html .= "\n<th>$label</th>\n";
-            $json .= "{\"data\": '$attribute', searchable: true, orderable: true}, \n";
+            if ($type == 'file') {
+                $json.="{\"data\": \"$attribute\", \"render\": function (data) {return '<img src=\"' + data + '\" width=\"40px\">';}}, \n";
+            } else $json .= "{\"data\": '$attribute', searchable: true, orderable: true}, \n";
+
         }
 
         return ['html' => $html, 'json' => $json];

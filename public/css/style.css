@@ -1255,6 +1255,30 @@ h6 {
     align-items: center;
 }
 
-.upload-file-button-icon{
+.upload-file-button-icon {
     font-size: 50px;
 }
+
+
+#table {
+    table-layout: fixed;
+    width: 100% !important;
+}
+
+#table td,
+#table th {
+    width: auto !important;
+    white-space: normal;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+
+table.dataTable td {
+    text-align: center;
+}
+
+table.dataTable th {
+    text-align: center;
+}
+

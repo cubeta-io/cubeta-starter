@@ -1,7 +1,7 @@
 @extends('layout')
 @section('content')
 
-<x-form formTitle="{title}" action="{{route('{submitRoute}')}}" method="{method}">
+<x-form formTitle="{title}" action="{{route('{submitRoute}' {updateParameter})}}" method="{method}">
 
 	{components}
 
