@@ -30,7 +30,7 @@ trait ViewGenerating
         $createdForm = $storeRoute ? 'Create' : 'Update';
 
         $stubProperties = [
-            "{title}" => $createdForm . $modelName,
+            "{title}" => "$createdForm $modelName",
             "{submitRoute}" => $storeRoute ?? $updateRoute,
             "{components}" => $inputs,
             "{method}" => $updateRoute ? 'PUT' : 'POST',
