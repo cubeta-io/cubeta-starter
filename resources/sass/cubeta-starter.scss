@@ -15,10 +15,11 @@
 @import 'datatables.net-select-bs5/css/select.bootstrap5.css';
 
 // bootstrap
-@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap/dist/css/bootstrap.min.css';
 
 //select2
-@import "select2";
+@import "select2/src/scss/core";
+@import "select2-bootstrap-5-theme/src/include-all";
 
 // baguetteBox
 @import "baguettebox.js/dist/baguetteBox.css";
