@@ -1,5 +1,7 @@
 <?php
 
+namespace {namespace} ; 
+
 use App\Http\Resources\{modelName}Resource;
 use App\Models\{modelName};
 use Tests\TestCase;

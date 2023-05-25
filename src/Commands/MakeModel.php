@@ -9,7 +9,6 @@ use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ArrayShape;
 
@@ -68,13 +67,11 @@ class MakeModel extends Command
             return false;
         }
 
-        $modelName = $this->modelNaming($name);
+        $modelName = modelNaming($name);
 
         $paramsString = $this->getUserModelAttributes();
 
         $attributes = $this->convertToArrayOfAttributes($paramsString);
-
-        $this->checkIfRequiredDirectoriesExist();
 
         $this->createModel($modelName, $attributes);
 
@@ -108,16 +105,6 @@ class MakeModel extends Command
     }
 
     /**
-     * Check to make sure if all required directories are available
-     *
-     * @throws BindingResolutionException
-     */
-    private function checkIfRequiredDirectoriesExist(): void
-    {
-        $this->ensureDirectoryExists(config('repository.model_directory'));
-    }
-
-    /**
      * @param string $className
      * @param array $attributes
      * @return void
@@ -126,12 +113,10 @@ class MakeModel extends Command
      */
     public function createModel(string $className, array $attributes): void
     {
-        $namespace = $this->getNameSpace();
-
         $fileGetter = $this->getModelImage($attributes, $className);
 
         $stubProperties = [
-            '{namespace}' => $namespace,
+            '{namespace}' => config('repository.model_namespace'),
             '{modelName}' => $className,
             '{relations}' => $this->getModelRelation($attributes),
             '{properties}' => $this->getModelProperty($attributes, $this->relations),
@@ -141,14 +126,10 @@ class MakeModel extends Command
 
         $modelPath = $this->getModelPath($className);
         if (file_exists($modelPath)) {
+            $this->line("<info>$className Model Already Exists</info>");
             return;
         }
 
-        // check folder exist
-        $folder = str_replace('\\', '/', $namespace);
-        if (!file_exists($folder)) {
-            File::makeDirectory($folder, 0775, true, true);
-        }
         // create file
         new CreateFile(
             $stubProperties,
@@ -158,11 +139,6 @@ class MakeModel extends Command
 
         $this->formatFile($modelPath);
         $this->line("<info>Created model:</info> $className");
-    }
-
-    private function getNameSpace(): string
-    {
-        return config('repository.model_namespace');
     }
 
     /**
@@ -201,12 +177,12 @@ class MakeModel extends Command
 
             if ($result == RelationsTypeEnum::HasOne) {
 
-                $relationName = $this->relationFunctionNaming(str_replace('_id', '', $value));
+                $relationName = relationFunctionNaming(str_replace('_id', '', $value));
 
                 $relationsFunctions .= '
                 public function ' . $relationName . '():hasOne
                 {
-                    return $this->hasOne(' . $this->modelNaming($relationName) . "::class);
+                    return $this->hasOne(' . modelNaming($relationName) . "::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::HasOne;
@@ -214,12 +190,12 @@ class MakeModel extends Command
 
             if ($result == RelationsTypeEnum::BelongsTo) {
 
-                $relationName = $this->relationFunctionNaming(str_replace('_id', '', $value));
+                $relationName = relationFunctionNaming(str_replace('_id', '', $value));
 
                 $relationsFunctions .= '
                 public function ' . $relationName . '():belongsTo
                 {
-                    return $this->belongsTo(' . $this->modelNaming($relationName) . "::class);
+                    return $this->belongsTo(' . modelNaming($relationName) . "::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::BelongsTo;
@@ -244,12 +220,12 @@ class MakeModel extends Command
                     $table = $this->ask('What is the name of the related model table ? ');
                 }
 
-                $relationName = $this->relationFunctionNaming($table, false);
+                $relationName = relationFunctionNaming($table, false);
 
                 $relationsFunctions .= '
                 public function ' . $relationName . '():hasMany
                 {
-                    return $this->hasMany(' . $this->modelNaming($table) . "::class);
+                    return $this->hasMany(' . modelNaming($table) . "::class);
                 }\n";
 
                 $result = $this->choice('Does it has another <fg=red>has many</fg=red> relation ? ', ['No', 'Yes'], 'No');
@@ -279,12 +255,12 @@ class MakeModel extends Command
                     $table = $this->ask('What is the name of the related model table ? ');
                 }
 
-                $relationName = $this->relationFunctionNaming($table, false);
+                $relationName = relationFunctionNaming($table, false);
 
                 $relationsFunctions .= '
                  public function ' . $relationName . '() : BelongsToMany
                  {
-                     return $this->belongsToMany(' . $this->modelNaming($table) . "::class);
+                     return $this->belongsToMany(' . modelNaming($table) . "::class);
                  }\n";
 
                 $result = $this->choice('Does it has another <fg=red>many to many</fg=red> relation ? ', ['No', 'Yes'], 'No');
@@ -354,12 +330,13 @@ class MakeModel extends Command
     /**
      * @param $className
      * @return string
+     * @throws BindingResolutionException
      */
     private function getModelPath($className): string
     {
-        return $this->appPath() . '/' .
-            config('repository.model_directory') .
-            "/$className" . '.php';
+        $modelDirectory = base_path(config('repository.model_path'));
+        $this->ensureDirectoryExists($modelDirectory);
+        return "$modelDirectory/$className.php";
     }
 
     /**

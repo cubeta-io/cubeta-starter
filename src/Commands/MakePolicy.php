@@ -7,7 +7,6 @@ use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Facades\File;
 
 class MakePolicy extends Command
 {
@@ -30,38 +29,50 @@ class MakePolicy extends Command
     }
 
     /**
+     * @param $modelName
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
     private function createPolicy($modelName): void
     {
-        $modelName = $this->modelNaming($modelName);
+        $modelName = modelNaming($modelName);
 
         $policyName = $modelName . 'Policy';
 
         $stubProperties = [
+            "{namespace}" => config('repository.policy_namespace'),
             '{modelName}' => $modelName,
         ];
 
-        $policyPath = base_path() . '/app/Policies/' . $policyName . '.php';
+        $policyPath = $this->getPolicyPath($policyName);
         if (file_exists($policyPath)) {
+            $this->line("<info>$policyName Already Exist</info>");
             return;
         }
 
-        // check folder exist
-        $folder = base_path() . '/app/Policies/';
-        if (!file_exists($folder)) {
-            File::makeDirectory($folder, 0775, true, true);
-        }
+        $this->ensureDirectoryExists($policyPath);
 
         // create file
         new CreateFile(
             $stubProperties,
-            $folder . $policyName . '.php',
+            $policyPath,
             __DIR__ . '/stubs/policy.stub'
         );
 
         $this->formatFile($policyPath);
-        $this->line("<info>Created Repository:</info> $policyName");
+        $this->line("<info>Created Policy:</info> $policyName");
+    }
+
+    /**
+     * @param string $policyName
+     * @return string
+     * @throws BindingResolutionException
+     */
+    public function getPolicyPath(string $policyName): string
+    {
+        $directory = base_path(config('repository.policy_path'));
+        $this->ensureDirectoryExists($directory);
+        return "$directory/$policyName.php";
     }
 }

@@ -31,11 +31,18 @@ class MakeFactory extends Command
         'float' => 'fake()->randomFloat(1,2000)',
         'string' => 'fake()->sentence()',
         'text' => 'fake()->text()',
-        'json' => "{'".'fake()->word()'."':'".'fake()->word()'."'}",
+        'json' => "{'" . 'fake()->word()' . "':'" . 'fake()->word()' . "'}",
+        'boolean' => 'fake()->boolean()',
+        'date' => 'fake()->date()',
+        'time' => 'fake()->time()',
+        'dateTime' => 'fake()->dateTime()',
+        'timestamp' => 'fake()->dateTime()',
     ];
 
     /**
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     public function handle(): void
     {
@@ -52,7 +59,7 @@ class MakeFactory extends Command
      */
     private function createFactory($modelName, array $attributes, array $relations): void
     {
-        $modelName = $this->modelNaming($modelName);
+        $modelName = modelNaming($modelName);
 
         $factoryName = $this->getFactoryName($modelName);
 
@@ -60,10 +67,12 @@ class MakeFactory extends Command
 
         $factoryPath = $this->getFactoryPath($factoryName);
         if (file_exists($factoryPath)) {
+            $this->line("<info>$factoryName Already Exist</info>");
             return;
         }
 
         $stubProperties = [
+            '{namespace}' => config('repository.factory_namespace') ,
             '{class}' => $modelName,
             '{rows}' => $factoryAttributes['rows'],
             '//relationFactories' => $factoryAttributes['relatedFactories'],
@@ -72,15 +81,15 @@ class MakeFactory extends Command
         new CreateFile(
             $stubProperties,
             $factoryPath,
-            __DIR__.'/stubs/factory.stub'
+            __DIR__ . '/stubs/factory.stub'
         );
         $this->formatFile($factoryPath);
-        $this->line("<info>Created factory:</info> {$factoryName}");
+        $this->line("<info>Created factory:</info> $factoryName");
     }
 
     private function getFactoryName($modelName): string
     {
-        return $modelName.'Factory';
+        return $modelName . 'Factory';
     }
 
     /**
@@ -200,7 +209,7 @@ class MakeFactory extends Command
             }
 
             if ($type == 'key') {
-                $relatedModel = $this->modelNaming(str_replace('_id', '', $name));
+                $relatedModel = modelNaming(str_replace('_id', '', $name));
                 $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";
 
                 continue;
@@ -214,8 +223,8 @@ class MakeFactory extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
-                $functionName = 'with'.ucfirst(Str::plural(Str::studly($rel)));
-                $className = $this->modelNaming($rel);
+                $functionName = 'with' . ucfirst(Str::plural(Str::studly($rel)));
+                $className = modelNaming($rel);
 
                 $relatedFactories .= "
                 public function $functionName(\$count = 1)
@@ -228,9 +237,14 @@ class MakeFactory extends Command
         return ['rows' => $rows, 'relatedFactories' => $relatedFactories];
     }
 
+    /**
+     * @param $factoryName
+     * @return string
+     */
     private function getFactoryPath($factoryName): string
     {
-        return $this->appDatabasePath().'/factories'.
-            "/$factoryName".'.php';
+        $factoryDirectory = base_path(config('repository.factory_path'));
+        $this->ensureDirectoryExists($factoryDirectory);
+        return "$factoryDirectory/$factoryName.php";
     }
 }

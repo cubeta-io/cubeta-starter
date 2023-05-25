@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace {namespace};
 
 use App\Enums\RolesPermissionEnum;
 use Illuminate\Database\Seeder;

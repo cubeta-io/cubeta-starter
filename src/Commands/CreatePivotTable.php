@@ -3,11 +3,11 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Carbon\Carbon;
+use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Filesystem\Filesystem;
 
 class CreatePivotTable extends Command
 {
@@ -28,7 +28,7 @@ class CreatePivotTable extends Command
         $tables = array($table1, $table2);
         natcasesort($tables);
 
-        $pivotTableName = $this->tableNaming($tables[0]) . '_' . $this->tableNaming($tables[1]);
+        $pivotTableName = tableNaming($tables[0]) . '_' . tableNaming($tables[1]);
 
         $this->info('Creating migration for pivot table ' . $pivotTableName);
 
@@ -52,27 +52,41 @@ class CreatePivotTable extends Command
 
         $date = Carbon::now()->addSecond()->format('Y_m_d_His');
 
-        $migrationPath = database_path('migrations/' . $date . '_' . $migrationName . '.php');
+        $migrationPath = $this->getPivotPath($date , $migrationName);
 
-        $stub = file_get_contents(__DIR__ . '/stubs/pivot-migration.stub');
+        $className1 = modelNaming($table1);
+        $className2 = modelNaming($table2);
 
-        $className1 = $this->modelNaming($table1);
-        $className2 = $this->modelNaming($table2);
+        $this->ensureDirectoryExists(base_path(config('repository.migration_path')));
 
-        $files = app()->make(Filesystem::class);
-
-        if ($files->exists($migrationPath)) {
-            throw new Exception('The Pivot Table Migration For ' . $className1 . 'And ' . $className2 . '  Exists');
+        if (file_exists($migrationPath)) {
+            $this->line("<info>The Pivot Table Migration For <fg=red>$className1</fg=red> And <fg=red>$className2</fg=red> Exists</info>");
         }
 
-        $stub = str_replace(
-            ['{pivotTableName}', '{className1}', '{className2}'],
-            [$pivotTableName, $className1, $className2],
-            $stub
+        $stubProperties = [
+            '{pivotTableName}' => $pivotTableName,
+            '{className1}' => $className1,
+            '{className2}' => $className2
+        ];
+
+        new CreateFile(
+            $stubProperties,
+            $migrationPath,
+            __DIR__ . '/stubs/pivot-migration.stub'
         );
 
-        file_put_contents($migrationPath, $stub);
+        $this->line("<info>Pivot Table For $className1 and $className2 Created</info>");
 
         $this->formatFile($migrationPath);
+    }
+
+    /**
+     * @param string $date
+     * @param string $migrationName
+     * @return string
+     */
+    public function getPivotPath(string $date , string $migrationName): string
+    {
+        return base_path(config('repository.migration_path') . '/' . $date . '_' . $migrationName . '.php');
     }
 }

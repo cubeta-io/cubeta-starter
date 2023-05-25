@@ -38,14 +38,20 @@ class MakeController extends Command
      */
     private function createController($modelName, $actor): void
     {
-        $modelName = $this->modelNaming($modelName);
+        $modelName = modelNaming($modelName);
         $stubProperties = [
+            '{namespace}' => config('repository.api_controller_namespace'),
             '{modelName}' => $modelName,
             '{modelNameLower}' => strtolower($modelName),
         ];
 
-        $controllerName = $this->getControllerName($modelName);
+        $controllerName = controllerNaming($modelName);
         $controllerPath = $this->getControllerPath($controllerName);
+
+        if (file_exists($controllerPath)) {
+            $this->line("<info>$controllerName Already Exist</info>");
+            return;
+        }
 
         new CreateFile(
             $stubProperties,
@@ -53,22 +59,18 @@ class MakeController extends Command
             __DIR__ . '/stubs/controller.api.stub'
         );
         $this->line("<info>Created controller:</info> $controllerName");
-        $this->addRoute($modelName, $actor, 'api');
+        $this->addRoute($modelName, $actor);
         $this->formatFile($controllerPath);
     }
 
-    private function getControllerName($modelName): string
-    {
-        return $modelName . 'Controller';
-    }
-
     /**
-     * @throws BindingResolutionException
+     * @param $controllerName
+     * @return string
      */
     private function getControllerPath($controllerName): string
     {
-        $path = $this->appPath() . '/app/Http/Controllers/API/v1';
+        $path = base_path(config('repository.api_controller_path'));
         $this->ensureDirectoryExists($path);
-        return $path . "/$controllerName" . '.php';
+        return "$path/$controllerName" . '.php';
     }
 }

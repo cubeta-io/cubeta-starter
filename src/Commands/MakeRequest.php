@@ -36,16 +36,18 @@ class MakeRequest extends Command
      */
     private function createRequest($modelName, $attributes): void
     {
-        $modelName = $this->modelNaming($modelName);
+        $modelName =modelNaming($modelName);
         $requestName = $this->getRequestName($modelName);
 
         $stubProperties = [
+            "{namespace}" => config('repository.request_namespace')."\\$modelName",
             '{class}' => $modelName,
             '{rules}' => $this->generateCols($attributes),
         ];
 
         $requestPath = $this->getRequestPath($requestName, $modelName);
         if (file_exists($requestPath)) {
+            $this->line("<info>$requestName Already Exist</info>");
             return;
         }
 
@@ -56,7 +58,7 @@ class MakeRequest extends Command
         );
 
         $this->formatFile($requestPath);
-        $this->line("<info>Created request:</info> {$requestName}");
+        $this->line("<info>Created request:</info> $requestName");
     }
 
     private function getRequestName($modelName): string
@@ -104,7 +106,7 @@ class MakeRequest extends Command
             }
             if (Str::endsWith($name, '_id')) {
                 $relationModel = str_replace('_id', '', $name);
-                $relationModelPluralName = $this->tableNaming($relationModel);
+                $relationModelPluralName = tableNaming($relationModel);
                 $rules .= "\t\t\t'$name'        =>      'required|integer|exists:$relationModelPluralName,id',\n";
 
                 continue;
@@ -126,14 +128,16 @@ class MakeRequest extends Command
     }
 
     /**
-     * @throws BindingResolutionException
+     * @param $requestName
+     * @param $modelName
+     * @return string
      */
     private function getRequestPath($requestName, $modelName): string
     {
-        $path = $this->appPath() . "/app/Http/Requests/$modelName/";
+        $directory = base_path(config('repository.request_path'))."/$modelName";
 
-        $this->ensureDirectoryExists($path);
+        $this->ensureDirectoryExists($directory);
 
-        return $path . "$requestName" . '.php';
+        return $directory . "/$requestName" . '.php';
     }
 }

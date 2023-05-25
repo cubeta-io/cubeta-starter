@@ -35,7 +35,7 @@ class MakeWebController extends Command
         $actor = $this->argument('actor');
         $attributes = $this->argument('attributes');
 
-        $modelName = $this->modelNaming($name);
+        $modelName = modelNaming($name);
 
         $this->createWebController($modelName, $attributes, $actor);
         $this->addRoute($modelName, $actor, 'web');
@@ -47,17 +47,17 @@ class MakeWebController extends Command
      */
     public function createWebController(string $modelName, array $attributes, $actor = null)
     {
-        $modelNameCamelCase = Str::camel($modelName);
+        $modelNameCamelCase = variableNaming($modelName);
 
         $controllerName = $modelName . 'Controller';
-        $controllerPath = base_path('app/Http/Controllers/WEB/v1/' . $controllerName . '.php');
+        $controllerPath = $this->getWebControllerPath($controllerName);
 
         if (file_exists($controllerPath)) {
             $this->line("<info>The Controller $controllerName <fg=red>Already Exists</fg=red></info>");
             return;
         }
 
-        $tableName = $this->tableNaming($modelName);
+        $tableName = tableNaming($modelName);
         $routesNames = $this->getRoutesNames($modelName, $actor);
         $views = $this->getViewsNames($modelName, $actor);
 
@@ -137,5 +137,16 @@ class MakeWebController extends Command
             'data' => $baseRouteName . '.data',
             'update' => $baseRouteName . '.update'
         ];
+    }
+
+    /**
+     * @param string $controllerName
+     * @return string
+     */
+    private function getWebControllerPath(string $controllerName): string
+    {
+        $directory = base_path(config('repository.web_controller_path'));
+        $this->ensureDirectoryExists($directory);
+        return "$directory/$controllerName.php" ;
     }
 }

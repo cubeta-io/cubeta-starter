@@ -1,6 +1,6 @@
 <?php
 
-namespace  App\Repositories;
+namespace  {namespace};
 
 use App\Models\{modelName};
 use Cubeta\CubetaStarter\Contracts\Repositories\BaseRepository;

@@ -15,7 +15,7 @@ trait RouteBinding
      */
     public function addRoute(string $modelName, $actor = null, string $container = 'api'): void
     {
-        $pluralLowerModelName = $this->routeNaming($modelName);
+        $pluralLowerModelName = routeUrlNaming($modelName);
 
         if (isset($actor) && $actor != 'none') {
             $actor = Str::singular(Str::lower($actor));

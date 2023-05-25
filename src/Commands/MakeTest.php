@@ -19,6 +19,7 @@ class MakeTest extends Command
     public $description = 'Create a new feature test';
 
     /**
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -31,15 +32,19 @@ class MakeTest extends Command
     }
 
     /**
+     * @param $modelName
+     * @param $actor
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
     private function createTest($modelName, $actor): void
     {
-        $modelName = $this->modelNaming($modelName);
-        $testName = $this->getTestName($modelName);
+        $modelName = modelNaming($modelName);
+        $testName = $modelName."Test";
 
         $stubProperties = [
+            "{namespace}" => config('repository.test_namespace'),
             '{modelName}' => $modelName,
             '{{actor}}' => $actor,
         ];
@@ -52,27 +57,23 @@ class MakeTest extends Command
         new CreateFile(
             $stubProperties,
             $testPath,
-            __DIR__.'/stubs/test.stub'
+            __DIR__ . '/stubs/test.stub'
         );
 
         $this->formatFile($testPath);
         $this->line("<info>Created Test:</info> $testName");
     }
 
-    private function getTestName($modelName): string
-    {
-        return $modelName.'Test';
-    }
-
     /**
-     * @throws BindingResolutionException
+     * @param $testName
+     * @return string
      */
     private function getTestPath($testName): string
     {
-        $path = $this->appPath().'/tests/Feature/';
+        $directory = base_path(config('repository.test_path'));
 
-        $this->ensureDirectoryExists($path);
+        $this->ensureDirectoryExists($directory);
 
-        return $path."$testName".'.php';
+        return $directory . "/$testName" . '.php';
     }
 }

@@ -34,7 +34,7 @@ class MakeSeeder extends Command
      */
     private function createSeeder($modelName): void
     {
-        $modelName = $this->modelNaming($modelName);
+        $modelName = modelNaming($modelName);
         $seederName = $this->getSeederName($modelName);
 
         $stubProperties = [
@@ -49,7 +49,7 @@ class MakeSeeder extends Command
         new CreateFile(
             $stubProperties,
             $seederPath,
-            __DIR__.'/stubs/seeder.stub'
+            __DIR__ . '/stubs/seeder.stub'
         );
 
         $this->formatFile($seederPath);
@@ -58,12 +58,13 @@ class MakeSeeder extends Command
 
     private function getSeederName($modelName): string
     {
-        return $modelName.'Seeder';
+        return $modelName . 'Seeder';
     }
 
     private function getSeederPath($seederName): string
     {
-        return $this->appDatabasePath().'/seeders'.
-            "/$seederName".'.php';
+        $directory = base_path(config('repository.seeder_path'));
+        $this->ensureDirectoryExists($directory);
+        return "$directory/$seederName.php";
     }
 }

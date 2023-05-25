@@ -2,49 +2,81 @@
 
 return [
     /**
-     * The directory for all the repositories
+     * this project name will appear only in the created postman collection
      */
-    'repository_directory' => 'app/Repositories',
+    'project_name' => "CubetaStarter",
 
     /**
-     * Default repository namespace
+     * postman collection path
+     */
+    'postman_collection _path' => '',  // it will be in the root directory
+
+    /**
+     * the directory of all migration files
+     */
+    'migration_path' => 'database/migrations',
+
+    /**
+     * seeders path and namespace
+     */
+    'seeder_namespace' => 'Database\Seeders',
+    'seeder_path' => 'database/seeders',
+
+    /**
+     * factory path and namespace
+     */
+    'factory_namespace' => 'Database\Factories',
+    'factory_path' => 'database/factories',
+
+    /**
+     * api controller path and namespace
+     */
+    'api_controller_namespace' => 'App\Http\Controllers\API\v1',
+    'api_controller_path' => 'app/Http/API/v1',
+
+    /**
+     * model path and namespace
+     */
+    'model_namespace' => "App\Models",
+    'model_path' => 'app/Models',
+
+    /**
+     * policy path and namespace
+     */
+    'policy_namespace' => 'App\Policies',
+    'policy_path' => 'app/Policies',
+
+    /**
+     * repositories path and namespace
      */
     'repository_namespace' => "App\Repositories",
+    'repository_path' => 'app/Repositories',
+
 
     /**
-     * The directory for all the services
+     * requests path and namespace
      */
-    'service_directory' => 'app/Services',
-    'model_directory' => 'app/Models',
+    'request_namespace' => 'App\Http\Requests',
+    'request_path' => 'app/Http/Requests',
 
     /**
-     * Default service namespace
+     * resources path and namespace
      */
-    'service_namespace' => "App\Services",
-    'model_namespace' => "App\Models",
+    'resource_namespace' => 'App\Http\Resources',
+    'resource_path' => 'app/Http/Resources',
 
     /**
-     * Default repository implementation
+     * service path and namespace
      */
-    'default_repository_implementation' => 'Eloquent',
+    'service_namespace' => 'App\Services',
+    'service_path' => 'app/Services',
 
     /**
-     * Current repository implementation
+     * test path and namespace
      */
-    'current_repository_implementation' => 'Eloquent',
+    'test_namespace' => 'Tests\Feature',
+    'test_path' => 'tests/Feature',
 
-    /**
-     * Repository interface name suffix
-     */
-    'repository_interface_suffix' => 'RepositoryInterface',
-
-    /**
-     * Repository name suffix
-     */
-    'repository_suffix' => 'Repository',
-
-    /**
-     * Service name suffix
-     */
-    'service_suffix' => 'Service',
+    'web_controller_namespace' => 'App\Http\Controllers\WEB\v1' ,
+    'web_controller_path' => 'app/Http/Controllers/WEB/v1' ,
 ];

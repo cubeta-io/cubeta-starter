@@ -39,16 +39,19 @@ class MakeResource extends Command
      */
     private function createResource($modelName, array $attributes, $relations): void
     {
-        $modelName = $this->modelNaming($modelName);
+        $modelName = modelNaming($modelName);
         $resourceName = $this->getResourceName($modelName);
 
         $stubProperties = [
+            "{namespace}" => config('repository.resource_namespace'),
             '{class}' => $resourceName,
             '{resource_fields}' => $this->generateCols($attributes, $relations),
         ];
 
         $resourcePath = $this->getResourcePath($resourceName);
+
         if (file_exists($resourcePath)) {
+            $this->line("<info>$resourceName Already Exist</info>");
             return;
         }
 
@@ -80,12 +83,12 @@ class MakeResource extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
-                $relation = $this->relationFunctionNaming(str_replace('_id', '', $rel));
-                $relatedModelResource = $this->modelNaming($relation) . 'Resource';
+                $relation = relationFunctionNaming(str_replace('_id', '', $rel));
+                $relatedModelResource = modelNaming($relation) . 'Resource';
                 $columns .= "'$relation' =>  new $relatedModelResource(\$this->whenLoaded('$relation')) , \n\t\t\t";
             } elseif ($type == RelationsTypeEnum::ManyToMany || $type == RelationsTypeEnum::HasMany) {
-                $relation = $this->relationFunctionNaming(($rel));
-                $relatedModelResource = $this->modelNaming($relation) . 'Resource';
+                $relation = relationFunctionNaming(($rel));
+                $relatedModelResource = modelNaming($relation) . 'Resource';
                 $columns .= "'$relation' =>  $relatedModelResource::collection(\$this->whenLoaded('$relation')) , \n\t\t\t";
             }
         }
@@ -94,14 +97,15 @@ class MakeResource extends Command
     }
 
     /**
-     * @throws BindingResolutionException
+     * @param $ResourceName
+     * @return string
      */
     private function getResourcePath($ResourceName): string
     {
-        $path = $this->appPath() . '/app/Http/Resources/';
+        $directory = base_path(config('repository.resource_path'));
 
-        $this->ensureDirectoryExists($path);
+        $this->ensureDirectoryExists($directory);
 
-        return $path . "$ResourceName" . '.php';
+        return $directory . "/$ResourceName" . '.php';
     }
 }

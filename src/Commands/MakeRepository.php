@@ -7,8 +7,6 @@ use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
 class MakeRepository extends Command
 {
@@ -36,48 +34,39 @@ class MakeRepository extends Command
      */
     private function createRepository($modelName): void
     {
-        $namespace = $this->getNameSpace();
-        $modelName = $this->modelNaming($modelName);
+        $modelName = modelNaming($modelName);
 
-        $repositoryName = $modelName.'Repository';
-        $modelVar = Str::singular(lcfirst($modelName));
+        $repositoryName = $modelName . 'Repository';
+        $modelVar = variableNaming($modelName);
 
         $stubProperties = [
+            '{namespace}' => config('repository.repository_namespace'),
             '{modelName}' => $modelName,
             '{modelVar}' => $modelVar,
         ];
 
-        $repositoryPath = base_path().'/app/Repositories/'.$repositoryName.'.php';
-        if (file_exists($repositoryPath)) {
-            return;
-        }
+        $repositoryPath = $this->getRepositoryPath($repositoryName);
 
-        // check folder exist
-        $folder = str_replace('\\', '/', $namespace);
-        if (! file_exists($folder)) {
-            File::makeDirectory($folder, 0775, true, true);
+        if (file_exists($repositoryPath)) {
+            $this->line("<info>$repositoryName Already Exist</info>");
+            return;
         }
 
         // create file
         new CreateFile(
             $stubProperties,
-            $this->getRepositoryPath($repositoryName),
-            __DIR__.'/stubs/repository.stub'
+            $repositoryPath,
+            __DIR__ . '/stubs/repository.stub'
         );
 
         $this->formatFile($repositoryPath);
         $this->line("<info>Created Repository:</info> $repositoryName");
     }
 
-    private function getNameSpace(): string
-    {
-        return config('repository.repository_namespace');
-    }
-
     private function getRepositoryPath($repositoryName): string
     {
-        return $this->appPath().'/'.
-            config('repository.repository_directory').
-            "/$repositoryName".'.php';
+        $directory = base_path(config('repository.repository_path'));
+        $this->ensureDirectoryExists($directory);
+        return "$directory/$repositoryName.php";
     }
 }

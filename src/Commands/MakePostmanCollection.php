@@ -33,24 +33,26 @@ class MakePostmanCollection extends Command
      */
     private function createPostmanCollection($modelName, $attributes): void
     {
-        $modelName = $this->modelNaming($modelName);
-        $endpoint = '/'.$this->routeNaming($modelName);
-        $projectName = env('APP_NAME');
-        $collectionPath = base_path()."/$projectName.postman_collection.json";
+        $modelName = modelNaming($modelName);
+        $endpoint = '/' . routeUrlNaming($modelName);
+        $projectName = config('repository.project_name');
+        $collectionDirectory = base_path(config('repository.postman_collection _path'));
+        $this->ensureDirectoryExists($collectionDirectory);
+        $collectionPath = "$collectionDirectory/$projectName.postman_collection.json";
 
         $files = app()->make(Filesystem::class);
 
         $stubProperties = [
             '{modelName}' => $modelName,
             '{indexRoute}' => $endpoint,
-            '{showRoute}' => $endpoint.'/1',
+            '{showRoute}' => $endpoint . '/1',
             '{storeRoute}' => $endpoint,
-            '{updateRoute}' => $endpoint.'/1',
-            '{deleteRoute}' => $endpoint.'/1',
+            '{updateRoute}' => $endpoint . '/1',
+            '{deleteRoute}' => $endpoint . '/1',
             '{formData}' => $this->generateBodyData($attributes),
         ];
 
-        $crudStub = file_get_contents(__DIR__.'/stubs/postman-crud.stub');
+        $crudStub = file_get_contents(__DIR__ . '/stubs/postman-crud.stub');
 
         $crudStub = str_replace(['{modelName}', '{indexRoute}', '{showRoute}', '{storeRoute}', '{updateRoute}', '{deleteRoute}', '{formData}'],
             $stubProperties,
@@ -62,7 +64,7 @@ class MakePostmanCollection extends Command
             $collection = str_replace('"// add-your-cruds-here"', $crudStub, $collection);
             file_put_contents($collectionPath, $collection);
         } else {
-            $collectionStub = file_get_contents(__DIR__.'/stubs/postman-collection.stub');
+            $collectionStub = file_get_contents(__DIR__ . '/stubs/postman-collection.stub');
             $collectionStub = str_replace(['{projectName}', '// add-your-cruds-here'], [$projectName, $crudStub], $collectionStub);
             file_put_contents($collectionPath, $collectionStub);
         }

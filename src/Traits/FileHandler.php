@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Traits;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use JetBrains\PhpStorm\ArrayShape;
 
 trait FileHandler
 {
@@ -111,14 +112,16 @@ trait FileHandler
     /**
      * store requested keys as files
      *
-     * @param  bool  $is_store
-     * @param  null  $item
-     * @param  bool  $to_compress
-     * @param  false  $is_base_64
-     * @param  int  $width
+     * @param array $data
+     * @param array $filesKeys
+     * @param bool $is_store
+     * @param null $item
+     * @param bool $to_compress
+     * @param false $is_base_64
+     * @param int $width
      * @return array
      */
-    private function storeOrUpdateRequestedFiles(array $data, array $filesKeys = [], $is_store = true, $item = null, $to_compress = true, $is_base_64 = false, $width = 300)
+    private function storeOrUpdateRequestedFiles(array $data, array $filesKeys = [], bool $is_store = true, $item = null, $to_compress = true, $is_base_64 = false, $width = 300): array
     {
         $model_files = [];
         if (count($filesKeys) > 0) {
@@ -136,5 +139,21 @@ trait FileHandler
         }
 
         return $data;
+    }
+
+    /**
+     * @param $url
+     * @param $dir
+     * @return array
+     */
+    #[ArrayShape(['name' => "string", 'object' => "mixed"])]
+    public function storeImageFromUrl($url, $dir): array
+    {
+        $this->files = new Filesystem();
+        $this->makeDirectory(storage_path('app/public/'.$dir));
+        $name = $dir.'/'.Str::random(16).'.jpg';
+        $image = Image::make($url)->save(storage_path('app/public/').$name);
+
+        return ['name' => $name, 'object' => $image];
     }
 }

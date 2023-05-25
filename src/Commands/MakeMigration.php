@@ -42,13 +42,14 @@ class MakeMigration extends Command
     private function createMigration($modelName, array $attributes, array $relations): void
     {
 
+        $tableName = tableNaming($modelName);
+
         $migrationName = $this->getMigrationName($modelName);
 
-        if ($this->checkIfMigrationExists($migrationName)) {
+        if ($this->checkIfMigrationExists($tableName)) {
+            $this->line("$migrationName Already Exist");
             return;
         }
-
-        $tableName = $this->tableNaming($modelName);
 
         $stubProperties = [
             '{table}' => $tableName,
@@ -59,24 +60,27 @@ class MakeMigration extends Command
         new CreateFile(
             $stubProperties,
             $migrationPath,
-            __DIR__.'/stubs/migration.stub'
+            __DIR__ . '/stubs/migration.stub'
         );
 
         $this->formatFile($migrationPath);
         $this->line("<info>Created migration:</info> $migrationName");
     }
 
+    /**
+     * @throws BindingResolutionException
+     */
     private function getMigrationsPath($migrationName): string
     {
-        return $this->appDatabasePath().'/migrations'.
-            "/$migrationName".'.php';
+        $path = config('repository.migration_path');
+        $this->ensureDirectoryExists($path);
+        return "$path/$migrationName" . '.php';
     }
 
     private function getMigrationName($modelName): string
     {
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
-
-        return $date.'_create_'.$this->tableNaming($modelName).'_table';
+        return $date . '_create_' . tableNaming($modelName) . '_table';
     }
 
     /**
@@ -89,7 +93,7 @@ class MakeMigration extends Command
             if ($type == 'key') {
                 continue;
             } else {
-                $columns .= "\t\t\t\$table->".($type == 'file' ? 'string' : $type)."('$name')".($type == 'file' ? '->nullable()' : '')."; \n";
+                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('$name')" . ($type == 'file' ? '->nullable()' : '') . "; \n";
             }
         }
 

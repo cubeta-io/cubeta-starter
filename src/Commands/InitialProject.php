@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Traits\FileHandler;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -229,9 +230,9 @@ class InitialProject extends Command
     public function createRoleSeeder(): void
     {
         new CreateFile(
-            [],
-            database_path('seeders/RoleSeeder.php'),
-            __DIR__ . '/stubs/RoleSeeder.stub'
+            ['{namespace}' => config('repository.seeder_namespace')],
+            base_path(config('repository.seeder_path').'/RoleSeeder.php') ,
+            __DIR__ . '/stubs/PermissionSeeder.stub'
         );
     }
 
@@ -242,8 +243,8 @@ class InitialProject extends Command
     public function createPermissionSeeder(): void
     {
         new CreateFile(
-            [],
-            database_path('seeders/PermissionSeeder.php'),
+            ['{namespace}' => config('repository.seeder_namespace')],
+            base_path(config('repository.seeder_path').'/PermissionSeeder.php') ,
             __DIR__ . '/stubs/PermissionSeeder.stub'
         );
     }
@@ -267,7 +268,7 @@ class InitialProject extends Command
         file_put_contents($handlerPath, $handlerStub);
         $this->formatFile($handlerPath);
 
-        $this->line('<info>Your handler file in ```app/Exceptions/handler.php``` has been initialized</info>');
+        $this->line('<info>Your handler file in <fg=red>app/Exceptions/handler.php</fg=red> has been initialized</info>');
     }
 
     /**
@@ -290,30 +291,5 @@ class InitialProject extends Command
     {
         $this->executeCommandInTheBaseDirectory('composer require yajra/laravel-datatables');
         $this->executeCommandInTheBaseDirectory('npm i laravel-datatables-vite --save-dev');
-
-       $this->importJsLibs() ;
-
-
-    }
-
-    public function importJsLibs()
-    {
-        $jsPath = base_path('resources/js/app.js');
-
-        if (file_exists($jsPath)) {
-            $jsContent = file_get_contents($jsPath);
-
-            $newContent = $jsContent . "\n import 'laravel-datatables-vite';";
-            file_put_contents($jsPath, $newContent);
-        } else {
-            File::makeDirectory($jsPath, 077, true, true);
-            $content = "import './bootstrap'; \n import 'laravel-datatables-vite';";
-            file_put_contents($jsPath, $content);
-        }
-    }
-
-    public function importScsslins()
-    {
-
     }
 }

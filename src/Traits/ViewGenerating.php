@@ -10,8 +10,6 @@ use JetBrains\PhpStorm\ArrayShape;
 
 trait ViewGenerating
 {
-    use NamingTrait;
-
     /**
      * create an update or a create form
      * @param string $modelName
@@ -24,8 +22,8 @@ trait ViewGenerating
      */
     public function generateCreateOrUpdateForm(string $modelName, array $attributes, $storeRoute = null, $updateRoute = null): void
     {
-        $lowerPluralModelName = $this->lowerPluralName($modelName);
-        $modelVariable = $this->variableNaming($modelName);
+        $lowerPluralModelName = lowerPluralName($modelName);
+        $modelVariable = variableNaming($modelName);
         $inputs = $storeRoute ? $this->generateInputs($attributes) : $this->generateInputs($attributes, $modelVariable, true);
         $createdForm = $storeRoute ? 'Create' : 'Update';
 
@@ -150,8 +148,8 @@ trait ViewGenerating
      */
     public function generateShowView(string $modelName, array $attributes, string $editRoute): void
     {
-        $lowerPluralModelName = $this->lowerPluralName($modelName);
-        $modelVariable = $this->variableNaming($modelName);
+        $lowerPluralModelName = lowerPluralName($modelName);
+        $modelVariable = variableNaming($modelName);
 
         $stubProperties = [
             "{modelName}" => $modelName,
@@ -214,7 +212,7 @@ trait ViewGenerating
      */
     public function generateIndexView(string $modelName, array $attributes, string $creatRoute, string $dataRoute): void
     {
-        $lowerPluralModelName = $this->lowerPluralName($modelName);
+        $lowerPluralModelName = lowerPluralName($modelName);
         $dataColumns = $this->generateViewDataColumns($attributes);
 
         $stubProperties = [
