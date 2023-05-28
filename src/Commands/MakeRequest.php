@@ -36,11 +36,11 @@ class MakeRequest extends Command
      */
     private function createRequest($modelName, $attributes): void
     {
-        $modelName =modelNaming($modelName);
+        $modelName = modelNaming($modelName);
         $requestName = $this->getRequestName($modelName);
 
         $stubProperties = [
-            "{namespace}" => config('repository.request_namespace')."\\$modelName",
+            "{namespace}" => config('repository.request_namespace') . "\\$modelName",
             '{class}' => $modelName,
             '{rules}' => $this->generateCols($attributes),
         ];
@@ -71,43 +71,43 @@ class MakeRequest extends Command
         $rules = '';
         foreach ($attributes as $name => $type) {
             if ($name == 'name' || $name == 'first_name' || $name == 'last_name') {
-                $rules .= "\t\t\t'$name'        =>      'required|string|min:3|max:255',\n";
+                $rules .= "\t\t\t'$name'=>'required|string|min:3|max:255',\n";
 
                 continue;
             }
 
             if ($name == 'email') {
-                $rules .= "\t\t\t'$name'        =>      'required|string|max:255|email',\n";
+                $rules .= "\t\t\t'$name'=>'required|string|max:255|email',\n";
 
                 continue;
             }
 
             if ($name == 'password') {
-                $rules .= "\t\t\t'$name'        =>      'required|string|max:255|min:6|confirmed',\n";
+                $rules .= "\t\t\t'$name'=>'required|string|max:255|min:6|confirmed',\n";
 
                 continue;
             }
 
             if ($name == 'phone' || $name == 'phone_number' || $name == 'number') {
-                $rules .= "\t\t\t'$name'        =>      'required|string|max:255|min:6',\n";
+                $rules .= "\t\t\t'$name'=>'required|string|max:255|min:6',\n";
 
                 continue;
             }
 
             if (Str::endsWith($name, '_at')) {
-                $rules .= "\t\t\t'$name'        =>      'required|date',\n";
+                $rules .= "\t\t\t'$name'=>'required|date',\n";
 
                 continue;
             }
             if (Str::startsWith($name, 'is_')) {
-                $rules .= "\t\t\t'$name'        =>      'required|boolean',\n";
+                $rules .= "\t\t\t'$name'=>'required|boolean',\n";
 
                 continue;
             }
             if (Str::endsWith($name, '_id')) {
                 $relationModel = str_replace('_id', '', $name);
                 $relationModelPluralName = tableNaming($relationModel);
-                $rules .= "\t\t\t'$name'        =>      'required|integer|exists:$relationModelPluralName,id',\n";
+                $rules .= "\t\t\t'$name'=>'required|numeric|exists:$relationModelPluralName,id',\n";
 
                 continue;
             }
@@ -121,7 +121,7 @@ class MakeRequest extends Command
 
                 continue;
             }
-            $rules .= "\t\t\t'$name'        =>      'required|$type',\n";
+            $rules .= "\t\t\t'$name'=>'required|$type',\n";
         }
 
         return $rules;
@@ -134,7 +134,7 @@ class MakeRequest extends Command
      */
     private function getRequestPath($requestName, $modelName): string
     {
-        $directory = base_path(config('repository.request_path'))."/$modelName";
+        $directory = base_path(config('repository.request_path')) . "/$modelName";
 
         ensureDirectoryExists($directory);
 

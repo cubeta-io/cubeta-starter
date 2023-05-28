@@ -101,7 +101,7 @@ class MakeMigration extends Command
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
                 $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
-                $columns .= "\t\t\t\$table->foreignIdFor(App\Models\\$modelName::class)->constrained()->cascadeOnDelete(); \n";
+                $columns .= "\t\t\t\$table->foreignIdFor(\App\Models\\$modelName::class)->constrained()->cascadeOnDelete(); \n";
             }
         }
 

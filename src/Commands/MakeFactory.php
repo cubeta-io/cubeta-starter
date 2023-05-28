@@ -101,6 +101,13 @@ class MakeFactory extends Command
         $rows = '';
         $relatedFactories = '';
         foreach ($attributes as $name => $type) {
+            if ($type == 'key') {
+                $relatedModel = modelNaming(str_replace('_id', '', $name));
+                $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";
+
+                continue;
+            }
+
             if (in_array($name, ['name', 'username', 'first_name', 'last_name', 'user_name'])) {
                 $rows .= "\t\t\t'$name' => fake()->firstName(),\n";
 
@@ -204,13 +211,6 @@ class MakeFactory extends Command
             }
             if (Str::startsWith($name, 'is_')) {
                 $rows .= "\t\t\t'$name' => fake()->boolean(),\n";
-
-                continue;
-            }
-
-            if ($type == 'key') {
-                $relatedModel = modelNaming(str_replace('_id', '', $name));
-                $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";
 
                 continue;
             }

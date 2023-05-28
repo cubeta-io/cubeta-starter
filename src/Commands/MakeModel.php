@@ -282,15 +282,8 @@ class MakeModel extends Command
     {
         $properties = "/**  \n";
         foreach ($relations as $name => $type) {
-            if ($type == RelationsTypeEnum::ManyToMany) {
-                $properties .= '* @property BelongsToMany ' . $name . "\n";
-            } elseif ($type == RelationsTypeEnum::HasMany) {
-                $properties .= '* @property HasMany ' . $name . "\n";
-            } elseif ($type == RelationsTypeEnum::BelongsTo) {
-                $properties .= "* @property BelongsTo $name \n";
-            } elseif ($type == RelationsTypeEnum::HasOne) {
-                $properties .= "* @property HasOne $name \n";
-            }
+            $modelName = modelNaming($name);
+            $properties .= "* @property $modelName $name\n";
         }
 
         foreach ($attributes as $name => $type) {
