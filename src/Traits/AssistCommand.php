@@ -7,17 +7,6 @@ use Illuminate\Support\Str;
 
 trait AssistCommand
 {
-    /**
-     * @param string $directory
-     * @return void
-     */
-    public function ensureDirectoryExists(string $directory): void
-    {
-        if (!File::isDirectory($directory)) {
-            File::makeDirectory($directory, 0775, true, true);
-        }
-    }
-
     public function executeCommandInTheBaseDirectory(string $command): string|null|bool
     {
         $rootDirectory = base_path();
@@ -33,7 +22,7 @@ trait AssistCommand
     public function checkIfMigrationExists($tableName): bool
     {
         $migrationsPath = base_path(config('repository.migration_path'));
-        $this->ensureDirectoryExists($migrationsPath);
+        ensureDirectoryExists($migrationsPath);
 
         $allMigrations = File::allFiles($migrationsPath);
         foreach ($allMigrations as $migration) {

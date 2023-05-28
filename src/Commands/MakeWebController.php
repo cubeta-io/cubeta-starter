@@ -38,7 +38,6 @@ class MakeWebController extends Command
         $modelName = modelNaming($name);
 
         $this->createWebController($modelName, $attributes, $actor);
-        $this->addRoute($modelName, $actor, 'web');
     }
 
     /**
@@ -53,7 +52,7 @@ class MakeWebController extends Command
         $controllerPath = $this->getWebControllerPath($controllerName);
 
         if (file_exists($controllerPath)) {
-            $this->line("<info>The Controller $controllerName <fg=red>Already Exists</fg=red></info>");
+            $this->error("$controllerName Already Exist");
             return;
         }
 
@@ -83,13 +82,14 @@ class MakeWebController extends Command
             mkdir(base_path('app/Http/Controllers/WEB/v1/'), 0777, true);
         }
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $controllerPath,
             __DIR__ . '/stubs/controller.web.stub'
         );
 
-        $this->line("<info> $controllerName Created </info>");
+        $this->info("$controllerName Created");
+        $this->addRoute($modelName, $actor, 'web');
     }
 
     /**
@@ -146,7 +146,7 @@ class MakeWebController extends Command
     private function getWebControllerPath(string $controllerName): string
     {
         $directory = base_path(config('repository.web_controller_path'));
-        $this->ensureDirectoryExists($directory);
-        return "$directory/$controllerName.php" ;
+        ensureDirectoryExists($directory);
+        return "$directory/$controllerName.php";
     }
 }

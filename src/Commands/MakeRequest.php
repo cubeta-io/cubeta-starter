@@ -47,18 +47,18 @@ class MakeRequest extends Command
 
         $requestPath = $this->getRequestPath($requestName, $modelName);
         if (file_exists($requestPath)) {
-            $this->line("<info>$requestName Already Exist</info>");
+            $this->error("$requestName Already Exist");
             return;
         }
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $requestPath,
             __DIR__ . '/stubs/request.stub'
         );
 
         $this->formatFile($requestPath);
-        $this->line("<info>Created request:</info> $requestName");
+        $this->info("Created request: $requestName");
     }
 
     private function getRequestName($modelName): string
@@ -136,7 +136,7 @@ class MakeRequest extends Command
     {
         $directory = base_path(config('repository.request_path'))."/$modelName";
 
-        $this->ensureDirectoryExists($directory);
+        ensureDirectoryExists($directory);
 
         return $directory . "/$requestName" . '.php';
     }

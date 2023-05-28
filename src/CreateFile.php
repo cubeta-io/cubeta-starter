@@ -9,6 +9,7 @@ use Illuminate\Filesystem\Filesystem;
 
 class CreateFile
 {
+    private static $instance;
     /**
      * The path to create file at
      *
@@ -37,26 +38,22 @@ class CreateFile
      */
     protected FileSystem $files;
 
-    /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    public function __construct(array $stubProperties, string $path, string $stubPath)
+    private function __construct()
     {
-        $this->stubPath = $stubPath;
-        $this->stubProperties = $stubProperties;
-        $this->path = $path;
-        $this->files = app()->make(Filesystem::class);
-        $this->fileExists();
-        $this->createStub();
+        //
     }
 
     /**
-     * Check if file already exists
+     * @return void
+     * @throws Exception
      */
     private function fileExists(): void
     {
-        $this->files->exists($this->path) ? new Exception('The class exists!') : false;
+        if ($this->files->exists($this->path)) {
+            throw new Exception('The class exists!');
+        } else {
+            return;
+        }
     }
 
     /**
@@ -94,10 +91,70 @@ class CreateFile
     /**
      * Write to the file specified in the path
      *
-     * @param  string|mixed  $stub
+     * @param string|mixed $stub
      */
     private function writeFile(mixed $stub): void
     {
         $this->files->put($this->path, $stub);
+    }
+
+    public static function resetInstance(): void
+    {
+        self::$instance = null;
+    }
+
+    /**
+     * @return CreateFile
+     */
+    static function make(): CreateFile
+    {
+        if (self::$instance == null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * @param $path
+     * @return $this
+     */
+    public function setPath($path): static
+    {
+        $this->path = $path;
+        return $this;
+    }
+
+    /**
+     * @param $stubProperties
+     * @return $this
+     */
+    public function setStubProperties($stubProperties): static
+    {
+        $this->stubProperties = $stubProperties;
+        return $this;
+    }
+
+    /**
+     * @param $stubPath
+     * @return $this
+     */
+    public function setStubPath($stubPath): static
+    {
+        $this->stubPath = $stubPath;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     * @throws Exception
+     */
+    public function callFileGenerateFunctions(): static
+    {
+        $this->files = app()->make(Filesystem::class);
+        $this->fileExists();
+        $this->createStub();
+        return $this;
     }
 }

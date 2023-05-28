@@ -43,17 +43,18 @@ class MakeSeeder extends Command
 
         $seederPath = $this->getSeederPath($seederName);
         if (file_exists($seederPath)) {
+            $this->error("$seederName Already Exist");
             return;
         }
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $seederPath,
             __DIR__ . '/stubs/seeder.stub'
         );
 
         $this->formatFile($seederPath);
-        $this->line("<info>Created seeder:</info> $seederName");
+        $this->info("Created seeder: $seederName");
     }
 
     private function getSeederName($modelName): string
@@ -64,7 +65,7 @@ class MakeSeeder extends Command
     private function getSeederPath($seederName): string
     {
         $directory = base_path(config('repository.seeder_path'));
-        $this->ensureDirectoryExists($directory);
+        ensureDirectoryExists($directory);
         return "$directory/$seederName.php";
     }
 }

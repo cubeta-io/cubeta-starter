@@ -47,7 +47,7 @@ class MakeMigration extends Command
         $migrationName = $this->getMigrationName($modelName);
 
         if ($this->checkIfMigrationExists($tableName)) {
-            $this->line("$migrationName Already Exist");
+            $this->error("$migrationName Already Exist");
             return;
         }
 
@@ -57,23 +57,24 @@ class MakeMigration extends Command
         ];
         $migrationPath = $this->getMigrationsPath($migrationName);
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $migrationPath,
             __DIR__ . '/stubs/migration.stub'
         );
 
         $this->formatFile($migrationPath);
-        $this->line("<info>Created migration:</info> $migrationName");
+        $this->info("Created migration: $migrationName");
     }
 
     /**
-     * @throws BindingResolutionException
+     * @param $migrationName
+     * @return string
      */
     private function getMigrationsPath($migrationName): string
     {
         $path = config('repository.migration_path');
-        $this->ensureDirectoryExists($path);
+        ensureDirectoryExists($path);
         return "$path/$migrationName" . '.php';
     }
 

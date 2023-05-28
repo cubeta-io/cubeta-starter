@@ -42,23 +42,23 @@ class MakeController extends Command
         $stubProperties = [
             '{namespace}' => config('repository.api_controller_namespace'),
             '{modelName}' => $modelName,
-            '{modelNameLower}' => strtolower($modelName),
+            '{variableNaming}' => variableNaming($modelName),
         ];
 
         $controllerName = controllerNaming($modelName);
         $controllerPath = $this->getControllerPath($controllerName);
 
         if (file_exists($controllerPath)) {
-            $this->line("<info>$controllerName Already Exist</info>");
+            $this->error("$controllerName Already Exist");
             return;
         }
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $controllerPath,
             __DIR__ . '/stubs/controller.api.stub'
         );
-        $this->line("<info>Created controller:</info> $controllerName");
+        $this->info("Created controller: $controllerName");
         $this->addRoute($modelName, $actor);
         $this->formatFile($controllerPath);
     }
@@ -70,7 +70,7 @@ class MakeController extends Command
     private function getControllerPath($controllerName): string
     {
         $path = base_path(config('repository.api_controller_path'));
-        $this->ensureDirectoryExists($path);
+        ensureDirectoryExists($path);
         return "$path/$controllerName" . '.php';
     }
 }

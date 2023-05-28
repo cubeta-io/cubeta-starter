@@ -15,20 +15,20 @@ class InstallNpmPackages extends Command
 
     public function handle(): void
     {
-        $this->line("installing laravel-datatables-vite");
+        $this->info("installing laravel-datatables-vite");
         $this->executeCommandInTheBaseDirectory("npm i laravel-datatables-vite --save-dev");
-        $this->line("installing jquery");
+        $this->info("installing jquery");
         $this->executeCommandInTheBaseDirectory("npm install jquery --save-dev");
-        $this->line("installing bootstrap 5.2.3");
+        $this->info("installing bootstrap 5.2.3");
         $this->executeCommandInTheBaseDirectory("npm install bootstrap@v5.2.3 --save-dev");
-        $this->line("installing select2");
+        $this->info("installing select2");
         $this->executeCommandInTheBaseDirectory("npm i select2 --save-dev");
         $this->executeCommandInTheBaseDirectory("npm install select2-bootstrap-5-theme");
-        $this->line("installing baguettebox");
+        $this->info("installing baguettebox");
         $this->executeCommandInTheBaseDirectory("npm i baguettebox.js --save-dev");
-        $this->line("installing trumbowyg");
+        $this->info("installing trumbowyg");
         $this->executeCommandInTheBaseDirectory("npm i trumbowyg --save-dev");
-        $this->line("installing sweetalert2");
+        $this->info("installing sweetalert2");
         $this->executeCommandInTheBaseDirectory("npm i sweetalert2 --save-dev");
     }
 }

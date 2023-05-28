@@ -51,17 +51,18 @@ class MakeTest extends Command
 
         $testPath = $this->getTestPath($testName);
         if (file_exists($testPath)) {
+            $this->error("$testName Already Exist");
             return;
         }
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $testPath,
             __DIR__ . '/stubs/test.stub'
         );
 
         $this->formatFile($testPath);
-        $this->line("<info>Created Test:</info> $testName");
+        $this->info("<info>Created Test:</info> $testName");
     }
 
     /**
@@ -72,7 +73,7 @@ class MakeTest extends Command
     {
         $directory = base_path(config('repository.test_path'));
 
-        $this->ensureDirectoryExists($directory);
+        ensureDirectoryExists($directory);
 
         return $directory . "/$testName" . '.php';
     }

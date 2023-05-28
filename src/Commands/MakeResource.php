@@ -51,18 +51,18 @@ class MakeResource extends Command
         $resourcePath = $this->getResourcePath($resourceName);
 
         if (file_exists($resourcePath)) {
-            $this->line("<info>$resourceName Already Exist</info>");
+            $this->error("$resourceName Already Exist");
             return;
         }
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $resourcePath,
             __DIR__ . '/stubs/resource.stub'
         );
 
         $this->formatFile($resourcePath);
-        $this->line("<info>Created resource:</info> $resourceName");
+        $this->info("Created resource: $resourceName");
     }
 
     private function getResourceName($modelName): string
@@ -104,7 +104,7 @@ class MakeResource extends Command
     {
         $directory = base_path(config('repository.resource_path'));
 
-        $this->ensureDirectoryExists($directory);
+        ensureDirectoryExists($directory);
 
         return $directory . "/$ResourceName" . '.php';
     }

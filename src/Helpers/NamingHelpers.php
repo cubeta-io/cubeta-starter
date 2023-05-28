@@ -24,6 +24,8 @@ function lowerPluralName(string $string): string
 
 /**
  * return the name based on name convention for tables
+ * @param $name
+ * @return string
  */
 function tableNaming($name): string
 {
@@ -32,6 +34,8 @@ function tableNaming($name): string
 
 /**
  * return the name based on name convention for models
+ * @param $name
+ * @return string
  */
 function modelNaming($name): string
 {
@@ -49,6 +53,8 @@ function controllerNaming($modelName): string
 
 /**
  * return the name based on name convention for routes
+ * @param $name
+ * @return string
  */
 function routeUrlNaming($name): string
 {
@@ -57,6 +63,9 @@ function routeUrlNaming($name): string
 
 /**
  * return the name based on name convention for relation functions in the models
+ * @param $name
+ * @param bool $singular
+ * @return string
  */
 function relationFunctionNaming($name, bool $singular = true): string
 {
@@ -65,7 +74,6 @@ function relationFunctionNaming($name, bool $singular = true): string
     } else {
         return Str::camel(lcfirst(Str::plural(Str::studly($name))));
     }
-
 }
 
 

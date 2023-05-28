@@ -32,7 +32,7 @@ return [
      * api controller path and namespace
      */
     'api_controller_namespace' => 'App\Http\Controllers\API\v1',
-    'api_controller_path' => 'app/Http/API/v1',
+    'api_controller_path' => 'app/Http/Controllers/API/v1',
 
     /**
      * model path and namespace

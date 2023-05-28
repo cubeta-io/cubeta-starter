@@ -42,13 +42,13 @@ trait RouteBinding
             }
 
             if (file_put_contents($routePath, $route, FILE_APPEND)) {
-                $this->line('<info>Controller Route Appended Successfully</info>');
+                $this->info('Controller Route Appended Successfully');
                 $this->formatFile($routePath);
             } else {
-                $this->line('<info>Failed to Append a Route For This Controller</info>');
+                $this->error('Failed to Append a Route For This Controller');
             }
         } else {
-            $this->line("<danger>Actor Routes Files Doesn't exist</danger>");
+            $this->error("Actor Routes Files Doesn't exist");
         }
     }
 

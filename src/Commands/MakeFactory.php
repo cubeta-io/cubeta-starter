@@ -67,7 +67,7 @@ class MakeFactory extends Command
 
         $factoryPath = $this->getFactoryPath($factoryName);
         if (file_exists($factoryPath)) {
-            $this->line("<info>$factoryName Already Exist</info>");
+            $this->error("$factoryName Already Exist");
             return;
         }
 
@@ -78,13 +78,13 @@ class MakeFactory extends Command
             '//relationFactories' => $factoryAttributes['relatedFactories'],
         ];
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $factoryPath,
             __DIR__ . '/stubs/factory.stub'
         );
         $this->formatFile($factoryPath);
-        $this->line("<info>Created factory:</info> $factoryName");
+        $this->info("Created factory: $factoryName");
     }
 
     private function getFactoryName($modelName): string
@@ -244,7 +244,7 @@ class MakeFactory extends Command
     private function getFactoryPath($factoryName): string
     {
         $factoryDirectory = base_path(config('repository.factory_path'));
-        $this->ensureDirectoryExists($factoryDirectory);
+        ensureDirectoryExists($factoryDirectory);
         return "$factoryDirectory/$factoryName.php";
     }
 }

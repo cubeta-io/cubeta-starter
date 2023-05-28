@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 
 class MakePostmanCollection extends Command
 {
@@ -29,6 +30,9 @@ class MakePostmanCollection extends Command
     }
 
     /**
+     * @param $modelName
+     * @param $attributes
+     * @return void
      * @throws BindingResolutionException
      */
     private function createPostmanCollection($modelName, $attributes): void
@@ -37,7 +41,7 @@ class MakePostmanCollection extends Command
         $endpoint = '/' . routeUrlNaming($modelName);
         $projectName = config('repository.project_name');
         $collectionDirectory = base_path(config('repository.postman_collection _path'));
-        $this->ensureDirectoryExists($collectionDirectory);
+        ensureDirectoryExists($collectionDirectory);
         $collectionPath = "$collectionDirectory/$projectName.postman_collection.json";
 
         $files = app()->make(Filesystem::class);
@@ -54,13 +58,20 @@ class MakePostmanCollection extends Command
 
         $crudStub = file_get_contents(__DIR__ . '/stubs/postman-crud.stub');
 
-        $crudStub = str_replace(['{modelName}', '{indexRoute}', '{showRoute}', '{storeRoute}', '{updateRoute}', '{deleteRoute}', '{formData}'],
+        $crudStub = str_replace(
+            ['{modelName}', '{indexRoute}', '{showRoute}', '{storeRoute}', '{updateRoute}', '{deleteRoute}', '{formData}'],
             $stubProperties,
             $crudStub
         );
 
         if ($files->exists($collectionPath)) {
             $collection = file_get_contents($collectionPath);
+
+            if (Str::contains(preg_replace('/\s+/', '', $collection), trim("\"name\":\"$modelName\","))) {
+                $this->error("An endpoint for " . $modelName . "Controller is already exist in the Postman collection");
+                return;
+            }
+
             $collection = str_replace('"// add-your-cruds-here"', $crudStub, $collection);
             file_put_contents($collectionPath, $collection);
         } else {
@@ -69,7 +80,7 @@ class MakePostmanCollection extends Command
             file_put_contents($collectionPath, $collectionStub);
         }
 
-        $this->line("<info>Created Postman Collection:</info> $projectName.postman_collection.json ");
+        $this->info("Created Postman Collection: $projectName.postman_collection.json ");
     }
 
     public function generateBodyData($attributes): string

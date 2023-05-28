@@ -126,23 +126,21 @@ class MakeModel extends Command
 
         $modelPath = $this->getModelPath($className);
         if (file_exists($modelPath)) {
-            $this->line("<info>$className Model Already Exists</info>");
+            $this->error("$className Model Already Exists");
             return;
         }
 
         // create file
-        new CreateFile(
-            $stubProperties,
-            $modelPath,
-            __DIR__ . '/stubs/model.stub'
-        );
+        CreateFile::make($stubProperties, $modelPath, __DIR__ . '/stubs/model.stub');
 
         $this->formatFile($modelPath);
-        $this->line("<info>Created model:</info> $className");
+        $this->info("Created model: $className");
     }
 
     /**
-     * @throws BindingResolutionException
+     * @param $attributes
+     * @param $modelName
+     * @return string
      */
     private function getModelImage($attributes, $modelName): string
     {
@@ -155,7 +153,7 @@ class MakeModel extends Command
                     return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
                 }\n";
 
-            $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
+            ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
         }
 
         return $file;
@@ -216,7 +214,7 @@ class MakeModel extends Command
                 $table = $this->ask('What is the name of the related model table ? ');
 
                 while (empty(trim($table))) {
-                    $this->line('<fg=red>Invalid Input</fg=red>');
+                    $this->error('Invalid Input');
                     $table = $this->ask('What is the name of the related model table ? ');
                 }
 
@@ -251,7 +249,7 @@ class MakeModel extends Command
                 $table = $this->ask('What is the name of the related model table ? ');
 
                 while (empty(trim($table))) {
-                    $this->line('<fg=red>Invalid Input</fg=red>');
+                    $this->error('Invalid Input');
                     $table = $this->ask('What is the name of the related model table ? ');
                 }
 
@@ -330,12 +328,11 @@ class MakeModel extends Command
     /**
      * @param $className
      * @return string
-     * @throws BindingResolutionException
      */
     private function getModelPath($className): string
     {
         $modelDirectory = base_path(config('repository.model_path'));
-        $this->ensureDirectoryExists($modelDirectory);
+        ensureDirectoryExists($modelDirectory);
         return "$modelDirectory/$className.php";
     }
 
@@ -392,7 +389,7 @@ class MakeModel extends Command
         $paramsString = $this->ask('Enter your params like "name,started_at,..."');
 
         while (empty(trim($paramsString))) {
-            $this->line('<fg=red>Invalid Input</fg=red>');
+            $this->error('Invalid Input');
             $paramsString = $this->ask('Enter your params like "name,started_at,..."');
         }
 

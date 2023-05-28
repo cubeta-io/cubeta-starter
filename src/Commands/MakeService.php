@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -48,27 +47,27 @@ class MakeService extends Command
             "{namespace}" => $namespace
         ];
 
-        $servicePath = $this->getServicePath($serviceName);
+        $servicePath = $this->getServicePath($serviceName, $modelName);
         if (file_exists($servicePath)) {
-            $this->line("<info>$serviceName Already Exist</info>");
+            $this->error("$serviceName Already Exist");
             return;
         }
 
         // create file
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $servicePath,
             __DIR__ . '/stubs/service.stub'
         );
 
         $this->formatFile($servicePath);
-        $this->line("<info>Created Service:</info> $serviceName");
+        $this->info("Created Service: $serviceName");
     }
 
-    private function getServicePath($serviceName): string
+    private function getServicePath(string $serviceName, string $modelName): string
     {
-        $directory = base_path(config('repository.service_path'));
-        $this->ensureDirectoryExists($directory);
+        $directory = base_path(config('repository.service_path')) . "/$modelName";
+        ensureDirectoryExists($directory);
         return "$directory/$serviceName.php";
     }
 
@@ -84,25 +83,31 @@ class MakeService extends Command
             '{modelName}' => $modelName,
         ];
 
-        $serviceInterfacePath = $this->getServiceInterfacePath($modelName);
+        $serviceInterfacePath = $this->getServiceInterfacePath($serviceInterfaceName, $modelName);
         if (file_exists($serviceInterfacePath)) {
+            $this->error("$serviceInterfaceName Already Exist");
             return;
         }
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $serviceInterfacePath,
             __DIR__ . '/stubs/service-interface.stub'
         );
 
         $this->formatFile($serviceInterfacePath);
-        $this->line("<info>Created Service Interface:</info> $serviceInterfaceName");
+        $this->info("Created Service Interface: $serviceInterfaceName");
     }
 
-    private function getServiceInterfacePath($serviceInterfaceName): string
+    /**
+     * @param string $serviceInterfaceName
+     * @param string $modelName
+     * @return string
+     */
+    private function getServiceInterfacePath(string $serviceInterfaceName, string $modelName): string
     {
-        $directory = base_path(config('repository.service_path'));
-        $this->ensureDirectoryExists($directory);
+        $directory = base_path(config('repository.service_path')) . "/$modelName";
+        ensureDirectoryExists($directory);
         return "$directory/$serviceInterfaceName.php";
     }
 }

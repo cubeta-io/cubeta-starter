@@ -9,17 +9,17 @@ use App\Services\{modelName}\I{modelName}Service;
 
 class {modelName}Controller extends ApiController{
 
-    private ${modelNameLower}Service;
+    private ${variableNaming}Service;
 
-    public function __construct(I{modelName}Service ${modelNameLower}Service) {
+    public function __construct(I{modelName}Service ${variableNaming}Service) {
 
-        $this->{modelNameLower}Service = ${modelNameLower}Service;
+        $this->{variableNaming}Service = ${variableNaming}Service;
 
     }
 
      public function index()
     {
-        $items = $this->{modelNameLower}Service->indexWithPagination([]);
+        $items = $this->{variableNaming}Service->indexWithPagination([]);
         if ($items) {
             return $this->apiResponse({modelName}Resource::collection($items['data']), self::STATUS_OK, __('site.get_successfully'), $items['pagination_data']);
         }
@@ -27,9 +27,9 @@ class {modelName}Controller extends ApiController{
         return $this->apiResponse([], self::STATUS_OK, __('site.there_is_no_data'));
     }
 
-    public function show(${modelNameLower}_id)
+    public function show(${variableNaming}_id)
     {
-        $item = $this->{modelNameLower}Service->view(${modelNameLower}_id, []);
+        $item = $this->{variableNaming}Service->view(${variableNaming}_id, []);
         if ($item) {
             return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.get_successfully'));
         }
@@ -39,7 +39,7 @@ class {modelName}Controller extends ApiController{
 
     public function store(StoreUpdate{modelName}Request $request)
     {
-        $item = $this->{modelNameLower}Service->store($request->validated() , []);
+        $item = $this->{variableNaming}Service->store($request->validated() , []);
         if ($item) {
             return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.created_successfully'));
         }
@@ -47,9 +47,9 @@ class {modelName}Controller extends ApiController{
         return $this->apiResponse(null, self::STATUS_OK, __('site.there_is_no_data'));
     }
 
-    public function update(${modelNameLower}_id, StoreUpdate{modelName}Request $request)
+    public function update(${variableNaming}_id, StoreUpdate{modelName}Request $request)
     {
-        $item = $this->{modelNameLower}Service->update($request->validated(), ${modelNameLower}_id);
+        $item = $this->{variableNaming}Service->update($request->validated(), ${variableNaming}_id);
         if ($item) {
             return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.updated_successfully'));
         }
@@ -57,9 +57,9 @@ class {modelName}Controller extends ApiController{
         return $this->apiResponse(null, self::STATUS_OK, __('site.there_is_no_data'));
     }
 
-    public function destroy(${modelNameLower}_id)
+    public function destroy(${variableNaming}_id)
     {
-        $item = $this->{modelNameLower}Service->delete(${modelNameLower}_id);
+        $item = $this->{variableNaming}Service->delete(${variableNaming}_id);
         if ($item) {
             return $this->apiResponse(true, self::STATUS_OK, __('site.delete_successfully'));
         }

@@ -48,25 +48,25 @@ class MakeRepository extends Command
         $repositoryPath = $this->getRepositoryPath($repositoryName);
 
         if (file_exists($repositoryPath)) {
-            $this->line("<info>$repositoryName Already Exist</info>");
+            $this->error("$repositoryName Already Exist");
             return;
         }
 
         // create file
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $repositoryPath,
             __DIR__ . '/stubs/repository.stub'
         );
 
         $this->formatFile($repositoryPath);
-        $this->line("<info>Created Repository:</info> $repositoryName");
+        $this->info("Created Repository: $repositoryName");
     }
 
     private function getRepositoryPath($repositoryName): string
     {
         $directory = base_path(config('repository.repository_path'));
-        $this->ensureDirectoryExists($directory);
+        ensureDirectoryExists($directory);
         return "$directory/$repositoryName.php";
     }
 }

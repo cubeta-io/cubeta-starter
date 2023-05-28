@@ -20,7 +20,8 @@
     },
     "autoload": {
         "files": [
-            "src/Helpers/NamingHelpers.php"
+            "src/Helpers/NamingHelpers.php",
+            "src/Helpers/FilesHelper.php"
         ],
         "psr-4": {
             "Cubeta\\CubetaStarter\\": "src/"

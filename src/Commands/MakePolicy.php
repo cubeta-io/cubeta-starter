@@ -47,21 +47,21 @@ class MakePolicy extends Command
 
         $policyPath = $this->getPolicyPath($policyName);
         if (file_exists($policyPath)) {
-            $this->line("<info>$policyName Already Exist</info>");
+            $this->error("$policyName Already Exist");
             return;
         }
 
-        $this->ensureDirectoryExists($policyPath);
+        ensureDirectoryExists($policyPath);
 
         // create file
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $policyPath,
             __DIR__ . '/stubs/policy.stub'
         );
 
         $this->formatFile($policyPath);
-        $this->line("<info>Created Policy:</info> $policyName");
+        $this->info("Created Policy: $policyName");
     }
 
     /**
@@ -72,7 +72,7 @@ class MakePolicy extends Command
     public function getPolicyPath(string $policyName): string
     {
         $directory = base_path(config('repository.policy_path'));
-        $this->ensureDirectoryExists($directory);
+        ensureDirectoryExists($directory);
         return "$directory/$policyName.php";
     }
 }

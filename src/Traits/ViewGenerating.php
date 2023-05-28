@@ -32,7 +32,7 @@ trait ViewGenerating
             "{submitRoute}" => $storeRoute ?? $updateRoute,
             "{components}" => $inputs,
             "{method}" => $updateRoute ? 'PUT' : 'POST',
-            "{updateParameter}" => $updateRoute ? ", \$$modelVariable"."->id" : ''
+            "{updateParameter}" => $updateRoute ? ", \$$modelVariable" . "->id" : ''
         ];
 
         $formDirectory = base_path("resources/views/dashboard/$lowerPluralModelName/" . strtolower($createdForm) . ".blade.php");
@@ -42,17 +42,17 @@ trait ViewGenerating
         }
 
         if (file_exists($formDirectory)) {
-            echo(" \n $createdForm Form Already Created \n");
+            $this->error("$createdForm Form Already Created");
             return;
         }
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $formDirectory,
             __DIR__ . "/../Commands/stubs/views/form.stub"
         );
 
-        echo(" \n $createdForm form for $lowerPluralModelName created \n");
+        $this->info("$createdForm form for $lowerPluralModelName created");
     }
 
     /**
@@ -165,17 +165,17 @@ trait ViewGenerating
         }
 
         if (file_exists($showDirectory)) {
-            echo(" \n Show View Already Created \n");
+            $this->error(" \n Show View Already Created \n");
             return;
         }
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $showDirectory,
             __DIR__ . "/../Commands/stubs/views/show.stub"
         );
 
-        echo(" \n show view for $lowerPluralModelName created \n");
+        $this->info("show view for $lowerPluralModelName created");
     }
 
     /**
@@ -230,17 +230,17 @@ trait ViewGenerating
         }
 
         if (file_exists($indexDirectory)) {
-            echo(" \n Index View Already Created \n");
+            $this->error("Index View Already Created");
             return;
         }
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $indexDirectory,
             __DIR__ . "/../Commands/stubs/views/index.stub"
         );
 
-        echo(" \n index view for $lowerPluralModelName created \n");
+        $this->info("index view for $lowerPluralModelName created");
     }
 
     /**
@@ -257,7 +257,7 @@ trait ViewGenerating
             $label = $this->getLabelName($attribute);
             $html .= "\n<th>$label</th>\n";
             if ($type == 'file') {
-                $json.="{\"data\": \"$attribute\", \"render\": function (data) {return '<img src=\"' + data + '\" width=\"40px\">';}}, \n";
+                $json .= "{\"data\": \"$attribute\", \"render\": function (data) {return '<img src=\"' + data + '\" width=\"40px\">';}}, \n";
             } else $json .= "{\"data\": '$attribute', searchable: true, orderable: true}, \n";
 
         }

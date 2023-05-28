@@ -52,15 +52,15 @@ class CreatePivotTable extends Command
 
         $date = Carbon::now()->addSecond()->format('Y_m_d_His');
 
-        $migrationPath = $this->getPivotPath($date , $migrationName);
+        $migrationPath = $this->getPivotPath($date, $migrationName);
 
         $className1 = modelNaming($table1);
         $className2 = modelNaming($table2);
 
-        $this->ensureDirectoryExists(base_path(config('repository.migration_path')));
+        ensureDirectoryExists(base_path(config('repository.migration_path')));
 
         if (file_exists($migrationPath)) {
-            $this->line("<info>The Pivot Table Migration For <fg=red>$className1</fg=red> And <fg=red>$className2</fg=red> Exists</info>");
+            $this->info("The Pivot Table Migration For <fg=red>$className1</fg=red> And <fg=red>$className2</fg=red> Exists");
         }
 
         $stubProperties = [
@@ -69,13 +69,13 @@ class CreatePivotTable extends Command
             '{className2}' => $className2
         ];
 
-        new CreateFile(
+        generateFileFromStub(
             $stubProperties,
             $migrationPath,
             __DIR__ . '/stubs/pivot-migration.stub'
         );
 
-        $this->line("<info>Pivot Table For $className1 and $className2 Created</info>");
+        $this->info("Pivot Table For $className1 and $className2 Created");
 
         $this->formatFile($migrationPath);
     }
@@ -85,7 +85,7 @@ class CreatePivotTable extends Command
      * @param string $migrationName
      * @return string
      */
-    public function getPivotPath(string $date , string $migrationName): string
+    public function getPivotPath(string $date, string $migrationName): string
     {
         return base_path(config('repository.migration_path') . '/' . $date . '_' . $migrationName . '.php');
     }

@@ -51,18 +51,18 @@ class InitialProject extends Command
             $actorsNumber = $this->ask('How Many Are They  ?', 2);
 
             while (empty(trim($actorsNumber))) {
-                $this->line('<fg=red>Invalid Input</fg=red>');
+                $this->error('Invalid Input');
                 $actorsNumber = $this->ask('How Many Are They  ?', 2);
             }
 
             for ($i = 0; $i < $actorsNumber; $i++) {
 
-                $this->line("<info>Actor Number : $i</info>");
+                $this->info("Actor Number : $i");
 
                 $role = $this->ask('What Is The Name Of This Actor ?  eg:admin,customer');
 
                 while (empty(trim($role))) {
-                    $this->line('<fg=red>Invalid Input</fg=red>');
+                    $this->error('Invalid Input');
                     $role = $this->ask('What Is The Name Of This Actor ?  eg:admin,customer');
                 }
 
@@ -73,7 +73,7 @@ class InitialProject extends Command
                     $permissionsString = $this->ask("What Are The Permissions For This Actor \n <info>Please Note That You Have To Type Them like This : \n</info> can-edit , can-read , can publish , ....");
 
                     while (empty(trim($permissionsString))) {
-                        $this->line('<fg=red>Invalid Input</fg=red>');
+                        $this->error('Invalid Input');
                         $permissionsString = $this->ask("What Are The Permissions For This Actor \n <info>Please Note That You Have To Type Them like This : \n</info> can-edit , can-read , can publish , ....");
                     }
 
@@ -86,7 +86,7 @@ class InitialProject extends Command
                     $this->addApiFile($role);
                     $this->createRoleSeeder();
                     $this->createPermissionSeeder();
-                    $this->line("<info>$role role created successfully</info>");
+                    $this->info("$role role created successfully");
                 }
 
             }
@@ -152,7 +152,7 @@ class InitialProject extends Command
                 // Write the modified contents back to the file
                 file_put_contents($enumDirectory . 'RolesPermissionEnum.php', $enumFileContent);
             } else {
-                $this->line("<info>The role : $role already exists</info>");
+                $this->info("The role : $role already exists");
                 $this->roleExist = true;
             }
         } else {
@@ -188,9 +188,9 @@ class InitialProject extends Command
         $apiPath = base_path() . '\routes\\' . $apiFile;
 
         !(File::makeDirectory(dirname($apiPath), 0777, true, true)) ??
-        $this->line('<info>Failed To Create Your Route Specified Directory</info>');
+        $this->error('Failed To Create Your Route Specified Directory');
 
-        new CreateFile(
+        generateFileFromStub(
             ['{route}' => '//add-your-routes-here'],
             $apiPath,
             __DIR__ . '/stubs/api.stub'
@@ -229,7 +229,7 @@ class InitialProject extends Command
      */
     public function createRoleSeeder(): void
     {
-        new CreateFile(
+        generateFileFromStub(
             ['{namespace}' => config('repository.seeder_namespace')],
             base_path(config('repository.seeder_path').'/RoleSeeder.php') ,
             __DIR__ . '/stubs/PermissionSeeder.stub'
@@ -242,7 +242,7 @@ class InitialProject extends Command
      */
     public function createPermissionSeeder(): void
     {
-        new CreateFile(
+        generateFileFromStub(
             ['{namespace}' => config('repository.seeder_namespace')],
             base_path(config('repository.seeder_path').'/PermissionSeeder.php') ,
             __DIR__ . '/stubs/PermissionSeeder.stub'
@@ -253,7 +253,7 @@ class InitialProject extends Command
      */
     public function editExceptionHandler(): void
     {
-        $this->line("We have an exception handler for you and it will replace <fg=yellow>app/Exceptions/handler.php</fg=yellow> file with a file of the same name");
+        $this->warn("We have an exception handler for you and it will replace <fg=red>app/Exceptions/handler.php</fg=red> file with a file of the same name");
         $useHandler = $this->choice("<info>Do you want us to do that ? <fg=yellow>(note : the created feature tests depends on our handler)</fg=yellow></info>", ['No', 'Yes'], 'Yes');
 
         if ($useHandler == 'No') {
@@ -268,7 +268,7 @@ class InitialProject extends Command
         file_put_contents($handlerPath, $handlerStub);
         $this->formatFile($handlerPath);
 
-        $this->line('<info>Your handler file in <fg=red>app/Exceptions/handler.php</fg=red> has been initialized</info>');
+        $this->info("Your handler file in <fg=yellow>app/Exceptions/handler.php</fg=yellow> has been initialized");
     }
 
     /**
@@ -276,13 +276,13 @@ class InitialProject extends Command
      */
     public function installSpatie(): void
     {
-        $install = $this->choice("</info>Using multi actors need to install <fg=red>spatie/permission</fg=red> do you want to install it ? </info>", ['No', 'Yes'], 'No');
+        $install = $this->choice("</info>Using multi actors need to install <fg=yellow>spatie/permission</fg=yellow> do you want to install it ? </info>", ['No', 'Yes'], 'No');
         if ($install == 'Yes') {
-            $this->line('<info>Please wait until spatie/laravel-permission installed</info>');
+            $this->info('Please wait until spatie/laravel-permission installed');
             $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
             $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
             $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
-            $this->line("<info>Don't forgot to run <fg=blue>php artisan migrate</fg=blue></info>");
+            $this->warn("Don't forgot to run php artisan migrate");
         }
     }
 
