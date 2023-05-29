@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -40,7 +39,7 @@ class MakeRequest extends Command
         $requestName = $this->getRequestName($modelName);
 
         $stubProperties = [
-            "{namespace}" => config('repository.request_namespace') . "\\$modelName",
+            '{namespace}' => config('repository.request_namespace')."\\$modelName",
             '{class}' => $modelName,
             '{rules}' => $this->generateCols($attributes),
         ];
@@ -48,13 +47,14 @@ class MakeRequest extends Command
         $requestPath = $this->getRequestPath($requestName, $modelName);
         if (file_exists($requestPath)) {
             $this->error("$requestName Already Exist");
+
             return;
         }
 
         generateFileFromStub(
             $stubProperties,
             $requestPath,
-            __DIR__ . '/stubs/request.stub'
+            __DIR__.'/stubs/request.stub'
         );
 
         $this->formatFile($requestPath);
@@ -63,7 +63,7 @@ class MakeRequest extends Command
 
     private function getRequestName($modelName): string
     {
-        return 'StoreUpdate' . $modelName . 'Request';
+        return 'StoreUpdate'.$modelName.'Request';
     }
 
     private function generateCols($attributes): string
@@ -127,17 +127,12 @@ class MakeRequest extends Command
         return $rules;
     }
 
-    /**
-     * @param $requestName
-     * @param $modelName
-     * @return string
-     */
     private function getRequestPath($requestName, $modelName): string
     {
-        $directory = base_path(config('repository.request_path')) . "/$modelName";
+        $directory = base_path(config('repository.request_path'))."/$modelName";
 
         ensureDirectoryExists($directory);
 
-        return $directory . "/$requestName" . '.php';
+        return $directory."/$requestName".'.php';
     }
 }

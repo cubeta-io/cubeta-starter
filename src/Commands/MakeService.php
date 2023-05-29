@@ -24,32 +24,30 @@ class MakeService extends Command
     {
         $name = $this->argument('name');
         $modelName = modelNaming($name);
-        $namespace = config('repository.service_namespace') . "\\$modelName";
+        $namespace = config('repository.service_namespace')."\\$modelName";
         $this->createService($modelName, $namespace);
         $this->createServiceInterface($modelName, $namespace);
     }
 
     /**
-     * @param string $modelName
-     * @param string $namespace
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
     private function createService(string $modelName, string $namespace): void
     {
-        $repositoryName = $modelName . 'Repository';
-        $serviceName = $modelName . 'Service';
+        $repositoryName = $modelName.'Repository';
+        $serviceName = $modelName.'Service';
 
         $stubProperties = [
             '{modelName}' => $modelName,
             '{repositoryName}' => $repositoryName,
-            "{namespace}" => $namespace
+            '{namespace}' => $namespace,
         ];
 
         $servicePath = $this->getServicePath($serviceName, $modelName);
         if (file_exists($servicePath)) {
             $this->error("$serviceName Already Exist");
+
             return;
         }
 
@@ -57,7 +55,7 @@ class MakeService extends Command
         generateFileFromStub(
             $stubProperties,
             $servicePath,
-            __DIR__ . '/stubs/service.stub'
+            __DIR__.'/stubs/service.stub'
         );
 
         $this->formatFile($servicePath);
@@ -66,8 +64,9 @@ class MakeService extends Command
 
     private function getServicePath(string $serviceName, string $modelName): string
     {
-        $directory = base_path(config('repository.service_path')) . "/$modelName";
+        $directory = base_path(config('repository.service_path'))."/$modelName";
         ensureDirectoryExists($directory);
+
         return "$directory/$serviceName.php";
     }
 
@@ -77,37 +76,34 @@ class MakeService extends Command
      */
     public function createServiceInterface(string $modelName, string $namespace): void
     {
-        $serviceInterfaceName = 'I' . $modelName . 'Service';
+        $serviceInterfaceName = 'I'.$modelName.'Service';
         $stubProperties = [
-            "{namespace}" => $namespace,
+            '{namespace}' => $namespace,
             '{modelName}' => $modelName,
         ];
 
         $serviceInterfacePath = $this->getServiceInterfacePath($serviceInterfaceName, $modelName);
         if (file_exists($serviceInterfacePath)) {
             $this->error("$serviceInterfaceName Already Exist");
+
             return;
         }
 
         generateFileFromStub(
             $stubProperties,
             $serviceInterfacePath,
-            __DIR__ . '/stubs/service-interface.stub'
+            __DIR__.'/stubs/service-interface.stub'
         );
 
         $this->formatFile($serviceInterfacePath);
         $this->info("Created Service Interface: $serviceInterfaceName");
     }
 
-    /**
-     * @param string $serviceInterfaceName
-     * @param string $modelName
-     * @return string
-     */
     private function getServiceInterfacePath(string $serviceInterfaceName, string $modelName): string
     {
-        $directory = base_path(config('repository.service_path')) . "/$modelName";
+        $directory = base_path(config('repository.service_path'))."/$modelName";
         ensureDirectoryExists($directory);
+
         return "$directory/$serviceInterfaceName.php";
     }
 }

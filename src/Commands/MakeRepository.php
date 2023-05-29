@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -36,7 +35,7 @@ class MakeRepository extends Command
     {
         $modelName = modelNaming($modelName);
 
-        $repositoryName = $modelName . 'Repository';
+        $repositoryName = $modelName.'Repository';
         $modelVar = variableNaming($modelName);
 
         $stubProperties = [
@@ -49,6 +48,7 @@ class MakeRepository extends Command
 
         if (file_exists($repositoryPath)) {
             $this->error("$repositoryName Already Exist");
+
             return;
         }
 
@@ -56,7 +56,7 @@ class MakeRepository extends Command
         generateFileFromStub(
             $stubProperties,
             $repositoryPath,
-            __DIR__ . '/stubs/repository.stub'
+            __DIR__.'/stubs/repository.stub'
         );
 
         $this->formatFile($repositoryPath);
@@ -67,6 +67,7 @@ class MakeRepository extends Command
     {
         $directory = base_path(config('repository.repository_path'));
         ensureDirectoryExists($directory);
+
         return "$directory/$repositoryName.php";
     }
 }

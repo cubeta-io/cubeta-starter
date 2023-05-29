@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -19,7 +18,6 @@ class MakeTest extends Command
     public $description = 'Create a new feature test';
 
     /**
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -32,19 +30,16 @@ class MakeTest extends Command
     }
 
     /**
-     * @param $modelName
-     * @param $actor
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
     private function createTest($modelName, $actor): void
     {
         $modelName = modelNaming($modelName);
-        $testName = $modelName."Test";
+        $testName = $modelName.'Test';
 
         $stubProperties = [
-            "{namespace}" => config('repository.test_namespace'),
+            '{namespace}' => config('repository.test_namespace'),
             '{modelName}' => $modelName,
             '{{actor}}' => $actor,
         ];
@@ -52,29 +47,26 @@ class MakeTest extends Command
         $testPath = $this->getTestPath($testName);
         if (file_exists($testPath)) {
             $this->error("$testName Already Exist");
+
             return;
         }
 
         generateFileFromStub(
             $stubProperties,
             $testPath,
-            __DIR__ . '/stubs/test.stub'
+            __DIR__.'/stubs/test.stub'
         );
 
         $this->formatFile($testPath);
         $this->info("<info>Created Test:</info> $testName");
     }
 
-    /**
-     * @param $testName
-     * @return string
-     */
     private function getTestPath($testName): string
     {
         $directory = base_path(config('repository.test_path'));
 
         ensureDirectoryExists($directory);
 
-        return $directory . "/$testName" . '.php';
+        return $directory."/$testName".'.php';
     }
 }

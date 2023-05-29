@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Console\Command;
@@ -50,27 +49,25 @@ class MakeController extends Command
 
         if (file_exists($controllerPath)) {
             $this->error("$controllerName Already Exist");
+
             return;
         }
 
         generateFileFromStub(
             $stubProperties,
             $controllerPath,
-            __DIR__ . '/stubs/controller.api.stub'
+            __DIR__.'/stubs/controller.api.stub'
         );
         $this->info("Created controller: $controllerName");
         $this->addRoute($modelName, $actor);
         $this->formatFile($controllerPath);
     }
 
-    /**
-     * @param $controllerName
-     * @return string
-     */
     private function getControllerPath($controllerName): string
     {
         $path = base_path(config('repository.api_controller_path'));
         ensureDirectoryExists($path);
-        return "$path/$controllerName" . '.php';
+
+        return "$path/$controllerName".'.php';
     }
 }

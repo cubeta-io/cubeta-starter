@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -44,13 +43,14 @@ class MakeSeeder extends Command
         $seederPath = $this->getSeederPath($seederName);
         if (file_exists($seederPath)) {
             $this->error("$seederName Already Exist");
+
             return;
         }
 
         generateFileFromStub(
             $stubProperties,
             $seederPath,
-            __DIR__ . '/stubs/seeder.stub'
+            __DIR__.'/stubs/seeder.stub'
         );
 
         $this->formatFile($seederPath);
@@ -59,13 +59,14 @@ class MakeSeeder extends Command
 
     private function getSeederName($modelName): string
     {
-        return $modelName . 'Seeder';
+        return $modelName.'Seeder';
     }
 
     private function getSeederPath($seederName): string
     {
         $directory = base_path(config('repository.seeder_path'));
         ensureDirectoryExists($directory);
+
         return "$directory/$seederName.php";
     }
 }

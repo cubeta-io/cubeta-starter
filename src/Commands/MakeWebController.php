@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\ViewGenerating;
@@ -48,11 +47,12 @@ class MakeWebController extends Command
     {
         $modelNameCamelCase = variableNaming($modelName);
 
-        $controllerName = $modelName . 'Controller';
+        $controllerName = $modelName.'Controller';
         $controllerPath = $this->getWebControllerPath($controllerName);
 
         if (file_exists($controllerPath)) {
             $this->error("$controllerName Already Exist");
+
             return;
         }
 
@@ -75,17 +75,17 @@ class MakeWebController extends Command
             '{createForm}' => $views['create'],
             '{indexView}' => $views['index'],
             '{showView}' => $views['show'],
-            '{editForm}' => $views['edit']
+            '{editForm}' => $views['edit'],
         ];
 
-        if (!is_dir(base_path('app/Http/Controllers/WEB/v1/'))) {
+        if (! is_dir(base_path('app/Http/Controllers/WEB/v1/'))) {
             mkdir(base_path('app/Http/Controllers/WEB/v1/'), 0777, true);
         }
 
         generateFileFromStub(
             $stubProperties,
             $controllerPath,
-            __DIR__ . '/stubs/controller.web.stub'
+            __DIR__.'/stubs/controller.web.stub'
         );
 
         $this->info("$controllerName Created");
@@ -93,60 +93,55 @@ class MakeWebController extends Command
     }
 
     /**
-     * @param string $modelName
-     * @param null $actor
+     * @param  null  $actor
      * @return string[]
      */
-    #[ArrayShape(['index' => "string", 'edit' => "string", 'create' => "string", 'show' => "string"])]
+    #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
     public function getViewsNames(string $modelName, $actor = null): array
     {
         $modelLowerPluralName = strtolower(Str::plural($modelName));
-        if (!isset($actor) || $actor == '' || $actor = 'none') {
+        if (! isset($actor) || $actor == '' || $actor = 'none') {
             return [
-                'index' => 'dashboard.' . $modelLowerPluralName . '.index',
-                'edit' => 'dashboard.' . $modelLowerPluralName . '.edit',
-                'create' => 'dashboard.' . $modelLowerPluralName . '.create',
-                'show' => 'dashboard.' . $modelLowerPluralName . '.show',
+                'index' => 'dashboard.'.$modelLowerPluralName.'.index',
+                'edit' => 'dashboard.'.$modelLowerPluralName.'.edit',
+                'create' => 'dashboard.'.$modelLowerPluralName.'.create',
+                'show' => 'dashboard.'.$modelLowerPluralName.'.show',
             ];
         } else {
             return [
-                'index' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.index',
-                'edit' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.edit',
-                'create' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.create',
-                'show' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.show',
+                'index' => 'dashboard.'.$actor.'.'.$modelLowerPluralName.'.index',
+                'edit' => 'dashboard.'.$actor.'.'.$modelLowerPluralName.'.edit',
+                'create' => 'dashboard.'.$actor.'.'.$modelLowerPluralName.'.create',
+                'show' => 'dashboard.'.$actor.'.'.$modelLowerPluralName.'.show',
             ];
         }
     }
 
     /**
-     * @param string $modelName
-     * @param $actor
      * @return string[]
      */
-    #[ArrayShape(['index' => "string", 'show' => "string", 'edit' => "string", 'destroy' => "string", 'store' => "string", 'create' => "string", 'data' => "string", 'update' => 'string'])]
+    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string'])]
     public function getRoutesNames(string $modelName, $actor = null): array
     {
         $baseRouteName = $this->getRouteName($modelName, 'web', $actor);
+
         return [
-            'index' => $baseRouteName . '.index',
-            'show' => $baseRouteName . '.show',
-            'edit' => $baseRouteName . '.edit',
-            'destroy' => $baseRouteName . '.destroy',
-            'store' => $baseRouteName . '.store',
-            'create' => $baseRouteName . '.create',
-            'data' => $baseRouteName . '.data',
-            'update' => $baseRouteName . '.update'
+            'index' => $baseRouteName.'.index',
+            'show' => $baseRouteName.'.show',
+            'edit' => $baseRouteName.'.edit',
+            'destroy' => $baseRouteName.'.destroy',
+            'store' => $baseRouteName.'.store',
+            'create' => $baseRouteName.'.create',
+            'data' => $baseRouteName.'.data',
+            'update' => $baseRouteName.'.update',
         ];
     }
 
-    /**
-     * @param string $controllerName
-     * @return string
-     */
     private function getWebControllerPath(string $controllerName): string
     {
         $directory = base_path(config('repository.web_controller_path'));
         ensureDirectoryExists($directory);
+
         return "$directory/$controllerName.php";
     }
 }

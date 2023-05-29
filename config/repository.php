@@ -4,7 +4,7 @@ return [
     /**
      * this project name will appear only in the created postman collection
      */
-    'project_name' => "CubetaStarter",
+    'project_name' => 'CubetaStarter',
 
     /**
      * postman collection path
@@ -52,7 +52,6 @@ return [
     'repository_namespace' => "App\Repositories",
     'repository_path' => 'app/Repositories',
 
-
     /**
      * requests path and namespace
      */
@@ -77,6 +76,6 @@ return [
     'test_namespace' => 'Tests\Feature',
     'test_path' => 'tests/Feature',
 
-    'web_controller_namespace' => 'App\Http\Controllers\WEB\v1' ,
-    'web_controller_path' => 'app/Http/Controllers/WEB/v1' ,
+    'web_controller_namespace' => 'App\Http\Controllers\WEB\v1',
+    'web_controller_path' => 'app/Http/Controllers/WEB/v1',
 ];

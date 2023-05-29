@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -29,8 +28,6 @@ class MakePolicy extends Command
     }
 
     /**
-     * @param $modelName
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -38,16 +35,17 @@ class MakePolicy extends Command
     {
         $modelName = modelNaming($modelName);
 
-        $policyName = $modelName . 'Policy';
+        $policyName = $modelName.'Policy';
 
         $stubProperties = [
-            "{namespace}" => config('repository.policy_namespace'),
+            '{namespace}' => config('repository.policy_namespace'),
             '{modelName}' => $modelName,
         ];
 
         $policyPath = $this->getPolicyPath($policyName);
         if (file_exists($policyPath)) {
             $this->error("$policyName Already Exist");
+
             return;
         }
 
@@ -57,7 +55,7 @@ class MakePolicy extends Command
         generateFileFromStub(
             $stubProperties,
             $policyPath,
-            __DIR__ . '/stubs/policy.stub'
+            __DIR__.'/stubs/policy.stub'
         );
 
         $this->formatFile($policyPath);
@@ -65,14 +63,13 @@ class MakePolicy extends Command
     }
 
     /**
-     * @param string $policyName
-     * @return string
      * @throws BindingResolutionException
      */
     public function getPolicyPath(string $policyName): string
     {
         $directory = base_path(config('repository.policy_path'));
         ensureDirectoryExists($directory);
+
         return "$directory/$policyName.php";
     }
 }

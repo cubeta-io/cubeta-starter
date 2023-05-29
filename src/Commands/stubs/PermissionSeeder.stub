@@ -22,10 +22,12 @@ class PermissionSeeder extends Seeder
             $permissions = $role['permissions'] ;
 
             foreach ($permissions as $permission) {
-                Permission::updateOrCreate([
+                $createdPermission = Permission::updateOrCreate([
                     'name' => $permission,
-                    'guard_name' => 'api'
+                    'guard_name' => '{container}'
                 ], []);
+
+                // another guard assign 
             }
         }
     }

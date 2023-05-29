@@ -3,7 +3,6 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Carbon\Carbon;
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
@@ -48,6 +47,7 @@ class MakeMigration extends Command
 
         if ($this->checkIfMigrationExists($tableName)) {
             $this->error("$migrationName Already Exist");
+
             return;
         }
 
@@ -60,28 +60,26 @@ class MakeMigration extends Command
         generateFileFromStub(
             $stubProperties,
             $migrationPath,
-            __DIR__ . '/stubs/migration.stub'
+            __DIR__.'/stubs/migration.stub'
         );
 
         $this->formatFile($migrationPath);
         $this->info("Created migration: $migrationName");
     }
 
-    /**
-     * @param $migrationName
-     * @return string
-     */
     private function getMigrationsPath($migrationName): string
     {
         $path = config('repository.migration_path');
         ensureDirectoryExists($path);
-        return "$path/$migrationName" . '.php';
+
+        return "$path/$migrationName".'.php';
     }
 
     private function getMigrationName($modelName): string
     {
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
-        return $date . '_create_' . tableNaming($modelName) . '_table';
+
+        return $date.'_create_'.tableNaming($modelName).'_table';
     }
 
     /**
@@ -94,7 +92,7 @@ class MakeMigration extends Command
             if ($type == 'key') {
                 continue;
             } else {
-                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('$name')" . ($type == 'file' ? '->nullable()' : '') . "; \n";
+                $columns .= "\t\t\t\$table->".($type == 'file' ? 'string' : $type)."('$name')".($type == 'file' ? '->nullable()' : '')."; \n";
             }
         }
 

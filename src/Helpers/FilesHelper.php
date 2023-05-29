@@ -6,10 +6,10 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 
 /**
- * @param array $stubProperties stub elements to replace
- * @param string $path the path to the created file
- * @param string $stubPath stub path
- * @return void
+ * @param  array  $stubProperties stub elements to replace
+ * @param  string  $path the path to the created file
+ * @param  string  $stubPath stub path
+ *
  * @throws BindingResolutionException
  * @throws FileNotFoundException
  */
@@ -20,12 +20,10 @@ function generateFileFromStub(array $stubProperties, string $path, string $stubP
 
 /**
  * check if the directory exist if not create it
- * @param string $directory
- * @return void
  */
 function ensureDirectoryExists(string $directory): void
 {
-    if (!File::isDirectory($directory)) {
+    if (! File::isDirectory($directory)) {
         File::makeDirectory($directory, 0775, true, true);
     }
 }

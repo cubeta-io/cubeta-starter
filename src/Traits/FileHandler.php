@@ -112,14 +112,10 @@ trait FileHandler
     /**
      * store requested keys as files
      *
-     * @param array $data
-     * @param array $filesKeys
-     * @param bool $is_store
-     * @param null $item
-     * @param bool $to_compress
-     * @param false $is_base_64
-     * @param int $width
-     * @return array
+     * @param  null  $item
+     * @param  bool  $to_compress
+     * @param  false  $is_base_64
+     * @param  int  $width
      */
     private function storeOrUpdateRequestedFiles(array $data, array $filesKeys = [], bool $is_store = true, $item = null, $to_compress = true, $is_base_64 = false, $width = 300): array
     {
@@ -141,12 +137,7 @@ trait FileHandler
         return $data;
     }
 
-    /**
-     * @param $url
-     * @param $dir
-     * @return array
-     */
-    #[ArrayShape(['name' => "string", 'object' => "mixed"])]
+    #[ArrayShape(['name' => 'string', 'object' => 'mixed'])]
     public function storeImageFromUrl($url, $dir): array
     {
         $this->files = new Filesystem();

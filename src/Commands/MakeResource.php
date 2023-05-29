@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
@@ -43,7 +42,7 @@ class MakeResource extends Command
         $resourceName = $this->getResourceName($modelName);
 
         $stubProperties = [
-            "{namespace}" => config('repository.resource_namespace'),
+            '{namespace}' => config('repository.resource_namespace'),
             '{class}' => $resourceName,
             '{resource_fields}' => $this->generateCols($attributes, $relations),
         ];
@@ -52,13 +51,14 @@ class MakeResource extends Command
 
         if (file_exists($resourcePath)) {
             $this->error("$resourceName Already Exist");
+
             return;
         }
 
         generateFileFromStub(
             $stubProperties,
             $resourcePath,
-            __DIR__ . '/stubs/resource.stub'
+            __DIR__.'/stubs/resource.stub'
         );
 
         $this->formatFile($resourcePath);
@@ -67,7 +67,7 @@ class MakeResource extends Command
 
     private function getResourceName($modelName): string
     {
-        return $modelName . 'Resource';
+        return $modelName.'Resource';
     }
 
     private function generateCols(array $attributes, $relations): string
@@ -75,7 +75,8 @@ class MakeResource extends Command
         $columns = "'id' => \$this->id, \n\t\t\t";
         foreach ($attributes as $name => $value) {
             if ($value == 'file') {
-                $columns .= "'$name' => \$this->get" . ucfirst(Str::camel(Str::studly($name))) . "Path(), \n\t\t\t";
+                $columns .= "'$name' => \$this->get".ucfirst(Str::camel(Str::studly($name)))."Path(), \n\t\t\t";
+
                 continue;
             }
             $columns .= "'$name' => \$this->$name,\n\t\t\t";
@@ -84,11 +85,11 @@ class MakeResource extends Command
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
                 $relation = relationFunctionNaming(str_replace('_id', '', $rel));
-                $relatedModelResource = modelNaming($relation) . 'Resource';
+                $relatedModelResource = modelNaming($relation).'Resource';
                 $columns .= "'$relation' =>  new $relatedModelResource(\$this->whenLoaded('$relation')) , \n\t\t\t";
             } elseif ($type == RelationsTypeEnum::ManyToMany || $type == RelationsTypeEnum::HasMany) {
                 $relation = relationFunctionNaming(($rel));
-                $relatedModelResource = modelNaming($relation) . 'Resource';
+                $relatedModelResource = modelNaming($relation).'Resource';
                 $columns .= "'$relation' =>  $relatedModelResource::collection(\$this->whenLoaded('$relation')) , \n\t\t\t";
             }
         }
@@ -96,16 +97,12 @@ class MakeResource extends Command
         return $columns;
     }
 
-    /**
-     * @param $ResourceName
-     * @return string
-     */
     private function getResourcePath($ResourceName): string
     {
         $directory = base_path(config('repository.resource_path'));
 
         ensureDirectoryExists($directory);
 
-        return $directory . "/$ResourceName" . '.php';
+        return $directory."/$ResourceName".'.php';
     }
 }

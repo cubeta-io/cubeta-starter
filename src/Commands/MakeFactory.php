@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
@@ -31,7 +30,7 @@ class MakeFactory extends Command
         'float' => 'fake()->randomFloat(1,2000)',
         'string' => 'fake()->sentence()',
         'text' => 'fake()->text()',
-        'json' => "{'" . 'fake()->word()' . "':'" . 'fake()->word()' . "'}",
+        'json' => "{'".'fake()->word()'."':'".'fake()->word()'."'}",
         'boolean' => 'fake()->boolean()',
         'date' => 'fake()->date()',
         'time' => 'fake()->time()',
@@ -40,7 +39,6 @@ class MakeFactory extends Command
     ];
 
     /**
-     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -68,11 +66,12 @@ class MakeFactory extends Command
         $factoryPath = $this->getFactoryPath($factoryName);
         if (file_exists($factoryPath)) {
             $this->error("$factoryName Already Exist");
+
             return;
         }
 
         $stubProperties = [
-            '{namespace}' => config('repository.factory_namespace') ,
+            '{namespace}' => config('repository.factory_namespace'),
             '{class}' => $modelName,
             '{rows}' => $factoryAttributes['rows'],
             '//relationFactories' => $factoryAttributes['relatedFactories'],
@@ -81,7 +80,7 @@ class MakeFactory extends Command
         generateFileFromStub(
             $stubProperties,
             $factoryPath,
-            __DIR__ . '/stubs/factory.stub'
+            __DIR__.'/stubs/factory.stub'
         );
         $this->formatFile($factoryPath);
         $this->info("Created factory: $factoryName");
@@ -89,7 +88,7 @@ class MakeFactory extends Command
 
     private function getFactoryName($modelName): string
     {
-        return $modelName . 'Factory';
+        return $modelName.'Factory';
     }
 
     /**
@@ -223,7 +222,7 @@ class MakeFactory extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
-                $functionName = 'with' . ucfirst(Str::plural(Str::studly($rel)));
+                $functionName = 'with'.ucfirst(Str::plural(Str::studly($rel)));
                 $className = modelNaming($rel);
 
                 $relatedFactories .= "
@@ -237,14 +236,11 @@ class MakeFactory extends Command
         return ['rows' => $rows, 'relatedFactories' => $relatedFactories];
     }
 
-    /**
-     * @param $factoryName
-     * @return string
-     */
     private function getFactoryPath($factoryName): string
     {
         $factoryDirectory = base_path(config('repository.factory_path'));
         ensureDirectoryExists($factoryDirectory);
+
         return "$factoryDirectory/$factoryName.php";
     }
 }
