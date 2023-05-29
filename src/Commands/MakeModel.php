@@ -61,7 +61,7 @@ class MakeModel extends Command
         $name = $this->argument('name');
         $option = $this->argument('option');
 
-        if (! $name || empty(trim($name))) {
+        if (!$name || empty(trim($name))) {
             $this->error('Please specify a valid model');
 
             return false;
@@ -115,17 +115,21 @@ class MakeModel extends Command
             return;
         }
 
+        $filesKeysAndFillableArray = $this->getModelFillableAndArrayKeysArray($attributes);
+
         $stubProperties = [
             '{namespace}' => config('repository.model_namespace'),
             '{modelName}' => $className,
             '{relations}' => $this->getModelRelation($attributes),
             '{properties}' => $this->getModelProperty($attributes, $this->relations),
             '{fileGetter}' => $this->getModelImage($attributes, $className),
+            '{fillable}' => $filesKeysAndFillableArray['fillable'],
+            '{filesKeys}' => $filesKeysAndFillableArray['filesKeys'],
             '{scopes}' => $this->boolValuesScope($attributes),
         ];
 
         // create file
-        generateFileFromStub($stubProperties, $modelPath, __DIR__.'/stubs/model.stub');
+        generateFileFromStub($stubProperties, $modelPath, __DIR__ . '/stubs/model.stub');
 
         $this->formatFile($modelPath);
         $this->info("Created model: $className");
@@ -137,12 +141,16 @@ class MakeModel extends Command
         $columnsNames = array_keys($attributes, 'file');
         foreach ($columnsNames as $colName) {
             $file .=
-                'public function get'.ucfirst(Str::camel(Str::studly($colName)))."Path()
-                {
-                    return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
-                }\n";
+                '/**
+                 * return the full path of the stored ' . modelNaming($colName) . '
+                 * @return string|null
+                 */
+                 public function get' . modelNaming($colName) . "Path() : ?string
+                 {
+                     return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
+                 }\n";
 
-            ensureDirectoryExists(storage_path('app/public/'.Str::lower($modelName).'/'.Str::plural($colName)));
+            ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
         }
 
         return $file;
@@ -156,16 +164,16 @@ class MakeModel extends Command
 
         foreach ($foreignKeys as $key => $value) {
 
-            $result = $this->choice('The '.$value.' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
+            $result = $this->choice('The ' . $value . ' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
 
             if ($result == RelationsTypeEnum::HasOne) {
 
                 $relationName = relationFunctionNaming(str_replace('_id', '', $value));
 
                 $relationsFunctions .= '
-                public function '.$relationName.'():hasOne
+                public function ' . $relationName . '():hasOne
                 {
-                    return $this->hasOne('.modelNaming($relationName)."::class);
+                    return $this->hasOne(' . modelNaming($relationName) . "::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::HasOne;
@@ -176,9 +184,9 @@ class MakeModel extends Command
                 $relationName = relationFunctionNaming(str_replace('_id', '', $value));
 
                 $relationsFunctions .= '
-                public function '.$relationName.'():belongsTo
+                public function ' . $relationName . '():belongsTo
                 {
-                    return $this->belongsTo('.modelNaming($relationName)."::class);
+                    return $this->belongsTo(' . modelNaming($relationName) . "::class);
                 }\n";
 
                 $this->relations[$relationName] = RelationsTypeEnum::BelongsTo;
@@ -206,9 +214,9 @@ class MakeModel extends Command
                 $relationName = relationFunctionNaming($table, false);
 
                 $relationsFunctions .= '
-                public function '.$relationName.'():hasMany
+                public function ' . $relationName . '():hasMany
                 {
-                    return $this->hasMany('.modelNaming($table)."::class);
+                    return $this->hasMany(' . modelNaming($table) . "::class);
                 }\n";
 
                 $result = $this->choice('Does it has another <fg=red>has many</fg=red> relation ? ', ['No', 'Yes'], 'No');
@@ -241,9 +249,9 @@ class MakeModel extends Command
                 $relationName = relationFunctionNaming($table, false);
 
                 $relationsFunctions .= '
-                 public function '.$relationName.'() : BelongsToMany
+                 public function ' . $relationName . '() : BelongsToMany
                  {
-                     return $this->belongsToMany('.modelNaming($table)."::class);
+                     return $this->belongsToMany(' . modelNaming($table) . "::class);
                  }\n";
 
                 $result = $this->choice('Does it has another <fg=red>many to many</fg=red> relation ? ', ['No', 'Yes'], 'No');
@@ -267,7 +275,8 @@ class MakeModel extends Command
         }
 
         foreach ($attributes as $name => $type) {
-            if ($type == 'key') {
+            if ($type == 'file') {
+                $properties .= "* @property string $name \n";
                 continue;
             }
             $properties .= "* @property $type $name \n";
@@ -278,6 +287,25 @@ class MakeModel extends Command
         return $properties;
     }
 
+    /**
+     * @param array $attributes
+     * @return string[]
+     */
+    #[ArrayShape(['fillable' => "string", 'filesKeys' => "string"])]
+    public function getModelFillableAndArrayKeysArray(array $attributes): array
+    {
+        $fillable = '';
+        $filesKeys = '';
+        foreach ($attributes as $attribute => $type) {
+            $fillable .= "'$attribute' ,\n";
+            if ($type == 'file') {
+                $filesKeys .= "'$attribute' ,\n";
+            }
+        }
+
+        return ['fillable' => $fillable, 'filesKeys' => $filesKeys];
+    }
+
     public function boolValuesScope($attributes): string
     {
         $booleans = array_keys($attributes, 'boolean');
@@ -285,9 +313,9 @@ class MakeModel extends Command
         $scopes = '';
 
         foreach ($booleans as $boolCol) {
-            $scopes .= 'public function scope'.ucfirst(Str::studly($boolCol))."(\$query)
+            $scopes .= 'public function scope' . ucfirst(Str::studly($boolCol)) . "(\$query)
             {
-                return \$query->where('".$boolCol."' , 1);
+                return \$query->where('" . $boolCol . "' , 1);
             } \n";
         }
 

@@ -12,15 +12,27 @@ use Cubeta\CubetaStarter\BaseModel;
 {properties}
 class {modelName} extends BaseModel {
 
+    protected $guarded = ['id'] ;
+
+    protected $fillable = [
+       {fillable}
+    ];
+
 
     {fileGetter}
 
     {relations}
 
 
+    /**
+     * define your columns which you want to treat them as files 
+     * so the base repository can store them in the storage without
+     * any additional files procedures  
+     */
     public function files_keys() : array
     {
         return [
+            {filesKeys}
             //files_keys
         ];
     }
