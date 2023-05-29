@@ -59,7 +59,7 @@ class Eloquent implements Repository
      *
      * @return mixed|null
      */
-    public function allPaginated(array $relations = [], $per_page = 10)
+    public function allPaginated(array $relations = [], int $per_page = 10)
     {
         return $this->model->with($relations)->paginate($per_page);
     }

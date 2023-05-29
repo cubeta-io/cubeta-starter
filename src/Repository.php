@@ -36,10 +36,10 @@ interface Repository
     /**
      * get all with pagination
      *
-     * @param  int  $per_page
+     * @param int $per_page
      * @return mixed
      */
-    public function allPaginated(array $relations = [], $per_page = 10);
+    public function allPaginated(array $relations = [], int $per_page = 10): mixed;
 
     /**
      * Return query builder

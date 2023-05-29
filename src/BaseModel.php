@@ -11,8 +11,43 @@ class BaseModel extends Model
 
     protected $guarded = ['id'];
 
-    public function files_keys()
+    /**
+     * @return array
+     */
+    public function filesKeys(): array
     {
         return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function orderableArray(): array
+    {
+        return [] ;
+    }
+
+    /**
+     * @return array
+     */
+    public function searchableArray(): array
+    {
+        return [] ;
+    }
+
+    /**
+     * @return array
+     */
+    public function translatedSearchableArray(): array
+    {
+        return [] ;
+    }
+
+    /**
+     * @return array
+     */
+    public function relationsSearchableArray(): array
+    {
+        return [] ;
     }
 }
