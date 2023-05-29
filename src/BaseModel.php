@@ -24,7 +24,7 @@ class BaseModel extends Model
      */
     public function orderableArray(): array
     {
-        return [] ;
+        return [];
     }
 
     /**
@@ -32,15 +32,7 @@ class BaseModel extends Model
      */
     public function searchableArray(): array
     {
-        return [] ;
-    }
-
-    /**
-     * @return array
-     */
-    public function translatedSearchableArray(): array
-    {
-        return [] ;
+        return [];
     }
 
     /**
@@ -48,6 +40,6 @@ class BaseModel extends Model
      */
     public function relationsSearchableArray(): array
     {
-        return [] ;
+        return [];
     }
 }

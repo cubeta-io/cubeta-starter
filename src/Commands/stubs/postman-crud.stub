@@ -13,9 +13,23 @@
 							}
 						],
 						"url": {
-							"raw": "{{local}}{indexRoute}",
+							"raw": "{{local}}{indexRoute}?search&sort_col&sort_dir",
 							"host": [
 								"{{local}}{indexRoute}"
+							] , 
+							"query": [
+								{
+									"key": "search",
+									"value": null
+								},
+								{
+									"key": "sort_col",
+									"value": null
+								},
+								{
+									"key": "sort_dir",
+									"value": null
+								}
 							]
 						}
 					},

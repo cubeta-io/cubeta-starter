@@ -19,13 +19,11 @@ abstract class BaseRepository implements IBaseRepository
 
     protected Model $model;
 
-    private Filesystem $files;
+    private Filesystem $fileSystem;
 
     private array $fileColumnsName = [];
 
     private array $searchableKeys = [];
-
-    private array $translatedSearchableKeys = [];
 
     private array $relationSearchableKeys = [];
 
@@ -51,12 +49,8 @@ abstract class BaseRepository implements IBaseRepository
             $this->searchableKeys = $this->model->searchableArray();
         }
 
-        if (method_exists($this->model, 'translatedSearchableArray')) {
-            $this->translatedSearchableKeys = $this->model->translatedSearchableArray();
-        }
-
-        if (method_exists($this->model, 'relationSearchableArray')) {
-            $this->relationSearchableKeys = $this->model->relationSearchableArray();
+        if (method_exists($this->model, 'relationsSearchableArray')) {
+            $this->relationSearchableKeys = $this->model->relationsSearchableArray();
         }
     }
 
@@ -112,34 +106,24 @@ abstract class BaseRepository implements IBaseRepository
     {
         if (request()->has('search')) {
             $keyword = request()->search;
-            if (count($this->searchableKeys) > 0)
+
+            if (count($this->searchableKeys) > 0) {
                 foreach ($this->searchableKeys as $search_attribute) {
-                    $query->orWhere($search_attribute, 'like', '%' . $keyword . '%');
+                    $query->orWhere($search_attribute, 'REGEXP', "(?i).*$keyword.*");
                 }
-            if (count($this->translatedSearchableKeys) > 0)
-                foreach ($this->translatedSearchableKeys as $search_attribute) {
-                    $query->orWhere($search_attribute, "like", '%' . $keyword . '%');
-                }
-            if (count($this->relationSearchableKeys) > 0)
+            }
+
+            if (count($this->relationSearchableKeys) > 0) {
+
                 foreach ($this->relationSearchableKeys as $relation => $values) {
+
                     foreach ($values as $key => $search_attribute) {
-                        if (!($key === "translated")) {
-                            $query->orWhereHas($relation, function ($q) use ($keyword, $search_attribute) {
-                                $q->where($search_attribute, 'LIKE', '%' . $keyword . '%');
-                            });
-                        } else {
-                            $query->orWhereHas($relation, function ($q) use ($keyword, $search_attribute) {
-                                if (is_array($search_attribute)) {
-                                    foreach ($search_attribute as $translate_attribute) {
-                                        $q->orWhere($translate_attribute, 'like', '%' . $keyword . '%');
-                                    }
-                                } else {
-                                    $q->orWhere($search_attribute, 'like', '%' . $keyword . '%');
-                                }
-                            });
-                        }
+                        $query->orWhereHas($relation, function ($q) use ($keyword, $search_attribute) {
+                            $q->where($search_attribute, 'REGEXP', "(?i).*$keyword.*");
+                        });
                     }
                 }
+            }
             $query->orWhere('id', $keyword);
         }
         return $query;
@@ -190,7 +174,7 @@ abstract class BaseRepository implements IBaseRepository
      */
     private function makeDirectory($path): mixed
     {
-        $this->files->makeDirectory($path, 0777, true, true);
+        $this->fileSystem->makeDirectory($path, 0777, true, true);
 
         return $path;
     }
@@ -239,7 +223,7 @@ abstract class BaseRepository implements IBaseRepository
         $image = '';
         if ($col_name != '') {
             if (array_key_exists($col_name, $data)) {
-                $this->files = new Filesystem();
+                $this->fileSystem = new Filesystem();
                 if ($is_store) {
                     $this->makeDirectory(storage_path('app/public/' . $this->model->getTable()));
                     $image = $this->storeFile($data["$col_name"], $this->model->getTable());

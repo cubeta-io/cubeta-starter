@@ -109,23 +109,30 @@ class MakeModel extends Command
     public function createModel(string $className, array $attributes): void
     {
         $modelPath = $this->getModelPath($className);
+
         if (file_exists($modelPath)) {
             $this->error("$className Model Already Exists");
 
             return;
         }
 
-        $filesKeysAndFillableArray = $this->getModelFillableAndArrayKeysArray($attributes);
+        // removing this from here will cause the $this->relations variable to be empty when calling it in the next line
+        $modelRelationsFunctions = $this->getModelRelation($attributes);
+
+        $methodsArrayKeys = $this->fillArrayKeysMethodsInTheModel($attributes, $this->relations);
 
         $stubProperties = [
             '{namespace}' => config('repository.model_namespace'),
             '{modelName}' => $className,
-            '{relations}' => $this->getModelRelation($attributes),
+            '{relations}' => $modelRelationsFunctions,
             '{properties}' => $this->getModelProperty($attributes, $this->relations),
             '{fileGetter}' => $this->getModelImage($attributes, $className),
-            '{fillable}' => $filesKeysAndFillableArray['fillable'],
-            '{filesKeys}' => $filesKeysAndFillableArray['filesKeys'],
+            '{fillable}' => $methodsArrayKeys['fillable'],
+            '{filesKeys}' => $methodsArrayKeys['filesKeys'],
             '{scopes}' => $this->boolValuesScope($attributes),
+            '{orderableKeys}' => $methodsArrayKeys['orderable'],
+            '{searchableKeys}' => $methodsArrayKeys['searchable'],
+            '{searchableRelations}' => $methodsArrayKeys['relationSearchable'],
         ];
 
         // create file
@@ -288,22 +295,46 @@ class MakeModel extends Command
     }
 
     /**
+     * returns methods arrays : fillable = [] , filesKeys() , orderableArray() , searchableArray() , relationsSearchableArray()
      * @param array $attributes
+     * @param array $relations
      * @return string[]
      */
-    #[ArrayShape(['fillable' => "string", 'filesKeys' => "string"])]
-    public function getModelFillableAndArrayKeysArray(array $attributes): array
+    #[ArrayShape(['fillable' => "string", 'filesKeys' => "string", 'orderable' => "string", 'searchable' => "string", 'relationSearchable' => "string"])]
+    public function fillArrayKeysMethodsInTheModel(array $attributes, array $relations): array
     {
         $fillable = '';
         $filesKeys = '';
+        $orderable = '';
+        $searchable = '';
+        $relationsSearchable = '';
         foreach ($attributes as $attribute => $type) {
             $fillable .= "'$attribute' ,\n";
+            $orderable .= "'$attribute' => 'asc' , \n";
+
+            if (in_array($type, ['string', 'text', 'json', 'translatable'])) {
+                $searchable .= "'$attribute' , \n";
+            }
+
             if ($type == 'file') {
                 $filesKeys .= "'$attribute' ,\n";
             }
         }
 
-        return ['fillable' => $fillable, 'filesKeys' => $filesKeys];
+        foreach ($relations as $relation => $type) {
+            $relationsSearchable .=
+                "'$relation' => [
+                    //add your $relation desired column to be search within
+                  ] , \n";
+        }
+
+        return [
+            'fillable' => $fillable,
+            'filesKeys' => $filesKeys,
+            'orderable' => $orderable,
+            'searchable' => $searchable,
+            'relationSearchable' => $relationsSearchable
+        ];
     }
 
     public function boolValuesScope($attributes): string

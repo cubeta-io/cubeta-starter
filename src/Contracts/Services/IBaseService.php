@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 interface IBaseService
 {
-    public function index(array $relations = []);
+    /**
+     * @param array $relations
+     * @return mixed
+     */
+    public function index(array $relations = []): mixed;
 
     /**
      * @param array $relations

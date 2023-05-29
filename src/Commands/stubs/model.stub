@@ -25,15 +25,48 @@ class {modelName} extends BaseModel {
 
 
     /**
-     * define your columns which you want to treat them as files 
+     * define your columns which you want to treat them as files
      * so the base repository can store them in the storage without
-     * any additional files procedures  
+     * any additional files procedures
      */
-    public function files_keys() : array
+    public function filesKeys() : array
     {
         return [
             {filesKeys}
-            //files_keys
+            //filesKeys
+        ];
+    }
+
+    /**
+     * add your columns you want to order by,
+     * so you can order them in the index method
+     */
+    public function orderableArray(): array
+    {
+        return [
+            {orderableKeys}
+        ] ;
+    }
+
+    /**
+     * add your searchable columns, so you can search within them in the
+     * index method
+     */
+    public function searchableArray(): array
+    {
+        return [
+            {searchableKeys}
+        ] ;
+    }
+
+    /**
+     * add your relations and their searchable columns,
+     * so you can search within them in the index method
+     */
+    public function relationsSearchableArray(): array
+    {
+        return [
+            {searchableRelations}
         ];
     }
 
