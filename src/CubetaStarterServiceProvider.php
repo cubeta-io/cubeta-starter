@@ -4,7 +4,6 @@ namespace Cubeta\CubetaStarter;
 
 use Cubeta\CubetaStarter\Commands\CreatePivotTable;
 use Cubeta\CubetaStarter\Commands\InitialProject;
-use Cubeta\CubetaStarter\Commands\InstallWebPackages;
 use Cubeta\CubetaStarter\Commands\MakeController;
 use Cubeta\CubetaStarter\Commands\MakeFactory;
 use Cubeta\CubetaStarter\Commands\MakeMigration;
@@ -17,8 +16,6 @@ use Cubeta\CubetaStarter\Commands\MakeResource;
 use Cubeta\CubetaStarter\Commands\MakeSeeder;
 use Cubeta\CubetaStarter\Commands\MakeService;
 use Cubeta\CubetaStarter\Commands\MakeTest;
-use Cubeta\CubetaStarter\Commands\MakeWebController;
-use Illuminate\Support\Facades\Blade;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -43,9 +40,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeTest::class)
             ->hasCommand(MakePostmanCollection::class)
             ->hasCommand(InitialProject::class)
-            ->hasCommand(MakeWebController::class)
-            ->hasCommand(MakePolicy::class)
-            ->hasCommand(InstallWebPackages::class);
+            ->hasCommand(MakePolicy::class);
     }
 
     /**
@@ -74,38 +69,5 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->packageRegistered();
 
         return $this;
-    }
-
-    public function boot()
-    {
-        parent::boot();
-
-        $this->loadComponents();
-        $this->publishAssets();
-    }
-
-    protected function loadComponents(): void
-    {
-        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/form');
-        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/form/checkboxes');
-        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/form/fields');
-        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/form/validation');
-        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/show');
-        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/images');
-    }
-
-    protected function publishAssets()
-    {
-        // publishing config files
-        $this->publishes([__DIR__.'/../config' => config_path()], 'cubeta-starter-config');
-
-        //publishing assets
-        $this->publishes([
-            __DIR__.'/../resources/views/includes' => resource_path('views/includes'),
-            __DIR__.'/../resources/views/layout.blade.php' => resource_path('views/layout.blade.php'),
-            __DIR__.'/../resources/js' => resource_path('js'),
-            __DIR__.'/../resources/sass' => resource_path('sass'),
-            __DIR__.'/../public' => public_path(),
-        ], 'cubeta-starter-assets');
     }
 }

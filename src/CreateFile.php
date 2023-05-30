@@ -9,7 +9,6 @@ use Illuminate\Filesystem\Filesystem;
 
 class CreateFile
 {
-
     private static $instance;
 
     /**

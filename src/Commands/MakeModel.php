@@ -356,22 +356,6 @@ class MakeModel extends Command
     }
 
     /**
-     * get the container type from the user
-     *
-     * @return bool[]
-     */
-    #[ArrayShape(['api' => 'bool', 'web' => 'bool'])]
-    public function checkContainer(): array
-    {
-        $container = $this->choice('<info>What is the container type of this model controller</info>', ['api', 'web', 'both'], 'api');
-
-        return [
-            'api' => $container == 'api' || $container == 'both',
-            'web' => $container == 'web' || $container == 'both',
-        ];
-    }
-
-    /**
      * get the model attributes from the user
      */
     public function getModelAttributesFromTheUser(): mixed
@@ -391,8 +375,6 @@ class MakeModel extends Command
      */
     public function callAppropriateCommand($name, $attributes, $option, $actor): void
     {
-        $container = $this->checkContainer();
-
         $result = match ($option) {
             'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
             'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes]),
@@ -415,17 +397,10 @@ class MakeModel extends Command
             $this->call('create:request', ['name' => $name, 'attributes' => $attributes]);
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
-
-            if ($container['api']) {
-                $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
-                $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
-                $this->call('create:test', ['name' => $name, 'actor' => $actor]);
-                $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
-            }
-
-            if ($container['web']) {
-                $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
-            }
+            $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
+            $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
+            $this->call('create:test', ['name' => $name, 'actor' => $actor]);
+            $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
         }
     }
 
