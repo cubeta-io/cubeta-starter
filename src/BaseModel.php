@@ -22,14 +22,6 @@ class BaseModel extends Model
     /**
      * @return array
      */
-    public function orderableArray(): array
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     */
     public function searchableArray(): array
     {
         return [];

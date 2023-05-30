@@ -108,7 +108,16 @@ class MakeFactory extends Command
             }
 
             if ($type == 'translatable') {
-                $rows .= "'$name' => json_encode(['en' => fake()->word()]) ,\n";
+
+                $availableLocales = config('cubeta-starter.available_locales');
+                $rows .= "'$name' => json_encode([";
+
+                foreach ($availableLocales as $locale) {
+                    $rows .= "'$locale' => fake('$locale')->word() , \n";
+                }
+
+                $rows .= "]) ,\n";
+
                 continue;
             }
 
