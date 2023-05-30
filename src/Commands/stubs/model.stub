@@ -37,16 +37,6 @@ class {modelName} extends BaseModel {
         ];
     }
 
-    /**
-     * add your columns you want to order by,
-     * so you can order them in the index method
-     */
-    public function orderableArray(): array
-    {
-        return [
-            {orderableKeys}
-        ] ;
-    }
 
     /**
      * add your searchable columns, so you can search within them in the

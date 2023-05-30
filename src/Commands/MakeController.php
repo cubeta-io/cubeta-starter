@@ -39,7 +39,7 @@ class MakeController extends Command
     {
         $modelName = modelNaming($modelName);
         $stubProperties = [
-            '{namespace}' => config('repository.api_controller_namespace'),
+            '{namespace}' => config('cubeta-starter.api_controller_namespace'),
             '{modelName}' => $modelName,
             '{variableNaming}' => variableNaming($modelName),
         ];
@@ -65,7 +65,7 @@ class MakeController extends Command
 
     private function getControllerPath($controllerName): string
     {
-        $path = base_path(config('repository.api_controller_path'));
+        $path = base_path(config('cubeta-starter.api_controller_path'));
         ensureDirectoryExists($path);
 
         return "$path/$controllerName".'.php';

@@ -64,7 +64,7 @@ class MakeSeeder extends Command
 
     private function getSeederPath($seederName): string
     {
-        $directory = base_path(config('repository.seeder_path'));
+        $directory = base_path(config('cubeta-starter.seeder_path'));
         ensureDirectoryExists($directory);
 
         return "$directory/$seederName.php";

@@ -56,7 +56,7 @@ class CreatePivotTable extends Command
         $className1 = modelNaming($table1);
         $className2 = modelNaming($table2);
 
-        ensureDirectoryExists(base_path(config('repository.migration_path')));
+        ensureDirectoryExists(base_path(config('cubeta-starter.migration_path')));
 
         if (file_exists($migrationPath)) {
             $this->info("The Pivot Table Migration For <fg=red>$className1</fg=red> And <fg=red>$className2</fg=red> Exists");
@@ -81,6 +81,6 @@ class CreatePivotTable extends Command
 
     public function getPivotPath(string $date, string $migrationName): string
     {
-        return base_path(config('repository.migration_path').'/'.$date.'_'.$migrationName.'.php');
+        return base_path(config('cubeta-starter.migration_path').'/'.$date.'_'.$migrationName.'.php');
     }
 }

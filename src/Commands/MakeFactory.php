@@ -30,7 +30,7 @@ class MakeFactory extends Command
         'float' => 'fake()->randomFloat(1,2000)',
         'string' => 'fake()->sentence()',
         'text' => 'fake()->text()',
-        'json' => "{'".'fake()->word()'."':'".'fake()->word()'."'}",
+        'json' => 'json_encode([fake()->word() => fake()->word()])',
         'boolean' => 'fake()->boolean()',
         'date' => 'fake()->date()',
         'time' => 'fake()->time()',
@@ -71,7 +71,7 @@ class MakeFactory extends Command
         }
 
         $stubProperties = [
-            '{namespace}' => config('repository.factory_namespace'),
+            '{namespace}' => config('cubeta-starter.factory_namespace'),
             '{class}' => $modelName,
             '{rows}' => $factoryAttributes['rows'],
             '//relationFactories' => $factoryAttributes['relatedFactories'],
@@ -80,7 +80,7 @@ class MakeFactory extends Command
         generateFileFromStub(
             $stubProperties,
             $factoryPath,
-            __DIR__.'/stubs/factory.stub'
+            __DIR__ . '/stubs/factory.stub'
         );
         $this->formatFile($factoryPath);
         $this->info("Created factory: $factoryName");
@@ -88,7 +88,7 @@ class MakeFactory extends Command
 
     private function getFactoryName($modelName): string
     {
-        return $modelName.'Factory';
+        return $modelName . 'Factory';
     }
 
     /**
@@ -104,6 +104,11 @@ class MakeFactory extends Command
                 $relatedModel = modelNaming(str_replace('_id', '', $name));
                 $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";
 
+                continue;
+            }
+
+            if ($type == 'translatable') {
+                $rows .= "'$name' => json_encode(['en' => fake()->word()]) ,\n";
                 continue;
             }
 
@@ -222,7 +227,7 @@ class MakeFactory extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
-                $functionName = 'with'.ucfirst(Str::plural(Str::studly($rel)));
+                $functionName = 'with' . ucfirst(Str::plural(Str::studly($rel)));
                 $className = modelNaming($rel);
 
                 $relatedFactories .= "
@@ -238,7 +243,7 @@ class MakeFactory extends Command
 
     private function getFactoryPath($factoryName): string
     {
-        $factoryDirectory = base_path(config('repository.factory_path'));
+        $factoryDirectory = base_path(config('cubeta-starter.factory_path'));
         ensureDirectoryExists($factoryDirectory);
 
         return "$factoryDirectory/$factoryName.php";

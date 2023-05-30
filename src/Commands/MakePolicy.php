@@ -38,7 +38,7 @@ class MakePolicy extends Command
         $policyName = $modelName.'Policy';
 
         $stubProperties = [
-            '{namespace}' => config('repository.policy_namespace'),
+            '{namespace}' => config('cubeta-starter.policy_namespace'),
             '{modelName}' => $modelName,
         ];
 
@@ -67,7 +67,7 @@ class MakePolicy extends Command
      */
     public function getPolicyPath(string $policyName): string
     {
-        $directory = base_path(config('repository.policy_path'));
+        $directory = base_path(config('cubeta-starter.policy_path'));
         ensureDirectoryExists($directory);
 
         return "$directory/$policyName.php";

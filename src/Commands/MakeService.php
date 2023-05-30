@@ -24,7 +24,7 @@ class MakeService extends Command
     {
         $name = $this->argument('name');
         $modelName = modelNaming($name);
-        $namespace = config('repository.service_namespace')."\\$modelName";
+        $namespace = config('cubeta-starter.service_namespace')."\\$modelName";
         $this->createService($modelName, $namespace);
         $this->createServiceInterface($modelName, $namespace);
     }
@@ -64,7 +64,7 @@ class MakeService extends Command
 
     private function getServicePath(string $serviceName, string $modelName): string
     {
-        $directory = base_path(config('repository.service_path'))."/$modelName";
+        $directory = base_path(config('cubeta-starter.service_path'))."/$modelName";
         ensureDirectoryExists($directory);
 
         return "$directory/$serviceName.php";
@@ -101,7 +101,7 @@ class MakeService extends Command
 
     private function getServiceInterfacePath(string $serviceInterfaceName, string $modelName): string
     {
-        $directory = base_path(config('repository.service_path'))."/$modelName";
+        $directory = base_path(config('cubeta-starter.service_path'))."/$modelName";
         ensureDirectoryExists($directory);
 
         return "$directory/$serviceInterfaceName.php";

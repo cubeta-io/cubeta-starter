@@ -47,6 +47,7 @@ class MakeModel extends Command
             'timestamp',
             'file',
             'key',
+            'translatable'
         ];
     }
 
@@ -69,7 +70,7 @@ class MakeModel extends Command
 
         $modelName = modelNaming($name);
 
-        $paramsString = $this->getUserModelAttributes();
+        $paramsString = $this->getModelAttributesFromTheUser();
 
         $attributes = $this->convertToArrayOfAttributes($paramsString);
 
@@ -83,26 +84,9 @@ class MakeModel extends Command
     }
 
     /**
-     * convert an array of attributes to array with attributes and their types
-     */
-    private function convertToArrayOfAttributes($fields): array
-    {
-        $fields = explode(',', $fields);
-        $fieldsWithDataType = [];
-        foreach ($fields as $field) {
-            $field = Str::snake($field);
-            $type = $this->choice(
-                "What is the data type of the (( $field field )) ? default is ",
-                $this->types,
-                6,
-            );
-            $fieldsWithDataType[$field] = $type;
-        }
-
-        return $fieldsWithDataType;
-    }
-
-    /**
+     * @param string $className
+     * @param array $attributes
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -122,7 +106,7 @@ class MakeModel extends Command
         $methodsArrayKeys = $this->fillArrayKeysMethodsInTheModel($attributes, $this->relations);
 
         $stubProperties = [
-            '{namespace}' => config('repository.model_namespace'),
+            '{namespace}' => config('cubeta-starter.model_namespace'),
             '{modelName}' => $className,
             '{relations}' => $modelRelationsFunctions,
             '{properties}' => $this->getModelProperty($attributes, $this->relations),
@@ -130,18 +114,21 @@ class MakeModel extends Command
             '{fillable}' => $methodsArrayKeys['fillable'],
             '{filesKeys}' => $methodsArrayKeys['filesKeys'],
             '{scopes}' => $this->boolValuesScope($attributes),
-            '{orderableKeys}' => $methodsArrayKeys['orderable'],
             '{searchableKeys}' => $methodsArrayKeys['searchable'],
             '{searchableRelations}' => $methodsArrayKeys['relationSearchable'],
         ];
 
-        // create file
         generateFileFromStub($stubProperties, $modelPath, __DIR__ . '/stubs/model.stub');
 
         $this->formatFile($modelPath);
         $this->info("Created model: $className");
     }
 
+    /**
+     * @param $attributes
+     * @param $modelName
+     * @return string
+     */
     private function getModelImage($attributes, $modelName): string
     {
         $file = '';
@@ -163,6 +150,10 @@ class MakeModel extends Command
         return $file;
     }
 
+    /**
+     * @param $attributes
+     * @return string
+     */
     private function getModelRelation($attributes): string
     {
         $relationsFunctions = '';
@@ -273,6 +264,11 @@ class MakeModel extends Command
         return $relationsFunctions;
     }
 
+    /**
+     * @param $attributes
+     * @param $relations
+     * @return string
+     */
     private function getModelProperty($attributes, $relations): string
     {
         $properties = "/**  \n";
@@ -286,6 +282,12 @@ class MakeModel extends Command
                 $properties .= "* @property string $name \n";
                 continue;
             }
+
+            if ($type == 'translatable') {
+                $properties .= "* @property json $name \n";
+                continue;
+            }
+
             $properties .= "* @property $type $name \n";
         }
 
@@ -300,17 +302,15 @@ class MakeModel extends Command
      * @param array $relations
      * @return string[]
      */
-    #[ArrayShape(['fillable' => "string", 'filesKeys' => "string", 'orderable' => "string", 'searchable' => "string", 'relationSearchable' => "string"])]
+    #[ArrayShape(['fillable' => "string", 'filesKeys' => "string", 'searchable' => "string", 'relationSearchable' => "string"])]
     public function fillArrayKeysMethodsInTheModel(array $attributes, array $relations): array
     {
         $fillable = '';
         $filesKeys = '';
-        $orderable = '';
         $searchable = '';
         $relationsSearchable = '';
         foreach ($attributes as $attribute => $type) {
             $fillable .= "'$attribute' ,\n";
-            $orderable .= "'$attribute' => 'asc' , \n";
 
             if (in_array($type, ['string', 'text', 'json', 'translatable'])) {
                 $searchable .= "'$attribute' , \n";
@@ -331,12 +331,15 @@ class MakeModel extends Command
         return [
             'fillable' => $fillable,
             'filesKeys' => $filesKeys,
-            'orderable' => $orderable,
             'searchable' => $searchable,
             'relationSearchable' => $relationsSearchable
         ];
     }
 
+    /**
+     * @param $attributes
+     * @return string
+     */
     public function boolValuesScope($attributes): string
     {
         $booleans = array_keys($attributes, 'boolean');
@@ -353,26 +356,22 @@ class MakeModel extends Command
         return $scopes;
     }
 
+    /**
+     * @param $className
+     * @return string
+     */
     private function getModelPath($className): string
     {
-        $modelDirectory = base_path(config('repository.model_path'));
+        $modelDirectory = base_path(config('cubeta-starter.model_path'));
         ensureDirectoryExists($modelDirectory);
 
         return "$modelDirectory/$className.php";
     }
 
-    public function checkTheActor(): array|string|null
-    {
-        if (class_exists('\App\Enums\RolesPermissionEnum')) {
-            $roles = \App\Enums\RolesPermissionEnum::ALLROLES;
-            $roles[] = 'none';
-
-            return $this->choice('Who Is The Actor Of this Endpoint ? ', $roles, 'none');
-        } else {
-            return 'none';
-        }
-    }
-
+    /**
+     * @param $modelName
+     * @return void
+     */
     public function createPivots($modelName): void
     {
         $manyToManyRelations = array_keys($this->relations, RelationsTypeEnum::ManyToMany);
@@ -403,7 +402,7 @@ class MakeModel extends Command
     /**
      * get the model attributes from the user
      */
-    public function getUserModelAttributes(): mixed
+    public function getModelAttributesFromTheUser(): mixed
     {
         $paramsString = $this->ask('Enter your params like "name,started_at,..."');
 
@@ -453,6 +452,43 @@ class MakeModel extends Command
             if ($container['web']) {
                 $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
             }
+        }
+    }
+
+    /**
+     * convert an array of attributes to array with attributes and their types
+     * @param $fields
+     * @return array
+     */
+    private function convertToArrayOfAttributes($fields): array
+    {
+        $fields = explode(',', $fields);
+        $fieldsWithDataType = [];
+        foreach ($fields as $field) {
+            $field = Str::snake($field);
+            $type = $this->choice(
+                "What is the data type of the (( $field field )) ? default is ",
+                $this->types,
+                6,
+            );
+            $fieldsWithDataType[$field] = $type;
+        }
+
+        return $fieldsWithDataType;
+    }
+
+    /**
+     * @return array|string|null
+     */
+    public function checkTheActor(): array|string|null
+    {
+        if (class_exists('\App\Enums\RolesPermissionEnum')) {
+            $roles = \App\Enums\RolesPermissionEnum::ALLROLES;
+            $roles[] = 'none';
+
+            return $this->choice('Who Is The Actor Of this Endpoint ? ', $roles, 'none');
+        } else {
+            return 'none';
         }
     }
 }

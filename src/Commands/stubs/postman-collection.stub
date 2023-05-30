@@ -12,7 +12,7 @@
 	"variable": [
 		{
 			"key": "local",
-			"value": "",
+			"value": "http://127.0.0.1/{projectName}/public/",
 			"type": "string"
 		}
 	]

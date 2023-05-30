@@ -17,7 +17,7 @@ trait AssistCommand
 
     public function checkIfMigrationExists($tableName): bool
     {
-        $migrationsPath = base_path(config('repository.migration_path'));
+        $migrationsPath = base_path(config('cubeta-starter.migration_path'));
         ensureDirectoryExists($migrationsPath);
 
         $allMigrations = File::allFiles($migrationsPath);

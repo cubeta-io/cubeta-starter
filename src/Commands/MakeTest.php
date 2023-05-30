@@ -39,7 +39,7 @@ class MakeTest extends Command
         $testName = $modelName.'Test';
 
         $stubProperties = [
-            '{namespace}' => config('repository.test_namespace'),
+            '{namespace}' => config('cubeta-starter.test_namespace'),
             '{modelName}' => $modelName,
             '{{actor}}' => $actor,
         ];
@@ -63,7 +63,7 @@ class MakeTest extends Command
 
     private function getTestPath($testName): string
     {
-        $directory = base_path(config('repository.test_path'));
+        $directory = base_path(config('cubeta-starter.test_path'));
 
         ensureDirectoryExists($directory);
 

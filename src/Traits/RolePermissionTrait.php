@@ -85,7 +85,7 @@ trait RolePermissionTrait
      */
     public function createRoleSeeder(): void
     {
-        $directory = base_path(config('repository.seeder_path').'/RoleSeeder.php');
+        $directory = base_path(config('cubeta-starter.seeder_path').'/RoleSeeder.php');
 
         if (file_exists($directory)) {
             $this->warn('RoleSeeder is Already Exist');
@@ -94,7 +94,7 @@ trait RolePermissionTrait
         }
 
         generateFileFromStub(
-            ['{namespace}' => config('repository.seeder_namespace')],
+            ['{namespace}' => config('cubeta-starter.seeder_namespace')],
             $directory,
             __DIR__.'/../Commands/stubs/RoleSeeder.stub'
         );
@@ -106,7 +106,7 @@ trait RolePermissionTrait
      */
     public function createPermissionSeeder($container): void
     {
-        $directory = base_path(config('repository.seeder_path').'/PermissionSeeder.php');
+        $directory = base_path(config('cubeta-starter.seeder_path').'/PermissionSeeder.php');
 
         if ($container == 'both') {
             $container = 'api';
@@ -120,7 +120,7 @@ trait RolePermissionTrait
         }
 
         $stubProperties = [
-            '{namespace}' => config('repository.seeder_namespace'),
+            '{namespace}' => config('cubeta-starter.seeder_namespace'),
             '{container}' => $container,
             '// another guard assign' => $assignWebGuard ?? '',
         ];

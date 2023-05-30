@@ -29,6 +29,8 @@ abstract class BaseRepository implements IBaseRepository
 
     private array $orderableKeys = [];
 
+    private array $modelTableColumns = [];
+
     /**
      * BaseRepository Constructor
      * @param Model $model
@@ -41,10 +43,6 @@ abstract class BaseRepository implements IBaseRepository
             $this->fileColumnsName = $this->model->filesKeys();
         }
 
-        if (method_exists($this->model, 'orderableArray')) {
-            $this->orderableKeys = $this->model->orderableArray();
-        }
-
         if (method_exists($this->model, 'searchableArray')) {
             $this->searchableKeys = $this->model->searchableArray();
         }
@@ -52,6 +50,8 @@ abstract class BaseRepository implements IBaseRepository
         if (method_exists($this->model, 'relationsSearchableArray')) {
             $this->relationSearchableKeys = $this->model->relationsSearchableArray();
         }
+
+        $this->modelTableColumns = $this->getTableColumns();
     }
 
 
@@ -82,15 +82,16 @@ abstract class BaseRepository implements IBaseRepository
      */
     private function orderQueryBy($query): mixed
     {
-        if (isset(request()->sort_col)) {
-            if (in_array(request()->sort_col, $this->getTableColumns())) {
+        $sortColumns = request()->sort_col;
+        if (isset($sortColumns)) {
+            if (is_array(request()->sort_col)) {
+                foreach ($sortColumns as $col => $dir) {
+                    if (in_array($col, $this->modelTableColumns)) {
+                        $query->orderBy($col, $dir);
+                    }
+                }
+            } elseif (in_array(request()->sort_col, $this->modelTableColumns)) {
                 $query->orderBy(request()->sort_col, request()->sort_dir ?? "asc");
-            }
-            return $query;
-        }
-        if (count($this->orderableKeys) > 0) {
-            foreach ($this->orderableKeys as $colName => $direction) {
-                $query->orderBy($colName, $direction);
             }
             return $query;
         }

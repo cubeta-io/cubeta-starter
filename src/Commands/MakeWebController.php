@@ -139,7 +139,7 @@ class MakeWebController extends Command
 
     private function getWebControllerPath(string $controllerName): string
     {
-        $directory = base_path(config('repository.web_controller_path'));
+        $directory = base_path(config('cubeta-starter.web_controller_path'));
         ensureDirectoryExists($directory);
 
         return "$directory/$controllerName.php";

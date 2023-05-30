@@ -39,7 +39,7 @@ class MakeRepository extends Command
         $modelVar = variableNaming($modelName);
 
         $stubProperties = [
-            '{namespace}' => config('repository.repository_namespace'),
+            '{namespace}' => config('cubeta-starter.repository_namespace'),
             '{modelName}' => $modelName,
             '{modelVar}' => $modelVar,
         ];
@@ -65,7 +65,7 @@ class MakeRepository extends Command
 
     private function getRepositoryPath($repositoryName): string
     {
-        $directory = base_path(config('repository.repository_path'));
+        $directory = base_path(config('cubeta-starter.repository_path'));
         ensureDirectoryExists($directory);
 
         return "$directory/$repositoryName.php";

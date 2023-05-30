@@ -36,8 +36,8 @@ class MakePostmanCollection extends Command
     {
         $modelName = modelNaming($modelName);
         $endpoint = '/'.routeUrlNaming($modelName);
-        $projectName = config('repository.project_name');
-        $collectionDirectory = base_path(config('repository.postman_collection _path'));
+        $projectName = config('cubeta-starter.project_name');
+        $collectionDirectory = base_path(config('cubeta-starter.postman_collection _path'));
         ensureDirectoryExists($collectionDirectory);
         $collectionPath = "$collectionDirectory/$projectName.postman_collection.json";
 

@@ -39,7 +39,7 @@ class MakeRequest extends Command
         $requestName = $this->getRequestName($modelName);
 
         $stubProperties = [
-            '{namespace}' => config('repository.request_namespace')."\\$modelName",
+            '{namespace}' => config('cubeta-starter.request_namespace') . "\\$modelName",
             '{class}' => $modelName,
             '{rules}' => $this->generateCols($attributes),
         ];
@@ -54,8 +54,12 @@ class MakeRequest extends Command
         generateFileFromStub(
             $stubProperties,
             $requestPath,
-            __DIR__.'/stubs/request.stub'
+            __DIR__ . '/stubs/request.stub'
         );
+
+        if (in_array('translatable' , $attributes)){
+            addImportStatement("use Cubeta\CubetaStarter\Rules\LanguageShape; \n" , $requestPath);
+        }
 
         $this->formatFile($requestPath);
         $this->info("Created request: $requestName");
@@ -63,13 +67,17 @@ class MakeRequest extends Command
 
     private function getRequestName($modelName): string
     {
-        return 'StoreUpdate'.$modelName.'Request';
+        return 'StoreUpdate' . $modelName . 'Request';
     }
 
     private function generateCols($attributes): string
     {
         $rules = '';
         foreach ($attributes as $name => $type) {
+            if ($type == 'translatable') {
+                $rules .= "\t\t\t'$name'=>['required', 'json', new LanguageShape] , \n";
+                continue;
+            }
             if ($name == 'name' || $name == 'first_name' || $name == 'last_name') {
                 $rules .= "\t\t\t'$name'=>'required|string|min:3|max:255',\n";
 
@@ -129,10 +137,10 @@ class MakeRequest extends Command
 
     private function getRequestPath($requestName, $modelName): string
     {
-        $directory = base_path(config('repository.request_path'))."/$modelName";
+        $directory = base_path(config('cubeta-starter.request_path')) . "/$modelName";
 
         ensureDirectoryExists($directory);
 
-        return $directory."/$requestName".'.php';
+        return $directory . "/$requestName" . '.php';
     }
 }

@@ -9,7 +9,10 @@ use Illuminate\Filesystem\Filesystem;
 
 class CreateFile
 {
-    private static $instance;
+    /**
+     * @var $instance CreateFile instance from this class
+     */
+    private static CreateFile $instance;
 
     /**
      * The path to create file at
@@ -51,8 +54,6 @@ class CreateFile
     {
         if ($this->files->exists($this->path)) {
             throw new Exception('The class exists!');
-        } else {
-            return;
         }
     }
 
@@ -91,16 +92,11 @@ class CreateFile
     /**
      * Write to the file specified in the path
      *
-     * @param  string|mixed  $stub
+     * @param string|mixed $stub
      */
     private function writeFile(mixed $stub): void
     {
         $this->files->put($this->path, $stub);
-    }
-
-    public static function resetInstance(): void
-    {
-        self::$instance = null;
     }
 
     public static function make(): CreateFile
