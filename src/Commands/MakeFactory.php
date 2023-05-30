@@ -16,7 +16,7 @@ class MakeFactory extends Command
 
     public $signature = 'create:factory
         {name       : The name of the model }
-        {attributes : columns with data types}?
+        {attributes? : columns with data types}?
         {relations?  : the model relations}?';
 
     public $description = 'Create a new factory';
@@ -45,8 +45,8 @@ class MakeFactory extends Command
     public function handle(): void
     {
         $modelName = $this->argument('name');
-        $attributes = $this->argument('attributes');
-        $relations = $this->argument('relations');
+        $attributes = $this->argument('attributes') ?? [];
+        $relations = $this->argument('relations') ?? [];
 
         $this->createFactory($modelName, $attributes, $relations);
     }
@@ -55,7 +55,7 @@ class MakeFactory extends Command
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function createFactory($modelName, array $attributes, array $relations): void
+    private function createFactory($modelName, array $attributes = [], array $relations = []): void
     {
         $modelName = modelNaming($modelName);
 
@@ -80,7 +80,7 @@ class MakeFactory extends Command
         generateFileFromStub(
             $stubProperties,
             $factoryPath,
-            __DIR__ . '/stubs/factory.stub'
+            __DIR__.'/stubs/factory.stub'
         );
         $this->formatFile($factoryPath);
         $this->info("Created factory: $factoryName");
@@ -88,14 +88,14 @@ class MakeFactory extends Command
 
     private function getFactoryName($modelName): string
     {
-        return $modelName . 'Factory';
+        return $modelName.'Factory';
     }
 
     /**
-     * @return string[]
+     * @return string[]\
      */
     #[ArrayShape(['rows' => 'string', 'relatedFactories' => 'string'])]
-    private function generateCols(array $attributes, array $relations): array
+    private function generateCols(array $attributes = [], array $relations = []): array
     {
         $rows = '';
         $relatedFactories = '';
@@ -236,7 +236,7 @@ class MakeFactory extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
-                $functionName = 'with' . ucfirst(Str::plural(Str::studly($rel)));
+                $functionName = 'with'.ucfirst(Str::plural(Str::studly($rel)));
                 $className = modelNaming($rel);
 
                 $relatedFactories .= "

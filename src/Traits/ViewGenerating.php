@@ -15,7 +15,7 @@ trait ViewGenerating
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function generateCreateOrUpdateForm(string $modelName, array $attributes, $storeRoute = null, $updateRoute = null): void
+    public function generateCreateOrUpdateForm(string $modelName, array $attributes = [], $storeRoute = null, $updateRoute = null): void
     {
         $lowerPluralModelName = lowerPluralName($modelName);
         $modelVariable = variableNaming($modelName);
@@ -54,7 +54,7 @@ trait ViewGenerating
     /**
      * generate input fields for create or update form
      */
-    public function generateInputs(array $attributes, string $modelVariable = '', bool $updateInput = false): string
+    public function generateInputs(array $attributes = [], string $modelVariable = '', bool $updateInput = false): string
     {
         $inputs = '';
         foreach ($attributes as $attribute => $type) {
@@ -134,7 +134,7 @@ trait ViewGenerating
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function generateShowView(string $modelName, array $attributes, string $editRoute): void
+    public function generateShowView(string $modelName, string $editRoute, array $attributes = []): void
     {
         $lowerPluralModelName = lowerPluralName($modelName);
         $modelVariable = variableNaming($modelName);
@@ -167,7 +167,7 @@ trait ViewGenerating
         $this->info("show view for $lowerPluralModelName created");
     }
 
-    public function generateShowViewComponents(string $modelVariable, array $attributes): string
+    public function generateShowViewComponents(string $modelVariable, array $attributes = []): string
     {
         $components = '';
         foreach ($attributes as $attribute => $type) {
@@ -191,7 +191,7 @@ trait ViewGenerating
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function generateIndexView(string $modelName, array $attributes, string $creatRoute, string $dataRoute): void
+    public function generateIndexView(string $modelName, string $creatRoute, string $dataRoute, array $attributes = []): void
     {
         $lowerPluralModelName = lowerPluralName($modelName);
         $dataColumns = $this->generateViewDataColumns($attributes);
@@ -229,7 +229,7 @@ trait ViewGenerating
      * @return string[]
      */
     #[ArrayShape(['html' => 'string', 'json' => 'string'])]
-    public function generateViewDataColumns(array $attributes): array
+    public function generateViewDataColumns(array $attributes = []): array
     {
         $html = '';
         $json = '';

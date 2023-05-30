@@ -14,7 +14,7 @@ class MakePostmanCollection extends Command
 
     public $signature = 'create:postman-collection
         {name : The name of the model }
-        {attributes : columns with data types}?';
+        {attributes? : columns with data types}';
 
     public $description = 'Create a new postman collection';
 

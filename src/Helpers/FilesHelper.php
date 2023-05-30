@@ -31,9 +31,6 @@ function ensureDirectoryExists(string $directory): void
 
 /**
  * add the use statement to the top of the desired file
- * @param string $importStatement
- * @param string $filePath
- * @return void
  */
 function addImportStatement(string $importStatement, string $filePath): void
 {
@@ -55,7 +52,7 @@ function addImportStatement(string $importStatement, string $filePath): void
     // Find the last "use" statement and insert the new import statement after it
     $lastUseIndex = strrpos($contents, 'use ');
     $insertIndex = $lastUseIndex !== false ? $lastUseIndex - 1 : 0;
-    $contents = substr_replace($contents, "\n" . $importStatement . "\n", $insertIndex, 0);
+    $contents = substr_replace($contents, "\n".$importStatement."\n", $insertIndex, 0);
 
     // Write the updated contents back to the file
     file_put_contents($filePath, $contents);

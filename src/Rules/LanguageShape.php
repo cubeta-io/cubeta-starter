@@ -2,20 +2,14 @@
 
 namespace Cubeta\CubetaStarter\Rules;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 class LanguageShape implements ValidationRule
 {
-    /**
-     * @param string $attribute
-     * @param mixed $value
-     * @param Closure $fail
-     * @return void
-     */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$value) {
+        if (! $value) {
             return;
         }
 
@@ -23,7 +17,7 @@ class LanguageShape implements ValidationRule
 
         // Check if the decoded JSON data is a simple object (not nested)
         if ($this->hasNestedArrays($translationArray)) {
-            $fail("The :attribute must be a simple not nested json object");
+            $fail('The :attribute must be a simple not nested json object');
         }
 
         $translationLanguages = array_keys($translationArray);
@@ -31,8 +25,8 @@ class LanguageShape implements ValidationRule
 
         $theDifferenceBetweenTheProvidedLanguages = array_diff($translationLanguages, $availableLanguages);
 
-        if (!count($theDifferenceBetweenTheProvidedLanguages) == 0) {
-            $fail(implode(',', $theDifferenceBetweenTheProvidedLanguages) . " don't exist in your project languages");
+        if (! count($theDifferenceBetweenTheProvidedLanguages) == 0) {
+            $fail(implode(',', $theDifferenceBetweenTheProvidedLanguages)." don't exist in your project languages");
         }
 
     }
@@ -44,6 +38,7 @@ class LanguageShape implements ValidationRule
                 return true;
             }
         }
+
         return false;
     }
 }

@@ -14,7 +14,7 @@ class MakeRequest extends Command
 
     public $signature = 'create:request
         {name : The name of the model }
-        {attributes : columns with data types}?';
+        {attributes? : columns with data types}';
 
     public $description = 'Create a new request';
 
@@ -24,7 +24,7 @@ class MakeRequest extends Command
     public function handle(): void
     {
         $modelName = $this->argument('name');
-        $attributes = $this->argument('attributes');
+        $attributes = $this->argument('attributes') ?? [];
 
         $this->createRequest($modelName, $attributes);
     }
@@ -33,13 +33,13 @@ class MakeRequest extends Command
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function createRequest($modelName, $attributes): void
+    private function createRequest($modelName, array $attributes = []): void
     {
         $modelName = modelNaming($modelName);
         $requestName = $this->getRequestName($modelName);
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.request_namespace') . "\\$modelName",
+            '{namespace}' => config('cubeta-starter.request_namespace')."\\$modelName",
             '{class}' => $modelName,
             '{rules}' => $this->generateCols($attributes),
         ];
@@ -54,11 +54,11 @@ class MakeRequest extends Command
         generateFileFromStub(
             $stubProperties,
             $requestPath,
-            __DIR__ . '/stubs/request.stub'
+            __DIR__.'/stubs/request.stub'
         );
 
-        if (in_array('translatable' , $attributes)){
-            addImportStatement("use Cubeta\CubetaStarter\Rules\LanguageShape; \n" , $requestPath);
+        if (in_array('translatable', $attributes)) {
+            addImportStatement("use Cubeta\CubetaStarter\Rules\LanguageShape; \n", $requestPath);
         }
 
         $this->formatFile($requestPath);
@@ -67,15 +67,16 @@ class MakeRequest extends Command
 
     private function getRequestName($modelName): string
     {
-        return 'StoreUpdate' . $modelName . 'Request';
+        return 'StoreUpdate'.$modelName.'Request';
     }
 
-    private function generateCols($attributes): string
+    private function generateCols(array $attributes = []): string
     {
         $rules = '';
         foreach ($attributes as $name => $type) {
             if ($type == 'translatable') {
                 $rules .= "\t\t\t'$name'=>['required', 'json', new LanguageShape] , \n";
+
                 continue;
             }
             if ($name == 'name' || $name == 'first_name' || $name == 'last_name') {
@@ -137,10 +138,10 @@ class MakeRequest extends Command
 
     private function getRequestPath($requestName, $modelName): string
     {
-        $directory = base_path(config('cubeta-starter.request_path')) . "/$modelName";
+        $directory = base_path(config('cubeta-starter.request_path'))."/$modelName";
 
         ensureDirectoryExists($directory);
 
-        return $directory . "/$requestName" . '.php';
+        return $directory."/$requestName".'.php';
     }
 }

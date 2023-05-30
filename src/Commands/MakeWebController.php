@@ -19,7 +19,7 @@ class MakeWebController extends Command
 
     protected $signature = 'create:web-controller
         {name : The name of the model }
-        {attributes : the model attributes}
+        {attributes? : the model attributes}
         {actor? : The actor of the endpoint of this model }';
 
     protected $description = 'Create a new web controller';
@@ -32,7 +32,7 @@ class MakeWebController extends Command
     {
         $name = $this->argument('name');
         $actor = $this->argument('actor');
-        $attributes = $this->argument('attributes');
+        $attributes = $this->argument('attributes') ?? [];
 
         $modelName = modelNaming($name);
 
@@ -43,7 +43,7 @@ class MakeWebController extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    public function createWebController(string $modelName, array $attributes, $actor = null)
+    public function createWebController(string $modelName, array $attributes = [], $actor = null)
     {
         $modelNameCamelCase = variableNaming($modelName);
 
@@ -61,8 +61,8 @@ class MakeWebController extends Command
         $views = $this->getViewsNames($modelName, $actor);
 
         $this->generateCreateOrUpdateForm($modelName, $attributes, $routesNames['store']);
-        $this->generateShowView($modelName, $attributes, $routesNames['edit']);
-        $this->generateIndexView($modelName, $attributes, $routesNames['create'], $routesNames['data']);
+        $this->generateShowView($modelName, $routesNames['edit'], $attributes);
+        $this->generateIndexView($modelName, $routesNames['create'], $routesNames['data'], $attributes);
         $this->generateCreateOrUpdateForm($modelName, $attributes, null, $routesNames['update']);
 
         $stubProperties = [

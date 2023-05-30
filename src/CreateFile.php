@@ -10,7 +10,7 @@ use Illuminate\Filesystem\Filesystem;
 class CreateFile
 {
     /**
-     * @var $instance CreateFile instance from this class
+     * @var CreateFile instance from this class
      */
     private static CreateFile $instance;
 
@@ -92,7 +92,7 @@ class CreateFile
     /**
      * Write to the file specified in the path
      *
-     * @param string|mixed $stub
+     * @param  string|mixed  $stub
      */
     private function writeFile(mixed $stub): void
     {

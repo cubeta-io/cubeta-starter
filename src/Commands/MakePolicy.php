@@ -62,9 +62,6 @@ class MakePolicy extends Command
         $this->info("Created Policy: $policyName");
     }
 
-    /**
-     * @throws BindingResolutionException
-     */
     public function getPolicyPath(string $policyName): string
     {
         $directory = base_path(config('cubeta-starter.policy_path'));

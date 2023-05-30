@@ -38,7 +38,7 @@ class MakeMigration extends Command
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function createMigration($modelName, array $attributes, array $relations): void
+    private function createMigration($modelName, array $attributes = [], array $relations = []): void
     {
 
         $tableName = tableNaming($modelName);
@@ -60,7 +60,7 @@ class MakeMigration extends Command
         generateFileFromStub(
             $stubProperties,
             $migrationPath,
-            __DIR__ . '/stubs/migration.stub'
+            __DIR__.'/stubs/migration.stub'
         );
 
         $this->formatFile($migrationPath);
@@ -72,20 +72,20 @@ class MakeMigration extends Command
         $path = config('cubeta-starter.migration_path');
         ensureDirectoryExists($path);
 
-        return "$path/$migrationName" . '.php';
+        return "$path/$migrationName".'.php';
     }
 
     private function getMigrationName($modelName): string
     {
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
 
-        return $date . '_create_' . tableNaming($modelName) . '_table';
+        return $date.'_create_'.tableNaming($modelName).'_table';
     }
 
     /**
      * return the columns of the migration file
      */
-    public function generateMigrationCols(array $attributes, array $relations): string
+    public function generateMigrationCols(array $attributes = [], array $relations = []): string
     {
         $columns = '';
         foreach ($attributes as $name => $type) {
@@ -94,7 +94,7 @@ class MakeMigration extends Command
             } elseif ($type == 'translatable') {
                 $columns .= "\t\t\t\$table->json('$name') ; \n";
             } else {
-                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('$name')" . ($type == 'file' ? '->nullable()' : '') . "; \n";
+                $columns .= "\t\t\t\$table->".($type == 'file' ? 'string' : $type)."('$name')".($type == 'file' ? '->nullable()' : '')."; \n";
             }
         }
 

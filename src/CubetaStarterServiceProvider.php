@@ -18,8 +18,6 @@ use Cubeta\CubetaStarter\Commands\MakeSeeder;
 use Cubeta\CubetaStarter\Commands\MakeService;
 use Cubeta\CubetaStarter\Commands\MakeTest;
 use Cubeta\CubetaStarter\Commands\MakeWebController;
-use Cubeta\CubetaStarter\Commands\ModelMakeCommand;
-use Cubeta\CubetaStarter\Rules\LanguageShape;
 use Illuminate\Support\Facades\Blade;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
@@ -68,23 +66,14 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         }
 
         foreach ($this->package->configFileNames as $configFileName) {
-            $this->mergeConfigFrom($this->package->basePath("/../config/{$configFileName}.php"), $configFileName);
+            $this->mergeConfigFrom($this->package->basePath("/../config/$configFileName.php"), $configFileName);
         }
 
-        $this->mergeConfigFrom(__DIR__ . '/../config/cubeta-starter.php', 'cubeta-starter');
+        $this->mergeConfigFrom(__DIR__.'/../config/cubeta-starter.php', 'cubeta-starter');
 
         $this->packageRegistered();
 
-        $this->overrideCommands();
-
         return $this;
-    }
-
-    public function overrideCommands()
-    {
-        $this->app->extend('command.model.make', function () {
-            return app()->make(ModelMakeCommand::class);
-        });
     }
 
     public function boot()
@@ -97,26 +86,26 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
 
     protected function loadComponents(): void
     {
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form');
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form/checkboxes');
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form/fields');
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form/validation');
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/show');
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/images');
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/form');
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/form/checkboxes');
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/form/fields');
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/form/validation');
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/show');
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components/images');
     }
 
     protected function publishAssets()
     {
         // publishing config files
-        $this->publishes([__DIR__ . '/../config' => config_path()], 'cubeta-starter-config');
+        $this->publishes([__DIR__.'/../config' => config_path()], 'cubeta-starter-config');
 
         //publishing assets
         $this->publishes([
-            __DIR__ . '/../resources/views/includes' => resource_path('views/includes'),
-            __DIR__ . '/../resources/views/layout.blade.php' => resource_path('views/layout.blade.php'),
-            __DIR__ . '/../resources/js' => resource_path('js'),
-            __DIR__ . '/../resources/sass' => resource_path('sass'),
-            __DIR__ . '/../public' => public_path(),
+            __DIR__.'/../resources/views/includes' => resource_path('views/includes'),
+            __DIR__.'/../resources/views/layout.blade.php' => resource_path('views/layout.blade.php'),
+            __DIR__.'/../resources/js' => resource_path('js'),
+            __DIR__.'/../resources/sass' => resource_path('sass'),
+            __DIR__.'/../public' => public_path(),
         ], 'cubeta-starter-assets');
     }
 }

@@ -33,7 +33,6 @@ abstract class BaseRepository implements IBaseRepository
 
     /**
      * BaseRepository Constructor
-     * @param Model $model
      */
     public function __construct(Model $model)
     {
@@ -54,32 +53,22 @@ abstract class BaseRepository implements IBaseRepository
         $this->modelTableColumns = $this->getTableColumns();
     }
 
-
-    /**
-     * @return array
-     */
     public function getTableColumns(): array
     {
         $table = $this->model->getTable();
+
         return Schema::getColumnListing($table);
     }
 
-    /**
-     * @param array $relationships
-     * @return mixed
-     */
     public function all(array $relationships = []): mixed
     {
         $query = $this->model->with($relationships);
         $query = $this->add_search($query);
         $query = $this->orderQueryBy($query);
+
         return $query->get();
     }
 
-    /**
-     * @param $query
-     * @return mixed
-     */
     private function orderQueryBy($query): mixed
     {
         $sortColumns = request()->sort_col;
@@ -91,18 +80,15 @@ abstract class BaseRepository implements IBaseRepository
                     }
                 }
             } elseif (in_array(request()->sort_col, $this->modelTableColumns)) {
-                $query->orderBy(request()->sort_col, request()->sort_dir ?? "asc");
+                $query->orderBy(request()->sort_col, request()->sort_dir ?? 'asc');
             }
+
             return $query;
         }
+
         return $query->orderBy('created_at', 'desc');
     }
 
-
-    /**
-     * @param $query
-     * @return mixed
-     */
     private function add_search($query): mixed
     {
         if (request()->has('search')) {
@@ -127,14 +113,10 @@ abstract class BaseRepository implements IBaseRepository
             }
             $query->orWhere('id', $keyword);
         }
+
         return $query;
     }
 
-    /**
-     * @param array $relationships
-     * @param int $per_page
-     * @return array|null
-     */
     public function all_with_pagination(array $relationships = [], int $per_page = 10): ?array
     {
         $query = $this->model->with($relationships);
@@ -151,11 +133,7 @@ abstract class BaseRepository implements IBaseRepository
         return null;
     }
 
-    /**
-     * @param $data
-     * @return array
-     */
-    #[ArrayShape(['currentPage' => "mixed", 'from' => "mixed", 'to' => "mixed", 'total' => "mixed", 'per_page' => "mixed"])]
+    #[ArrayShape(['currentPage' => 'mixed', 'from' => 'mixed', 'to' => 'mixed', 'total' => 'mixed', 'per_page' => 'mixed'])]
     public function formatPaginateData($data): array
     {
         $paginated_arr = $data->toArray();
@@ -169,10 +147,6 @@ abstract class BaseRepository implements IBaseRepository
         ];
     }
 
-    /**
-     * @param $path
-     * @return mixed
-     */
     private function makeDirectory($path): mixed
     {
         $this->fileSystem->makeDirectory($path, 0777, true, true);
@@ -181,9 +155,6 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @param array $data
-     * @param array $relationships
-     * @return mixed
      * @noinspection PhpPossiblePolymorphicInvocationInspection
      */
     public function create(array $data, array $relationships = []): mixed
@@ -194,13 +165,10 @@ abstract class BaseRepository implements IBaseRepository
         $result = $this->model->create($data);
         $result->refresh();
         $result = $this->addFileToModel($file, $result, $received_data, $col_name);
+
         return $result->load($relationships);
     }
 
-    /**
-     * @param $data
-     * @return int|string
-     */
     private function fileColName($data): int|string
     {
         foreach ($data as $key => $value) {
@@ -212,13 +180,6 @@ abstract class BaseRepository implements IBaseRepository
         return '';
     }
 
-    /**
-     * @param string $col_name
-     * @param $data
-     * @param bool $is_store
-     * @param $item
-     * @return string
-     */
     private function storeUpdateFileIfExist(string $col_name, &$data, bool $is_store = true, $item = null): string
     {
         $image = '';
@@ -226,7 +187,7 @@ abstract class BaseRepository implements IBaseRepository
             if (array_key_exists($col_name, $data)) {
                 $this->fileSystem = new Filesystem();
                 if ($is_store) {
-                    $this->makeDirectory(storage_path('app/public/' . $this->model->getTable()));
+                    $this->makeDirectory(storage_path('app/public/'.$this->model->getTable()));
                     $image = $this->storeFile($data["$col_name"], $this->model->getTable());
                 } else {
                     if ($item->{"$col_name"}) {
@@ -244,13 +205,6 @@ abstract class BaseRepository implements IBaseRepository
         return '';
     }
 
-    /**
-     * @param $file
-     * @param $model
-     * @param $data
-     * @param $col_name
-     * @return mixed
-     */
     private function addFileToModel($file, $model, $data, $col_name): mixed
     {
         if ($col_name != '') {
@@ -264,10 +218,8 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @param array $data
-     * @param $id
-     * @param array $relationships
      * @return mixed|null
+     *
      * @noinspection PhpUndefinedMethodInspection
      */
     public function update(array $data, $id, array $relationships = []): mixed
@@ -288,8 +240,6 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @param $id
-     * @return bool|null
      * @noinspection PhpUndefinedMethodInspection
      */
     public function delete($id): ?bool
@@ -305,8 +255,6 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @param $id
-     * @param array $relationships
      * @return Builder|Builder[]|Collection|Model|null
      */
     public function find($id, array $relationships = []): Model|Collection|Builder|array|null
