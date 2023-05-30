@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany ;
 use Illuminate\Database\Eloquent\Relations\HasOne ;
+use Illuminate\Database\Eloquent\Model;
 
-use Cubeta\CubetaStarter\BaseModel;
 
 {properties}
-class {modelName} extends BaseModel {
+class {modelName} extends Model {
 
     protected $guarded = ['id'] ;
 
