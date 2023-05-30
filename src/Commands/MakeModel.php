@@ -401,26 +401,28 @@ class MakeModel extends Command
             'seeder' => $this->call('create:seeder', ['name' => $name]),
             'repository' => $this->call('create:repository', ['name' => $name]),
             'service' => $this->call('create:service', ['name' => $name]),
-            'controller' => $container['api'] ? $this->call('create:controller', ['name' => $name, 'actor' => $actor]) : null,
-            'web-controller' => $container['web'] ? $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $this->relations]) : null,
+            'controller' => $this->call('create:controller', ['name' => $name, 'actor' => $actor]),
+            'web-controller' => $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $this->relations]),
             'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor]),
             'postman-collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
             '', null => 'all',
         };
+
         if ($result === 'all') {
             $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
             $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
             $this->call('create:seeder', ['name' => $name]);
             $this->call('create:request', ['name' => $name, 'attributes' => $attributes]);
-            $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
-            $this->call('create:test', ['name' => $name, 'actor' => $actor]);
-            $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
 
             if ($container['api']) {
+                $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
                 $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
+                $this->call('create:test', ['name' => $name, 'actor' => $actor]);
+                $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
             }
+
             if ($container['web']) {
                 $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
             }
