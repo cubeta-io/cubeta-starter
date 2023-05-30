@@ -26,7 +26,7 @@ class MakeResource extends Command
     {
         $modelName = $this->argument('name');
         $attributes = $this->argument('attributes') ?? [];
-        $relations = $this->argument('relations');
+        $relations = $this->argument('relations') ?? [];
 
         $this->createResource($modelName, $attributes, $relations);
     }

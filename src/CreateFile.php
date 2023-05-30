@@ -9,10 +9,8 @@ use Illuminate\Filesystem\Filesystem;
 
 class CreateFile
 {
-    /**
-     * @var CreateFile instance from this class
-     */
-    private static CreateFile $instance;
+
+    private static $instance;
 
     /**
      * The path to create file at
