@@ -113,7 +113,7 @@ class MakeFactory extends Command
                 $rows .= "'$name' => json_encode([";
 
                 foreach ($availableLocales as $locale) {
-                    $rows .= "'$locale' => fake('$locale')->word() , \n";
+                    $rows .= "'$locale' => fake('$locale')->word() , ";
                 }
 
                 $rows .= "]) ,\n";

@@ -156,8 +156,8 @@ class MakeModel extends Command
 
                 $relationName = relationFunctionNaming(str_replace('_id', '', $value));
 
-                $relationsFunctions .= '
-                public function '.$relationName.'():hasOne
+                $relationsFunctions .=
+                'public function '.$relationName.'():hasOne
                 {
                     return $this->hasOne('.modelNaming($relationName)."::class);
                 }\n";
@@ -169,8 +169,8 @@ class MakeModel extends Command
 
                 $relationName = relationFunctionNaming(str_replace('_id', '', $value));
 
-                $relationsFunctions .= '
-                public function '.$relationName.'():belongsTo
+                $relationsFunctions .=
+                'public function '.$relationName.'():belongsTo
                 {
                     return $this->belongsTo('.modelNaming($relationName)."::class);
                 }\n";
@@ -268,7 +268,13 @@ class MakeModel extends Command
             }
 
             if ($type == 'translatable') {
-                $properties .= "* @property json $name \n";
+                $properties .= "* @property string $name \n";
+
+                continue;
+            }
+
+            if ($type == 'key') {
+                $properties .= "* @property integer $name \n";
 
                 continue;
             }

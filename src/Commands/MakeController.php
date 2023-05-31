@@ -26,7 +26,7 @@ class MakeController extends Command
     public function handle(): void
     {
         $modelName = $this->argument('name');
-        $actor = $this->argument('actor');
+        $actor = $this->argument('actor') ?? null;
 
         $this->createController($modelName, $actor);
     }

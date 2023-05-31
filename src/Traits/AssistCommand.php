@@ -15,7 +15,11 @@ trait AssistCommand
         return shell_exec($fullCommand);
     }
 
-    public function checkIfMigrationExists($tableName): bool
+    /**
+     * @param $tableName
+     * @return false|string
+     */
+    public function checkIfMigrationExists($tableName): bool|string
     {
         $migrationsPath = base_path(config('cubeta-starter.migration_path'));
         ensureDirectoryExists($migrationsPath);
@@ -24,7 +28,7 @@ trait AssistCommand
         foreach ($allMigrations as $migration) {
             $migrationName = $migration->getBasename();
             if (Str::contains($migrationName, "_create_$tableName".'_table')) {
-                return true;
+                return $migration->getRealPath();
             }
         }
 

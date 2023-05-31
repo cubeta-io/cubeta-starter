@@ -11,14 +11,6 @@ function variableNaming(string $string): string
 }
 
 /**
- * return the lower & plural mode name of a given string
- */
-function lowerPluralName(string $string): string
-{
-    return strtolower(Str::plural($string));
-}
-
-/**
  * return the name based on name convention for tables
  */
 function tableNaming($name): string
@@ -36,7 +28,7 @@ function modelNaming($name): string
 
 function controllerNaming($modelName): string
 {
-    return $modelName.'Controller';
+    return $modelName . 'Controller';
 }
 
 /**
@@ -45,6 +37,16 @@ function controllerNaming($modelName): string
 function routeUrlNaming($name): string
 {
     return strtolower(Str::plural(Str::snake($name)));
+}
+
+/**
+ * return the used name of the model for the route name
+ * @param string $name
+ * @return string
+ */
+function routeNameNaming(string $name): string
+{
+    return strtolower(Str::plural(Str::kebab($name)));
 }
 
 /**
