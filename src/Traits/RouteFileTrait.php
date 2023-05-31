@@ -18,7 +18,7 @@ trait RouteFileTrait
         $role = Str::singular(Str::lower($role));
 
         $routeFile = "$container/$role.php";
-        $routeFileDirectory = base_path("routes/$routeFile.php");
+        $routeFileDirectory = base_path("routes/$routeFile");
 
         ! (File::makeDirectory(dirname($routeFileDirectory), 0777, true, true)) ??
         $this->error('Failed To Create Your Route Specified Directory');

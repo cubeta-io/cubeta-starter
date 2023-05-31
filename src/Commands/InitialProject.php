@@ -76,9 +76,9 @@ class InitialProject extends Command
 
                 $this->createRolesEnum($role, $permissions);
 
-                $container = $this->choice('<info>What is the container of the routes of your actors</info>', ['api', 'web', 'both'], 'api');
+                $container = 'api';
 
-                if (! file_exists(base_path("routes/$container/$role.php"))) {
+                if (!file_exists(base_path("routes/$container/$role.php"))) {
                     $this->addAppropriateRouteFile($container, $role);
                     $this->createRoleSeeder();
                     $this->createPermissionSeeder($container);
@@ -100,9 +100,9 @@ class InitialProject extends Command
             return;
         }
 
-        $handlerStub = file_get_contents(__DIR__.'/stubs/handler.stub');
-        $handlerPath = base_path().'/app/Exceptions/Handler.php';
-        if (! file_exists($handlerPath)) {
+        $handlerStub = file_get_contents(__DIR__ . '/stubs/handler.stub');
+        $handlerPath = base_path() . '/app/Exceptions/Handler.php';
+        if (!file_exists($handlerPath)) {
             File::makeDirectory($handlerPath, 077, true, true);
         }
         file_put_contents($handlerPath, $handlerStub);
