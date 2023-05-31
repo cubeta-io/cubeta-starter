@@ -6,6 +6,7 @@
  * @param  string  $translationColumn must be a json string
  * @return mixed|null
  */
+//TODO:remember to put a locale parameter and remember to add accept language to the postman collection
 function getTranslation(string $translationColumn): mixed
 {
     $locale = app()->getLocale();

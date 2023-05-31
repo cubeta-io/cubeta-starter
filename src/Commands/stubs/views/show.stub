@@ -1,8 +1,0 @@
-@extends('layout')
-@section('content')
-    <x-show-layout title="{modelName} With ID {{${modelVariable}->id}}" editRoute="{{route('{editRoute}' , ${modelVariable}->id)}}">
-
-        {components}
-
-    </x-show-layout>
-@endsection

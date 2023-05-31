@@ -24,8 +24,6 @@ class MakeModel extends Command
 
     private array $types;
 
-    private string $containerType;
-
     public function __construct()
     {
         parent::__construct();
