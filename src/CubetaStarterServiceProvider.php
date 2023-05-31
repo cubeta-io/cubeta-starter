@@ -70,4 +70,15 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
 
         return $this;
     }
+
+    public function boot()
+    {
+        parent::boot();
+        $this->publishConfigFiles() ;
+    }
+
+    public function publishConfigFiles()
+    {
+        $this->publishes([__DIR__.'/../config/cubeta-starter.php' => config_path()] , 'cubeta-starter-config');
+    }
 }
