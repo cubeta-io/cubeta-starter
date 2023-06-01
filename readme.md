@@ -15,7 +15,7 @@
     - <a href="#factories">Factories</a>
     - <a href="#seeders">Seeders</a>
     - <a href="#repositories">Repositories</a>
-      - <a href="#base-repository">BaseRepository Class</a> 
+      - [BaseRepository Class](#baserepository)
     - <a href="#services">Services</a>
     - <a href="#tests">Tests</a>
       - <a href="#main-testcase-trait">MainTestCase Trait</a> 
@@ -329,7 +329,7 @@ As mentioned before you'll find a model class corresponding to the name you ente
 - you'll notice the existence of `relationsSearchableArray()` method in the returned array of this method you can define
   the related tables and their desired columns to search within in the same way for the `searchableArray()` method .
 - the `filesKeys()` method will determine the columns you want to treat them as a files so
-  the <a href="#base-repository">BaseRepository Class</a> can recognize them. in this I mean when you use the create
+  the <a href="#baserepository">BaseRepository Class</a> can recognize them. in this I mean when you use the create
   method for example the BaseRepository Class will detect that this column is representing a file, so it will store the
   file in the storage path and its storage path will be in the record of the table .
 
@@ -618,7 +618,7 @@ so any database operation related to your model we prefer you do it in the corre
 
 each repository class will be bind in the service provider by default (if it was created by the package)
 
-if you opened the created repository class you'll notice that it extends another class named <h4 id="base-repository">
+if you opened the created repository class you'll notice that it extends another class named <h4 id="baserepository">
 BaseRepository</h4> this class contain the following methods :
 
 - `all(array $relations = [])` : <br>
