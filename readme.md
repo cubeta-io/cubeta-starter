@@ -5,6 +5,7 @@
 - <a href="#usage">Usage</a>
     - <a href="#available-commands">Available Commands</a>
     - <a href="#cubeta-init-command">cubeta-init Command</a>
+    - <a href="#generating-files">Generating Files</a>
 - <a href= "#created-classes-and-files">Created Classes And Files</a>
     - <a href= "#models">Models</a>
     - <a href= "#migrations">Migrations</a>
@@ -19,11 +20,11 @@
     - <a href="#policies">Policies</a>
 
 <h1 id="introduction">Introduction</h1>
-cubeta-starter is a package that will help you create your CRUDS easier than before with a pretty much everything you
+cubeta-starter is a package that will help you create your CRUD'S easier than before with a pretty much everything you
 will need
 
 it is using Repository and Service design pattern so every model created there will be a corresponding repository
-class and service clas_
+class and service class
 
 Each created model will have a :
 
@@ -36,14 +37,13 @@ Each created model will have a :
 - repository
 - service
 - test
-- policy
 
-and a postman collection file will be generated for the whole model created (models creat by the package)
+and a postman collection file will be generated for the whole model created (models created by the package)
 
 **<h1 id="installation">installation</h1>**
 
 1 - in your project root directory open packages' directory (if it doesn't create it) then add this
-directory : `cubeta/cubeta-starter` then in the created directory clone this project
+directory : `/cubeta` then in the created directory clone this project
 
 2 - open _composer.json_ file in your root directory and add this code :
 
@@ -63,11 +63,11 @@ then in the require-dev entity add this line : `"cubeta/cubeta-starter" : "@dev"
 
 3 - run `composer install`
 
-4 - publish te config file : `php artisan vendor:publish --tag=cubeta-starter-config`
+4 - publish the config file : `php artisan vendor:publish --tag=cubeta-starter-config`
 
 **<h1 id="usage">Usage</h1>**
 
-First of all I need you to take a look on the 'cubeta-starter.php' file in the `config` directory and see the options
+First I need you to take a look on the `cubeta-starter.php` file in the `config` directory and see the options
 there .
 The most elements in the config array are for the generated files directories and namespaces **except** :
 
@@ -253,17 +253,20 @@ those are the column type you just enter the number of the type
 - **notice** : the key type is a foreignId so if your column name is something like this : ``user_id`` you need to
   define it as a key type
 
-<h3 id="translations">Translatable Column Type</h3>
-Of course there isn't a column type called translatable to make it easier for you to use the prepared things for the
-translation we called this column translatable in fact the generated column type is json but in this way we've marked
-this column as translatable so the generated code will make sure to use the `LanguageShape` validation rule on the
-validation and the `getTranslation()` method when getting the translation .
+<h3 id="translatable-column-type">Translatable Column Type</h3>
+Of course there isn't a column type called translatable in Laravel . to make it easier for you to use the prepared
+things for the translation we called this column translatable in fact the generated column type is json but in this way
+we've marked this column as translatable so the generated code will make sure to use the `LanguageShape` validation rule
+on the validation and the `getTranslation()` method when getting the translation .
 
 The `LanguageShape` validation rule will make sure that the received json is simple and hasn't any nesting objects e.g :
 `{
 "en" : "name" ,
 "fr" : "nom"
 }`
+
+and in addition to that it's make sure that the entered translation is corresponding to one of the locales defined in
+the `cubeta-starter.php` config file if it is not it will return a validation error.
 
 3 - then the output will be :
 
@@ -352,8 +355,6 @@ methods `(apiResponse , apiValidation , formatPaginateData)`
 
 <h2 id='requests'>Requests</h2>
 
-you'll find the created form request in the directory : `app/Http/Requests/YourModelName`
-
 each model property will have this rules : `required|PropertyType` unless this :
 
 <table>
@@ -369,18 +370,22 @@ each model property will have this rules : `required|PropertyType` unless this :
 <td>name | first_name | last_name</td>
 <td>required|string|min:3|max:255</td>
 </tr>
+
 <tr>
 <td>email</td>
 <td>required|string|max:255|email</td>
 </tr>
+
 <tr>
 <td>password</td>
 <td>required|string|max:255|min:6|confirmed</td>
 </tr>
+
 <tr>
 <td>phone | phone_number | number</td>
 <td>required|string|max:255|min:6</td>
 </tr>
+
 <tr>
 <td>
 
@@ -393,7 +398,7 @@ any word ends with `_at` (started_at , ends_at , ... , any type that seems to be
 <tr>
 <td>
 
-any word starts with `_is` (is_original , is_available , .... , any type that seems to be boolean value)
+any word starts with `is_` (is_original , is_available , .... , any type that seems to be boolean value)
 </td>
 <td>required|boolean</td>
 </tr>
@@ -408,6 +413,22 @@ any word ends with `_id` (user_id , product_id , .... , any type that seems to b
 required|integer|exists:_parent table_,id
 </td>
 </tr>
+
+<tr>
+<td>columns with file type</td>
+<td>nullable|image|mimes:jpeg,png,jpg|max:2048</td>
+</tr>
+
+<tr>
+<td>columns with text type</td>
+<td>nullable|string</td>
+</tr>
+
+<tr>
+<td>columns with translatable type</td>
+<td>['required', 'json', new LanguageShape]</td>
+</tr>
+
 </tbody>
 </table>
 
@@ -422,8 +443,6 @@ if you have checked on the created controllers you should notice that their retu
 this resource will structure your json response to be in a united structure across your application 
 
 **notice:** this resource will return the relations of this model also` (it is better to check on its code)`
-
-the created resource will be placed in `app/Http/Resources` directory
 
 <h2 id="factories">Factories</h2>
 the created factory fill the database according to this :
@@ -440,31 +459,54 @@ the created factory fill the database according to this :
 <td>integer|bigInteger|unsignedBigInteger</td>
 <td>fake()->numberBetween(1,2000)</td>
 </tr>
+
 <tr>
+
+<tr>
+<td>key type columns</td>
+<td>a factory for the related model</td>
+</tr>
+
+<tr>
+<td>translatable type column</td>
+<td>
+
+json_encode(["en":fake()->word()]) in fact the array inside the `json_encode` method will be a fake word for each
+available locale you defined in the `cubeta-starter.php` config file
+
+</td>
+</tr>
+
 <tr>
 <td>unsignedDouble</td>
 <td>fake()->randomFloat(1,2000)</td>
 </tr>
+
 <tr>
 <td>double</td>
 <td>fake()->randomFloat(1,2000)</td>
 </tr>
+
 <tr>
 <td>float</td>
 <td>fake()->randomFloat(1,2000)</td>
 </tr>
+
 <tr>
 <td>string</td>
 <td>fake()->sentence()</td>
 </tr>
+
 <tr>
 <td>text</td>
 <td>fake()->text()</td>
 </tr>
+
 <tr>
 <td>json</td>
 <td>{'".'fake()->word()'."':'".'fake()->word()'."'}</td>
 </tr>
+
 </tbody>
 </table>
 
@@ -524,24 +566,26 @@ any word ends with `_id` (user_id , product_id , .... , any type that seems to b
 </tbody>
 </table>
 
+- sometimes the factory could be predicted according to its name like if you have a column named _image , logo , icon_
+  the used faker will be `imageUrl()` or if the name of the column contain the phone word the used faker will
+  be `phoneNumber()`.
+
 if the model has one of this relation (has many , many to many) a function like below will be added to the factory :
 
 ```
 
- public function $products($count = 1)
+ public function $withProducts($count = 1)
  {
     return $this->has(\App\Models\Product::factory($count));
  };
 
 ```
 
-the created factory will be placed in `database\factories` directory
+<hr>
 
 <h2 id="seeders">Seeders</h2>
 
-a seeder will be created for your model in `database/seeders` directory
-
-the seeder will call the corresponding factory with `10` as the factory count parameter
+the seeder will call the corresponding factory of the model with `10` as the factory count parameter
 
 <h2 id="repositories">Repositories</h2>
 
@@ -563,9 +607,8 @@ so any database operation related to your model we prefer you do it in the corre
 
 each repository class will be bind in the service provider by default (if it was created by the package)
 
-if you opened the created repository class which will be in `app/Repositories` directory you'll notice that the
-repository class extends another class named <h4 id="base-repository">BaseRepository</h4> this class contain the
-following methods :
+if you opened the created repository class you'll notice that it extends another class named <h4 id="base-repository">
+BaseRepository</h4> this class contain the following methods :
 
 - `all(array $relations = [])` : <br>
   this method will return all the corresponding model records without any format
@@ -622,8 +665,8 @@ article : [Service Design Patterns](https://davislevine.medium.com/service-desig
 and based on that we placed the code that handle the logic on the service layer and this layer will be placed above the
 repository layer .
 
-after your model creation is done you'll find this directory : `app/Services/YourModelName`  in it, you will find 2 php
-files :
+after your model creation is done you'll find 2 php files in the services' directory you defined in the package config
+file :
 
 1. `YourModelService.php` this is the service class
 2. `IYourModelService.php` this is the service interface
@@ -658,7 +701,10 @@ have to create another ones .
 
 - <h3>MainTestCase Methods</h3>
 
-**notice :** those methods depends on the model resource and factory . <br>
+**notice :** those methods depends on the model resource and factory and the response of the endpoint to be generated by
+the `RestfulTrait`. <br>
+so each model must have a resource and a factory (not necessarily generated by the package) but the endpoint for it
+using RestfulTrait for handling its responses .
 
 - `indexTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false)` : <br>
   this method will test the index endpoint by creating 5 records of fake data and try to get them
@@ -696,19 +742,14 @@ the model factory .<br>
 - `deleteTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false)` : <br>
   all the parameters of this method has explained before . <br>
 
-**notice :** all of these methods expect the response as it formed in the RestfulTrait which we talked about before in
-the <a href="#controllers">controllers section</a> <br>
-
 **notice :** you have to configure the `phpunit.xml` file before running any test check
 on [Laravel Testing documentation](https://laravel.com/docs/10.x/testing) <br>
 
 <h4 style="color:red;">I truly recommend to check on the MainTestCase Trait </h4>
 
 <h2 id="policies">Policies</h2>
-
-a policy will be created just if there is an actor for this model, and you'll find it in  `app/Policies` directory. <br>
-
-if you opened it you'll see that it extends the BasePolicy Class which contains the policy functions for the CRUDS
+the policies will be generated **just** if you run the command `php artisan create:policy <YourModelName>` .
+if you opened it you'll see that it extends the BasePolicy Class which contains the policy functions for the CRUD'S
 actions and those functions depends on the roles given to each actor on the model but assuming your model name is :
 Brand then the policy will make sure that this user has this
 roles : `('index brand , show brand , store brand , update brand' , 'delete brand')`
@@ -742,5 +783,64 @@ method parameters and content based on your specific requirements.
 By using the RestfulTrait and its provided methods, you can simplify the handling of API responses, improve code
 organization, and ensure consistent response structures and data validations throughout your application.
 
+<hr>
 
+<h1 id="translations">Translations Handling</h1>
 
+As we mentioned before the corresponding type for the translatable columns is json .
+for now (the first version) our tools for the translations are a helper to get the translation from this
+column based on your choices and validation rule in addition a middleware that take the accept-language
+value from the request header and change the project locale according to it .
+
+<h4>`getTranslation(string $translationColumn, $locale = null): mixed` method : </h4>
+it returns the corresponding value for the provided locale if it is not provided then for the current locale
+and if there isn't a value corresponding to them, it returns the corresponding value for the default locale
+defined in the config file of the package and if there isn't a corresponding value for it,
+it returns a message informing you that there isn't .
+
+<h4>`AcceptedLanguagesMiddleware` middleware class</h4>
+to use this just put this line in your `$middlewareGroups` array in the `api`
+element : `\Cubeta\CubetaStarter\Middleware\AcceptedLanguagesMiddleware::class` in this way every received request will
+be checked for having an _accept-language_ header and change the project locale depending on it.
+in addition to that you will notice that the generated postman collection will have a `"locale"` variable which will be
+the default value of all the generated requests' locale you can set it in postman in the variables' section of the
+collection .
+
+<h1 id="file-handler-trait">FileHandler Trait</h1>
+remember when I told you that the BaseRepository handle your files columns automatically without the need
+from you to do that well it uses this trait to do that and so as you can.
+
+this trait provides the following methods which you can use :
+
+`storeFile($file, $dir, $to_compress = true, $is_base_64 = false, $width = 300)`: This method takes a file, directory
+path, and optional parameters, and stores the file in the specified directory. If the file is a base64-encoded image, it
+generates a unique name for the file based on the current timestamp. If compression is enabled, it resizes the image to
+the specified width while maintaining the aspect ratio. Finally, it returns the name of the stored file.
+
+`updateFile($new_file, $old_file, $dir, $to_compress = true, $is_base_64 = false, $width = 300)`: This method is similar
+to storeFile, but it also takes an old file name as a parameter. It deletes the old file and then calls storeFile to
+store the new file. It returns the name of the new file.
+
+`deleteFile($file)`: This method takes a file name and deletes it from the filesystem. It returns true if the file was
+deleted successfully and false if the file was not found.
+
+`storeNormalFile($key)`: This method is used to store any type of file, not just images. It takes a request key and
+stores
+the file in the public storage directory. It generates a unique file name based on the current timestamp and returns the
+generated name.
+
+`storeOrUpdateRequestedFiles(array $data, array $filesKeys = [], bool $is_store = true, $item = null, $to_compress =
+true, $is_base_64 = false, $width = 300)`: This method is a utility method that is used to store or update multiple
+files
+based on the provided data and file keys. It takes an array of data, an array of file keys, and optional parameters. It
+iterates over the file keys and checks if the key exists in the data array. If it does, it calls either storeFile or
+updateFile based on the $is_store parameter. It removes the file key from the data array and merges the generated file
+name into the data array. Finally, it returns the updated data array.
+
+`storeImageFromUrl($url, $dir)`: This method takes a URL and a directory path, creates the directory if it doesn't
+exist,
+generates a random name for the image, and saves the image from the URL in the specified directory. It returns an array
+containing the name of the stored image and the image object.
+
+Overall, this trait provides convenient methods for storing, updating, and deleting files, with specific support for
+image handling, in a Laravel application.

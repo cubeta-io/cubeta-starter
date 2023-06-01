@@ -1,12 +1,12 @@
 <?php
 
 /**
- * this function return current locale correspond translation for the provided column
  * it returns the corresponding value for the provided locale if it is not provided so for the current locale
  * and if there isn't a value corresponding to them, it returns the corresponding value for the default locale
  * defined in the config file of the package and if there isn't a corresponding value for it,
  * it returns a message informing you that there isn't
  * @param string $translationColumn must be a json string
+ * @param ?string $locale 
  * @return mixed|null
  */
 function getTranslation(string $translationColumn, $locale = null): mixed
