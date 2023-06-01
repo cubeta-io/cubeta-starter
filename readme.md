@@ -756,7 +756,7 @@ the model factory .<br>
 **notice :** you have to configure the `phpunit.xml` file before running any test check
 on [Laravel Testing documentation](https://laravel.com/docs/10.x/testing) <br>
 
-<h4 style="color:red;">I truly recommend to check on the MainTestCase Trait </h4>
+<p style="color:red;">I truly recommend to check on the MainTestCase Trait </p>
 
 <h2 id="postman-collection">Postman Collection</h2>
 the generated postman collection will have HTTP requests grouped by your model name .
@@ -783,13 +783,13 @@ for now (the first version) our tools for the translations are a helper to get t
 column based on your choices and validation rule in addition to a middleware that take the accept-language
 value from the request header and change the project locale according to it .
 
-<h4>`getTranslation(string $translationColumn, $locale = null): mixed` method : </h4>
+<p>`getTranslation(string $translationColumn, $locale = null): mixed` method : </p>
 it returns the corresponding value for the provided locale if it is not provided then for the current locale
 and if there isn't a value corresponding to them, it returns the corresponding value for the default locale
 defined in the config file of the package and if there isn't a corresponding value for it,
 it returns a message informing you that there isn't .
 
-<h4>`AcceptedLanguagesMiddleware` middleware :</h4>
+<p>`AcceptedLanguagesMiddleware` middleware :</p>
 to use this just put this line in your `$middlewareGroups` array in the `api`
 element : `\Cubeta\CubetaStarter\Middleware\AcceptedLanguagesMiddleware::class` in this way every received request will
 be checked for having an _accept-language_ header and change the project locale depending on it.
