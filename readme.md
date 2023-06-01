@@ -15,9 +15,15 @@
     - <a href="#factories">Factories</a>
     - <a href="#seeders">Seeders</a>
     - <a href="#repositories">Repositories</a>
+      - <a href="#base-repository">BaseRepository Class</a> 
     - <a href="#services">Services</a>
     - <a href="#tests">Tests</a>
+      - <a href="#main-testcase-trait">MainTestCase Trait</a> 
+    - <a href="#postman-collection">Postman Collection</a>
     - <a href="#policies">Policies</a>
+- <a href="#translations">Translation Handling</a>
+- <a href="#restful-trait">Restful Trait</a>
+- <a href="#file-handler-trait">FileHandler Trait</a> 
 
 <h1 id="introduction">Introduction</h1>
 cubeta-starter is a package that will help you create your CRUD'S easier than before with a pretty much everything you
@@ -71,13 +77,14 @@ First I need you to take a look on the `cubeta-starter.php` file in the `config`
 there .
 The most elements in the config array are for the generated files directories and namespaces **except** :
 
-1. `project_name` : you can define this as you want but for better usage of it we recommend to name it after your
-   project folder name because that the created **postman** collection will use it to determine the project public route
-   and place it in a variable to make your work easier, so you wouldn't need to define it by your self
-2. `available_locales` : the package provides a way to store your table columns with their
+1. `project_name` : the created postman collection will be named corresponding to it
+2. `project_url` : here define your project public url, so we can add it to the postman collection
+   if you let it **_null_** we will place it in the collection as like you're using xampp
+   e.g :`http://localhost/example-project/public/` [read more about the generated postman collection](#postman-collection)
+3. `available_locales` : the package provides a way to store your table columns with their
    translations <a href="#translations">(read more about it here)</a> so in this case this situation you'll need to
    define your project available locales in here
-3. `defaultLocale` : here define your default project locale
+4. `defaultLocale` : here define your default project locale
 
 **<h2 id="available-commands">Available Commands</h2>**
 
@@ -107,7 +114,7 @@ principle,
 but it is always better to provide the right names for the commands instead on depending on them for not facing
 unexpected behaviour .
 
-The <actor> parameter will define the actor on the created endpoints, and it is important for route placing and naming .
+The `actor` parameter will define the actor on the created endpoints, and it is important for route placing and naming .
 
 <h3>the table columns array</h3>
 it is an array that take this shape :
@@ -144,10 +151,10 @@ now this command will Initialize your project on specific roles :
 
 
 > We have an exception handler for you, and it will replace app/Exceptions/handler.php file with a file of the same name
-
-> Do you want us to do that ? (note : the created feature tests depends on our handler) [Yes]:
-> [0] No
-> [1] Yes
+>
+> Do you want us to do that ? (note : the created feature tests depends on our handler) [Yes]:<br>
+> [0] No <br>
+> [1] Yes<br>
 
 now if you hit yes an exception handler well replace the default exception handler of laravel in
 the `app/Exceptions/handler.php`
@@ -171,7 +178,7 @@ if you hit yes then the output will be :
 we've chosen spatie/permission package to handle your multi actor project because of its usability and reliability so if
 you're willing to use multi actors in your project hit yes, and then we will install this package for you (if you've
 already installed it hit **no**)
-no another question will pop up :
+now another question will pop up :
 
 > How Many Are They ? [2] :
 
@@ -213,8 +220,9 @@ compatible route file in the `routes/api` directory .
 <h2 id="generating-files">Generating Files</h2>
 
 As mentioned <a href="#available-commands">before</a> you can run every command in the list of the available commands
-separately but for a better usage and usability we recommend to call the needed command from the `create:model` as an
-option ,so the wanted command will generate the code based on your model properties and relations or for a full
+separately but for a better usability we recommend to call the needed command from the `create:model` as an
+option like this : `php artisan create:model Post --controller` ,so the wanted command will generate the code based on
+your model properties and relations or for a full
 generated code leave the option empty so the `create:model` command will generate everything for you like this :
 
 1 - run this command : `php artisan create:model <YourMoodel>` then an output will show :
@@ -315,15 +323,15 @@ As mentioned before you'll find a model class corresponding to the name you ente
   property
 
 - you'll notice the existence of `searchableArray()` method in the returned array of this method you can define the
-  searchable columns in the table od this model so in the index method if you passed a query param named `search` with
+  searchable columns in the table of this model so in the index method if you passed a query param named `search` with
   the
   value of the wanted value the index method search within the defined columns in the `searchableArray()` method .
 - you'll notice the existence of `relationsSearchableArray()` method in the returned array of this method you can define
   the related tables and their desired columns to search within in the same way for the `searchableArray()` method .
 - the `filesKeys()` method will determine the columns you want to treat them as a files so
-  the <a href="#base-repository">BaseRepository Class</a> in this I mean when you use the create method the
-  BaseRepository Class will detect that this column is representing a file, so it will store the file in the storage
-  path and its storage path will be in the record of the table .
+  the <a href="#base-repository">BaseRepository Class</a> can recognize them. in this I mean when you use the create
+  method for example the BaseRepository Class will detect that this column is representing a file, so it will store the
+  file in the storage path and its storage path will be in the record of the table .
 
 **you'll find that we have already filled those arrays with appropriate values, but you can change them according to
 your preferences**
@@ -336,6 +344,9 @@ the corresponding created migration will match the types of the columns you ente
 attribute <br>
 **notice 2:** columns of type key will be placed on the migration file as a `foreignIdFor` columns with these
 attributes : <br>
+1. constrained
+2. cascadeOnDelete 
+
 **notice 3:** columns of type translatable will be placed on the migration file as a `json` columns<br>
 
 <div class="alert alert-danger" style="color: crimson"> it is always better to check on the created files</div>
@@ -673,7 +684,7 @@ file :
 
 if you opened the service class you will notice that the class extends a class named BaseService .
 
-if you remember the BaseRepository class methods you'll find that BaseService class implement those methods .
+if you remember the BaseRepository class methods you'll find that BaseService class use those methods to do its job.
 
 <h2 id="tests">Tests</h2>
 
@@ -699,12 +710,12 @@ line inside the class : `use \Cubeta\CubetaStarter\Traits\MainTestCase;`) . <br>
 maybe you want to check on MainTestCase trait to know how the test methods work and see if they are good for you, or you
 have to create another ones .
 
-- <h3>MainTestCase Methods</h3>
+- <h3 id="main-testcase-trait">MainTestCase Trait Methods</h3>
 
 **notice :** those methods depends on the model resource and factory and the response of the endpoint to be generated by
-the `RestfulTrait`. <br>
+the `RestfulTrait` and the exceptions thrown by our exception handler.  <br>
 so each model must have a resource and a factory (not necessarily generated by the package) but the endpoint for it
-using RestfulTrait for handling its responses .
+must be using RestfulTrait for handling its responses .
 
 - `indexTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false)` : <br>
   this method will test the index endpoint by creating 5 records of fake data and try to get them
@@ -713,7 +724,7 @@ using RestfulTrait for handling its responses .
   their exists in the desired response, or you want to test this endpoint on a specific columns values , so this array
   will give you the ability to pass the required columns with their desired value to the factory .
 
-  `$ownership` determine if the action has to be on the authenticated user data so if it has to be the test will check
+  `$ownership` determine if the action has to be on the authenticated user data so if it has to be, the test will check
   if the ordered data belongs to the current user or not
 
   `$isDebug`  if it true it will dd() the endpoint response
@@ -734,7 +745,7 @@ using RestfulTrait for handling its responses .
   `$attributes` : if your requests needs data that your factory doesn't create it just send those data within this
   parameter, and it will be merged within the test request. <br>
   `$replacing` : sometimes your update endpoint doesn't edit the selected database record it is just create another one
-  with the desired edits so if this wat happens in your endpoint just make this parameter false . <br>
+  with the desired edits so if this what happens in your endpoint just make this parameter `false` . <br>
 
 **notice :** it is important to mention that the storeTest and updateTest methods generate their requests body data from
 the model factory .<br>
@@ -747,13 +758,44 @@ on [Laravel Testing documentation](https://laravel.com/docs/10.x/testing) <br>
 
 <h4 style="color:red;">I truly recommend to check on the MainTestCase Trait </h4>
 
+<h2 id="postman-collection">Postman Collection</h2>
+the generated postman collection will have HTTP requests grouped by your model name .
+it has two variables for the whole collection :
+
+1. **{{local}}** :  this will be generated as we mentioned before from the value you defined in the config or by
+   assuming you're using `xampp` so the url will be like the projects route which use xampp as a host.
+2. **{{locale}}** : this will represent the accept-language header in all the generated requests
+
+when generating another postman collection assuming that you've already generated one it will not replace the older one
+it will just add a new group of requests to the previous one .
+
 <h2 id="policies">Policies</h2>
 the policies will be generated **just** if you run the command `php artisan create:policy <YourModelName>` .
 if you opened it you'll see that it extends the BasePolicy Class which contains the policy functions for the CRUD'S
 actions and those functions depends on the roles given to each actor on the model but assuming your model name is :
 Brand then the policy will make sure that this user has this
 roles : `('index brand , show brand , store brand , update brand' , 'delete brand')`
+<hr>
+<h1 id="translations">Translations Handling</h1>
 
+As we mentioned before the corresponding type for the translatable columns is json .
+for now (the first version) our tools for the translations are a helper to get the translation from this
+column based on your choices and validation rule in addition to a middleware that take the accept-language
+value from the request header and change the project locale according to it .
+
+<h4>`getTranslation(string $translationColumn, $locale = null): mixed` method : </h4>
+it returns the corresponding value for the provided locale if it is not provided then for the current locale
+and if there isn't a value corresponding to them, it returns the corresponding value for the default locale
+defined in the config file of the package and if there isn't a corresponding value for it,
+it returns a message informing you that there isn't .
+
+<h4>`AcceptedLanguagesMiddleware` middleware :</h4>
+to use this just put this line in your `$middlewareGroups` array in the `api`
+element : `\Cubeta\CubetaStarter\Middleware\AcceptedLanguagesMiddleware::class` in this way every received request will
+be checked for having an _accept-language_ header and change the project locale depending on it.
+in addition to that you will notice that the generated postman collection will have a `"locale"` variable which will be
+the default value of all the generated requests' locale you can set it in postman in the variables' section of the
+collection .
 
 <h1 id="restful-trait">RestFul Trait</h1>
 To use the RestfulTrait in your PHP application, follow these steps:
@@ -784,27 +826,6 @@ By using the RestfulTrait and its provided methods, you can simplify the handlin
 organization, and ensure consistent response structures and data validations throughout your application.
 
 <hr>
-
-<h1 id="translations">Translations Handling</h1>
-
-As we mentioned before the corresponding type for the translatable columns is json .
-for now (the first version) our tools for the translations are a helper to get the translation from this
-column based on your choices and validation rule in addition a middleware that take the accept-language
-value from the request header and change the project locale according to it .
-
-<h4>`getTranslation(string $translationColumn, $locale = null): mixed` method : </h4>
-it returns the corresponding value for the provided locale if it is not provided then for the current locale
-and if there isn't a value corresponding to them, it returns the corresponding value for the default locale
-defined in the config file of the package and if there isn't a corresponding value for it,
-it returns a message informing you that there isn't .
-
-<h4>`AcceptedLanguagesMiddleware` middleware class</h4>
-to use this just put this line in your `$middlewareGroups` array in the `api`
-element : `\Cubeta\CubetaStarter\Middleware\AcceptedLanguagesMiddleware::class` in this way every received request will
-be checked for having an _accept-language_ header and change the project locale depending on it.
-in addition to that you will notice that the generated postman collection will have a `"locale"` variable which will be
-the default value of all the generated requests' locale you can set it in postman in the variables' section of the
-collection .
 
 <h1 id="file-handler-trait">FileHandler Trait</h1>
 remember when I told you that the BaseRepository handle your files columns automatically without the need

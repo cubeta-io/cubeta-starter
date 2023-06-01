@@ -1,12 +1,19 @@
 <?php
 
 return [
+
+
     /**
-     * this project name will appear only in the created postman collection
-     * // try to put it as the name of the folder holding your project,
-     * so you won't have to change the postman collection "local" variable
+     * the created postman collection will be named corresponding to it
      */
     'project_name' => 'CubetaStarter',
+
+    /**
+     * here define your project public url, so we can add it to the postman collection
+     * if you let it null we will place it in the collection as like you're using xampp
+     * e.g : http://localhost/example-project/public/
+     */
+    'project_url' => null,
 
     /**
      * model path and namespace
