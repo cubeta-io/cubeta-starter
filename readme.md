@@ -18,7 +18,7 @@
       - [BaseRepository Class](#baserepository)
     - <a href="#services">Services</a>
     - <a href="#tests">Tests</a>
-      - [MainTestCase Trait]("#maintestcasetrait") 
+      - [MainTestCase Trait](#maintestcasetrait) 
     - <a href="#postman-collection">Postman Collection</a>
     - <a href="#policies">Policies</a>
 - <a href="#translations">Translation Handling</a>
