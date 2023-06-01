@@ -1,29 +1,29 @@
 <h1>Content</h1>
 
-- <a href="#introduction">Introduction</a>
-- <a href="#installation">Installation</a>
-- <a href="#usage">Usage</a>
-    - <a href="#available-commands">Available Commands</a>
-    - <a href="#cubeta-init-command">cubeta-init Command</a>
-    - <a href="#generating-files">Generating Files</a>
-- <a href= "#created-classes-and-files">Created Classes And Files</a>
-    - <a href= "#models">Models</a>
-    - <a href= "#migrations">Migrations</a>
-    - <a href= "#controllers">Controllers</a>
-    - <a href="#requests">Requests</a>
-    - <a href="#resources">Resources</a>
-    - <a href="#factories">Factories</a>
-    - <a href="#seeders">Seeders</a>
-    - <a href="#repositories">Repositories</a>
-      - [BaseRepository Class](#baserepository)
-    - <a href="#services">Services</a>
-    - <a href="#tests">Tests</a>
-      - [MainTestCase Trait](#maintestcasetrait) 
-    - <a href="#postman-collection">Postman Collection</a>
-    - <a href="#policies">Policies</a>
-- <a href="#translations">Translation Handling</a>
-- <a href="#restful-trait">Restful Trait</a>
-- <a href="#file-handler-trait">FileHandler Trait</a> 
+- <a href="#user-content-introduction">Introduction</a>
+- <a href="#user-content-installation">Installation</a>
+- <a href="#user-content-usage">Usage</a>
+    - <a href="#user-content-available-commands">Available Commands</a>
+    - <a href="#user-content-cubeta-init-command">cubeta-init Command</a>
+    - <a href="#user-content-generating-files">Generating Files</a>
+- <a href= "#user-content-created-classes-and-files">Created Classes And Files</a>
+    - <a href= "#user-content-models">Models</a>
+    - <a href= "#user-content-migrations">Migrations</a>
+    - <a href= "#user-content-controllers">Controllers</a>
+    - <a href="#user-content-requests">Requests</a>
+    - <a href="#user-content-resources">Resources</a>
+    - <a href="#user-content-factories">Factories</a>
+    - <a href="#user-content-seeders">Seeders</a>
+    - <a href="#user-content-repositories">Repositories</a>
+      - [BaseRepository Class](#user-content-baserepository)
+    - <a href="#user-content-services">Services</a>
+    - <a href="#user-content-tests">Tests</a>
+      - [MainTestCase Trait](#user-content-basetest) 
+    - <a href="#user-content-postman-collection">Postman Collection</a>
+    - <a href="#user-content-policies">Policies</a>
+- <a href="#user-content-translations">Translation Handling</a>
+- <a href="#user-content-restful-trait">Restful Trait</a>
+- <a href="#user-content-file-handler-trait">FileHandler Trait</a> 
 
 <h1 id="introduction">Introduction</h1>
 cubeta-starter is a package that will help you create your CRUD'S easier than before with a pretty much everything you
@@ -80,9 +80,9 @@ The most elements in the config array are for the generated files directories an
 1. `project_name` : the created postman collection will be named corresponding to it
 2. `project_url` : here define your project public url, so we can add it to the postman collection
    if you let it **_null_** we will place it in the collection as like you're using xampp
-   e.g :`http://localhost/example-project/public/` [read more about the generated postman collection](#postman-collection)
+   e.g :`http://localhost/example-project/public/` [read more about the generated postman collection](#user-content-postman-collection)
 3. `available_locales` : the package provides a way to store your table columns with their
-   translations <a href="#translations">(read more about it here)</a> so in this case this situation you'll need to
+   translations <a href="#user-content-translations">(read more about it here)</a> so in this case this situation you'll need to
    define your project available locales in here
 4. `defaultLocale` : here define your default project locale
 
@@ -219,7 +219,7 @@ compatible route file in the `routes/api` directory .
 
 <h2 id="generating-files">Generating Files</h2>
 
-As mentioned <a href="#available-commands">before</a> you can run every command in the list of the available commands
+As mentioned <a href="#user-content-available-commands">before</a> you can run every command in the list of the available commands
 separately but for a better usability we recommend to call the needed command from the `create:model` as an
 option like this : `php artisan create:model Post --controller` ,so the wanted command will generate the code based on
 your model properties and relations or for a full
@@ -329,7 +329,7 @@ As mentioned before you'll find a model class corresponding to the name you ente
 - you'll notice the existence of `relationsSearchableArray()` method in the returned array of this method you can define
   the related tables and their desired columns to search within in the same way for the `searchableArray()` method .
 - the `filesKeys()` method will determine the columns you want to treat them as a files so
-  the <a href="#baserepository">BaseRepository Class</a> can recognize them. in this I mean when you use the create
+  the <a href="#user-content-baserepository">BaseRepository Class</a> can recognize them. in this I mean when you use the create
   method for example the BaseRepository Class will detect that this column is representing a file, so it will store the
   file in the storage path and its storage path will be in the record of the table .
 
@@ -362,7 +362,7 @@ it is extends the ApiController class which use the RestfulTrait
 **Restful Trait** : it is a trait with methods that will handle your json response using the following
 methods `(apiResponse , apiValidation , formatPaginateData)`
 
-[_you can have a look at it ._](#restful-trait)
+[_you can have a look at it ._](#user-content-restful-trait)
 
 <h2 id='requests'>Requests</h2>
 
@@ -710,7 +710,7 @@ line inside the class : `use \Cubeta\CubetaStarter\Traits\MainTestCase;`) . <br>
 maybe you want to check on MainTestCase trait to know how the test methods work and see if they are good for you, or you
 have to create another ones .
 
-- <h4 id="maintestcasetrait">MainTestCase Trait Methods</h4>
+- <h4 id="basetest">MainTestCase Trait Methods</h4>
 
 **notice :** those methods depends on the model resource and factory and the response of the endpoint to be generated by
 the `RestfulTrait` and the exceptions thrown by our exception handler.  <br>
