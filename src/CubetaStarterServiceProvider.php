@@ -16,6 +16,7 @@ use Cubeta\CubetaStarter\Commands\MakeResource;
 use Cubeta\CubetaStarter\Commands\MakeSeeder;
 use Cubeta\CubetaStarter\Commands\MakeService;
 use Cubeta\CubetaStarter\Commands\MakeTest;
+use Illuminate\Support\Facades\View;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -74,11 +75,31 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     public function boot()
     {
         parent::boot();
-        $this->publishConfigFiles() ;
+        $this->publishConfigFiles();
+        $this->loadUiViews();
+        $this->registerRoutesFile();
+        $this->loadViewsVariables();
     }
 
-    public function publishConfigFiles()
+    private function publishConfigFiles()
     {
-        $this->publishes([__DIR__.'/../config/cubeta-starter.php' => config_path()] , 'cubeta-starter-config');
+        $this->publishes([__DIR__.'/../config/cubeta-starter.php' => config_path()], 'cubeta-starter-config');
+    }
+
+    private function loadUiViews()
+    {
+        $this->loadViewsFrom(__DIR__.'/Resources/views', 'CubetaStarter');
+    }
+
+    private function registerRoutesFile()
+    {
+        $this->loadRoutesFrom(__DIR__.'/Routes/ui-routes.php');
+    }
+
+    private function loadViewsVariables()
+    {
+        $data['assetsPath'] = '/../vendor/cubeta/cubeta-starter/src/Resources';
+
+        View::share($data);
     }
 }

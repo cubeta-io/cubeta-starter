@@ -28,7 +28,7 @@ function modelNaming($name): string
 
 function controllerNaming($modelName): string
 {
-    return $modelName . 'Controller';
+    return $modelName.'Controller';
 }
 
 /**
@@ -41,8 +41,6 @@ function routeUrlNaming($name): string
 
 /**
  * return the used name of the model for the route name
- * @param string $name
- * @return string
  */
 function routeNameNaming(string $name): string
 {

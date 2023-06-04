@@ -14,7 +14,7 @@ class MakeController extends Command
     use RouteBinding;
 
     protected $signature = 'create:controller
-        {name : The name of the model }?
+        {name : The name of the model }
         {actor? : The actor of the endpoint of this model }';
 
     protected $description = 'Create a new controller';

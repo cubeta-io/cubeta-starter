@@ -39,7 +39,7 @@ class MakeRequest extends Command
         $requestName = $this->getRequestName($modelName);
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.request_namespace') . "\\$modelName",
+            '{namespace}' => config('cubeta-starter.request_namespace')."\\$modelName",
             '{class}' => $modelName,
             '{rules}' => $this->generateCols($attributes),
         ];
@@ -54,7 +54,7 @@ class MakeRequest extends Command
         generateFileFromStub(
             $stubProperties,
             $requestPath,
-            __DIR__ . '/stubs/request.stub'
+            __DIR__.'/stubs/request.stub'
         );
 
         if (in_array('translatable', $attributes)) {
@@ -67,7 +67,7 @@ class MakeRequest extends Command
 
     private function getRequestName($modelName): string
     {
-        return 'StoreUpdate' . $modelName . 'Request';
+        return 'StoreUpdate'.$modelName.'Request';
     }
 
     private function generateCols(array $attributes = []): string
@@ -77,35 +77,42 @@ class MakeRequest extends Command
 
             if ($type == 'translatable') {
                 $rules .= "\t\t\t'$name'=>['required', 'json', new LanguageShape] , \n";
+
                 continue;
             }
             if ($name == 'name' || $name == 'first_name' || $name == 'last_name') {
                 $rules .= "\t\t\t'$name'=>'required|string|min:3|max:255',\n";
+
                 continue;
             }
 
             if ($name == 'email') {
                 $rules .= "\t\t\t'$name'=>'required|string|max:255|email',\n";
+
                 continue;
             }
 
             if ($name == 'password') {
                 $rules .= "\t\t\t'$name'=>'required|string|max:255|min:6|confirmed',\n";
+
                 continue;
             }
 
             if ($name == 'phone' || $name == 'phone_number' || $name == 'number') {
                 $rules .= "\t\t\t'$name'=>'required|string|max:255|min:6',\n";
+
                 continue;
             }
 
             if (Str::endsWith($name, '_at') || in_array($type, ['date', 'time', 'dateTime', 'timestamp'])) {
                 $rules .= "\t\t\t'$name'=>'required|date',\n";
+
                 continue;
             }
 
             if (Str::startsWith($name, 'is_') || $type == 'boolean') {
                 $rules .= "\t\t\t'$name'=>'required|boolean',\n";
+
                 continue;
             }
 
@@ -113,21 +120,25 @@ class MakeRequest extends Command
                 $relationModel = str_replace('_id', '', $name);
                 $relationModelPluralName = tableNaming($relationModel);
                 $rules .= "\t\t\t'$name'=>'required|numeric|exists:$relationModelPluralName,id',\n";
+
                 continue;
             }
 
             if ($type == 'file') {
                 $rules .= "\t\t\t'$name'=>'nullable|image|mimes:jpeg,png,jpg|max:2048',\n";
+
                 continue;
             }
 
             if ($type == 'text') {
                 $rules .= "\t\t\t'$name'=>'nullable|string',\n";
+
                 continue;
             }
 
             if (in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])) {
                 $rules .= "\t\t\t'$name'=>'required|numeric',\n";
+
                 continue;
             }
 
@@ -139,10 +150,10 @@ class MakeRequest extends Command
 
     private function getRequestPath($requestName, $modelName): string
     {
-        $directory = base_path(config('cubeta-starter.request_path')) . "/$modelName";
+        $directory = base_path(config('cubeta-starter.request_path'))."/$modelName";
 
         ensureDirectoryExists($directory);
 
-        return $directory . "/$requestName" . '.php';
+        return $directory."/$requestName".'.php';
     }
 }

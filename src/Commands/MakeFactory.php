@@ -16,8 +16,8 @@ class MakeFactory extends Command
 
     public $signature = 'create:factory
         {name       : The name of the model }
-        {attributes? : columns with data types}?
-        {relations?  : the model relations}?';
+        {attributes? : columns with data types}
+        {relations?  : the model relations}';
 
     public $description = 'Create a new factory';
 

@@ -1,0 +1,41 @@
+body {
+    background-color: rgb(226, 232, 240);
+}
+
+
+.greeting-logo {
+    max-width: 150px;
+    margin-top: 8%;
+}
+
+.logo-under-text {
+    max-width: 330px;
+}
+
+h1 {
+    color: #001e4a;
+}
+
+p {
+    font-size: 20px;
+    color: #899bbd;
+}
+
+.get-started {
+    text-decoration: none;
+    color: #012970;
+    font-size: 20px;
+}
+
+.card {
+    background-color: rgb(226, 232, 240);
+}
+
+.description-font{
+    font-size: 15px;
+    color: #012970;
+}
+
+.align-left{
+    text-align: left;
+}

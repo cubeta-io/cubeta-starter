@@ -2,7 +2,6 @@
 
 return [
 
-
     /**
      * the created postman collection will be named corresponding to it
      */

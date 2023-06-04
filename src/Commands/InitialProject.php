@@ -14,7 +14,7 @@ class InitialProject extends Command
 {
     use AssistCommand, RouteFileTrait, RolePermissionTrait;
 
-    protected $signature = 'cubeta-init';
+    protected $signature = 'cubeta-init {useExceptionHandler?} {installSpatie?} {rolesPermissionsArray?}';
 
     protected $description = 'some initials will prepare the files to work with the package';
 
@@ -24,8 +24,19 @@ class InitialProject extends Command
      */
     public function handle(): void
     {
-        $this->editExceptionHandler();
-        $this->handleActorsExistence();
+        $useExceptionHandler = $this->argument('useExceptionHandler') ? 'Yes' : 'No';
+        $installSpatie = $this->argument('installSpatie') ? 'Yes' : 'No';
+        $rolesPermissionsArray = $this->argument('rolesPermissionsArray') ?? false;
+
+        $this->editExceptionHandler($useExceptionHandler);
+
+        if ($rolesPermissionsArray) {
+            $this->installSpatie($installSpatie);
+            $this->handleActorExistenceAsArgument($rolesPermissionsArray);
+            return;
+        }
+
+        $this->handleActorsExistenceAsQuestionsInput();
     }
 
     /**
@@ -34,7 +45,7 @@ class InitialProject extends Command
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function handleActorsExistence(): void
+    public function handleActorsExistenceAsQuestionsInput(): void
     {
         $hasActors = $this->choice('Does Your Project Has Multi Actors ?', ['No', 'Yes'], 'No') == 'Yes';
 
@@ -91,10 +102,12 @@ class InitialProject extends Command
     /**
      * initialize Exception Handler
      */
-    public function editExceptionHandler(): void
+    public function editExceptionHandler($useHandler = 'No'): void
     {
-        $this->warn('We have an exception handler for you and it will replace <fg=red>app/Exceptions/handler.php</fg=red> file with a file of the same name');
-        $useHandler = $this->choice('<info>Do you want us to do that ? <fg=yellow>(note : the created feature tests depends on our handler)</fg=yellow></info>', ['No', 'Yes'], 'Yes');
+        if ($useHandler == 'No') {
+            $this->warn('We have an exception handler for you and it will replace <fg=red>app/Exceptions/handler.php</fg=red> file with a file of the same name');
+            $useHandler = $this->choice('<info>Do you want us to do that ? <fg=yellow>(note : the created feature tests depends on our handler)</fg=yellow></info>', ['No', 'Yes'], 'Yes');
+        }
 
         if ($useHandler == 'No') {
             return;
@@ -114,15 +127,44 @@ class InitialProject extends Command
     /**
      * ask for the need of spatie permissions and install it
      */
-    public function installSpatie(): void
+    public function installSpatie(string $install = 'No'): void
     {
-        $install = $this->choice('</info>Using multi actors need to install <fg=yellow>spatie/permission</fg=yellow> do you want to install it ? </info>', ['No', 'Yes'], 'No');
+        if ($install == 'No') {
+            $install = $this->choice('</info>Using multi actors need to install <fg=yellow>spatie/permission</fg=yellow> do you want to install it ? </info>', ['No', 'Yes'], 'No');
+        }
+
         if ($install == 'Yes') {
             $this->info('Please wait until spatie/laravel-permission installed');
             $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
             $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
             $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
             $this->warn("Don't forgot to run php artisan migrate");
+        }
+    }
+
+    /**
+     * @param array $rolesPermissions
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    private function handleActorExistenceAsArgument(array $rolesPermissions): void
+    {
+        if (!isset($rolesPermissions)) {
+            return;
+        }
+
+        foreach ($rolesPermissions as $role => $permissions) {
+            $this->createRolesEnum($role, $permissions);
+
+            $container = 'api';
+
+            if (!file_exists(base_path("routes/$container/$role.php"))) {
+                $this->addAppropriateRouteFile($container, $role);
+                $this->createRoleSeeder();
+                $this->createPermissionSeeder($container);
+                $this->info("$role role created successfully");
+            }
         }
     }
 }

@@ -30,9 +30,9 @@ class CreatePivotTable extends Command
         $tables = [$table1, $table2];
         sort($tables);
 
-        $pivotTableName = $tables[0] . '_' . $tables[1];
+        $pivotTableName = $tables[0].'_'.$tables[1];
 
-        $this->info('Creating migration for pivot table ' . $pivotTableName);
+        $this->info('Creating migration for pivot table '.$pivotTableName);
 
         $this->createMigration($table1, $table2, $pivotTableName);
 
@@ -46,13 +46,13 @@ class CreatePivotTable extends Command
     protected function createMigration($table1, $table2, $pivotTableName)
     {
 
-        $migrationName = 'create_' . $pivotTableName . '_table';
+        $migrationName = 'create_'.$pivotTableName.'_table';
 
         $date = Carbon::now()->addSecond()->format('Y_m_d_His');
 
         $migrationPath = $this->getPivotPath($date, $migrationName);
 
-        $checkMigrationResult = $this->checkIfMigrationExists($pivotTableName) ;
+        $checkMigrationResult = $this->checkIfMigrationExists($pivotTableName);
 
         if ($checkMigrationResult) {
             // this procedure to make the pivot migration get a date after the two tables
@@ -74,7 +74,7 @@ class CreatePivotTable extends Command
         generateFileFromStub(
             $stubProperties,
             $migrationPath,
-            __DIR__ . '/stubs/pivot-migration.stub'
+            __DIR__.'/stubs/pivot-migration.stub'
         );
 
         $this->info("Pivot Table For $className1 and $className2 Created");
@@ -84,6 +84,6 @@ class CreatePivotTable extends Command
 
     public function getPivotPath(string $date, string $migrationName): string
     {
-        return base_path(config('cubeta-starter.migration_path') . '/' . $date . '_' . $migrationName . '.php');
+        return base_path(config('cubeta-starter.migration_path').'/'.$date.'_'.$migrationName.'.php');
     }
 }

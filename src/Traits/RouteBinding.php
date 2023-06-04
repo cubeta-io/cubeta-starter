@@ -13,25 +13,25 @@ trait RouteBinding
 
         if (isset($actor) && $actor != 'none') {
             $actor = Str::singular(Str::lower($actor));
-            $routePath = base_path() . "\\routes\\$container\\" . $actor . '.php';
+            $routePath = base_path()."\\routes\\$container\\".$actor.'.php';
             $routeName = $this->getRouteName($modelName, $container, $actor);
         } else {
-            $routePath = base_path() . "\\routes\\$container.php";
+            $routePath = base_path()."\\routes\\$container.php";
             $routeName = $this->getRouteName($modelName, $container, $actor);
         }
 
         if ($container == 'web') {
-            $route = "Route::get(\"dashboard/$pluralLowerModelName/data\", [v1\\$modelName" . "Controller::class, \"data\"])->name(\"$routeName.data\"); \n" .
-                'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
+            $route = "Route::get(\"dashboard/$pluralLowerModelName/data\", [v1\\$modelName"."Controller::class, \"data\"])->name(\"$routeName.data\"); \n".
+                'Route::Resource("dashboard/'.$pluralLowerModelName.'" , v1\\'.$modelName.'Controller::class)->names("'.$routeName.'") ;'."\n";
             $importStatement = 'use App\Http\Controllers\WEB\v1;';
         } else {
-            $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
+            $route = 'Route::apiResource("/'.$pluralLowerModelName.'" , v1\\'.$modelName.'Controller::class)->names("'.$routeName.'") ;'."\n";
             $importStatement = 'use App\Http\Controllers\API\v1;';
         }
         if (file_exists($routePath)) {
             addImportStatement($importStatement, $routePath);
 
-            if (!($this->checkIfRouteExist($routePath, $route))) {
+            if (! ($this->checkIfRouteExist($routePath, $route))) {
                 return;
             }
 
@@ -47,15 +47,15 @@ trait RouteBinding
     }
 
     /**
-     * @param null $actor
+     * @param  null  $actor
      */
     public function getRouteName(string $modelName, string $container = 'api', $actor = null): string
     {
         $modelLowerPluralName = routeNameNaming($modelName);
-        if (!isset($actor) || $actor == '' || $actor = 'none') {
-            return $container . '.' . $modelLowerPluralName;
+        if (! isset($actor) || $actor == '' || $actor = 'none') {
+            return $container.'.'.$modelLowerPluralName;
         } else {
-            return $container . '.' . $actor . '.' . $modelLowerPluralName;
+            return $container.'.'.$actor.'.'.$modelLowerPluralName;
         }
     }
 

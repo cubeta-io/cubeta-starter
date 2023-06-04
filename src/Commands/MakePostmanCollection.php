@@ -35,7 +35,7 @@ class MakePostmanCollection extends Command
     private function createPostmanCollection($modelName, $attributes): void
     {
         $modelName = modelNaming($modelName);
-        $endpoint = '/' . routeUrlNaming($modelName);
+        $endpoint = '/'.routeUrlNaming($modelName);
         $projectName = config('cubeta-starter.project_name');
         $collectionDirectory = base_path(config('cubeta-starter.postman_collection _path'));
         ensureDirectoryExists($collectionDirectory);
@@ -46,14 +46,14 @@ class MakePostmanCollection extends Command
         $stubProperties = [
             '{modelName}' => $modelName,
             '{indexRoute}' => $endpoint,
-            '{showRoute}' => $endpoint . '/1',
+            '{showRoute}' => $endpoint.'/1',
             '{storeRoute}' => $endpoint,
-            '{updateRoute}' => $endpoint . '/1',
-            '{deleteRoute}' => $endpoint . '/1',
+            '{updateRoute}' => $endpoint.'/1',
+            '{deleteRoute}' => $endpoint.'/1',
             '{formData}' => $this->generateBodyData($attributes),
         ];
 
-        $crudStub = file_get_contents(__DIR__ . '/stubs/postman-crud.stub');
+        $crudStub = file_get_contents(__DIR__.'/stubs/postman-crud.stub');
 
         $crudStub = str_replace(
             ['{modelName}', '{indexRoute}', '{showRoute}', '{storeRoute}', '{updateRoute}', '{deleteRoute}', '{formData}'],
@@ -65,7 +65,7 @@ class MakePostmanCollection extends Command
             $collection = file_get_contents($collectionPath);
 
             if (Str::contains(preg_replace('/\s+/', '', $collection), trim("\"name\":\"$modelName\","))) {
-                $this->error('An endpoint for ' . $modelName . 'Controller is already exist in the Postman collection');
+                $this->error('An endpoint for '.$modelName.'Controller is already exist in the Postman collection');
 
                 return;
             }
@@ -74,7 +74,7 @@ class MakePostmanCollection extends Command
             file_put_contents($collectionPath, $collection);
         } else {
             $projectURL = config('cubeta-starter.project_url') ?? ($this->getProjectURL() ?? '');
-            $collectionStub = file_get_contents(__DIR__ . '/stubs/postman-collection.stub');
+            $collectionStub = file_get_contents(__DIR__.'/stubs/postman-collection.stub');
             $collectionStub = str_replace(['{projectName}', '{project-url}', '// add-your-cruds-here'], [$projectName, $projectURL, $crudStub], $collectionStub);
             file_put_contents($collectionPath, $collectionStub);
         }
@@ -98,9 +98,6 @@ class MakePostmanCollection extends Command
         return $fields;
     }
 
-    /**
-     * @return string
-     */
     public function getProjectURL(): string
     {
         $documentRoot = base_path();
@@ -113,7 +110,7 @@ class MakePostmanCollection extends Command
             $projectDirectory = substr($documentRoot, $pos + strlen($htdocsFolder));
         }
 
-        $projectDirectory = str_replace("\\", '/', $projectDirectory);
+        $projectDirectory = str_replace('\\', '/', $projectDirectory);
 
         $serverName = $_SERVER['SERVER_NAME'];
 

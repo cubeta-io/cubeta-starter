@@ -16,7 +16,6 @@ trait AssistCommand
     }
 
     /**
-     * @param $tableName
      * @return false|string
      */
     public function checkIfMigrationExists($tableName): bool|string

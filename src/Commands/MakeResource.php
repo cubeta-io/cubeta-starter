@@ -14,8 +14,8 @@ class MakeResource extends Command
 
     public $signature = 'create:resource
         {name : The name of the model }
-        {attributes? : columns with data types}?
-        {relations? : the model relations}?';
+        {attributes? : columns with data types}
+        {relations? : the model relations}';
 
     public $description = 'Create a new resource';
 
@@ -57,7 +57,7 @@ class MakeResource extends Command
         generateFileFromStub(
             $stubProperties,
             $resourcePath,
-            __DIR__ . '/stubs/resource.stub'
+            __DIR__.'/stubs/resource.stub'
         );
 
         $this->formatFile($resourcePath);
@@ -66,7 +66,7 @@ class MakeResource extends Command
 
     private function getResourceName($modelName): string
     {
-        return $modelName . 'Resource';
+        return $modelName.'Resource';
     }
 
     private function generateCols(array $attributes = [], array $relations = []): string
@@ -74,7 +74,7 @@ class MakeResource extends Command
         $columns = "'id' => \$this->id, \n\t\t\t";
         foreach ($attributes as $attribute => $type) {
             if ($type == 'file') {
-                $columns .= "'$attribute' => \$this->get" . variableNaming($attribute) . "Path(), \n\t\t\t";
+                $columns .= "'$attribute' => \$this->get".variableNaming($attribute)."Path(), \n\t\t\t";
 
                 continue;
             }
@@ -82,6 +82,7 @@ class MakeResource extends Command
             if ($type == 'translatable') {
                 $columns .= "'$attribute:current-locale' => getTranslation(\$this->$attribute), \n";
                 $columns .= "'$attribute' => \$this->$attribute , \n";
+
                 continue;
             }
             $columns .= "'$attribute' => \$this->$attribute,\n\t\t\t";
@@ -90,11 +91,11 @@ class MakeResource extends Command
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
                 $relation = relationFunctionNaming(str_replace('_id', '', $rel));
-                $relatedModelResource = modelNaming($relation) . 'Resource';
+                $relatedModelResource = modelNaming($relation).'Resource';
                 $columns .= "'$relation' =>  new $relatedModelResource(\$this->whenLoaded('$relation')) , \n\t\t\t";
             } elseif ($type == RelationsTypeEnum::ManyToMany || $type == RelationsTypeEnum::HasMany) {
-                $relation = relationFunctionNaming($rel , false);
-                $relatedModelResource = modelNaming($relation) . 'Resource';
+                $relation = relationFunctionNaming($rel, false);
+                $relatedModelResource = modelNaming($relation).'Resource';
                 $columns .= "'$relation' =>  $relatedModelResource::collection(\$this->whenLoaded('$relation')) , \n\t\t\t";
             }
         }
@@ -108,6 +109,6 @@ class MakeResource extends Command
 
         ensureDirectoryExists($directory);
 
-        return $directory . "/$ResourceName" . '.php';
+        return $directory."/$ResourceName".'.php';
     }
 }
