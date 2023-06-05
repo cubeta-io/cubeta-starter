@@ -16,7 +16,7 @@ class InitialProject extends Command
 
     protected $signature = 'cubeta-init {useExceptionHandler?} {installSpatie?} {rolesPermissionsArray?}';
 
-    protected $description = 'some initials will prepare the files to work with the package';
+    protected $description = 'Prepare the necessary files to work with the package';
 
     /**
      * @throws BindingResolutionException
@@ -25,65 +25,58 @@ class InitialProject extends Command
     public function handle(): void
     {
         $useExceptionHandler = $this->argument('useExceptionHandler') ? 'Yes' : 'No';
-        $installSpatie = (bool)$this->argument('installSpatie');
+        $installSpatie = $this->argument('installSpatie') == 'true';
         $rolesPermissionsArray = $this->argument('rolesPermissionsArray') ?? false;
 
-        $this->editExceptionHandler($useExceptionHandler);
+        $this->handleExceptionHandler($useExceptionHandler);
 
         if ($rolesPermissionsArray) {
-            if ($installSpatie == 'true') {
-                $this->installSpatie(true);
-            }
-            $this->handleActorExistenceAsArgument($rolesPermissionsArray);
+            $this->handleRolesPermissionsArray($rolesPermissionsArray, $installSpatie);
             return;
         }
 
-        if (!isset($rolesPermissionsArray) && !isset($installSpatie) && !isset($useExceptionHandler)) {
-            $this->handleActorsExistenceAsQuestionsInput();
-        }
+        $this->handleActorsExistenceAsQuestionsInput();
     }
 
     /**
-     * ask user for his actors and initialize them
+     * Handle the actors and initialize them based on user input
      *
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
     public function handleActorsExistenceAsQuestionsInput(): void
     {
-        $hasActors = $this->choice('Does Your Project Has Multi Actors ?', ['No', 'Yes'], 'No') == 'Yes';
+        $hasActors = $this->choice('Does your project have multiple actors?', ['No', 'Yes'], 'No') == 'Yes';
 
         if ($hasActors) {
-
             $this->installSpatie();
 
-            $actorsNumber = $this->ask('How Many Are They  ?', 2);
+            $actorsNumber = $this->ask('How many actors are there?', 2);
 
-            while (empty(trim($actorsNumber))) {
-                $this->error('Invalid Input');
-                $actorsNumber = $this->ask('How Many Are They  ?', 2);
+            while (!is_numeric($actorsNumber) || $actorsNumber < 0) {
+                $this->error('Invalid input');
+                $actorsNumber = $this->ask('How many actors are there?', 2);
             }
 
             for ($i = 0; $i < $actorsNumber; $i++) {
+                $this->info("Actor Number: $i");
 
-                $this->info("Actor Number : $i");
-
-                $role = $this->ask('What Is The Name Of This Actor ?  eg:admin,customer');
+                $role = $this->ask('What is the name of this actor? (e.g., admin, customer)');
 
                 while (empty(trim($role))) {
-                    $this->error('Invalid Input');
-                    $role = $this->ask('What Is The Name Of This Actor ?  eg:admin,customer');
+                    $this->error('Invalid input');
+                    $role = $this->ask('What is the name of this actor? (e.g., admin, customer)');
                 }
 
-                $hasPermission = $this->choice('Does This Actor Has Permissions ? eg : can-edit , can-read , can publish , ....', ['No', 'Yes'], 'No') == 'Yes';
+                $hasPermission = $this->choice('Does this actor have permissions? (e.g., can-edit, can-read, can-publish)', ['No', 'Yes'], 'No') == 'Yes';
 
                 $permissions = null;
                 if ($hasPermission) {
-                    $permissionsString = $this->ask("What Are The Permissions For This Actor \n <info>Please Note That You Have To Type Them like This : \n</info> can-edit , can-read , can publish , ....");
+                    $permissionsString = $this->ask("What are the permissions for this actor? (e.g., can-edit, can-read, can-publish)");
 
                     while (empty(trim($permissionsString))) {
-                        $this->error('Invalid Input');
-                        $permissionsString = $this->ask("What Are The Permissions For This Actor \n <info>Please Note That You Have To Type Them like This : \n</info> can-edit , can-read , can publish , ....");
+                        $this->error('Invalid input');
+                        $permissionsString = $this->ask("What are the permissions for this actor? (e.g., can-edit, can-read, can-publish)");
                     }
 
                     $permissions = $this->convertInputStringToArray($permissionsString);
@@ -104,13 +97,13 @@ class InitialProject extends Command
     }
 
     /**
-     * initialize Exception Handler
+     * Initialize the exception handler
      */
-    public function editExceptionHandler($useHandler = 'No'): void
+    public function handleExceptionHandler($useHandler = 'No'): void
     {
         if ($useHandler == 'No') {
-            $this->warn('We have an exception handler for you and it will replace <fg=red>app/Exceptions/handler.php</fg=red> file with a file of the same name');
-            $useHandler = $this->choice('<info>Do you want us to do that ? <fg=yellow>(note : the created feature tests depends on our handler)</fg=yellow></info>', ['No', 'Yes'], 'Yes');
+            $this->warn('We have an exception handler for you, which will replace the existing "app/Exceptions/Handler.php" file with a new one');
+            $useHandler = $this->choice('Do you want to replace the exception handler file? (Note: The feature tests depend on our handler)', ['No', 'Yes'], 'Yes');
         }
 
         if ($useHandler == 'No') {
@@ -118,51 +111,50 @@ class InitialProject extends Command
         }
 
         $handlerStub = file_get_contents(__DIR__ . '/stubs/handler.stub');
-        $handlerPath = base_path() . '/app/Exceptions/Handler.php';
+        $handlerPath = base_path('app/Exceptions/Handler.php');
         if (!file_exists($handlerPath)) {
             File::makeDirectory($handlerPath, 077, true, true);
         }
         file_put_contents($handlerPath, $handlerStub);
         $this->formatFile($handlerPath);
 
-        $this->info('Your handler file in <fg=yellow>app/Exceptions/handler.php</fg=yellow> has been initialized');
+        $this->info('The handler file at "app/Exceptions/Handler.php" has been initialized');
     }
 
     /**
-     * ask for the need of spatie permissions and install it
+     * Ask about the need for Spatie permissions and install it
      */
     public function installSpatie(bool $skipQuestions = false): void
     {
         $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
 
+        // this mean that the use using the web ui
         if ($skipQuestions) {
             $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
             $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
             return;
         }
 
-        $install = $this->choice('</info>Using multi actors need to install <fg=yellow>spatie/permission</fg=yellow> do you want to install it ? </info>', ['No', 'Yes'], 'No');
+        $install = $this->choice('Using multiple actors requires installing "spatie/permission". Do you want to install it?', ['No', 'Yes'], 'No');
 
         if ($install == 'Yes') {
-            $this->info('Please wait until spatie/laravel-permission installed');
+            $this->info('Please wait while spatie/laravel-permission is being installed');
             $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
             $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
-            $this->warn("Don't forgot to run php artisan migrate");
+            $this->warn("Don't forget to run 'php artisan migrate'");
         }
     }
 
     /**
+     * Handle the roles and permissions passed as arguments
+     *
      * @param array $rolesPermissions
-     * @return void
+     * @param bool $installSpatie
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function handleActorExistenceAsArgument(array $rolesPermissions): void
+    private function handleRolesPermissionsArray(array $rolesPermissions, bool $installSpatie): void
     {
-        if (!isset($rolesPermissions)) {
-            return;
-        }
-
         foreach ($rolesPermissions as $role => $permissions) {
             $this->createRolesEnum($role, $permissions);
 
@@ -174,6 +166,10 @@ class InitialProject extends Command
                 $this->createPermissionSeeder($container);
                 $this->info("$role role created successfully");
             }
+        }
+
+        if ($installSpatie) {
+            $this->installSpatie(true);
         }
     }
 }
