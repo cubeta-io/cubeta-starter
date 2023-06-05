@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
+use JetBrains\PhpStorm\NoReturn;
 
 class InitialProject extends Command
 {
@@ -25,20 +26,20 @@ class InitialProject extends Command
     public function handle(): void
     {
         $useExceptionHandler = $this->argument('useExceptionHandler') ? 'Yes' : 'No';
-        $installSpatie = $this->argument('installSpatie');
+        $installSpatie = (bool)$this->argument('installSpatie');
         $rolesPermissionsArray = $this->argument('rolesPermissionsArray') ?? false;
 
         $this->editExceptionHandler($useExceptionHandler);
 
         if ($rolesPermissionsArray) {
-            if ($installSpatie) {
+            if ($installSpatie == 'true') {
                 $this->installSpatie(true);
             }
             $this->handleActorExistenceAsArgument($rolesPermissionsArray);
             return;
         }
 
-        if (!isset($rolesPermissionsArray)) {
+        if (!isset($rolesPermissionsArray) && !isset($installSpatie) && !isset($useExceptionHandler)) {
             $this->handleActorsExistenceAsQuestionsInput();
         }
     }
@@ -138,6 +139,7 @@ class InitialProject extends Command
         if ($skip) {
             $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
             $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
+            return;
         }
 
         $install = $this->choice('</info>Using multi actors need to install <fg=yellow>spatie/permission</fg=yellow> do you want to install it ? </info>', ['No', 'Yes'], 'No');
