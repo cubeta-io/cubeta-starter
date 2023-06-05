@@ -25,18 +25,22 @@ class InitialProject extends Command
     public function handle(): void
     {
         $useExceptionHandler = $this->argument('useExceptionHandler') ? 'Yes' : 'No';
-        $installSpatie = $this->argument('installSpatie') ? 'Yes' : 'No';
+        $installSpatie = $this->argument('installSpatie');
         $rolesPermissionsArray = $this->argument('rolesPermissionsArray') ?? false;
 
         $this->editExceptionHandler($useExceptionHandler);
 
         if ($rolesPermissionsArray) {
-            $this->installSpatie($installSpatie);
+            if ($installSpatie) {
+                $this->installSpatie();
+            }
             $this->handleActorExistenceAsArgument($rolesPermissionsArray);
             return;
         }
 
-        $this->handleActorsExistenceAsQuestionsInput();
+        if (!isset($rolesPermissionsArray)) {
+            $this->handleActorsExistenceAsQuestionsInput();
+        }
     }
 
     /**
@@ -127,11 +131,9 @@ class InitialProject extends Command
     /**
      * ask for the need of spatie permissions and install it
      */
-    public function installSpatie(string $install = 'No'): void
+    public function installSpatie(): void
     {
-        if ($install == 'No') {
-            $install = $this->choice('</info>Using multi actors need to install <fg=yellow>spatie/permission</fg=yellow> do you want to install it ? </info>', ['No', 'Yes'], 'No');
-        }
+        $install = $this->choice('</info>Using multi actors need to install <fg=yellow>spatie/permission</fg=yellow> do you want to install it ? </info>', ['No', 'Yes'], 'No');
 
         if ($install == 'Yes') {
             $this->info('Please wait until spatie/laravel-permission installed');

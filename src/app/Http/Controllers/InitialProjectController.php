@@ -15,26 +15,12 @@ class InitialProjectController extends Controller
 
     public function callInitialProject(Request $request)
     {
-//        $rules = [
-//            'useExceptionHandler' => 'boolean|default:false|required',
-//            'installSpatie' => 'boolean|default:false|required',
-//            'roles' => 'nullable|array',
-//            'roles.*.name' => 'string|max:255|' . Rule::requiredIf($request->roles),
-//            'roles.*.permissions' => 'string|nullable',
-//        ];
-//
-//        $validator = Validator::make($request->all(), $rules);
-//
-//        if ($validator->fails()) {
-//            return redirect()->back()->with(['errors' => $validator->errors()]);
-//        }
-
-        $data = $request->all();
+        $data = $request->only(['useExceptionHandler', 'installSpatie', 'roles']);
 
         Artisan::call('cubeta-init', [
             'useExceptionHandler' => $data['useExceptionHandler'],
             'installSpatie' => $data['installSpatie'],
-            'rolesPermissionsArray' => $this->convertRolesPermissionArrayToCommandAcceptableFormat($data['roles'])
+            'rolesPermissionsArray' => $request->roles ? $this->convertRolesPermissionArrayToCommandAcceptableFormat($data['roles']) : null
         ]);
 
         return redirect()->route('greetings');
