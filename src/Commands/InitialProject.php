@@ -9,7 +9,6 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
-use JetBrains\PhpStorm\NoReturn;
 
 class InitialProject extends Command
 {
@@ -132,11 +131,11 @@ class InitialProject extends Command
     /**
      * ask for the need of spatie permissions and install it
      */
-    public function installSpatie(bool $skip = false): void
+    public function installSpatie(bool $skipQuestions = false): void
     {
         $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
 
-        if ($skip) {
+        if ($skipQuestions) {
             $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
             $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
             return;

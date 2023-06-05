@@ -15,6 +15,7 @@ class InitialProjectController extends Controller
 
     public function callInitialProject(Request $request)
     {
+        set_time_limit(0);
         $data = $request->only(['useExceptionHandler', 'installSpatie', 'roles']);
 
         Artisan::call('cubeta-init', [
