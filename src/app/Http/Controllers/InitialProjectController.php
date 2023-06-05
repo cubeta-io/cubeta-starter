@@ -24,7 +24,7 @@ class InitialProjectController extends Controller
             'rolesPermissionsArray' => $request->roles ? $this->convertRolesPermissionArrayToCommandAcceptableFormat($data['roles']) : null
         ]);
 
-        return redirect()->route('greetings');
+        return redirect()->route('cubeta-starter.greetings');
     }
 
     public function convertRolesPermissionArrayToCommandAcceptableFormat(array $rolesPermissionArray)

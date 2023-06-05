@@ -16,7 +16,7 @@
                                         </div>
                                         <div class="card-body">
                                             <form class="form" method="POST"
-                                                  action="{{ route('call-initial-project') }}">
+                                                  action="{{ route('cubeta-starter.call-initial-project') }}">
                                                 @csrf
 
                                                 <div class="row">

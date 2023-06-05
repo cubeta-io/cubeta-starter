@@ -16,38 +16,35 @@ class MakeModel extends Command
 
     public $signature = 'create:model
         {name : The name of the model }
+        {gui?}
+        {attributes?}
+        {relations?}
+        {actor?}
         {option? : string to generate a single file (migration, request, resource, factory, seeder, repository, service, controller, test, postman-collection)}';
 
     public $description = 'Create a new model class';
 
     protected array $relations = [];
 
-    private array $types;
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->types = [
-            'integer',
-            'bigInteger',
-            'unsignedBigInteger',
-            'unsignedDouble',
-            'double',
-            'float',
-            'string',
-            'json',
-            'text',
-            'boolean',
-            'date',
-            'time',
-            'dateTime',
-            'timestamp',
-            'file',
-            'key',
-            'translatable',
-        ];
-    }
+    private array $types = [
+        'integer',
+        'bigInteger',
+        'unsignedBigInteger',
+        'unsignedDouble',
+        'double',
+        'float',
+        'string',
+        'json',
+        'text',
+        'boolean',
+        'date',
+        'time',
+        'dateTime',
+        'timestamp',
+        'file',
+        'key',
+        'translatable',
+    ];
 
     /**
      * @return false|void
@@ -60,13 +57,29 @@ class MakeModel extends Command
         $name = $this->argument('name');
         $option = $this->argument('option');
 
-        if (!$name || empty(trim($name))) {
-            $this->error('Please specify a valid model');
-
-            return false;
-        }
+        $useGui = $this->argument('gui') == 'ture';
+        $webAttributes = $this->argument('attributes') ?? false;
+        $relations = $this->argument('relations') ?? [];
+        $actor = $this->argument('actor') ?? 'none';
 
         $modelName = modelNaming($name);
+
+        // handling the usage of the gui
+        if ($useGui && $webAttributes) {
+            $this->relations = $relations;
+            $this->createModel($modelName, $webAttributes, true);
+//            dd($this->relations);
+
+            $this->callAppropriateCommand($name, $webAttributes, $option, $actor);
+            $this->createPivots($modelName);
+
+            return;
+        }
+
+        if (!$name || empty(trim($name))) {
+            $this->error('Please specify a valid model');
+            return false;
+        }
 
         $paramsString = $this->getModelAttributesFromTheUser();
 
@@ -85,18 +98,21 @@ class MakeModel extends Command
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function createModel(string $className, array $attributes): void
+    public function createModel(string $className, array $attributes, bool $gui = false): void
     {
         $modelPath = $this->getModelPath($className);
 
         if (file_exists($modelPath)) {
             $this->error("$className Model Already Exists");
-
             return;
         }
 
-        // removing this from here will cause the $this->relations variable to be empty when calling it in the next line
-        $modelRelationsFunctions = $this->getModelRelation($attributes);
+        // removing this from here will cause the $this->relations variable to be empty when calling it in the fillArrayKeysMethodsInTheModel() method
+        if (!$gui) {
+            $modelRelationsFunctions = $this->getModelRelation($attributes);
+        } else {
+            $modelRelationsFunctions = $this->getModelRelationForGui($attributes, $this->relations);
+        }
 
         $methodsArrayKeys = $this->fillArrayKeysMethodsInTheModel($attributes, $this->relations);
 
@@ -147,34 +163,15 @@ class MakeModel extends Command
         $foreignKeys = array_keys($attributes, 'key');
 
         foreach ($foreignKeys as $key => $value) {
+            $relationName = relationFunctionNaming(str_replace('_id', '', $value));
 
-            $result = $this->choice('The ' . $value . ' Column Represent a ', [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo], RelationsTypeEnum::BelongsTo);
-
-            if ($result == RelationsTypeEnum::HasOne) {
-
-                $relationName = relationFunctionNaming(str_replace('_id', '', $value));
-
-                $relationsFunctions .=
-                    'public function ' . $relationName . '():hasOne
-                {
-                    return $this->hasOne(' . modelNaming($relationName) . "::class);
-                }\n";
-
-                $this->relations[$relationName] = RelationsTypeEnum::HasOne;
-            }
-
-            if ($result == RelationsTypeEnum::BelongsTo) {
-
-                $relationName = relationFunctionNaming(str_replace('_id', '', $value));
-
-                $relationsFunctions .=
-                    'public function ' . $relationName . '():belongsTo
+            $relationsFunctions .=
+                'public function ' . $relationName . '():belongsTo
                 {
                     return $this->belongsTo(' . modelNaming($relationName) . "::class);
                 }\n";
 
-                $this->relations[$relationName] = RelationsTypeEnum::BelongsTo;
-            }
+            $this->relations[$relationName] = RelationsTypeEnum::BelongsTo;
         }
 
         $thereIsHasMany = true;
@@ -430,7 +427,7 @@ class MakeModel extends Command
 
     public function checkTheActor(): array|string|null
     {
-        if (class_exists('\App\Enums\RolesPermissionEnum')) {
+        if (file_exists(base_path('app/Enums/RolesPermissionEnum.php'))) {
             $roles = \App\Enums\RolesPermissionEnum::ALLROLES;
             $roles[] = 'none';
 
@@ -439,4 +436,46 @@ class MakeModel extends Command
             return 'none';
         }
     }
+
+
+    private function getModelRelationForGui($attributes, $relations): string
+    {
+        $relationsFunctions = '';
+
+        $foreignKeys = array_keys($attributes, 'key');
+
+        foreach ($foreignKeys as $key => $value) {
+            $relationName = relationFunctionNaming(str_replace('_id', '', $value));
+            $relationsFunctions .=
+                'public function ' . $relationName . '():belongsTo
+                {
+                    return $this->belongsTo(' . modelNaming($relationName) . "::class);
+                }\n";
+
+            $this->relations[$relationName] = RelationsTypeEnum::BelongsTo;
+        }
+
+        foreach ($relations as $relation => $type) {
+            $relationName = relationFunctionNaming($relation, false);
+            if ($type == RelationsTypeEnum::HasMany) {
+                $relationsFunctions .= '
+                public function ' . $relationName . '():hasMany
+                {
+                    return $this->hasMany(' . modelNaming($relation) . "::class);
+                }\n";
+            }
+
+            if ($type == RelationsTypeEnum::ManyToMany) {
+                $relationsFunctions .= '
+                 public function ' . $relationName . '() : BelongsToMany
+                 {
+                     return $this->belongsToMany(' . modelNaming($relation) . "::class);
+                 }\n";
+            }
+
+        }
+
+        return $relationsFunctions;
+    }
+
 }
