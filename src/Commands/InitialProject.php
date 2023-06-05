@@ -32,7 +32,7 @@ class InitialProject extends Command
 
         if ($rolesPermissionsArray) {
             if ($installSpatie) {
-                $this->installSpatie();
+                $this->installSpatie(true);
             }
             $this->handleActorExistenceAsArgument($rolesPermissionsArray);
             return;
@@ -131,14 +131,20 @@ class InitialProject extends Command
     /**
      * ask for the need of spatie permissions and install it
      */
-    public function installSpatie(): void
+    public function installSpatie(bool $skip = false): void
     {
+        $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
+
+        if ($skip) {
+            $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
+            $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
+        }
+
         $install = $this->choice('</info>Using multi actors need to install <fg=yellow>spatie/permission</fg=yellow> do you want to install it ? </info>', ['No', 'Yes'], 'No');
 
         if ($install == 'Yes') {
             $this->info('Please wait until spatie/laravel-permission installed');
             $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
-            $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
             $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
             $this->warn("Don't forgot to run php artisan migrate");
         }
