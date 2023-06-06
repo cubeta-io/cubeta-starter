@@ -13,7 +13,7 @@
 
 
     <div class="text-center">
-        <a href="{{route('cubeta-starter.generate.page')}}" class="get-started">Start Generating</a>
+        <a href="{{route('cubeta-starter.generate-full.page')}}" class="get-started">Start Generating</a>
     </div>
 
     <div class="text-center">

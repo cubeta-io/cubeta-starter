@@ -1,13 +1,39 @@
 <?php
 
-use Cubeta\CubetaStarter\app\Http\Controllers\CreateModelController;
+use Cubeta\CubetaStarter\app\Http\Controllers\CallAppropriateCommand;
 use Cubeta\CubetaStarter\app\Http\Controllers\InitialProjectController;
+use Cubeta\CubetaStarter\app\Http\Controllers\RenderAppropriateViewController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
     Route::view('/', 'CubetaStarter::greetings')->name('greetings');
     Route::view('/initial', 'CubetaStarter::initial-project')->name('initial.page');
     Route::post('/initial', [InitialProjectController::class, 'callInitialProject'])->name('call-initial-project');
-    Route::get('/generate', [CreateModelController::class , 'createModelPage'])->name('generate.page');
-    Route::post('/generate', [CreateModelController::class, 'callCreateModelCommand'])->name('call-create-model-command');
+    Route::prefix('generate')->name('generate-')->group(function () {
+        Route::get('/', [RenderAppropriateViewController::class, 'fullGenerate'])->name('full.page');
+        Route::get('/migration', [RenderAppropriateViewController::class, 'generateMigration'])->name('migration.page');
+        Route::get('/factory', [RenderAppropriateViewController::class, 'generateFactory'])->name('factory.page');
+        Route::get('/seeder', [RenderAppropriateViewController::class, 'generateSeeder'])->name('seeder.page');
+        Route::get('/repository', [RenderAppropriateViewController::class, 'generateRepository'])->name('repository.page');
+        Route::get('/service', [RenderAppropriateViewController::class, 'generateService'])->name('service.page');
+        Route::get('/request', [RenderAppropriateViewController::class, 'generateRequest'])->name('request.page');
+        Route::get('/resource', [RenderAppropriateViewController::class, 'generateResource'])->name('resource.page');
+        Route::get('/api-controller', [RenderAppropriateViewController::class, 'generateController'])->name('api-controller.page');
+        Route::get('/test', [RenderAppropriateViewController::class, 'generateTest'])->name('test.page');
+        Route::get('/policy', [RenderAppropriateViewController::class, 'generatePolicy'])->name('policy.page');
+        Route::get('/postman-collection', [RenderAppropriateViewController::class, 'generatePostmanCollection'])->name('postman-collection.page');
+    });
+    Route::post('/full-generate', [CallAppropriateCommand::class, 'callCreateModelCommand'])->name('call-create-model-command');
+    Route::post('/migration', [CallAppropriateCommand::class, 'callCreateMigrationCommand'])->name('call-create-migration-command');
+    Route::post('/factory', [CallAppropriateCommand::class, 'callCreateFactoryCommand'])->name('call-create-factory-command');
+    Route::post('/seeder', [CallAppropriateCommand::class, 'callCreateSeederCommand'])->name('call-create-seeder-command');
+    Route::post('/repository', [CallAppropriateCommand::class, 'callCreateRepositoryCommand'])->name('call-create-repository-command');
+    Route::post('/service', [CallAppropriateCommand::class, 'callCreateServiceCommand'])->name('call-create-service-command');
+    Route::post('/request', [CallAppropriateCommand::class, 'callCreateRequestCommand'])->name('call-create-request-command');
+    Route::post('/resource', [CallAppropriateCommand::class, 'callCreateResourceCommand'])->name('call-create-resource-command');
+    Route::post('/api-controller', [CallAppropriateCommand::class, 'callCreateApiControllerCommand'])->name('call-create-api-controller-command');
+    Route::post('/test', [CallAppropriateCommand::class, 'callCreateTestCommand'])->name('call-create-test-command');
+    Route::post('/policy', [CallAppropriateCommand::class, 'callCreatePolicyCommand'])->name('call-create-policy-command');
+    Route::post('/postman-collection', [CallAppropriateCommand::class, 'callCreatePostmanCollectionCommand'])->name('call-create-postman-collection-command');
+
 });

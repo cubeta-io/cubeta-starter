@@ -1,80 +1,79 @@
+@props(['title' => 'Generate' , 'header'=>'makes your experience amazing'])
 @extends('CubetaStarter::layout')
 @section('content')
+    @include('CubetaStarter::includes.sidebar')
     <main class="main">
         <section class="section profile">
-            <div class="d-flex align-items-center justify-content-center">
-                <div class="container mt-5">
-                    <div class="row">
-                        <div class="col-md-8 mx-auto">
-                            <div class="card">
-                                <div class="card-header text-center">
-                                    <div class="card-header text-center">
-                                        <h1>Generate The CRUDs</h1>
-                                        <p>Here We Will Create Your Model And All The Others Needs To Have A Complete
-                                            CRUD API</p>
+            <div class="container">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <div class="card-header text-center">
+                            <h1>Generate The CRUDs</h1>
+                            <p>Here We Will Create Your Model And All The Others Needs To Have A
+                                Complete
+                                CRUD API</p>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form class="form" method="POST" action="#">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-12 m-2">
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" name="model_name"
+                                               placeholder="Enter Your Model Name e.g:Product"
+                                               required>
                                     </div>
                                 </div>
-                                <div class="card-body">
-                                    <form class="form" method="POST" action="#">
-                                        @csrf
-                                        <div class="row">
-                                            <div class="col-md-12 m-2">
-                                                <div class="form-group">
-                                                    <input class="form-control" type="text" name="model_name"
-                                                           placeholder="Enter Your Model Name e.g:Product" required>
-                                                </div>
-                                            </div>
 
-                                            @if(count($roles) > 0)
-                                                <div class="col-md-3 m-2">
-                                                    <label>none</label>
-                                                    <input class="form-check-input" type="radio" value="none"
-                                                           name="actor" checked>
-                                                </div>
-                                                @foreach($roles as $role)
-                                                    <div class="col-md-3 m-2">
-                                                        <label>{{$role}}</label>
-                                                        <input class="form-check-input" type="radio" value="{{$role}}"
-                                                               name="actor">
-                                                    </div>
-                                                @endforeach
-                                            @endif
+                                @if(count($roles) > 0)
+                                    <div class="col-md-3 m-2">
+                                        <label>none</label>
+                                        <input class="form-check-input" type="radio" value="none"
+                                               name="actor" checked>
+                                    </div>
+                                    @foreach($roles as $role)
+                                        <div class="col-md-3 m-2">
+                                            <label>{{$role}}</label>
+                                            <input class="form-check-input" type="radio"
+                                                   value="{{$role}}"
+                                                   name="actor">
                                         </div>
+                                    @endforeach
+                                @endif
+                            </div>
 
-                                        <div id="columns-container" class="row">
-                                            <!--columns inputs-->
-                                        </div>
+                            <div id="columns-container" class="row">
+                                <!--columns inputs-->
+                            </div>
 
-                                        <button id="add-column-button" class="btn btn-primary col-md-2 m-3">
-                                            Add Column
-                                        </button>
+                            <button id="add-column-button" class="btn btn-primary col-md-2 m-3">
+                                Add Column
+                            </button>
 
-                                        <div id="relations-container" class="row">
-                                            <!--relation inputs-->
-                                        </div>
+                            <div id="relations-container" class="row">
+                                <!--relation inputs-->
+                            </div>
 
-                                        <button id="add-relation-button" class="btn btn-primary col-md-2 m-3">
-                                            Add Relation
-                                        </button>
+                            <button id="add-relation-button" class="btn btn-primary col-md-2 m-3">
+                                Add Relation
+                            </button>
 
-                                        <div class="card-footer">
-                                            <div class="d-flex align-items-center justify-content-center">
-                                                <button class="text-center btn btn-primary mx-auto" type="submit">
-                                                    Generate
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                    </form>
+                            <div class="card-footer">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <button class="text-center btn btn-primary mx-auto"
+                                            type="submit">
+                                        Generate
+                                    </button>
                                 </div>
                             </div>
-                        </div>
+
+                        </form>
                     </div>
                 </div>
             </div>
         </section>
     </main>
-
     @push('scripts')
         <script type="module">
             $(document).ready(function () {
@@ -123,6 +122,9 @@
                     deleteColumnButton.style.width = "30px";
                     deleteColumnButton.style.height = "25px";
                     deleteColumnButton.style.margin = "auto";
+                    deleteColumnButton.style.padding = "initial";
+                    deleteColumnButton.style.fontWeight = "bolder";
+                    deleteColumnButton.style.borderRadius = "60%";
                     deleteColumnButton.addEventListener("click", function () {
                         newColumn.remove();
                     });
@@ -175,6 +177,9 @@
                     deleteRelationButton.style.width = "30px";
                     deleteRelationButton.style.height = "25px";
                     deleteRelationButton.style.margin = "auto";
+                    deleteRelationButton.style.padding = "initial";
+                    deleteRelationButton.style.fontWeight = "bolder";
+                    deleteRelationButton.style.borderRadius = "60%";
                     deleteRelationButton.addEventListener("click", function () {
                         newRelation.remove();
                     });

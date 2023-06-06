@@ -69,7 +69,7 @@ class MakeMigration extends Command
 
     private function getMigrationsPath($migrationName): string
     {
-        $path = config('cubeta-starter.migration_path');
+        $path = base_path(config('cubeta-starter.migration_path'));
         ensureDirectoryExists($path);
 
         return "$path/$migrationName".'.php';

@@ -93,7 +93,9 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
 
     private function registerRoutesFile()
     {
-        $this->loadRoutesFrom(__DIR__.'/Routes/ui-routes.php');
+        if (app()->environment('local')){
+            $this->loadRoutesFrom(__DIR__.'/Routes/ui-routes.php');
+        }
     }
 
     private function loadViewsVariables()

@@ -31,11 +31,103 @@ p {
     background-color: rgb(226, 232, 240);
 }
 
-.description-font{
+.description-font {
     font-size: 15px;
     color: #012970;
 }
 
-.align-left{
+.align-left {
     text-align: left;
 }
+
+.nav-bar-background {
+    background-color: #001e4a;
+}
+
+.bg-cubeta {
+    background-color: rgb(226, 232, 240);
+}
+
+.text-cubeta {
+    color: #001e4a;
+    font-weight: bold;
+}
+
+.my-nav-active {
+    background-color: rgb(226, 232, 240);
+    font-weight: bold;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: #001e4a;
+    border-color: #001e4a;
+    font-size: 10px;
+    width: 100px;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    background-color: rgb(226, 232, 240);
+    color: #001e4a;
+    border-color: rgb(226, 232, 240);
+}
+
+.form-control {
+    max-height: 90%;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.form-select {
+    max-height: 90%;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+option {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+button {
+    font-weight: bold;
+    background-color: #899bbd;
+}
+
+.nav-item {
+    width: 85%;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: inherit;
+    outline: 0;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+li.my-nav-active > a.nav-link {
+    color: inherit !important;
+}
+
+li.nav-item:hover a.nav-link {
+    color: inherit !important;
+}
+
+li.nav-item:hover {
+    background-color: rgb(226, 232, 240);
+    color: #001e4a;
+    font-weight: bold;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.notes {
+    color: #001e4a;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+
