@@ -1,5 +1,4 @@
 @extends('CubetaStarter::layout')
-
 @section('content')
     @include('CubetaStarter::includes.sidebar')
 
@@ -83,6 +82,36 @@
             </div>
         </section>
     </main>
+
+    @if(request('error'))
+        @push('scripts')
+            <script type="module">
+                Swal.fire({
+                    title: "Error",
+                    text: "{{ request('error') }}",
+                    icon: "error",
+                    button: "OK",
+                }).then(() => {
+                    window.location.href = "{{url()->previous()}}";
+                });
+            </script>
+        @endpush
+    @endif
+
+    @if(request('success'))
+        @push('scripts')
+            <script type="module">
+                Swal.fire({
+                    title: "Success",
+                    text: "{{ request('error') }}",
+                    icon: "succeeded",
+                    button: "OK",
+                }).then(() => {
+                    window.location.href = "{{url()->previous()}}";
+                });
+            </script>
+        @endpush
+    @endif
 
     @push('scripts')
         @if($attributesField)

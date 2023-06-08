@@ -22,9 +22,14 @@ class MakePolicy extends Command
      */
     public function handle(): void
     {
-        $name = $this->argument('name');
+        $modelName = $this->argument('name');
 
-        $this->createPolicy($name);
+        if (!$modelName || empty(trim($modelName))) {
+            $this->error('Invalid input');
+            return;
+        }
+
+        $this->createPolicy($modelName);
     }
 
     /**

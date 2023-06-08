@@ -25,8 +25,13 @@ class MakeController extends Command
      */
     public function handle(): void
     {
-        $modelName = $this->argument('name');
+        $modelName = $this->argument('name') ?? null;
         $actor = $this->argument('actor') ?? null;
+
+        if (!$modelName || empty(trim($modelName))) {
+            $this->error('Invalid input');
+            return;
+        }
 
         $this->createController($modelName, $actor);
     }
@@ -56,7 +61,7 @@ class MakeController extends Command
         generateFileFromStub(
             $stubProperties,
             $controllerPath,
-            __DIR__.'/stubs/controller.api.stub'
+            __DIR__ . '/stubs/controller.api.stub'
         );
         $this->info("Created controller: $controllerName");
         $this->addRoute($modelName, $actor);
@@ -68,6 +73,6 @@ class MakeController extends Command
         $path = base_path(config('cubeta-starter.api_controller_path'));
         ensureDirectoryExists($path);
 
-        return "$path/$controllerName".'.php';
+        return "$path/$controllerName" . '.php';
     }
 }

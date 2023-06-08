@@ -28,6 +28,11 @@ class MakeResource extends Command
         $attributes = $this->argument('attributes') ?? [];
         $relations = $this->argument('relations') ?? [];
 
+        if (!$modelName || empty(trim($modelName))) {
+            $this->error('Invalid input');
+            return;
+        }
+
         $this->createResource($modelName, $attributes, $relations);
     }
 

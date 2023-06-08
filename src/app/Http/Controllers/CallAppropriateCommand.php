@@ -8,154 +8,168 @@ use Illuminate\Http\Request;
 
 class CallAppropriateCommand extends Controller
 {
-
     private $modelName;
     private $relations;
     private $columns;
     private $actor;
-
     public $request;
 
     public function __construct(Request $request)
     {
-        $this->$request = $request;
+        $this->request = $request;
         $this->modelName = $request->model_name;
-        $this->relations = $request->relations;
-        $this->columns = $request->columns;
+        $this->relations = $this->configureRequestArray($request->relations);
+        $this->columns = $this->configureRequestArray($request->columns);
         $this->actor = $request->actor;
+    }
 
-        $this->relations = $this->configureRequestArray($this->relations);
-        $this->columns = $this->configureRequestArray($this->columns);
+    public function callCommand($command)
+    {
+        if (empty(trim($this->modelName))) {
+            return redirect()->route($command['route'], ['error' => "invalid input"]);
+        }
+
+        $arguments['name'] = $this->modelName;
+
+        if (isset($this->columns) && count($this->columns) > 0) {
+            $arguments['attributes'] = $this->columns;
+        }
+
+        if (isset($this->relations) && count($this->relations) > 0) {
+            $arguments['relations'] = $this->relations;
+        }
+
+        if (isset($this->actor)) {
+            $arguments['actor'] = $this->actor;
+        }
+
+        if ($command['name'] == 'create:model') {
+            $arguments['gui'] = true;
+        }
+
+        Artisan::call($command['name'], $arguments);
+
+        return redirect()->route($command['route'], ['success' => $command['name'] . 'successfully']);
     }
 
     public function callCreateModelCommand()
     {
-        if (isset($this->actor)) {
-            Artisan::call('create:model', [
-                'name' => $this->modelName,
-                'gui' => true,
-                'attributes' => $this->columns,
-                'relations' => $this->relations,
-                'actor' => $this->actor
-            ]);
-        } else {
-            Artisan::call('create:model', [
-                'name' => $this->modelName,
-                'gui' => true,
-                'attributes' => $this->columns,
-                'relations' => $this->relations
-            ]);
-        }
+        $command = [
+            'name' => 'create:model',
+            'route' => 'cubeta-starter.generate-full.page'
+        ];
 
-        return redirect()->route('cubeta-starter.greetings');
+        return $this->callCommand($command);
     }
 
-    public function callCreateMigrationCommand(Request $request)
+    public function callCreateMigrationCommand()
     {
-        Artisan::call('create:migration', [
-            'name' => $this->modelName,
-            'attributes' => $this->columns,
-            'relations' => $this->relations
-        ]);
+        $command = [
+            'name' => 'create:migration',
+            'route' => 'cubeta-starter.generate-migration.page'
+        ];
 
-        return redirect()->back();
+        return $this->callCommand($command);
     }
 
     public function callCreateFactoryCommand()
     {
-        Artisan::call('create:factory', [
-            'name' => $this->modelName,
-            'attributes' => $this->columns,
-            'relations' => $this->relations
-        ]);
+        $command = [
+            'name' => 'create:factory',
+            'route' => 'cubeta-starter.generate-factory.page'
+        ];
 
-        return redirect()->back();
+        return $this->callCommand($command);
     }
 
     public function callCreateSeederCommand()
     {
-        Artisan::call('create:seeder', [
-            'name' => $this->modelName
-        ]);
+        $command = [
+            'name' => 'create:seeder',
+            'route' => 'cubeta-starter.generate-seeder.page'
+        ];
 
-        return redirect()->back();
+        return $this->callCommand($command);
     }
 
     public function callCreateRepositoryCommand()
     {
-        Artisan::call('create:repository', [
-            'name' => $this->modelName
-        ]);
-        return redirect()->back();
+        $command = [
+            'name' => 'create:repository',
+            'route' => 'cubeta-starter.generate-repository.page'
+        ];
+
+        return $this->callCommand($command);
     }
 
     public function callCreateServiceCommand()
     {
-        Artisan::call('create:service', [
-            'name' => $this->modelName
-        ]);
+        $command = [
+            'name' => 'create:service',
+            'route' => 'cubeta-starter.generate-service.page'
+        ];
 
-        return redirect()->back();
+        return $this->callCommand($command);
     }
 
     public function callCreateRequestCommand()
     {
-        Artisan::call('create:request', [
-            'name' => $this->modelName,
-            'attributes' => $this->columns,
-        ]);
+        $command = [
+            'name' => 'create:request',
+            'route' => 'cubeta-starter.generate-request.page'
+        ];
 
-        return redirect()->back();
+        return $this->callCommand($command);
     }
 
     public function callCreateResourceCommand()
     {
-        Artisan::call('create:resource', [
-            'name' => $this->modelName,
-            'attributes' => $this->columns,
-            'relations' => $this->relations,
-        ]);
+        $command = [
+            'name' => 'create:resource',
+            'route' => 'cubeta-starter.generate-resource.page'
+        ];
 
-        return redirect()->back();
+        return $this->callCommand($command);
     }
 
     public function callCreateApiControllerCommand()
     {
-        Artisan::call('create:controller', [
-            'name' => $this->modelName,
-            'actor' => $this->actor
-        ]);
+        $command = [
+            'name' => 'create:controller',
+            'route' => 'cubeta-starter.generate-api-controller.page'
+        ];
 
-        return redirect()->back();
+        return $this->callCommand($command);
     }
 
     public function callCreateTestCommand()
     {
-        Artisan::call('create:test', [
-            'name' => $this->modelName,
-            'actor' => $this->actor
-        ]);
+        $command = [
+            'name' => 'create:test',
+            'route' => 'cubeta-starter.generate-test.page'
+        ];
 
-        return redirect()->back();
+        return $this->callCommand($command);
     }
 
     public function callCreatePolicyCommand()
     {
-        Artisan::call('create:policy', [
-            'name' => $this->modelName
-        ]);
+        $command = [
+            'name' => 'create:policy',
+            'route' => 'cubeta-starter.generate-policy.page'
+        ];
 
-        return redirect()->back();
+        return $this->callCommand($command);
     }
 
     public function callCreatePostmanCollectionCommand()
     {
-        Artisan::call('create:postman-collection', [
-            'name' => $this->modelName,
-            'attributes' => $this->columns
-        ]);
+        $command = [
+            'name' => 'create:postman-collection',
+            'route' => 'cubeta-starter.generate-postman-collection.page'
+        ];
 
-        return redirect()->back();
+        return $this->callCommand($command);
     }
 
     private function configureRequestArray($array = null)
@@ -164,10 +178,8 @@ class CallAppropriateCommand extends Controller
             return [];
         }
 
-        $result = [];
-        foreach ($array as $item) {
-            $result[$item['name']] = $item['type'];
-        }
-        return $result;
+        return collect($array)->mapWithKeys(function ($item) {
+            return [$item['name'] => $item['type']];
+        })->toArray();
     }
 }

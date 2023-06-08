@@ -22,9 +22,15 @@ class MakeService extends Command
      */
     public function handle(): void
     {
-        $name = $this->argument('name');
-        $modelName = modelNaming($name);
-        $namespace = config('cubeta-starter.service_namespace')."\\$modelName";
+        $modelName = $this->argument('name');
+        $namespace = config('cubeta-starter.service_namespace') . "\\$modelName";
+
+        if (!$modelName || empty(trim($modelName))) {
+            $this->error('Invalid input');
+            return;
+        }
+
+        $modelName = modelNaming($modelName);
         $this->createService($modelName, $namespace);
         $this->createServiceInterface($modelName, $namespace);
     }
@@ -35,8 +41,8 @@ class MakeService extends Command
      */
     private function createService(string $modelName, string $namespace): void
     {
-        $repositoryName = $modelName.'Repository';
-        $serviceName = $modelName.'Service';
+        $repositoryName = $modelName . 'Repository';
+        $serviceName = $modelName . 'Service';
 
         $stubProperties = [
             '{modelName}' => $modelName,
@@ -55,7 +61,7 @@ class MakeService extends Command
         generateFileFromStub(
             $stubProperties,
             $servicePath,
-            __DIR__.'/stubs/service.stub'
+            __DIR__ . '/stubs/service.stub'
         );
 
         $this->formatFile($servicePath);
@@ -64,7 +70,7 @@ class MakeService extends Command
 
     private function getServicePath(string $serviceName, string $modelName): string
     {
-        $directory = base_path(config('cubeta-starter.service_path'))."/$modelName";
+        $directory = base_path(config('cubeta-starter.service_path')) . "/$modelName";
         ensureDirectoryExists($directory);
 
         return "$directory/$serviceName.php";
@@ -76,7 +82,7 @@ class MakeService extends Command
      */
     public function createServiceInterface(string $modelName, string $namespace): void
     {
-        $serviceInterfaceName = 'I'.$modelName.'Service';
+        $serviceInterfaceName = 'I' . $modelName . 'Service';
         $stubProperties = [
             '{namespace}' => $namespace,
             '{modelName}' => $modelName,
@@ -92,7 +98,7 @@ class MakeService extends Command
         generateFileFromStub(
             $stubProperties,
             $serviceInterfacePath,
-            __DIR__.'/stubs/service-interface.stub'
+            __DIR__ . '/stubs/service-interface.stub'
         );
 
         $this->formatFile($serviceInterfacePath);
@@ -101,7 +107,7 @@ class MakeService extends Command
 
     private function getServiceInterfacePath(string $serviceInterfaceName, string $modelName): string
     {
-        $directory = base_path(config('cubeta-starter.service_path'))."/$modelName";
+        $directory = base_path(config('cubeta-starter.service_path')) . "/$modelName";
         ensureDirectoryExists($directory);
 
         return "$directory/$serviceInterfaceName.php";

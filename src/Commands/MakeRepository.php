@@ -22,9 +22,14 @@ class MakeRepository extends Command
      */
     public function handle(): void
     {
-        $name = $this->argument('name');
+        $modelName = $this->argument('name');
 
-        $this->createRepository($name);
+        if (!$modelName || empty(trim($modelName))) {
+            $this->error('Invalid input');
+            return;
+        }
+
+        $this->createRepository($modelName);
     }
 
     /**

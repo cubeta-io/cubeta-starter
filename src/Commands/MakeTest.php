@@ -26,6 +26,11 @@ class MakeTest extends Command
         $modelName = $this->argument('name');
         $actor = $this->argument('actor');
 
+        if (!$modelName || empty(trim($modelName))) {
+            $this->error('Invalid input');
+            return;
+        }
+
         $this->createTest($modelName, $actor);
     }
 
@@ -36,7 +41,7 @@ class MakeTest extends Command
     private function createTest($modelName, $actor): void
     {
         $modelName = modelNaming($modelName);
-        $testName = $modelName.'Test';
+        $testName = $modelName . 'Test';
 
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.test_namespace'),
@@ -54,7 +59,7 @@ class MakeTest extends Command
         generateFileFromStub(
             $stubProperties,
             $testPath,
-            __DIR__.'/stubs/test.stub'
+            __DIR__ . '/stubs/test.stub'
         );
 
         $this->formatFile($testPath);
@@ -67,6 +72,6 @@ class MakeTest extends Command
 
         ensureDirectoryExists($directory);
 
-        return $directory."/$testName".'.php';
+        return $directory . "/$testName" . '.php';
     }
 }

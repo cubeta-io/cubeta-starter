@@ -48,6 +48,11 @@ class MakeFactory extends Command
         $attributes = $this->argument('attributes') ?? [];
         $relations = $this->argument('relations') ?? [];
 
+        if (!$modelName || empty(trim($modelName))) {
+            $this->error('Invalid input');
+            return;
+        }
+
         $this->createFactory($modelName, $attributes, $relations);
     }
 
@@ -80,7 +85,7 @@ class MakeFactory extends Command
         generateFileFromStub(
             $stubProperties,
             $factoryPath,
-            __DIR__.'/stubs/factory.stub'
+            __DIR__ . '/stubs/factory.stub'
         );
         $this->formatFile($factoryPath);
         $this->info("Created factory: $factoryName");
@@ -88,7 +93,7 @@ class MakeFactory extends Command
 
     private function getFactoryName($modelName): string
     {
-        return $modelName.'Factory';
+        return $modelName . 'Factory';
     }
 
     /**
@@ -236,7 +241,7 @@ class MakeFactory extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
-                $functionName = 'with'.ucfirst(Str::plural(Str::studly($rel)));
+                $functionName = 'with' . ucfirst(Str::plural(Str::studly($rel)));
                 $className = modelNaming($rel);
 
                 $relatedFactories .= "
