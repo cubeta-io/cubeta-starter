@@ -54,7 +54,7 @@ class MakeResource extends Command
         $resourcePath = $this->getResourcePath($resourceName);
 
         if (file_exists($resourcePath)) {
-            $this->error("$resourceName Already Exist");
+            $this->error("$resourceName Already Exists");
 
             return;
         }

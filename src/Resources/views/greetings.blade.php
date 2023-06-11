@@ -16,8 +16,4 @@
         <a href="{{route('cubeta-starter.generate-full.page')}}" class="get-started">Start Generating</a>
     </div>
 
-    <div class="text-center">
-        <a href="{{route('cubeta-starter.initial.page')}}" class="get-started">Initial Project</a>
-    </div>
-
 @endsection

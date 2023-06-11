@@ -47,7 +47,7 @@ class MakeSeeder extends Command
 
         $seederPath = $this->getSeederPath($seederName);
         if (file_exists($seederPath)) {
-            $this->error("$seederName Already Exist");
+            $this->error("$seederName Already Exists");
 
             return;
         }

@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
     Route::view('/', 'CubetaStarter::greetings')->name('greetings');
-    Route::view('/initial', 'CubetaStarter::initial-project')->name('initial.page');
-    Route::post('/initial', [InitialProjectController::class, 'callInitialProject'])->name('call-initial-project');
     Route::prefix('generate')->name('generate-')->group(function () {
         Route::get('/', [RenderAppropriateViewController::class, 'fullGenerate'])->name('full.page');
         Route::get('/migration', [RenderAppropriateViewController::class, 'generateMigration'])->name('migration.page');
@@ -22,6 +20,7 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
         Route::get('/test', [RenderAppropriateViewController::class, 'generateTest'])->name('test.page');
         Route::get('/policy', [RenderAppropriateViewController::class, 'generatePolicy'])->name('policy.page');
         Route::get('/postman-collection', [RenderAppropriateViewController::class, 'generatePostmanCollection'])->name('postman-collection.page');
+        Route::get('/add-actor', [RenderAppropriateViewController::class, 'addActor'])->name('add-actor.page');
     });
     Route::post('/full-generate', [CallAppropriateCommand::class, 'callCreateModelCommand'])->name('call-create-model-command');
     Route::post('/migration', [CallAppropriateCommand::class, 'callCreateMigrationCommand'])->name('call-create-migration-command');
@@ -35,5 +34,6 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
     Route::post('/test', [CallAppropriateCommand::class, 'callCreateTestCommand'])->name('call-create-test-command');
     Route::post('/policy', [CallAppropriateCommand::class, 'callCreatePolicyCommand'])->name('call-create-policy-command');
     Route::post('/postman-collection', [CallAppropriateCommand::class, 'callCreatePostmanCollectionCommand'])->name('call-create-postman-collection-command');
-
+    Route::get('/install-spatie', [CallAppropriateCommand::class, 'callInstallSpatie'])->name('call-install-spatie');
+    Route::post('/add-actor', [CallAppropriateCommand::class, 'callAddActorCommand'])->name('call-add-actor-command');
 });

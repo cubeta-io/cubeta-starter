@@ -49,7 +49,7 @@ class MakePolicy extends Command
 
         $policyPath = $this->getPolicyPath($policyName);
         if (file_exists($policyPath)) {
-            $this->error("$policyName Already Exist");
+            $this->error("$policyName Already Exists");
 
             return;
         }

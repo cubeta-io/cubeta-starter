@@ -51,7 +51,7 @@ class MakeMigration extends Command
         $migrationName = $this->getMigrationName($modelName);
 
         if ($this->checkIfMigrationExists($tableName)) {
-            $this->error("$migrationName Already Exist");
+            $this->error("$migrationName Already Exists");
 
             return;
         }

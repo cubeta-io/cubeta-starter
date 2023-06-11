@@ -14,7 +14,7 @@ class InitialProject extends Command
 {
     use AssistCommand, RouteFileTrait, RolePermissionTrait;
 
-    protected $signature = 'cubeta-init {useExceptionHandler?} {installSpatie?} {rolesPermissionsArray?}';
+    protected $signature = 'cubeta-init {useGui?} {installSpatie?} {rolesPermissionsArray?}';
 
     protected $description = 'Prepare the necessary files to work with the package';
 
@@ -24,14 +24,18 @@ class InitialProject extends Command
      */
     public function handle(): void
     {
-        $useExceptionHandler = $this->argument('useExceptionHandler') ? 'Yes' : 'No';
-        $installSpatie = $this->argument('installSpatie') == 'true';
+        $useGui = $this->argument('useGui') ?? false;
+        $installSpatie = $this->argument('installSpatie') ?? false;
         $rolesPermissionsArray = $this->argument('rolesPermissionsArray') ?? false;
 
-        $this->handleExceptionHandler($useExceptionHandler);
+        if ($useGui) {
+            if ($installSpatie) {
+                $this->installSpatie(true);
+            }
+            if ($rolesPermissionsArray) {
+                $this->handleRolesPermissionsArray($rolesPermissionsArray);
+            }
 
-        if ($rolesPermissionsArray) {
-            $this->handleRolesPermissionsArray($rolesPermissionsArray, $installSpatie);
             return;
         }
 
@@ -96,30 +100,6 @@ class InitialProject extends Command
         }
     }
 
-    /**
-     * Initialize the exception handler
-     */
-    public function handleExceptionHandler($useHandler = 'No'): void
-    {
-        if ($useHandler == 'No') {
-            $this->warn('We have an exception handler for you, which will replace the existing "app/Exceptions/Handler.php" file with a new one');
-            $useHandler = $this->choice('Do you want to replace the exception handler file? (Note: The feature tests depend on our handler)', ['No', 'Yes'], 'Yes');
-        }
-
-        if ($useHandler == 'No') {
-            return;
-        }
-
-        $handlerStub = file_get_contents(__DIR__ . '/stubs/handler.stub');
-        $handlerPath = base_path('app/Exceptions/Handler.php');
-        if (!file_exists($handlerPath)) {
-            File::makeDirectory($handlerPath, 077, true, true);
-        }
-        file_put_contents($handlerPath, $handlerStub);
-        $this->formatFile($handlerPath);
-
-        $this->info('The handler file at "app/Exceptions/Handler.php" has been initialized');
-    }
 
     /**
      * Ask about the need for Spatie permissions and install it
@@ -149,11 +129,10 @@ class InitialProject extends Command
      * Handle the roles and permissions passed as arguments
      *
      * @param array $rolesPermissions
-     * @param bool $installSpatie
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function handleRolesPermissionsArray(array $rolesPermissions, bool $installSpatie): void
+    private function handleRolesPermissionsArray(array $rolesPermissions): void
     {
         foreach ($rolesPermissions as $role => $permissions) {
             $this->createRolesEnum($role, $permissions);
@@ -166,10 +145,6 @@ class InitialProject extends Command
                 $this->createPermissionSeeder($container);
                 $this->info("$role role created successfully");
             }
-        }
-
-        if ($installSpatie) {
-            $this->installSpatie(true);
         }
     }
 }

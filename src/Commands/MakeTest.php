@@ -51,7 +51,7 @@ class MakeTest extends Command
 
         $testPath = $this->getTestPath($testName);
         if (file_exists($testPath)) {
-            $this->error("$testName Already Exist");
+            $this->error("$testName Already Exists");
 
             return;
         }

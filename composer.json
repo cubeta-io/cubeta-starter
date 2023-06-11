@@ -38,5 +38,10 @@
                 "Cubeta\\CubetaStarter\\RepositoryServiceProvider"
             ]
         }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "Cubeta\\CubetaStarter\\PostInstallFunctions::handleExceptionHandler"
+        ]
     }
 }

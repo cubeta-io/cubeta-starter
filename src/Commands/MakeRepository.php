@@ -52,7 +52,7 @@ class MakeRepository extends Command
         $repositoryPath = $this->getRepositoryPath($repositoryName);
 
         if (file_exists($repositoryPath)) {
-            $this->error("$repositoryName Already Exist");
+            $this->error("$repositoryName Already Exists");
 
             return;
         }

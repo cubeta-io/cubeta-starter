@@ -70,7 +70,7 @@ class MakeFactory extends Command
 
         $factoryPath = $this->getFactoryPath($factoryName);
         if (file_exists($factoryPath)) {
-            $this->error("$factoryName Already Exist");
+            $this->error("$factoryName Already Exists");
 
             return;
         }

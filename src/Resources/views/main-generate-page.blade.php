@@ -5,6 +5,22 @@
     <main class="main">
         <section class="section profile">
             <div class="container">
+                <div class="modal mt-5" tabindex="-1" role="dialog" id="spinner" data-keyboard="false"
+                     data-backdrop="static">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content bg-white">
+                            <div class="modal-body">
+                                <h3 id="modal-title" class="text-center">{{$modalBody ?? null}}</h3>
+                                <div class="card d-flex justify-content-center align-items-center bg-white"
+                                     style="border: none">
+                                    <div class="card-body w-25 h-25 text-center" style="border-radius: 15px">
+                                        <div class="lds-dual-ring"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="card">
                     <div class="card-header text-center">
                         <div class="card-header text-center">
@@ -13,7 +29,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <form class="form" method="POST" action="{{$action}}">
+                        <form id="generator-form" class="form" method="POST" action="{{$action}}">
                             @csrf
                             <div class="row">
                                 @if($modelNameField)
@@ -28,19 +44,26 @@
 
                                 @if($actorsField)
                                     @if(isset($roles) && count($roles) > 0)
-                                        <div class="col-md-3 m-2">
-                                            <label>none</label>
-                                            <input class="form-check-input" type="radio" value="none"
-                                                   name="actor" checked>
-                                        </div>
-                                        @foreach($roles as $role)
-                                            <div class="col-md-3 m-2">
-                                                <label>{{$role}}</label>
-                                                <input class="form-check-input" type="radio"
-                                                       value="{{$role}}"
-                                                       name="actor">
+                                        <div class="col-md-12 p-3">
+                                            <p class="description-font">Here Your Project Defined Roles, Select One to
+                                                be
+                                                the actor for the created model endpoints : </p>
+                                            <div class="row">
+                                                <div class="col-md-3 m-1">
+                                                    <label>none</label>
+                                                    <input class="form-check-input" type="radio" value="none"
+                                                           name="actor" checked>
+                                                </div>
+                                                @foreach($roles as $role)
+                                                    <div class="col-md-3 m-1">
+                                                        <label>{{$role}}</label>
+                                                        <input class="form-check-input" type="radio"
+                                                               value="{{$role}}"
+                                                               name="actor">
+                                                    </div>
+                                                @endforeach
                                             </div>
-                                        @endforeach
+                                        </div>
                                     @endif
                                 @endif
                             </div>
@@ -63,6 +86,57 @@
                                 <button id="add-relation-button" class="btn btn-primary col-md-2 m-3">
                                     Add Relation
                                 </button>
+                            @endif
+
+                            @if($addActor)
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <p class="description-font">If You Have Multi Actors System
+                                                and You're
+                                                Planing To Use Our Multi Actors Configuration You Need
+                                                to Have
+                                                Spatie/Permission Package. Do you want to install it?
+                                            </p>
+                                            <a id="install-spatie"
+                                               href="{{route('cubeta-starter.call-install-spatie')}}"
+                                               class="btn btn-primary">
+                                                install spatie
+                                            </a>
+                                        </div>
+                                    </div>
+                                    @if($roles && count($roles) >0)
+                                        <div class="col-md-12 p-3">
+                                            <label>Your Project Roles</label>
+                                            <div class="row">
+                                                @foreach($roles as $role)
+                                                    <div class="col-md-3">
+                                                        <p class="border border-dark text-center m-2"
+                                                           style="color: #001e4a">{{$role}}</p>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+                                    <div class="col-md-12 p-3">
+                                        <p class="description-font">
+                                            Here add your actors and their permissions if they have
+                                            multiple
+                                            permissions.
+                                            Input is like: can-do,can-read,can-publish, etc.
+                                        </p>
+                                        <div class="row" id="rolesContainer">
+
+                                            {{--roles permissions input--}}
+
+                                            <div class="col-md-12 mt-2">
+                                                <button class="btn btn-primary" id="addRole">Add New
+                                                    Role
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             @endif
 
                             <div class="card-footer">
@@ -104,7 +178,7 @@
                 Swal.fire({
                     title: "Success",
                     text: "{{ request('error') }}",
-                    icon: "succeeded",
+                    icon: "success",
                     button: "OK",
                 }).then(() => {
                     window.location.href = "{{url()->previous()}}";
@@ -114,7 +188,91 @@
     @endif
 
     @push('scripts')
-        @if($attributesField)
+        <script type="module">
+            $(document).ready(function () {
+                const myModal = document.getElementById('spinner');
+                const modal = new bootstrap.Modal(myModal, {
+                    keyboard: false,
+                    backdrop: "static"
+                });
+                modal.hide();
+                $('#generator-form').submit(function () {
+                    modal.show();
+                })
+
+                $('#install-spatie').click(function (e) {
+                    document.getElementById('modal-title').innerText = "Installing Spatie/Permissions"
+                    modal.show();
+                })
+
+                $(document).on('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        modal.hide();
+                    }
+                });
+            });
+        </script>
+    @endpush
+
+    @if($addActor)
+        @push('scripts')
+            <script type="module">
+                $(document).ready(function () {
+                    let roleIndex = 1;
+
+                    $("#addRole").on('click', function (event) {
+                        event.preventDefault();
+                        const $rolesContainer = $("#rolesContainer");
+                        const $newRoleInputRow = $("<div></div>", {"class": "row m-2"});
+                        const $newRoleInput = $("<div></div>", {"class": "col-md-6", "id": "roleInput"});
+                        const $newRoleInputField = $("<input>", {
+                            "id": "roleName",
+                            "name": `roles[${roleIndex}][name]`,
+                            "class": "form-control",
+                            "type": "text",
+                            "placeholder": "Enter role name e.g: admin"
+                        });
+                        const $newPermissionInput = $("<div></div>", {
+                            "class": "col-md-5 d-flex align-items-center",
+                            "id": "permissionInput"
+                        });
+                        const $newPermissionInputField = $("<input>", {
+                            "id": "permissionName",
+                            "name": `roles[${roleIndex}][permissions]`,
+                            "class": "form-control",
+                            "type": "text",
+                            "placeholder": "Enter role permissions e.g: can-edit,can-read, etc."
+                        });
+                        const $deleteButton = $("<button></button>", {
+                            "class": "btn btn-sm btn-danger col-md-1 ml-1",
+                            "type": "button",
+                            "html": "&times;"
+                        });
+                        $deleteButton.css({
+                            "width": "30px",
+                            "height": "25px",
+                            "margin": "auto",
+                            "padding": "initial",
+                            "fontWeight": "bolder",
+                            "borderRadius": "60%"
+                        });
+                        $deleteButton.on('click', function () {
+                            $newRoleInputRow.remove();
+                        });
+                        $newRoleInput.append($newRoleInputField);
+                        $newPermissionInput.append($newPermissionInputField);
+                        $newRoleInputRow.append($newRoleInput);
+                        $newRoleInputRow.append($newPermissionInput);
+                        $newRoleInputRow.append($deleteButton);
+                        $rolesContainer.find('#addRole').before($newRoleInputRow);
+                        roleIndex++;
+                    });
+                });
+            </script>
+        @endpush
+    @endif
+    @if($attributesField)
+        @push('scripts')
             <script type="module">
                 $(document).ready(function () {
                     const addColumnButton = document.getElementById("add-column-button");
@@ -235,7 +393,7 @@
                     @endif
                 });
             </script>
-        @endif
-    @endpush
+        @endpush
+    @endif
 
 @endsection

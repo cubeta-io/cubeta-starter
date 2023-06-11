@@ -117,7 +117,10 @@
                         "type": "text",
                         "placeholder": "Enter role name e.g: admin"
                     });
-                    const $newPermissionInput = $("<div></div>", {"class": "col-md-5", "id": "permissionInput"});
+                    const $newPermissionInput = $("<div></div>", {
+                        "class": "col-md-5 d-flex align-items-center",
+                        "id": "permissionInput"
+                    });
                     const $newPermissionInputField = $("<input>", {
                         "id": "permissionName",
                         "name": `roles[${roleIndex}][permissions]`,
@@ -131,11 +134,12 @@
                         "html": "&times;"
                     });
                     $deleteButton.css({
-                        "font-size": "1.5rem",
-                        "padding-top": "0",
-                        "padding-bottom": "0",
-                        "padding-left": "0.5rem",
-                        "padding-right": "0.5rem"
+                        "width": "30px",
+                        "height": "25px",
+                        "margin": "auto",
+                        "padding": "initial",
+                        "fontWeight": "bolder",
+                        "borderRadius": "60%"
                     });
                     $deleteButton.on('click', function () {
                         $newRoleInputRow.remove();

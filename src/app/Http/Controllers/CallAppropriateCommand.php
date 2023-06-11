@@ -4,10 +4,15 @@ namespace Cubeta\CubetaStarter\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Artisan;
+use Cubeta\CubetaStarter\Enums\ErrorTypeEnum;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CallAppropriateCommand extends Controller
 {
+    use  AssistCommand;
+
     private $modelName;
     private $relations;
     private $columns;
@@ -25,31 +30,51 @@ class CallAppropriateCommand extends Controller
 
     public function callCommand($command)
     {
-        if (empty(trim($this->modelName))) {
-            return redirect()->route($command['route'], ['error' => "invalid input"]);
+        set_time_limit(0);
+        try {
+            if (empty(trim($this->modelName))) {
+                return redirect()->route($command['route'], ['error' => "Invalid Model Name"]);
+            }
+
+            $arguments['name'] = $this->modelName;
+
+            if (isset($this->columns) && count($this->columns) > 0) {
+                foreach ($this->columns as $col => $type) {
+                    if (empty(trim($col))) {
+                        return redirect()->route($command['route'], ['error' => "Invalid Column Name"]);
+                    }
+                }
+                $arguments['attributes'] = $this->columns;
+            }
+
+            if (isset($this->relations) && count($this->relations) > 0) {
+                foreach ($this->relations as $relation => $type) {
+                    if (empty(trim($relation))) {
+                        return redirect()->route($command['route'], ['error' => "Invalid Relation Name"]);
+                    }
+                }
+                $arguments['relations'] = $this->relations;
+            }
+
+            if (isset($this->actor)) {
+                $arguments['actor'] = $this->actor;
+            }
+
+            if ($command['name'] == 'create:model') {
+                $arguments['gui'] = true;
+            }
+
+            Artisan::call($command['name'], $arguments);
+
+            $output = Artisan::output();
+            if (Str::contains($output, ErrorTypeEnum::ALL, true)) {
+                return redirect()->route($command['route'], ['error' => $output]);
+            }
+
+            return redirect()->route($command['route'], ['success' => $command['name'] . 'successfully']);
+        } catch (\Exception $exception) {
+            return redirect()->route($command['route'], ['error' => $exception->getMessage()]);
         }
-
-        $arguments['name'] = $this->modelName;
-
-        if (isset($this->columns) && count($this->columns) > 0) {
-            $arguments['attributes'] = $this->columns;
-        }
-
-        if (isset($this->relations) && count($this->relations) > 0) {
-            $arguments['relations'] = $this->relations;
-        }
-
-        if (isset($this->actor)) {
-            $arguments['actor'] = $this->actor;
-        }
-
-        if ($command['name'] == 'create:model') {
-            $arguments['gui'] = true;
-        }
-
-        Artisan::call($command['name'], $arguments);
-
-        return redirect()->route($command['route'], ['success' => $command['name'] . 'successfully']);
     }
 
     public function callCreateModelCommand()
@@ -181,5 +206,53 @@ class CallAppropriateCommand extends Controller
         return collect($array)->mapWithKeys(function ($item) {
             return [$item['name'] => $item['type']];
         })->toArray();
+    }
+
+    public function callAddActorCommand(Request $request)
+    {
+        $roles = $request->roles ?? [];
+        $result = $this->convertRolesPermissionArrayToCommandAcceptableFormat($roles);
+
+        if (!$result) {
+            return redirect()->route('cubeta-starter.generate-add-actor.page', ['error' => 'Invalid Role Name']);
+        } else {
+            Artisan::call('cubeta-init', [
+                'useGui' => true,
+                'rolesPermissionsArray' => $result,
+                'installSpatie' => false
+            ]);
+
+            return redirect()->route('cubeta-starter.generate-add-actor.page', ['success' => 'New Roles Added']);
+        }
+    }
+
+    public function callInstallSpatie()
+    {
+        set_time_limit(0);
+
+        Artisan::call('cubeta-init', [
+            'useGui' => true,
+            'installSpatie' => true,
+            'rolesPermissionsArray' => null
+        ]);
+
+        return redirect()->route('cubeta-starter.generate-add-actor.page', ['success' => "Spatie Has Been Installed \n Don't Forgot To Run Your Migrations"]);
+    }
+
+    private function convertRolesPermissionArrayToCommandAcceptableFormat(array $rolesPermissionArray = [])
+    {
+        $result = [];
+
+        foreach ($rolesPermissionArray as $array) {
+            $result[$array['name']] = $this->convertInputStringToArray($array['permissions']);
+        }
+
+        foreach ($result as $role => $permissions) {
+            if (empty(trim($role))) {
+                return false;
+            }
+        }
+
+        return $result;
     }
 }

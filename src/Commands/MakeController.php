@@ -53,7 +53,7 @@ class MakeController extends Command
         $controllerPath = $this->getControllerPath($controllerName);
 
         if (file_exists($controllerPath)) {
-            $this->error("$controllerName Already Exist");
+            $this->error("$controllerName Already Exists");
 
             return;
         }

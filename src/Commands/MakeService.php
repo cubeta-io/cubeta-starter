@@ -52,7 +52,7 @@ class MakeService extends Command
 
         $servicePath = $this->getServicePath($serviceName, $modelName);
         if (file_exists($servicePath)) {
-            $this->error("$serviceName Already Exist");
+            $this->error("$serviceName Already Exists");
 
             return;
         }
@@ -90,7 +90,7 @@ class MakeService extends Command
 
         $serviceInterfacePath = $this->getServiceInterfacePath($serviceInterfaceName, $modelName);
         if (file_exists($serviceInterfacePath)) {
-            $this->error("$serviceInterfaceName Already Exist");
+            $this->error("$serviceInterfaceName Already Exists");
 
             return;
         }

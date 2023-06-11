@@ -14,6 +14,7 @@ class RenderAppropriateViewController extends Controller
         'attributesField' => false,
         'relationsField' => false,
         'actorsField' => false,
+        'addActor' => false,
         'notes' => ''
     ];
 
@@ -48,9 +49,10 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['attributesField'] = true;
         $this->arguments['relationsField'] = true;
         $this->arguments['actorsField'] = true;
+        $this->arguments['modalBody'] = "Generating The CRUDs";
         $this->arguments['notes'] = '<li class="notes">If a model with the same name is exist nothing will be generated</li>
-                                        <li class="notes">This GUI will just when the app environment is local</li>
-                                        <li class="notes">read about the key and translatable columns type in the <a href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md">documentation</a></li>';
+                                        <li class="notes">This GUI will work just when the app environment is local</li>
+                                        <li class="notes">read about the key and translatable columns type in the <a href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md" target="_blank">documentation</a></li>';
 
         return view('CubetaStarter::main-generate-page', compact('roles', 'types'))->with($this->arguments);
     }
@@ -63,11 +65,12 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['action'] = route('cubeta-starter.call-create-migration-command');
         $this->arguments['attributesField'] = true;
         $this->arguments['relationsField'] = true;
+        $this->arguments['modalBody'] = "Generating Migration";
 
         $this->arguments['notes'] = '<li class="notes">columns of type files will be placed on the migration file as a string columns with a nullable attribute</li>
                                         <li class="notes">columns of type key will be placed on the migration file as a foreignIdFor columns</li>
                                         <li class="notes">columns of type translatable will be placed on the migration file as a json columns</li>
-                                        <li class="notes">it is always better to check on the created files</li>';
+                                        <li class="notes">it is always better to check on the created migration</li>';
 
         return view('CubetaStarter::main-generate-page', compact('types'))->with($this->arguments);
     }
@@ -80,8 +83,9 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['action'] = route('cubeta-starter.call-create-factory-command');
         $this->arguments['attributesField'] = true;
         $this->arguments['relationsField'] = true;
+        $this->arguments['modalBody'] = "Generating Factory";
         $this->arguments['notes'] = ' <li class="notes">check on how the factory will be generated <a
-                                                href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md#factories">here</a>
+                                                href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md#factories" target="_blank">here</a>
                                         </li>';
         return view('CubetaStarter::main-generate-page', compact('types'))->with($this->arguments);
     }
@@ -91,6 +95,8 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['title'] = 'Seeder';
         $this->arguments['textUnderTitle'] = 'Here We Will Generate The Seeder Class For Your Model';
         $this->arguments['action'] = route('cubeta-starter.call-create-seeder-command');
+        $this->arguments['modalBody'] = "Generating Seeder";
+        $this->arguments['notes'] = ' <li class="notes">The created seeder will call the model factory 10 times</li>';
         return view('CubetaStarter::main-generate-page')->with($this->arguments);
     }
 
@@ -99,6 +105,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['title'] = 'Repository';
         $this->arguments['textUnderTitle'] = 'Here We Will Generate The Repository Class For Your Model';
         $this->arguments['action'] = route('cubeta-starter.call-create-repository-command');
+        $this->arguments['modalBody'] = "Generating Repository Class";
         return view('CubetaStarter::main-generate-page')->with($this->arguments);
     }
 
@@ -107,6 +114,8 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['title'] = 'Service';
         $this->arguments['textUnderTitle'] = 'Here We Will Generate The Service Class And Its Interface For Your Model';
         $this->arguments['action'] = route('cubeta-starter.call-create-service-command');
+        $this->arguments['modalBody'] = "Generating Service Class And Interface";
+        $this->arguments['notes'] = "<li class='notes'>The created service will construct an instance from the corresponding repository, so it is better to create one</li>";
         return view('CubetaStarter::main-generate-page')->with($this->arguments);
     }
 
@@ -117,8 +126,9 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['textUnderTitle'] = 'Here We Will Generate The Request Class For Your Model';
         $this->arguments['action'] = route('cubeta-starter.call-create-request-command');
         $this->arguments['attributesField'] = true;
+        $this->arguments['modalBody'] = "Generating Form Request";
         $this->arguments['notes'] = ' <li class="notes">check on how the form request will be generated <a
-                                                href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md#requests">here</a>
+                                                href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md#requests" target="_blank">here</a>
                                         </li>';
         return view('CubetaStarter::main-generate-page', compact('types'))->with($this->arguments);
     }
@@ -131,6 +141,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['action'] = route('cubeta-starter.call-create-resource-command');
         $this->arguments['attributesField'] = true;
         $this->arguments['relationsField'] = true;
+        $this->arguments['modalBody'] = "Generating API Resource";
         return view('CubetaStarter::main-generate-page', compact('types'))->with($this->arguments);
     }
 
@@ -141,6 +152,8 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['textUnderTitle'] = 'Here We Will Generate The API Controller For Your Model';
         $this->arguments['action'] = route('cubeta-starter.call-create-api-controller-command');
         $this->arguments['actorsField'] = true;
+        $this->arguments['modalBody'] = "Generating API Controller";
+        $this->arguments['notes'] = "<li class='notes'>The created controller has the five CRUD methods, and it uses the service interface to implement them<br>so it is necessary to has a service class and its interface with a corresponding repository to use the created<br>controller methods</li>";
         return view('CubetaStarter::main-generate-page')->with($this->arguments);
     }
 
@@ -151,6 +164,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['textUnderTitle'] = 'Here We Will Generate The Feature Test For Your Model Endpoints (CRUDs ONLY)';
         $this->arguments['action'] = route('cubeta-starter.call-create-test-command');
         $this->arguments['actorsField'] = true;
+        $this->arguments['modalBody'] = "Generating Tests";
         return view('CubetaStarter::main-generate-page', compact('roles'))->with($this->arguments);
     }
 
@@ -159,6 +173,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['title'] = 'Policy';
         $this->arguments['textUnderTitle'] = 'Here We Will Generate The Policy Class For Your Model';
         $this->arguments['action'] = route('cubeta-starter.call-create-policy-command');
+        $this->arguments['modalBody'] = "Generating Policy";
         return view('CubetaStarter::main-generate-page')->with($this->arguments);
     }
 
@@ -169,6 +184,25 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['textUnderTitle'] = 'Here We Will Generate The Postman Collection Your Model Endpoints (CRUDs Only)';
         $this->arguments['action'] = route('cubeta-starter.call-create-postman-collection-command');
         $this->arguments['attributesField'] = true;
+        $this->arguments['modalBody'] = "generating postman collection";
         return view('CubetaStarter::main-generate-page', compact('types'))->with($this->arguments);
+    }
+
+    public function addActor()
+    {
+        $roles = $this->roles;
+        $types = $this->types;
+        $this->arguments['title'] = 'Add New Actor';
+        $this->arguments['textUnderTitle'] = 'Here You Can Add Actors (Roles) To Your Project';
+        $this->arguments['action'] = route('cubeta-starter.call-add-actor-command');
+        $this->arguments['modelNameField'] = false;
+        $this->arguments['addActor'] = true;
+        $this->arguments['modalBody'] = "Adding Actors";
+        $this->arguments['notes'] = "<li class='notes'>Don't forgot to run migrations after installing spatie <a href='https://spatie.be/docs/laravel-permission/v5/introduction'>Check spatie/permissions Documentation</a></li>
+                                        <li class='notes'>Using add actors feature needs Spatie/Permissions Package to be installed</li>
+                                        <li class='notes'>RolesPermissionEnum class will be created in your app/Enums directory after adding new roles</li>
+                                        <li class='notes'>If you want to remove a role just remove it from RolesPermissionsEnum</li>
+                                        <li class='notes'>any change in the roles need you to run the role and the permissions seeders in the seeders directory</li>";
+        return view('CubetaStarter::main-generate-page', compact('types', 'roles'))->with($this->arguments);
     }
 }

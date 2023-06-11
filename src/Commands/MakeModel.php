@@ -63,7 +63,7 @@ class MakeModel extends Command
 
         $option = $this->argument('option');
 
-        $useGui = $this->argument('gui');
+        $useGui = $this->argument('gui') ?? false;
         $guiAttributes = $this->argument('attributes') ?? [];
         $relations = $this->argument('relations') ?? [];
         $actor = $this->argument('actor') ?? 'none';

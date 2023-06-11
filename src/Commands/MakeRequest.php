@@ -51,7 +51,7 @@ class MakeRequest extends Command
 
         $requestPath = $this->getRequestPath($requestName, $modelName);
         if (file_exists($requestPath)) {
-            $this->error("$requestName Already Exist");
+            $this->error("$requestName Already Exists");
 
             return;
         }

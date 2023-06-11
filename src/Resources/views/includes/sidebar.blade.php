@@ -78,6 +78,12 @@
                             Create Postman Collection
                         </a>
                     </li>
+                    <li class="nav-item @if(request()->fullUrl() == route('cubeta-starter.generate-postman-collection.page')) my-nav-active @endif">
+                        <a href="{{route('cubeta-starter.generate-add-actor.page')}}"
+                           class="nav-link text-white">
+                            Add Actors
+                        </a>
+                    </li>
                 </ul>
                 <hr>
             </div>

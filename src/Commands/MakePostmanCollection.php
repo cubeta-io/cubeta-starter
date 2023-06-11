@@ -70,7 +70,7 @@ class MakePostmanCollection extends Command
             $collection = file_get_contents($collectionPath);
 
             if (Str::contains(preg_replace('/\s+/', '', $collection), trim("\"name\":\"$modelName\","))) {
-                $this->error('An endpoint for ' . $modelName . 'Controller is already exist in the Postman collection');
+                $this->error('An endpoint for ' . $modelName . 'Controller Endpoint is Already Exists in the Postman collection');
 
                 return;
             }
