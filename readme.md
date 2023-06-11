@@ -55,20 +55,15 @@ directory : `/cubeta` then in the created directory clone this project
 2 - open _composer.json_ file in your root directory and add this code :
 
 ```
-"repositories": {
-        "quickmetrics-laravel":{
-            "type": "path" ,
-            "url": "packages/cubeta/cubeta-starter" ,
-            "options": {
-                "symlink": true
-            }
+ "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://gitlab.com/cubetaio/backend/cubeta-starter.git"
         }
-    },
+    ],
 ```
 
-then in the require-dev entity add this line : `"cubeta/cubeta-starter" : "@dev",`
-
-3 - run `composer install`
+3 - run `composer require cubeta/cubeta-starter:dev-api-version-with-ui`
 
 4 - publish the config file : `php artisan vendor:publish --tag=cubeta-starter-config`
 
