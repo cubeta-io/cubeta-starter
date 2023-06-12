@@ -239,6 +239,54 @@ class CallAppropriateCommand extends Controller
         return redirect()->route('cubeta-starter.generate-add-actor.page', ['success' => "Spatie Has Been Installed \n Don't Forgot To Run Your Migrations"]);
     }
 
+    public function publishHandler()
+    {
+        try {
+            Artisan::call('vendor:publish', [
+                '--tag' => 'cubeta-starter-handler',
+                '--force' => true
+            ]);
+            return redirect()->route('cubeta-starter.complete-installation', ['success' => 'Exception Handler Published Successfully']);
+        } catch (\Exception $e) {
+            return redirect()->route('cubeta-starter.complete-installation', ['error' => $e->getMessage()]);
+        }
+    }
+
+    public function publishConfig()
+    {
+        try {
+            Artisan::call('vendor:publish', [
+                '--tag' => 'cubeta-starter-config',
+            ]);
+            return redirect()->route('cubeta-starter.complete-installation', ['success' => 'Config File Published Successfully']);
+        } catch (\Exception $e) {
+            return redirect()->route('cubeta-starter.complete-installation', ['error' => $e->getMessage()]);
+        }
+    }
+
+    public function publishAssets()
+    {
+        try {
+            Artisan::call('vendor:publish', [
+                '--tag' => 'cubeta-starter-assets',
+            ]);
+            return redirect()->route('cubeta-starter.complete-installation', ['success' => 'The Assets Has Been Published Successfully']);
+        } catch (\Exception $e) {
+            return redirect()->route('cubeta-starter.complete-installation', ['error' => $e->getMessage()]);
+        }
+    }
+
+    public function installingWebPackages()
+    {
+        set_time_limit(0);
+        try {
+            Artisan::call('init-web-packages');
+            return redirect()->route('cubeta-starter.complete-installation', ['success' => 'The Packages Have Been Installed Successfully']);
+        } catch (\Exception $e) {
+            return redirect()->route('cubeta-starter.complete-installation', ['error' => $e->getMessage()]);
+        }
+    }
+
     private function convertRolesPermissionArrayToCommandAcceptableFormat(array $rolesPermissionArray = [])
     {
         $result = [];

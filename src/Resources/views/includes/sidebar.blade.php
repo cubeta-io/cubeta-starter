@@ -3,19 +3,24 @@
         <aside class="sidebar">
             <div class="p-3 nav-bar-background">
                 <div class="container w-75">
-                    <a href="{{route("cubeta-starter.greetings")}}">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <img class="img-fluid" src="{{asset("$assetsPath/images/logo-light.png")}}">
-                            </div>
-                            <div class="col-md-8">
-                                <img class="img-fluid mt-4" src="{{asset("$assetsPath/images/cubeta-light.png")}}">
-                            </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img class="img-fluid" src="{{asset("$assetsPath/images/logo-light.png")}}" alt="">
                         </div>
-                    </a>
+                        <div class="col-md-8">
+                            <img class="img-fluid mt-4" src="{{asset("$assetsPath/images/cubeta-light.png")}}" alt="">
+                        </div>
+                    </div>
                 </div>
                 <hr>
                 <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item @if(request()->fullUrl() == route('cubeta-starter.complete-installation')) my-nav-active @endif">
+                        <a href="{{route('cubeta-starter.complete-installation')}}" class="nav-link text-white"
+                           aria-current="page">
+                            Complete the installation
+                        </a>
+                    </li>
+
                     <li class="nav-item @if(request()->fullUrl() == route('cubeta-starter.generate-full.page')) my-nav-active @endif">
                         <a href="{{route('cubeta-starter.generate-full.page')}}" class="nav-link text-white"
                            aria-current="page">

@@ -6,7 +6,7 @@ use Cubeta\CubetaStarter\app\Http\Controllers\RenderAppropriateViewController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
-    Route::view('/', 'CubetaStarter::greetings')->name('greetings');
+    Route::view('/', 'CubetaStarter::complete-install')->name('complete-installation');
     Route::prefix('generate')->name('generate-')->group(function () {
         Route::get('/', [RenderAppropriateViewController::class, 'fullGenerate'])->name('full.page');
         Route::get('/migration', [RenderAppropriateViewController::class, 'generateMigration'])->name('migration.page');
@@ -36,4 +36,8 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
     Route::post('/postman-collection', [CallAppropriateCommand::class, 'callCreatePostmanCollectionCommand'])->name('call-create-postman-collection-command');
     Route::get('/install-spatie', [CallAppropriateCommand::class, 'callInstallSpatie'])->name('call-install-spatie');
     Route::post('/add-actor', [CallAppropriateCommand::class, 'callAddActorCommand'])->name('call-add-actor-command');
+    Route::get('/publish-config', [CallAppropriateCommand::class, 'publishConfig'])->name('config-publish');
+    Route::get('/publish-handler', [CallAppropriateCommand::class, 'publishHandler'])->name('publish-handler');
+    Route::get('publish-assets', [CallAppropriateCommand::class, 'publishAssets'])->name('publish-assets');
+    Route::get('/install-web-packages', [CallAppropriateCommand::class, 'installingWebPackages'])->name('install-web-packages');
 });

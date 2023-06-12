@@ -39,6 +39,12 @@ return [
     'api_controller_path' => 'app/Http/Controllers/API/v1',
 
     /**
+     * web controller path and namespace
+     */
+    'web_controller_namespace' => 'App\Http\Controllers\WEB\v1',
+    'web_controller_path' => 'app/Http/Controllers/WEB/v1',
+
+    /**
      * requests path and namespace
      */
     'request_namespace' => 'App\Http\Requests',

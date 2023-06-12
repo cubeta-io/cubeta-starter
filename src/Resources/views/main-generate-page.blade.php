@@ -177,7 +177,7 @@
             <script type="module">
                 Swal.fire({
                     title: "Success",
-                    text: "{{ request('error') }}",
+                    text: "{{ request('success') }}",
                     icon: "success",
                     button: "OK",
                 }).then(() => {

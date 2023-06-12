@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter;
 
 use Cubeta\CubetaStarter\Commands\CreatePivotTable;
 use Cubeta\CubetaStarter\Commands\InitialProject;
+use Cubeta\CubetaStarter\Commands\InstallWebPackages;
 use Cubeta\CubetaStarter\Commands\MakeController;
 use Cubeta\CubetaStarter\Commands\MakeFactory;
 use Cubeta\CubetaStarter\Commands\MakeMigration;
@@ -16,6 +17,8 @@ use Cubeta\CubetaStarter\Commands\MakeResource;
 use Cubeta\CubetaStarter\Commands\MakeSeeder;
 use Cubeta\CubetaStarter\Commands\MakeService;
 use Cubeta\CubetaStarter\Commands\MakeTest;
+use Cubeta\CubetaStarter\Commands\MakeWebController;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
@@ -41,7 +44,9 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeTest::class)
             ->hasCommand(MakePostmanCollection::class)
             ->hasCommand(InitialProject::class)
-            ->hasCommand(MakePolicy::class);
+            ->hasCommand(MakePolicy::class)
+            ->hasCommand(MakeWebController::class)
+            ->hasCommand(InstallWebPackages::class);
     }
 
     /**
@@ -75,23 +80,35 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     public function boot()
     {
         parent::boot();
+
+        // publishes
         $this->publishConfigFiles();
         $this->publishExceptionHandler();
-        $this->loadUiViews();
-        $this->registerRoutesFile();
-        $this->loadViewsVariables();
+        $this->publishAssets();
+
+        // loaded from the package
+        $this->loadComponents();
+        $this->loadGuiViews();
+        $this->loadGuiViewsVariables();
+
+        // register the route files
+        $this->registerGuiRoutesFile();
     }
 
-    private function publishConfigFiles()
+    /**
+     * publish the package config file
+     * @return void
+     */
+    private function publishConfigFiles(): void
     {
-        $this->publishes([__DIR__ . '/../config/cubeta-starter.php' => config_path()], 'cubeta-starter-config');
+        $this->publishes([__DIR__ . '/../config/cubeta-starter.php' => base_path('config') . '/cubeta-starter.php'], 'cubeta-starter-config');
     }
 
     /**
      * load the package gui views
      * @return void
      */
-    private function loadUiViews(): void
+    private function loadGuiViews(): void
     {
         $this->loadViewsFrom(__DIR__ . '/Resources/views', 'CubetaStarter');
     }
@@ -100,7 +117,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
      * register route file of the package gui
      * @return void
      */
-    private function registerRoutesFile(): void
+    private function registerGuiRoutesFile(): void
     {
         if (app()->environment('local')) {
             $this->loadRoutesFrom(__DIR__ . '/Routes/ui-routes.php');
@@ -116,10 +133,43 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->publishes([__DIR__ . '/app/Exceptions/handler.php' => base_path('/app/Exceptions/Handler.php')], 'cubeta-starter-handler');
     }
 
-    private function loadViewsVariables()
+    /**
+     * load the variables used in the GUI views
+     * @return void
+     */
+    private function loadGuiViewsVariables(): void
     {
         $data['assetsPath'] = '/../vendor/cubeta/cubeta-starter/src/Resources';
 
         View::share($data);
+    }
+
+    /**
+     * load the used web views components so the user can use them
+     * @return void
+     */
+    protected function loadComponents(): void
+    {
+        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form');
+        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form/checkboxes');
+        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form/fields');
+        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form/validation');
+        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/show');
+        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/images');
+    }
+
+    /**
+     * publishing the package assets used to generate the web views
+     * @return void
+     */
+    protected function publishAssets(): void
+    {
+        $this->publishes([
+            __DIR__ . '/../resources/views/includes' => resource_path('views/includes'),
+            __DIR__ . '/../resources/views/layout.blade.php' => resource_path('views/layout.blade.php'),
+            __DIR__ . '/../resources/js' => resource_path('js'),
+            __DIR__ . '/../resources/sass' => resource_path('sass'),
+            __DIR__ . '/../public' => public_path(),
+        ], 'cubeta-starter-assets');
     }
 }

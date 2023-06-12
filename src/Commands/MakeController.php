@@ -52,7 +52,7 @@ class MakeController extends Command
             '{resourceNamespace}' => config('cubeta-starter.resource_namespace')
         ];
 
-        $controllerName = controllerNaming($modelName);
+        $controllerName = $this->getControllerName($modelName);
         $controllerPath = $this->getControllerPath($controllerName);
 
         if (file_exists($controllerPath)) {
@@ -77,5 +77,10 @@ class MakeController extends Command
         ensureDirectoryExists($path);
 
         return "$path/$controllerName" . '.php';
+    }
+
+    function getControllerName($modelName): string
+    {
+        return $modelName . 'Controller';
     }
 }

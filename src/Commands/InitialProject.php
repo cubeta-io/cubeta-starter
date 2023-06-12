@@ -86,16 +86,7 @@ class InitialProject extends Command
                     $permissions = $this->convertInputStringToArray($permissionsString);
                 }
 
-                $this->createRolesEnum($role, $permissions);
-
-                $container = 'api';
-
-                if (!file_exists(base_path("routes/$container/$role.php"))) {
-                    $this->addAppropriateRouteFile($container, $role);
-                    $this->createRoleSeeder();
-                    $this->createPermissionSeeder($container);
-                    $this->info("$role role created successfully");
-                }
+                $this->generateActorsFiles($role, $permissions);
             }
         }
     }
@@ -108,14 +99,12 @@ class InitialProject extends Command
     {
         $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
 
-        // this mean that the use using the web ui
+        // this mean that the user using the web ui
         if ($skipQuestions) {
-            $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
-            $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
-            return;
+            $install = 'Yes';
+        } else {
+            $install = $this->choice('Using multiple actors requires installing "spatie/permission". Do you want to install it?', ['No', 'Yes'], 'No');
         }
-
-        $install = $this->choice('Using multiple actors requires installing "spatie/permission". Do you want to install it?', ['No', 'Yes'], 'No');
 
         if ($install == 'Yes') {
             $this->info('Please wait while spatie/laravel-permission is being installed');
@@ -135,16 +124,30 @@ class InitialProject extends Command
     private function handleRolesPermissionsArray(array $rolesPermissions): void
     {
         foreach ($rolesPermissions as $role => $permissions) {
-            $this->createRolesEnum($role, $permissions);
-
-            $container = 'api';
-
-            if (!file_exists(base_path("routes/$container/$role.php"))) {
-                $this->addAppropriateRouteFile($container, $role);
-                $this->createRoleSeeder();
-                $this->createPermissionSeeder($container);
-                $this->info("$role role created successfully");
-            }
+            $this->generateActorsFiles($role, $permissions);
         }
+    }
+
+    /**
+     * @param mixed $role
+     * @param array|null $permissions
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function generateActorsFiles(mixed $role, ?array $permissions): void
+    {
+        $this->createRolesEnum($role, $permissions);
+
+        if (!file_exists(base_path("routes/web/$role.php"))) {
+            $this->addRouteFile($role, 'web');
+        }
+        if (!file_exists(base_path("routes/api/$role.php"))) {
+            $this->addRouteFile($role, 'api');
+        }
+
+        $this->createRoleSeeder();
+        $this->createPermissionSeeder();
+        $this->info("$role role created successfully");
     }
 }

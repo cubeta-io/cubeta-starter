@@ -11,7 +11,7 @@ trait RolePermissionTrait
 {
     public function createRolesEnum(string $role, array $permissions = null): void
     {
-        $enum = file_get_contents(__DIR__.'/../Commands/stubs/RolesPermissionEnum-entity.stub');
+        $enum = file_get_contents(__DIR__ . '/../Commands/stubs/RolesPermissionEnum-entity.stub');
         $roleEnum = Str::singular(Str::upper($role));
         $roleEnumValue = Str::singular(Str::lower($role));
 
@@ -28,14 +28,14 @@ trait RolePermissionTrait
             [$roleEnum, $roleEnumValue, $placedPermission],
             $enum);
 
-        $enumDirectory = base_path().'/app/Enums/';
+        $enumDirectory = base_path() . '/app/Enums/';
 
         $files = new Filesystem();
         $files->makeDirectory($enumDirectory, 0777, true, true);
 
-        if (file_exists($enumDirectory.'RolesPermissionEnum.php')) {
-            $enumFileContent = file_get_contents($enumDirectory.'RolesPermissionEnum.php');
-            if (! str_contains($enumFileContent, $role)) {
+        if (file_exists($enumDirectory . 'RolesPermissionEnum.php')) {
+            $enumFileContent = file_get_contents($enumDirectory . 'RolesPermissionEnum.php');
+            if (!str_contains($enumFileContent, $role)) {
                 // If the new code does not exist, add it to the end of the class definition
                 $pattern = '/}\s*$/';
                 $replacement = "$enum}";
@@ -49,18 +49,18 @@ trait RolePermissionTrait
                     ],
                     [
                         $enum,
-                        'self::'.$roleEnum."['role'], \n //add-all-your-enums-roles-here \n",
-                        'self::'.$roleEnum.", \n //add-all-your-enums-here \n",
+                        'self::' . $roleEnum . "['role'], \n //add-all-your-enums-roles-here \n",
+                        'self::' . $roleEnum . ", \n //add-all-your-enums-here \n",
                     ],
                     $enumFileContent);
 
                 // Write the modified contents back to the file
-                file_put_contents($enumDirectory.'RolesPermissionEnum.php', $enumFileContent);
+                file_put_contents($enumDirectory . 'RolesPermissionEnum.php', $enumFileContent);
             } else {
                 $this->info("The role : $role already exists");
             }
         } else {
-            $enumFile = file_get_contents(__DIR__.'/../Commands/stubs/RolesPermissionEnum.stub');
+            $enumFile = file_get_contents(__DIR__ . '/../Commands/stubs/RolesPermissionEnum.stub');
 
             $enumFile = str_replace(
                 [
@@ -70,13 +70,13 @@ trait RolePermissionTrait
                 ],
                 [
                     $enum,
-                    'self::'.$roleEnum."['role'], \n //add-all-your-enums-roles-here \n",
-                    'self::'.$roleEnum.", \n //add-all-your-enums-here \n",
+                    'self::' . $roleEnum . "['role'], \n //add-all-your-enums-roles-here \n",
+                    'self::' . $roleEnum . ", \n //add-all-your-enums-here \n",
                 ],
                 $enumFile);
-            file_put_contents($enumDirectory.'RolesPermissionEnum.php', $enumFile);
+            file_put_contents($enumDirectory . 'RolesPermissionEnum.php', $enumFile);
         }
-        $this->formatFile($enumDirectory.'RolesPermissionEnum.php');
+        $this->formatFile($enumDirectory . 'RolesPermissionEnum.php');
     }
 
     /**
@@ -85,7 +85,7 @@ trait RolePermissionTrait
      */
     public function createRoleSeeder(): void
     {
-        $directory = base_path(config('cubeta-starter.seeder_path').'/RoleSeeder.php');
+        $directory = base_path(config('cubeta-starter.seeder_path') . '/RoleSeeder.php');
 
         if (file_exists($directory)) {
             $this->warn('RoleSeeder is Already Exist');
@@ -96,7 +96,7 @@ trait RolePermissionTrait
         generateFileFromStub(
             ['{namespace}' => config('cubeta-starter.seeder_namespace')],
             $directory,
-            __DIR__.'/../Commands/stubs/RoleSeeder.stub'
+            __DIR__ . '/../Commands/stubs/RoleSeeder.stub'
         );
     }
 
@@ -104,31 +104,23 @@ trait RolePermissionTrait
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function createPermissionSeeder($container): void
+    public function createPermissionSeeder(): void
     {
-        $directory = base_path(config('cubeta-starter.seeder_path').'/PermissionSeeder.php');
-
-        if ($container == 'both') {
-            $container = 'api';
-            $assignWebGuard = "\$createdPermission->assignGuard('web');";
-        }
+        $directory = base_path(config('cubeta-starter.seeder_path') . '/PermissionSeeder.php');
 
         if (file_exists($directory)) {
             $this->warn('PermissionSeeder is Already Exist');
-
             return;
         }
 
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.seeder_namespace'),
-            '{container}' => $container,
-            '// another guard assign' => $assignWebGuard ?? '',
         ];
 
         generateFileFromStub(
             $stubProperties,
             $directory,
-            __DIR__.'/../Commands/stubs/PermissionSeeder.stub'
+            __DIR__ . '/../Commands/stubs/PermissionSeeder.stub'
         );
     }
 }

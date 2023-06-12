@@ -26,17 +26,23 @@ function modelNaming($name): string
     return ucfirst(Str::singular(Str::studly($name)));
 }
 
-function controllerNaming($modelName): string
+/**
+ * return the lower case and the plural in kebab case of the input string
+ * @param string $name
+ * @return string
+ */
+function lowerPluralKebabNaming(string $name): string
 {
-    return $modelName.'Controller';
+    return strtolower(Str::plural(Str::kebab($name)));
 }
+
 
 /**
  * return the name based on name convention for routes
  */
 function routeUrlNaming($name): string
 {
-    return strtolower(Str::plural(Str::snake($name)));
+    return lowerPluralKebabNaming($name);
 }
 
 /**
@@ -44,7 +50,7 @@ function routeUrlNaming($name): string
  */
 function routeNameNaming(string $name): string
 {
-    return strtolower(Str::plural(Str::kebab($name)));
+    return lowerPluralKebabNaming($name);
 }
 
 /**
@@ -57,4 +63,13 @@ function relationFunctionNaming($name, bool $singular = true): string
     } else {
         return Str::camel(lcfirst(Str::plural(Str::studly($name))));
     }
+}
+
+/**
+ * @param string $name
+ * @return string
+ */
+function viewNaming(string $name): string
+{
+    return lowerPluralKebabNaming($name);
 }

@@ -58,20 +58,4 @@ trait RouteFileTrait
 
         $this->formatFile($routeServiceProvider);
     }
-
-    /**
-     * call the addRouteFile method on the appropriate container
-     *
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    public function addAppropriateRouteFile($container, $role): void
-    {
-        if ($container == 'both') {
-            $this->addRouteFile($role, 'web');
-            $this->addRouteFile($role, 'api');
-        } else {
-            $this->addRouteFile($role, $container);
-        }
-    }
 }
