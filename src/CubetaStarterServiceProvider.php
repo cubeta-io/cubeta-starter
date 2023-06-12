@@ -65,7 +65,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             $this->mergeConfigFrom($this->package->basePath("/../config/$configFileName.php"), $configFileName);
         }
 
-        $this->mergeConfigFrom(__DIR__.'/../config/cubeta-starter.php', 'cubeta-starter');
+        $this->mergeConfigFrom(__DIR__ . '/../config/cubeta-starter.php', 'cubeta-starter');
 
         $this->packageRegistered();
 
@@ -76,6 +76,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         parent::boot();
         $this->publishConfigFiles();
+        $this->publishExceptionHandler();
         $this->loadUiViews();
         $this->registerRoutesFile();
         $this->loadViewsVariables();
@@ -83,19 +84,36 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
 
     private function publishConfigFiles()
     {
-        $this->publishes([__DIR__.'/../config/cubeta-starter.php' => config_path()], 'cubeta-starter-config');
+        $this->publishes([__DIR__ . '/../config/cubeta-starter.php' => config_path()], 'cubeta-starter-config');
     }
 
-    private function loadUiViews()
+    /**
+     * load the package gui views
+     * @return void
+     */
+    private function loadUiViews(): void
     {
-        $this->loadViewsFrom(__DIR__.'/Resources/views', 'CubetaStarter');
+        $this->loadViewsFrom(__DIR__ . '/Resources/views', 'CubetaStarter');
     }
 
-    private function registerRoutesFile()
+    /**
+     * register route file of the package gui
+     * @return void
+     */
+    private function registerRoutesFile(): void
     {
-        if (app()->environment('local')){
-            $this->loadRoutesFrom(__DIR__.'/Routes/ui-routes.php');
+        if (app()->environment('local')) {
+            $this->loadRoutesFrom(__DIR__ . '/Routes/ui-routes.php');
         }
+    }
+
+    /**
+     * publish the package exception handler
+     * @return void
+     */
+    private function publishExceptionHandler(): void
+    {
+        $this->publishes([__DIR__ . '/app/Exceptions/handler.php' => base_path('/app/Exceptions/Handler.php')], 'cubeta-starter-handler');
     }
 
     private function loadViewsVariables()

@@ -79,7 +79,7 @@ class MakeResource extends Command
         $columns = "'id' => \$this->id, \n\t\t\t";
         foreach ($attributes as $attribute => $type) {
             if ($type == 'file') {
-                $columns .= "'$attribute' => \$this->get".variableNaming($attribute)."Path(), \n\t\t\t";
+                $columns .= "'$attribute' => \$this->get".modelNaming($attribute)."Path(), \n\t\t\t";
 
                 continue;
             }

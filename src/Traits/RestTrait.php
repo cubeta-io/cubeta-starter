@@ -7,14 +7,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use JetBrains\PhpStorm\ArrayShape;
 
-trait RestfulTrait
+trait RestTrait
 {
     /**
      * this function will determine the api response structure to make all responses has the same structure
      *
-     * @param  null  $data
-     * @param  null  $message
-     * @param  null  $paginate
+     * @param null $data
+     * @param null $message
+     * @param null $paginate
      */
     public function apiResponse($data = null, int $code = 200, $message = null, $paginate = null): JsonResponse
     {

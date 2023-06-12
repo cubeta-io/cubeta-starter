@@ -2,8 +2,8 @@
 
 namespace {namespace} ; 
 
-use App\Http\Resources\{modelName}Resource;
-use App\Models\{modelName};
+use {resourceNamespace}\{modelName}Resource;
+use {modelNamespace}\{modelName};
 use Tests\TestCase;
 
 class {modelName}Test extends TestCase

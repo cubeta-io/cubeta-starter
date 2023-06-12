@@ -3,7 +3,7 @@
 namespace App\Exceptions;
 
 use Cubeta\CubetaStarter\Contracts\ApiController;
-use Cubeta\CubetaStarter\Traits\RestfulTrait;
+use Cubeta\CubetaStarter\Traits\RestTrait;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -17,7 +17,7 @@ use Throwable;
 
 class Handler extends ExceptionHandler
 {
-    use RestfulTrait;
+    use RestTrait;
 
     /**
      * A list of the exception types that are not reported.
@@ -43,24 +43,20 @@ class Handler extends ExceptionHandler
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         //
     }
 
-    public function render($request, Throwable $exception)
+    public function render($request, Throwable $exception): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
     {
-        $response = $this->handleException($request, $exception);
-
-        return $response;
+        return $this->handleException($request, $exception);
     }
 
-    public function report(Throwable $exception)
-    {
-        parent::report($exception);
-    }
-
-    public function handleException($request, Throwable $exception)
+    /**
+     * @throws Throwable
+     */
+    public function handleException($request, Throwable $exception): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
     {
         if ($exception instanceof AuthenticationException) {
             return $this->apiResponse('', ApiController::STATUS_NOT_AUTHENTICATED, $exception->getMessage());

@@ -78,9 +78,13 @@ class MakePostmanCollection extends Command
             $collection = str_replace('"// add-your-cruds-here"', $crudStub, $collection);
             file_put_contents($collectionPath, $collection);
         } else {
-            $projectURL = config('cubeta-starter.project_url') ?? '';
+            $projectURL = $this->getProjectUrl();
             $collectionStub = file_get_contents(__DIR__ . '/stubs/postman-collection.stub');
-            $collectionStub = str_replace(['{projectName}', '{project-url}', '// add-your-cruds-here'], [$projectName, $projectURL, $crudStub], $collectionStub);
+            $collectionStub = str_replace(
+                ['{projectName}', '{project-url}', '// add-your-cruds-here'],
+                [$projectName, $projectURL, $crudStub],
+                $collectionStub
+            );
             file_put_contents($collectionPath, $collectionStub);
         }
 
@@ -101,5 +105,10 @@ class MakePostmanCollection extends Command
         }
 
         return $fields;
+    }
+
+    private function getProjectUrl()
+    {
+        return config('cubeta-starter.project_url') ?? "http://localhost/" . config('cubeta-starter.project_name') . "/public/";
     }
 }

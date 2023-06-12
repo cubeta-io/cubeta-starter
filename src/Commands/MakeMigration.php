@@ -65,7 +65,7 @@ class MakeMigration extends Command
         generateFileFromStub(
             $stubProperties,
             $migrationPath,
-            __DIR__.'/stubs/migration.stub'
+            __DIR__ . '/stubs/migration.stub'
         );
 
         $this->formatFile($migrationPath);
@@ -77,14 +77,14 @@ class MakeMigration extends Command
         $path = base_path(config('cubeta-starter.migration_path'));
         ensureDirectoryExists($path);
 
-        return "$path/$migrationName".'.php';
+        return "$path/$migrationName" . '.php';
     }
 
     private function getMigrationName($modelName): string
     {
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
 
-        return $date.'_create_'.tableNaming($modelName).'_table';
+        return $date . '_create_' . tableNaming($modelName) . '_table';
     }
 
     /**
@@ -99,14 +99,14 @@ class MakeMigration extends Command
             } elseif ($type == 'translatable') {
                 $columns .= "\t\t\t\$table->json('$name') ; \n";
             } else {
-                $columns .= "\t\t\t\$table->".($type == 'file' ? 'string' : $type)."('$name')".($type == 'file' ? '->nullable()' : '')."; \n";
+                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('$name')" . ($type == 'file' ? '->nullable()' : '') . "; \n";
             }
         }
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
                 $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
-                $columns .= "\t\t\t\$table->foreignIdFor(\App\Models\\$modelName::class)->constrained()->cascadeOnDelete(); \n";
+                $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\$modelName::class)->constrained()->cascadeOnDelete(); \n";
             }
         }
 

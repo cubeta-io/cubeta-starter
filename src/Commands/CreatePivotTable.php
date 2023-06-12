@@ -72,8 +72,8 @@ class CreatePivotTable extends Command
 
         $stubProperties = [
             '{pivotTableName}' => $pivotTableName,
-            '{className1}' => $className1,
-            '{className2}' => $className2,
+            '{className1}' => '\\' . config('cubeta-starter.model_namespace') . "\\$className1",
+            '{className2}' => '\\' . config('cubeta-starter.model_namespace') . "\\$className2",
         ];
 
         generateFileFromStub(

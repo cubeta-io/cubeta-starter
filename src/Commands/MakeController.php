@@ -47,6 +47,9 @@ class MakeController extends Command
             '{namespace}' => config('cubeta-starter.api_controller_namespace'),
             '{modelName}' => $modelName,
             '{variableNaming}' => variableNaming($modelName),
+            '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
+            '{requestNamespace}' => config('cubeta-starter.request_namespace'),
+            '{resourceNamespace}' => config('cubeta-starter.resource_namespace')
         ];
 
         $controllerName = controllerNaming($modelName);

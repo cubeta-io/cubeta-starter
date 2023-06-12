@@ -3,14 +3,14 @@
 namespace Cubeta\CubetaStarter\Contracts;
 
 use App\Http\Controllers\Controller;
-use Cubeta\CubetaStarter\Traits\RestfulTrait;
+use Cubeta\CubetaStarter\Traits\RestTrait;
 
 /**
  * Class ApiController
  */
 class ApiController extends Controller
 {
-    use RestfulTrait;
+    use RestTrait;
 
     const STATUS_OK = 200;
 

@@ -47,6 +47,8 @@ class MakeTest extends Command
             '{namespace}' => config('cubeta-starter.test_namespace'),
             '{modelName}' => $modelName,
             '{{actor}}' => $actor,
+            '{modelNamespace}' => config('cubeta-starter.model_namespace'),
+            '{resourceNamespace}' => config('cubeta-starter.resource_namespace')
         ];
 
         $testPath = $this->getTestPath($testName);

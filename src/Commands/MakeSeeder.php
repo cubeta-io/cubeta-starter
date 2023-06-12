@@ -43,6 +43,7 @@ class MakeSeeder extends Command
 
         $stubProperties = [
             '{modelName}' => $modelName,
+            '{modelNamespace}' => config('cubeta-starter.model_namespace')
         ];
 
         $seederPath = $this->getSeederPath($seederName);
@@ -55,7 +56,7 @@ class MakeSeeder extends Command
         generateFileFromStub(
             $stubProperties,
             $seederPath,
-            __DIR__.'/stubs/seeder.stub'
+            __DIR__ . '/stubs/seeder.stub'
         );
 
         $this->formatFile($seederPath);
@@ -64,7 +65,7 @@ class MakeSeeder extends Command
 
     private function getSeederName($modelName): string
     {
-        return $modelName.'Seeder';
+        return $modelName . 'Seeder';
     }
 
     private function getSeederPath($seederName): string

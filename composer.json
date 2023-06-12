@@ -10,7 +10,8 @@
     ],
     "require": {
         "intervention/image": "^2.7",
-        "spatie/laravel-package-tools": "^1.11"
+        "spatie/laravel-package-tools": "^1.11",
+        "illuminate/support": "*"
     },
     "require-dev": {
         "orchestra/testbench": "^7.5",
@@ -38,10 +39,5 @@
                 "Cubeta\\CubetaStarter\\RepositoryServiceProvider"
             ]
         }
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "Cubeta\\CubetaStarter\\PostInstallFunctions::handleExceptionHandler"
-        ]
     }
 }

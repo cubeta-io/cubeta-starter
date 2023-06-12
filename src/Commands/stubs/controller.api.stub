@@ -2,10 +2,10 @@
 
 namespace {namespace};
 
-use App\Http\Requests\{modelName}\StoreUpdate{modelName}Request;
-use App\Http\Resources\{modelName}Resource;
 use Cubeta\CubetaStarter\Contracts\ApiController;
-use App\Services\{modelName}\I{modelName}Service;
+use {requestNamespace}\{modelName}\StoreUpdate{modelName}Request;
+use {resourceNamespace}\{modelName}Resource;
+use {serviceNamespace}\{modelName}\I{modelName}Service;
 
 class {modelName}Controller extends ApiController{
 

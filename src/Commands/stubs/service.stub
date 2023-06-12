@@ -2,7 +2,7 @@
 
 namespace {namespace};
 
-use App\Repositories\{repositoryName};
+use {repositoryNamespace}\{repositoryName};
 use Cubeta\CubetaStarter\Contracts\Services\BaseService;
 
 /**

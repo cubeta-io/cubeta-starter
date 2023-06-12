@@ -15,15 +15,15 @@
     - <a href="#factories">Factories</a>
     - <a href="#seeders">Seeders</a>
     - <a href="#repositories">Repositories</a>
-      - [BaseRepository Class](#baserepository)
+        - [BaseRepository Class](#baserepository)
     - <a href="#services">Services</a>
     - <a href="#tests">Tests</a>
-      - [MainTestCase Trait](#maintestcase-trait-methods) 
+        - [MainTestCase Trait](#maintestcase-trait-methods)
     - <a href="#postman-collection">Postman Collection</a>
     - <a href="#policies">Policies</a>
 - <a href="#translations">Translation Handling</a>
 - <a href="#restful-trait">Restful Trait</a>
-- <a href="#file-handler-trait">FileHandler Trait</a> 
+- <a href="#file-handler-trait">FileHandler Trait</a>
 
 <h1 id="introduction">Introduction</h1>
 cubeta-starter is a package that will help you create your CRUD'S easier than before with a pretty much everything you
@@ -67,6 +67,12 @@ directory : `/cubeta` then in the created directory clone this project
 
 4 - publish the config file : `php artisan vendor:publish --tag=cubeta-starter-config`
 
+5 - publish the exception handler : `php artisan vendor:publish --tag=cubeta-starter-handler --force`
+executing this command will replace your default exception handler in the directory `app/exceptions/handler.php` with a
+file with the same name .
+it is important to use the option `--force` when publishing the exception handler, so it can override Laravel default
+exception handler , or you may delete the default one and then re-run the publish command.
+
 **<h1 id="usage">Usage</h1>**
 
 First I need you to take a look on the `cubeta-starter.php` file in the `config` directory and see the options
@@ -81,6 +87,12 @@ The most elements in the config array are for the generated files directories an
    translations <a href="#translations">(read more about it here)</a> so in this case this situation you'll need to
    define your project available locales in here
 4. `defaultLocale` : here define your default project locale
+
+<h2 id="gui">The Package Interface</h2>
+It is easy when you don't have to deal with the command line, so we've created an elegant interface to make your
+experience smoother. you can use it after installing the package by visiting the
+route `Your-Project-Domain/cubeta-starter`.
+This interface will work only on the local environment .
 
 **<h2 id="available-commands">Available Commands</h2>**
 
@@ -145,22 +157,6 @@ now this command will Initialize your project on specific roles :
 
 1- run this command : `php artisan cubeta-init` so an output will appear :
 
-
-> We have an exception handler for you, and it will replace app/Exceptions/handler.php file with a file of the same name
->
-> Do you want us to do that ? (note : the created feature tests depends on our handler) [Yes]:<br>
-> [0] No <br>
-> [1] Yes<br>
-
-now if you hit yes an exception handler well replace the default exception handler of laravel in
-the `app/Exceptions/handler.php`
-directory now look the created exception handler is important for the generated tests so if you are not willing to use
-them you can not use this handler
-
-but it is worth to mention that this handler will make all your responses in the same shape which is better for the
-integrity with the front-end code
-
-2 - after that another output will appear  :
 > Does Your Project Has Multi Actors ? [No]: <br>
 > [0] No <br>
 > [1] Yes <br>
@@ -340,8 +336,9 @@ the corresponding created migration will match the types of the columns you ente
 attribute <br>
 **notice 2:** columns of type key will be placed on the migration file as a `foreignIdFor` columns with these
 attributes : <br>
+
 1. constrained
-2. cascadeOnDelete 
+2. cascadeOnDelete
 
 **notice 3:** columns of type translatable will be placed on the migration file as a `json` columns<br>
 

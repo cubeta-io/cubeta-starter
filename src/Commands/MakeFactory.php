@@ -107,7 +107,7 @@ class MakeFactory extends Command
         foreach ($attributes as $name => $type) {
             if ($type == 'key') {
                 $relatedModel = modelNaming(str_replace('_id', '', $name));
-                $rows .= "\t\t\t'$name' => \App\Models\\$relatedModel::factory() ,\n";
+                $rows .= "\t\t\t'$name' => \\" . config('cubeta-starter.model_namespace') . "\\$relatedModel::factory() ,\n";
 
                 continue;
             }
@@ -247,7 +247,7 @@ class MakeFactory extends Command
                 $relatedFactories .= "
                 public function $functionName(\$count = 1)
                 {
-                    return \$this->has(\App\Models\\$className::factory(\$count));
+                    return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\$className::factory(\$count));
                 } \n";
             }
         }

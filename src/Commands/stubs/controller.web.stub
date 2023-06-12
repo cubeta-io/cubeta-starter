@@ -3,9 +3,9 @@
 namespace {namespace};
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\{modelName}\StoreUpdate{modelName}Request;
-use App\Models\{modelName};
-use App\Services\{modelName}\I{modelName}Service;
+use {requestNamespace}\{modelName}\StoreUpdate{modelName}Request;
+use {modelNamespace}\{modelName};
+use {serviceNamespace}\{modelName}\I{modelName}Service;
 use Yajra\DataTables\Facades\DataTables;
 
 class {modelName}Controller extends Controller

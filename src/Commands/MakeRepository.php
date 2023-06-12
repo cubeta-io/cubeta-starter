@@ -40,13 +40,14 @@ class MakeRepository extends Command
     {
         $modelName = modelNaming($modelName);
 
-        $repositoryName = $modelName.'Repository';
+        $repositoryName = $modelName . 'Repository';
         $modelVar = variableNaming($modelName);
 
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.repository_namespace'),
             '{modelName}' => $modelName,
             '{modelVar}' => $modelVar,
+            '{modelNamespace}' => config('cubeta-starter.model_namespace')
         ];
 
         $repositoryPath = $this->getRepositoryPath($repositoryName);
@@ -61,7 +62,7 @@ class MakeRepository extends Command
         generateFileFromStub(
             $stubProperties,
             $repositoryPath,
-            __DIR__.'/stubs/repository.stub'
+            __DIR__ . '/stubs/repository.stub'
         );
 
         $this->formatFile($repositoryPath);

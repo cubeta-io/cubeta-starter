@@ -48,6 +48,7 @@ class MakeService extends Command
             '{modelName}' => $modelName,
             '{repositoryName}' => $repositoryName,
             '{namespace}' => $namespace,
+            '{repositoryNamespace}' => config('cubeta-starter.repository_namespace')
         ];
 
         $servicePath = $this->getServicePath($serviceName, $modelName);
