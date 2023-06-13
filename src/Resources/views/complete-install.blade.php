@@ -159,19 +159,19 @@
                 });
                 modal.hide();
 
-                $('#install-web-packages').click(function (e) {
+                $('#install-web-packages').click(function () {
                     document.getElementById('modal-title').innerText = "installing web packages"
                     modal.show();
                 })
-                $('#publish-assets').click(function (e) {
+                $('#publish-assets').click(function () {
                     document.getElementById('modal-title').innerText = "publishing assets"
                     modal.show();
                 })
-                $('#publish-handler').click(function (e) {
+                $('#publish-handler').click(function () {
                     document.getElementById('modal-title').innerText = "publishing exception handler"
                     modal.show();
                 })
-                $('#publish-config').click(function (e) {
+                $('#publish-config').click(function () {
                     document.getElementById('modal-title').innerText = "publishing config file"
                     modal.show();
                 })

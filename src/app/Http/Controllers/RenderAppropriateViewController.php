@@ -15,6 +15,7 @@ class RenderAppropriateViewController extends Controller
         'relationsField' => false,
         'actorsField' => false,
         'addActor' => false,
+        'containerField' => false,
         'notes' => ''
     ];
 
@@ -49,6 +50,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['attributesField'] = true;
         $this->arguments['relationsField'] = true;
         $this->arguments['actorsField'] = true;
+        $this->arguments['containerField'] = true;
         $this->arguments['modalBody'] = "Generating The CRUDs";
         $this->arguments['notes'] = '<li class="notes">If a model with the same name is exist nothing will be generated</li>
                                         <li class="notes">This GUI will work just when the app environment is local</li>
@@ -154,7 +156,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['actorsField'] = true;
         $this->arguments['modalBody'] = "Generating API Controller";
         $this->arguments['notes'] = "<li class='notes'>The created controller has the five CRUD methods, and it uses the service interface to implement them<br>so it is necessary to has a service class and its interface with a corresponding repository to use the created<br>controller methods</li>";
-        return view('CubetaStarter::main-generate-page')->with($this->arguments);
+        return view('CubetaStarter::main-generate-page', compact('roles'))->with($this->arguments);
     }
 
     public function generateTest()
@@ -204,5 +206,20 @@ class RenderAppropriateViewController extends Controller
                                         <li class='notes'>If you want to remove a role just remove it from RolesPermissionsEnum</li>
                                         <li class='notes'>any change in the roles need you to run the role and the permissions seeders in the seeders directory</li>";
         return view('CubetaStarter::main-generate-page', compact('types', 'roles'))->with($this->arguments);
+    }
+
+    public function generateWebController()
+    {
+        $roles = $this->roles;
+        $types = $this->types;
+        $this->arguments['title'] = 'Add Web Controller';
+        $this->arguments['textUnderTitle'] = 'Here you can generate the web controller with its views';
+        $this->arguments['action'] = route('cubeta-starter.call-create-web-controller-command');
+        $this->arguments['modelNameField'] = true;
+        $this->arguments['actorsField'] = true;
+        $this->arguments['attributesField'] = true;
+        $this->arguments['notes'] = "<li class='notes'>This will generate a controller and 4 view files in the resources/views/dashboard directory</li>";
+
+        return view('CubetaStarter::main-generate-page', compact('roles', 'types'))->with($this->arguments);
     }
 }

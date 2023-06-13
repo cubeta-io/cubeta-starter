@@ -66,6 +66,39 @@
                                         </div>
                                     @endif
                                 @endif
+
+
+                                @if($containerField)
+                                    <div class="col-md-12 p-3">
+                                        <p class="description-font">What is the container type of your generated CURDs
+                                            ? </p>
+                                        <div class="row">
+
+                                            <div class="col-md-3 m-1">
+                                                <label>API</label>
+                                                <input class="form-check-input" type="radio"
+                                                       value="api"
+                                                       name="container" checked>
+                                            </div>
+
+                                            <div class="col-md-3 m-1">
+                                                <label>Web</label>
+                                                <input class="form-check-input" type="radio"
+                                                       value="web"
+                                                       name="container">
+                                            </div>
+
+                                            <div class="col-md-3 m-1">
+                                                <label>Both</label>
+                                                <input class="form-check-input" type="radio" value="both"
+                                                       name="container">
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                @endif
+
+
                             </div>
 
                             <div id="columns-container" class="row">

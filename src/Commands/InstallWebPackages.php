@@ -39,5 +39,8 @@ class InstallWebPackages extends Command
 
         $this->info('installing sweetalert2');
         $this->executeCommandInTheBaseDirectory('npm i sweetalert2 --save-dev');
+
+        $this->info('installing sass');
+        $this->executeCommandInTheBaseDirectory('npm i sass');
     }
 }

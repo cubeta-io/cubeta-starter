@@ -21,6 +21,7 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
         Route::get('/policy', [RenderAppropriateViewController::class, 'generatePolicy'])->name('policy.page');
         Route::get('/postman-collection', [RenderAppropriateViewController::class, 'generatePostmanCollection'])->name('postman-collection.page');
         Route::get('/add-actor', [RenderAppropriateViewController::class, 'addActor'])->name('add-actor.page');
+        Route::get('/web-controller', [RenderAppropriateViewController::class, 'generateWebController'])->name('web-controller.page');
     });
     Route::post('/full-generate', [CallAppropriateCommand::class, 'callCreateModelCommand'])->name('call-create-model-command');
     Route::post('/migration', [CallAppropriateCommand::class, 'callCreateMigrationCommand'])->name('call-create-migration-command');
@@ -34,6 +35,7 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
     Route::post('/test', [CallAppropriateCommand::class, 'callCreateTestCommand'])->name('call-create-test-command');
     Route::post('/policy', [CallAppropriateCommand::class, 'callCreatePolicyCommand'])->name('call-create-policy-command');
     Route::post('/postman-collection', [CallAppropriateCommand::class, 'callCreatePostmanCollectionCommand'])->name('call-create-postman-collection-command');
+    Route::post('/web-controller', [CallAppropriateCommand::class, 'callCreateWebControllerCommand'])->name('call-create-web-controller-command');
     Route::get('/install-spatie', [CallAppropriateCommand::class, 'callInstallSpatie'])->name('call-install-spatie');
     Route::post('/add-actor', [CallAppropriateCommand::class, 'callAddActorCommand'])->name('call-add-actor-command');
     Route::get('/publish-config', [CallAppropriateCommand::class, 'publishConfig'])->name('config-publish');

@@ -67,6 +67,11 @@
                             Create API Controller
                         </a>
                     </li>
+                    <li class="nav-item @if(request()->fullUrl() == route('cubeta-starter.generate-web-controller.page')) my-nav-active @endif">
+                        <a href="{{route('cubeta-starter.generate-web-controller.page')}}" class="nav-link text-white">
+                            Create Web Controller
+                        </a>
+                    </li>
                     <li class="nav-item @if(request()->fullUrl() == route('cubeta-starter.generate-test.page')) my-nav-active @endif">
                         <a href="{{route('cubeta-starter.generate-test.page')}}" class="nav-link text-white">
                             Create Feature Test

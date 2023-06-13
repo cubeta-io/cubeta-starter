@@ -20,11 +20,14 @@ class MakeModel extends Command
         {attributes?}
         {relations?}
         {actor?}
+        {container?}
         {option? : string to generate a single file (migration, request, resource, factory, seeder, repository, service, controller, test, postman-collection)}';
 
     public $description = 'Create a new model class';
 
     protected array $relations = [];
+
+    protected bool $useGui = false;
 
     private array $types = [
         'integer',
@@ -55,25 +58,23 @@ class MakeModel extends Command
     public function handle(): void
     {
         $name = $this->argument('name');
+        $option = $this->argument('option');
+        $guiAttributes = $this->argument('attributes') ?? [];
+        $relations = $this->argument('relations') ?? [];
+        $actor = $this->argument('actor') ?? 'none';
+        $this->useGui = $this->argument('gui') ?? false;
 
         if (!$name || empty(trim($name))) {
             $this->error('Invalid input');
             return;
         }
 
-        $option = $this->argument('option');
-
-        $useGui = $this->argument('gui') ?? false;
-        $guiAttributes = $this->argument('attributes') ?? [];
-        $relations = $this->argument('relations') ?? [];
-        $actor = $this->argument('actor') ?? 'none';
-
         $modelName = modelNaming($name);
 
         // handling the usage of the gui
-        if ($useGui) {
+        if ($this->useGui) {
             $this->relations = $relations;
-            $this->createModel($modelName, $guiAttributes, true);
+            $this->createModel($modelName, $guiAttributes);
             $this->callAppropriateCommand($name, $option, $actor, $guiAttributes);
             $this->createPivots($modelName);
 
@@ -97,7 +98,7 @@ class MakeModel extends Command
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function createModel(string $className, array $attributes, bool $gui = false): void
+    public function createModel(string $className, array $attributes): void
     {
         $modelPath = $this->getModelPath($className);
 
@@ -110,7 +111,7 @@ class MakeModel extends Command
          * removing this from here will cause the $this->relations variable to be empty when calling it
          * in the fillArrayKeysMethodsInTheModel() method and that if we're not using the gui
          */
-        $modelRelationsFunctions = $this->getModelRelation($attributes, $this->relations, $gui);
+        $modelRelationsFunctions = $this->getModelRelation($attributes, $this->relations);
 
         $methodsArrayKeys = $this->fillArrayKeysMethodsInTheModel($attributes, $this->relations);
 
@@ -167,10 +168,9 @@ class MakeModel extends Command
     /**
      * @param array $attributes
      * @param array $relations
-     * @param bool $useGui
      * @return string
      */
-    private function getModelRelation(array $attributes = [], array $relations = [], bool $useGui = false): string
+    private function getModelRelation(array $attributes = [], array $relations = []): string
     {
         $relationsFunctions = '';
 
@@ -190,7 +190,7 @@ class MakeModel extends Command
             }
         }
 
-        if ($useGui) {
+        if ($this->useGui) {
             if (isset($relations) && count($relations) > 0) {
                 foreach ($relations as $relation => $type) {
                     $relationName = relationFunctionNaming($relation, false);
@@ -447,10 +447,34 @@ class MakeModel extends Command
     }
 
     /**
+     * get the container type from the user
+     *
+     * @return bool[]
+     */
+    #[ArrayShape(['api' => 'bool', 'web' => 'bool'])]
+    public function checkContainer(): array
+    {
+        if (!$this->useGui) {
+            $container = $this->choice('<info>What is the container type of this model controller</info>', ['api', 'web', 'both'], 'api');
+        } else {
+            $container = $this->argument('container');
+            if (!in_array($container, ['api', 'web', 'both'])) {
+                $this->error('Invalid container use one of this strings as an input : [api , web , both]');
+                return ['api' => false, 'web' => false];
+            }
+        }
+        return [
+            'api' => $container == 'api' || $container == 'both',
+            'web' => $container == 'web' || $container == 'both',
+        ];
+    }
+
+    /**
      * call to command base on the option flag
      */
     public function callAppropriateCommand(string $name, $option, string $actor, array $attributes = []): void
     {
+        $container = $this->checkContainer();
         $result = match ($option) {
             'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
             'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes]),
@@ -473,10 +497,17 @@ class MakeModel extends Command
             $this->call('create:request', ['name' => $name, 'attributes' => $attributes]);
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
-            $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
-            $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
-            $this->call('create:test', ['name' => $name, 'actor' => $actor]);
-            $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
+
+            if ($container['api']) {
+                $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
+                $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
+                $this->call('create:test', ['name' => $name, 'actor' => $actor]);
+                $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
+            }
+
+            if ($container['web']) {
+                $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
+            }
         }
     }
 

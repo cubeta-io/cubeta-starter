@@ -13,11 +13,14 @@ class CallAppropriateCommand extends Controller
 {
     use  AssistCommand;
 
-    private $modelName;
-    private $relations;
-    private $columns;
-    private $actor;
-    public $request;
+    private mixed $modelName;
+    private mixed $relations;
+    private mixed $columns;
+    private mixed $actor;
+    private mixed $container;
+
+    public Request $request;
+
 
     public function __construct(Request $request)
     {
@@ -26,6 +29,7 @@ class CallAppropriateCommand extends Controller
         $this->relations = $this->configureRequestArray($request->relations);
         $this->columns = $this->configureRequestArray($request->columns);
         $this->actor = $request->actor;
+        $this->container = $request->container;
     }
 
     public function callCommand($command)
@@ -62,6 +66,11 @@ class CallAppropriateCommand extends Controller
 
             if ($command['name'] == 'create:model') {
                 $arguments['gui'] = true;
+                $arguments['container'] = $this->container;
+            }
+
+            if (isset($this->container) && !in_array($this->container, ['api', 'web', 'both'])) {
+                return redirect()->route($command['route'], ['error' => "Invalid container name"]);
             }
 
             Artisan::call($command['name'], $arguments);
@@ -71,7 +80,7 @@ class CallAppropriateCommand extends Controller
                 return redirect()->route($command['route'], ['error' => $output]);
             }
 
-            return redirect()->route($command['route'], ['success' => $command['name'] . 'successfully']);
+            return redirect()->route($command['route'], ['success' => $command['name'] . ' successfully']);
         } catch (\Exception $exception) {
             return redirect()->route($command['route'], ['error' => $exception->getMessage()]);
         }
@@ -182,6 +191,16 @@ class CallAppropriateCommand extends Controller
         $command = [
             'name' => 'create:policy',
             'route' => 'cubeta-starter.generate-policy.page'
+        ];
+
+        return $this->callCommand($command);
+    }
+
+    public function callCreateWebControllerCommand()
+    {
+        $command = [
+            'name' => 'create:web-controller',
+            'route' => 'cubeta-starter.generate-web-controller.page'
         ];
 
         return $this->callCommand($command);

@@ -7,12 +7,21 @@ use Illuminate\Support\Str;
 
 trait AssistCommand
 {
-    public function executeCommandInTheBaseDirectory(string $command): string|null|bool
+    /**
+     * @param string $command
+     * @return false|string|null
+     */
+    public function executeCommandInTheBaseDirectory(string $command): bool|string|null
     {
-        $rootDirectory = base_path();
-        $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
+        if (app()->environment('local')) {
+            $rootDirectory = base_path();
+            $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
 
-        return shell_exec($fullCommand);
+            return shell_exec($fullCommand);
+        } else {
+            $this->error('You are in the production environment this is not allowed');
+            return false;
+        }
     }
 
     /**
@@ -26,7 +35,7 @@ trait AssistCommand
         $allMigrations = File::allFiles($migrationsPath);
         foreach ($allMigrations as $migration) {
             $migrationName = $migration->getBasename();
-            if (Str::contains($migrationName, "_create_$tableName".'_table')) {
+            if (Str::contains($migrationName, "_create_$tableName" . '_table')) {
                 return $migration->getRealPath();
             }
         }
@@ -41,9 +50,9 @@ trait AssistCommand
      */
     public function formatFile(string $filePath): void
     {
-        $command = base_path()."./vendor/bin/pint $filePath";
+        $command = base_path() . "./vendor/bin/pint $filePath";
         $output = $this->executeCommandInTheBaseDirectory($command);
-        $this->line((string) $output);
+        $this->line((string)$output);
     }
 
     /**
