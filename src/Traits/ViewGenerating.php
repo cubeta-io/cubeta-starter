@@ -243,7 +243,18 @@ trait ViewGenerating
             $label = $this->getLabelName($attribute);
             $html .= "\n<th>$label</th>\n";
             if ($type == 'file') {
-                $json .= "{\"data\": \"$attribute\", \"render\": function (data) {return '<img src=\"' + data + '\" width=\"40px\" alt=''>';}}, \n";
+                continue;
+            }
+            if ($type == 'translatable') {
+                $locales = config('cubeta-starter.available_locales');
+                $dataRender = '';
+                foreach ($locales as $lang) {
+                    $dataRender .= "'$lang :' + $attribute.$lang + '\<br\>'";
+                }
+                $json .= "{\"data\": '$attribute', searchable: true, orderable: true , \"render\" : function($attribute){
+                                    $attribute = JSON.parse($attribute.replace(/&quot;/g, '\"'));
+                                    return $dataRender;
+                                }},";
             } else {
                 $json .= "{\"data\": '$attribute', searchable: true, orderable: true}, \n";
             }

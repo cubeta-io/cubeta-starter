@@ -88,7 +88,7 @@ return [
     /**
      * postman collection path
      */
-    'postman_collection _path' => '',  // it will be in the root directory
+    'postman_collection _path' => '',  // empty string mean it will be in the root directory
 
     /**
      * the project available languages

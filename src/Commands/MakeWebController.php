@@ -114,7 +114,7 @@ class MakeWebController extends Command
         } else {
             return [
                 'index' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.index',
-                'edit' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.edit',
+                'edit' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.update',
                 'create' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.create',
                 'show' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.show',
             ];
