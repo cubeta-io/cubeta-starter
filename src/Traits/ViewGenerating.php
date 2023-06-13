@@ -249,7 +249,7 @@ trait ViewGenerating
                 $locales = config('cubeta-starter.available_locales');
                 $dataRender = '';
                 foreach ($locales as $lang) {
-                    $dataRender .= "'$lang :' + $attribute.$lang + '\<br\>'";
+                    $dataRender .= "'$lang :' + $attribute.$lang + '<br>'";
                 }
                 $json .= "{\"data\": '$attribute', searchable: true, orderable: true , \"render\" : function($attribute){
                                     $attribute = JSON.parse($attribute.replace(/&quot;/g, '\"'));

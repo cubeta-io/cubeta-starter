@@ -156,19 +156,15 @@ class MakeWebController extends Command
         $modelName = tableNaming($modelName);
         $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');
         if (!file_exists($sidebarPath)) {
+            \Log::info('there is no sidebar.blade.php in ' . dirname($sidebarPath));
             return;
         }
 
-        $sidebarItem = "<li class=\"nav-item\">
-                            <a class=\"nav-link collapsed\" href=\"{{route('$routeName')}}\">
-                                <i class=\"bi bi-circle\"></i>
-                                <span>$modelName</span>
-                            </a>
-                        </li>
-                      </ul>";
+        $sidebarItem = "<li class=\"nav-item\">\n  <a class=\"nav-link collapsed\" href=\"{{route('$routeName')}}\">\n  <i class=\"bi bi-circle\"></i>\n  <span>$modelName</span>\n  </a>\n  </li>\n  </ul>";
 
         $sidebar = file_get_contents($sidebarPath);
-        str_replace("</ul>", $sidebarItem, $sidebar);
+        $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);
         file_put_contents($sidebarPath, $sidebar);
+        \Log::info('appended successfully');
     }
 }
