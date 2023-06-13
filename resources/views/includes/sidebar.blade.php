@@ -6,7 +6,7 @@
                 <i class="bi bi-circle"></i>
                 <span>Home</span>
             </a>
-        </li><!-- End Profile Page Nav -->
+        </li>
     </ul>
 
-</aside><!-- End Sidebar-->
+</aside>

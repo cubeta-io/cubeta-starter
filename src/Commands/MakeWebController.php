@@ -94,6 +94,8 @@ class MakeWebController extends Command
 
         $this->info("$controllerName Created");
         $this->addRoute($modelName, $actor, 'web');
+
+        $this->addSidebarItem($modelName, $routesNames['index']);
     }
 
     /**
@@ -147,5 +149,26 @@ class MakeWebController extends Command
         ensureDirectoryExists($directory);
 
         return "$directory/$controllerName.php";
+    }
+
+    private function addSidebarItem(string $modelName, string $routeName)
+    {
+        $modelName = tableNaming($modelName);
+        $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');
+        if (!file_exists($sidebarPath)) {
+            return;
+        }
+
+        $sidebarItem = "<li class=\"nav-item\">
+                            <a class=\"nav-link collapsed\" href=\"{{route('$routeName')}}\">
+                                <i class=\"bi bi-circle\"></i>
+                                <span>$modelName</span>
+                            </a>
+                        </li>
+                      </ul>";
+
+        $sidebar = file_get_contents($sidebarPath);
+        str_replace("</ul>", $sidebarItem, $sidebar);
+        file_put_contents($sidebarPath, $sidebar);
     }
 }

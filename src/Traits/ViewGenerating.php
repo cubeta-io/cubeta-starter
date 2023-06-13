@@ -241,10 +241,10 @@ trait ViewGenerating
 
         foreach ($attributes as $attribute => $type) {
             $label = $this->getLabelName($attribute);
-            $html .= "\n<th>$label</th>\n";
-            if ($type == 'file') {
+            if ($type == 'file' || $type == 'text') {
                 continue;
             }
+            $html .= "\n<th>$label</th>\n";
             if ($type == 'translatable') {
                 $locales = config('cubeta-starter.available_locales');
                 $dataRender = '';
@@ -255,6 +255,7 @@ trait ViewGenerating
                                     $attribute = JSON.parse($attribute.replace(/&quot;/g, '\"'));
                                     return $dataRender;
                                 }},";
+                continue;
             } else {
                 $json .= "{\"data\": '$attribute', searchable: true, orderable: true}, \n";
             }
