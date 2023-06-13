@@ -156,7 +156,6 @@ class MakeWebController extends Command
         $modelName = tableNaming($modelName);
         $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');
         if (!file_exists($sidebarPath)) {
-            \Log::info('there is no sidebar.blade.php in ' . dirname($sidebarPath));
             return;
         }
 
@@ -165,6 +164,5 @@ class MakeWebController extends Command
         $sidebar = file_get_contents($sidebarPath);
         $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);
         file_put_contents($sidebarPath, $sidebar);
-        \Log::info('appended successfully');
     }
 }
