@@ -63,7 +63,7 @@ directory : `/cubeta` then in the created directory clone this project
     ],
 ```
 
-3 - run `composer require cubeta/cubeta-starter:dev-api-version-with-ui`
+3 - run `composer update`
 
 4 - publish the config file : `php artisan vendor:publish --tag=cubeta-starter-config`
 

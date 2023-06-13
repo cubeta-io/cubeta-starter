@@ -23,6 +23,8 @@ class MakeService extends Command
     public function handle(): void
     {
         $modelName = $this->argument('name');
+        $modelName = modelNaming($modelName);
+
         $namespace = config('cubeta-starter.service_namespace') . "\\$modelName";
 
         if (!$modelName || empty(trim($modelName))) {
@@ -30,7 +32,6 @@ class MakeService extends Command
             return;
         }
 
-        $modelName = modelNaming($modelName);
         $this->createService($modelName, $namespace);
         $this->createServiceInterface($modelName, $namespace);
     }

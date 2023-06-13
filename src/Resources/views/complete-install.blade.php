@@ -88,6 +88,7 @@
                                             <li>jquery</li>
                                             <li>trumbowyg</li>
                                             <li>sweetalert2</li>
+                                            <li>Sass</li>
                                         </ul>
                                     </div>
                                 </div>

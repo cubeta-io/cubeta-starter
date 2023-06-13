@@ -36,8 +36,8 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
     Route::post('/policy', [CallAppropriateCommand::class, 'callCreatePolicyCommand'])->name('call-create-policy-command');
     Route::post('/postman-collection', [CallAppropriateCommand::class, 'callCreatePostmanCollectionCommand'])->name('call-create-postman-collection-command');
     Route::post('/web-controller', [CallAppropriateCommand::class, 'callCreateWebControllerCommand'])->name('call-create-web-controller-command');
-    Route::get('/install-spatie', [CallAppropriateCommand::class, 'callInstallSpatie'])->name('call-install-spatie');
     Route::post('/add-actor', [CallAppropriateCommand::class, 'callAddActorCommand'])->name('call-add-actor-command');
+    Route::get('/install-spatie', [CallAppropriateCommand::class, 'callInstallSpatie'])->name('call-install-spatie');
     Route::get('/publish-config', [CallAppropriateCommand::class, 'publishConfig'])->name('config-publish');
     Route::get('/publish-handler', [CallAppropriateCommand::class, 'publishHandler'])->name('publish-handler');
     Route::get('publish-assets', [CallAppropriateCommand::class, 'publishAssets'])->name('publish-assets');
