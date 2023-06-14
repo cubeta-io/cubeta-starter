@@ -20,11 +20,11 @@
 
 
                 if (languageCode === selectedLanguage) {
-                    input.toggleAttribute('hidden', false) // Show input for selected language
-                    input.labels[0].toggleAttribute('hidden', false);
+                    input.style.display = 'block'; // Show input for selected language
+                    input.labels[0].style.display = 'block';
                 } else {
-                    input.toggleAttribute('hidden', true) // Hide input for other languages
-                    input.labels[0].toggleAttribute('hidden', true);
+                    input.style.display = "none"; // Hide input for other languages
+                    input.labels[0].style.display = "none";
                 }
             });
         });
