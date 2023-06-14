@@ -1,7 +1,8 @@
 @props(['label' , 'value' => null])
 
-@foreach(config('cubeta-starter.available_locales') as $lang)
-    <div class="col-md-6 p-2">
+
+<div class="col-md-6 p-2">
+    @foreach(config('cubeta-starter.available_locales') as $lang)
         <label for="{{columnNaming($label)}}" @if($loop->index != 0) style="display: none" @endif >
             {{$lang}} : {{$label}}</label>
         <input class="form-control translatable @error(columnNaming($label)) is-invalid @enderror"
@@ -9,5 +10,5 @@
                name="{{columnNaming($label)}}[{{$lang}}]"
                value="{{ old('"'.columnNaming($label).'"') ?? $value ?? null }}"
                {{$attributes->merge()}} @if($loop->index != 0) style="display: none" @endif>
-    </div>
-@endforeach
+    @endforeach
+</div>

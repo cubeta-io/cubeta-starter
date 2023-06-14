@@ -260,8 +260,10 @@ trait ViewGenerating
                 $dataRender = '';
 
                 foreach ($locales as $lang) {
-                    $dataRender .= "'$lang :' + $attribute.$lang + '<br>'";
+                    $dataRender .= "'$lang :' + $attribute.$lang + '<br>' + ";
                 }
+
+                $dataRender .= "'\\n'";
 
                 $json .= "{\"data\": '$attribute', searchable: true, orderable: true , \"render\" : function($attribute){
                                     $attribute = JSON.parse($attribute.replace(/&quot;/g, '\"'));
