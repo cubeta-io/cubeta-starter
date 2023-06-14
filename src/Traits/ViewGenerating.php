@@ -57,10 +57,19 @@ trait ViewGenerating
     public function generateInputs(array $attributes = [], string $modelVariable = '', bool $updateInput = false): string
     {
         $inputs = '';
+        if (in_array('translatable', array_values($attributes))) {
+            $inputs .= "<x-language-selector></x-language-selector> \n";
+        }
         foreach ($attributes as $attribute => $type) {
             $label = $this->getLabelName($attribute);
             $value = $updateInput ? ":value=\"\$$modelVariable->$attribute\"" : null;
             $checked = $updateInput ? ":checked=\"\$$modelVariable->$attribute\"" : 'checked';
+
+            if ($type == 'translatable') {
+                $inputs .= "<x-translatable-input label=\"$label\" type='string'></x-translatable-input>";
+
+                continue;
+            }
 
             if ($attribute == 'email') {
                 $inputs .= "\n <x-input label=\"$label\" type=\"email\" $value></x-input> \n";
@@ -246,20 +255,21 @@ trait ViewGenerating
             }
             $html .= "\n<th>$label</th>\n";
             if ($type == 'translatable') {
+
                 $locales = config('cubeta-starter.available_locales');
                 $dataRender = '';
+
                 foreach ($locales as $lang) {
                     $dataRender .= "'$lang :' + $attribute.$lang + '<br>'";
                 }
+
                 $json .= "{\"data\": '$attribute', searchable: true, orderable: true , \"render\" : function($attribute){
                                     $attribute = JSON.parse($attribute.replace(/&quot;/g, '\"'));
                                     return $dataRender;
                                 }},";
-                continue;
             } else {
                 $json .= "{\"data\": '$attribute', searchable: true, orderable: true}, \n";
             }
-
         }
 
         return ['html' => $html, 'json' => $json];

@@ -10,7 +10,7 @@ return [
     /**
      * here define your project public url, so we can add it to the postman collection
      * if you let it null we will place it in the collection as like you're using xampp
-     * e.g : http://localhost/example-project/public/
+     * e.g : http://localhost/example-project/public
      */
     'project_url' => null,
 

@@ -31,7 +31,6 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-
                             <div class="col-md-6 m-auto">
                                 <h4 class="form-label m-auto">Publish the Package Config File</h4>
                                 <br>
@@ -41,7 +40,6 @@
                                     Publish Config
                                 </a>
                             </div>
-
                             <div class="col-md-6 m-auto">
                                 <h4 class="form-label m-auto">Publish the provided exception handler</h4>
                                 <br>
@@ -51,7 +49,6 @@
                                     Publish Handler
                                 </a>
                             </div>
-
                             <div class="col-md-6 mt-3">
                                 <h4 class="form-label m-auto">Publish The Package Assets</h4>
                                 <br>
@@ -66,7 +63,6 @@
                                     Publish Assets
                                 </a>
                             </div>
-
                             <div class="col-md-6 mt-3">
                                 <h4 class="form-label m-auto">Installing web packages</h4>
                                 <br>

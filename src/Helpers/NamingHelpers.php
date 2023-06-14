@@ -73,3 +73,12 @@ function viewNaming(string $name): string
 {
     return lowerPluralKebabNaming($name);
 }
+
+/**
+ * @param string $name
+ * @return string
+ */
+function columnNaming(string $name): string
+{
+    return strtolower(Str::snake($name));
+}
