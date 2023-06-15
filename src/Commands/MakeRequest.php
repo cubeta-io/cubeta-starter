@@ -175,10 +175,10 @@ class MakeRequest extends Command
             $method .= "protected function prepareForValidation()
                         {
                             if (request()->acceptsHtml()){
-                                \$this->replace([\n";
+                                \$this->merge([\n";
 
             foreach ($translatedAttributes as $attr) {
-                $method .= "'$attr' => json_encode(request()->$attr), \n";
+                $method .= "'$attr' => json_encode(\$this->$attr), \n";
             }
 
             $method .= "]);

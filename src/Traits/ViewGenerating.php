@@ -155,11 +155,10 @@ trait ViewGenerating
             $label = $this->getLabelName($attribute);
             if ($type == 'text') {
                 $components .= "<x-long-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></x-long-text-field> \n";
-
-                continue;
-            }
-            if ($type == 'file') {
+            } elseif ($type == 'file') {
                 $components .= "<x-image-preview :imagePath=\"\$$modelVariable->$attribute\"></x-image-preview> \n";
+            } elseif ($type == 'translatable') {
+                $components .= "<x-translatable-small-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></x-translatable-small-text-field> \n";
             } else {
                 $components .= "<x-small-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></x-small-text-field> \n";
             }

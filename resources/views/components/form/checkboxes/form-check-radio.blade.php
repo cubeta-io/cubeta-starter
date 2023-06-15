@@ -3,7 +3,7 @@
     <input class="form-check-input @error(columnNaming($name)) is-invalid @enderror" type="radio"
            name="{{$name}}"
            id="{{$value}}-radio" value="{{$value}}" {{$attributes->merge()}} @checked($checked)>
-    <label class="form-check-label" for="flexRadioDefault1">
+    <label class="form-check-label" for="{{$value}}-radio">
         @if($value)
             {{ucfirst($name)}}
         @else

@@ -1285,9 +1285,9 @@ table.dataTable th {
 .lang-btn-holder .lang-btn {
     border-radius: 0;
 }
-.lang-btn-holder .lang-btn:first-child {
+.lang-btn-holder .lang-btn:first-of-type {
     border-radius: 10px 0 0 10px;
 }
-.lang-btn-holder .lang-btn:last-child {
+.lang-btn-holder .lang-btn:last-of-type {
     border-radius: 0 10px 10px 0;
 }
