@@ -54,7 +54,7 @@ trait ViewGenerating
     /**
      * generate input fields for create or update form
      */
-    public function generateInputs(array $attributes = [], string $modelVariable = '', bool $updateInput = false): string
+    private function generateInputs(array $attributes = [], string $modelVariable = '', bool $updateInput = false): string
     {
         $inputs = '';
         if (in_array('translatable', array_values($attributes))) {
@@ -66,71 +66,38 @@ trait ViewGenerating
             $checked = $updateInput ? ":checked=\"\$$modelVariable->$attribute\"" : 'checked';
 
             if ($type == 'translatable') {
-                $inputs .= "<x-translatable-input label=\"$label\" type='string'></x-translatable-input>";
-
-                continue;
-            }
-
-            if ($attribute == 'email') {
+                $inputs .= "<x-translatable-input label=\"$label\" type='text'></x-translatable-input>";
+            } elseif ($attribute == 'email') {
                 $inputs .= "\n <x-input label=\"$label\" type=\"email\" $value></x-input> \n";
-
-                continue;
-            }
-
-            if ($attribute == 'password') {
+            } elseif ($attribute == 'password') {
                 $inputs .= "\n <x-input label=\"$label\" type=\"password\" $value></x-input> \n";
-
-                continue;
-            }
-
-            if (in_array($attribute, ['phone', 'phone_number', 'home_number', 'work_number', 'tele', 'telephone'])) {
+            } elseif (in_array($attribute, ['phone', 'phone_number', 'home_number', 'work_number', 'tele', 'telephone'])) {
                 $inputs .= "\n <x-input label=\"$label\" type=\"tel\" $value></x-input> \n";
-
-                continue;
-            }
-
-            if (Str::contains($attribute, ['_url', 'url_', 'URL_', '_URL'])) {
+            } elseif (Str::contains($attribute, ['_url', 'url_', 'URL_', '_URL'])) {
                 $inputs .= "\n <x-input label=\"$label\" type=\"url\" $value></x-input> \n";
-
-                continue;
-            }
-
-            if (in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])) {
+            } elseif (in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])) {
                 $inputs .= "\n <x-input label=\"$label\" type=\"number\" $value></x-input> \n";
-            }
-
-            if (in_array($type, ['string', 'json'])) {
+            } elseif (in_array($type, ['string', 'json'])) {
                 $inputs .= "\n <x-input label=\"$label\" type=\"text\" $value></x-input> \n";
-            }
-
-            if ($type == 'text') {
+            } elseif ($type == 'text') {
                 $inputs .= "\n <x-text-editor label=\"$label\" $value></x-text-editor> \n";
-            }
-
-            if ($type == 'date') {
+            } elseif ($type == 'date') {
                 $inputs .= "\n <x-input label=\"$label\" type=\"date\" $value></x-input> \n";
-            }
-
-            if ($type == 'time') {
+            } elseif ($type == 'time') {
                 $inputs .= "\n <x-input label=\"$label\" type=\"time\" $value></x-input> \n";
-            }
-
-            if (in_array($type, ['dateTime', 'timestamp'])) {
+            } elseif (in_array($type, ['dateTime', 'timestamp'])) {
                 $inputs .= "\n <x-input label=\"$label\" type=\"datetime-local\" $value></x-input> \n";
-            }
-
-            if ($type == 'file') {
+            } elseif ($type == 'file') {
                 $inputs .= "\n <x-input label=\"$label\" type=\"file\" $value></x-input> \n";
-            }
-
-            if ($type == 'boolean') {
+            } elseif ($type == 'boolean') {
                 $inputs .= "\n <x-form-check>
                                     <x-form-check-radio name=\"$attribute\" value=\"is $attribute\" $checked></x-form-check-radio>
                                     <x-form-check-radio name=\"$attribute\" value=\"not $attribute\" $checked></x-form-check-radio>
                                </x-form-check> \n";
+            } else {
+                $inputs .= "\n <x-input label=\"$label\" type=\"text\" $value></x-input> \n";
             }
         }
-
         return $inputs;
     }
 
@@ -139,7 +106,7 @@ trait ViewGenerating
      * @param string $attribute
      * @return array|string
      */
-    public function getLabelName(string $attribute): array|string
+    private function getLabelName(string $attribute): array|string
     {
         return str_replace('_', ' ', Str::title(Str::singular($attribute)));
     }
@@ -181,7 +148,7 @@ trait ViewGenerating
         $this->info("show view for $viewsName created");
     }
 
-    public function generateShowViewComponents(string $modelVariable, array $attributes = []): string
+    private function generateShowViewComponents(string $modelVariable, array $attributes = []): string
     {
         $components = '';
         foreach ($attributes as $attribute => $type) {
@@ -243,7 +210,7 @@ trait ViewGenerating
      * @return string[]
      */
     #[ArrayShape(['html' => 'string', 'json' => 'string'])]
-    public function generateViewDataColumns(array $attributes = []): array
+    private function generateViewDataColumns(array $attributes = []): array
     {
         $html = '';
         $json = '';

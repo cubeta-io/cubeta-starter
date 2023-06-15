@@ -9,11 +9,15 @@ class LanguageShape implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (! $value) {
+        if (!$value) {
             return;
         }
 
-        $translationArray = json_decode($value, true);
+        if (!is_array($value)) {
+            $translationArray = json_decode($value, true);
+        } else {
+            $translationArray = $value;
+        }
 
         // Check if the decoded JSON data is a simple object (not nested)
         if ($this->hasNestedArrays($translationArray)) {
@@ -25,8 +29,8 @@ class LanguageShape implements ValidationRule
 
         $theDifferenceBetweenTheProvidedLanguages = array_diff($translationLanguages, $availableLanguages);
 
-        if (! count($theDifferenceBetweenTheProvidedLanguages) == 0) {
-            $fail(implode(',', $theDifferenceBetweenTheProvidedLanguages)." don't exist in your project languages");
+        if (!count($theDifferenceBetweenTheProvidedLanguages) == 0) {
+            $fail(implode(',', $theDifferenceBetweenTheProvidedLanguages) . " don't exist in your project languages");
         }
 
     }

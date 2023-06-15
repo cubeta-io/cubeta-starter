@@ -1,10 +1,11 @@
-<div class="col-md-6 m-auto">
-    @foreach(config('cubeta-starter.available_locales') as $lang)
-        <input type="radio" class="btn-check" name="selected-language" id="lang-{{$lang}}" autocomplete="off"
-               value="{{$lang}}"
-               @if($loop->index == 0) checked @endif>
-        <label class="btn btn-primary" for="lang-{{$lang}}">{{strtoupper($lang)}}</label>
-    @endforeach
+<div class="row">
+    <div class="col-md-12 d-flex justify-content-center align-items-center">
+        @foreach (config('cubeta-starter.available_locales') as $lang)
+            <input type="radio" class="btn-check" name="selected-language" id="lang-{{ $lang }}" autocomplete="off"
+                   value="{{ $lang }}" @if ($loop->index == 0) checked @endif>
+            <label class="btn btn-primary" for="lang-{{ $lang }}">{{ strtoupper($lang) }}</label>
+        @endforeach
+    </div>
 </div>
 <script type="module">
     const radioButtons = document.querySelectorAll('input[name="selected-language"]');
