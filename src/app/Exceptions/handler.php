@@ -50,7 +50,7 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $exception): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
     {
-        if ($request->acceptsJson()) {
+        if (!$request->acceptsHtml()) {
             return $this->handleException($request, $exception);
         } else {
             return parent::render($request , $exception);

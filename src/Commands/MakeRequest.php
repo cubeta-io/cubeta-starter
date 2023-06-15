@@ -81,7 +81,7 @@ class MakeRequest extends Command
         foreach ($attributes as $name => $type) {
 
             if ($type == 'translatable') {
-                $rules .= "\t\t\t'$name'=>['required', 'json', new LanguageShape] , \n";
+                $rules .= "\t\t\t'$name'=>['required', request()->acceptsHtml() ? 'array' : 'json', new LanguageShape] , \n";
 
                 continue;
             }

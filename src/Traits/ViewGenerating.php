@@ -20,7 +20,7 @@ trait ViewGenerating
         $viewsName = viewNaming($modelName);
         $modelVariable = variableNaming($modelName);
         $inputs = $storeRoute ? $this->generateInputs($attributes) : $this->generateInputs($attributes, $modelVariable, true);
-        $createdForm = $storeRoute ? 'Create' : 'Update';
+        $createdForm = $storeRoute ? 'Create' : 'Edit';
 
         $stubProperties = [
             '{title}' => "$createdForm $modelName",
