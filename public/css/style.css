@@ -1282,3 +1282,12 @@ table.dataTable th {
     text-align: center;
 }
 
+.lang-btn-holder .lang-btn {
+    border-radius: 0;
+}
+.lang-btn-holder .lang-btn:first-child {
+    border-radius: 10px 0 0 10px;
+}
+.lang-btn-holder .lang-btn:last-child {
+    border-radius: 0 10px 10px 0;
+}

@@ -4,6 +4,10 @@
            name="{{$name}}"
            id="{{$value}}-radio" value="{{$value}}" {{$attributes->merge()}} @checked($checked)>
     <label class="form-check-label" for="flexRadioDefault1">
-        {{ucfirst($value)}}
+        @if($value)
+            {{ucfirst($name)}}
+        @else
+            Not {{ucfirst($name)}}
+        @endif
     </label>
 </div>

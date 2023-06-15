@@ -91,8 +91,8 @@ trait ViewGenerating
                 $inputs .= "\n <x-input label=\"$label\" type=\"file\" $value></x-input> \n";
             } elseif ($type == 'boolean') {
                 $inputs .= "\n <x-form-check>
-                                    <x-form-check-radio name=\"$attribute\" value=\"is $attribute\" $checked></x-form-check-radio>
-                                    <x-form-check-radio name=\"$attribute\" value=\"not $attribute\" $checked></x-form-check-radio>
+                                    <x-form-check-radio name=\"$attribute\" value=\"{{false}}\" $checked></x-form-check-radio>
+                                    <x-form-check-radio name=\"$attribute\" value=\"{{true}}\" $checked></x-form-check-radio>
                                </x-form-check> \n";
             } else {
                 $inputs .= "\n <x-input label=\"$label\" type=\"text\" $value></x-input> \n";
