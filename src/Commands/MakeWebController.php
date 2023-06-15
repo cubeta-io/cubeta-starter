@@ -80,7 +80,6 @@ class MakeWebController extends Command
             '{requestNamespace}' => config('cubeta-starter.request_namespace'),
             '{modelNamespace}' => config('cubeta-starter.model_namespace'),
             '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
-            '{handleTranslatableAttributes}' => $this->handleTranslatableAttributesInController($attributes)
         ];
 
         if (!is_dir(base_path(config('cubeta-starter.web_controller_path')))) {
@@ -165,24 +164,5 @@ class MakeWebController extends Command
         $sidebar = file_get_contents($sidebarPath);
         $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);
         file_put_contents($sidebarPath, $sidebar);
-    }
-
-    /**
-     * add a code line to encode the translatable attribute array sent by the html form to json,
-     * so we can store it in the database
-     * @param array $attributes
-     * @return string
-     */
-    private function handleTranslatableAttributesInController(array $attributes): string
-    {
-        $result = '';
-        $translatableAttributes = array_keys($attributes, 'translatable');
-
-        if (count($translatableAttributes) > 0) {
-            foreach ($translatableAttributes as $attr) {
-                $result .= "\$data['$attr'] = json_encode(\$data['$attr']); \n";
-            }
-        }
-        return $result;
     }
 }

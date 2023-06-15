@@ -44,9 +44,10 @@ class MakeRequest extends Command
         $requestName = $this->getRequestName($modelName);
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.request_namespace')."\\$modelName",
+            '{namespace}' => config('cubeta-starter.request_namespace') . "\\$modelName",
             '{class}' => $modelName,
             '{rules}' => $this->generateCols($attributes),
+            '{prepareForValidation}' => $this->getPrepareForValidationMethod($attributes)
         ];
 
         $requestPath = $this->getRequestPath($requestName, $modelName);
@@ -59,7 +60,7 @@ class MakeRequest extends Command
         generateFileFromStub(
             $stubProperties,
             $requestPath,
-            __DIR__.'/stubs/request.stub'
+            __DIR__ . '/stubs/request.stub'
         );
 
         if (in_array('translatable', $attributes)) {
@@ -72,7 +73,7 @@ class MakeRequest extends Command
 
     private function getRequestName($modelName): string
     {
-        return 'StoreUpdate'.$modelName.'Request';
+        return 'StoreUpdate' . $modelName . 'Request';
     }
 
     private function generateCols(array $attributes = []): string
@@ -81,7 +82,7 @@ class MakeRequest extends Command
         foreach ($attributes as $name => $type) {
 
             if ($type == 'translatable') {
-                $rules .= "\t\t\t'$name'=>['required', request()->acceptsHtml() ? 'array' : 'json', new LanguageShape] , \n";
+                $rules .= "\t\t\t'$name'=>['required','json', new LanguageShape] , \n";
 
                 continue;
             }
@@ -155,10 +156,36 @@ class MakeRequest extends Command
 
     private function getRequestPath($requestName, $modelName): string
     {
-        $directory = base_path(config('cubeta-starter.request_path'))."/$modelName";
+        $directory = base_path(config('cubeta-starter.request_path')) . "/$modelName";
 
         ensureDirectoryExists($directory);
 
-        return $directory."/$requestName".'.php';
+        return $directory . "/$requestName" . '.php';
+    }
+
+    /**
+     * @param array $attributes
+     * @return string
+     */
+    public function getPrepareForValidationMethod(array $attributes): string
+    {
+        $translatedAttributes = array_keys($attributes, 'translatable');
+        $method = '';
+        if (count($translatedAttributes) > 0) {
+            $method .= "protected function prepareForValidation()
+                        {
+                            if (request()->acceptsHtml()){
+                                \$this->replace([\n";
+
+            foreach ($translatedAttributes as $attr) {
+                $method .= "'$attr' => json_encode(request()->$attr), \n";
+            }
+
+            $method .= "]);
+                            }
+                        }";
+        }
+
+        return $method;
     }
 }

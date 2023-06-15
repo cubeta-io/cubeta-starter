@@ -67,9 +67,7 @@ class {modelName}Controller extends Controller
 
     public function store(StoreUpdate{modelName}Request $request)
     {
-        $data = $request->validated();
-        {handleTranslatableAttributes}
-        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->store($data, []);
+        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->store($request->validated(), []);
         if (${modelNameCamelCase}) {
             return redirect()->route('{showRouteName}', ${modelNameCamelCase}->id);
         }
@@ -89,9 +87,7 @@ class {modelName}Controller extends Controller
 
     public function update(StoreUpdate{modelName}Request $request, ${modelNameCamelCase}_id)
     {
-        $data = $request->validated();
-        {handleTranslatableAttributes}
-        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->update($data, ${modelNameCamelCase}_id, []);
+        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->update($request->validated(), ${modelNameCamelCase}_id, []);
         if (${modelNameCamelCase}) {
             return redirect()->route('{editRouteName}', ${modelNameCamelCase}_id);
         }
