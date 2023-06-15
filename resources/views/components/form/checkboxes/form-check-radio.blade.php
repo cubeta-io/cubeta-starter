@@ -4,10 +4,16 @@
            name="{{$name}}"
            id="{{$value}}-radio" value="{{$value}}" {{$attributes->merge()}} @checked($checked)>
     <label class="form-check-label" for="{{$value}}-radio">
-        @if($value)
-            {{ucfirst($name)}}
+        @if(is_bool($value))
+
+            @if($value)
+                {{ucfirst($name)}}
+            @else
+                Not {{ucfirst($name)}}
+            @endif
+
         @else
-            Not {{ucfirst($name)}}
+            {{ucfirst($value)}}
         @endif
     </label>
 </div>
