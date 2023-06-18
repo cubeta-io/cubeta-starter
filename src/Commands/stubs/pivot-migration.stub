@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\{className1};
-use App\Models\{className2};
+use App\Models{className1};
+use App\Models{className2};
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
