@@ -228,16 +228,16 @@ trait ViewGenerating
             $html .= "\n<th>$label</th>\n";
             if ($type == 'translatable') {
                 $json .= "{
-                             data: 'description',
+                             data: '$attribute',
                              searchable: true,
                              orderable: true,
-                             render: function(description, type, row) {
+                             render: function($attribute, type, row) {
                                  if (type === 'display') {
-                                    description = JSON.parse(description.replace(/&quot;/g, '\"'));
-                                    var output = description[selectedLanguage] || '';
+                                    description = JSON.parse($attribute.replace(/&quot;/g, '\"'));
+                                    var output = $attribute[selectedLanguage] || '';
                                     return selectedLanguage.toUpperCase() + ': ' + output + '<br>';
                                  }
-                                return description;
+                                return $attribute;
                              }
                            },";
             } else {
