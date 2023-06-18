@@ -178,7 +178,7 @@ trait ViewGenerating
     {
         $viewsName = viewNaming($modelName);
         $dataColumns = $this->generateViewDataColumns($attributes);
-        $translationComponents = $this->handleSelectLanguageButton($attributes);
+        $translationComponents = $this->handleSelectLanguageButtonForIndexView($attributes);
 
         $stubProperties = [
             '{modelName}' => $modelName,
@@ -233,7 +233,7 @@ trait ViewGenerating
                              orderable: true,
                              render: function($attribute, type, row) {
                                  if (type === 'display') {
-                                    description = JSON.parse($attribute.replace(/&quot;/g, '\"'));
+                                    $attribute = JSON.parse($attribute.replace(/&quot;/g, '\"'));
                                     var output = {$attribute}[selectedLanguage] || '';
                                     return selectedLanguage.toUpperCase() + ': ' + output + '<br>';
                                  }
@@ -252,7 +252,7 @@ trait ViewGenerating
      * @param array $attributes
      * @return string[]
      */
-    private function handleSelectLanguageButton(array $attributes = []): array
+    private function handleSelectLanguageButtonForIndexView(array $attributes = []): array
     {
         $translatableAttributes = array_keys($attributes, 'translatable');
 
