@@ -6,14 +6,17 @@
  * defined in the config file of the package and if there isn't a corresponding value for it,
  * it returns a message informing you that there isn't
  *
- * @param  string  $translationColumn must be a json string
- * @param  ?string  $locale
+ * @param string $translationColumn must be a json string
+ * @param  ?string $locale
  * @return mixed|null
  */
-function getTranslation(string $translationColumn, $locale = null): mixed
+function getTranslation(string $translationColumn, string $locale = null): mixed
 {
     $locale = $locale ?? app()->getLocale();
     $translationArray = json_decode($translationColumn, true);
 
-    return $translationArray[$locale] ?? ($translationArray[config('cubeta-starter.defaultLocale')] ?? 'there is no value correspond to the current locale or the default locale');
+    if ($locale)
+        return $translationArray[$locale] ?? null;
+    else
+        return $translationArray[config('cubeta-starter.defaultLocale')] ?? 'there is no value correspond to the current locale or the default locale';
 }

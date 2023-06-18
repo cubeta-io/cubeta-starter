@@ -234,7 +234,7 @@ trait ViewGenerating
                              render: function($attribute, type, row) {
                                  if (type === 'display') {
                                     description = JSON.parse($attribute.replace(/&quot;/g, '\"'));
-                                    var output = $attribute[selectedLanguage] || '';
+                                    var output = {$attribute}[selectedLanguage] || '';
                                     return selectedLanguage.toUpperCase() + ': ' + output + '<br>';
                                  }
                                 return $attribute;
