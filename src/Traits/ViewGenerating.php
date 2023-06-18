@@ -66,7 +66,7 @@ trait ViewGenerating
             $checked = $updateInput ? ":checked=\"\$$modelVariable->$attribute\"" : 'checked';
 
             if ($type == 'translatable') {
-                $inputs .= "<x-translatable-input label=\"$label\" type='text'></x-translatable-input>";
+                $inputs .= "<x-translatable-input label=\"$label\" type='text' $value></x-translatable-input>";
             } elseif ($attribute == 'email') {
                 $inputs .= "\n <x-input label=\"$label\" type=\"email\" $value></x-input> \n";
             } elseif ($attribute == 'password') {
