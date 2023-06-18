@@ -7,28 +7,3 @@
         @endforeach
     </div>
 </div>
-<script type="module">
-    const radioButtons = document.querySelectorAll('input[name="selected-language"]');
-    const translatableInputs = document.querySelectorAll('.translatable');
-
-    radioButtons.forEach(function (radioButton) {
-        radioButton.addEventListener('change', function () {
-            const selectedLanguage = this.value; // Get the value of the selected radio button
-
-            translatableInputs.forEach(function (input) {
-                const inputName = input.name;
-                const languageCode = inputName.match(/\[(.*?)\]/)[1]; // Extract language code from input name
-
-
-                if (languageCode === selectedLanguage) {
-                    input.style.display = 'block'; // Show input for selected language
-                    input.labels[0].style.display = 'block';
-                } else {
-                    input.style.display = "none"; // Hide input for other languages
-                    input.labels[0].style.display = "none";
-                }
-            });
-        });
-    });
-
-</script>

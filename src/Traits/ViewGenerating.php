@@ -151,6 +151,9 @@ trait ViewGenerating
     private function generateShowViewComponents(string $modelVariable, array $attributes = []): string
     {
         $components = '';
+        if (count(array_keys($attributes , 'translatable'))){
+            $components .= "<div class=\"p-3\"><x-language-selector></x-language-selector></div> \n";
+        }
         foreach ($attributes as $attribute => $type) {
             $label = $this->getLabelName($attribute);
             if ($type == 'text') {
@@ -175,6 +178,7 @@ trait ViewGenerating
     {
         $viewsName = viewNaming($modelName);
         $dataColumns = $this->generateViewDataColumns($attributes);
+        $translationComponents = $this->handleSelectLanguageButton($attributes);
 
         $stubProperties = [
             '{modelName}' => $modelName,
@@ -182,6 +186,8 @@ trait ViewGenerating
             '{htmlColumns}' => $dataColumns['html'],
             '{dataTableColumns}' => $dataColumns['json'],
             '{dataTableDataRouteName}' => $dataRoute,
+            '{handle-selected-language}' => $translationComponents['js-code'] ,
+            '{language-selector}' => $translationComponents['view-component']
         ];
 
         $indexDirectory = base_path("resources/views/dashboard/$viewsName/index.blade.php");
@@ -221,25 +227,47 @@ trait ViewGenerating
             }
             $html .= "\n<th>$label</th>\n";
             if ($type == 'translatable') {
-
-                $locales = config('cubeta-starter.available_locales');
-                $dataRender = '';
-
-                foreach ($locales as $lang) {
-                    $dataRender .= "'$lang :' + $attribute.$lang + '<br>' + ";
-                }
-
-                $dataRender .= "'\\n'";
-
-                $json .= "{\"data\": '$attribute', searchable: true, orderable: true , \"render\" : function($attribute){
-                                    $attribute = JSON.parse($attribute.replace(/&quot;/g, '\"'));
-                                    return $dataRender;
-                                }},";
+                $json .= "{
+                             data: 'description',
+                             searchable: true,
+                             orderable: true,
+                             render: function(description, type, row) {
+                                 if (type === 'display') {
+                                    description = JSON.parse(description.replace(/&quot;/g, '\"'));
+                                    var output = description[selectedLanguage] || '';
+                                    return selectedLanguage.toUpperCase() + ': ' + output + '<br>';
+                                 }
+                                return description;
+                             }
+                           },";
             } else {
                 $json .= "{\"data\": '$attribute', searchable: true, orderable: true}, \n";
             }
         }
 
         return ['html' => $html, 'json' => $json];
+    }
+
+    /**
+     * @param array $attributes
+     * @return string[]
+     */
+    private function handleSelectLanguageButton(array $attributes = []): array
+    {
+        $translatableAttributes = array_keys($attributes, 'translatable');
+
+        if (count($translatableAttributes) > 0) {
+            return [
+                'js-code' => "var selectedLanguage = $('input[name=\"selected-language\"]:checked').val();
+                    $('input[name=\"selected-language\"]').on('click', function() {
+                        selectedLanguage = $(this).val();
+                        table.draw();
+                    });",
+                'view-component' => "<div class=\"p-3\"><x-language-selector></x-language-selector></div>"
+            ];
+        } else return [
+            'json-code' => '',
+            'view-component' => ''
+        ];
     }
 }
