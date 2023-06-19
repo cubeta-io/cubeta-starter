@@ -556,9 +556,9 @@ class MakeModel extends Command
             $result .= "/**
                         * get the model $attribute translated based on the app locale
                         */
-                        public function $attribute(): Attribute
+                        public function $attribute(): \Illuminate\Database\Eloquent\Casts\Attribute
                         {
-                            return Attribute::make(
+                            return \Illuminate\Database\Eloquent\Casts\Attribute::make(
                                 get: fn (string \$value) => getTranslation(\$value),
                             );
                         } \n";
