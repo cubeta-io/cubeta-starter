@@ -56,7 +56,7 @@
                                         "method": "DELETE",
                                         "url": url,
                                         success: function () {
-                                            $this.parent().parent().parent().remove();
+                                            $this.parent().parent().parent().parent().remove();
                                         }
                                     });
                                     Swal.fire('Deleted!', '', 'success')

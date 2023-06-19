@@ -70,15 +70,15 @@
                                     this will install the following :
                                 </p>
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-auto">
                                         <ul>
                                             <li>laravel-datatables-vite</li>
-                                            <li>select2</li>
                                             <li>select2-bootstrap-5-theme</li>
+                                            <li>select2</li>
                                             <li>bootstrap 5.2.3</li>
                                         </ul>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-auto">
                                         <ul>
                                             <li>baguettebox.js</li>
                                             <li>jquery</li>
