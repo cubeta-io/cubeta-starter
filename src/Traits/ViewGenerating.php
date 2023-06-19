@@ -108,7 +108,7 @@ trait ViewGenerating
      */
     private function getLabelName(string $attribute): array|string
     {
-        return str_replace('_', ' ', Str::title(Str::singular($attribute)));
+        return str_replace('_', ' ', ucfirst($attribute));
     }
 
     /**
