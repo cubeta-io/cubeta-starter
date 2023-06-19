@@ -1,9 +1,17 @@
 @props(['label' , 'value' => null])
 
 <div class="col-md-12 p-2">
-    <label for="{{columnNaming($label)}}">{{$label}}</label>
-    <textarea id="{{columnNaming($label)}}"
-              class="Trumbowyg-text-editor @error(columnNaming($label)) is-invalid @enderror"
-              name="{{columnNaming($label)}}" {{$attributes->merge()}}>{!! $value !!}
-    </textarea>
+    <script type="module">
+        $(document).ready(function () {
+            tinymce.init({
+                selector: '#{{columnNaming($label)}}',
+                content_css: false,
+                skin: false,
+            });
+        });
+    </script>
+    <div {{$attributes->merge()}}>
+        <label for="{{columnNaming($label)}}">{{$label}}</label>
+        <textarea id="{{columnNaming($label)}}" name="{{columnNaming($label)}}">{{ $value }}</textarea>
+    </div>
 </div>

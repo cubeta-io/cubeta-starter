@@ -1,10 +1,6 @@
 // Fonts
 @import url('https://fonts.bunny.net/css?family=Nunito');
 
-// Variables
-//TODO::dont forgot to check on this
-//@import 'variables';
-
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
 
@@ -17,14 +13,15 @@
 // bootstrap
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
-//select2
+// select2
 @import "select2/src/scss/core";
 @import "select2-bootstrap-5-theme/src/include-all";
 
 // baguetteBox
 @import "baguettebox.js/dist/baguetteBox.css";
 
-// trumbowyg
-@import "trumbowyg/dist/ui/trumbowyg.min.css";
-
+// tinymce
+@import 'tinymce/skins/ui/oxide/skin.min.css';
+@import 'tinymce/skins/content/default/content.css';
+@import 'tinymce/skins/ui/oxide/content.min.css';
 
