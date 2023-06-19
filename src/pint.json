@@ -40,6 +40,8 @@
         "void_return": true,
         "yoda_style": true,
         "array_push": true,
+        "phpdoc_scalar": false,
+        "short_scalar_cast": false,
         "assign_null_coalescing_to_coalesce_equal": true,
         "explicit_indirect_variable": true,
         "method_argument_space": {
