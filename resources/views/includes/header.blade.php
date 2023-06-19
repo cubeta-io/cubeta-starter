@@ -172,6 +172,7 @@
                         <a href="#">Show all messages</a>
                     </li>
 
+
                 </ul><!-- End Messages Dropdown Items -->
 
             </li><!-- End Messages Nav -->
@@ -231,6 +232,42 @@
 
                 </ul><!-- End Profile Dropdown Items -->
             </li><!-- End Profile Nav -->
+
+            <!-- language dropdown -->
+            <li class="nav-item dropdown p-3">
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        {{app()->getLocale()}}
+                    </button>
+                    <ul class="dropdown-menu">
+                        @foreach(config('cubeta-starter.available_locales') as $lang)
+                            <li><a class="dropdown-item">{{$lang}}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            </li>
+            <script type="module">
+                $(document).ready(function () {
+                    $('.dropdown-menu a').click(function (e) {
+                        e.preventDefault();
+                        const lang = $(this).text();
+                        $.ajax({
+                            url: '{{route('set-locale')}}',
+                            method: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                lang: lang
+                            },
+                            success: function (response) {
+                                location.reload();
+                                console.log(response);
+                            }
+                        });
+                    });
+                });
+            </script>
+            <!-- end language dropdown -->
 
         </ul>
     </nav><!-- End Icons Navigation -->

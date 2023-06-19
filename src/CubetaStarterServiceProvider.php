@@ -19,6 +19,7 @@ use Cubeta\CubetaStarter\Commands\MakeService;
 use Cubeta\CubetaStarter\Commands\MakeTest;
 use Cubeta\CubetaStarter\Commands\MakeWebController;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
@@ -93,6 +94,9 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
 
         // register the route files
         $this->registerGuiRoutesFile();
+
+        // register the set locale route
+        $this->registerSetLocaleRoute();
     }
 
     /**
@@ -170,6 +174,18 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../resources/js' => resource_path('js'),
             __DIR__ . '/../resources/sass' => resource_path('sass'),
             __DIR__ . '/../public' => public_path(),
+            __DIR__ . 'Commands/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php')
         ], 'cubeta-starter-assets');
+    }
+
+    protected function registerSetLocaleRoute()
+    {
+        if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
+            Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->name('set-locale');
+        } else {
+            Route::post('/blank', function () {
+                return response()->noContent();
+            })->middleware('web')->name('set-locale');
+        }
     }
 }

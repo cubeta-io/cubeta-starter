@@ -6,5 +6,7 @@
            id="{{columnNaming($label)}}"
            name="{{columnNaming($label)}}"
            value="{{ old('"'.columnNaming($label).'"') ?? $value ?? null }}"
-        {{$attributes->merge()}}>
+           step="any"
+        {{$attributes->merge()}}
+    >
 </div>

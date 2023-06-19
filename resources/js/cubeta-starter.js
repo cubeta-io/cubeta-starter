@@ -7,7 +7,7 @@ window.jQuery = $ ;
 import 'laravel-datatables-vite';
 
 //Bootstrap
-import 'bootstrap/dist/js/bootstrap.bundle.js';
+import 'bootstrap';
 
 // select2
 import select2 from 'select2';

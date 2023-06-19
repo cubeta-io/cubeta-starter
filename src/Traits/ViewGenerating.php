@@ -151,9 +151,6 @@ trait ViewGenerating
     private function generateShowViewComponents(string $modelVariable, array $attributes = []): string
     {
         $components = '';
-        if (count(array_keys($attributes , 'translatable'))){
-            $components .= "<div class=\"p-3\"><x-language-selector></x-language-selector></div> \n";
-        }
         foreach ($attributes as $attribute => $type) {
             $label = $this->getLabelName($attribute);
             if ($type == 'text') {
@@ -161,7 +158,7 @@ trait ViewGenerating
             } elseif ($type == 'file') {
                 $components .= "<x-image-preview :imagePath=\"\$$modelVariable->$attribute\"></x-image-preview> \n";
             } elseif ($type == 'translatable') {
-                $components .= "<x-translatable-small-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></x-translatable-small-text-field> \n";
+                $components .= "<x-translatable-small-text-field :value=\"\${$modelVariable}->getRawOriginal('$attribute')\" label=\"$label\"></x-translatable-small-text-field> \n";
             } else {
                 $components .= "<x-small-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></x-small-text-field> \n";
             }
@@ -178,7 +175,6 @@ trait ViewGenerating
     {
         $viewsName = viewNaming($modelName);
         $dataColumns = $this->generateViewDataColumns($attributes);
-        $translationComponents = $this->handleSelectLanguageButtonForIndexView($attributes);
 
         $stubProperties = [
             '{modelName}' => $modelName,
@@ -186,8 +182,6 @@ trait ViewGenerating
             '{htmlColumns}' => $dataColumns['html'],
             '{dataTableColumns}' => $dataColumns['json'],
             '{dataTableDataRouteName}' => $dataRoute,
-            '{handle-selected-language}' => $translationComponents['js-code'] ,
-            '{language-selector}' => $translationComponents['view-component']
         ];
 
         $indexDirectory = base_path("resources/views/dashboard/$viewsName/index.blade.php");
@@ -224,50 +218,12 @@ trait ViewGenerating
             $label = $this->getLabelName($attribute);
             if ($type == 'file' || $type == 'text') {
                 continue;
-            }
-            $html .= "\n<th>$label</th>\n";
-            if ($type == 'translatable') {
-                $json .= "{
-                             data: '$attribute',
-                             searchable: true,
-                             orderable: true,
-                             render: function($attribute, type, row) {
-                                 if (type === 'display') {
-                                    $attribute = JSON.parse($attribute.replace(/&quot;/g, '\"'));
-                                    var output = {$attribute}[selectedLanguage] || '';
-                                    return selectedLanguage.toUpperCase() + ': ' + output + '<br>';
-                                 }
-                                return $attribute;
-                             }
-                           },";
             } else {
                 $json .= "{\"data\": '$attribute', searchable: true, orderable: true}, \n";
             }
+            $html .= "\n<th>$label</th>\n";
         }
 
         return ['html' => $html, 'json' => $json];
-    }
-
-    /**
-     * @param array $attributes
-     * @return string[]
-     */
-    private function handleSelectLanguageButtonForIndexView(array $attributes = []): array
-    {
-        $translatableAttributes = array_keys($attributes, 'translatable');
-
-        if (count($translatableAttributes) > 0) {
-            return [
-                'js-code' => "var selectedLanguage = $('input[name=\"selected-language\"]:checked').val();
-                    $('input[name=\"selected-language\"]').on('click', function() {
-                        selectedLanguage = $(this).val();
-                        table.draw();
-                    });",
-                'view-component' => "<div class=\"p-3\"><x-language-selector></x-language-selector></div>"
-            ];
-        } else return [
-            'json-code' => '',
-            'view-component' => ''
-        ];
     }
 }
