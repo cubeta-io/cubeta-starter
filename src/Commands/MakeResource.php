@@ -83,13 +83,6 @@ class MakeResource extends Command
 
                 continue;
             }
-
-            if ($type == 'translatable') {
-                $columns .= "'$attribute:current-locale' => getTranslation(\$this->$attribute), \n";
-                $columns .= "'$attribute' => \$this->$attribute , \n";
-
-                continue;
-            }
             $columns .= "'$attribute' => \$this->$attribute,\n\t\t\t";
         }
 

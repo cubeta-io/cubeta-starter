@@ -126,6 +126,7 @@ class MakeModel extends Command
             '{scopes}' => $this->boolValuesScope($attributes),
             '{searchableKeys}' => $methodsArrayKeys['searchable'],
             '{searchableRelations}' => $methodsArrayKeys['relationSearchable'],
+            '{translatedAttributes}' => $this->getTranslatableModelAttributes($attributes),
         ];
 
         generateFileFromStub($stubProperties, $modelPath, __DIR__ . '/stubs/model.stub');
@@ -535,5 +536,34 @@ class MakeModel extends Command
         }
 
         return 'none';
+    }
+
+    /**
+     * get the model attributes for the translatable columns
+     * @param array $attributes
+     * @return string
+     */
+    public function getTranslatableModelAttributes(array $attributes): string
+    {
+        $translatableAttributes = array_keys($attributes, 'translatable');
+        $result = '';
+
+        if (!count($translatableAttributes)) {
+            return '';
+        }
+
+        foreach ($translatableAttributes as $attribute) {
+            $result .= "/**
+                        * get the model $attribute translated based on the app locale
+                        */
+                        public function $attribute(): Attribute
+                        {
+                            return Attribute::make(
+                                get: fn (string \$value) => getTranslation(\$value),
+                            );
+                        } \n";
+        }
+
+        return $result;
     }
 }
