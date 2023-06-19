@@ -62,8 +62,8 @@ trait ViewGenerating
         }
         foreach ($attributes as $attribute => $type) {
             $label = $this->getLabelName($attribute);
-            $value = $updateInput ? ($type == 'translatable' ? ":value=\"\$$modelVariable->getRawOriginal('$attribute')\"" : ":value=\"\$$modelVariable->$attribute\"") : null;
-            $checked = $updateInput ? ":checked=\"\$$modelVariable->$attribute\"" : 'checked';
+            $value = $updateInput ? ($type == 'translatable' ? ":value=\"\${$modelVariable}->getRawOriginal('$attribute')\"" : ":value=\"\${$modelVariable}->$attribute\"") : null;
+            $checked = $updateInput ? ":checked=\"\${$modelVariable}->$attribute\"" : 'checked';
 
             if ($type == 'translatable') {
                 $inputs .= "<x-translatable-input label=\"$label\" type='text' $value></x-translatable-input>";
@@ -154,13 +154,13 @@ trait ViewGenerating
         foreach ($attributes as $attribute => $type) {
             $label = $this->getLabelName($attribute);
             if ($type == 'text') {
-                $components .= "<x-long-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></x-long-text-field> \n";
+                $components .= "<x-long-text-field :value=\"\${$modelVariable}->$attribute\" label=\"$label\"></x-long-text-field> \n";
             } elseif ($type == 'file') {
-                $components .= "<x-image-preview :imagePath=\"\$$modelVariable->$attribute\"></x-image-preview> \n";
+                $components .= "<x-image-preview :imagePath=\"\${$modelVariable}->$attribute\"></x-image-preview> \n";
             } elseif ($type == 'translatable') {
-                $components .= "<x-translatable-small-text-field :value=\"\$$modelVariable->getRawOriginal('$attribute')\" label=\"$label\"></x-translatable-small-text-field> \n";
+                $components .= "<x-translatable-small-text-field :value=\"\${$modelVariable}->getRawOriginal('$attribute')\" label=\"$label\"></x-translatable-small-text-field> \n";
             } else {
-                $components .= "<x-small-text-field :value=\"\$$modelVariable->$attribute\" label=\"$label\"></x-small-text-field> \n";
+                $components .= "<x-small-text-field :value=\"\${$modelVariable}->$attribute\" label=\"$label\"></x-small-text-field> \n";
             }
         }
 
