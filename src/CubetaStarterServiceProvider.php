@@ -174,7 +174,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../resources/js' => resource_path('js'),
             __DIR__ . '/../resources/sass' => resource_path('sass'),
             __DIR__ . '/../public' => public_path(),
-            __DIR__ . 'Commands/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php')
+            __DIR__ . '/Commands/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php')
         ], 'cubeta-starter-assets');
     }
 
