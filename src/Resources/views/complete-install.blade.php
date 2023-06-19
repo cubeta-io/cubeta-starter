@@ -82,7 +82,7 @@
                                         <ul>
                                             <li>baguettebox.js</li>
                                             <li>jquery</li>
-                                            <li>trumbowyg</li>
+                                            <li>tinymce</li>
                                             <li>sweetalert2</li>
                                             <li>Sass</li>
                                         </ul>
