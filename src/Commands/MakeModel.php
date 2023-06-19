@@ -309,7 +309,7 @@ class MakeModel extends Command
 
         if (isset($attributes) && count($attributes) > 0) {
             foreach ($attributes as $name => $type) {
-                if ($type == 'file' || $type == 'translatable') {
+                if (in_array($type , ['translatable' , 'file' , 'text'])) {
                     $properties .= "* @property string $name \n";
                 } elseif ($type == 'key') {
                     $properties .= "* @property integer $name \n";

@@ -1,6 +1,5 @@
-@props(['name', 'value', 'checked' => 'false'])
+@props(['name', 'value', 'checked' => 'false' , 'label' => null])
 @if (is_array($value))
-
     @foreach ($value as $v)
         <div class="form-check">
             <input class="form-check-input @error(columnNaming($name)) is-invalid @enderror" type="radio"
@@ -27,19 +26,18 @@
         <input class="form-check-input @error(columnNaming($name)) is-invalid @enderror" type="radio"
                name="{{ columnNaming($name) }}" id="{{ $name }}-{{ $value }}-radio"
                value="{{ $value }}" {{ $attributes->merge() }}
-               @if ($checked == $value || $checked == 'true' || $checked == '1')
+               @if ($checked == $value)
                    checked
             @endif>
         <label class="form-check-label" for="{{ $name }}-{{ $value }}-radio">
-            @if ($value == 'true' || $value == 'false' || $value == '1' || $value == '0')
-
+            @if (($value == 'true' || $value == 'false' || $value == '1' || $value == '0') && !$label)
                 @if ($value == 'true' || $value == '1')
                     {{ ucfirst(Str::headline(Str::studly($name))) }}
                 @else
                     {{ Str::startsWith($name, 'is_') ? ucfirst(Str::headline(Str::studly(str_replace('is_', "isn't ", $name)))) : 'Not' . ucfirst(Str::headline(Str::studly($name))) }}
                 @endif
             @else
-                {{ ucfirst($value) }}
+                {{ $label }}
             @endif
         </label>
     </div>

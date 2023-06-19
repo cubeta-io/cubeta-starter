@@ -105,7 +105,10 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
      */
     private function publishConfigFiles(): void
     {
-        $this->publishes([__DIR__ . '/../config/cubeta-starter.php' => base_path('config') . '/cubeta-starter.php'], 'cubeta-starter-config');
+        $this->publishes([
+            __DIR__ . '/../config/cubeta-starter.php' => base_path('config') . '/cubeta-starter.php',
+            __DIR__ . '/pint.json' => base_path('pint.json')
+        ], 'cubeta-starter-config');
     }
 
     /**
