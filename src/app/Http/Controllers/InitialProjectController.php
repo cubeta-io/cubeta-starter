@@ -2,12 +2,10 @@
 
 namespace Cubeta\CubetaStarter\app\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Artisan;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 
 class InitialProjectController extends Controller
 {

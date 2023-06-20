@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 
 trait RouteBinding
 {
@@ -13,14 +13,14 @@ trait RouteBinding
 
         if (isset($actor) && $actor != 'none' && $actor != '') {
             $actor = Str::singular(Str::lower($actor));
-            $routePath = base_path() . "\\routes\\$container\\" . $actor . '.php';
+            $routePath = base_path() . "\\routes\\{$container}\\" . $actor . '.php';
         } else {
-            $routePath = base_path() . "\\routes\\$container.php";
+            $routePath = base_path() . "\\routes\\{$container}.php";
         }
         $routeName = $this->getRouteName($modelName, $container, $actor);
 
         if ($container == 'web') {
-            $route = "Route::get(\"dashboard/$pluralLowerModelName/data\", [v1\\$modelName" . "Controller::class, \"data\"])->name(\"$routeName.data\"); \n" .
+            $route = "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$modelName}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\"); \n" .
                 'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
             $importStatement = 'use App\Http\Controllers\WEB\v1;';
         } else {
@@ -30,7 +30,7 @@ trait RouteBinding
         if (file_exists($routePath)) {
             addImportStatement($importStatement, $routePath);
 
-            if (!($this->checkIfRouteExist($routePath, $route))) {
+            if ( ! ($this->checkIfRouteExist($routePath, $route))) {
                 return;
             }
 
@@ -42,22 +42,6 @@ trait RouteBinding
             }
         } else {
             $this->error("Actor Routes Files Doesn't exist");
-        }
-    }
-
-    /**
-     * @param string $modelName
-     * @param string $container
-     * @param $actor
-     * @return string
-     */
-    public function getRouteName(string $modelName, string $container = 'api', $actor = null): string
-    {
-        $modelLowerPluralName = routeNameNaming($modelName);
-        if (!isset($actor) || $actor == '' || $actor = 'none') {
-            return $container . '.' . $modelLowerPluralName;
-        } else {
-            return $container . '.' . $actor . '.' . $modelLowerPluralName;
         }
     }
 
@@ -77,5 +61,21 @@ trait RouteBinding
         }
 
         return true;
+    }
+
+    /**
+     * @param string $modelName
+     * @param string $container
+     * @param $actor
+     * @return string
+     */
+    public function getRouteName(string $modelName, string $container = 'api', $actor = null): string
+    {
+        $modelLowerPluralName = routeNameNaming($modelName);
+        if ( ! isset($actor) || $actor == '' || $actor = 'none') {
+            return $container . '.' . $modelLowerPluralName;
+        }
+        return $container . '.' . $actor . '.' . $modelLowerPluralName;
+
     }
 }

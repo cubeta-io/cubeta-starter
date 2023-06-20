@@ -1,10 +1,10 @@
 <?php
 
-use Cubeta\CubetaStarter\CreateFile;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Cubeta\CubetaStarter\CreateFile;
+use Illuminate\Support\Facades\File;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
  * @param  array  $stubProperties stub elements to replace
@@ -24,7 +24,7 @@ function generateFileFromStub(array $stubProperties, string $path, string $stubP
  */
 function ensureDirectoryExists(string $directory): void
 {
-    if (! File::isDirectory($directory)) {
+    if ( ! File::isDirectory($directory)) {
         File::makeDirectory($directory, 0775, true, true);
     }
 }
@@ -52,7 +52,7 @@ function addImportStatement(string $importStatement, string $filePath): void
     // Find the last "use" statement and insert the new import statement after it
     $lastUseIndex = strrpos($contents, 'use ');
     $insertIndex = $lastUseIndex !== false ? $lastUseIndex - 1 : 0;
-    $contents = substr_replace($contents, "\n".$importStatement."\n", $insertIndex, 0);
+    $contents = substr_replace($contents, "\n" . $importStatement . "\n", $insertIndex, 0);
 
     // Write the updated contents back to the file
     file_put_contents($filePath, $contents);

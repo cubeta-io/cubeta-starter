@@ -2,14 +2,13 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Cubeta\CubetaStarter\Traits\ViewGenerating;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ArrayShape;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Traits\ViewGenerating;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class MakeWebController extends Command
 {
@@ -17,27 +16,12 @@ class MakeWebController extends Command
     use RouteBinding;
     use ViewGenerating;
 
+    protected $description = 'Create a new web controller';
+
     protected $signature = 'create:web-controller
         {name : The name of the model }
         {attributes? : the model attributes}
         {actor? : The actor of the endpoint of this model }';
-
-    protected $description = 'Create a new web controller';
-
-    /**
-     * @throws FileNotFoundException
-     * @throws BindingResolutionException
-     */
-    public function handle(): void
-    {
-        $name = $this->argument('name');
-        $actor = $this->argument('actor') ?? null;
-        $attributes = $this->argument('attributes') ?? [];
-
-        $modelName = modelNaming($name);
-
-        $this->createWebController($modelName, $attributes, $actor);
-    }
 
     /**
      * @throws FileNotFoundException
@@ -51,7 +35,7 @@ class MakeWebController extends Command
         $controllerPath = $this->getWebControllerPath($controllerName);
 
         if (file_exists($controllerPath)) {
-            $this->error("$controllerName Already Exist");
+            $this->error("{$controllerName} Already Exist");
 
             return;
         }
@@ -82,7 +66,7 @@ class MakeWebController extends Command
             '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
         ];
 
-        if (!is_dir(base_path(config('cubeta-starter.web_controller_path')))) {
+        if ( ! is_dir(base_path(config('cubeta-starter.web_controller_path')))) {
             mkdir(base_path(config('cubeta-starter.web_controller_path')), 0777, true);
         }
 
@@ -92,35 +76,10 @@ class MakeWebController extends Command
             __DIR__ . '/stubs/controller.web.stub'
         );
 
-        $this->info("$controllerName Created");
+        $this->info("{$controllerName} Created");
         $this->addRoute($modelName, $actor, 'web');
 
         $this->addSidebarItem($modelName, $routesNames['index']);
-    }
-
-    /**
-     * @param null $actor
-     * @return string[]
-     */
-    #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
-    public function getViewsNames(string $modelName, $actor = null): array
-    {
-        $modelLowerPluralName = strtolower(Str::plural($modelName));
-        if (!isset($actor) || $actor == '' || $actor = 'none') {
-            return [
-                'index' => 'dashboard.' . $modelLowerPluralName . '.index',
-                'edit' => 'dashboard.' . $modelLowerPluralName . '.edit',
-                'create' => 'dashboard.' . $modelLowerPluralName . '.create',
-                'show' => 'dashboard.' . $modelLowerPluralName . '.show',
-            ];
-        } else {
-            return [
-                'index' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.index',
-                'edit' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.edit',
-                'create' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.create',
-                'show' => 'dashboard.' . $actor . '.' . $modelLowerPluralName . '.show',
-            ];
-        }
     }
 
     /**
@@ -143,26 +102,66 @@ class MakeWebController extends Command
         ];
     }
 
-    private function getWebControllerPath(string $controllerName): string
+    /**
+     * @param null $actor
+     * @return string[]
+     */
+    #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
+    public function getViewsNames(string $modelName, $actor = null): array
     {
-        $directory = base_path(config('cubeta-starter.web_controller_path'));
-        ensureDirectoryExists($directory);
+        $viewName = viewNaming($modelName);
+        if ( ! isset($actor) || $actor == '' || $actor = 'none') {
+            return [
+                'index' => 'dashboard.' . $viewName . '.index',
+                'edit' => 'dashboard.' . $viewName . '.edit',
+                'create' => 'dashboard.' . $viewName . '.create',
+                'show' => 'dashboard.' . $viewName . '.show',
+            ];
+        }
+        return [
+            'index' => 'dashboard.' . $actor . '.' . $viewName . '.index',
+            'edit' => 'dashboard.' . $actor . '.' . $viewName . '.edit',
+            'create' => 'dashboard.' . $actor . '.' . $viewName . '.create',
+            'show' => 'dashboard.' . $actor . '.' . $viewName . '.show',
+        ];
 
-        return "$directory/$controllerName.php";
+    }
+
+    /**
+     * @throws FileNotFoundException
+     * @throws BindingResolutionException
+     */
+    public function handle(): void
+    {
+        $name = $this->argument('name');
+        $actor = $this->argument('actor') ?? null;
+        $attributes = $this->argument('attributes') ?? [];
+
+        $modelName = modelNaming($name);
+
+        $this->createWebController($modelName, $attributes, $actor);
     }
 
     private function addSidebarItem(string $modelName, string $routeName)
     {
         $modelName = tableNaming($modelName);
         $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');
-        if (!file_exists($sidebarPath)) {
+        if ( ! file_exists($sidebarPath)) {
             return;
         }
 
-        $sidebarItem = "<li class=\"nav-item\">\n  <a class=\"nav-link collapsed\" href=\"{{route('$routeName')}}\">\n  <i class=\"bi bi-circle\"></i>\n  <span>$modelName</span>\n  </a>\n  </li>\n  </ul>";
+        $sidebarItem = "<li class=\"nav-item\">\n  <a class=\"nav-link collapsed\" href=\"{{route('{$routeName}')}}\">\n  <i class=\"bi bi-circle\"></i>\n  <span>{$modelName}</span>\n  </a>\n  </li>\n  </ul>";
 
         $sidebar = file_get_contents($sidebarPath);
         $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);
         file_put_contents($sidebarPath, $sidebar);
+    }
+
+    private function getWebControllerPath(string $controllerName): string
+    {
+        $directory = base_path(config('cubeta-starter.web_controller_path'));
+        ensureDirectoryExists($directory);
+
+        return "{$directory}/{$controllerName}.php";
     }
 }

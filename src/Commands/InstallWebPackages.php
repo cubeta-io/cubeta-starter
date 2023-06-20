@@ -2,16 +2,16 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 
 class InstallWebPackages extends Command
 {
     use AssistCommand;
 
-    public $signature = 'init-web-packages';
-
     public $description = 'install required npm packages';
+
+    public $signature = 'init-web-packages';
 
     public function handle(): void
     {

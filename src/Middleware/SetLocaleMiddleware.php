@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Cubeta\CubetaStarter\Middleware;
 
 use Closure;

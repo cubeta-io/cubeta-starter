@@ -2,26 +2,24 @@
 
 namespace Cubeta\CubetaStarter;
 
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        $this->bindAllRepositoriesAndServices();
-    }
-
-    /**
      * Bootstrap any application services.
      */
     public function boot(): void
     {
         //
+    }
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        $this->bindAllRepositoriesAndServices();
     }
 
     /**

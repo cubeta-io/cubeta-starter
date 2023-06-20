@@ -2,31 +2,21 @@
 
 namespace App\Exceptions;
 
-use Cubeta\CubetaStarter\Contracts\ApiController;
+use Throwable;
 use Cubeta\CubetaStarter\Traits\RestTrait;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
+use Cubeta\CubetaStarter\Contracts\ApiController;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
-use Spatie\Permission\Exceptions\UnauthorizedException;
-use Throwable;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
 {
     use RestTrait;
-
-    /**
-     * A list of the exception types that are not reported.
-     *
-     * @var array
-     */
-    protected $dontReport = [
-        //
-    ];
 
     /**
      * A list of the inputs that are never flashed for validation exceptions.
@@ -39,23 +29,13 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Register the exception handling callbacks for the application.
+     * A list of the exception types that are not reported.
      *
-     * @return void
+     * @var array
      */
-    public function register(): void
-    {
+    protected $dontReport = [
         //
-    }
-
-    public function render($request, Throwable $exception): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-    {
-        if (!$request->acceptsHtml()) {
-            return $this->handleException($request, $exception);
-        } else {
-            return parent::render($request , $exception);
-        }
-    }
+    ];
 
     /**
      * @throws Throwable
@@ -70,9 +50,12 @@ class Handler extends ExceptionHandler
             return $this->apiResponse('', ApiController::STATUS_UNAUTHORIZED, $exception->getMessage());
         }
 
-        if ($exception instanceof UnauthorizedException) {
-            return $this->apiResponse('', ApiController::STATUS_UNAUTHORIZED, $exception->getMessage());
-        }
+       if (class_exists('\Spatie\Permission\Exceptions\UnauthorizedException')){
+           /** @noinspection PhpUndefinedNamespaceInspection */
+           if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
+               return $this->apiResponse('', ApiController::STATUS_UNAUTHORIZED, $exception->getMessage());
+           }
+       }
 
         if ($exception instanceof HttpException) {
             if ($exception->getMessage() == 'Unauthorized Action') {
@@ -107,5 +90,24 @@ class Handler extends ExceptionHandler
         }
 
         return $this->apiResponse('', ApiController::STATUS_NOT_FOUND, $exception->getMessage());
+    }
+
+    /**
+     * Register the exception handling callbacks for the application.
+     *
+     * @return void
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    public function render($request, Throwable $exception): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+    {
+        if ( ! $request->acceptsHtml()) {
+            return $this->handleException($request, $exception);
+        }
+        return parent::render($request, $exception);
+
     }
 }

@@ -2,19 +2,19 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class MakeRepository extends Command
 {
     use AssistCommand;
 
+    public $description = 'Create a new repository class';
+
     public $signature = 'create:repository
         {name : The name of the repository }';
-
-    public $description = 'Create a new repository class';
 
     /**
      * @throws BindingResolutionException
@@ -24,7 +24,7 @@ class MakeRepository extends Command
     {
         $modelName = $this->argument('name');
 
-        if (!$modelName || empty(trim($modelName))) {
+        if ( ! $modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
@@ -53,7 +53,7 @@ class MakeRepository extends Command
         $repositoryPath = $this->getRepositoryPath($repositoryName);
 
         if (file_exists($repositoryPath)) {
-            $this->error("$repositoryName Already Exists");
+            $this->error("{$repositoryName} Already Exists");
 
             return;
         }
@@ -66,7 +66,7 @@ class MakeRepository extends Command
         );
 
         $this->formatFile($repositoryPath);
-        $this->info("Created Repository: $repositoryName");
+        $this->info("Created Repository: {$repositoryName}");
     }
 
     private function getRepositoryPath($repositoryName): string
@@ -74,6 +74,6 @@ class MakeRepository extends Command
         $directory = base_path(config('cubeta-starter.repository_path'));
         ensureDirectoryExists($directory);
 
-        return "$directory/$repositoryName.php";
+        return "{$directory}/{$repositoryName}.php";
     }
 }

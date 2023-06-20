@@ -12,26 +12,26 @@ class ApiController extends Controller
 {
     use RestTrait;
 
-    const STATUS_OK = 200;
-
-    const STATUS_CREATED = 201;
-
-    const STATUS_NO_CONTENT = 204;
-
-    const STATUS_RESET_CONTENT = 205;
-
     //Exception
-    const STATUS_BAD_REQUEST = 400;
+    public const STATUS_BAD_REQUEST = 400;
 
-    const STATUS_UNAUTHORIZED = 401;
+    public const STATUS_CREATED = 201;
 
-    const STATUS_NOT_AUTHENTICATED = 402;
+    public const STATUS_FORBIDDEN = 403;
 
-    const STATUS_FORBIDDEN = 403;
+    public const STATUS_NO_CONTENT = 204;
 
-    const STATUS_NOT_FOUND = 404;
+    public const STATUS_NOT_AUTHENTICATED = 402;
 
-    const STATUS_VALIDATION = 405;
+    public const STATUS_NOT_FOUND = 404;
 
-    const TOKEN_EXPIRATION = 406;
+    public const STATUS_OK = 200;
+
+    public const STATUS_RESET_CONTENT = 205;
+
+    public const STATUS_UNAUTHORIZED = 401;
+
+    public const STATUS_VALIDATION = 405;
+
+    public const TOKEN_EXPIRATION = 406;
 }

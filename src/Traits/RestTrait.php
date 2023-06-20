@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Cubeta\CubetaStarter\Contracts\ApiController;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Validator;
 use JetBrains\PhpStorm\ArrayShape;
+use Illuminate\Support\Facades\Validator;
+use Cubeta\CubetaStarter\Contracts\ApiController;
 
 trait RestTrait
 {

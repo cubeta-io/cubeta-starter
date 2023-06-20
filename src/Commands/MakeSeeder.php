@@ -2,19 +2,19 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class MakeSeeder extends Command
 {
     use AssistCommand;
 
+    public $description = 'Create a new seeder';
+
     public $signature = 'create:seeder
         {name : The name of the model }';
-
-    public $description = 'Create a new seeder';
 
     /**
      * @throws BindingResolutionException
@@ -24,7 +24,7 @@ class MakeSeeder extends Command
     {
         $modelName = $this->argument('name');
 
-        if (!$modelName || empty(trim($modelName))) {
+        if ( ! $modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
@@ -48,7 +48,7 @@ class MakeSeeder extends Command
 
         $seederPath = $this->getSeederPath($seederName);
         if (file_exists($seederPath)) {
-            $this->error("$seederName Already Exists");
+            $this->error("{$seederName} Already Exists");
 
             return;
         }
@@ -60,7 +60,7 @@ class MakeSeeder extends Command
         );
 
         $this->formatFile($seederPath);
-        $this->info("Created seeder: $seederName");
+        $this->info("Created seeder: {$seederName}");
     }
 
     private function getSeederName($modelName): string
@@ -73,6 +73,6 @@ class MakeSeeder extends Command
         $directory = base_path(config('cubeta-starter.seeder_path'));
         ensureDirectoryExists($directory);
 
-        return "$directory/$seederName.php";
+        return "{$directory}/{$seederName}.php";
     }
 }

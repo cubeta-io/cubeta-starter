@@ -3,32 +3,15 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 trait TestHelpers
 {
     use RefreshDatabase;
 
-    protected $user;
-
-    protected $userType;
-
     protected $model;
-
-    protected $resource;
-
-    protected $requestPath;
-
-    protected $relations = [];
-
-    protected array $responseBody = [
-        'data' => null,
-        'status' => true,
-        'code' => 200,
-        'paginate' => null,
-    ];
 
     protected array $pagination = [
         'currentPage' => 1,
@@ -38,31 +21,22 @@ trait TestHelpers
         'per_page' => 10,
     ];
 
-    /**
-     * this function is for converting the return value of a resource as an array
-     *
-     * @param  mixed  $data the data that  has to be converted
-     * @param  bool  $multiple if you want to return an array of data
-     */
-    public function convertResourceToArray(mixed $data, bool $multiple = false): array
-    {
-        if (! $multiple) {
-            return json_decode(
-                json_encode(new $this->resource($data)),
-                JSON_PRETTY_PRINT
-            );
-        }
+    protected $relations = [];
 
-        return json_decode(
-            json_encode($this->resource::collection($data)),
-            JSON_PRETTY_PRINT
-        );
-    }
+    protected $requestPath;
 
-    public function requestPathHook($data = ''): void
-    {
-        $this->requestPath = $data;
-    }
+    protected $resource;
+
+    protected array $responseBody = [
+        'data' => null,
+        'status' => true,
+        'code' => 200,
+        'paginate' => null,
+    ];
+
+    protected $user;
+
+    protected $userType;
 
     public function setUp(): void
     {
@@ -76,24 +50,49 @@ trait TestHelpers
         $this->signIn($this->userType);
     }
 
-    public function signIn($type = null): void
+    /**
+     * check if the model can softdelete
+     */
+    public function checkSoftDeleteColumn(): bool
     {
-        $this->user = User::factory()->create();
-        if (isset($type) && $type != 'none') {
-            $this->user->assignRole($type);
-        }
-        $this->be($this->user);
+        $tableName = (new $this->model)->getTable();
+        $columns = Schema::getColumnListing($tableName);
+
+        return (bool) (in_array('deleted_at', $columns))
+
+
+
+        ;
     }
 
     /**
-     * this function for login using email address and default password is 12345678
+     * this function is for converting the return value of a resource as an array
+     *
+     * @param  mixed  $data the data that  has to be converted
+     * @param  bool  $multiple if you want to return an array of data
      */
-    public function login(string $email, string $password = '12345678'): void
+    public function convertResourceToArray(mixed $data, bool $multiple = false): array
     {
-        auth()->attempt([
-            'email' => $email,
-            'password' => $password,
-        ]);
+        if ( ! $multiple) {
+            return json_decode(
+                json_encode(new $this->resource($data)),
+                JSON_PRETTY_PRINT
+            );
+        }
+
+        return json_decode(
+            json_encode($this->resource::collection($data)),
+            JSON_PRETTY_PRINT
+        );
+    }
+
+    /**
+     * data = false ||| message  = there is no data
+     */
+    public function failedFalseResponse(): void
+    {
+        $this->responseBody['data'] = false;
+        $this->responseBody['message'] = __('site.there_is_no_data');
     }
 
     /**
@@ -108,26 +107,27 @@ trait TestHelpers
     }
 
     /**
-     * data = false ||| message  = there is no data
+     * this function for login using email address and default password is 12345678
      */
-    public function failedFalseResponse(): void
+    public function login(string $email, string $password = '12345678'): void
     {
-        $this->responseBody['data'] = false;
-        $this->responseBody['message'] = __('site.there_is_no_data');
+        auth()->attempt([
+            'email' => $email,
+            'password' => $password,
+        ]);
     }
 
-    /**
-     * check if the model can softdelete
-     */
-    public function checkSoftDeleteColumn(): bool
+    public function requestPathHook($data = ''): void
     {
-        $tableName = (new $this->model)->getTable();
-        $columns = Schema::getColumnListing($tableName);
+        $this->requestPath = $data;
+    }
 
-        if (in_array('deleted_at', $columns)) {
-            return true;
+    public function signIn($type = null): void
+    {
+        $this->user = User::factory()->create();
+        if (isset($type) && $type != 'none') {
+            $this->user->assignRole($type);
         }
-
-        return false;
+        $this->be($this->user);
     }
 }

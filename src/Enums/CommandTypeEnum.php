@@ -4,9 +4,9 @@ namespace Cubeta\CubetaStarter\Enums;
 
 final class CommandTypeEnum
 {
-    const API = 'api';
+    public const API = 'api';
 
-    const WEB = 'web';
+    public const BOTH = 'both';
 
-    const BOTH = 'both';
+    public const WEB = 'web';
 }

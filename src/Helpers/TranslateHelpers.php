@@ -12,11 +12,12 @@
  */
 function getTranslation(string $translationColumn, string $locale = null): mixed
 {
-    $locale = $locale ?? app()->getLocale();
+    $locale ??= app()->getLocale();
     $translationArray = json_decode($translationColumn, true);
 
-    if ($locale)
+    if ($locale) {
         return $translationArray[$locale] ?? null;
-    else
-        return $translationArray[config('cubeta-starter.defaultLocale')] ?? 'there is no value correspond to the current locale or the default locale';
+    }
+
+    return $translationArray[config('cubeta-starter.defaultLocale')] ?? 'there is no value correspond to the current locale or the default locale';
 }

@@ -2,21 +2,45 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Cubeta\CubetaStarter\Traits\RolePermissionTrait;
-use Cubeta\CubetaStarter\Traits\RouteFileTrait;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Traits\RouteFileTrait;
+use Cubeta\CubetaStarter\Traits\RolePermissionTrait;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Facades\File;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class InitialProject extends Command
 {
-    use AssistCommand, RouteFileTrait, RolePermissionTrait;
+    use AssistCommand;
+    use RouteFileTrait;
+    use RolePermissionTrait;
+
+    protected $description = 'Prepare the necessary files to work with the package';
 
     protected $signature = 'cubeta-init {useGui?} {installSpatie?} {rolesPermissionsArray?}';
 
-    protected $description = 'Prepare the necessary files to work with the package';
+    /**
+     * @param mixed $role
+     * @param array|null $permissions
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function generateActorsFiles(mixed $role, ?array $permissions): void
+    {
+        $this->createRolesEnum($role, $permissions);
+
+        if (!file_exists(base_path("routes/web/{$role}.php"))) {
+            $this->addRouteFile($role, 'web');
+        }
+        if (!file_exists(base_path("routes/api/{$role}.php"))) {
+            $this->addRouteFile($role, 'api');
+        }
+
+        $this->createRoleSeeder();
+        $this->createPermissionSeeder();
+        $this->info("{$role} role created successfully");
+    }
 
     /**
      * @throws BindingResolutionException
@@ -63,7 +87,7 @@ class InitialProject extends Command
             }
 
             for ($i = 0; $i < $actorsNumber; $i++) {
-                $this->info("Actor Number: $i");
+                $this->info("Actor Number: {$i}");
 
                 $role = $this->ask('What is the name of this actor? (e.g., admin, customer)');
 
@@ -126,28 +150,5 @@ class InitialProject extends Command
         foreach ($rolesPermissions as $role => $permissions) {
             $this->generateActorsFiles($role, $permissions);
         }
-    }
-
-    /**
-     * @param mixed $role
-     * @param array|null $permissions
-     * @return void
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    public function generateActorsFiles(mixed $role, ?array $permissions): void
-    {
-        $this->createRolesEnum($role, $permissions);
-
-        if (!file_exists(base_path("routes/web/$role.php"))) {
-            $this->addRouteFile($role, 'web');
-        }
-        if (!file_exists(base_path("routes/api/$role.php"))) {
-            $this->addRouteFile($role, 'api');
-        }
-
-        $this->createRoleSeeder();
-        $this->createPermissionSeeder();
-        $this->info("$role role created successfully");
     }
 }

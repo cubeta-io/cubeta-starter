@@ -3,8 +3,8 @@
 namespace Cubeta\CubetaStarter\Contracts\Policy;
 
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Support\Str;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BasePolicy
 {
@@ -21,51 +21,11 @@ class BasePolicy
     }
 
     /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
-    {
-        if ($user->can('index '.$this->modelName)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user): bool
-    {
-        if ($user->can('show '.$this->modelName)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Determine whether the user can create models.
      */
     public function create(User $user): bool
     {
-        if ($user->can('store '.$this->modelName)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user): bool
-    {
-        if ($user->can('update '.$this->modelName)) {
-            return true;
-        }
-
-        return false;
+        return (bool)($user->can('store ' . $this->modelName));
     }
 
     /**
@@ -73,10 +33,30 @@ class BasePolicy
      */
     public function delete(User $user): bool
     {
-        if ($user->can('delete '.$this->modelName)) {
-            return true;
-        }
+        return (bool)($user->can('delete ' . $this->modelName));
+    }
 
-        return false;
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function update(User $user): bool
+    {
+        return (bool)($user->can('update ' . $this->modelName));
+    }
+
+    /**
+     * Determine whether the user can view the model.
+     */
+    public function view(User $user): bool
+    {
+        return (bool)($user->can('show ' . $this->modelName));
+    }
+
+    /**
+     * Determine whether the user can view any models.
+     */
+    public function viewAny(User $user): bool
+    {
+        return (bool)($user->can('index ' . $this->modelName));
     }
 }

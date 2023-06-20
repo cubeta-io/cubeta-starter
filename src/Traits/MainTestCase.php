@@ -12,6 +12,54 @@ trait MainTestCase
      * @param  array  $additionalFactoryData optional data to the factories
      * @param  bool  $ownership determine if the action has to be on the authenticated user data
      */
+    public function deleteTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
+    {
+        // the user provided undefined ID
+        $this->responseBody['data'] = false;
+        $this->responseBody['message'] = __('site.there_is_no_data');
+
+        $this->delete(route($this->requestPath, fake()->uuid()))
+            ->assertExactJson($this->responseBody)
+            ->assertOk();
+
+        if ($ownership) {
+            // the user tried to delete another user data
+            $array = array_merge($additionalFactoryData, ['user_id' => User::factory()->create()->id]);
+            $factoryData = $this->model::factory()->create($array);
+
+            $this->delete(route($this->requestPath, $factoryData->id))
+                ->assertExactJson($this->responseBody)
+                ->assertOk();
+
+            // the user tried to delete his data
+            $array = array_merge($additionalFactoryData, ['user_id' => auth()->user()->id]);
+            $factoryData = $this->model::factory()->create($array);
+        } else {
+            $factoryData = $this->model::factory()->create($additionalFactoryData);
+        }
+
+        $this->responseBody['data'] = true;
+        $this->responseBody['message'] = __('site.delete_successfully');
+
+        $response = $this->delete(route($this->requestPath, $factoryData->id))
+            ->assertExactJson($this->responseBody)
+            ->assertOk();
+
+        if ($this->checkSoftDeleteColumn()) {
+            $this->assertSoftDeleted($factoryData);
+        } else {
+            $this->assertModelMissing($factoryData);
+        }
+
+        if ($isDebug) {
+            $response->dd();
+        }
+    }
+
+    /**
+     * @param  array  $additionalFactoryData optional data to the factories
+     * @param  bool  $ownership determine if the action has to be on the authenticated user data
+     */
     public function indexTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
     {
         // there is no data
@@ -103,7 +151,7 @@ trait MainTestCase
             $response->dd();
         }
 
-        $createdModel = $this->model::query()->orderByDesc('id')->first();
+        $createdModel = $this->model::orderByDesc('id')->first();
 
         $this->responseBody['data'] = $this->convertResourceToArray($createdModel->load($this->relations));
         $this->responseBody['message'] = __('site.created_successfully');
@@ -159,54 +207,6 @@ trait MainTestCase
         }
         $this->responseBody['message'] = __('site.updated_successfully');
         $response->assertExactJson($this->responseBody);
-
-        if ($isDebug) {
-            $response->dd();
-        }
-    }
-
-    /**
-     * @param  array  $additionalFactoryData optional data to the factories
-     * @param  bool  $ownership determine if the action has to be on the authenticated user data
-     */
-    public function deleteTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
-    {
-        // the user provided undefined ID
-        $this->responseBody['data'] = false;
-        $this->responseBody['message'] = __('site.there_is_no_data');
-
-        $this->delete(route($this->requestPath, fake()->uuid()))
-            ->assertExactJson($this->responseBody)
-            ->assertOk();
-
-        if ($ownership) {
-            // the user tried to delete another user data
-            $array = array_merge($additionalFactoryData, ['user_id' => User::factory()->create()->id]);
-            $factoryData = $this->model::factory()->create($array);
-
-            $this->delete(route($this->requestPath, $factoryData->id))
-                ->assertExactJson($this->responseBody)
-                ->assertOk();
-
-            // the user tried to delete his data
-            $array = array_merge($additionalFactoryData, ['user_id' => auth()->user()->id]);
-            $factoryData = $this->model::factory()->create($array);
-        } else {
-            $factoryData = $this->model::factory()->create($additionalFactoryData);
-        }
-
-        $this->responseBody['data'] = true;
-        $this->responseBody['message'] = __('site.delete_successfully');
-
-        $response = $this->delete(route($this->requestPath, $factoryData->id))
-            ->assertExactJson($this->responseBody)
-            ->assertOk();
-
-        if ($this->checkSoftDeleteColumn()) {
-            $this->assertSoftDeleted($factoryData);
-        } else {
-            $this->assertModelMissing($factoryData);
-        }
 
         if ($isDebug) {
             $response->dd();

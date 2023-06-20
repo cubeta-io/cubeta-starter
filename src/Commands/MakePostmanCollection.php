@@ -2,21 +2,40 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
+use Illuminate\Console\Command;
+use Illuminate\Filesystem\Filesystem;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class MakePostmanCollection extends Command
 {
     use AssistCommand;
 
+    public $description = 'Create a new postman collection';
+
     public $signature = 'create:postman-collection
         {name : The name of the model }
         {attributes? : columns with data types}';
 
-    public $description = 'Create a new postman collection';
+    public function generateBodyData($attributes): string
+    {
+        $fields = '';
+        $attributesCount = count($attributes);
+        foreach ($attributes as $attribute => $type) {
+            $attribute = columnNaming($attribute);
+            $separator = ($attributesCount > 1) ? ', ' : '';
+            $fields .= sprintf(
+                '{ "key": "%s", "type": "%s" }%s',
+                $attribute,
+                $type == 'file' ? 'file' : 'text',
+                $separator
+            );
+            $attributesCount--;
+        }
+
+        return $fields;
+    }
 
     /**
      * @throws BindingResolutionException
@@ -26,7 +45,7 @@ class MakePostmanCollection extends Command
         $modelName = $this->argument('name');
         $attributes = $this->argument('attributes');
 
-        if (!$modelName || empty(trim($modelName))) {
+        if ( ! $modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
@@ -44,7 +63,7 @@ class MakePostmanCollection extends Command
         $projectName = config('cubeta-starter.project_name');
         $collectionDirectory = base_path(config('cubeta-starter.postman_collection _path'));
         ensureDirectoryExists($collectionDirectory);
-        $collectionPath = "$collectionDirectory/$projectName.postman_collection.json";
+        $collectionPath = "{$collectionDirectory}/{$projectName}.postman_collection.json";
 
         $files = app()->make(Filesystem::class);
 
@@ -69,7 +88,7 @@ class MakePostmanCollection extends Command
         if ($files->exists($collectionPath)) {
             $collection = file_get_contents($collectionPath);
 
-            if (Str::contains(preg_replace('/\s+/', '', $collection), trim("\"name\":\"$modelName\","))) {
+            if (Str::contains(preg_replace('/\s+/', '', $collection), trim("\"name\":\"{$modelName}\","))) {
                 $this->error('An endpoint for ' . $modelName . 'Controller Endpoint is Already Exists in the Postman collection');
 
                 return;
@@ -88,23 +107,7 @@ class MakePostmanCollection extends Command
             file_put_contents($collectionPath, $collectionStub);
         }
 
-        $this->info("Created Postman Collection: $projectName.postman_collection.json ");
-    }
-
-    public function generateBodyData($attributes): string
-    {
-        $fields = '';
-        $attributesCount = count($attributes);
-        foreach ($attributes as $attribute => $type) {
-            $separator = ($attributesCount > 1) ? ', ' : '';
-            $fields .= sprintf(
-                '{ "key": "%s", "type": "%s" }%s',
-                $attribute, $type == 'file' ? 'file' : 'text', $separator
-            );
-            $attributesCount--;
-        }
-
-        return $fields;
+        $this->info("Created Postman Collection: {$projectName}.postman_collection.json ");
     }
 
     private function getProjectUrl()

@@ -60,9 +60,9 @@ function relationFunctionNaming($name, bool $singular = true): string
 {
     if ($singular) {
         return Str::camel(lcfirst(Str::singular(Str::studly($name))));
-    } else {
-        return Str::camel(lcfirst(Str::plural(Str::studly($name))));
     }
+    return Str::camel(lcfirst(Str::plural(Str::studly($name))));
+
 }
 
 /**

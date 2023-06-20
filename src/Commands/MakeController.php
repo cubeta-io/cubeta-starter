@@ -2,22 +2,27 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class MakeController extends Command
 {
     use AssistCommand;
     use RouteBinding;
 
+    protected $description = 'Create a new controller';
+
     protected $signature = 'create:controller
         {name : The name of the model }
         {actor? : The actor of the endpoint of this model }';
 
-    protected $description = 'Create a new controller';
+    public function getControllerName($modelName): string
+    {
+        return $modelName . 'Controller';
+    }
 
     /**
      * @throws BindingResolutionException
@@ -28,7 +33,7 @@ class MakeController extends Command
         $modelName = $this->argument('name') ?? null;
         $actor = $this->argument('actor') ?? null;
 
-        if (!$modelName || empty(trim($modelName))) {
+        if ( ! $modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
@@ -56,7 +61,7 @@ class MakeController extends Command
         $controllerPath = $this->getControllerPath($controllerName);
 
         if (file_exists($controllerPath)) {
-            $this->error("$controllerName Already Exists");
+            $this->error("{$controllerName} Already Exists");
 
             return;
         }
@@ -66,7 +71,7 @@ class MakeController extends Command
             $controllerPath,
             __DIR__ . '/stubs/controller.api.stub'
         );
-        $this->info("Created controller: $controllerName");
+        $this->info("Created controller: {$controllerName}");
         $this->addRoute($modelName, $actor);
         $this->formatFile($controllerPath);
     }
@@ -76,11 +81,6 @@ class MakeController extends Command
         $path = base_path(config('cubeta-starter.api_controller_path'));
         ensureDirectoryExists($path);
 
-        return "$path/$controllerName" . '.php';
-    }
-
-    function getControllerName($modelName): string
-    {
-        return $modelName . 'Controller';
+        return "{$path}/{$controllerName}" . '.php';
     }
 }

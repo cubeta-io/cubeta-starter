@@ -1,9 +1,8 @@
 <?php
 
-use Cubeta\CubetaStarter\app\Http\Controllers\CallAppropriateCommand;
-use Cubeta\CubetaStarter\app\Http\Controllers\InitialProjectController;
-use Cubeta\CubetaStarter\app\Http\Controllers\RenderAppropriateViewController;
 use Illuminate\Support\Facades\Route;
+use Cubeta\CubetaStarter\app\Http\Controllers\CallAppropriateCommand;
+use Cubeta\CubetaStarter\app\Http\Controllers\RenderAppropriateViewController;
 
 Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
     Route::view('/', 'CubetaStarter::complete-install')->name('complete-installation');

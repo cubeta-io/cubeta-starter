@@ -2,31 +2,51 @@
 
 namespace Cubeta\CubetaStarter;
 
-use Cubeta\CubetaStarter\Commands\CreatePivotTable;
-use Cubeta\CubetaStarter\Commands\InitialProject;
-use Cubeta\CubetaStarter\Commands\InstallWebPackages;
-use Cubeta\CubetaStarter\Commands\MakeController;
-use Cubeta\CubetaStarter\Commands\MakeFactory;
-use Cubeta\CubetaStarter\Commands\MakeMigration;
-use Cubeta\CubetaStarter\Commands\MakeModel;
-use Cubeta\CubetaStarter\Commands\MakePolicy;
-use Cubeta\CubetaStarter\Commands\MakePostmanCollection;
-use Cubeta\CubetaStarter\Commands\MakeRepository;
-use Cubeta\CubetaStarter\Commands\MakeRequest;
-use Cubeta\CubetaStarter\Commands\MakeResource;
-use Cubeta\CubetaStarter\Commands\MakeSeeder;
-use Cubeta\CubetaStarter\Commands\MakeService;
-use Cubeta\CubetaStarter\Commands\MakeTest;
-use Cubeta\CubetaStarter\Commands\MakeWebController;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\View;
-use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
+use Cubeta\CubetaStarter\Commands\MakeTest;
+use Cubeta\CubetaStarter\Commands\MakeModel;
+use Cubeta\CubetaStarter\Commands\MakePolicy;
+use Cubeta\CubetaStarter\Commands\MakeSeeder;
+use Cubeta\CubetaStarter\Commands\MakeFactory;
+use Cubeta\CubetaStarter\Commands\MakeRequest;
+use Cubeta\CubetaStarter\Commands\MakeService;
+use Cubeta\CubetaStarter\Commands\MakeResource;
+use Cubeta\CubetaStarter\Commands\MakeMigration;
+use Cubeta\CubetaStarter\Commands\InitialProject;
+use Cubeta\CubetaStarter\Commands\MakeController;
+use Cubeta\CubetaStarter\Commands\MakeRepository;
+use Cubeta\CubetaStarter\Commands\CreatePivotTable;
+use Cubeta\CubetaStarter\Commands\MakeWebController;
+use Cubeta\CubetaStarter\Commands\InstallWebPackages;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Cubeta\CubetaStarter\Commands\MakePostmanCollection;
+use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 
 class CubetaStarterServiceProvider extends PackageServiceProvider
 {
+    public function boot()
+    {
+        parent::boot();
+
+        // publishes
+        $this->publishConfigFiles();
+        $this->publishExceptionHandler();
+        $this->publishAssets();
+
+        // loaded from the package
+        $this->loadComponents();
+        $this->loadGuiViews();
+        $this->loadGuiViewsVariables();
+
+        // register the route files
+        $this->registerGuiRoutesFile();
+
+        // register the set locale route
+        $this->registerSetLocaleRoute();
+    }
     public function configurePackage(Package $package): void
     {
         $package
@@ -68,7 +88,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         }
 
         foreach ($this->package->configFileNames as $configFileName) {
-            $this->mergeConfigFrom($this->package->basePath("/../config/$configFileName.php"), $configFileName);
+            $this->mergeConfigFrom($this->package->basePath("/../config/{$configFileName}.php"), $configFileName);
         }
 
         $this->mergeConfigFrom(__DIR__ . '/../config/cubeta-starter.php', 'cubeta-starter');
@@ -76,79 +96,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->packageRegistered();
 
         return $this;
-    }
-
-    public function boot()
-    {
-        parent::boot();
-
-        // publishes
-        $this->publishConfigFiles();
-        $this->publishExceptionHandler();
-        $this->publishAssets();
-
-        // loaded from the package
-        $this->loadComponents();
-        $this->loadGuiViews();
-        $this->loadGuiViewsVariables();
-
-        // register the route files
-        $this->registerGuiRoutesFile();
-
-        // register the set locale route
-        $this->registerSetLocaleRoute();
-    }
-
-    /**
-     * publish the package config file
-     * @return void
-     */
-    private function publishConfigFiles(): void
-    {
-        $this->publishes([
-            __DIR__ . '/../config/cubeta-starter.php' => base_path('config') . '/cubeta-starter.php',
-            __DIR__ . '/pint.json' => base_path('pint.json')
-        ], 'cubeta-starter-config');
-    }
-
-    /**
-     * load the package gui views
-     * @return void
-     */
-    private function loadGuiViews(): void
-    {
-        $this->loadViewsFrom(__DIR__ . '/Resources/views', 'CubetaStarter');
-    }
-
-    /**
-     * register route file of the package gui
-     * @return void
-     */
-    private function registerGuiRoutesFile(): void
-    {
-        if (app()->environment('local')) {
-            $this->loadRoutesFrom(__DIR__ . '/Routes/ui-routes.php');
-        }
-    }
-
-    /**
-     * publish the package exception handler
-     * @return void
-     */
-    private function publishExceptionHandler(): void
-    {
-        $this->publishes([__DIR__ . '/app/Exceptions/handler.php' => base_path('/app/Exceptions/Handler.php')], 'cubeta-starter-handler');
-    }
-
-    /**
-     * load the variables used in the GUI views
-     * @return void
-     */
-    private function loadGuiViewsVariables(): void
-    {
-        $data['assetsPath'] = '/../vendor/cubeta/cubeta-starter/src/Resources';
-
-        View::share($data);
     }
 
     /**
@@ -189,6 +136,58 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             Route::post('/blank', function () {
                 return response()->noContent();
             })->middleware('web')->name('set-locale');
+        }
+    }
+
+    /**
+     * load the package gui views
+     * @return void
+     */
+    private function loadGuiViews(): void
+    {
+        $this->loadViewsFrom(__DIR__ . '/Resources/views', 'CubetaStarter');
+    }
+
+    /**
+     * load the variables used in the GUI views
+     * @return void
+     */
+    private function loadGuiViewsVariables(): void
+    {
+        $data['assetsPath'] = '/../vendor/cubeta/cubeta-starter/src/Resources';
+
+        View::share($data);
+    }
+
+    /**
+     * publish the package config file
+     * @return void
+     */
+    private function publishConfigFiles(): void
+    {
+        $this->publishes([
+            __DIR__ . '/../config/cubeta-starter.php' => base_path('config') . '/cubeta-starter.php',
+            __DIR__ . '/../pint.json' => base_path('pint.json')
+        ], 'cubeta-starter-config');
+    }
+
+    /**
+     * publish the package exception handler
+     * @return void
+     */
+    private function publishExceptionHandler(): void
+    {
+        $this->publishes([__DIR__ . '/app/Exceptions/handler.php' => base_path('/app/Exceptions/Handler.php')], 'cubeta-starter-handler');
+    }
+
+    /**
+     * register route file of the package gui
+     * @return void
+     */
+    private function registerGuiRoutesFile(): void
+    {
+        if (app()->environment('local')) {
+            $this->loadRoutesFrom(__DIR__ . '/Routes/ui-routes.php');
         }
     }
 }

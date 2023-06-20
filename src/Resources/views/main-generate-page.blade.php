@@ -35,7 +35,9 @@
                                 @if($modelNameField)
                                     <div class="col-md-12 m-2">
                                         <div class="form-group">
-                                            <input class="form-control" type="text" name="model_name"
+                                            <label for="model-name-field" class="form-label">Model Name</label>
+                                            <input id="model-name-field" class="form-control" type="text"
+                                                   name="model_name"
                                                    placeholder="Enter Your Model Name e.g:Product"
                                                    required>
                                         </div>
@@ -50,16 +52,20 @@
                                                 the actor for the created model endpoints : </p>
                                             <div class="row">
                                                 <div class="col-md-3 m-1">
-                                                    <label>none</label>
-                                                    <input class="form-check-input" type="radio" value="none"
-                                                           name="actor" checked>
+                                                    <label>
+                                                        none
+                                                        <input class="form-check-input" type="radio" value="none"
+                                                               name="actor" checked>
+                                                    </label>
                                                 </div>
                                                 @foreach($roles as $role)
                                                     <div class="col-md-3 m-1">
-                                                        <label>{{$role}}</label>
-                                                        <input class="form-check-input" type="radio"
-                                                               value="{{$role}}"
-                                                               name="actor">
+                                                        <label>
+                                                            {{$role}}
+                                                            <input class="form-check-input" type="radio"
+                                                                   value="{{$role}}"
+                                                                   name="actor">
+                                                        </label>
                                                     </div>
                                                 @endforeach
                                             </div>
@@ -75,23 +81,29 @@
                                         <div class="row">
 
                                             <div class="col-md-3 m-1">
-                                                <label>API</label>
-                                                <input class="form-check-input" type="radio"
-                                                       value="api"
-                                                       name="container" checked>
+                                                <label>
+                                                    API
+                                                    <input class="form-check-input" type="radio"
+                                                           value="api"
+                                                           name="containerType" checked>
+                                                </label>
                                             </div>
 
                                             <div class="col-md-3 m-1">
-                                                <label>Web</label>
-                                                <input class="form-check-input" type="radio"
-                                                       value="web"
-                                                       name="container">
+                                                <label>
+                                                    Web
+                                                    <input class="form-check-input" type="radio"
+                                                           value="web"
+                                                           name="containerType">
+                                                </label>
                                             </div>
 
                                             <div class="col-md-3 m-1">
-                                                <label>Both</label>
-                                                <input class="form-check-input" type="radio" value="both"
-                                                       name="container">
+                                                <label>
+                                                    Both
+                                                    <input class="form-check-input" type="radio" value="both"
+                                                           name="containerType">
+                                                </label>
                                             </div>
 
                                         </div>
@@ -167,6 +179,7 @@
                                                     Role
                                                 </button>
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -233,7 +246,7 @@
                     modal.show();
                 })
 
-                $('#install-spatie').click(function (e) {
+                $('#install-spatie').click(function () {
                     document.getElementById('modal-title').innerText = "Installing Spatie/Permissions"
                     modal.show();
                 })
@@ -319,7 +332,7 @@
                         e.preventDefault();
 
                         const newColumn = document.createElement("div");
-                        newColumn.className = "row m-2";
+                        newColumn.className = "row";
 
                         const newColumnName = document.createElement("div");
                         newColumnName.className = "col-md-4 m-1";
@@ -327,12 +340,32 @@
                         columnNameInput.className = "form-control column-name";
                         columnNameInput.type = "text";
                         columnNameInput.name = "columns[" + inputIndex + "][name]";
-                        columnNameInput.placeholder = "Enter Your Column Name e.g:price";
+                        columnNameInput.placeholder = "Enter Your Column Name e.g:name,type,price";
                         columnNameInput.required = true;
                         newColumnName.appendChild(columnNameInput);
 
+                        @if($nullables)
+                        const newColumnCheckbox = document.createElement("div");
+                        newColumnCheckbox.className = "col-md-2 m-1";
+                        const columnCheckboxInput = document.createElement("input");
+                        columnCheckboxInput.type = "checkbox";
+                        columnCheckboxInput.id = "nullables-" + inputIndex;
+                        columnCheckboxInput.name = "nullables[" + inputIndex + "]";
+                        columnCheckboxInput.className = "form-check-input m-1";
+                        columnCheckboxInput.value = "true";
+                        const columnCheckboxLabel = document.createElement("label");
+                        columnCheckboxLabel.setAttribute("for", "nullables-" + inputIndex);
+                        columnCheckboxLabel.innerHTML = "nullable";
+                        columnCheckboxLabel.className = 'form-check-label';
+                        newColumnCheckbox.appendChild(columnCheckboxInput);
+                        newColumnCheckbox.appendChild(columnCheckboxLabel);
+                        columnNameInput.addEventListener("input", function () {
+                            columnCheckboxInput.value = columnNameInput.value;
+                        });
+                        @endif
+
                         const newColumnType = document.createElement("div");
-                        newColumnType.className = "col-md-6 m-1";
+                        newColumnType.className = "col-md-5 m-1";
                         const columnTypeSelect = document.createElement("select");
                         columnTypeSelect.className = "form-select column-type";
                         columnTypeSelect.setAttribute("aria-label", "Default select example");
@@ -350,21 +383,33 @@
                         deleteColumnButton.className = "btn btn-sm btn-danger col-md-1 text-center";
                         deleteColumnButton.type = "button";
                         deleteColumnButton.innerHTML = "&times;";
-                        deleteColumnButton.style.width = "30px";
-                        deleteColumnButton.style.height = "25px";
-                        deleteColumnButton.style.margin = "auto";
-                        deleteColumnButton.style.padding = "initial";
-                        deleteColumnButton.style.fontWeight = "bolder";
-                        deleteColumnButton.style.borderRadius = "60%";
+                        deleteColumnButton.style.cssText = `
+                            width: 30px;
+                            height: 30px;
+                            margin: auto;
+                            padding: 0;
+                            font-weight: bolder;
+                            border-radius: 4px;
+                            font-size: 16px;
+                            line-height: 1;
+                            transition: all 0.2s ease;
+                            background-color: #dc3545;
+                            color: #fff;
+                            border: none;
+                        `;
                         deleteColumnButton.addEventListener("click", function () {
                             newColumn.remove();
                         });
 
+                        newColumnName.appendChild(columnNameInput);
                         newColumn.appendChild(newColumnName);
                         newColumn.appendChild(newColumnType);
+                        @if($nullables)newColumn.appendChild(newColumnCheckbox);
+                        @endif
                         newColumn.appendChild(deleteColumnButton);
 
                         columnsContainer.appendChild(newColumn);
+
                         inputIndex++;
                     });
 
@@ -386,7 +431,7 @@
                         relationNameInput.appendChild(relationInput);
 
                         const relationTypeInput = document.createElement("div");
-                        relationTypeInput.className = "col-md-6 m-1";
+                        relationTypeInput.className = "col-md-5 m-1";
                         const relationTypeSelect = document.createElement("select");
                         relationTypeSelect.className = "form-select column-type";
                         relationTypeSelect.setAttribute("aria-label", "Default select example");
@@ -403,15 +448,23 @@
                         relationTypeInput.appendChild(relationTypeSelect);
 
                         const deleteRelationButton = document.createElement("button");
-                        deleteRelationButton.className = "btn btn-sm btn-danger col-md-1 text-center";
+                        deleteRelationButton.className = "btn btn-sm btn-danger col-md-3 text-center";
                         deleteRelationButton.type = "button";
                         deleteRelationButton.innerHTML = "&times;";
-                        deleteRelationButton.style.width = "30px";
-                        deleteRelationButton.style.height = "25px";
-                        deleteRelationButton.style.margin = "auto";
-                        deleteRelationButton.style.padding = "initial";
-                        deleteRelationButton.style.fontWeight = "bolder";
-                        deleteRelationButton.style.borderRadius = "60%";
+                        deleteRelationButton.style.cssText = `
+                            width: 30px;
+                            height: 30px;
+                            margin: auto;
+                            padding: 0;
+                            font-weight: bolder;
+                            border-radius: 4px;
+                            font-size: 16px;
+                            line-height: 1;
+                            transition: all 0.2s ease;
+                            background-color: #dc3545;
+                            color: #fff;
+                            border: none;
+                        `;
                         deleteRelationButton.addEventListener("click", function () {
                             newRelation.remove();
                         });

@@ -2,24 +2,24 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
+use Illuminate\Console\Command;
 use JetBrains\PhpStorm\ArrayShape;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class MakeFactory extends Command
 {
     use AssistCommand;
 
+    public $description = 'Create a new factory';
+
     public $signature = 'create:factory
         {name       : The name of the model }
         {attributes? : columns with data types}
         {relations?  : the model relations}';
-
-    public $description = 'Create a new factory';
 
     private array $typeFaker = [
         'integer' => 'fake()->numberBetween(1,2000)',
@@ -48,7 +48,7 @@ class MakeFactory extends Command
         $attributes = $this->argument('attributes') ?? [];
         $relations = $this->argument('relations') ?? [];
 
-        if (!$modelName || empty(trim($modelName))) {
+        if ( ! $modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
@@ -70,7 +70,7 @@ class MakeFactory extends Command
 
         $factoryPath = $this->getFactoryPath($factoryName);
         if (file_exists($factoryPath)) {
-            $this->error("$factoryName Already Exists");
+            $this->error("{$factoryName} Already Exists");
 
             return;
         }
@@ -88,12 +88,7 @@ class MakeFactory extends Command
             __DIR__ . '/stubs/factory.stub'
         );
         $this->formatFile($factoryPath);
-        $this->info("Created factory: $factoryName");
-    }
-
-    private function getFactoryName($modelName): string
-    {
-        return $modelName . 'Factory';
+        $this->info("Created factory: {$factoryName}");
     }
 
     /**
@@ -105,9 +100,12 @@ class MakeFactory extends Command
         $rows = '';
         $relatedFactories = '';
         foreach ($attributes as $name => $type) {
+
+            $name = columnNaming($name);
+
             if ($type == 'key') {
                 $relatedModel = modelNaming(str_replace('_id', '', $name));
-                $rows .= "\t\t\t'$name' => \\" . config('cubeta-starter.model_namespace') . "\\$relatedModel::factory() ,\n";
+                $rows .= "\t\t\t'{$name}' => \\" . config('cubeta-starter.model_namespace') . "\\{$relatedModel}::factory() ,\n";
 
                 continue;
             }
@@ -115,10 +113,10 @@ class MakeFactory extends Command
             if ($type == 'translatable') {
 
                 $availableLocales = config('cubeta-starter.available_locales');
-                $rows .= "'$name' => json_encode([";
+                $rows .= "'{$name}' => json_encode([";
 
                 foreach ($availableLocales as $locale) {
-                    $rows .= "'$locale' => fake('$locale')->word() , ";
+                    $rows .= "'{$locale}' => fake('{$locale}')->word() , ";
                 }
 
                 $rows .= "]) ,\n";
@@ -127,115 +125,115 @@ class MakeFactory extends Command
             }
 
             if (in_array($name, ['name', 'username', 'first_name', 'last_name', 'user_name'])) {
-                $rows .= "\t\t\t'$name' => fake()->firstName(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->firstName(),\n";
 
                 continue;
             }
 
             if ($name == 'email') {
-                $rows .= "\t\t\t'$name' => fake()->email(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->email(),\n";
 
                 continue;
             }
 
             if (in_array($name, ['cost', 'price', 'value', 'expense']) || Str::contains($name, ['price', 'cost'])) {
-                $rows .= "\t\t\t'$name' => fake()->randomFloat(2, 0, 1000),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->randomFloat(2, 0, 1000),\n";
 
                 continue;
             }
 
             if (Str::contains($name, 'description')) {
-                $rows .= "\t\t\t'$name' => fake()->text(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->text(),\n";
 
                 continue;
             }
 
             if (Str::contains($name, 'phone')) {
-                $rows .= "\t\t\t'$name' => fake()->phoneNumber(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->phoneNumber(),\n";
 
                 continue;
             }
 
             if (Str::contains($name, ['image', 'icon', 'logo', 'photo'])) {
-                $rows .= "\t\t\t'$name' => fake()->imageUrl(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->imageUrl(),\n";
 
                 continue;
             }
 
             if (Str::contains($name, ['longitude', '_lon', '_lng', 'lon_', 'lng_']) || $name == 'lng' || $name == 'lon') {
-                $rows .= "\t\t\t'$name' => fake()->longitude(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->longitude(),\n";
 
                 continue;
             }
 
             if (Str::contains($name, ['latitude ', '_lat', 'lat_']) || $name == 'lat') {
-                $rows .= "\t\t\t'$name' => fake()->latitude(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->latitude(),\n";
 
                 continue;
             }
 
             if (Str::contains($name, 'address')) {
-                $rows .= "\t\t\t'$name' => fake()->address(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->address(),\n";
 
                 continue;
             }
 
             if (Str::contains($name, 'street')) {
-                $rows .= "\t\t\t'$name' => fake()->streetName(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->streetName(),\n";
 
                 continue;
             }
 
             if (Str::contains($name, 'city')) {
-                $rows .= "\t\t\t'$name' => fake()->city(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->city(),\n";
 
                 continue;
             }
 
             if (Str::contains($name, ['zip', 'post_code', 'postcode', 'PostCode', 'postCode', 'ZIP'])) {
-                $rows .= "\t\t\t'$name' => fake()->postcode(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->postcode(),\n";
 
                 continue;
             }
 
             if (Str::contains($name, 'country')) {
-                $rows .= "\t\t\t'$name' => fake()->country(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->country(),\n";
 
                 continue;
             }
 
             if (Str::contains($name, 'age')) {
-                $rows .= "\t\t\t'$name' => fake()->numberBetween(15,60),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->numberBetween(15,60),\n";
 
                 continue;
             }
 
             if (Str::contains($name, 'gender')) {
-                $rows .= "\t\t\t'$name' => fake()->randomElement(['male' , 'female']),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->randomElement(['male' , 'female']),\n";
 
                 continue;
             }
 
             if (Str::contains($name, 'time')) {
-                $rows .= "\t\t\t'$name' => fake()->time(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->time(),\n";
 
                 continue;
             }
 
             if (Str::endsWith($name, '_at') || Str::contains($name, 'date')) {
-                $rows .= "\t\t\t'$name' => fake()->date(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->date(),\n";
 
                 continue;
             }
             if (Str::startsWith($name, 'is_')) {
-                $rows .= "\t\t\t'$name' => fake()->boolean(),\n";
+                $rows .= "\t\t\t'{$name}' => fake()->boolean(),\n";
 
                 continue;
             }
 
             if (array_key_exists($type, $this->typeFaker)) {
-                $faker = $this->typeFaker["$type"];
-                $rows .= "\t\t\t'$name' => $faker, \n";
+                $faker = $this->typeFaker["{$type}"];
+                $rows .= "\t\t\t'{$name}' => {$faker}, \n";
             }
         }
 
@@ -245,9 +243,9 @@ class MakeFactory extends Command
                 $className = modelNaming($rel);
 
                 $relatedFactories .= "
-                public function $functionName(\$count = 1)
+                public function {$functionName}(\$count = 1)
                 {
-                    return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\$className::factory(\$count));
+                    return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$className}::factory(\$count));
                 } \n";
             }
         }
@@ -255,11 +253,16 @@ class MakeFactory extends Command
         return ['rows' => $rows, 'relatedFactories' => $relatedFactories];
     }
 
+    private function getFactoryName($modelName): string
+    {
+        return $modelName . 'Factory';
+    }
+
     private function getFactoryPath($factoryName): string
     {
         $factoryDirectory = base_path(config('cubeta-starter.factory_path'));
         ensureDirectoryExists($factoryDirectory);
 
-        return "$factoryDirectory/$factoryName.php";
+        return "{$factoryDirectory}/{$factoryName}.php";
     }
 }

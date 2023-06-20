@@ -2,20 +2,20 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class MakeTest extends Command
 {
     use AssistCommand;
 
+    public $description = 'Create a new feature test';
+
     public $signature = 'create:test
         {name : The name of the model }
         {actor? : The actor of the endpoint }';
-
-    public $description = 'Create a new feature test';
 
     /**
      * @throws BindingResolutionException
@@ -26,7 +26,7 @@ class MakeTest extends Command
         $modelName = $this->argument('name');
         $actor = $this->argument('actor');
 
-        if (!$modelName || empty(trim($modelName))) {
+        if ( ! $modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
@@ -53,7 +53,7 @@ class MakeTest extends Command
 
         $testPath = $this->getTestPath($testName);
         if (file_exists($testPath)) {
-            $this->error("$testName Already Exists");
+            $this->error("{$testName} Already Exists");
 
             return;
         }
@@ -65,7 +65,7 @@ class MakeTest extends Command
         );
 
         $this->formatFile($testPath);
-        $this->info("<info>Created Test:</info> $testName");
+        $this->info("<info>Created Test:</info> {$testName}");
     }
 
     private function getTestPath($testName): string
@@ -74,6 +74,6 @@ class MakeTest extends Command
 
         ensureDirectoryExists($directory);
 
-        return $directory . "/$testName" . '.php';
+        return $directory . "/{$testName}" . '.php';
     }
 }

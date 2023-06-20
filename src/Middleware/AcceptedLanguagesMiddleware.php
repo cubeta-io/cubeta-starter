@@ -2,11 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Middleware;
 
-use Carbon\Carbon;
 use Closure;
-use Illuminate\Foundation\Application;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Foundation\Application;
 
 class AcceptedLanguagesMiddleware
 {
@@ -44,7 +44,7 @@ class AcceptedLanguagesMiddleware
             } else {
                 $mapping['factor'] = 1;
             }
-            if (! in_array($mapping['locale'], $this->languages)) {
+            if (!in_array($mapping['locale'], $this->languages)) {
                 $mapping['locale'] = $this->languages[0];
             }
 

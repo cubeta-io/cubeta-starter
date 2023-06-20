@@ -2,19 +2,24 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Carbon\Carbon;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Exception;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 class CreatePivotTable extends Command
 {
     use AssistCommand;
 
+    protected $description = 'Create a migration file for a pivot table between two tables';
+
     protected $signature = 'create:pivot {table1} {table2}';
 
-    protected $description = 'Create a migration file for a pivot table between two tables';
+    public function getPivotPath(string $date, string $migrationName): string
+    {
+        return base_path(config('cubeta-starter.migration_path') . '/' . $date . '_' . $migrationName . '.php');
+    }
 
     /**
      * @throws BindingResolutionException
@@ -24,7 +29,7 @@ class CreatePivotTable extends Command
         $table1 = $this->argument('table1');
         $table2 = $this->argument('table2');
 
-        if ((!$table1 || empty(trim($table1))) || (!$table2 || empty(trim($table2)))) {
+        if (( ! $table1 || empty(trim($table1))) || ( ! $table2 || empty(trim($table2)))) {
             $this->error('Invalid input');
             return;
         }
@@ -72,8 +77,8 @@ class CreatePivotTable extends Command
 
         $stubProperties = [
             '{pivotTableName}' => $pivotTableName,
-            '{className1}' => '\\' . config('cubeta-starter.model_namespace') . "\\$className1",
-            '{className2}' => '\\' . config('cubeta-starter.model_namespace') . "\\$className2",
+            '{className1}' => '\\' . config('cubeta-starter.model_namespace') . "\\{$className1}",
+            '{className2}' => '\\' . config('cubeta-starter.model_namespace') . "\\{$className2}",
         ];
 
         generateFileFromStub(
@@ -82,13 +87,8 @@ class CreatePivotTable extends Command
             __DIR__ . '/stubs/pivot-migration.stub'
         );
 
-        $this->info("Pivot Table For $className1 and $className2 Created");
+        $this->info("Pivot Table For {$className1} and {$className2} Created");
 
         $this->formatFile($migrationPath);
-    }
-
-    public function getPivotPath(string $date, string $migrationName): string
-    {
-        return base_path(config('cubeta-starter.migration_path') . '/' . $date . '_' . $migrationName . '.php');
     }
 }

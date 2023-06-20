@@ -2,17 +2,19 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
+use Illuminate\Console\Command;
 use JetBrains\PhpStorm\ArrayShape;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class MakeModel extends Command
 {
     use AssistCommand;
+
+    public $description = 'Create a new model class';
 
     public $signature = 'create:model
         {name : The name of the model }
@@ -21,9 +23,8 @@ class MakeModel extends Command
         {relations?}
         {actor?}
         {container?}
-        {option? : string to generate a single file (migration, request, resource, factory, seeder, repository, service, controller, test, postman-collection)}';
-
-    public $description = 'Create a new model class';
+        {option? : string to generate a single file (migration, request, resource, factory, seeder, repository, service, controller, test, postman-collection)}
+        {nullables? : nullable columns}';
 
     protected array $relations = [];
 
@@ -50,48 +51,111 @@ class MakeModel extends Command
     ];
 
     /**
-     * @return void
-     *
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
+     * create scopes for the model boolean values
+     * @param array $attributes
+     * @return string
      */
-    public function handle(): void
+    public function boolValuesScope(array $attributes = []): string
     {
-        $name = $this->argument('name');
-        $option = $this->argument('option');
-        $guiAttributes = $this->argument('attributes') ?? [];
-        $relations = $this->argument('relations') ?? [];
-        $actor = $this->argument('actor') ?? 'none';
-        $this->useGui = $this->argument('gui') ?? false;
+        if ( ! isset($attributes) || count($attributes) == 0) {
+            return '';
+        }
+        $booleans = array_keys($attributes, 'boolean');
 
-        if (!$name || empty(trim($name))) {
-            $this->error('Invalid input');
-            return;
+        $scopes = '';
+
+        foreach ($booleans as $boolCol) {
+            $scopes .= 'public function scope' . ucfirst(Str::studly($boolCol)) . "(\$query)
+            {
+                return \$query->where('" . $boolCol . "' , 1);
+            } \n";
         }
 
-        $modelName = modelNaming($name);
+        return $scopes;
+    }
 
-        // handling the usage of the gui
-        if ($this->useGui) {
-            $this->relations = $relations;
-            $this->createModel($modelName, $guiAttributes);
-            $this->callAppropriateCommand($name, $option, $actor, $guiAttributes);
-            $this->createPivots($modelName);
+    /**
+     * call to command base on the option flag
+     */
+    public function callAppropriateCommand(string $name, $option, string $actor, array $attributes = [], array $nullables = []): void
+    {
+        $container = $this->checkContainer();
+        $result = match ($option) {
+            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
+            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes]),
+            'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
+            'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
+            'seeder' => $this->call('create:seeder', ['name' => $name]),
+            'repository' => $this->call('create:repository', ['name' => $name]),
+            'service' => $this->call('create:service', ['name' => $name]),
+            'controller' => $this->call('create:controller', ['name' => $name, 'actor' => $actor]),
+            'web-controller' => $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $this->relations]),
+            'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor]),
+            'postman-collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
+            '', null => 'all',
+        };
 
-            return;
+        if ($result === 'all') {
+            $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables]);
+            $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
+            $this->call('create:seeder', ['name' => $name]);
+            $this->call('create:request', ['name' => $name, 'attributes' => $attributes]);
+            $this->call('create:repository', ['name' => $name]);
+            $this->call('create:service', ['name' => $name]);
+
+            if ($container['api']) {
+                $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
+                $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
+                $this->call('create:test', ['name' => $name, 'actor' => $actor]);
+                $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
+            }
+
+            if ($container['web']) {
+                $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
+            }
+        }
+    }
+
+    /**
+     * get the container type from the user
+     *
+     * @return bool[]
+     */
+    #[ArrayShape(['api' => 'bool', 'web' => 'bool'])]
+    public function checkContainer(): array
+    {
+        if ( ! $this->useGui) {
+            $container = $this->choice('<info>What is the container type of this model controller</info>', ['api', 'web', 'both'], 'api');
+        } else {
+            $container = $this->argument('container');
+            if ( ! in_array($container, ['api', 'web', 'both'])) {
+                $this->error('Invalid container use one of this strings as an input : [api , web , both]');
+                return ['api' => false, 'web' => false];
+            }
+        }
+        return [
+            'api' => $container == 'api' || $container == 'both',
+            'web' => $container == 'web' || $container == 'both',
+        ];
+    }
+
+    /**
+     * ask the user about the actor of the created model endpoints
+     * @return array|string|null
+     */
+    public function checkTheActor(): array|string|null
+    {
+        if (file_exists(base_path('app/Enums/RolesPermissionEnum.php'))) {
+            if (class_exists('\App\Enums\RolesPermissionEnum')) {
+                /** @noinspection PhpUndefinedNamespaceInspection */
+                /** @noinspection PhpFullyQualifiedNameUsageInspection */
+                $roles = \App\Enums\RolesPermissionEnum::ALLROLES;
+                $roles[] = 'none';
+                return $this->choice('Who Is The Actor Of this Endpoint ? ', $roles, 'none');
+            }
         }
 
-        $paramsString = $this->getModelAttributesFromTheUser();
-
-        $attributes = $this->convertToArrayOfAttributes($paramsString);
-
-        $this->createModel($modelName, $attributes);
-
-        $actor = $this->checkTheActor();
-
-        $this->callAppropriateCommand($name, $option, $actor, $attributes);
-
-        $this->createPivots($modelName);
+        return 'none';
     }
 
     /**
@@ -103,7 +167,7 @@ class MakeModel extends Command
         $modelPath = $this->getModelPath($className);
 
         if (file_exists($modelPath)) {
-            $this->error("$className Model Already Exists");
+            $this->error("{$className} Model Already Exists");
             return;
         }
 
@@ -132,7 +196,176 @@ class MakeModel extends Command
         generateFileFromStub($stubProperties, $modelPath, __DIR__ . '/stubs/model.stub');
 
         $this->formatFile($modelPath);
-        $this->info("Created model: $className");
+        $this->info("Created model: {$className}");
+    }
+
+    /**
+     * create a pivot table if there is a many-to-many relation
+     * @param string $modelName
+     * @return void
+     */
+    public function createPivots(string $modelName): void
+    {
+        $manyToManyRelations = array_keys($this->relations, RelationsTypeEnum::ManyToMany);
+        foreach ($manyToManyRelations as $relation) {
+            $this->call('create:pivot', [
+                'table1' => $modelName,
+                'table2' => $relation,
+            ]);
+        }
+    }
+
+    /**
+     * returns methods arrays : fillable = [] , filesKeys() , orderableArray() , searchableArray() , relationsSearchableArray()
+     *
+     * @return string[]
+     */
+    #[ArrayShape(['fillable' => 'string', 'filesKeys' => 'string', 'searchable' => 'string', 'relationSearchable' => 'string'])]
+    public function fillArrayKeysMethodsInTheModel(array $attributes = [], array $relations = []): array
+    {
+        $fillable = '';
+        $filesKeys = '';
+        $searchable = '';
+        $relationsSearchable = '';
+        if (isset($attributes) && count($attributes) > 0) {
+            foreach ($attributes as $attribute => $type) {
+                $fillable .= "'{$attribute}' ,\n";
+
+                if (in_array($type, ['string', 'text', 'json', 'translatable'])) {
+                    $searchable .= "'{$attribute}' , \n";
+                }
+
+                if ($type == 'file') {
+                    $filesKeys .= "'{$attribute}' ,\n";
+                }
+            }
+        }
+
+        if (isset($relations) && count($relations) > 0) {
+            foreach ($relations as $relation => $type) {
+                $relationsSearchable .=
+                    "'{$relation}' => [
+                    //add your {$relation} desired column to be search within
+                  ] , \n";
+            }
+        }
+
+        return [
+            'fillable' => $fillable,
+            'filesKeys' => $filesKeys,
+            'searchable' => $searchable,
+            'relationSearchable' => $relationsSearchable,
+        ];
+    }
+
+    /**
+     * get the model attributes from the user
+     */
+    public function getModelAttributesFromTheUser(): mixed
+    {
+        $paramsString = $this->ask('Enter your params like "name,started_at,..."');
+
+        while (empty(trim($paramsString))) {
+            $this->error('Invalid Input');
+            $paramsString = $this->ask('Enter your params like "name,started_at,..."');
+        }
+
+        return $paramsString;
+    }
+
+    /**
+     * get the model attributes for the translatable columns
+     * @param array $attributes
+     * @return string
+     */
+    public function getTranslatableModelAttributes(array $attributes): string
+    {
+        $translatableAttributes = array_keys($attributes, 'translatable');
+        $result = '';
+
+        if ( ! count($translatableAttributes)) {
+            return '';
+        }
+
+        foreach ($translatableAttributes as $attribute) {
+            $result .= "/**
+                        * get the model {$attribute} translated based on the app locale
+                        */
+                        public function {$attribute}(): \Illuminate\Database\Eloquent\Casts\Attribute
+                        {
+                            return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+                                get: fn (string \$value) => getTranslation(\$value),
+                            );
+                        } \n";
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return void
+     *
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function handle(): void
+    {
+        $name = $this->argument('name');
+        $option = $this->argument('option');
+        $guiAttributes = $this->argument('attributes') ?? [];
+        $nullables = $this->argument('nullables') ?? [];
+        $relations = $this->argument('relations') ?? [];
+        $actor = $this->argument('actor') ?? 'none';
+        $this->useGui = $this->argument('gui') ?? false;
+
+        if ( ! $name || empty(trim($name))) {
+            $this->error('Invalid input');
+            return;
+        }
+
+        $modelName = modelNaming($name);
+
+        // handling the usage of the gui
+        if ($this->useGui) {
+            $this->relations = $relations;
+            $this->createModel($modelName, $guiAttributes);
+            $this->callAppropriateCommand($name, $option, $actor, $guiAttributes, $nullables);
+            $this->createPivots($modelName);
+
+            return;
+        }
+
+        $paramsString = $this->getModelAttributesFromTheUser();
+
+        $attributes = $this->convertToArrayOfAttributes($paramsString);
+
+        $this->createModel($modelName, $attributes);
+
+        $actor = $this->checkTheActor();
+
+        $this->callAppropriateCommand($name, $option, $actor, $attributes, $nullables);
+
+        $this->createPivots($modelName);
+    }
+
+    /**
+     * convert an array of attributes to array with attributes and their types
+     */
+    private function convertToArrayOfAttributes($fields): array
+    {
+        $fields = explode(',', $fields);
+        $fieldsWithDataType = [];
+        foreach ($fields as $field) {
+            $field = columnNaming($field);
+            $type = $this->choice(
+                "What is the data type of the (( {$field} field )) ? default is ",
+                $this->types,
+                6,
+            );
+            $fieldsWithDataType[$field] = $type;
+        }
+
+        return $fieldsWithDataType;
     }
 
     /**
@@ -143,7 +376,7 @@ class MakeModel extends Command
      */
     private function generateGetFilePropertyPathMethod($modelName, array $attributes = []): string
     {
-        if (!isset($attributes) || count($attributes) == 0) {
+        if ( ! isset($attributes) || count($attributes) == 0) {
             return '';
         }
 
@@ -157,13 +390,60 @@ class MakeModel extends Command
                  */
                  public function get' . modelNaming($colName) . "Path() : ?string
                  {
-                     return \$this->$colName != null ? asset('storage/'.\$this->$colName) : null;
+                     return \$this->{$colName} != null ? asset('storage/'.\$this->{$colName}) : null;
                  }\n";
 
             ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
         }
 
         return $file;
+    }
+
+    /**
+     * return the model path from the config
+     * @param string $className
+     * @return string
+     */
+    private function getModelPath(string $className): string
+    {
+        $modelDirectory = base_path(config('cubeta-starter.model_path'));
+        ensureDirectoryExists($modelDirectory);
+
+        return "{$modelDirectory}/{$className}.php";
+    }
+
+    /**
+     * generates the PHPDoc properties for the model class
+     * @param array $attributes
+     * @param array $relations
+     * @return string
+     */
+    private function getModelProperty(array $attributes = [], array $relations = []): string
+    {
+        $properties = "/**  \n";
+
+        if (isset($relations) && count($relations) > 0) {
+            foreach ($relations as $name => $type) {
+                $modelName = modelNaming($name);
+                $properties .= "* @property {$modelName} {$name}\n";
+            }
+        }
+
+        if (isset($attributes) && count($attributes) > 0) {
+            foreach ($attributes as $name => $type) {
+                if (in_array($type, ['translatable', 'file', 'text'])) {
+                    $properties .= "* @property string {$name} \n";
+                } elseif ($type == 'key') {
+                    $properties .= "* @property integer {$name} \n";
+                } else {
+                    $properties .= "* @property {$type} {$name} \n";
+                }
+            }
+        }
+
+        $properties .= "*/ \n";
+
+        return $properties;
     }
 
     /**
@@ -288,282 +568,5 @@ class MakeModel extends Command
         }
 
         return $relationsFunctions;
-    }
-
-    /**
-     * generates the PHPDoc properties for the model class
-     * @param array $attributes
-     * @param array $relations
-     * @return string
-     */
-    private function getModelProperty(array $attributes = [], array $relations = []): string
-    {
-        $properties = "/**  \n";
-
-        if (isset($relations) && count($relations) > 0) {
-            foreach ($relations as $name => $type) {
-                $modelName = modelNaming($name);
-                $properties .= "* @property $modelName $name\n";
-            }
-        }
-
-        if (isset($attributes) && count($attributes) > 0) {
-            foreach ($attributes as $name => $type) {
-                if (in_array($type , ['translatable' , 'file' , 'text'])) {
-                    $properties .= "* @property string $name \n";
-                } elseif ($type == 'key') {
-                    $properties .= "* @property integer $name \n";
-                } else {
-                    $properties .= "* @property $type $name \n";
-                }
-            }
-        }
-
-        $properties .= "*/ \n";
-
-        return $properties;
-    }
-
-    /**
-     * returns methods arrays : fillable = [] , filesKeys() , orderableArray() , searchableArray() , relationsSearchableArray()
-     *
-     * @return string[]
-     */
-    #[ArrayShape(['fillable' => 'string', 'filesKeys' => 'string', 'searchable' => 'string', 'relationSearchable' => 'string'])]
-    public function fillArrayKeysMethodsInTheModel(array $attributes = [], array $relations = []): array
-    {
-        $fillable = '';
-        $filesKeys = '';
-        $searchable = '';
-        $relationsSearchable = '';
-        if (isset($attributes) && count($attributes) > 0) {
-            foreach ($attributes as $attribute => $type) {
-                $fillable .= "'$attribute' ,\n";
-
-                if (in_array($type, ['string', 'text', 'json', 'translatable'])) {
-                    $searchable .= "'$attribute' , \n";
-                }
-
-                if ($type == 'file') {
-                    $filesKeys .= "'$attribute' ,\n";
-                }
-            }
-        }
-
-        if (isset($relations) && count($relations) > 0) {
-            foreach ($relations as $relation => $type) {
-                $relationsSearchable .=
-                    "'$relation' => [
-                    //add your $relation desired column to be search within
-                  ] , \n";
-            }
-        }
-
-        return [
-            'fillable' => $fillable,
-            'filesKeys' => $filesKeys,
-            'searchable' => $searchable,
-            'relationSearchable' => $relationsSearchable,
-        ];
-    }
-
-    /**
-     * create scopes for the model boolean values
-     * @param array $attributes
-     * @return string
-     */
-    public function boolValuesScope(array $attributes = []): string
-    {
-        if (!isset($attributes) || count($attributes) == 0) {
-            return '';
-        }
-        $booleans = array_keys($attributes, 'boolean');
-
-        $scopes = '';
-
-        foreach ($booleans as $boolCol) {
-            $scopes .= 'public function scope' . ucfirst(Str::studly($boolCol)) . "(\$query)
-            {
-                return \$query->where('" . $boolCol . "' , 1);
-            } \n";
-        }
-
-        return $scopes;
-    }
-
-    /**
-     * return the model path from the config
-     * @param string $className
-     * @return string
-     */
-    private function getModelPath(string $className): string
-    {
-        $modelDirectory = base_path(config('cubeta-starter.model_path'));
-        ensureDirectoryExists($modelDirectory);
-
-        return "$modelDirectory/$className.php";
-    }
-
-    /**
-     * create a pivot table if there is a many-to-many relation
-     * @param string $modelName
-     * @return void
-     */
-    public function createPivots(string $modelName): void
-    {
-        $manyToManyRelations = array_keys($this->relations, RelationsTypeEnum::ManyToMany);
-        foreach ($manyToManyRelations as $relation) {
-            $this->call('create:pivot', [
-                'table1' => $modelName,
-                'table2' => $relation,
-            ]);
-        }
-    }
-
-    /**
-     * get the model attributes from the user
-     */
-    public function getModelAttributesFromTheUser(): mixed
-    {
-        $paramsString = $this->ask('Enter your params like "name,started_at,..."');
-
-        while (empty(trim($paramsString))) {
-            $this->error('Invalid Input');
-            $paramsString = $this->ask('Enter your params like "name,started_at,..."');
-        }
-
-        return $paramsString;
-    }
-
-    /**
-     * get the container type from the user
-     *
-     * @return bool[]
-     */
-    #[ArrayShape(['api' => 'bool', 'web' => 'bool'])]
-    public function checkContainer(): array
-    {
-        if (!$this->useGui) {
-            $container = $this->choice('<info>What is the container type of this model controller</info>', ['api', 'web', 'both'], 'api');
-        } else {
-            $container = $this->argument('container');
-            if (!in_array($container, ['api', 'web', 'both'])) {
-                $this->error('Invalid container use one of this strings as an input : [api , web , both]');
-                return ['api' => false, 'web' => false];
-            }
-        }
-        return [
-            'api' => $container == 'api' || $container == 'both',
-            'web' => $container == 'web' || $container == 'both',
-        ];
-    }
-
-    /**
-     * call to command base on the option flag
-     */
-    public function callAppropriateCommand(string $name, $option, string $actor, array $attributes = []): void
-    {
-        $container = $this->checkContainer();
-        $result = match ($option) {
-            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
-            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes]),
-            'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
-            'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
-            'seeder' => $this->call('create:seeder', ['name' => $name]),
-            'repository' => $this->call('create:repository', ['name' => $name]),
-            'service' => $this->call('create:service', ['name' => $name]),
-            'controller' => $this->call('create:controller', ['name' => $name, 'actor' => $actor]),
-            'web-controller' => $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $this->relations]),
-            'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor]),
-            'postman-collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
-            '', null => 'all',
-        };
-
-        if ($result === 'all') {
-            $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
-            $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
-            $this->call('create:seeder', ['name' => $name]);
-            $this->call('create:request', ['name' => $name, 'attributes' => $attributes]);
-            $this->call('create:repository', ['name' => $name]);
-            $this->call('create:service', ['name' => $name]);
-
-            if ($container['api']) {
-                $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
-                $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
-                $this->call('create:test', ['name' => $name, 'actor' => $actor]);
-                $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
-            }
-
-            if ($container['web']) {
-                $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
-            }
-        }
-    }
-
-    /**
-     * convert an array of attributes to array with attributes and their types
-     */
-    private function convertToArrayOfAttributes($fields): array
-    {
-        $fields = explode(',', $fields);
-        $fieldsWithDataType = [];
-        foreach ($fields as $field) {
-            $field = Str::snake($field);
-            $type = $this->choice(
-                "What is the data type of the (( $field field )) ? default is ",
-                $this->types,
-                6,
-            );
-            $fieldsWithDataType[$field] = $type;
-        }
-
-        return $fieldsWithDataType;
-    }
-
-    /**
-     * ask the user about the actor of the created model endpoints
-     * @return array|string|null
-     */
-    public function checkTheActor(): array|string|null
-    {
-        if (file_exists(base_path('app/Enums/RolesPermissionEnum.php'))) {
-            if (class_exists('\App\Enums\RolesPermissionEnum')) {
-                /** @noinspection PhpUndefinedNamespaceInspection */
-                $roles = \App\Enums\RolesPermissionEnum::ALLROLES;
-                $roles[] = 'none';
-                return $this->choice('Who Is The Actor Of this Endpoint ? ', $roles, 'none');
-            }
-        }
-
-        return 'none';
-    }
-
-    /**
-     * get the model attributes for the translatable columns
-     * @param array $attributes
-     * @return string
-     */
-    public function getTranslatableModelAttributes(array $attributes): string
-    {
-        $translatableAttributes = array_keys($attributes, 'translatable');
-        $result = '';
-
-        if (!count($translatableAttributes)) {
-            return '';
-        }
-
-        foreach ($translatableAttributes as $attribute) {
-            $result .= "/**
-                        * get the model $attribute translated based on the app locale
-                        */
-                        public function $attribute(): \Illuminate\Database\Eloquent\Casts\Attribute
-                        {
-                            return \Illuminate\Database\Eloquent\Casts\Attribute::make(
-                                get: fn (string \$value) => getTranslation(\$value),
-                            );
-                        } \n";
-        }
-
-        return $result;
     }
 }
