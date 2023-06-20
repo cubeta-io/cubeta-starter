@@ -35,6 +35,7 @@ class RenderAppropriateViewController extends Controller
     {
         if (file_exists(base_path('app/Enums/RolesPermissionEnum.php')) && class_exists('\App\Enums\RolesPermissionEnum')) {
             /** @noinspection PhpUndefinedNamespaceInspection */
+            /** @noinspection PhpFullyQualifiedNameUsageInspection */
             $this->roles = \App\Enums\RolesPermissionEnum::ALLROLES;
         } else {
             $this->roles = [];
