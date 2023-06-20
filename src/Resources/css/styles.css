@@ -16,6 +16,26 @@ h1 {
     color: #001e4a;
 }
 
+h4 {
+    color: #001e4a;
+    font-size: 20px;
+}
+
+.form-label {
+    color: #001e4a;
+    font-weight: bold;
+}
+
+.form-check-label{
+    color: #001e4a;
+    font-weight: bold;
+}
+
+label{
+    color: #001e4a;
+    font-weight: bold;
+}
+
 p {
     font-size: 20px;
     color: #899bbd;

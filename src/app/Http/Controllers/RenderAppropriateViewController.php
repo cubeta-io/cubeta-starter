@@ -74,9 +74,13 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['actorsField'] = true;
         $this->arguments['containerField'] = true;
         $this->arguments['modalBody'] = "Generating The CRUDs";
-        $this->arguments['notes'] = '<li class="notes">If a model with the same name is exist nothing will be generated</li>
-                                        <li class="notes">This GUI will work just when the app environment is local</li>
-                                        <li class="notes">read about the key and translatable columns type in the <a href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md" target="_blank">documentation</a></li>';
+        $this->arguments['notes'] = '   <li class="notes">This GUI will work just when the app environment is local</li>
+                                        <li class="notes">If a model with the same name is exist nothing will be generated</li>
+                                        <li class="notes">the generated files directories will be based on the package config file</li>
+                                        <li class="notes">read about the key and translatable columns type in the <a href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md" target="_blank">documentation</a></li>
+                                        <li class="notes">each created file will be formatted with Laravel Pint based on the published pint configuration file</li>
+                                        <li class="notes">entered model and columns names will be refactored based on Laravel naming convention, but it is better you follow it</li>
+                                        ';
 
         return view('CubetaStarter::main-generate-page', compact('roles', 'types'))->with($this->arguments);
     }

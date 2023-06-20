@@ -31,8 +31,15 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6 m-auto">
-                                <h4 class="form-label m-auto">Publish the Package Config File</h4>
+                            <div class="col-md-6 mt-3">
+                                <h4 class="form-label m-auto">Publish the Package Config Files</h4>
+                                <br>
+                                <p class="description-font">
+                                    this will publish <span style="font-weight: bold">"cubeta-starter.php"</span>
+                                    config file to the project config path in
+                                    addition to the Laravel Pint configuration file <span style="font-weight: bold">"pint.json"</span>
+                                    to the project root directory which necessary for the package to work properly
+                                </p>
                                 <br>
                                 <a id="publish-config"
                                    href="{{route('cubeta-starter.config-publish')}}"
@@ -40,9 +47,12 @@
                                     Publish Config
                                 </a>
                             </div>
-                            <div class="col-md-6 m-auto">
+                            <div class="col-md-6 mt-3">
                                 <h4 class="form-label m-auto">Publish the provided exception handler</h4>
                                 <br>
+                                <p class="description-font">
+                                    this will publish our exception handler which will organize your responses
+                                </p>
                                 <a id="publish-handler"
                                    href="{{route('cubeta-starter.publish-handler')}}"
                                    class="btn btn-primary w-auto">
@@ -55,7 +65,8 @@
                                 <p class="description-font">
                                     When using the web controllers on every created controller there will be
                                     corresponding views generated with it, which use some css,js files and our blade
-                                    components
+                                    components , in addition to a SetLocaleController to the controller path
+                                    <span style="font-weight: bold">(this is for web generating based usage not for the api generating usage)</span>
                                 </p>
                                 <a id="publish-assets"
                                    href="{{route('cubeta-starter.publish-assets')}}"
@@ -107,6 +118,12 @@
                                 </li>
                                 <li class="notes">installing web packages require you to have npm installed on your
                                     machine and may take long time depends on your internet
+                                </li>
+                                <li class="notes">publishing config files and the exception handler is very important to
+                                    the package to work properly
+                                </li>
+                                <li class="notes">publishing the package assets and installing the web packages is
+                                    required when using web controllers
                                 </li>
                             </ul>
                         </div>

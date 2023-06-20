@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-3">
-        <aside class="sidebar">
-            <div class="p-3 nav-bar-background">
+        <aside class="sidebar h-100">
+            <div class="p-3 nav-bar-background h-100">
                 <div class="container w-75">
                     <div class="row">
                         <div class="col-md-4">
