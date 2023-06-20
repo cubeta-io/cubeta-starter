@@ -40,7 +40,7 @@ class CallAppropriateCommand extends Controller
         $roles = $request->roles ?? [];
         $result = $this->convertRolesPermissionArrayToCommandAcceptableFormat($roles);
 
-        if ( ! $result) {
+        if (!$result) {
             return redirect()->route('cubeta-starter.generate-add-actor.page', ['error' => 'Invalid Role Name']);
         }
         Artisan::call('cubeta-init', [
@@ -68,6 +68,7 @@ class CallAppropriateCommand extends Controller
                     if (empty(trim($col))) {
                         return redirect()->route($command['route'], ['error' => "Invalid Column Name"]);
                     }
+                    $col = tableNaming($col);
                 }
                 $arguments['attributes'] = $this->columns;
             }
@@ -94,7 +95,7 @@ class CallAppropriateCommand extends Controller
                 $arguments['container'] = $this->container;
             }
 
-            if (isset($this->container) && ! in_array($this->container, ['api', 'web', 'both'])) {
+            if (isset($this->container) && !in_array($this->container, ['api', 'web', 'both'])) {
                 return redirect()->route($command['route'], ['error' => "Invalid container name"]);
             }
 
@@ -304,7 +305,7 @@ class CallAppropriateCommand extends Controller
 
     private function configureRequestArray($array = null)
     {
-        if ( ! isset($array) || $array == []) {
+        if (!isset($array) || $array == []) {
             return [];
         }
 

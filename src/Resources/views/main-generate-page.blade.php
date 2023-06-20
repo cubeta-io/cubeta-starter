@@ -335,7 +335,7 @@
                         newColumn.className = "row";
 
                         const newColumnName = document.createElement("div");
-                        newColumnName.className = "col-md-4 m-1";
+                        newColumnName.className = "col-md-4 mt-1";
                         const columnNameInput = document.createElement("input");
                         columnNameInput.className = "form-control column-name";
                         columnNameInput.type = "text";
@@ -346,17 +346,18 @@
 
                         @if($nullables)
                         const newColumnCheckbox = document.createElement("div");
-                        newColumnCheckbox.className = "col-md-2 m-1";
+                        newColumnCheckbox.className = "col-md-2 mt-1";
                         const columnCheckboxInput = document.createElement("input");
                         columnCheckboxInput.type = "checkbox";
                         columnCheckboxInput.id = "nullables-" + inputIndex;
                         columnCheckboxInput.name = "nullables[" + inputIndex + "]";
-                        columnCheckboxInput.className = "form-check-input m-1";
+                        columnCheckboxInput.className = "form-check-input mt-1";
                         columnCheckboxInput.value = "true";
                         const columnCheckboxLabel = document.createElement("label");
                         columnCheckboxLabel.setAttribute("for", "nullables-" + inputIndex);
                         columnCheckboxLabel.innerHTML = "nullable";
                         columnCheckboxLabel.className = 'form-check-label';
+                        columnCheckboxLabel.style.marginLeft = "5px";
                         newColumnCheckbox.appendChild(columnCheckboxInput);
                         newColumnCheckbox.appendChild(columnCheckboxLabel);
                         columnNameInput.addEventListener("input", function () {
@@ -365,11 +366,21 @@
                         @endif
 
                         const newColumnType = document.createElement("div");
-                        newColumnType.className = "col-md-5 m-1";
+                        newColumnType.className = "col-md-5 mt-1";
                         const columnTypeSelect = document.createElement("select");
                         columnTypeSelect.className = "form-select column-type";
                         columnTypeSelect.setAttribute("aria-label", "Default select example");
                         columnTypeSelect.name = "columns[" + inputIndex + "][type]";
+
+                        columnTypeSelect.addEventListener('input', function () {
+                            if (columnTypeSelect.value === 'key' || columnTypeSelect.value === 'file') {
+                                columnCheckboxInput.style.display = 'none';
+                                columnCheckboxLabel.style.display = 'none';
+                            } else {
+                                columnCheckboxInput.style.display = 'block';
+                                columnCheckboxLabel.style.display = 'block';
+                            }
+                        });
 
                         @foreach($types as $type)
                         const option{{$loop->iteration}} = document.createElement("option");
@@ -379,14 +390,16 @@
                         @endforeach
                         newColumnType.appendChild(columnTypeSelect);
 
+                        const deleteColumnButtonDiv = document.createElement("div");
+                        deleteColumnButtonDiv.className = "col-md-1 d-flex justify-content-end";
                         const deleteColumnButton = document.createElement("button");
-                        deleteColumnButton.className = "btn btn-sm btn-danger col-md-1 text-center";
+                        deleteColumnButtonDiv.appendChild(deleteColumnButton);
+                        deleteColumnButton.className = "btn btn-sm btn-danger";
                         deleteColumnButton.type = "button";
                         deleteColumnButton.innerHTML = "&times;";
                         deleteColumnButton.style.cssText = `
                             width: 30px;
                             height: 30px;
-                            margin: auto;
                             padding: 0;
                             font-weight: bolder;
                             border-radius: 4px;
@@ -404,9 +417,12 @@
                         newColumnName.appendChild(columnNameInput);
                         newColumn.appendChild(newColumnName);
                         newColumn.appendChild(newColumnType);
-                        @if($nullables)newColumn.appendChild(newColumnCheckbox);
+
+                        @if($nullables)
+                        newColumn.appendChild(newColumnCheckbox);
                         @endif
-                        newColumn.appendChild(deleteColumnButton);
+
+                        newColumn.appendChild(deleteColumnButtonDiv);
 
                         columnsContainer.appendChild(newColumn);
 
@@ -421,7 +437,7 @@
                         newRelation.className = "row";
 
                         const relationNameInput = document.createElement("div");
-                        relationNameInput.className = "col-md-4 m-1";
+                        relationNameInput.className = "col-md-4 mt-1";
                         const relationInput = document.createElement("input");
                         relationInput.className = "form-control relation-name";
                         relationInput.type = "text";
@@ -431,7 +447,7 @@
                         relationNameInput.appendChild(relationInput);
 
                         const relationTypeInput = document.createElement("div");
-                        relationTypeInput.className = "col-md-5 m-1";
+                        relationTypeInput.className = "col-md-5 mt-1";
                         const relationTypeSelect = document.createElement("select");
                         relationTypeSelect.className = "form-select column-type";
                         relationTypeSelect.setAttribute("aria-label", "Default select example");
@@ -447,14 +463,16 @@
                         relationTypeSelect.appendChild(option2);
                         relationTypeInput.appendChild(relationTypeSelect);
 
+                        const deleteRelationButtonDiv = document.createElement("div");
+                        deleteRelationButtonDiv.className = "col-md-3 d-flex justify-content-end align-items-center";
                         const deleteRelationButton = document.createElement("button");
-                        deleteRelationButton.className = "btn btn-sm btn-danger col-md-3 text-center";
+                        deleteRelationButtonDiv.appendChild(deleteRelationButton);
+                        deleteRelationButton.className = "btn btn-sm btn-danger";
                         deleteRelationButton.type = "button";
                         deleteRelationButton.innerHTML = "&times;";
                         deleteRelationButton.style.cssText = `
                             width: 30px;
                             height: 30px;
-                            margin: auto;
                             padding: 0;
                             font-weight: bolder;
                             border-radius: 4px;
@@ -471,7 +489,7 @@
 
                         newRelation.appendChild(relationNameInput);
                         newRelation.appendChild(relationTypeInput);
-                        newRelation.appendChild(deleteRelationButton);
+                        newRelation.appendChild(deleteRelationButtonDiv);
 
                         relationsContainer.appendChild(newRelation);
                         relationIndex++;

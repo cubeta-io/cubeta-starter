@@ -32,7 +32,7 @@ trait ViewGenerating
 
         $formDirectory = base_path("resources/views/dashboard/{$viewsName}/" . strtolower($createdForm) . '.blade.php');
 
-        if ( ! is_dir(base_path("resources/views/dashboard/{$viewsName}/"))) {
+        if (!is_dir(base_path("resources/views/dashboard/{$viewsName}/"))) {
             mkdir(base_path("resources/views/dashboard/{$viewsName}/"), 0777, true);
         }
 
@@ -70,7 +70,7 @@ trait ViewGenerating
 
         $indexDirectory = base_path("resources/views/dashboard/{$viewsName}/index.blade.php");
 
-        if ( ! is_dir(base_path("resources/views/dashboard/{$viewsName}/"))) {
+        if (!is_dir(base_path("resources/views/dashboard/{$viewsName}/"))) {
             mkdir(base_path("resources/views/dashboard/{$viewsName}/"), 0777, true);
         }
 
@@ -107,7 +107,7 @@ trait ViewGenerating
 
         $showDirectory = base_path("resources/views/dashboard/{$viewsName}/show.blade.php");
 
-        if ( ! is_dir(base_path("resources/views/dashboard/{$viewsName}/"))) {
+        if (!is_dir(base_path("resources/views/dashboard/{$viewsName}/"))) {
             mkdir(base_path("resources/views/dashboard/{$viewsName}/"), 0777, true);
         }
 
@@ -136,6 +136,7 @@ trait ViewGenerating
             $inputs .= "<x-language-selector></x-language-selector> \n";
         }
         foreach ($attributes as $attribute => $type) {
+            $attribute = tableNaming($attribute);
             $label = $this->getLabelName($attribute);
             $value = $updateInput ? ($type == 'translatable' ? ":value=\"\${$modelVariable}->getRawOriginal('{$attribute}')\"" : ":value=\"\${$modelVariable}->{$attribute}\"") : null;
             $checked = $updateInput ? ":checked=\"\${$modelVariable}->{$attribute}\"" : 'checked';
@@ -180,6 +181,7 @@ trait ViewGenerating
     {
         $components = '';
         foreach ($attributes as $attribute => $type) {
+            $attribute = tableNaming($attribute);
             $label = $this->getLabelName($attribute);
             if ($type == 'text') {
                 $components .= "<x-long-text-field :value=\"\${$modelVariable}->{$attribute}\" label=\"{$label}\"></x-long-text-field> \n";
@@ -205,6 +207,7 @@ trait ViewGenerating
         $json = '';
 
         foreach ($attributes as $attribute => $type) {
+            $attribute = tableNaming($attribute);
             $label = $this->getLabelName($attribute);
             if ($type == 'file' || $type == 'text') {
                 continue;

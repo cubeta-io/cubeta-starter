@@ -27,6 +27,21 @@ class MakeWebController extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
+    public function handle(): void
+    {
+        $name = $this->argument('name');
+        $actor = $this->argument('actor') ?? null;
+        $attributes = $this->argument('attributes') ?? [];
+
+        $modelName = modelNaming($name);
+
+        $this->createWebController($modelName, $attributes, $actor);
+    }
+
+    /**
+     * @throws FileNotFoundException
+     * @throws BindingResolutionException
+     */
     public function createWebController(string $modelName, array $attributes = [], $actor = null)
     {
         $modelNameCamelCase = variableNaming($modelName);
@@ -66,7 +81,7 @@ class MakeWebController extends Command
             '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
         ];
 
-        if ( ! is_dir(base_path(config('cubeta-starter.web_controller_path')))) {
+        if (!is_dir(base_path(config('cubeta-starter.web_controller_path')))) {
             mkdir(base_path(config('cubeta-starter.web_controller_path')), 0777, true);
         }
 
@@ -110,7 +125,7 @@ class MakeWebController extends Command
     public function getViewsNames(string $modelName, $actor = null): array
     {
         $viewName = viewNaming($modelName);
-        if ( ! isset($actor) || $actor == '' || $actor = 'none') {
+        if (!isset($actor) || $actor == '' || $actor = 'none') {
             return [
                 'index' => 'dashboard.' . $viewName . '.index',
                 'edit' => 'dashboard.' . $viewName . '.edit',
@@ -127,26 +142,11 @@ class MakeWebController extends Command
 
     }
 
-    /**
-     * @throws FileNotFoundException
-     * @throws BindingResolutionException
-     */
-    public function handle(): void
-    {
-        $name = $this->argument('name');
-        $actor = $this->argument('actor') ?? null;
-        $attributes = $this->argument('attributes') ?? [];
-
-        $modelName = modelNaming($name);
-
-        $this->createWebController($modelName, $attributes, $actor);
-    }
-
     private function addSidebarItem(string $modelName, string $routeName)
     {
         $modelName = tableNaming($modelName);
         $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');
-        if ( ! file_exists($sidebarPath)) {
+        if (!file_exists($sidebarPath)) {
             return;
         }
 
