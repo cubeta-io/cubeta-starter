@@ -136,7 +136,7 @@ trait ViewGenerating
             $inputs .= "<x-language-selector></x-language-selector> \n";
         }
         foreach ($attributes as $attribute => $type) {
-            $attribute = tableNaming($attribute);
+            $attribute = columnNaming($attribute);
             $label = $this->getLabelName($attribute);
             $value = $updateInput ? ($type == 'translatable' ? ":value=\"\${$modelVariable}->getRawOriginal('{$attribute}')\"" : ":value=\"\${$modelVariable}->{$attribute}\"") : null;
             $checked = $updateInput ? ":checked=\"\${$modelVariable}->{$attribute}\"" : 'checked';
@@ -181,7 +181,7 @@ trait ViewGenerating
     {
         $components = '';
         foreach ($attributes as $attribute => $type) {
-            $attribute = tableNaming($attribute);
+            $attribute = columnNaming($attribute);
             $label = $this->getLabelName($attribute);
             if ($type == 'text') {
                 $components .= "<x-long-text-field :value=\"\${$modelVariable}->{$attribute}\" label=\"{$label}\"></x-long-text-field> \n";

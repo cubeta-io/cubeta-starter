@@ -68,7 +68,7 @@ class CallAppropriateCommand extends Controller
                     if (empty(trim($col))) {
                         return redirect()->route($command['route'], ['error' => "Invalid Column Name"]);
                     }
-                    $col = tableNaming($col);
+                    $col = columnNaming($col);
                 }
                 $arguments['attributes'] = $this->columns;
             }
