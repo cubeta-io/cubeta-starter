@@ -53,7 +53,7 @@ class MakeRequest extends Command
         $modelName = $this->argument('name');
         $attributes = $this->argument('attributes') ?? [];
 
-        if ( ! $modelName || empty(trim($modelName))) {
+        if (!$modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
@@ -107,72 +107,33 @@ class MakeRequest extends Command
 
             if ($type == 'translatable') {
                 $rules .= "\t\t\t'{$name}'=>['required','json', new LanguageShape] , \n";
-
-                continue;
-            }
-            if ($name == 'name' || $name == 'first_name' || $name == 'last_name') {
+            } elseif ($name == 'name' || $name == 'first_name' || $name == 'last_name') {
                 $rules .= "\t\t\t'{$name}'=>'required|string|min:3|max:255',\n";
-
-                continue;
-            }
-
-            if ($name == 'email') {
+            } elseif ($name == 'email') {
                 $rules .= "\t\t\t'{$name}'=>'required|string|max:255|email',\n";
-
-                continue;
-            }
-
-            if ($name == 'password') {
+            } elseif ($name == 'password') {
                 $rules .= "\t\t\t'{$name}'=>'required|string|max:255|min:6|confirmed',\n";
-
-                continue;
-            }
-
-            if ($name == 'phone' || $name == 'phone_number' || $name == 'number') {
+            } elseif ($name == 'phone' || $name == 'phone_number' || $name == 'number') {
                 $rules .= "\t\t\t'{$name}'=>'required|string|max:255|min:6',\n";
-
-                continue;
-            }
-
-            if (Str::endsWith($name, '_at') || in_array($type, ['date', 'time', 'dateTime', 'timestamp'])) {
+            } elseif (Str::endsWith($name, '_at') || in_array($type, ['date', 'dateTime', 'timestamp'])) {
                 $rules .= "\t\t\t'{$name}'=>'required|date',\n";
-
-                continue;
-            }
-
-            if (Str::startsWith($name, 'is_') || $type == 'boolean') {
+            } elseif ($type == 'time') {
+                $rules .= "\t\t\t'{$name}'=>'required|date_format:H:i',\n";
+            } elseif (Str::startsWith($name, 'is_') || $type == 'boolean') {
                 $rules .= "\t\t\t'{$name}'=>'required|boolean',\n";
-
-                continue;
-            }
-
-            if (Str::endsWith($name, '_id')) {
+            } elseif (Str::endsWith($name, '_id')) {
                 $relationModel = str_replace('_id', '', $name);
                 $relationModelPluralName = tableNaming($relationModel);
                 $rules .= "\t\t\t'{$name}'=>'required|numeric|exists:{$relationModelPluralName},id',\n";
-
-                continue;
-            }
-
-            if ($type == 'file') {
+            } elseif ($type == 'file') {
                 $rules .= "\t\t\t'{$name}'=>'nullable|image|mimes:jpeg,png,jpg|max:2048',\n";
-
-                continue;
-            }
-
-            if ($type == 'text') {
+            } elseif ($type == 'text') {
                 $rules .= "\t\t\t'{$name}'=>'nullable|string',\n";
-
-                continue;
-            }
-
-            if (in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])) {
+            } elseif (in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])) {
                 $rules .= "\t\t\t'{$name}'=>'required|numeric',\n";
-
-                continue;
+            } else{
+                $rules .= "\t\t\t'{$name}'=>'required|{$type}',\n";
             }
-
-            $rules .= "\t\t\t'{$name}'=>'required|{$type}',\n";
         }
 
         return $rules;

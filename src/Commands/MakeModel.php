@@ -57,7 +57,7 @@ class MakeModel extends Command
      */
     public function boolValuesScope(array $attributes = []): string
     {
-        if ( ! isset($attributes) || count($attributes) == 0) {
+        if (!isset($attributes) || count($attributes) == 0) {
             return '';
         }
         $booleans = array_keys($attributes, 'boolean');
@@ -124,11 +124,11 @@ class MakeModel extends Command
     #[ArrayShape(['api' => 'bool', 'web' => 'bool'])]
     public function checkContainer(): array
     {
-        if ( ! $this->useGui) {
+        if (!$this->useGui) {
             $container = $this->choice('<info>What is the container type of this model controller</info>', ['api', 'web', 'both'], 'api');
         } else {
             $container = $this->argument('container');
-            if ( ! in_array($container, ['api', 'web', 'both'])) {
+            if (!in_array($container, ['api', 'web', 'both'])) {
                 $this->error('Invalid container use one of this strings as an input : [api , web , both]');
                 return ['api' => false, 'web' => false];
             }
@@ -229,6 +229,7 @@ class MakeModel extends Command
         $relationsSearchable = '';
         if (isset($attributes) && count($attributes) > 0) {
             foreach ($attributes as $attribute => $type) {
+                $attribute = columnNaming($attribute);
                 $fillable .= "'{$attribute}' ,\n";
 
                 if (in_array($type, ['string', 'text', 'json', 'translatable'])) {
@@ -283,7 +284,7 @@ class MakeModel extends Command
         $translatableAttributes = array_keys($attributes, 'translatable');
         $result = '';
 
-        if ( ! count($translatableAttributes)) {
+        if (!count($translatableAttributes)) {
             return '';
         }
 
@@ -318,7 +319,7 @@ class MakeModel extends Command
         $actor = $this->argument('actor') ?? 'none';
         $this->useGui = $this->argument('gui') ?? false;
 
-        if ( ! $name || empty(trim($name))) {
+        if (!$name || empty(trim($name))) {
             $this->error('Invalid input');
             return;
         }
@@ -376,7 +377,7 @@ class MakeModel extends Command
      */
     private function generateGetFilePropertyPathMethod($modelName, array $attributes = []): string
     {
-        if ( ! isset($attributes) || count($attributes) == 0) {
+        if (!isset($attributes) || count($attributes) == 0) {
             return '';
         }
 

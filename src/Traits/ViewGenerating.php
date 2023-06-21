@@ -207,7 +207,7 @@ trait ViewGenerating
         $json = '';
 
         foreach ($attributes as $attribute => $type) {
-            $attribute = tableNaming($attribute);
+            $attribute = columnNaming($attribute);
             $label = $this->getLabelName($attribute);
             if ($type == 'file' || $type == 'text') {
                 continue;
@@ -218,6 +218,51 @@ trait ViewGenerating
         }
 
         return ['html' => $html, 'json' => $json];
+    }
+
+    private function getJQueryDataTablesTranslatableColumnsIndexes(array $attributes = []): array
+    {
+        $translatableIndex = 1;
+        $translatableColumnsIndexes = [];
+
+        foreach ($attributes as $attribute => $type) {
+            if ($type == 'translatable') {
+                $translatableColumnsIndexes[$attribute] = $translatableIndex;
+            }
+            if ($type == 'file' || $type == 'text') {
+                continue;
+            }
+            $translatableIndex++;
+        }
+
+        return $translatableColumnsIndexes;
+    }
+
+    public function generateOrderingQueriesForTranslatableColumns(array $attributes = []): string
+    {
+        $translatableColumns = $this->getJQueryDataTablesTranslatableColumnsIndexes($attributes);
+        $queries = '';
+
+        if (count($translatableColumns) <= 0) {
+            return $queries;
+        }
+
+        $queries .= "\$locale = app()->getLocale() ; \n";
+
+        foreach ($translatableColumns as $col => $index) {
+            $queries .=
+                "if (request()->has('order') && request('order')[0]['column'] == $index) {
+                            \$query->order(function (\$query) use (\$locale) {
+                                if (request('order')[0]['dir'] == 'asc') {
+                                    \$query->orderByRaw(\"JSON_EXTRACT($col, ?) ASC\", ['$.\"' . \$locale . '\"']);
+                                } else {
+                                    \$query->orderByRaw(\"JSON_EXTRACT($col, ?) DESC\", ['$.\"' . \$locale . '\"']);
+                                }
+                            });
+                 } \n";
+        }
+
+        return $queries;
     }
 
     /**

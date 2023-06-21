@@ -79,6 +79,7 @@ class MakeWebController extends Command
             '{requestNamespace}' => config('cubeta-starter.request_namespace'),
             '{modelNamespace}' => config('cubeta-starter.model_namespace'),
             '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
+            '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns($attributes),
         ];
 
         if (!is_dir(base_path(config('cubeta-starter.web_controller_path')))) {

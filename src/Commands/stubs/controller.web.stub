@@ -25,7 +25,7 @@ class {modelName}Controller extends Controller
     {
         $data = {modelName}::query()->select('{tableName}.*');
 
-        return DataTables::eloquent($data)
+        $query = DataTables::eloquent($data)
             ->addColumn('action', function ($row) {
                 return "
                     <div class='d-flex'>
@@ -41,8 +41,11 @@ class {modelName}Controller extends Controller
                             </button>
                         </div>
                     </div>";
-            })
-            ->make(true);
+            }) ; 
+
+            {translationOrderQueries}
+
+            return $query->make(true);
     }
 
 
