@@ -63,14 +63,15 @@ class CallAppropriateCommand extends Controller
 
             $arguments['name'] = $this->modelName;
 
+            $tempColsArray = [];
             if (isset($this->columns) && count($this->columns) > 0) {
                 foreach ($this->columns as $col => $type) {
                     if (empty(trim($col))) {
                         return redirect()->route($command['route'], ['error' => "Invalid Column Name"]);
                     }
-                    $col = columnNaming($col);
+                    $tempColsArray[columnNaming($col)] = $type;
                 }
-                $arguments['attributes'] = $this->columns;
+                $arguments['attributes'] = $tempColsArray;
             }
 
             if (isset($this->relations) && count($this->relations) > 0) {
@@ -82,12 +83,16 @@ class CallAppropriateCommand extends Controller
                 $arguments['relations'] = $this->relations;
             }
 
-            if (isset($this->actor)) {
-                $arguments['actor'] = $this->actor;
+            if (isset($this->nullables) && count($this->nullables) > 0){
+                foreach ($this->nullables as $key => &$value){
+                    $value = columnNaming($value);
+                }
+
+                $arguments['nullables'] = $this->nullables;
             }
 
-            if (isset($this->nullables)) {
-                $arguments['nullables'] = $this->nullables;
+            if (isset($this->actor)) {
+                $arguments['actor'] = $this->actor;
             }
 
             if ($command['name'] == 'create:model') {
