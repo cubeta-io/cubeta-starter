@@ -346,18 +346,18 @@
 
                         @if($nullables)
                         const newColumnCheckbox = document.createElement("div");
-                        newColumnCheckbox.className = "col-md-2 mt-1";
+                        newColumnCheckbox.className = "col-md-2 m-auto";
                         const columnCheckboxInput = document.createElement("input");
                         columnCheckboxInput.type = "checkbox";
                         columnCheckboxInput.id = "nullables-" + inputIndex;
                         columnCheckboxInput.name = "nullables[" + inputIndex + "]";
-                        columnCheckboxInput.className = "form-check-input mt-1";
+                        columnCheckboxInput.className = "form-check-input";
                         columnCheckboxInput.value = "true";
                         const columnCheckboxLabel = document.createElement("label");
                         columnCheckboxLabel.setAttribute("for", "nullables-" + inputIndex);
                         columnCheckboxLabel.innerHTML = "nullable";
-                        columnCheckboxLabel.className = 'form-check-label';
-                        columnCheckboxLabel.style.marginLeft = "5px";
+                        columnCheckboxLabel.className = '';
+                        columnCheckboxLabel.style.display = "inherit";
                         newColumnCheckbox.appendChild(columnCheckboxInput);
                         newColumnCheckbox.appendChild(columnCheckboxLabel);
                         columnNameInput.addEventListener("input", function () {
