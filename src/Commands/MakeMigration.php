@@ -34,7 +34,7 @@ class MakeMigration extends Command
                 continue;
             }
             if ($type == 'translatable') {
-                $columns .= "\t\t\t\$table->json('{$name}') ; \n";
+                $columns .= "\t\t\t\$table->json('{$name}')" . (in_array($name, $nullables) ? '->nullable()' : '') . "; \n";
             } else {
                 $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . (in_array($name, $nullables) ? '->nullable()' : '') . "; \n";
             }
