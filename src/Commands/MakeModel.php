@@ -81,8 +81,8 @@ class MakeModel extends Command
     {
         $container = $this->checkContainer();
         $result = match ($option) {
-            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
-            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes]),
+            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations , 'nullables' => $nullables]),
+            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes , 'nullables' => $nullables]),
             'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
             'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
             'seeder' => $this->call('create:seeder', ['name' => $name]),
@@ -99,7 +99,7 @@ class MakeModel extends Command
             $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables]);
             $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
             $this->call('create:seeder', ['name' => $name]);
-            $this->call('create:request', ['name' => $name, 'attributes' => $attributes]);
+            $this->call('create:request', ['name' => $name, 'attributes' => $attributes , 'nullables' => $nullables]);
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
 

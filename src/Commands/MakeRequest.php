@@ -16,7 +16,25 @@ class MakeRequest extends Command
 
     public $signature = 'create:request
         {name : The name of the model }
-        {attributes? : columns with data types}';
+        {attributes? : columns with data types}
+        {nullables? : nullable columns}';
+
+    /**
+     * @throws BindingResolutionException|FileNotFoundException
+     */
+    public function handle(): void
+    {
+        $modelName = $this->argument('name');
+        $attributes = $this->argument('attributes') ?? [];
+        $nullables = $this->argument('nullables') ?? [];
+
+        if (!$modelName || empty(trim($modelName))) {
+            $this->error('Invalid input');
+            return;
+        }
+
+        $this->createRequest($modelName, $attributes, $nullables);
+    }
 
     /**
      * @param array $attributes
@@ -46,26 +64,10 @@ class MakeRequest extends Command
     }
 
     /**
-     * @throws BindingResolutionException|FileNotFoundException
-     */
-    public function handle(): void
-    {
-        $modelName = $this->argument('name');
-        $attributes = $this->argument('attributes') ?? [];
-
-        if (!$modelName || empty(trim($modelName))) {
-            $this->error('Invalid input');
-            return;
-        }
-
-        $this->createRequest($modelName, $attributes);
-    }
-
-    /**
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function createRequest($modelName, array $attributes = []): void
+    private function createRequest($modelName, array $attributes = [], array $nullables = []): void
     {
         $modelName = modelNaming($modelName);
         $requestName = $this->getRequestName($modelName);
@@ -73,7 +75,7 @@ class MakeRequest extends Command
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.request_namespace') . "\\{$modelName}",
             '{class}' => $modelName,
-            '{rules}' => $this->generateCols($attributes),
+            '{rules}' => $this->generateCols($attributes, $nullables),
             '{prepareForValidation}' => $this->getPrepareForValidationMethod($attributes)
         ];
 
@@ -98,41 +100,42 @@ class MakeRequest extends Command
         $this->info("Created request: {$requestName}");
     }
 
-    private function generateCols(array $attributes = []): string
+    private function generateCols(array $attributes = [], array $nullables = []): string
     {
         $rules = '';
         foreach ($attributes as $name => $type) {
 
             $name = columnNaming($name);
+            $isNullable = in_array($name, $nullables) ? "nullable" : "required";
 
             if ($type == 'translatable') {
-                $rules .= "\t\t\t'{$name}'=>['required','json', new LanguageShape] , \n";
+                $rules .= "\t\t\t'{$name}'=>['{$isNullable}','json', new LanguageShape] , \n";
             } elseif ($name == 'name' || $name == 'first_name' || $name == 'last_name') {
-                $rules .= "\t\t\t'{$name}'=>'required|string|min:3|max:255',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isNullable}|string|min:3|max:255',\n";
             } elseif ($name == 'email') {
-                $rules .= "\t\t\t'{$name}'=>'required|string|max:255|email',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isNullable}|string|max:255|email',\n";
             } elseif ($name == 'password') {
-                $rules .= "\t\t\t'{$name}'=>'required|string|max:255|min:6|confirmed',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isNullable}|string|max:255|min:6|confirmed',\n";
             } elseif ($name == 'phone' || $name == 'phone_number' || $name == 'number') {
-                $rules .= "\t\t\t'{$name}'=>'required|string|max:255|min:6',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isNullable}|string|max:255|min:6',\n";
             } elseif (Str::endsWith($name, '_at') || in_array($type, ['date', 'dateTime', 'timestamp'])) {
-                $rules .= "\t\t\t'{$name}'=>'required|date',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isNullable}|date',\n";
             } elseif ($type == 'time') {
-                $rules .= "\t\t\t'{$name}'=>'required|date_format:H:i',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isNullable}|date_format:H:i',\n";
             } elseif (Str::startsWith($name, 'is_') || $type == 'boolean') {
-                $rules .= "\t\t\t'{$name}'=>'required|boolean',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isNullable}|boolean',\n";
             } elseif (Str::endsWith($name, '_id')) {
                 $relationModel = str_replace('_id', '', $name);
                 $relationModelPluralName = tableNaming($relationModel);
                 $rules .= "\t\t\t'{$name}'=>'required|numeric|exists:{$relationModelPluralName},id',\n";
             } elseif ($type == 'file') {
-                $rules .= "\t\t\t'{$name}'=>'nullable|image|mimes:jpeg,png,jpg|max:2048',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isNullable}|image|mimes:jpeg,png,jpg|max:2048',\n";
             } elseif ($type == 'text') {
-                $rules .= "\t\t\t'{$name}'=>'nullable|string',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isNullable}|string',\n";
             } elseif (in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])) {
-                $rules .= "\t\t\t'{$name}'=>'required|numeric',\n";
-            } else{
-                $rules .= "\t\t\t'{$name}'=>'required|{$type}',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isNullable}|numeric',\n";
+            } else {
+                $rules .= "\t\t\t'{$name}'=>'{$isNullable}|{$type}',\n";
             }
         }
 

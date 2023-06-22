@@ -36,7 +36,7 @@ class MakeMigration extends Command
             if ($type == 'translatable') {
                 $columns .= "\t\t\t\$table->json('{$name}') ; \n";
             } else {
-                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . (($type == 'file' || in_array($name, $nullables)) ? '->nullable()' : '') . "; \n";
+                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . (in_array($name, $nullables) ? '->nullable()' : '') . "; \n";
             }
         }
 
@@ -61,7 +61,7 @@ class MakeMigration extends Command
         $relations = $this->argument('relations') ?? [];
         $nullables = $this->argument("nullables") ?? [];
 
-        if ( ! $modelName || empty(trim($modelName))) {
+        if (!$modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }

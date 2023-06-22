@@ -373,7 +373,7 @@
                         columnTypeSelect.name = "columns[" + inputIndex + "][type]";
 
                         columnTypeSelect.addEventListener('input', function () {
-                            if (columnTypeSelect.value === 'key' || columnTypeSelect.value === 'file') {
+                            if (columnTypeSelect.value === 'key') {
                                 columnCheckboxInput.style.display = 'none';
                                 columnCheckboxLabel.style.display = 'none';
                             } else {
