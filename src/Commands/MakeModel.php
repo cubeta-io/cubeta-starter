@@ -81,8 +81,8 @@ class MakeModel extends Command
     {
         $container = $this->checkContainer();
         $result = match ($option) {
-            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations , 'nullables' => $nullables]),
-            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes , 'nullables' => $nullables]),
+            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables]),
+            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables]),
             'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
             'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
             'seeder' => $this->call('create:seeder', ['name' => $name]),
@@ -99,7 +99,7 @@ class MakeModel extends Command
             $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables]);
             $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
             $this->call('create:seeder', ['name' => $name]);
-            $this->call('create:request', ['name' => $name, 'attributes' => $attributes , 'nullables' => $nullables]);
+            $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables]);
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
 
@@ -179,6 +179,8 @@ class MakeModel extends Command
 
         $methodsArrayKeys = $this->fillArrayKeysMethodsInTheModel($attributes, $this->relations);
 
+        $useTranslationsTrait = in_array('translatable', $attributes) ? "use HasFactory; \n use \Cubeta\CubetaStarter\Traits\Translations;\n" : "use HasFactory;";
+
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.model_namespace'),
             '{modelName}' => $className,
@@ -191,6 +193,7 @@ class MakeModel extends Command
             '{searchableKeys}' => $methodsArrayKeys['searchable'],
             '{searchableRelations}' => $methodsArrayKeys['relationSearchable'],
             '{translatedAttributes}' => $this->getTranslatableModelAttributes($attributes),
+            "use HasFactory;" => $useTranslationsTrait,
         ];
 
         generateFileFromStub($stubProperties, $modelPath, __DIR__ . '/stubs/model.stub');
