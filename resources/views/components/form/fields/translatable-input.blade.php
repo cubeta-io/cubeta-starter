@@ -11,7 +11,7 @@
             {{ $lang }} : {{ $label }}</label>
         <input class="form-control translatable @error(columnNaming($label)) is-invalid @enderror"
                id="{{ columnNaming($label) }}-{{ $lang }}" name="{{ columnNaming($label) }}[{{ $lang }}]"
-               value="{{ $value[$lang] ?? null }}" {{ $attributes->merge() }}
+               value="{{ old(columnNaming($label)."[$lang]") ?? ($value[$lang] ?? null) }}" {{ $attributes->merge() }}
                @if ($loop->index != 0) style="display: none" @endif>
     @endforeach
 </div>
