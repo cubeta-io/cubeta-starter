@@ -5,7 +5,7 @@
     <input class="form-control @error(columnNaming($label)) is-invalid @enderror"
            id="{{columnNaming($label)}}"
            name="{{columnNaming($label)}}"
-           value="{{ old('"'.columnNaming($label).'"') ?? $value ?? null }}"
+           value="{{ old(columnNaming($label)) ?? $value ?? null }}"
            step="any"
         {{$attributes->merge()}}
     >

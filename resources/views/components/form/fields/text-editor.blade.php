@@ -12,6 +12,6 @@
     </script>
     <div {{$attributes->merge()}}>
         <label for="{{columnNaming($label)}}">{{$label}}</label>
-        <textarea id="{{columnNaming($label)}}" name="{{columnNaming($label)}}">{{ $value }}</textarea>
+        <textarea id="{{columnNaming($label)}}" name="{{columnNaming($label)}}">{{ old(columnNaming($label)) ?? $value }}</textarea>
     </div>
 </div>

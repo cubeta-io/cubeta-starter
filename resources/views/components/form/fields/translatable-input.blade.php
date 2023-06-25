@@ -1,6 +1,9 @@
 @props(['label', 'value' => null])
 @php
-    if ($value){
+    if (old(columnNaming($label))){
+        $value = old(columnNaming($label));
+    }
+    elseif ($value){
         $value = json_decode($value , true);
     }
 @endphp
@@ -11,7 +14,7 @@
             {{ $lang }} : {{ $label }}</label>
         <input class="form-control translatable @error(columnNaming($label)) is-invalid @enderror"
                id="{{ columnNaming($label) }}-{{ $lang }}" name="{{ columnNaming($label) }}[{{ $lang }}]"
-               value="{{ old(columnNaming($label)."[$lang]") ?? ($value[$lang] ?? null) }}" {{ $attributes->merge() }}
+               value="{{ ($value[$lang] ?? null) }}" {{ $attributes->merge() }}
                @if ($loop->index != 0) style="display: none" @endif>
     @endforeach
 </div>
