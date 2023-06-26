@@ -209,7 +209,18 @@ trait ViewGenerating
         foreach ($attributes as $attribute => $type) {
             $attribute = columnNaming($attribute);
             $label = $this->getLabelName($attribute);
-            if ($type == 'file' || $type == 'text') {
+            if ($type == 'text') {
+                continue;
+            }
+            if ($type == 'file') {
+                $json .= "{
+                                \"data\": 'image',render:
+                                    function (data) {
+                                        const filePath = \"{{asset(\"storage/\")}}/\" + data;
+                                        return '<a href=\"' + filePath + '\" class=\"btn btn-sm btn-primary\"  target=\"_blank\">show file</a>';
+                                    }
+                           }, \n";
+                $html.= "\n<th>{$label}</th>\n";
                 continue;
             }
             $json .= "{\"data\": '{$attribute}', searchable: true, orderable: true}, \n";

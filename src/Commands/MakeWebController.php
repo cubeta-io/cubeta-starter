@@ -145,7 +145,7 @@ class MakeWebController extends Command
 
     private function addSidebarItem(string $modelName, string $routeName)
     {
-        $modelName = tableNaming($modelName);
+        $modelName = titleNaming($modelName);
         $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');
         if (!file_exists($sidebarPath)) {
             return;

@@ -82,3 +82,12 @@ function columnNaming(string $name): string
 {
     return strtolower(Str::snake($name));
 }
+
+/**
+ * @param string $name
+ * @return string
+ */
+function titleNaming(string $name): string
+{
+    return Str::headline($name);
+}
