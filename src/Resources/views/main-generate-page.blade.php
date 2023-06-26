@@ -406,6 +406,16 @@
                             uniqueCheckboxInput.value = columnNameInput.value;
                             uniqueCheckboxInput.checked = false;
                         }
+
+                        if (columnTypeSelect.value === 'file') {
+                            nullableCheckboxInput.disabled = true;
+                            nullableCheckboxInput.value = null;
+                            nullableCheckboxInput.checked = true;
+                        } else {
+                            nullableCheckboxInput.disabled = false;
+                            nullableCheckboxInput.value = columnNameInput.value;
+                            nullableCheckboxInput.checked = false;
+                        }
                     });
 
                     @foreach($types as $type)

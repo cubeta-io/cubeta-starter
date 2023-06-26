@@ -5,6 +5,7 @@ window.jQuery = $ ;
 
 //data tables
 import 'laravel-datatables-vite';
+import 'datatables.net-buttons/js/buttons.html5.mjs';
 
 //Bootstrap
 import 'bootstrap';
