@@ -345,28 +345,48 @@
                         newColumnName.appendChild(columnNameInput);
 
                         @if($nullables)
-                        const newColumnCheckbox = document.createElement("div");
-                        newColumnCheckbox.className = "col-md-2 m-auto";
-                        const columnCheckboxInput = document.createElement("input");
-                        columnCheckboxInput.type = "checkbox";
-                        columnCheckboxInput.id = "nullables-" + inputIndex;
-                        columnCheckboxInput.name = "nullables[" + inputIndex + "]";
-                        columnCheckboxInput.className = "form-check-input";
-                        columnCheckboxInput.value = "true";
-                        const columnCheckboxLabel = document.createElement("label");
-                        columnCheckboxLabel.setAttribute("for", "nullables-" + inputIndex);
-                        columnCheckboxLabel.innerHTML = "nullable";
-                        columnCheckboxLabel.className = '';
-                        columnCheckboxLabel.style.display = "inherit";
-                        newColumnCheckbox.appendChild(columnCheckboxInput);
-                        newColumnCheckbox.appendChild(columnCheckboxLabel);
+                        const nullableCheckbox = document.createElement("div");
+                        nullableCheckbox.className = "col-md-2 m-auto";
+                        const nullableCheckboxInput = document.createElement("input");
+                        nullableCheckboxInput.type = "checkbox";
+                        nullableCheckboxInput.id = "nullables-" + inputIndex;
+                        nullableCheckboxInput.name = "nullables[" + inputIndex + "]";
+                        nullableCheckboxInput.className = "form-check-input";
+                        nullableCheckboxInput.value = "true";
+                        const nullableLabel = document.createElement("label");
+                        nullableLabel.setAttribute("for", "nullables-" + inputIndex);
+                        nullableLabel.innerHTML = "nullable";
+                        nullableLabel.className = '';
+                        nullableLabel.style.display = "inherit";
+                        nullableCheckbox.appendChild(nullableCheckboxInput);
+                        nullableCheckbox.appendChild(nullableLabel);
                         columnNameInput.addEventListener("input", function () {
-                            columnCheckboxInput.value = columnNameInput.value;
+                            nullableCheckboxInput.value = columnNameInput.value;
+                        });
+                        @endif
+
+                        @if($uniques)
+                        const uniqueCheckbox = document.createElement("div");
+                        uniqueCheckbox.className = "col-md-2 m-auto";
+                        const uniqueCheckboxInput = document.createElement("input");
+                        uniqueCheckboxInput.type = "checkbox";
+                        uniqueCheckboxInput.id = "uniques-" + inputIndex;
+                        uniqueCheckboxInput.name = "uniques[" + inputIndex + "]";
+                        uniqueCheckboxInput.className = "form-check-input";
+                        const uniqueLabel = document.createElement("label");
+                        uniqueLabel.setAttribute("for", "uniques-" + inputIndex);
+                        uniqueLabel.innerHTML = "unique";
+                        uniqueLabel.className = '';
+                        uniqueLabel.style.display = "inherit";
+                        uniqueCheckbox.appendChild(uniqueCheckboxInput);
+                        uniqueCheckbox.appendChild(uniqueLabel);
+                        columnNameInput.addEventListener("input", function () {
+                            uniqueCheckboxInput.value = columnNameInput.value;
                         });
                         @endif
 
                         const newColumnType = document.createElement("div");
-                        newColumnType.className = "col-md-5 mt-1";
+                        newColumnType.className = "col-md-3 mt-1";
                         const columnTypeSelect = document.createElement("select");
                         columnTypeSelect.className = "form-select column-type";
                         columnTypeSelect.setAttribute("aria-label", "Default select example");
@@ -374,11 +394,13 @@
 
                         columnTypeSelect.addEventListener('input', function () {
                             if (columnTypeSelect.value === 'key') {
-                                columnCheckboxInput.style.display = 'none';
-                                columnCheckboxLabel.style.display = 'none';
+                                uniqueCheckboxInput.disabled = true;
+                                uniqueCheckboxInput.value = null;
+                                uniqueCheckboxInput.checked = true;
                             } else {
-                                columnCheckboxInput.style.display = 'block';
-                                columnCheckboxLabel.style.display = 'block';
+                                uniqueCheckboxInput.disabled = false;
+                                uniqueCheckboxInput.value = columnNameInput.value;
+                                uniqueCheckboxInput.checked = false;
                             }
                         });
 
@@ -419,7 +441,11 @@
                         newColumn.appendChild(newColumnType);
 
                         @if($nullables)
-                        newColumn.appendChild(newColumnCheckbox);
+                        newColumn.appendChild(nullableCheckbox);
+                        @endif
+
+                        @if($uniques)
+                        newColumn.appendChild(uniqueCheckbox);
                         @endif
 
                         newColumn.appendChild(deleteColumnButtonDiv);

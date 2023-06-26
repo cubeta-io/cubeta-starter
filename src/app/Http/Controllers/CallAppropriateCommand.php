@@ -33,6 +33,7 @@ class CallAppropriateCommand extends Controller
         $this->actor = $request->actor;
         $this->container = $request->containerType;
         $this->nullables = $request->nullables;
+        $this->uniques = $request->uniques;
     }
 
     public function callAddActorCommand(Request $request)
@@ -54,7 +55,7 @@ class CallAppropriateCommand extends Controller
     }
 
     public function callCommand($command)
-    {
+{
         set_time_limit(0);
         try {
             if (empty(trim($this->modelName))) {
@@ -83,12 +84,18 @@ class CallAppropriateCommand extends Controller
                 $arguments['relations'] = $this->relations;
             }
 
-            if (isset($this->nullables) && count($this->nullables) > 0){
-                foreach ($this->nullables as $key => &$value){
+            if (isset($this->nullables) && count($this->nullables) > 0) {
+                foreach ($this->nullables as $key => &$value) {
                     $value = columnNaming($value);
                 }
-
                 $arguments['nullables'] = $this->nullables;
+            }
+
+            if (isset($this->uniques) && count($this->uniques) > 0) {
+                foreach ($this->uniques as $key => &$value) {
+                    $value = columnNaming($value);
+                }
+                $arguments['uniques'] = $this->uniques;
             }
 
             if (isset($this->actor)) {

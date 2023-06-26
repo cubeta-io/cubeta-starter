@@ -13,6 +13,7 @@ class RenderAppropriateViewController extends Controller
         'modelNameField' => true,
         'attributesField' => false,
         'nullables' => false,
+        'uniques' => false,
         'relationsField' => false,
         'actorsField' => false,
         'addActor' => false,
@@ -70,6 +71,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['action'] = route('cubeta-starter.call-create-model-command');
         $this->arguments['attributesField'] = true;
         $this->arguments['nullables'] = true;
+        $this->arguments['uniques'] = true;
         $this->arguments['relationsField'] = true;
         $this->arguments['actorsField'] = true;
         $this->arguments['containerField'] = true;

@@ -24,7 +24,8 @@ class MakeModel extends Command
         {actor?}
         {container?}
         {option? : string to generate a single file (migration, request, resource, factory, seeder, repository, service, controller, test, postman-collection)}
-        {nullables? : nullable columns}';
+        {nullables? : nullable columns}
+        {uniques? : unique columns}';
 
     protected array $relations = [];
 
@@ -49,6 +50,52 @@ class MakeModel extends Command
         'key',
         'translatable',
     ];
+
+    /**
+     * @return void
+     *
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function handle(): void
+    {
+        $name = $this->argument('name');
+        $option = $this->argument('option');
+        $guiAttributes = $this->argument('attributes') ?? [];
+        $nullables = $this->argument('nullables') ?? [];
+        $uniques = $this->argument('uniques') ?? [];
+        $relations = $this->argument('relations') ?? [];
+        $actor = $this->argument('actor') ?? 'none';
+        $this->useGui = $this->argument('gui') ?? false;
+
+        if (!$name || empty(trim($name))) {
+            $this->error('Invalid input');
+            return;
+        }
+
+        $modelName = modelNaming($name);
+
+        // handling the usage of the gui
+        if ($this->useGui) {
+            $this->relations = $relations;
+            $this->createModel($modelName, $guiAttributes);
+            $this->callAppropriateCommand($name, $option, $actor, $guiAttributes, $nullables, $uniques);
+            $this->createPivots($modelName);
+            return;
+        }
+
+        $paramsString = $this->getModelAttributesFromTheUser();
+
+        $attributes = $this->convertToArrayOfAttributes($paramsString);
+
+        $this->createModel($modelName, $attributes);
+
+        $actor = $this->checkTheActor();
+
+        $this->callAppropriateCommand($name, $option, $actor, $attributes, $nullables, $uniques);
+
+        $this->createPivots($modelName);
+    }
 
     /**
      * create scopes for the model boolean values
@@ -77,14 +124,14 @@ class MakeModel extends Command
     /**
      * call to command base on the option flag
      */
-    public function callAppropriateCommand(string $name, $option, string $actor, array $attributes = [], array $nullables = []): void
+    public function callAppropriateCommand(string $name, $option, string $actor, array $attributes = [], array $nullables = [], array $uniques = []): void
     {
         $container = $this->checkContainer();
         $result = match ($option) {
-            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables]),
-            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables]),
+            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables, 'uniques' => $uniques]),
+            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques]),
             'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
-            'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
+            'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'uniques' => $uniques]),
             'seeder' => $this->call('create:seeder', ['name' => $name]),
             'repository' => $this->call('create:repository', ['name' => $name]),
             'service' => $this->call('create:service', ['name' => $name]),
@@ -96,10 +143,10 @@ class MakeModel extends Command
         };
 
         if ($result === 'all') {
-            $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables]);
-            $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
+            $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables , 'uniques' => $uniques]);
+            $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'uniques' => $uniques]);
             $this->call('create:seeder', ['name' => $name]);
-            $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables]);
+            $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques]);
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
 
@@ -304,52 +351,6 @@ class MakeModel extends Command
         }
 
         return $result;
-    }
-
-    /**
-     * @return void
-     *
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    public function handle(): void
-    {
-        $name = $this->argument('name');
-        $option = $this->argument('option');
-        $guiAttributes = $this->argument('attributes') ?? [];
-        $nullables = $this->argument('nullables') ?? [];
-        $relations = $this->argument('relations') ?? [];
-        $actor = $this->argument('actor') ?? 'none';
-        $this->useGui = $this->argument('gui') ?? false;
-
-        if (!$name || empty(trim($name))) {
-            $this->error('Invalid input');
-            return;
-        }
-
-        $modelName = modelNaming($name);
-
-        // handling the usage of the gui
-        if ($this->useGui) {
-            $this->relations = $relations;
-            $this->createModel($modelName, $guiAttributes);
-            $this->callAppropriateCommand($name, $option, $actor, $guiAttributes, $nullables);
-            $this->createPivots($modelName);
-
-            return;
-        }
-
-        $paramsString = $this->getModelAttributesFromTheUser();
-
-        $attributes = $this->convertToArrayOfAttributes($paramsString);
-
-        $this->createModel($modelName, $attributes);
-
-        $actor = $this->checkTheActor();
-
-        $this->callAppropriateCommand($name, $option, $actor, $attributes, $nullables);
-
-        $this->createPivots($modelName);
     }
 
     /**

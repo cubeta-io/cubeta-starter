@@ -35,6 +35,11 @@ class {modelName}Controller extends Controller
                             </a>
                         </div>
                         <div class='p-1'>
+                            <a href='" . route('{editRouteName}', $row->id) . "' class='btn btn-xs btn-success'>
+                                <i class='bi bi-pencil-square'></i>
+                            </a>
+                        </div>
+                        <div class='p-1'>
                             <button type='button' class='btn btn-xs btn-danger remove-item-from-table-btn'
                                     data-deleteurl ='" . route('{deleteRouteName}', $row->id) . "' >
                                 <i class='bi bi-trash3-fill'></i>

@@ -20,35 +20,8 @@ class MakeMigration extends Command
         {name : The name of the model }
         {attributes? : columns with data types}
         {relations?  : related models}
-        {nullables? : nullable columns}';
-
-    /**
-     * return the columns of the migration file
-     */
-    public function generateMigrationCols(array $attributes = [], array $relations = [], array $nullables = []): string
-    {
-        $columns = '';
-        foreach ($attributes as $name => $type) {
-            $name = columnNaming($name);
-            if ($type == 'key') {
-                continue;
-            }
-            if ($type == 'translatable') {
-                $columns .= "\t\t\t\$table->json('{$name}')" . (in_array($name, $nullables) ? '->nullable()' : '') . "; \n";
-            } else {
-                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . (in_array($name, $nullables) ? '->nullable()' : '') . "; \n";
-            }
-        }
-
-        foreach ($relations as $rel => $type) {
-            if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
-                $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
-                $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::class)->constrained()->cascadeOnDelete(); \n";
-            }
-        }
-
-        return $columns;
-    }
+        {nullables? : nullable columns}
+        {uniques? : uniques columns}';
 
     /**
      * @throws BindingResolutionException
@@ -60,20 +33,21 @@ class MakeMigration extends Command
         $attributes = $this->argument('attributes') ?? [];
         $relations = $this->argument('relations') ?? [];
         $nullables = $this->argument("nullables") ?? [];
+        $uniques = $this->argument('uniques') ?? [];
 
         if (!$modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
 
-        $this->createMigration($modelName, $attributes, $relations, $nullables);
+        $this->createMigration($modelName, $attributes, $relations, $nullables , $uniques);
     }
 
     /**
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function createMigration($modelName, array $attributes = [], array $relations = [], array $nullables = []): void
+    private function createMigration($modelName, array $attributes = [], array $relations = [], array $nullables = [], array $uniques = []): void
     {
 
         $tableName = tableNaming($modelName);
@@ -88,7 +62,7 @@ class MakeMigration extends Command
 
         $stubProperties = [
             '{table}' => $tableName,
-            '{col}' => $this->generateMigrationCols($attributes, $relations, $nullables),
+            '{col}' => $this->generateMigrationCols($attributes, $relations, $nullables, $uniques),
         ];
         $migrationPath = $this->getMigrationsPath($migrationName);
 
@@ -100,6 +74,38 @@ class MakeMigration extends Command
 
         $this->formatFile($migrationPath);
         $this->info("Created migration: {$migrationName}");
+    }
+
+    /**
+     * return the columns of the migration file
+     */
+    public function generateMigrationCols(array $attributes = [], array $relations = [], array $nullables = [], array $uniques = []): string
+    {
+        $columns = '';
+        foreach ($attributes as $name => $type) {
+            $name = columnNaming($name);
+            $nullable = (in_array($name, $nullables) || $type == 'file') ? '->nullable()' : '';
+            $unique = in_array($name, $uniques) ? '->unique()' : '';
+
+            if ($type == 'key') {
+                continue;
+            }
+            if ($type == 'translatable') {
+                $columns .= "\t\t\t\$table->json('{$name}')" . $nullable . $unique . "; \n";
+            } else {
+                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . $nullable . $unique . "; \n";
+            }
+        }
+
+        foreach ($relations as $rel => $type) {
+            if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
+                $nullable = in_array($rel.'_id', $nullables) ? '->nullable()' : '';
+                $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
+                $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::class){$nullable}->constrained()->cascadeOnDelete(); \n";
+            }
+        }
+
+        return $columns;
     }
 
     private function getMigrationName($modelName): string

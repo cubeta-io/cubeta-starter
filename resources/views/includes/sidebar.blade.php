@@ -2,7 +2,7 @@
 
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item">
-            <a class="nav-link collapsed" href="#">
+            <a class="nav-link collapsed" href="about:blank">
                 <i class="bi bi-circle"></i>
                 <span>Home</span>
             </a>

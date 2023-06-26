@@ -19,7 +19,8 @@ class MakeFactory extends Command
     public $signature = 'create:factory
         {name       : The name of the model }
         {attributes? : columns with data types}
-        {relations?  : the model relations}';
+        {relations?  : the model relations}
+        {uniques? : unique columns}';
 
     private array $typeFaker = [
         'integer' => 'fake()->numberBetween(1,2000)',
@@ -47,26 +48,27 @@ class MakeFactory extends Command
         $modelName = $this->argument('name');
         $attributes = $this->argument('attributes') ?? [];
         $relations = $this->argument('relations') ?? [];
+        $uniques = $this->argument('uniques') ?? [];
 
-        if ( ! $modelName || empty(trim($modelName))) {
+        if (!$modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
 
-        $this->createFactory($modelName, $attributes, $relations);
+        $this->createFactory($modelName, $attributes, $relations, $uniques);
     }
 
     /**
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function createFactory($modelName, array $attributes = [], array $relations = []): void
+    private function createFactory($modelName, array $attributes = [], array $relations = [], array $uniques = []): void
     {
         $modelName = modelNaming($modelName);
 
         $factoryName = $this->getFactoryName($modelName);
 
-        $factoryAttributes = $this->generateCols($attributes, $relations);
+        $factoryAttributes = $this->generateCols($attributes, $relations, $uniques);
 
         $factoryPath = $this->getFactoryPath($factoryName);
         if (file_exists($factoryPath)) {
@@ -95,145 +97,85 @@ class MakeFactory extends Command
      * @return string[]\
      */
     #[ArrayShape(['rows' => 'string', 'relatedFactories' => 'string'])]
-    private function generateCols(array $attributes = [], array $relations = []): array
+    private function generateCols(array $attributes = [], array $relations = [], array $uniques = []): array
     {
         $rows = '';
         $relatedFactories = '';
         foreach ($attributes as $name => $type) {
-
             $name = columnNaming($name);
+            $isUnique = in_array($name, $uniques) ? "->unique()" : "";
 
             if ($type == 'key') {
                 $relatedModel = modelNaming(str_replace('_id', '', $name));
                 $rows .= "\t\t\t'{$name}' => \\" . config('cubeta-starter.model_namespace') . "\\{$relatedModel}::factory() ,\n";
-
-                continue;
-            }
-
-            if ($type == 'translatable') {
-
+            } elseif ($type == 'translatable') {
                 $availableLocales = config('cubeta-starter.available_locales');
                 $rows .= "'{$name}' => json_encode([";
 
                 foreach ($availableLocales as $locale) {
-                    $rows .= "'{$locale}' => fake('{$locale}')->word() , ";
+                    $rows .= "'{$locale}' => fake('{$locale}'){$isUnique}->word() , ";
                 }
-
                 $rows .= "]) ,\n";
 
-                continue;
-            }
+            } elseif (in_array($name, ['name', 'username', 'first_name', 'last_name', 'user_name'])) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->firstName(),\n";
 
-            if (in_array($name, ['name', 'username', 'first_name', 'last_name', 'user_name'])) {
-                $rows .= "\t\t\t'{$name}' => fake()->firstName(),\n";
+            } elseif ($name == 'email') {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->email(),\n";
 
-                continue;
-            }
+            } elseif (in_array($name, ['cost', 'price', 'value', 'expense']) || Str::contains($name, ['price', 'cost'])) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->randomFloat(2, 0, 1000),\n";
 
-            if ($name == 'email') {
-                $rows .= "\t\t\t'{$name}' => fake()->email(),\n";
+            } elseif (Str::contains($name, 'description')) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->text(),\n";
 
-                continue;
-            }
+            } elseif (Str::contains($name, 'phone')) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->phoneNumber(),\n";
 
-            if (in_array($name, ['cost', 'price', 'value', 'expense']) || Str::contains($name, ['price', 'cost'])) {
-                $rows .= "\t\t\t'{$name}' => fake()->randomFloat(2, 0, 1000),\n";
+            } elseif (Str::contains($name, ['image', 'icon', 'logo', 'photo'])) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->imageUrl(),\n";
 
-                continue;
-            }
+            } elseif (Str::contains($name, ['longitude', '_lon', '_lng', 'lon_', 'lng_']) || $name == 'lng' || $name == 'lon') {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->longitude(),\n";
 
-            if (Str::contains($name, 'description')) {
-                $rows .= "\t\t\t'{$name}' => fake()->text(),\n";
+            } elseif (Str::contains($name, ['latitude ', '_lat', 'lat_']) || $name == 'lat') {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->latitude(),\n";
 
-                continue;
-            }
+            } elseif (Str::contains($name, 'address')) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->address(),\n";
 
-            if (Str::contains($name, 'phone')) {
-                $rows .= "\t\t\t'{$name}' => fake()->phoneNumber(),\n";
+            } elseif (Str::contains($name, 'street')) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->streetName(),\n";
 
-                continue;
-            }
+            } elseif (Str::contains($name, 'city')) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->city(),\n";
 
-            if (Str::contains($name, ['image', 'icon', 'logo', 'photo'])) {
-                $rows .= "\t\t\t'{$name}' => fake()->imageUrl(),\n";
+            } elseif (Str::contains($name, ['zip', 'post_code', 'postcode', 'PostCode', 'postCode', 'ZIP'])) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->postcode(),\n";
 
-                continue;
-            }
+            } elseif (Str::contains($name, 'country')) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->country(),\n";
 
-            if (Str::contains($name, ['longitude', '_lon', '_lng', 'lon_', 'lng_']) || $name == 'lng' || $name == 'lon') {
-                $rows .= "\t\t\t'{$name}' => fake()->longitude(),\n";
+            } elseif (Str::contains($name, 'age')) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->numberBetween(15,60),\n";
 
-                continue;
-            }
+            } elseif (Str::contains($name, 'gender')) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->randomElement(['male' , 'female']),\n";
 
-            if (Str::contains($name, ['latitude ', '_lat', 'lat_']) || $name == 'lat') {
-                $rows .= "\t\t\t'{$name}' => fake()->latitude(),\n";
+            } elseif (Str::contains($name, 'time')) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->time(),\n";
 
-                continue;
-            }
+            } elseif (Str::endsWith($name, '_at') || Str::contains($name, 'date')) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->date(),\n";
 
-            if (Str::contains($name, 'address')) {
-                $rows .= "\t\t\t'{$name}' => fake()->address(),\n";
+            } elseif (Str::startsWith($name, 'is_')) {
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->boolean(),\n";
 
-                continue;
-            }
-
-            if (Str::contains($name, 'street')) {
-                $rows .= "\t\t\t'{$name}' => fake()->streetName(),\n";
-
-                continue;
-            }
-
-            if (Str::contains($name, 'city')) {
-                $rows .= "\t\t\t'{$name}' => fake()->city(),\n";
-
-                continue;
-            }
-
-            if (Str::contains($name, ['zip', 'post_code', 'postcode', 'PostCode', 'postCode', 'ZIP'])) {
-                $rows .= "\t\t\t'{$name}' => fake()->postcode(),\n";
-
-                continue;
-            }
-
-            if (Str::contains($name, 'country')) {
-                $rows .= "\t\t\t'{$name}' => fake()->country(),\n";
-
-                continue;
-            }
-
-            if (Str::contains($name, 'age')) {
-                $rows .= "\t\t\t'{$name}' => fake()->numberBetween(15,60),\n";
-
-                continue;
-            }
-
-            if (Str::contains($name, 'gender')) {
-                $rows .= "\t\t\t'{$name}' => fake()->randomElement(['male' , 'female']),\n";
-
-                continue;
-            }
-
-            if (Str::contains($name, 'time')) {
-                $rows .= "\t\t\t'{$name}' => fake()->time(),\n";
-
-                continue;
-            }
-
-            if (Str::endsWith($name, '_at') || Str::contains($name, 'date')) {
-                $rows .= "\t\t\t'{$name}' => fake()->date(),\n";
-
-                continue;
-            }
-            if (Str::startsWith($name, 'is_')) {
-                $rows .= "\t\t\t'{$name}' => fake()->boolean(),\n";
-
-                continue;
-            }
-
-            if (array_key_exists($type, $this->typeFaker)) {
+            } elseif (array_key_exists($type, $this->typeFaker)) {
                 $faker = $this->typeFaker["{$type}"];
-                $rows .= "\t\t\t'{$name}' => {$faker}, \n";
+                $rows .= "\t\t\t'{$name}' => {$faker}{$isUnique}, \n";
+            } else {
+                $rows .= "\t\t\t '{$name}' => fake()->$type(), \n";
             }
         }
 
