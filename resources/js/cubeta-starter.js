@@ -4,8 +4,12 @@ window.$ = $;
 window.jQuery = $ ;
 
 //data tables
-import 'laravel-datatables-vite';
+import 'datatables.net-bs5';
 import 'datatables.net-buttons/js/buttons.html5.mjs';
+import 'datatables.net-buttons-bs5';
+import 'datatables.net-buttons/js/buttons.colVis.mjs';
+import 'datatables.net-fixedcolumns-bs5';
+import 'datatables.net-fixedheader-bs5';
 
 //Bootstrap
 import 'bootstrap';

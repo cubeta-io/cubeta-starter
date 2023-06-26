@@ -24,6 +24,7 @@
                         table = $('#table').DataTable({
                             processing: true,
                             serverSide: true,
+                            scrollX:true,
                             buttons: [
                                 {
                                     extend: 'csvHtml5',

@@ -83,11 +83,12 @@
                                 <div class="row">
                                     <div class="col-md-auto">
                                         <ul>
+                                            <li>datatables.net-fixedcolumns-bs5</li>
+                                            <li>datatables.net-fixedheader-bs5</li>
                                             <li>select2-bootstrap-5-theme</li>
                                             <li>datatables.net-buttons</li>
                                             <li>laravel-datatables-vite</li>
                                             <li>bootstrap 5.2.3</li>
-                                            <li>select2</li>
                                         </ul>
                                     </div>
                                     <div class="col-md-auto">
@@ -95,6 +96,7 @@
                                             <li>baguettebox.js</li>
                                             <li>sweetalert2</li>
                                             <li>tinymce</li>
+                                            <li>select2</li>
                                             <li>jquery</li>
                                             <li>Sass</li>
                                         </ul>

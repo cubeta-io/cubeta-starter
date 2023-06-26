@@ -20,7 +20,8 @@ class InstallWebPackages extends Command
 
         $this->info('installing laravel-datatables-vite');
         $this->executeCommandInTheBaseDirectory('npm i laravel-datatables-vite');
-        $this->executeCommandInTheBaseDirectory('npm i datatables.net-buttons');
+        $this->executeCommandInTheBaseDirectory('npm install --save datatables.net-fixedheader-bs5');
+        $this->executeCommandInTheBaseDirectory('npm install --save datatables.net-fixedcolumns-bs5');
 
         $this->info('installing jquery');
         $this->executeCommandInTheBaseDirectory('npm install jquery');

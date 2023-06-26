@@ -1259,29 +1259,6 @@ h6 {
     font-size: 50px;
 }
 
-
-#table {
-    table-layout: fixed;
-    width: 100% !important;
-}
-
-#table td,
-#table th {
-    width: auto !important;
-    white-space: normal;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-
-table.dataTable td {
-    text-align: center;
-}
-
-table.dataTable th {
-    text-align: center;
-}
-
 .lang-btn-holder .lang-btn {
     border-radius: 0;
 }
