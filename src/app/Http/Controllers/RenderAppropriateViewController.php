@@ -107,6 +107,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['action'] = route('cubeta-starter.call-create-factory-command');
         $this->arguments['attributesField'] = true;
         $this->arguments['relationsField'] = true;
+        $this->arguments['uniques'] = true;
         $this->arguments['modalBody'] = "Generating Factory";
         $this->arguments['notes'] = ' <li class="notes">check on how the factory will be generated <a
                                                 href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md#factories" target="_blank">here</a>
@@ -122,6 +123,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['action'] = route('cubeta-starter.call-create-migration-command');
         $this->arguments['attributesField'] = true;
         $this->arguments['nullables'] = true;
+        $this->arguments['uniques'] = true;
         $this->arguments['relationsField'] = true;
         $this->arguments['modalBody'] = "Generating Migration";
 
@@ -169,6 +171,8 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['textUnderTitle'] = 'Here We Will Generate The Request Class For Your Model';
         $this->arguments['action'] = route('cubeta-starter.call-create-request-command');
         $this->arguments['attributesField'] = true;
+        $this->arguments['uniques'] = true;
+        $this->arguments['nullables'] = true;
         $this->arguments['modalBody'] = "Generating Form Request";
         $this->arguments['notes'] = ' <li class="notes">check on how the form request will be generated <a
                                                 href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md#requests" target="_blank">here</a>

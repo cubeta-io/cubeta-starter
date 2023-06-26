@@ -317,213 +317,216 @@
             </script>
         @endpush
     @endif
-    @if($attributesField)
-        @push('scripts')
-            <script type="module">
-                $(document).ready(function () {
-                    const addColumnButton = document.getElementById("add-column-button");
-                    const addRelationButton = document.getElementById("add-relation-button");
-                    const columnsContainer = document.getElementById("columns-container");
-                    const relationsContainer = document.getElementById("relations-container");
-                    let inputIndex = 1;
-                    let relationIndex = 1;
+    @push('scripts')
+        <script type="module">
+            $(document).ready(function () {
+                const addColumnButton = document.getElementById("add-column-button");
+                const addRelationButton = document.getElementById("add-relation-button");
+                const columnsContainer = document.getElementById("columns-container");
+                const relationsContainer = document.getElementById("relations-container");
+                let inputIndex = 1;
+                let relationIndex = 1;
 
-                    addColumnButton.addEventListener("click", function (e) {
-                        e.preventDefault();
+                @if($attributesField)
+                addColumnButton.addEventListener("click", function (e) {
+                    e.preventDefault();
 
-                        const newColumn = document.createElement("div");
-                        newColumn.className = "row";
+                    const newColumn = document.createElement("div");
+                    newColumn.className = "row";
 
-                        const newColumnName = document.createElement("div");
-                        newColumnName.className = "col-md-4 mt-1";
-                        const columnNameInput = document.createElement("input");
-                        columnNameInput.className = "form-control column-name";
-                        columnNameInput.type = "text";
-                        columnNameInput.name = "columns[" + inputIndex + "][name]";
-                        columnNameInput.placeholder = "Enter Your Column Name e.g:name,type,price";
-                        columnNameInput.required = true;
-                        newColumnName.appendChild(columnNameInput);
+                    const newColumnName = document.createElement("div");
+                    newColumnName.className = "col-md-4 mt-1";
+                    const columnNameInput = document.createElement("input");
+                    columnNameInput.className = "form-control column-name";
+                    columnNameInput.type = "text";
+                    columnNameInput.name = "columns[" + inputIndex + "][name]";
+                    columnNameInput.placeholder = "Enter Your Column Name e.g:name,type,price";
+                    columnNameInput.required = true;
+                    newColumnName.appendChild(columnNameInput);
 
-                        @if($nullables)
-                        const nullableCheckbox = document.createElement("div");
-                        nullableCheckbox.className = "col-md-2 m-auto";
-                        const nullableCheckboxInput = document.createElement("input");
-                        nullableCheckboxInput.type = "checkbox";
-                        nullableCheckboxInput.id = "nullables-" + inputIndex;
-                        nullableCheckboxInput.name = "nullables[" + inputIndex + "]";
-                        nullableCheckboxInput.className = "form-check-input";
-                        nullableCheckboxInput.value = "true";
-                        const nullableLabel = document.createElement("label");
-                        nullableLabel.setAttribute("for", "nullables-" + inputIndex);
-                        nullableLabel.innerHTML = "nullable";
-                        nullableLabel.className = '';
-                        nullableLabel.style.display = "inherit";
-                        nullableCheckbox.appendChild(nullableCheckboxInput);
-                        nullableCheckbox.appendChild(nullableLabel);
-                        columnNameInput.addEventListener("input", function () {
-                            nullableCheckboxInput.value = columnNameInput.value;
-                        });
-                        @endif
-
-                        @if($uniques)
-                        const uniqueCheckbox = document.createElement("div");
-                        uniqueCheckbox.className = "col-md-2 m-auto";
-                        const uniqueCheckboxInput = document.createElement("input");
-                        uniqueCheckboxInput.type = "checkbox";
-                        uniqueCheckboxInput.id = "uniques-" + inputIndex;
-                        uniqueCheckboxInput.name = "uniques[" + inputIndex + "]";
-                        uniqueCheckboxInput.className = "form-check-input";
-                        const uniqueLabel = document.createElement("label");
-                        uniqueLabel.setAttribute("for", "uniques-" + inputIndex);
-                        uniqueLabel.innerHTML = "unique";
-                        uniqueLabel.className = '';
-                        uniqueLabel.style.display = "inherit";
-                        uniqueCheckbox.appendChild(uniqueCheckboxInput);
-                        uniqueCheckbox.appendChild(uniqueLabel);
-                        columnNameInput.addEventListener("input", function () {
-                            uniqueCheckboxInput.value = columnNameInput.value;
-                        });
-                        @endif
-
-                        const newColumnType = document.createElement("div");
-                        newColumnType.className = "col-md-3 mt-1";
-                        const columnTypeSelect = document.createElement("select");
-                        columnTypeSelect.className = "form-select column-type";
-                        columnTypeSelect.setAttribute("aria-label", "Default select example");
-                        columnTypeSelect.name = "columns[" + inputIndex + "][type]";
-
-                        columnTypeSelect.addEventListener('input', function () {
-                            if (columnTypeSelect.value === 'key') {
-                                uniqueCheckboxInput.disabled = true;
-                                uniqueCheckboxInput.value = null;
-                                uniqueCheckboxInput.checked = true;
-                            } else {
-                                uniqueCheckboxInput.disabled = false;
-                                uniqueCheckboxInput.value = columnNameInput.value;
-                                uniqueCheckboxInput.checked = false;
-                            }
-                        });
-
-                        @foreach($types as $type)
-                        const option{{$loop->iteration}} = document.createElement("option");
-                        option{{$loop->iteration}}.value = "{{$type}}";
-                        option{{$loop->iteration}}.text = "{{$type}}";
-                        columnTypeSelect.appendChild(option{{$loop->iteration}});
-                        @endforeach
-                        newColumnType.appendChild(columnTypeSelect);
-
-                        const deleteColumnButtonDiv = document.createElement("div");
-                        deleteColumnButtonDiv.className = "col-md-1 d-flex justify-content-end";
-                        const deleteColumnButton = document.createElement("button");
-                        deleteColumnButtonDiv.appendChild(deleteColumnButton);
-                        deleteColumnButton.className = "btn btn-sm btn-danger";
-                        deleteColumnButton.type = "button";
-                        deleteColumnButton.innerHTML = "&times;";
-                        deleteColumnButton.style.cssText = `
-                            width: 30px;
-                            height: 30px;
-                            padding: 0;
-                            font-weight: bolder;
-                            border-radius: 4px;
-                            font-size: 16px;
-                            line-height: 1;
-                            transition: all 0.2s ease;
-                            background-color: #dc3545;
-                            color: #fff;
-                            border: none;
-                        `;
-                        deleteColumnButton.addEventListener("click", function () {
-                            newColumn.remove();
-                        });
-
-                        newColumnName.appendChild(columnNameInput);
-                        newColumn.appendChild(newColumnName);
-                        newColumn.appendChild(newColumnType);
-
-                        @if($nullables)
-                        newColumn.appendChild(nullableCheckbox);
-                        @endif
-
-                        @if($uniques)
-                        newColumn.appendChild(uniqueCheckbox);
-                        @endif
-
-                        newColumn.appendChild(deleteColumnButtonDiv);
-
-                        columnsContainer.appendChild(newColumn);
-
-                        inputIndex++;
-                    });
-
-                    @if($relationsField)
-                    addRelationButton.addEventListener("click", function (e) {
-                        e.preventDefault();
-
-                        const newRelation = document.createElement("div");
-                        newRelation.className = "row";
-
-                        const relationNameInput = document.createElement("div");
-                        relationNameInput.className = "col-md-4 mt-1";
-                        const relationInput = document.createElement("input");
-                        relationInput.className = "form-control relation-name";
-                        relationInput.type = "text";
-                        relationInput.name = "relations[" + relationIndex + "][name]";
-                        relationInput.placeholder = "Enter Your Related Models";
-                        relationInput.required = true;
-                        relationNameInput.appendChild(relationInput);
-
-                        const relationTypeInput = document.createElement("div");
-                        relationTypeInput.className = "col-md-5 mt-1";
-                        const relationTypeSelect = document.createElement("select");
-                        relationTypeSelect.className = "form-select column-type";
-                        relationTypeSelect.setAttribute("aria-label", "Default select example");
-                        relationTypeSelect.name = "relations[" + relationIndex + "][type]";
-
-                        const option1 = document.createElement("option");
-                        option1.value = "hasMany";
-                        option1.text = "Has Many";
-                        relationTypeSelect.appendChild(option1);
-                        const option2 = document.createElement("option");
-                        option2.value = "manyToMany";
-                        option2.text = "Many To Many";
-                        relationTypeSelect.appendChild(option2);
-                        relationTypeInput.appendChild(relationTypeSelect);
-
-                        const deleteRelationButtonDiv = document.createElement("div");
-                        deleteRelationButtonDiv.className = "col-md-3 d-flex justify-content-end align-items-center";
-                        const deleteRelationButton = document.createElement("button");
-                        deleteRelationButtonDiv.appendChild(deleteRelationButton);
-                        deleteRelationButton.className = "btn btn-sm btn-danger";
-                        deleteRelationButton.type = "button";
-                        deleteRelationButton.innerHTML = "&times;";
-                        deleteRelationButton.style.cssText = `
-                            width: 30px;
-                            height: 30px;
-                            padding: 0;
-                            font-weight: bolder;
-                            border-radius: 4px;
-                            font-size: 16px;
-                            line-height: 1;
-                            transition: all 0.2s ease;
-                            background-color: #dc3545;
-                            color: #fff;
-                            border: none;
-                        `;
-                        deleteRelationButton.addEventListener("click", function () {
-                            newRelation.remove();
-                        });
-
-                        newRelation.appendChild(relationNameInput);
-                        newRelation.appendChild(relationTypeInput);
-                        newRelation.appendChild(deleteRelationButtonDiv);
-
-                        relationsContainer.appendChild(newRelation);
-                        relationIndex++;
+                    @if($nullables)
+                    const nullableCheckbox = document.createElement("div");
+                    nullableCheckbox.className = "col-md-2 m-auto";
+                    const nullableCheckboxInput = document.createElement("input");
+                    nullableCheckboxInput.type = "checkbox";
+                    nullableCheckboxInput.id = "nullables-" + inputIndex;
+                    nullableCheckboxInput.name = "nullables[" + inputIndex + "]";
+                    nullableCheckboxInput.className = "form-check-input";
+                    nullableCheckboxInput.value = "true";
+                    const nullableLabel = document.createElement("label");
+                    nullableLabel.setAttribute("for", "nullables-" + inputIndex);
+                    nullableLabel.innerHTML = "nullable";
+                    nullableLabel.className = '';
+                    nullableLabel.style.display = "inherit";
+                    nullableCheckbox.appendChild(nullableCheckboxInput);
+                    nullableCheckbox.appendChild(nullableLabel);
+                    columnNameInput.addEventListener("input", function () {
+                        nullableCheckboxInput.value = columnNameInput.value;
                     });
                     @endif
-                });
-            </script>
-        @endpush
-    @endif
 
+                    @if($uniques)
+                    const uniqueCheckbox = document.createElement("div");
+                    uniqueCheckbox.className = "col-md-2 m-auto";
+                    const uniqueCheckboxInput = document.createElement("input");
+                    uniqueCheckboxInput.type = "checkbox";
+                    uniqueCheckboxInput.id = "uniques-" + inputIndex;
+                    uniqueCheckboxInput.name = "uniques[" + inputIndex + "]";
+                    uniqueCheckboxInput.className = "form-check-input";
+                    const uniqueLabel = document.createElement("label");
+                    uniqueLabel.setAttribute("for", "uniques-" + inputIndex);
+                    uniqueLabel.innerHTML = "unique";
+                    uniqueLabel.className = '';
+                    uniqueLabel.style.display = "inherit";
+                    uniqueCheckbox.appendChild(uniqueCheckboxInput);
+                    uniqueCheckbox.appendChild(uniqueLabel);
+                    columnNameInput.addEventListener("input", function () {
+                        uniqueCheckboxInput.value = columnNameInput.value;
+                    });
+                    @endif
+
+                    const newColumnType = document.createElement("div");
+                    newColumnType.className = "col-md-3 mt-1";
+                    const columnTypeSelect = document.createElement("select");
+                    columnTypeSelect.className = "form-select column-type";
+                    columnTypeSelect.setAttribute("aria-label", "Default select example");
+                    columnTypeSelect.name = "columns[" + inputIndex + "][type]";
+
+                    columnTypeSelect.addEventListener('input', function () {
+                        if (columnTypeSelect.value === 'key') {
+                            uniqueCheckboxInput.disabled = true;
+                            uniqueCheckboxInput.value = null;
+                            uniqueCheckboxInput.checked = true;
+                        } else if (columnTypeSelect.value === 'boolean') {
+                            uniqueCheckboxInput.disabled = true;
+                            uniqueCheckboxInput.value = null;
+                            uniqueCheckboxInput.checked = false;
+                        } else {
+                            uniqueCheckboxInput.disabled = false;
+                            uniqueCheckboxInput.value = columnNameInput.value;
+                            uniqueCheckboxInput.checked = false;
+                        }
+                    });
+
+                    @foreach($types as $type)
+                    const option{{$loop->iteration}} = document.createElement("option");
+                    option{{$loop->iteration}}.value = "{{$type}}";
+                    option{{$loop->iteration}}.text = "{{$type}}";
+                    columnTypeSelect.appendChild(option{{$loop->iteration}});
+                    @endforeach
+                    newColumnType.appendChild(columnTypeSelect);
+
+                    const deleteColumnButtonDiv = document.createElement("div");
+                    deleteColumnButtonDiv.className = "col-md-1 d-flex justify-content-end";
+                    const deleteColumnButton = document.createElement("button");
+                    deleteColumnButtonDiv.appendChild(deleteColumnButton);
+                    deleteColumnButton.className = "btn btn-sm btn-danger";
+                    deleteColumnButton.type = "button";
+                    deleteColumnButton.innerHTML = "&times;";
+                    deleteColumnButton.style.cssText = `
+                            width: 30px;
+                            height: 30px;
+                            padding: 0;
+                            font-weight: bolder;
+                            border-radius: 4px;
+                            font-size: 16px;
+                            line-height: 1;
+                            transition: all 0.2s ease;
+                            background-color: #dc3545;
+                            color: #fff;
+                            border: none;
+                        `;
+                    deleteColumnButton.addEventListener("click", function () {
+                        newColumn.remove();
+                    });
+
+                    newColumnName.appendChild(columnNameInput);
+                    newColumn.appendChild(newColumnName);
+                    newColumn.appendChild(newColumnType);
+
+                    @if($nullables)
+                    newColumn.appendChild(nullableCheckbox);
+                    @endif
+
+                    @if($uniques)
+                    newColumn.appendChild(uniqueCheckbox);
+                    @endif
+
+                    newColumn.appendChild(deleteColumnButtonDiv);
+
+                    columnsContainer.appendChild(newColumn);
+
+                    inputIndex++;
+                });
+                @endif
+
+                @if($relationsField)
+                addRelationButton.addEventListener("click", function (e) {
+                    e.preventDefault();
+
+                    const newRelation = document.createElement("div");
+                    newRelation.className = "row";
+
+                    const relationNameInput = document.createElement("div");
+                    relationNameInput.className = "col-md-4 mt-1";
+                    const relationInput = document.createElement("input");
+                    relationInput.className = "form-control relation-name";
+                    relationInput.type = "text";
+                    relationInput.name = "relations[" + relationIndex + "][name]";
+                    relationInput.placeholder = "Enter Your Related Models";
+                    relationInput.required = true;
+                    relationNameInput.appendChild(relationInput);
+
+                    const relationTypeInput = document.createElement("div");
+                    relationTypeInput.className = "col-md-3 mt-1";
+                    const relationTypeSelect = document.createElement("select");
+                    relationTypeSelect.className = "form-select column-type";
+                    relationTypeSelect.setAttribute("aria-label", "Default select example");
+                    relationTypeSelect.name = "relations[" + relationIndex + "][type]";
+
+                    const option1 = document.createElement("option");
+                    option1.value = "hasMany";
+                    option1.text = "Has Many";
+                    relationTypeSelect.appendChild(option1);
+                    const option2 = document.createElement("option");
+                    option2.value = "manyToMany";
+                    option2.text = "Many To Many";
+                    relationTypeSelect.appendChild(option2);
+                    relationTypeInput.appendChild(relationTypeSelect);
+
+                    const deleteRelationButtonDiv = document.createElement("div");
+                    deleteRelationButtonDiv.className = "col-md-3 d-flex justify-content-end align-items-center";
+                    const deleteRelationButton = document.createElement("button");
+                    deleteRelationButtonDiv.appendChild(deleteRelationButton);
+                    deleteRelationButton.className = "btn btn-sm btn-danger";
+                    deleteRelationButton.type = "button";
+                    deleteRelationButton.innerHTML = "&times;";
+                    deleteRelationButton.style.cssText = `
+                            width: 30px;
+                            height: 30px;
+                            padding: 0;
+                            font-weight: bolder;
+                            border-radius: 4px;
+                            font-size: 16px;
+                            line-height: 1;
+                            transition: all 0.2s ease;
+                            background-color: #dc3545;
+                            color: #fff;
+                            border: none;
+                        `;
+                    deleteRelationButton.addEventListener("click", function () {
+                        newRelation.remove();
+                    });
+
+                    newRelation.appendChild(relationNameInput);
+                    newRelation.appendChild(relationTypeInput);
+                    newRelation.appendChild(deleteRelationButtonDiv);
+
+                    relationsContainer.appendChild(newRelation);
+                    relationIndex++;
+                });
+                @endif
+            });
+        </script>
+    @endpush
 @endsection

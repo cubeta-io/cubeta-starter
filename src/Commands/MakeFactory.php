@@ -23,20 +23,20 @@ class MakeFactory extends Command
         {uniques? : unique columns}';
 
     private array $typeFaker = [
-        'integer' => 'fake()->numberBetween(1,2000)',
-        'bigInteger' => 'fake()->numberBetween(1,2000)',
-        'unsignedBigInteger' => 'fake()->numberBetween(1,2000)',
-        'unsignedDouble' => 'fake()->randomFloat(1,2000)',
-        'double' => 'fake()->randomFloat(1, 1, 100)',
-        'float' => 'fake()->randomFloat(1, 1, 100)',
-        'string' => 'fake()->sentence()',
-        'text' => 'fake()->text()',
-        'json' => 'json_encode([fake()->word() => fake()->word()])',
-        'boolean' => 'fake()->boolean()',
-        'date' => 'fake()->date()',
-        'time' => 'fake()->time()',
-        'dateTime' => 'fake()->dateTime()',
-        'timestamp' => 'fake()->dateTime()',
+        'integer' => '->numberBetween(1,2000)',
+        'bigInteger' => '->numberBetween(1,2000)',
+        'unsignedBigInteger' => '->numberBetween(1,2000)',
+        'unsignedDouble' => '->randomFloat(1,2000)',
+        'double' => '->randomFloat(1, 1, 100)',
+        'float' => '->randomFloat(1, 1, 100)',
+        'string' => '->sentence()',
+        'text' => '->text()',
+        'json' => 'json_encode([->word() => ->word()])',
+        'boolean' => '->boolean()',
+        'date' => '->date()',
+        'time' => '->time()',
+        'dateTime' => '->dateTime()',
+        'timestamp' => '->dateTime()',
     ];
 
     /**
@@ -173,9 +173,9 @@ class MakeFactory extends Command
 
             } elseif (array_key_exists($type, $this->typeFaker)) {
                 $faker = $this->typeFaker["{$type}"];
-                $rows .= "\t\t\t'{$name}' => {$faker}{$isUnique}, \n";
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}{$faker}, \n";
             } else {
-                $rows .= "\t\t\t '{$name}' => fake()->$type(), \n";
+                $rows .= "\t\t\t '{$name}' => fake(){$isUnique}->$type(), \n";
             }
         }
 
