@@ -61,13 +61,14 @@ class MakeWebController extends Command
 
         $this->generateCreateOrUpdateForm($modelName, $attributes, $routesNames['store']);
         $this->generateShowView($modelName, $routesNames['edit'], $attributes);
-        $this->generateIndexView($modelName, $routesNames['create'], $routesNames['data'], $attributes);
+        $phpColumns = $this->generateIndexView($modelName, $routesNames['create'], $routesNames['data'], $attributes);
         $this->generateCreateOrUpdateForm($modelName, $attributes, null, $routesNames['update']);
 
         $stubProperties = [
             '{modelName}' => $modelName,
             '{modelNameCamelCase}' => $modelNameCamelCase,
             '{tableName}' => $tableName,
+            '{addColumns}' => $phpColumns ?? '',
             '{showRouteName}' => $routesNames['show'],
             '{editRouteName}' => $routesNames['edit'],
             '{deleteRouteName}' => $routesNames['destroy'],

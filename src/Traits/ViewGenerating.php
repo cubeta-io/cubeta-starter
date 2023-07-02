@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ArrayShape;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -52,10 +53,15 @@ trait ViewGenerating
     }
 
     /**
+     * @param string $modelName
+     * @param string $creatRoute
+     * @param string $dataRoute
+     * @param array $attributes
+     * @return string|void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function generateIndexView(string $modelName, string $creatRoute, string $dataRoute, array $attributes = []): void
+    public function generateIndexView(string $modelName, string $creatRoute, string $dataRoute, array $attributes = [])
     {
         $viewsName = viewNaming($modelName);
         $dataColumns = $this->generateViewDataColumns($attributes);
@@ -87,6 +93,10 @@ trait ViewGenerating
         );
 
         $this->info("index view for {$viewsName} created");
+
+        if (isset($dataColumns['php']) && $dataColumns['php'] != '') {
+            return $dataColumns['php'];
+        }
     }
 
     /**
@@ -200,11 +210,12 @@ trait ViewGenerating
     /**
      * @return string[]
      */
-    #[ArrayShape(['html' => 'string', 'json' => 'string'])]
+    #[ArrayShape(['html' => "string", 'json' => "string", 'php' => "string"])]
     private function generateViewDataColumns(array $attributes = []): array
     {
         $html = '';
         $json = '';
+        $php = '';
 
         foreach ($attributes as $attribute => $type) {
             $attribute = columnNaming($attribute);
@@ -220,7 +231,38 @@ trait ViewGenerating
                                         return '<a href=\"' + filePath + '\" class=\"btn btn-sm btn-primary\"  target=\"_blank\">show file</a>';
                                     }
                            }, \n";
-                $html.= "\n<th>{$label}</th>\n";
+                $html .= "\n<th>{$label}</th>\n";
+                continue;
+            }
+            if ($type == 'key') {
+                $relatedModel = modelNaming(str_replace('_id', '', $attribute));
+                $modelNamespace = config('cubeta-starter.model_namespace') . '\\' . $relatedModel;
+                if (class_exists($modelNamespace)) {
+                    $modelInstance = new $modelNamespace();
+                    $modelTable = $modelInstance->getTable();
+                    $columns = Schema::getColumnListing($modelTable);
+                    foreach ($columns as $column) {
+                        $columnType = Schema::getColumnType($modelTable, $column);
+                        if ($columnType == 'string') {
+                            $showRouteName = 'web' . routeNameNaming($column);
+                            $relationFunction = relationFunctionNaming($relatedModel);
+                            $php .= "
+                          //TODO::Check On The Show Route For This Relation
+                          ->addColumn($relatedModel , function(\$row){
+                                return \"<a href='\".route(\"$showRouteName\").\"'>\$row->{$relationFunction}->{$column}</a>\";
+                            })";
+                            $html .= "\n<th>{$this->getLabelName($relatedModel)}</th>\n";
+                        }
+                    }
+                } else {
+                    $json .= "{\"data\": '{$attribute}', searchable: true, orderable: true , render:function(data){
+                        {{--TODO::put here the show route for the related model--}}
+                        return \"<a href='#'> + data + </a>\"
+                    }}, \n";
+
+                    $html .= "\n<th>{$label}</th>\n";
+                }
+
                 continue;
             }
             $json .= "{\"data\": '{$attribute}', searchable: true, orderable: true}, \n";
@@ -228,7 +270,7 @@ trait ViewGenerating
             $html .= "\n<th>{$label}</th>\n";
         }
 
-        return ['html' => $html, 'json' => $json];
+        return ['html' => $html, 'json' => $json, 'php' => $php];
     }
 
     private function getJQueryDataTablesTranslatableColumnsIndexes(array $attributes = []): array
