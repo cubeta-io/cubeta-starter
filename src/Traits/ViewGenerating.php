@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ArrayShape;
@@ -235,33 +236,12 @@ trait ViewGenerating
                 continue;
             }
             if ($type == 'key') {
-                $relatedModel = modelNaming(str_replace('_id', '', $attribute));
-                $modelNamespace = config('cubeta-starter.model_namespace') . '\\' . $relatedModel;
-                if (class_exists($modelNamespace)) {
-                    $modelInstance = new $modelNamespace();
-                    $modelTable = $modelInstance->getTable();
-                    $columns = Schema::getColumnListing($modelTable);
-                    foreach ($columns as $column) {
-                        $columnType = Schema::getColumnType($modelTable, $column);
-                        if ($columnType == 'string') {
-                            $showRouteName = 'web' . routeNameNaming($column);
-                            $relationFunction = relationFunctionNaming($relatedModel);
-                            $php .= "
-                          //TODO::Check On The Show Route For This Relation
-                          ->addColumn($relatedModel , function(\$row){
-                                return \"<a href='\".route(\"$showRouteName\").\"'>\$row->{$relationFunction}->{$column}</a>\";
-                            })";
-                            $html .= "\n<th>{$this->getLabelName($relatedModel)}</th>\n";
-                        }
-                    }
-                } else {
-                    $json .= "{\"data\": '{$attribute}', searchable: true, orderable: true , render:function(data){
+                $json .= "{\"data\": '{$attribute}', searchable: true, orderable: true , render:function(data){
                         {{--TODO::put here the show route for the related model--}}
                         return \"<a href='#'> + data + </a>\"
                     }}, \n";
 
-                    $html .= "\n<th>{$label}</th>\n";
-                }
+                $html .= "\n<th>{$label}</th>\n";
 
                 continue;
             }
