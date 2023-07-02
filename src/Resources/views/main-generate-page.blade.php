@@ -396,7 +396,7 @@
                         if (columnTypeSelect.value === 'key') {
                             uniqueCheckboxInput.disabled = true;
                             uniqueCheckboxInput.value = null;
-                            uniqueCheckboxInput.checked = true;
+                            uniqueCheckboxInput.checked = false;
                         } else if (columnTypeSelect.value === 'boolean') {
                             uniqueCheckboxInput.disabled = true;
                             uniqueCheckboxInput.value = null;

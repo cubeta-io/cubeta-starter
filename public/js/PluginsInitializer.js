@@ -1,22 +1,3 @@
-function initTrumbowyg(className) {
-    $(className).trumbowyg({
-        autogrow: true,
-        btns: [
-            ['viewHTML'],
-            ['formatting'],
-            ['strong', 'em', 'del'],
-            ['superscript', 'subscript'],
-            ['link'],
-            ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
-            ['unorderedList', 'orderedList'],
-            ['horizontalRule'],
-            ['removeformat'],
-            ['fullscreen'],
-            ['insertImage'],
-        ]
-    });
-}
-
 function initSelect2(className) {
     $(className).select2({
         theme: "bootstrap-5",
