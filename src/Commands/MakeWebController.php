@@ -23,6 +23,8 @@ class MakeWebController extends Command
         {attributes? : the model attributes}
         {actor? : The actor of the endpoint of this model }';
 
+    protected string $rawColumns = "";
+
     /**
      * @throws FileNotFoundException
      * @throws BindingResolutionException
@@ -61,14 +63,16 @@ class MakeWebController extends Command
 
         $this->generateCreateOrUpdateForm($modelName, $attributes, $routesNames['store']);
         $this->generateShowView($modelName, $routesNames['edit'], $attributes);
-        $phpColumns = $this->generateIndexView($modelName, $routesNames['create'], $routesNames['data'], $attributes);
+        $this->generateIndexView($modelName, $routesNames['create'], $routesNames['data'], $attributes);
         $this->generateCreateOrUpdateForm($modelName, $attributes, null, $routesNames['update']);
+        $addColumns = $this->getKeyColumnsHyperlink($attributes);
 
         $stubProperties = [
             '{modelName}' => $modelName,
             '{modelNameCamelCase}' => $modelNameCamelCase,
             '{tableName}' => $tableName,
-            '{addColumns}' => $phpColumns ?? '',
+            '{addColumns}' => $addColumns ?? '',
+            '{rawColumns}' => $this->rawColumns ?? '',
             '{showRouteName}' => $routesNames['show'],
             '{editRouteName}' => $routesNames['edit'],
             '{deleteRouteName}' => $routesNames['destroy'],
@@ -165,5 +169,24 @@ class MakeWebController extends Command
         ensureDirectoryExists($directory);
 
         return "{$directory}/{$controllerName}.php";
+    }
+
+    private function getKeyColumnsHyperlink(array $attributes = []): string
+    {
+        $dataColumn = '';
+        foreach ($attributes as $column => $type) {
+            if ($type == 'key') {
+                $relatedModel = modelNaming(str_replace('_id', '', $column));
+                $showRouteName = $this->getRoutesNames($relatedModel)['show'];
+                $dataColumn .= "
+                    ->addColumn('$column', function (\$row) {
+                    //TODO::check on the used show route
+                        return \"<a href='\" . route('$showRouteName', \$row->$column) . \"'>\$row->$column</a>\";
+                    })";
+                $this->rawColumns .= "'$column' ,";
+            }
+        }
+
+        return $dataColumn;
     }
 }

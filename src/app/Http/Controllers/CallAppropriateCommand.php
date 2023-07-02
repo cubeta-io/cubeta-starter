@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\app\Http\Controllers;
 
 use Artisan;
 use Exception;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -55,9 +56,10 @@ class CallAppropriateCommand extends Controller
     }
 
     public function callCommand($command)
-{
+    {
         set_time_limit(0);
         try {
+
             if (empty(trim($this->modelName))) {
                 return redirect()->route($command['route'], ['error' => "Invalid Model Name"]);
             }
@@ -114,13 +116,14 @@ class CallAppropriateCommand extends Controller
             Artisan::call($command['name'], $arguments);
 
             $output = Artisan::output();
-            if (Str::contains($output, ErrorTypeEnum::ALL, true)) {
-                return redirect()->route($command['route'], ['error' => $output]);
+            if (Str::contains($output, ErrorTypeEnum::ALL_ERRORS, true)) {
+                return redirect()->route($command['route'], ['error' => explode("\n", $output)]);
             }
 
             return redirect()->route($command['route'], ['success' => $command['name'] . ' successfully']);
         } catch (Exception $exception) {
-            return redirect()->route($command['route'], ['error' => $exception->getMessage()]);
+            Session::put('error', $exception->getMessage());
+            return redirect()->route($command['route']);
         }
     }
 

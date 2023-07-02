@@ -2,8 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ArrayShape;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -58,11 +56,11 @@ trait ViewGenerating
      * @param string $creatRoute
      * @param string $dataRoute
      * @param array $attributes
-     * @return string|void
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function generateIndexView(string $modelName, string $creatRoute, string $dataRoute, array $attributes = [])
+    public function generateIndexView(string $modelName, string $creatRoute, string $dataRoute, array $attributes = []): void
     {
         $viewsName = viewNaming($modelName);
         $dataColumns = $this->generateViewDataColumns($attributes);
@@ -94,10 +92,6 @@ trait ViewGenerating
         );
 
         $this->info("index view for {$viewsName} created");
-
-        if (isset($dataColumns['php']) && $dataColumns['php'] != '') {
-            return $dataColumns['php'];
-        }
     }
 
     /**
@@ -211,12 +205,11 @@ trait ViewGenerating
     /**
      * @return string[]
      */
-    #[ArrayShape(['html' => "string", 'json' => "string", 'php' => "string"])]
+    #[ArrayShape(['html' => "string", 'json' => "string"])]
     private function generateViewDataColumns(array $attributes = []): array
     {
         $html = '';
         $json = '';
-        $php = '';
 
         foreach ($attributes as $attribute => $type) {
             $attribute = columnNaming($attribute);
@@ -235,22 +228,12 @@ trait ViewGenerating
                 $html .= "\n<th>{$label}</th>\n";
                 continue;
             }
-            if ($type == 'key') {
-                $json .= "{\"data\": '{$attribute}', searchable: true, orderable: true , render:function(data){
-                        {{--TODO::put here the show route for the related model--}}
-                        return \"<a href='#'> + data + </a>\"
-                    }}, \n";
-
-                $html .= "\n<th>{$label}</th>\n";
-
-                continue;
-            }
             $json .= "{\"data\": '{$attribute}', searchable: true, orderable: true}, \n";
 
             $html .= "\n<th>{$label}</th>\n";
         }
 
-        return ['html' => $html, 'json' => $json, 'php' => $php];
+        return ['html' => $html, 'json' => $json];
     }
 
     private function getJQueryDataTablesTranslatableColumnsIndexes(array $attributes = []): array

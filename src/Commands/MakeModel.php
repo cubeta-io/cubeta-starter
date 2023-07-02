@@ -143,7 +143,7 @@ class MakeModel extends Command
         };
 
         if ($result === 'all') {
-            $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables , 'uniques' => $uniques]);
+            $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables, 'uniques' => $uniques]);
             $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'uniques' => $uniques]);
             $this->call('create:seeder', ['name' => $name]);
             $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques]);
