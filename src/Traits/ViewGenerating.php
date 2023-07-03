@@ -13,6 +13,7 @@ trait ViewGenerating
     use RouteBinding {
         getRouteName as public;
     }
+
     /**
      * create an update or a create form
      *
@@ -23,7 +24,7 @@ trait ViewGenerating
     {
         $viewsName = viewNaming($modelName);
         $modelVariable = variableNaming($modelName);
-        $inputs = $storeRoute ? $this->generateInputs($modelName, $actor, $attributes) : $this->generateInputs($modelName, $actor, $attributes, $modelVariable, true);
+        $inputs = $storeRoute ? $this->generateInputs($actor, $attributes) : $this->generateInputs($actor, $attributes, $modelVariable, true);
         $createdForm = $storeRoute ? 'Create' : 'Edit';
 
         $stubProperties = [
@@ -138,7 +139,7 @@ trait ViewGenerating
     /**
      * generate input fields for create or update form
      */
-    private function generateInputs(string $modelName, $actor = null, array $attributes = [], string $modelVariable = '', bool $updateInput = false): string
+    private function generateInputs($actor = null, array $attributes = [], string $modelVariable = '', bool $updateInput = false): string
     {
         $inputs = '';
         if (in_array('translatable', array_values($attributes))) {
@@ -151,8 +152,11 @@ trait ViewGenerating
             $checked = $updateInput ? ":checked=\"\${$modelVariable}->{$attribute}\"" : 'checked';
 
             if ($type == 'key') {
+                $modelName = modelNaming(str_replace('_id', '', $attribute));
                 $select2Route = $this->getRouteName($modelName, 'web', $actor);
-                $inputs .= "<x-multiple-select2 label=\"$label\" api=\"{{route('$select2Route')}}\" option-value=\"name\" option-inner-text=\"name\"></x-multiple-select2> \n";
+                $inputs .= "
+                            <!-- TODO::if you created this before the parent model configure this route here as you want -->
+                            <x-select2 label=\"$label\" api=\"{{route('$select2Route')}}\" option-value=\"name\" option-inner-text=\"name\"></x-select2> \n";
             } elseif ($type == 'translatable') {
                 $inputs .= "<x-translatable-input label=\"{$label}\" type='text' {$value}></x-translatable-input> \n";
             } elseif ($attribute == 'email') {
