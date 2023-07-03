@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Illuminate\Console\Command;
 use JetBrains\PhpStorm\ArrayShape;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
@@ -21,6 +22,7 @@ class MakeWebController extends Command
     protected $signature = 'create:web-controller
         {name : The name of the model }
         {attributes? : the model attributes}
+        {relations? : the model relations}
         {actor? : The actor of the endpoint of this model }';
 
     protected string $rawColumns = "";
@@ -34,17 +36,18 @@ class MakeWebController extends Command
         $name = $this->argument('name');
         $actor = $this->argument('actor') ?? null;
         $attributes = $this->argument('attributes') ?? [];
+        $relations = $this->argument('relations') ?? [];
 
         $modelName = modelNaming($name);
 
-        $this->createWebController($modelName, $attributes, $actor);
+        $this->createWebController($modelName, $attributes, $relations, $actor);
     }
 
     /**
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    public function createWebController(string $modelName, array $attributes = [], $actor = null)
+    public function createWebController(string $modelName, array $attributes = [], array $relations = [], $actor = null)
     {
         $modelNameCamelCase = variableNaming($modelName);
 
@@ -85,6 +88,7 @@ class MakeWebController extends Command
             '{modelNamespace}' => config('cubeta-starter.model_namespace'),
             '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
             '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns($attributes),
+            '{additionalMethods}' => $this->additionalControllerMethods($modelName, $relations),
         ];
 
         if (!is_dir(base_path(config('cubeta-starter.web_controller_path')))) {
@@ -98,7 +102,7 @@ class MakeWebController extends Command
         );
 
         $this->info("{$controllerName} Created");
-        $this->addRoute($modelName, $actor, 'web');
+        $this->addRoute($modelName, $actor, 'web', ['allPaginatedJson']);
 
         $this->addSidebarItem($modelName, $routesNames['index']);
     }
@@ -188,5 +192,21 @@ class MakeWebController extends Command
         }
 
         return $dataColumn;
+    }
+
+    private function additionalControllerMethods(string $modelName, array $relations = []): string
+    {
+        $methods = '';
+        $variableName = variableNaming($modelName);
+
+        if (in_array(RelationsTypeEnum::HasMany, $relations)) {
+            $methods .= "public function allPaginatedJson()
+                        {
+                            \${$variableName} = \$this->{$variableName}Service->indexWithPagination([], 7);
+                            return response()->json({$variableName} , 200);
+                        }";
+        }
+
+        return $methods;
     }
 }

@@ -146,6 +146,13 @@ trait ViewGenerating
             $value = $updateInput ? ($type == 'translatable' ? ":value=\"\${$modelVariable}->getRawOriginal('{$attribute}')\"" : ":value=\"\${$modelVariable}->{$attribute}\"") : null;
             $checked = $updateInput ? ":checked=\"\${$modelVariable}->{$attribute}\"" : 'checked';
 
+            if ($type == 'key') {
+                $select2Route = 'web.' . routeNameNaming($attribute) . '.all';
+                $inputs .= "
+                            <x-multiple-select2 label=\"$label\" api=\"{{route('users')}}\" option-value=\"name\"
+                                    option-inner-text=\"name\">
+                            </x-multiple-select2>";
+            }
             if ($type == 'translatable') {
                 $inputs .= "<x-translatable-input label=\"{$label}\" type='text' {$value}></x-translatable-input>";
             } elseif ($attribute == 'email') {

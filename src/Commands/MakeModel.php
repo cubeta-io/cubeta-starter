@@ -158,7 +158,7 @@ class MakeModel extends Command
             }
 
             if ($container['web']) {
-                $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
+                $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $this->relations]);
             }
         }
     }

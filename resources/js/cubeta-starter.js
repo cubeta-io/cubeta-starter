@@ -15,7 +15,7 @@ import 'datatables.net-fixedheader-bs5';
 import 'bootstrap';
 
 // select2
-import select2 from 'select2';
+import select2 from 'select2/dist/js/select2.full';
 window.select2 = select2() ;
 
 // baguette box

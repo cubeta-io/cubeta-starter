@@ -7,6 +7,8 @@ use {requestNamespace}\{modelName}\StoreUpdate{modelName}Request;
 use {modelNamespace}\{modelName};
 use {serviceNamespace}\{modelName}\I{modelName}Service;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Http\Request;
+
 
 class {modelName}Controller extends Controller
 {
@@ -113,4 +115,6 @@ class {modelName}Controller extends Controller
 
         abort(404) ;
     }
+
+    {additionalMethods}
 }

@@ -50,7 +50,7 @@ function routeUrlNaming($name): string
  */
 function routeNameNaming(string $name): string
 {
-    return lowerPluralKebabNaming($name);
+    return str_replace('-', '.', lowerPluralKebabNaming($name));
 }
 
 /**
