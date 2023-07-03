@@ -9,17 +9,21 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 
 trait ViewGenerating
 {
+
+    use RouteBinding {
+        getRouteName as public;
+    }
     /**
      * create an update or a create form
      *
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function generateCreateOrUpdateForm(string $modelName, array $attributes = [], $storeRoute = null, $updateRoute = null): void
+    public function generateCreateOrUpdateForm(string $modelName, array $attributes = [], $storeRoute = null, $updateRoute = null, $actor = null): void
     {
         $viewsName = viewNaming($modelName);
         $modelVariable = variableNaming($modelName);
-        $inputs = $storeRoute ? $this->generateInputs($attributes) : $this->generateInputs($attributes, $modelVariable, true);
+        $inputs = $storeRoute ? $this->generateInputs($modelName, $actor, $attributes) : $this->generateInputs($modelName, $actor, $attributes, $modelVariable, true);
         $createdForm = $storeRoute ? 'Create' : 'Edit';
 
         $stubProperties = [
@@ -134,7 +138,7 @@ trait ViewGenerating
     /**
      * generate input fields for create or update form
      */
-    private function generateInputs(array $attributes = [], string $modelVariable = '', bool $updateInput = false): string
+    private function generateInputs(string $modelName, $actor = null, array $attributes = [], string $modelVariable = '', bool $updateInput = false): string
     {
         $inputs = '';
         if (in_array('translatable', array_values($attributes))) {
@@ -147,14 +151,10 @@ trait ViewGenerating
             $checked = $updateInput ? ":checked=\"\${$modelVariable}->{$attribute}\"" : 'checked';
 
             if ($type == 'key') {
-                $select2Route = 'web.' . routeNameNaming($attribute) . '.all';
-                $inputs .= "
-                            <x-multiple-select2 label=\"$label\" api=\"{{route('users')}}\" option-value=\"name\"
-                                    option-inner-text=\"name\">
-                            </x-multiple-select2>";
-            }
-            if ($type == 'translatable') {
-                $inputs .= "<x-translatable-input label=\"{$label}\" type='text' {$value}></x-translatable-input>";
+                $select2Route = $this->getRouteName($modelName, 'web', $actor);
+                $inputs .= "<x-multiple-select2 label=\"$label\" api=\"{{route('$select2Route')}}\" option-value=\"name\" option-inner-text=\"name\"></x-multiple-select2> \n";
+            } elseif ($type == 'translatable') {
+                $inputs .= "<x-translatable-input label=\"{$label}\" type='text' {$value}></x-translatable-input> \n";
             } elseif ($attribute == 'email') {
                 $inputs .= "\n <x-input label=\"{$label}\" type=\"email\" {$value}></x-input> \n";
             } elseif ($attribute == 'password') {

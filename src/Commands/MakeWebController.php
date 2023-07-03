@@ -27,6 +27,8 @@ class MakeWebController extends Command
 
     protected string $rawColumns = "";
 
+    protected array $additionalRoutes = [];
+
     /**
      * @throws FileNotFoundException
      * @throws BindingResolutionException
@@ -64,10 +66,10 @@ class MakeWebController extends Command
         $routesNames = $this->getRoutesNames($modelName, $actor);
         $views = $this->getViewsNames($modelName, $actor);
 
-        $this->generateCreateOrUpdateForm($modelName, $attributes, $routesNames['store']);
+        $this->generateCreateOrUpdateForm($modelName, $attributes, $routesNames['store'], null, $actor);
         $this->generateShowView($modelName, $routesNames['edit'], $attributes);
         $this->generateIndexView($modelName, $routesNames['create'], $routesNames['data'], $attributes);
-        $this->generateCreateOrUpdateForm($modelName, $attributes, null, $routesNames['update']);
+        $this->generateCreateOrUpdateForm($modelName, $attributes, null, $routesNames['update'], $actor);
         $addColumns = $this->getKeyColumnsHyperlink($attributes);
 
         $stubProperties = [
@@ -102,7 +104,7 @@ class MakeWebController extends Command
         );
 
         $this->info("{$controllerName} Created");
-        $this->addRoute($modelName, $actor, 'web', ['allPaginatedJson']);
+        $this->addRoute($modelName, $actor, 'web', $this->additionalRoutes);
 
         $this->addSidebarItem($modelName, $routesNames['index']);
     }
@@ -203,8 +205,9 @@ class MakeWebController extends Command
             $methods .= "public function allPaginatedJson()
                         {
                             \${$variableName} = \$this->{$variableName}Service->indexWithPagination([], 7);
-                            return response()->json({$variableName} , 200);
+                            return response()->json(\${$variableName} , 200);
                         }";
+            $this->additionalRoutes[] = 'allPaginatedJson';
         }
 
         return $methods;

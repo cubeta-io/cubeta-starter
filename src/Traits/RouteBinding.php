@@ -20,10 +20,10 @@ trait RouteBinding
         $routeName = $this->getRouteName($modelName, $container, $actor);
 
         if ($container == 'web') {
-            $route = "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$modelName}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\"); \n" .
-                'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
+            $route = $this->addAdditionalRoutesForAdditionalControllerMethods($modelName, $routeName, $additionalRoutes);
 
-            $route .= $this->addAdditionalRoutesForAdditionalControllerMethods($modelName, $routeName, $additionalRoutes);
+            $route .= "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$modelName}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\"); \n" .
+                'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
 
             $importStatement = 'use App\Http\Controllers\WEB\v1;';
         } else {
