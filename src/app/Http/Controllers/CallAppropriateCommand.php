@@ -117,7 +117,9 @@ class CallAppropriateCommand extends Controller
 
             $output = Artisan::output();
             if (Str::contains($output, ErrorTypeEnum::ALL_ERRORS, true)) {
-                return redirect()->route($command['route'], ['error' => explode("\n", $output)]);
+                $lines = explode(PHP_EOL, $output);
+                $lastLine = trim(array_pop($lines));
+                return redirect()->route($command['route'], ['error' => explode("\n", $lastLine)]);
             }
 
             return redirect()->route($command['route'], ['success' => $command['name'] . ' successfully']);

@@ -6,6 +6,7 @@
             id="{{columnNaming($label)}}"
             data-placeholder="Chose A {{$label}}"
             name="{{columnNaming($label)}}"
+            onchange="disableSubmitUntilFillRequiredFields()"
         {{$attributes->merge()}}
     >
         @if(old(columnNaming($label)))

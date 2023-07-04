@@ -234,6 +234,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['actorsField'] = true;
         $this->arguments['attributesField'] = true;
         $this->arguments['relationsField'] = true;
+        $this->arguments['nullables'] = true;
         $this->arguments['notes'] = "<li class='notes'>This will generate a controller and 4 view files in the resources/views/dashboard directory</li>";
 
         return view('CubetaStarter::main-generate-page', compact('roles', 'types'))->with($this->arguments);

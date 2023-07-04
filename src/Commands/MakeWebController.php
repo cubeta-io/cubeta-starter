@@ -23,6 +23,7 @@ class MakeWebController extends Command
         {name : The name of the model }
         {attributes? : the model attributes}
         {relations? : the model relations}
+        {nullables? : the nullables attributes}
         {actor? : The actor of the endpoint of this model }';
 
     protected string $rawColumns = "";
@@ -39,17 +40,18 @@ class MakeWebController extends Command
         $actor = $this->argument('actor') ?? null;
         $attributes = $this->argument('attributes') ?? [];
         $relations = $this->argument('relations') ?? [];
+        $nullables = $this->argument('nullables') ?? [];
 
         $modelName = modelNaming($name);
 
-        $this->createWebController($modelName, $attributes, $relations, $actor);
+        $this->createWebController($modelName, $attributes, $nullables, $relations, $actor);
     }
 
     /**
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    public function createWebController(string $modelName, array $attributes = [], array $relations = [], $actor = null)
+    public function createWebController(string $modelName, array $attributes = [], array $nullables = [], array $relations = [], $actor = null)
     {
         $modelNameCamelCase = variableNaming($modelName);
 
@@ -66,10 +68,10 @@ class MakeWebController extends Command
         $routesNames = $this->getRoutesNames($modelName, $actor);
         $views = $this->getViewsNames($modelName, $actor);
 
-        $this->generateCreateOrUpdateForm($modelName, $attributes, $routesNames['store'], null, $actor);
+        $this->generateCreateOrUpdateForm($modelName, $attributes, $nullables, $routesNames['store'], null, $actor);
         $this->generateShowView($modelName, $routesNames['edit'], $attributes);
         $this->generateIndexView($modelName, $routesNames['create'], $routesNames['data'], $attributes);
-        $this->generateCreateOrUpdateForm($modelName, $attributes, null, $routesNames['update'], $actor);
+        $this->generateCreateOrUpdateForm($modelName, $attributes, $nullables, null, $routesNames['update'], $actor);
         $addColumns = $this->getKeyColumnsHyperlink($attributes);
 
         $stubProperties = [
@@ -185,8 +187,8 @@ class MakeWebController extends Command
                 $relatedModel = modelNaming(str_replace('_id', '', $column));
                 $showRouteName = $this->getRoutesNames($relatedModel)['show'];
                 $dataColumn .= "
-                    ->addColumn('$column', function (\$row) {
-                    //TODO::check on the used show route
+                    ->editColumn('$column', function (\$row) {
+                    //TODO::check on the used show route of the related model key
                         return \"<a href='\" . route('$showRouteName', \$row->$column) . \"'>\$row->$column</a>\";
                     })";
                 $this->rawColumns .= "'$column' ,";

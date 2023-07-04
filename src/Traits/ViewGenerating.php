@@ -20,11 +20,11 @@ trait ViewGenerating
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function generateCreateOrUpdateForm(string $modelName, array $attributes = [], $storeRoute = null, $updateRoute = null, $actor = null): void
+    public function generateCreateOrUpdateForm(string $modelName, array $attributes = [], array $nullables = [], $storeRoute = null, $updateRoute = null, $actor = null): void
     {
         $viewsName = viewNaming($modelName);
         $modelVariable = variableNaming($modelName);
-        $inputs = $storeRoute ? $this->generateInputs($actor, $attributes) : $this->generateInputs($actor, $attributes, $modelVariable, true);
+        $inputs = $storeRoute ? $this->generateInputs($actor, $attributes, $nullables) : $this->generateInputs($actor, $attributes, $nullables, $modelVariable, true);
         $createdForm = $storeRoute ? 'Create' : 'Edit';
 
         $stubProperties = [
@@ -139,55 +139,59 @@ trait ViewGenerating
     /**
      * generate input fields for create or update form
      */
-    private function generateInputs($actor = null, array $attributes = [], string $modelVariable = '', bool $updateInput = false): string
+    private function generateInputs($actor = null, array $attributes = [], array $nullables = [], string $modelVariable = '', bool $updateInput = false): string
     {
         $inputs = '';
+
         if (in_array('translatable', array_values($attributes))) {
             $inputs .= "<x-language-selector></x-language-selector> \n";
         }
+
         foreach ($attributes as $attribute => $type) {
             $attribute = columnNaming($attribute);
             $label = $this->getLabelName($attribute);
+            $isRequired = !in_array($attribute, $nullables) || $type == 'file' ? 'required' : '';
             $value = $updateInput ? ($type == 'translatable' ? ":value=\"\${$modelVariable}->getRawOriginal('{$attribute}')\"" : ":value=\"\${$modelVariable}->{$attribute}\"") : null;
             $checked = $updateInput ? ":checked=\"\${$modelVariable}->{$attribute}\"" : 'checked';
 
             if ($type == 'key') {
                 $modelName = modelNaming(str_replace('_id', '', $attribute));
-                $select2Route = $this->getRouteName($modelName, 'web', $actor);
+                $value = str_replace('_id', '', $value);
+                $select2Route = $this->getRouteName($modelName, 'web', $actor) . '.allPaginatedJson';
                 $inputs .= "
-                            <!-- TODO::if you created this before the parent model configure this route here as you want -->
-                            <x-select2 label=\"$label\" api=\"{{route('$select2Route')}}\" option-value=\"name\" option-inner-text=\"name\"></x-select2> \n";
+                <!-- TODO::if you created this before the parent model configure this route here as you want -->
+                <x-select2 label=\"$label\" api=\"{{route('$select2Route')}}\" option-value=\"name\" option-inner-text=\"name\" {$value} {$isRequired}></x-select2> \n";
             } elseif ($type == 'translatable') {
-                $inputs .= "<x-translatable-input label=\"{$label}\" type='text' {$value}></x-translatable-input> \n";
+                $inputs .= "<x-translatable-input label=\"{$label}\" type='text' {$value} {$isRequired}></x-translatable-input> \n";
             } elseif ($attribute == 'email') {
-                $inputs .= "\n <x-input label=\"{$label}\" type=\"email\" {$value}></x-input> \n";
+                $inputs .= "\n <x-input label=\"{$label}\" type=\"email\" {$value} {$isRequired}></x-input> \n";
             } elseif ($attribute == 'password') {
-                $inputs .= "\n <x-input label=\"{$label}\" type=\"password\" {$value}></x-input> \n";
+                $inputs .= "\n <x-input label=\"{$label}\" type=\"password\" {$value} {$isRequired}></x-input> \n";
             } elseif (in_array($attribute, ['phone', 'phone_number', 'home_number', 'work_number', 'tele', 'telephone'])) {
-                $inputs .= "\n <x-input label=\"{$label}\" type=\"tel\" {$value}></x-input> \n";
+                $inputs .= "\n <x-input label=\"{$label}\" type=\"tel\" {$value} {$isRequired}></x-input> \n";
             } elseif (Str::contains($attribute, ['_url', 'url_', 'URL_', '_URL'])) {
-                $inputs .= "\n <x-input label=\"{$label}\" type=\"url\" {$value}></x-input> \n";
+                $inputs .= "\n <x-input label=\"{$label}\" type=\"url\" {$value} {$isRequired}></x-input> \n";
             } elseif (in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])) {
-                $inputs .= "\n <x-input label=\"{$label}\" type=\"number\" {$value}></x-input> \n";
+                $inputs .= "\n <x-input label=\"{$label}\" type=\"number\" {$value} {$isRequired}></x-input> \n";
             } elseif (in_array($type, ['string', 'json'])) {
-                $inputs .= "\n <x-input label=\"{$label}\" type=\"text\" {$value}></x-input> \n";
+                $inputs .= "\n <x-input label=\"{$label}\" type=\"text\" {$value} {$isRequired}></x-input> \n";
             } elseif ($type == 'text') {
-                $inputs .= "\n <x-text-editor label=\"{$label}\" {$value}></x-text-editor> \n";
+                $inputs .= "\n <x-text-editor label=\"{$label}\" {$value} {$isRequired}></x-text-editor> \n";
             } elseif ($type == 'date') {
-                $inputs .= "\n <x-input label=\"{$label}\" type=\"date\" {$value}></x-input> \n";
+                $inputs .= "\n <x-input label=\"{$label}\" type=\"date\" {$value} {$isRequired}></x-input> \n";
             } elseif ($type == 'time') {
-                $inputs .= "\n <x-input label=\"{$label}\" type=\"time\" {$value}></x-input> \n";
+                $inputs .= "\n <x-input label=\"{$label}\" type=\"time\" {$value} {$isRequired}></x-input> \n";
             } elseif (in_array($type, ['dateTime', 'timestamp'])) {
-                $inputs .= "\n <x-input label=\"{$label}\" type=\"datetime-local\" {$value}></x-input> \n";
+                $inputs .= "\n <x-input label=\"{$label}\" type=\"datetime-local\" {$value} {$isRequired}></x-input> \n";
             } elseif ($type == 'file') {
-                $inputs .= "\n <x-input label=\"{$label}\" type=\"file\" {$value}></x-input> \n";
+                $inputs .= "\n <x-input label=\"{$label}\" type=\"file\" {$value} {$isRequired}></x-input> \n";
             } elseif ($type == 'boolean') {
                 $inputs .= "\n <x-form-check>
-                                    <x-form-check-radio name=\"{$attribute}\" value=\"{{0}}\" {$checked}></x-form-check-radio>
-                                    <x-form-check-radio name=\"{$attribute}\" value=\"{{1}}\" {$checked}></x-form-check-radio>
+                                    <x-form-check-radio name=\"{$attribute}\" value=\"{{0}}\" {$checked} {$isRequired}></x-form-check-radio>
+                                    <x-form-check-radio name=\"{$attribute}\" value=\"{{1}}\" {$checked} {$isRequired}></x-form-check-radio>
                                </x-form-check> \n";
             } else {
-                $inputs .= "\n <x-input label=\"{$label}\" type=\"text\" {$value}></x-input> \n";
+                $inputs .= "\n <x-input label=\"{$label}\" type=\"text\" {$value} {$isRequired}></x-input> \n";
             }
         }
         return $inputs;
