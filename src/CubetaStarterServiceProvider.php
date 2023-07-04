@@ -47,6 +47,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         // register the set locale route
         $this->registerSetLocaleRoute();
     }
+
     public function configurePackage(Package $package): void
     {
         $package
@@ -167,7 +168,8 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config') . '/cubeta-starter.php',
-            __DIR__ . '/../pint.json' => base_path('pint.json')
+            __DIR__ . '/../pint.json' => base_path('pint.json'),
+            __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
         ], 'cubeta-starter-config');
     }
 

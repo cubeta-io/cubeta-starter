@@ -14,6 +14,9 @@ class {modelName}Controller extends Controller
 {
     private ${modelNameCamelCase}Service;
 
+    // place the relations you want to return them within the response
+    private array $relations = [];
+
     public function __construct(I{modelName}Service ${modelNameCamelCase}Service)
     {
         $this->{modelNameCamelCase}Service = ${modelNameCamelCase}Service;
@@ -67,53 +70,53 @@ class {modelName}Controller extends Controller
         return view('{createForm}');
     }
 
-    public function show(${modelNameCamelCase}_id)
+    public function show(${idVariable})
     {
-        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->view(${modelNameCamelCase}_id, []);
+        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->view(${idVariable}, $this->relations);
         if (${modelNameCamelCase}) {
             return view('{showView}', compact('{modelNameCamelCase}'));
         }
-        return redirect()->back()->with('error' , 'Item Not Found');
+        return redirect()->back()->with('error' , __('site.there_is_no_data'));
     }
 
     public function store(StoreUpdate{modelName}Request $request)
     {
-        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->store($request->validated(), []);
+        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->store($request->validated(), $this->relations);
         if (${modelNameCamelCase}) {
-            return redirect()->route('{indexRoute}', ${modelNameCamelCase}->id)->with('message' , 'item added successfully');
+            return redirect()->route('{indexRoute}', ${modelNameCamelCase}->id)->with('message' , __('site.stored_successfully'));
         }
-        return redirect()->back()->with('error' , 'process failed something went wrong');
+        return redirect()->back()->with('error' , __('site.something_went_wrong'));
     }
 
-    public function edit(${modelNameCamelCase}_id)
+    public function edit(${idVariable})
     {
-        ${modelNameCamelCase} = ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->view(${modelNameCamelCase}_id, []);
+        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->view(${idVariable}, $this->relations);
 
         if (${modelNameCamelCase}) {
             return view('{editForm}', compact(['{modelNameCamelCase}']));
         }
 
-         return redirect()->back()->with('error' , 'Item Not Found you cannot edit unexist item');
+         return redirect()->back()->with('error' , __('site.there_is_no_data'));
     }
 
-    public function update(StoreUpdate{modelName}Request $request, ${modelNameCamelCase}_id)
+    public function update(StoreUpdate{modelName}Request $request, ${idVariable})
     {
-        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->update($request->validated(), ${modelNameCamelCase}_id, []);
+        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->update($request->validated(), ${idVariable}, $this->relations);
         if (${modelNameCamelCase}) {
-            return redirect()->route('{indexRoute}', ${modelNameCamelCase}_id)->with('message' , 'your changes has been saved');
+            return redirect()->route('{indexRoute}', ${idVariable})->with('message' , __('site.update_successfully'));
         }
-        else return redirect()->back()->with('error' , 'Item Not Found');
+        else return redirect()->back()->with('error' , __('site.there_is_no_data'));
     }
 
-    public function destroy(${modelNameCamelCase}_id)
+    public function destroy(${idVariable})
     {
-        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->delete(${modelNameCamelCase}_id);
+        ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->delete(${idVariable});
 
         if (${modelNameCamelCase}) {
-            return response()->json(['message' => 'deleted successfully']) ;
+            return response()->json(['message' => __('site.delete_successfully')]) ;
         }
 
-        return redirect()->back()->with('error' , 'Item Not Found');
+        return redirect()->back()->with('error' , __('site.there_is_no_data'));
     }
 
     {additionalMethods}

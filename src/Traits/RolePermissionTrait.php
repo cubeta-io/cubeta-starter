@@ -18,7 +18,7 @@ trait RolePermissionTrait
         $directory = base_path(config('cubeta-starter.seeder_path') . '/PermissionSeeder.php');
 
         if (file_exists($directory)) {
-            $this->warn('PermissionSeeder is Already Exist');
+            $this->warn('PermissionSeeder is Already Exists');
             return;
         }
 
@@ -42,7 +42,7 @@ trait RolePermissionTrait
         $directory = base_path(config('cubeta-starter.seeder_path') . '/RoleSeeder.php');
 
         if (file_exists($directory)) {
-            $this->warn('RoleSeeder is Already Exist');
+            $this->warn('RoleSeeder is Already Exists');
 
             return;
         }

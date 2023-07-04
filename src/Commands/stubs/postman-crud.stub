@@ -2,8 +2,19 @@
 	"name": "{modelName}",
 	"item": [
 		{
-					"name": "index {modelName}",
+					"name": "index",
 					"request": {
+						"auth": 
+						{
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [
 							{
@@ -41,8 +52,19 @@
 					"response": []
 		},
 		{
-					"name": "show {modelName}",
+					"name": "show",
 					"request": {
+					"auth": 
+						{
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [
 							{
@@ -61,8 +83,19 @@
 					"response": []
 		},
 		{
-					"name": "store {modelName}",
+					"name": "store",
 					"request": {
+						"auth": 
+						{
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [
 							{
@@ -87,8 +120,19 @@
 					"response": []
 		} , 
 		{
-					"name": "update {modelName}",
+					"name": "update",
 					"request": {
+						"auth": 
+						{
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [
 							{
@@ -113,8 +157,19 @@
 					"response": []
 		} , 
 		{
-					"name": "delete {modelName}",
+					"name": "delete",
 					"request": {
+					"auth": 
+						{
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
 						"header": [
 							{

@@ -79,6 +79,11 @@ p {
     border-radius: 5px;
     text-decoration: none;
 }
+.btn-secondary {
+    font-size: 10px;
+    width: 100px;
+    font-weight: bold;
+}
 
 .btn-primary {
     background-color: #001e4a;

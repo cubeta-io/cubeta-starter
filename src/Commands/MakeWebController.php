@@ -54,12 +54,13 @@ class MakeWebController extends Command
     public function createWebController(string $modelName, array $attributes = [], array $nullables = [], array $relations = [], $actor = null)
     {
         $modelNameCamelCase = variableNaming($modelName);
+        $idVariable = $modelNameCamelCase . 'Id';
 
         $controllerName = $modelName . 'Controller';
         $controllerPath = $this->getWebControllerPath($controllerName);
 
         if (file_exists($controllerPath)) {
-            $this->error("{$controllerName} Already Exist");
+            $this->error("{$controllerName} Already Exists");
 
             return;
         }
@@ -77,6 +78,7 @@ class MakeWebController extends Command
         $stubProperties = [
             '{modelName}' => $modelName,
             '{modelNameCamelCase}' => $modelNameCamelCase,
+            '{idVariable}' => $idVariable,
             '{tableName}' => $tableName,
             '{addColumns}' => $addColumns ?? '',
             '{rawColumns}' => $this->rawColumns ?? '',

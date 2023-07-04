@@ -24,6 +24,7 @@
             text: '{{session()->get('error')}}',
             icon: 'error',
             confirmButtonText: 'Ok',
+            confirmButtonColor: '#0d6efd',
         })
     </script>
 @endif
@@ -35,6 +36,7 @@
             text: '{{session()->get('success')}}',
             icon: 'success',
             confirmButtonText: 'Ok',
+            confirmButtonColor: '#0d6efd',
         })
     </script>
 @endif
@@ -46,6 +48,7 @@
             text: '{{session()->get('message')}}',
             icon: 'info',
             confirmButtonText: 'Ok',
+            confirmButtonColor: '#0d6efd',
         })
     </script>
     @endif

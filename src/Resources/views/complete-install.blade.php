@@ -139,14 +139,29 @@
     @if(request('error'))
         @push('scripts')
             <script type="module">
-                Swal.fire({
-                    title: "Error",
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-danger',
+                        cancelButton: 'btn btn-secondary'
+                    },
+                    buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                    title: 'Error',
                     text: "{{ request('error') }}",
-                    icon: "error",
-                    button: "OK",
-                }).then(() => {
-                    window.location.href = "{{url()->previous()}}";
-                });
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ok',
+                    cancelButtonText: 'Show Log',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{url()->previous()}}";
+                    } else if (result.isDismissed) {
+                        window.location.href = "{{route('cubeta-starter.output')}}";
+                    }
+                })
             </script>
         @endpush
     @endif
@@ -154,14 +169,59 @@
     @if(request('success'))
         @push('scripts')
             <script type="module">
-                Swal.fire({
-                    title: "Success",
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                        cancelButton: 'btn btn-secondary'
+                    },
+                    buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                    title: 'Success',
                     text: "{{ request('success') }}",
-                    icon: "success",
-                    button: "OK",
-                }).then(() => {
-                    window.location.href = "{{url()->previous()}}";
-                });
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ok',
+                    cancelButtonText: 'Show Log',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{url()->previous()}}";
+                    } else if (result.isDismissed) {
+                        window.location.href = "{{route('cubeta-starter.output')}}";
+                    }
+                })
+            </script>
+        @endpush
+    @endif
+
+    @if(request('warning'))
+        @push('scripts')
+            <script type="module">
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                        cancelButton: 'btn btn-secondary'
+                    },
+                    buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                    title: 'Warning',
+                    text: "{{ request('warning') }}",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ok',
+                    cancelButtonText: 'Show Log',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{url()->previous()}}";
+                    } else if (result.isDismissed) {
+                        window.location.href = "{{route('cubeta-starter.output')}}";
+                    }
+                })
             </script>
         @endpush
     @endif

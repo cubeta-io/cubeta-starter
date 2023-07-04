@@ -4,7 +4,7 @@ namespace Cubeta\CubetaStarter\app\Http\Controllers;
 
 use Artisan;
 use Exception;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -23,6 +23,7 @@ class CallAppropriateCommand extends Controller
     private mixed $modelName;
     private mixed $nullables;
     private mixed $relations;
+    private mixed $uniques;
 
 
     public function __construct(Request $request)
@@ -116,16 +117,16 @@ class CallAppropriateCommand extends Controller
             Artisan::call($command['name'], $arguments);
 
             $output = Artisan::output();
-            if (Str::contains($output, ErrorTypeEnum::ALL_ERRORS, true)) {
-                $lines = explode(PHP_EOL, $output);
-                $lastLine = trim(array_pop($lines));
-                return redirect()->route($command['route'], ['error' => explode("\n", $lastLine)]);
-            }
 
-            return redirect()->route($command['route'], ['success' => $command['name'] . ' successfully']);
+            return $this->handleWarningAndLogsBeforeRedirecting($output, $command['route'], $command['name'] . ' successfully');
+
         } catch (Exception $exception) {
-            Session::put('error', $exception->getMessage());
-            return redirect()->route($command['route']);
+            $error = $exception->getMessage();
+            if (strlen($error) <= 30) {
+                return redirect()->route($command['route'], ['error' => $error]);
+            } else {
+                return view('CubetaStarter::command-output', compact('error'));
+            }
         }
     }
 
@@ -261,15 +262,22 @@ class CallAppropriateCommand extends Controller
 
     public function callInstallSpatie()
     {
-        set_time_limit(0);
+        try {
+            set_time_limit(0);
 
-        Artisan::call('cubeta-init', [
-            'useGui' => true,
-            'installSpatie' => true,
-            'rolesPermissionsArray' => null
-        ]);
+            Artisan::call('cubeta-init', [
+                'useGui' => true,
+                'installSpatie' => true,
+                'rolesPermissionsArray' => null
+            ]);
 
-        return redirect()->route('cubeta-starter.generate-add-actor.page', ['success' => "Spatie Has Been Installed \n Don't Forgot To Run Your Migrations"]);
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.generate-add-actor.page', "Spatie Has Been Installed \n Don't Forgot To Run Your Migrations");
+
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
+        }
     }
 
     public function installingWebPackages()
@@ -277,9 +285,12 @@ class CallAppropriateCommand extends Controller
         set_time_limit(0);
         try {
             Artisan::call('init-web-packages');
-            return redirect()->route('cubeta-starter.complete-installation', ['success' => 'The Packages Have Been Installed Successfully']);
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'The Packages Have Been Installed Successfully');
+
         } catch (Exception $e) {
-            return redirect()->route('cubeta-starter.complete-installation', ['error' => $e->getMessage()]);
+            $error = $e->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
         }
     }
 
@@ -289,9 +300,12 @@ class CallAppropriateCommand extends Controller
             Artisan::call('vendor:publish', [
                 '--tag' => 'cubeta-starter-assets',
             ]);
-            return redirect()->route('cubeta-starter.complete-installation', ['success' => 'The Assets Has Been Published Successfully']);
+
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'The Assets Has Been Published Successfully');
         } catch (Exception $e) {
-            return redirect()->route('cubeta-starter.complete-installation', ['error' => $e->getMessage()]);
+            $error = $e->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
         }
     }
 
@@ -301,9 +315,13 @@ class CallAppropriateCommand extends Controller
             Artisan::call('vendor:publish', [
                 '--tag' => 'cubeta-starter-config',
             ]);
-            return redirect()->route('cubeta-starter.complete-installation', ['success' => 'Config File Published Successfully']);
+
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Config File Published Successfully');
+
         } catch (Exception $e) {
-            return redirect()->route('cubeta-starter.complete-installation', ['error' => $e->getMessage()]);
+            $error = $e->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
         }
     }
 
@@ -314,9 +332,13 @@ class CallAppropriateCommand extends Controller
                 '--tag' => 'cubeta-starter-handler',
                 '--force' => true
             ]);
-            return redirect()->route('cubeta-starter.complete-installation', ['success' => 'Exception Handler Published Successfully']);
+
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Exception Handler Published Successfully');
+
         } catch (Exception $e) {
-            return redirect()->route('cubeta-starter.complete-installation', ['error' => $e->getMessage()]);
+            $error = $e->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
         }
     }
 
@@ -346,5 +368,17 @@ class CallAppropriateCommand extends Controller
         }
 
         return $result;
+    }
+
+    private function handleWarningAndLogsBeforeRedirecting($output, $redirectRouteName, $successMessage)
+    {
+        foreach (ErrorTypeEnum::ALL_ERRORS as $error) {
+            if (Str::contains($output, $error, true)) {
+                Cache::put('logs', $output);
+                return redirect()->route($redirectRouteName, ['warning' => $error]);
+            }
+        }
+        Cache::put('logs', $output);
+        return redirect()->route($redirectRouteName, ['success' => $successMessage]);
     }
 }

@@ -12,6 +12,8 @@ class ApiController extends Controller
 {
     use RestTrait;
 
+    public array $relations = [] ;
+
     //Exception
     public const STATUS_BAD_REQUEST = 400;
 

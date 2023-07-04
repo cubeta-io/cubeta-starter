@@ -19,6 +19,11 @@
 			"key":"locale",
 			"value":"",
 			"type":"string"
+		},
+		{
+			"key":"token",
+			"value":"",
+			"type":"string"
 		}
 	]
 }

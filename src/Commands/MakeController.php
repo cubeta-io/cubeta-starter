@@ -33,7 +33,7 @@ class MakeController extends Command
         $modelName = $this->argument('name') ?? null;
         $actor = $this->argument('actor') ?? null;
 
-        if ( ! $modelName || empty(trim($modelName))) {
+        if (!$modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
@@ -48,13 +48,17 @@ class MakeController extends Command
     private function createController($modelName, $actor): void
     {
         $modelName = modelNaming($modelName);
+        $variableName = variableNaming($modelName);
+        $idVariable = $variableName . 'Id';
+
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.api_controller_namespace'),
             '{modelName}' => $modelName,
-            '{variableNaming}' => variableNaming($modelName),
+            '{variableNaming}' => $variableName,
             '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
             '{requestNamespace}' => config('cubeta-starter.request_namespace'),
-            '{resourceNamespace}' => config('cubeta-starter.resource_namespace')
+            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
+            '{idVariable}' => $idVariable,
         ];
 
         $controllerName = $this->getControllerName($modelName);

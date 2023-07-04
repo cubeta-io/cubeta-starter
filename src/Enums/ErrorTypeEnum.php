@@ -11,7 +11,7 @@ class ErrorTypeEnum
         self::FAILED_TO_APPEND_ROUTE,
         self::FAILED_TO_CREATE_ROUTE_DIRECTORY
     ];
-    public const ACTOR_ROUTES_FILE_NOT_EXISTS = "Actor Routes Files Doesn't exist";
+    public const ACTOR_ROUTES_FILE_NOT_EXISTS = "Actor Routes Files Does not exist";
 
     public const ALREADY_EXISTS = 'Already Exists';
 

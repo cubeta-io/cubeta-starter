@@ -44,7 +44,7 @@ trait RouteBinding
                 $this->error('Failed to Append a Route For This Controller');
             }
         } else {
-            $this->error("Actor Routes Files Doesn't exist");
+            $this->error("Actor Routes Files Does not exist");
         }
     }
 
