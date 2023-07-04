@@ -83,6 +83,7 @@ class MakeWebController extends Command
             '{showRouteName}' => $routesNames['show'],
             '{editRouteName}' => $routesNames['edit'],
             '{deleteRouteName}' => $routesNames['destroy'],
+            '{indexRoute}' => $routesNames['index'],
             '{createForm}' => $views['create'],
             '{indexView}' => $views['index'],
             '{showView}' => $views['show'],

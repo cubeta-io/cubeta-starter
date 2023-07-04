@@ -73,16 +73,16 @@ class {modelName}Controller extends Controller
         if (${modelNameCamelCase}) {
             return view('{showView}', compact('{modelNameCamelCase}'));
         }
-        abort(404, 'Item Not Found');
+        return redirect()->back()->with('error' , 'Item Not Found');
     }
 
     public function store(StoreUpdate{modelName}Request $request)
     {
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->store($request->validated(), []);
         if (${modelNameCamelCase}) {
-            return redirect()->route('{showRouteName}', ${modelNameCamelCase}->id);
+            return redirect()->route('{indexRoute}', ${modelNameCamelCase}->id)->with('message' , 'item added successfully');
         }
-        abort(500);
+        return redirect()->back()->with('error' , 'process failed something went wrong');
     }
 
     public function edit(${modelNameCamelCase}_id)
@@ -93,16 +93,16 @@ class {modelName}Controller extends Controller
             return view('{editForm}', compact(['{modelNameCamelCase}']));
         }
 
-         abort(404) ;
+         return redirect()->back()->with('error' , 'Item Not Found you cannot edit unexist item');
     }
 
     public function update(StoreUpdate{modelName}Request $request, ${modelNameCamelCase}_id)
     {
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->update($request->validated(), ${modelNameCamelCase}_id, []);
         if (${modelNameCamelCase}) {
-            return redirect()->route('{editRouteName}', ${modelNameCamelCase}_id);
+            return redirect()->route('{indexRoute}', ${modelNameCamelCase}_id)->with('message' , 'your changes has been saved');
         }
-        else abort(404) ;
+        else return redirect()->back()->with('error' , 'Item Not Found');
     }
 
     public function destroy(${modelNameCamelCase}_id)
@@ -113,7 +113,7 @@ class {modelName}Controller extends Controller
             return response()->json(['message' => 'deleted successfully']) ;
         }
 
-        abort(404) ;
+        return redirect()->back()->with('error' , 'Item Not Found');
     }
 
     {additionalMethods}
