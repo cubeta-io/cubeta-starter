@@ -52,8 +52,8 @@ class CallAppropriateCommand extends Controller
             'installSpatie' => false
         ]);
 
-        return redirect()->route('cubeta-starter.generate-add-actor.page', ['success' => 'New Roles Added']);
-
+        $output = Artisan::output();
+        return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.generate-add-actor.page', "New Roles Added");
     }
 
     public function callCommand($command)
