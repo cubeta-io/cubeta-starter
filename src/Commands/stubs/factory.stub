@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
  */
 class {class}Factory extends Factory
 {
+    {usedTraits}
     /**
      * Define the model's default state.
      *

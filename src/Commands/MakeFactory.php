@@ -80,6 +80,7 @@ class MakeFactory extends Command
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.factory_namespace'),
             '{class}' => $modelName,
+            '{usedTraits}' => $this->getUsedTraits($attributes),
             '{rows}' => $factoryAttributes['rows'],
             '//relationFactories' => $factoryAttributes['relatedFactories'],
         ];
@@ -132,8 +133,8 @@ class MakeFactory extends Command
             } elseif (Str::contains($name, 'phone')) {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->phoneNumber(),\n";
 
-            } elseif (Str::contains($name, ['image', 'icon', 'logo', 'photo'])) {
-                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->imageUrl(),\n";
+            } elseif (Str::contains($name, ['image', 'icon', 'logo', 'photo']) || $type == 'file') {
+                $rows .= "\t\t\t'{$name}' => \$this->storeImageFromUrl(fake()->imageUrl)['name'],\n";
 
             } elseif (Str::contains($name, ['longitude', '_lon', '_lng', 'lon_', 'lng_']) || $name == 'lng' || $name == 'lon') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->longitude(),\n";
@@ -206,5 +207,20 @@ class MakeFactory extends Command
         ensureDirectoryExists($factoryDirectory);
 
         return "{$factoryDirectory}/{$factoryName}.php";
+    }
+
+    /**
+     * @param array $attributes
+     * @return string
+     */
+    private function getUsedTraits(array $attributes = []): string
+    {
+        $usedTraits = '';
+
+        if (in_array('file', $attributes)) {
+            $usedTraits .= "use \Cubeta\CubetaStarter\Traits\FileHandler; \n";
+        }
+
+        return $usedTraits;
     }
 }

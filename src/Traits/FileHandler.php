@@ -33,9 +33,9 @@ trait FileHandler
      * this function takes a base64 encoded image and store it in the filesystem and return the name of it
      * (ex. 12546735.png) that will be stored in DB
      *
-     * @param  bool  $to_compress
-     * @param  false  $is_base_64
-     * @param  int  $width
+     * @param bool $to_compress
+     * @param false $is_base_64
+     * @param int $width
      * @return string
      */
     public function storeFile($file, $dir, $to_compress = true, $is_base_64 = false, $width = 300)
@@ -58,8 +58,13 @@ trait FileHandler
         return $name;
     }
 
+    /**
+     * @param string $url image URL
+     * @param string $dir the rest of the storage path where you want to store
+     * @return array
+     */
     #[ArrayShape(['name' => 'string', 'object' => 'mixed'])]
-    public function storeImageFromUrl($url, $dir): array
+    public function storeImageFromUrl(string $url, string $dir = ''): array
     {
         $this->files = new Filesystem();
         $this->makeDirectory(storage_path('app/public/' . $dir));
@@ -72,7 +77,7 @@ trait FileHandler
     /**
      * this function can store any file
      *
-     * @param  string  $key key as sent in the request
+     * @param string $key key as sent in the request
      * @return string
      */
     public function storeNormalFile($key)
@@ -95,9 +100,9 @@ trait FileHandler
      * this function takes $newImage(base64 encoded) and $oldImage(DB name) ,
      * it deletes the $oldImage from the filesystem and store the $newImage and return it's name that will be stored in DB
      *
-     * @param  bool  $to_compress
-     * @param  bool  $is_base_64
-     * @param  int  $width
+     * @param bool $to_compress
+     * @param bool $is_base_64
+     * @param int $width
      * @return string
      */
     public function updateFile($new_file, $old_file, $dir, $to_compress = true, $is_base_64 = false, $width = 300)
@@ -124,10 +129,10 @@ trait FileHandler
     /**
      * store requested keys as files
      *
-     * @param  null  $item
-     * @param  bool  $to_compress
-     * @param  false  $is_base_64
-     * @param  int  $width
+     * @param null $item
+     * @param bool $to_compress
+     * @param false $is_base_64
+     * @param int $width
      */
     private function storeOrUpdateRequestedFiles(array $data, array $filesKeys = [], bool $is_store = true, $item = null, $to_compress = true, $is_base_64 = false, $width = 300): array
     {
