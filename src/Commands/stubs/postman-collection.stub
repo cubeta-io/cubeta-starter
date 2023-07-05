@@ -12,7 +12,7 @@
 	"variable": [
 		{
 			"key": "local",
-			"value": "{project-url}/api",
+			"value": "{project-url}api",
 			"type": "string"
 		},
 		{

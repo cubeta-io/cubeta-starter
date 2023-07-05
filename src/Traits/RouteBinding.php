@@ -7,6 +7,13 @@ use Illuminate\Support\Facades\File;
 
 trait RouteBinding
 {
+    /**
+     * @param string $modelName
+     * @param $actor
+     * @param string $container
+     * @param array $additionalRoutes
+     * @return void
+     */
     public function addRoute(string $modelName, $actor = null, string $container = 'api', array $additionalRoutes = []): void
     {
         $pluralLowerModelName = routeUrlNaming($modelName);
@@ -48,6 +55,11 @@ trait RouteBinding
         }
     }
 
+    /**
+     * @param string $routePath
+     * @param string $route
+     * @return bool
+     */
     public function checkIfRouteExist(string $routePath, string $route): bool
     {
         $file = file_get_contents($routePath);
@@ -79,7 +91,6 @@ trait RouteBinding
             return $container . '.' . $modelLowerPluralName;
         }
         return $container . '.' . $actor . '.' . $modelLowerPluralName;
-
     }
 
     public function addAdditionalRoutesForAdditionalControllerMethods(string $modelName, string $routeName, array $additionalRoutes = []): string

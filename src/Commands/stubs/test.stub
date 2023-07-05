@@ -15,8 +15,9 @@ class {modelName}Test extends TestCase
     // define the actor
     protected $userType = "{{actor}}";
 
-    // the named route eg: 'user.products'
-    protected $baseUrl = '';
+    // the named route eg: 'user.products.'
+    //!!! Note: the dot "." in the in of the baseUrl is important !!!
+    protected string $baseUrl = '{baseRouteName}';
 
     // if your endpoints return the model with its relation put the relations in the array
     protected $relations = [];
@@ -36,13 +37,13 @@ class {modelName}Test extends TestCase
     public function test_user_can_create_a_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'store');
-        $this->storeTest();
+        $this->storeTest([{additionalFactoryData}]);
     }
 
     public function test_user_can_update_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'update');
-        $this->updateTest();
+        $this->updateTest([{additionalFactoryData}]);
     }
 
     public function test_user_can_delete_a_{modelName}()

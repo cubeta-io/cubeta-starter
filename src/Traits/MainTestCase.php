@@ -9,8 +9,8 @@ trait MainTestCase
     use TestHelpers;
 
     /**
-     * @param  array  $additionalFactoryData optional data to the factories
-     * @param  bool  $ownership determine if the action has to be on the authenticated user data
+     * @param array $additionalFactoryData optional data to the factories
+     * @param bool $ownership determine if the action has to be on the authenticated user data
      */
     public function deleteTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
     {
@@ -57,8 +57,8 @@ trait MainTestCase
     }
 
     /**
-     * @param  array  $additionalFactoryData optional data to the factories
-     * @param  bool  $ownership determine if the action has to be on the authenticated user data
+     * @param array $additionalFactoryData optional data to the factories
+     * @param bool $ownership determine if the action has to be on the authenticated user data
      */
     public function indexTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
     {
@@ -99,8 +99,8 @@ trait MainTestCase
     }
 
     /**
-     * @param  array  $additionalFactoryData optional data to the factories
-     * @param  bool  $ownership determine if the action has to be on the authenticated user data
+     * @param array $additionalFactoryData optional data to the factories
+     * @param bool $ownership determine if the action has to be on the authenticated user data
      */
     public function showTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
     {
@@ -140,7 +140,7 @@ trait MainTestCase
     }
 
     /**
-     * @param  array  $additionalAttributes optional data to the factories
+     * @param array $additionalAttributes optional data to the factories
      */
     public function storeTest(array $additionalAttributes = [], mixed $requestParams = null, bool $isDebug = false): void
     {
@@ -154,7 +154,7 @@ trait MainTestCase
         $createdModel = $this->model::orderByDesc('id')->first();
 
         $this->responseBody['data'] = $this->convertResourceToArray($createdModel->load($this->relations));
-        $this->responseBody['message'] = __('site.created_successfully');
+        $this->responseBody['message'] = __('site.stored_successfully');
 
         $response->assertExactJson($this->responseBody)
             ->assertOk();
@@ -163,10 +163,10 @@ trait MainTestCase
     }
 
     /**
-     * @param  array  $additionalFactoryData optional data to the factories
-     * @param  array  $attributes if you are trying to send a custom attributes to the update request send an array of it
-     * @param  bool  $ownership determine if the action has to be on the authenticated user data
-     * @param  bool  $replacing this var pointing to the case where the update endpoint creating a new record to the database
+     * @param array $additionalFactoryData optional data to the factories
+     * @param array $attributes if you are trying to send a custom attributes to the update request send an array of it
+     * @param bool $ownership determine if the action has to be on the authenticated user data
+     * @param bool $replacing this var pointing to the case where the update endpoint creating a new record to the database
      */
     public function updateTest(array $additionalFactoryData = [], array $attributes = [], bool $ownership = false, bool $replacing = true, bool $isDebug = false): void
     {
@@ -205,7 +205,7 @@ trait MainTestCase
             $this->assertModelExists($createdData);
             $this->responseBody['data'] = $this->convertResourceToArray($createdData->load($this->relations));
         }
-        $this->responseBody['message'] = __('site.updated_successfully');
+        $this->responseBody['message'] = __('site.update_successfully');
         $response->assertExactJson($this->responseBody);
 
         if ($isDebug) {

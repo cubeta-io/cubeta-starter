@@ -215,12 +215,14 @@ class RenderAppropriateViewController extends Controller
     public function generateTest()
     {
         $roles = $this->roles;
+        $types = $this->types;
         $this->arguments['title'] = 'Feature Test';
         $this->arguments['textUnderTitle'] = 'Here We Will Generate The Feature Test For Your Model Endpoints (CRUDs ONLY)';
         $this->arguments['action'] = route('cubeta-starter.call-create-test-command');
         $this->arguments['actorsField'] = true;
+        $this->arguments['attributesField'] = true;
         $this->arguments['modalBody'] = "Generating Tests";
-        return view('CubetaStarter::main-generate-page', compact('roles'))->with($this->arguments);
+        return view('CubetaStarter::main-generate-page', compact('roles', 'types'))->with($this->arguments);
     }
 
     public function generateWebController()
