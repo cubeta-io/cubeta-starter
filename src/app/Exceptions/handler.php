@@ -50,12 +50,12 @@ class Handler extends ExceptionHandler
             return $this->apiResponse('', ApiController::STATUS_UNAUTHORIZED, $exception->getMessage());
         }
 
-       if (class_exists('\Spatie\Permission\Exceptions\UnauthorizedException')){
-           /** @noinspection PhpUndefinedNamespaceInspection */
-           if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
-               return $this->apiResponse('', ApiController::STATUS_UNAUTHORIZED, $exception->getMessage());
-           }
-       }
+        if (class_exists('\Spatie\Permission\Exceptions\UnauthorizedException')) {
+            /** @noinspection PhpUndefinedNamespaceInspection */
+            if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
+                return $this->apiResponse('', ApiController::STATUS_UNAUTHORIZED, $exception->getMessage());
+            }
+        }
 
         if ($exception instanceof HttpException) {
             if ($exception->getMessage() == 'Unauthorized Action') {
@@ -104,7 +104,7 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $exception): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
     {
-        if ( ! $request->acceptsHtml()) {
+        if (! $request->acceptsHtml()) {
             return $this->handleException($request, $exception);
         }
         return parent::render($request, $exception);

@@ -80,7 +80,7 @@ trait RolePermissionTrait
 
         if (file_exists($enumDirectory . 'RolesPermissionEnum.php')) {
             $enumFileContent = file_get_contents($enumDirectory . 'RolesPermissionEnum.php');
-            if ( ! str_contains($enumFileContent, $role)) {
+            if (! str_contains($enumFileContent, $role)) {
                 // If the new code does not exist, add it to the end of the class definition
                 $pattern = '/}\s*$/';
                 $replacement = "{$enum}}";

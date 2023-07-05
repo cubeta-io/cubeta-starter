@@ -24,7 +24,7 @@ class MakeSeeder extends Command
     {
         $modelName = $this->argument('name');
 
-        if ( ! $modelName || empty(trim($modelName))) {
+        if (! $modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }

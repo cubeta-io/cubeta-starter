@@ -46,7 +46,7 @@ trait RouteFileTrait
         $file_contents = file_get_contents($routeServiceProvider);
 
         // Check if the line to add already exists in the file
-        if ( ! str_contains($file_contents, $line_to_add)) {
+        if (! str_contains($file_contents, $line_to_add)) {
             // If the line does not exist, add it to the boot() method
             $pattern = '/\$this->routes\(function\s*\(\)\s*{\s*/';
             $replacement = "$0{$line_to_add}";

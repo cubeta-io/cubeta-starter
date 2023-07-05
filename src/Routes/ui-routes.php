@@ -6,7 +6,7 @@ use Cubeta\CubetaStarter\app\Http\Controllers\RenderAppropriateViewController;
 
 Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
     Route::view('/', 'CubetaStarter::complete-install')->name('complete-installation');
-    Route::view('/output' , 'CubetaStarter::command-output')->name('output');
+    Route::view('/output', 'CubetaStarter::command-output')->name('output');
     Route::prefix('generate')->name('generate-')->group(function () {
         Route::get('/', [RenderAppropriateViewController::class, 'fullGenerate'])->name('full.page');
         Route::get('/migration', [RenderAppropriateViewController::class, 'generateMigration'])->name('migration.page');

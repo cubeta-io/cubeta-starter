@@ -124,9 +124,9 @@ class CallAppropriateCommand extends Controller
             $error = $exception->getMessage();
             if (strlen($error) <= 30) {
                 return redirect()->route($command['route'], ['error' => $error]);
-            } else {
-                return view('CubetaStarter::command-output', compact('error'));
             }
+            return view('CubetaStarter::command-output', compact('error'));
+
         }
     }
 

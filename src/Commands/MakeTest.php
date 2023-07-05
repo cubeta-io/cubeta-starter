@@ -85,7 +85,7 @@ class MakeTest extends Command
     }
 
     /**
-     * @param array $attributes
+     * @param  array  $attributes
      * @return string
      */
     private function getAdditionalFactoryData(array $attributes = []): string
@@ -93,7 +93,7 @@ class MakeTest extends Command
         $data = '';
         foreach ($attributes as $attribute => $type) {
             if ($type == 'file') {
-                $data .= "'$attribute' => \Illuminate\Http\UploadedFile::fake()->image('image.jpg'),\n";
+                $data .= "'{$attribute}' => \Illuminate\Http\UploadedFile::fake()->image('image.jpg'),\n";
             }
         }
 

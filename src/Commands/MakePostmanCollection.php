@@ -45,7 +45,7 @@ class MakePostmanCollection extends Command
         $modelName = $this->argument('name');
         $attributes = $this->argument('attributes');
 
-        if ( ! $modelName || empty(trim($modelName))) {
+        if (! $modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }

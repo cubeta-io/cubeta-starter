@@ -29,7 +29,7 @@ class CreatePivotTable extends Command
         $table1 = $this->argument('table1');
         $table2 = $this->argument('table2');
 
-        if (( ! $table1 || empty(trim($table1))) || ( ! $table2 || empty(trim($table2)))) {
+        if ((! $table1 || empty(trim($table1))) || (! $table2 || empty(trim($table2)))) {
             $this->error('Invalid input');
             return;
         }

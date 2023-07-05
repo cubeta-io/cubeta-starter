@@ -171,18 +171,15 @@ class MakeFactory extends Command
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->date(),\n";
 
             } elseif (Str::startsWith($name, 'is_') && $type == 'boolean') {
-                $rows .= "\t\t\t'{
-                $name}' => fake(){$isUnique}->boolean(),\n";
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->boolean(),\n";
 
             } elseif ($type == 'json') {
                 $rows .= "\t\t\t'{$name}' => 'json_encode([fake(){$isUnique}->word() => fake(){$isUnique}->word()])',\n";
             } elseif (array_key_exists($type, $this->typeFaker)) {
                 $faker = $this->typeFaker["{$type}"];
-                $rows .= "\t\t\t'{
-                $name}' => fake(){$isUnique}{$faker}, \n";
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}{$faker}, \n";
             } else {
-                $rows .= "\t\t\t '{
-                $name}' => fake(){$isUnique}->$type(), \n";
+                $rows .= "\t\t\t '{$name}' => fake(){$isUnique}->{$type}(), \n";
             }
         }
 
@@ -216,7 +213,7 @@ class MakeFactory extends Command
     }
 
     /**
-     * @param array $attributes
+     * @param  array  $attributes
      * @return string
      */
     private function getUsedTraits(array $attributes = []): string

@@ -40,7 +40,7 @@ class MakeMigration extends Command
             return;
         }
 
-        $this->createMigration($modelName, $attributes, $relations, $nullables , $uniques);
+        $this->createMigration($modelName, $attributes, $relations, $nullables, $uniques);
     }
 
     /**
@@ -99,7 +99,7 @@ class MakeMigration extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
-                $nullable = in_array($rel.'_id', $nullables) ? '->nullable()' : '';
+                $nullable = in_array($rel . '_id', $nullables) ? '->nullable()' : '';
                 $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
                 $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::class){$nullable}->constrained()->cascadeOnDelete(); \n";
             }

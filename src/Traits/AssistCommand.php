@@ -41,7 +41,7 @@ trait AssistCommand
     }
 
     /**
-     * @param string $command
+     * @param  string            $command
      * @return false|string|null
      */
     public function executeCommandInTheBaseDirectory(string $command): bool|string|null

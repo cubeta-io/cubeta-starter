@@ -56,7 +56,7 @@ class MakeService extends Command
 
         $namespace = config('cubeta-starter.service_namespace') . "\\{$modelName}";
 
-        if ( ! $modelName || empty(trim($modelName))) {
+        if (! $modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }

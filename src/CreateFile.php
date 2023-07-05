@@ -143,7 +143,7 @@ class CreateFile
     /**
      * Write to the file specified in the path
      *
-     * @param  string|mixed  $stub
+     * @param string|mixed $stub
      */
     private function writeFile(mixed $stub): void
     {

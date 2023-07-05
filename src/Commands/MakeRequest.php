@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -39,7 +38,7 @@ class MakeRequest extends Command
     }
 
     /**
-     * @param array $attributes
+     * @param  array  $attributes
      * @return string
      */
     public function getPrepareForValidationMethod(array $attributes): string

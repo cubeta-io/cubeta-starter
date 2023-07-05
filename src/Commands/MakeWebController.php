@@ -135,7 +135,7 @@ class MakeWebController extends Command
     }
 
     /**
-     * @param null $actor
+     * @param  null     $actor
      * @return string[]
      */
     #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
@@ -190,11 +190,11 @@ class MakeWebController extends Command
                 $relatedModel = modelNaming(str_replace('_id', '', $column));
                 $showRouteName = $this->getRoutesNames($relatedModel)['show'];
                 $dataColumn .= "
-                    ->editColumn('$column', function (\$row) {
+                    ->editColumn('{$column}', function (\$row) {
                     //TODO::check on the used show route of the related model key
-                        return \"<a href='\" . route('$showRouteName', \$row->$column) . \"'>\$row->$column</a>\";
+                        return \"<a href='\" . route('{$showRouteName}', \$row->{$column}) . \"'>\$row->{$column}</a>\";
                     })";
-                $this->rawColumns .= "'$column' ,";
+                $this->rawColumns .= "'{$column}' ,";
             }
         }
 

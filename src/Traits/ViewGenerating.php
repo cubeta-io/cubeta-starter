@@ -9,7 +9,6 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 
 trait ViewGenerating
 {
-
     use RouteBinding {
         getRouteName as public;
     }
@@ -57,10 +56,10 @@ trait ViewGenerating
     }
 
     /**
-     * @param string $modelName
-     * @param string $creatRoute
-     * @param string $dataRoute
-     * @param array $attributes
+     * @param  string                     $modelName
+     * @param  string                     $creatRoute
+     * @param  string                     $dataRoute
+     * @param  array                      $attributes
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -160,7 +159,7 @@ trait ViewGenerating
                 $select2Route = $this->getRouteName($modelName, 'web', $actor) . '.allPaginatedJson';
                 $inputs .= "
                 <!-- TODO::if you created this before the parent model configure this route here as you want -->
-                <x-select2 label=\"$label\" api=\"{{route('$select2Route')}}\" option-value=\"name\" option-inner-text=\"name\" {$value} {$isRequired}></x-select2> \n";
+                <x-select2 label=\"{$label}\" api=\"{{route('{$select2Route}')}}\" option-value=\"name\" option-inner-text=\"name\" {$value} {$isRequired}></x-select2> \n";
             } elseif ($type == 'translatable') {
                 $inputs .= "<x-translatable-input label=\"{$label}\" type='text' {$value} {$isRequired}></x-translatable-input> \n";
             } elseif ($attribute == 'email') {
@@ -282,12 +281,12 @@ trait ViewGenerating
 
         foreach ($translatableColumns as $col => $index) {
             $queries .=
-                "if (request()->has('order') && request('order')[0]['column'] == $index) {
+                "if (request()->has('order') && request('order')[0]['column'] == {$index}) {
                             \$query->order(function (\$query) use (\$locale) {
                                 if (request('order')[0]['dir'] == 'asc') {
-                                    \$query->orderByRaw(\"JSON_EXTRACT($col, ?) ASC\", ['$.\"' . \$locale . '\"']);
+                                    \$query->orderByRaw(\"JSON_EXTRACT({$col}, ?) ASC\", ['$.\"' . \$locale . '\"']);
                                 } else {
-                                    \$query->orderByRaw(\"JSON_EXTRACT($col, ?) DESC\", ['$.\"' . \$locale . '\"']);
+                                    \$query->orderByRaw(\"JSON_EXTRACT({$col}, ?) DESC\", ['$.\"' . \$locale . '\"']);
                                 }
                             });
                  } \n";
@@ -298,7 +297,7 @@ trait ViewGenerating
 
     /**
      * get the component label name
-     * @param string $attribute
+     * @param  string       $attribute
      * @return array|string
      */
     private function getLabelName(string $attribute): array|string

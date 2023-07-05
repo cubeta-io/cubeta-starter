@@ -20,8 +20,8 @@ class InitialProject extends Command
     protected $signature = 'cubeta-init {useGui?} {installSpatie?} {rolesPermissionsArray?}';
 
     /**
-     * @param mixed $role
-     * @param array|null $permissions
+     * @param  mixed                      $role
+     * @param  array|null                 $permissions
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -141,7 +141,7 @@ class InitialProject extends Command
     /**
      * Handle the roles and permissions passed as arguments
      *
-     * @param array $rolesPermissions
+     * @param  array                      $rolesPermissions
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
