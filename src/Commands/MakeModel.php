@@ -339,10 +339,11 @@ class MakeModel extends Command
         }
 
         foreach ($translatableAttributes as $attribute) {
+            $attributeMethod = Str::camel($attribute);
             $result .= "/**
                         * get the model {$attribute} translated based on the app locale
                         */
-                        public function {$attribute}(): \Illuminate\Database\Eloquent\Casts\Attribute
+                        public function {$attributeMethod}(): \Illuminate\Database\Eloquent\Casts\Attribute
                         {
                             return \Illuminate\Database\Eloquent\Casts\Attribute::make(
                                 get: fn (string \$value) => getTranslation(\$value),
