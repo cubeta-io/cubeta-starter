@@ -209,7 +209,7 @@ class MakeFactory extends Command
 
     private function getFactoryPath($factoryName): string
     {
-        $factoryDirectory = base_path(config('cubeta - starter . factory_path'));
+        $factoryDirectory = base_path(config('cubeta-starter.factory_path'));
         ensureDirectoryExists($factoryDirectory);
 
         return "{$factoryDirectory}/{$factoryName}.php";
