@@ -31,7 +31,6 @@ class MakeFactory extends Command
         'float' => '->randomFloat(1, 1, 100)',
         'string' => '->sentence()',
         'text' => '->text()',
-        'json' => 'json_encode([->word() => ->word()])',
         'boolean' => '->boolean()',
         'date' => '->date()',
         'time' => '->time()',
@@ -118,65 +117,72 @@ class MakeFactory extends Command
                 }
                 $rows .= "]) ,\n";
 
-            } elseif (in_array($name, ['name', 'username', 'first_name', 'last_name', 'user_name'])) {
+            } elseif (in_array($name, ['name', 'username', 'first_name', 'last_name', 'user_name']) && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->firstName(),\n";
 
-            } elseif ($name == 'email') {
+            } elseif ($name == 'email' && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->email(),\n";
 
-            } elseif (in_array($name, ['cost', 'price', 'value', 'expense']) || Str::contains($name, ['price', 'cost'])) {
+            } elseif (
+                (in_array($name, ['cost', 'price', 'value', 'expense']) || Str::contains($name, ['price', 'cost'])) && in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])
+            ) {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->randomFloat(2, 0, 1000),\n";
 
-            } elseif (Str::contains($name, 'description')) {
+            } elseif (Str::contains($name, 'description') && $type == 'text') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->text(),\n";
 
-            } elseif (Str::contains($name, 'phone')) {
+            } elseif (Str::contains($name, 'phone') && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->phoneNumber(),\n";
 
-            } elseif (Str::contains($name, ['image', 'icon', 'logo', 'photo']) || $type == 'file') {
+            } elseif (Str::contains($name, ['image', 'icon', 'logo', 'photo']) && $type == 'file') {
                 $rows .= "\t\t\t'{$name}' => \$this->storeImageFromUrl(fake()->imageUrl)['name'],\n";
 
-            } elseif (Str::contains($name, ['longitude', '_lon', '_lng', 'lon_', 'lng_']) || $name == 'lng' || $name == 'lon') {
+            } elseif ((Str::contains($name, ['longitude', '_lon', '_lng', 'lon_', 'lng_']) || $name == 'lng' || $name == 'lon') && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->longitude(),\n";
 
-            } elseif (Str::contains($name, ['latitude ', '_lat', 'lat_']) || $name == 'lat') {
+            } elseif ((Str::contains($name, ['latitude ', '_lat', 'lat_']) || $name == 'lat') && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->latitude(),\n";
 
-            } elseif (Str::contains($name, 'address')) {
+            } elseif (Str::contains($name, 'address') && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->address(),\n";
 
-            } elseif (Str::contains($name, 'street')) {
+            } elseif (Str::contains($name, 'street') && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->streetName(),\n";
 
-            } elseif (Str::contains($name, 'city')) {
+            } elseif (Str::contains($name, 'city') && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->city(),\n";
 
-            } elseif (Str::contains($name, ['zip', 'post_code', 'postcode', 'PostCode', 'postCode', 'ZIP'])) {
+            } elseif (Str::contains($name, ['zip', 'post_code', 'postcode', 'PostCode', 'postCode', 'ZIP']) && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->postcode(),\n";
 
-            } elseif (Str::contains($name, 'country')) {
+            } elseif (Str::contains($name, 'country') && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->country(),\n";
 
-            } elseif (Str::contains($name, 'age')) {
+            } elseif (Str::contains($name, 'age') && $type == 'integer') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->numberBetween(15,60),\n";
 
-            } elseif (Str::contains($name, 'gender')) {
+            } elseif (Str::contains($name, 'gender') && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->randomElement(['male' , 'female']),\n";
 
-            } elseif (Str::contains($name, 'time')) {
+            } elseif (Str::contains($name, 'time') && $type == 'time') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->time(),\n";
 
-            } elseif (Str::endsWith($name, '_at') || Str::contains($name, 'date')) {
+            } elseif ((Str::endsWith($name, '_at') || Str::contains($name, 'date')) && in_array($type, ['date', 'time', 'dateTime', 'timestamp'])) {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->date(),\n";
 
-            } elseif (Str::startsWith($name, 'is_')) {
-                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->boolean(),\n";
+            } elseif (Str::startsWith($name, 'is_') && $type == 'boolean') {
+                $rows .= "\t\t\t'{
+                $name}' => fake(){$isUnique}->boolean(),\n";
 
+            } elseif ($type == 'json') {
+                $rows .= "\t\t\t'{$name}' => 'json_encode([fake(){$isUnique}->word() => fake(){$isUnique}->word()])',\n";
             } elseif (array_key_exists($type, $this->typeFaker)) {
                 $faker = $this->typeFaker["{$type}"];
-                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}{$faker}, \n";
+                $rows .= "\t\t\t'{
+                $name}' => fake(){$isUnique}{$faker}, \n";
             } else {
-                $rows .= "\t\t\t '{$name}' => fake(){$isUnique}->$type(), \n";
+                $rows .= "\t\t\t '{
+                $name}' => fake(){$isUnique}->$type(), \n";
             }
         }
 
@@ -188,7 +194,7 @@ class MakeFactory extends Command
                 $relatedFactories .= "
                 public function {$functionName}(\$count = 1)
                 {
-                    return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$className}::factory(\$count));
+                    return \$this->has(\\" . config('cubeta - starter . model_namespace') . "\\{$className}::factory(\$count));
                 } \n";
             }
         }
@@ -203,7 +209,7 @@ class MakeFactory extends Command
 
     private function getFactoryPath($factoryName): string
     {
-        $factoryDirectory = base_path(config('cubeta-starter.factory_path'));
+        $factoryDirectory = base_path(config('cubeta - starter . factory_path'));
         ensureDirectoryExists($factoryDirectory);
 
         return "{$factoryDirectory}/{$factoryName}.php";

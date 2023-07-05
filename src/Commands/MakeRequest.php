@@ -113,19 +113,19 @@ class MakeRequest extends Command
 
             if ($type == 'translatable') {
                 $rules .= "\t\t\t'{$name}'=>['{$isUnique}{$isNullable}|json' , new LanguageShape] , \n";
-            } elseif ($name == 'name' || $name == 'first_name' || $name == 'last_name') {
+            } elseif (($name == 'name' || $name == 'first_name' || $name == 'last_name') && $type == 'string') {
                 $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|string|min:3|max:255',\n";
-            } elseif ($name == 'email') {
+            } elseif ($name == 'email' && $type == 'string') {
                 $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|string|max:255|email',\n";
-            } elseif ($name == 'password') {
+            } elseif ($name == 'password' && $type == 'string') {
                 $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|string|max:255|min:6|confirmed',\n";
-            } elseif ($name == 'phone' || $name == 'phone_number' || $name == 'number') {
+            } elseif (($name == 'phone' || $name == 'phone_number' || $name == 'number') && $type == 'string') {
                 $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|string|max:255|min:6',\n";
-            } elseif (Str::endsWith($name, '_at') || in_array($type, ['date', 'dateTime', 'timestamp'])) {
+            } elseif (in_array($type, ['date', 'dateTime', 'timestamp'])) {
                 $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|date',\n";
             } elseif ($type == 'time') {
                 $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|date_format:H:i',\n";
-            } elseif (Str::startsWith($name, 'is_') || $type == 'boolean') {
+            } elseif ($type == 'boolean') {
                 $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|boolean',\n";
             } elseif ($type == 'key') {
                 $relationModel = str_replace('_id', '', $name);
