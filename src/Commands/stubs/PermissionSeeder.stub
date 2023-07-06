@@ -13,23 +13,17 @@ class PermissionSeeder extends Seeder
      *
      * @return void
      */
-    public function run(): void
+     public function run(): void
     {
-        $roles = RolesPermissionEnum::ALL ;
-
+        $roles = RolesPermissionEnum::ALL;
         foreach ($roles as $role) {
-
-            $permissions = $role['permissions'] ;
-
-            foreach ($permissions as $permission) {
-                $createdPermission = Permission::updateOrCreate([
-                    'name' => $permission,
-                    'guard_name' => 'api'
-                ], []);
-
-                $createdPermission->assignGuard('web');
-
-                // assign your guards
+            $permissions = $role['permissions'];
+            if (isset($permissions)) {
+                foreach ($permissions as $permission) {
+                    Permission::create([
+                        'name' => $permission,
+                    ]);
+                }
             }
         }
     }

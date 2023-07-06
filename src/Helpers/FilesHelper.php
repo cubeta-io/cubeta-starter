@@ -7,16 +7,17 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
- * @param array  $stubProperties stub elements to replace
- * @param string $path           the path to the created file
- * @param string $stubPath       stub path
- *
+ * @param array $stubProperties
+ * @param string $path
+ * @param string $stubPath
+ * @param bool $override override file if exist
+ * @return void
  * @throws BindingResolutionException
  * @throws FileNotFoundException
  */
-function generateFileFromStub(array $stubProperties, string $path, string $stubPath): void
+function generateFileFromStub(array $stubProperties, string $path, string $stubPath, bool $override = false): void
 {
-    CreateFile::make()->setPath($path)->setStubPath($stubPath)->setStubProperties($stubProperties)->callFileGenerateFunctions();
+    CreateFile::make()->setPath($path)->setStubPath($stubPath)->setStubProperties($stubProperties)->callFileGenerateFunctions($override);
 }
 
 /**
@@ -24,7 +25,7 @@ function generateFileFromStub(array $stubProperties, string $path, string $stubP
  */
 function ensureDirectoryExists(string $directory): void
 {
-    if (! File::isDirectory($directory)) {
+    if (!File::isDirectory($directory)) {
         File::makeDirectory($directory, 0775, true, true);
     }
 }

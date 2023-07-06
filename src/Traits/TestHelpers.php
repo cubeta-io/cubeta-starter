@@ -13,6 +13,16 @@ trait TestHelpers
 
     protected $model;
 
+    protected $relations = [];
+
+    protected $requestPath;
+
+    protected $resource;
+
+    protected $user;
+
+    protected $userType;
+
     protected array $pagination = [
         'currentPage' => 1,
         'from' => 1,
@@ -21,12 +31,6 @@ trait TestHelpers
         'per_page' => 10,
     ];
 
-    protected $relations = [];
-
-    protected $requestPath;
-
-    protected $resource;
-
     protected array $responseBody = [
         'data' => null,
         'status' => true,
@@ -34,10 +38,9 @@ trait TestHelpers
         'paginate' => null,
     ];
 
-    protected $user;
-
-    protected $userType;
-
+    /**
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -113,9 +116,13 @@ trait TestHelpers
         ]);
     }
 
-    public function requestPathHook($data = ''): void
+    /**
+     * @param string $routeName the route name
+     * @return void
+     */
+    public function requestPathHook(string $routeName = ''): void
     {
-        $this->requestPath = $data;
+        $this->requestPath = $routeName;
     }
 
     public function signIn($type = null): void

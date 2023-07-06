@@ -9,21 +9,36 @@
             onchange="disableSubmitUntilFillRequiredFields()"
         {{$attributes->merge()}}
     >
+        <!--Handling Preselected Options-->
         @if(old(columnNaming($label)))
 
             @foreach(old(columnNaming($label)) as $oldValue)
                 <option value="{{$oldValue}}" selected>{{$oldValue}}</option>
             @endforeach
 
-        @elseif(isset($selected))
+        @elseif(isset($selected) && is_countable($selected))
 
             @foreach($selected as $item)
                 <option value="{{ $item->{$optionValue} }}" selected> {{ $item->{$optionInnerText} }}</option>
             @endforeach
 
+        @elseif(isset($selected) && !is_countable($selected))
+            <option value="{{ $selected->{$optionValue} }}" selected> {{ $selected->{$optionInnerText} }}</option>
         @endif
+        <!--End Of Handling Preselected Options-->
+
         {{$slot}}
     </select>
+
+    <!--validation errors handling-->
+    @error(columnNaming($label))
+    @foreach($errors->get(columnNaming($label)) as $error)
+        <div class="invalid-feedback">{{$error}}</div>
+    @endforeach
+    @enderror
+    <!--end of validation errors handling-->
+
+    <!--select 2 initialization scripts-->
     @push('scripts')
         <script type="module">
             $(document).ready(function () {
@@ -67,4 +82,5 @@
             });
         </script>
     @endpush
+    <!--end of select 2 initialization scripts-->
 </div>

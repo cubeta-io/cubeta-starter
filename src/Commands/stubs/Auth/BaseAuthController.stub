@@ -1,0 +1,87 @@
+<?php
+
+namespace {namespace};
+
+use Illuminate\Http\Request;
+use {ServiceNameSpace}\User\IUserService;
+use Cubeta\CubetaStarter\Contracts\ApiController;
+use {requestsNamespace}\AuthRequests\AuthLoginRequest;
+use {requestsNamespace}\AuthRequests\AuthRegisterRequest;
+use {requestsNamespace}\AuthRequests\CheckPasswordResetRequest;
+use {requestsNamespace}\AuthRequests\RequestResetPasswordRequest;
+use {requestsNamespace}\AuthRequests\ResetPasswordRequest;
+
+class BaseAuthController extends ApiController
+{
+    private IUserService $userService;
+    private string $role;
+
+    public function roleHook(string $role)
+    {
+        $this->role = $role;
+    }
+
+    public function __construct(IUserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
+    public function login(AuthLoginRequest $request)
+    {
+        $data = $this->userService->login($request->validated() , $this->role);
+        if (! $data) {
+            return $this->apiResponse(null, self::STATUS_NOT_FOUND, __('site.credentials_not_match_records'));
+        }
+
+        return $this->apiResponse($data, self::STATUS_OK, __('site.successfully_logged_in'));
+    }
+
+    public function logout()
+    {
+        $this->userService->logout();
+
+        return $this->apiResponse(null, self::STATUS_OK, __('site.logout_success'));
+    }
+
+    public function refresh(Request $request)
+    {
+        $result = $this->userService->refresh_token();
+        if ($result) {
+            return $this->apiResponse($result, self::STATUS_OK, __('site.token_refreshed_successfully'));
+        }
+
+        return $this->apiResponse(null, self::STATUS_UNAUTHORIZED, __('site.token_refreshed_failed'));
+    }
+
+    public function register(AuthRegisterRequest $request)
+    {
+        $data = $this->userService->register($request->validated() , $this->role);
+
+        return $this->apiResponse($data, self::STATUS_OK, __('site.registered_successfully'));
+    }
+
+    public function passwordResetRequest(RequestResetPasswordRequest $request)
+    {
+        $result = $this->userService->passwordResetRequest($request->email);
+        if ($result) {
+            return $this->apiResponse(null, self::STATUS_OK, __('site.password_reset_code_sent'));
+        }
+
+        return $this->apiResponse(null, self::STATUS_OK, __('site.wrong_email'));
+    }
+
+    public function checkPasswordResetCode(CheckPasswordResetRequest $request)
+    {
+        return $this->apiResponse(null, self::STATUS_OK, __('site.code_correct'));
+    }
+
+    public function passwordReset(ResetPasswordRequest $request)
+    {
+        $result = $this->userService->passwordReset($request->reset_password_code, $request->password);
+        if ($result) {
+            return $this->apiResponse(true, self::STATUS_OK, __('site.password_reset_successful'));
+        }
+
+        return $this->apiResponse(null, self::STATUS_BAD_REQUEST, __('site.code_incorrect'));
+    }
+}

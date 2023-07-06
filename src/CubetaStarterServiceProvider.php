@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter;
 
+use Cubeta\CubetaStarter\Commands\InitAuth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
@@ -68,7 +69,8 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(InitialProject::class)
             ->hasCommand(MakePolicy::class)
             ->hasCommand(MakeWebController::class)
-            ->hasCommand(InstallWebPackages::class);
+            ->hasCommand(InstallWebPackages::class)
+            ->hasCommand(InitAuth::class);
     }
 
     /**

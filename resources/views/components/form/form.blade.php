@@ -1,4 +1,4 @@
-@props(['formTitle' , 'action' , 'method' => 'POST'])
+@props(['formTitle' , 'action' , 'method' => 'POST' , 'validationErrorsFromHere' => false])
 
 @extends('layout')
 @section('content')
@@ -11,21 +11,25 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body pt-3">
+
                             <!--validation errors-->
-                            @if($errors->any())
-                                <div class="card p-1">
-                                    <div class="card-body">
-                                        <ul>
-                                            @foreach($errors->all() as $error)
-                                                <li style="color: red">
-                                                    {{ $error }}
-                                                </li>
-                                            @endforeach
-                                        </ul>
+                            @if($validationErrorsFromHere)
+                                @if($errors->any())
+                                    <div class="card p-1">
+                                        <div class="card-body">
+                                            <ul>
+                                                @foreach($errors->all() as $error)
+                                                    <li style="color: red">
+                                                        {{ $error }}
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
                             @endif
                             <!--end of validation errors-->
+
                             <form id="form" action="{{$action}}" method="POST"
                                   enctype="multipart/form-data">
                                 @csrf
@@ -60,9 +64,9 @@
     <script type="module">
         const radioButtons = document.querySelectorAll('input[name="selected-language"]');
 
-        if(radioButtons){
+        if (radioButtons) {
             const translatableInputs = document.querySelectorAll('.translatable');
-            if (translatableInputs.length > 0){
+            if (translatableInputs.length > 0) {
                 radioButtons.forEach(function (radioButton) {
                     radioButton.addEventListener('change', function () {
                         const selectedLanguage = this.value; // Get the value of the selected radio button

@@ -53,16 +53,18 @@ class CreateFile
     }
 
     /**
+     * @param bool $override
      * @return $this
-     *
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      * @throws Exception
      */
-    public function callFileGenerateFunctions(): static
+    public function callFileGenerateFunctions(bool $override = false): static
     {
         $this->files = app()->make(Filesystem::class);
-        $this->fileExists();
+        if (!$override) {
+            $this->fileExists();
+        }
         $this->createStub();
 
         return $this;

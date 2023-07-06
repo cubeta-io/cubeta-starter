@@ -1,0 +1,13 @@
+<?php
+
+namespace {namespace}\User;
+
+use Cubeta\CubetaStarter\Contracts\Services\IBaseService;
+
+/**
+ * Interface IUserService
+ */
+interface IUserService extends IBaseService
+{
+    
+}

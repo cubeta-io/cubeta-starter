@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
 
 class RenderAppropriateViewController extends Controller
 {
@@ -240,5 +241,12 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['notes'] = "<li class='notes'>This will generate a controller and 4 view files in the resources/views/dashboard directory</li>";
 
         return view('CubetaStarter::main-generate-page', compact('roles', 'types'))->with($this->arguments);
+    }
+
+    public function getDocumentation()
+    {
+        $docs = file_get_contents(__DIR__ . '/../../../../readme.md');
+        $docs = Str::inlineMarkdown($docs);
+        return view('CubetaStarter::documentation', compact('docs'));
     }
 }

@@ -18,7 +18,7 @@ class RoleSeeder extends Seeder
         $roles = RolesPermissionEnum::ALL;
 
         foreach ($roles as $role) {
-            $current = Role::updateOrCreate(['name' => $role['role'] , 'guard_name' => ['api' , 'web']], []);
+            $current = Role::create(['name' => $role['role']]);
             $current->syncPermissions($role['permissions']);
         }
     }
