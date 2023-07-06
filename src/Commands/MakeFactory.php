@@ -165,7 +165,7 @@ class MakeFactory extends Command
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->randomElement(['male' , 'female']),\n";
 
             } elseif (Str::contains($name, 'time') && $type == 'time') {
-                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->time(),\n";
+                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->time('H:i'),\n";
 
             } elseif ((Str::endsWith($name, '_at') || Str::contains($name, 'date')) && in_array($type, ['date', 'time', 'dateTime', 'timestamp'])) {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->date(),\n";
@@ -174,7 +174,7 @@ class MakeFactory extends Command
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->boolean(),\n";
 
             } elseif ($type == 'json') {
-                $rows .= "\t\t\t'{$name}' => 'json_encode([fake(){$isUnique}->word() => fake(){$isUnique}->word()])',\n";
+                $rows .= "\t\t\t'{$name}' => json_encode([fake(){$isUnique}->word() => fake(){$isUnique}->word()]),\n";
             } elseif (array_key_exists($type, $this->typeFaker)) {
                 $faker = $this->typeFaker["{$type}"];
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}{$faker}, \n";
@@ -213,7 +213,7 @@ class MakeFactory extends Command
     }
 
     /**
-     * @param  array  $attributes
+     * @param array $attributes
      * @return string
      */
     private function getUsedTraits(array $attributes = []): string

@@ -99,7 +99,7 @@ class MakeModel extends Command
 
     /**
      * create scopes for the model boolean values
-     * @param  array  $attributes
+     * @param array $attributes
      * @return string
      */
     public function boolValuesScope(array $attributes = []): string
@@ -241,6 +241,7 @@ class MakeModel extends Command
             '{searchableRelations}' => $methodsArrayKeys['relationSearchable'],
             '{translatedAttributes}' => $this->getTranslatableModelAttributes($attributes),
             "use HasFactory;" => $useTranslationsTrait,
+            '{casts}' => $this->getCastArray($attributes),
         ];
 
         generateFileFromStub($stubProperties, $modelPath, __DIR__ . '/stubs/model.stub');
@@ -251,7 +252,7 @@ class MakeModel extends Command
 
     /**
      * create a pivot table if there is a many-to-many relation
-     * @param  string $modelName
+     * @param string $modelName
      * @return void
      */
     public function createPivots(string $modelName): void
@@ -326,7 +327,7 @@ class MakeModel extends Command
 
     /**
      * get the model attributes for the translatable columns
-     * @param  array  $attributes
+     * @param array $attributes
      * @return string
      */
     public function getTranslatableModelAttributes(array $attributes): string
@@ -377,7 +378,7 @@ class MakeModel extends Command
     /**
      * generate the getFileProperty method for each file typ columns in the model
      * @param $modelName
-     * @param  array  $attributes
+     * @param array $attributes
      * @return string
      */
     private function generateGetFilePropertyPathMethod($modelName, array $attributes = []): string
@@ -407,7 +408,7 @@ class MakeModel extends Command
 
     /**
      * return the model path from the config
-     * @param  string $className
+     * @param string $className
      * @return string
      */
     private function getModelPath(string $className): string
@@ -420,8 +421,8 @@ class MakeModel extends Command
 
     /**
      * generates the PHPDoc properties for the model class
-     * @param  array  $attributes
-     * @param  array  $relations
+     * @param array $attributes
+     * @param array $relations
      * @return string
      */
     private function getModelProperty(array $attributes = [], array $relations = []): string
@@ -437,10 +438,14 @@ class MakeModel extends Command
 
         if (isset($attributes) && count($attributes) > 0) {
             foreach ($attributes as $name => $type) {
-                if (in_array($type, ['translatable', 'file', 'text'])) {
+                if (in_array($type, ['translatable', 'file', 'text', 'json'])) {
                     $properties .= "* @property string {$name} \n";
                 } elseif ($type == 'key') {
                     $properties .= "* @property integer {$name} \n";
+                } elseif (in_array($type, ['time', 'date', 'dateTime', 'timestamp'])) {
+                    $properties .= "* @property \DateTime {$name} \n";
+                } elseif (in_array($type, ['bigInteger', 'unsignedBigInteger', 'unsignedDouble'])) {
+                    $properties .= "* @property numeric {$name} \n";
                 } else {
                     $properties .= "* @property {$type} {$name} \n";
                 }
@@ -453,8 +458,8 @@ class MakeModel extends Command
     }
 
     /**
-     * @param  array  $attributes
-     * @param  array  $relations
+     * @param array $attributes
+     * @param array $relations
      * @return string
      */
     private function getModelRelation(array $attributes = [], array $relations = []): string
@@ -574,5 +579,23 @@ class MakeModel extends Command
         }
 
         return $relationsFunctions;
+    }
+
+    /**
+     * @param array $attributes
+     * @return string
+     */
+    private function getCastArray(array $attributes = []): string
+    {
+        $casts = '';
+        foreach ($attributes as $name => $type) {
+
+            if ($type == 'boolean') {
+                $casts .= "'$name' => 'boolean' , ";
+            }
+
+        }
+
+        return $casts;
     }
 }

@@ -16,7 +16,7 @@ class {modelName}Test extends TestCase
     protected $userType = "{{actor}}";
 
     // the named route eg: 'user.products.'
-    //!!! Note: the dot "." in the in of the baseUrl is important !!!
+    //!!! Note: the dot "." in the end of the baseUrl is important !!!
     protected string $baseUrl = '{baseRouteName}';
 
     // if your endpoints return the model with its relation put the relations in the array

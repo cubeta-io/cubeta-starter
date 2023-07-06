@@ -20,10 +20,14 @@ class {modelName} extends Model
        {fillable}
     ];
 
+    protected $casts = [
+        {casts}
+    ];
 
-    {fileGetter}
 
-    {relations}
+{fileGetter}
+
+{relations}
 
 
     /**
