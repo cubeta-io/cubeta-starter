@@ -38,7 +38,7 @@ class MakeRequest extends Command
     }
 
     /**
-     * @param  array  $attributes
+     * @param array $attributes
      * @return string
      */
     public function getPrepareForValidationMethod(array $attributes): string
@@ -111,7 +111,7 @@ class MakeRequest extends Command
             $isUnique = in_array($name, $uniques) ? "unique:" . tableNaming($modelName) . "," . columnNaming($name) . "|" : '';
 
             if ($type == 'translatable') {
-                $rules .= "\t\t\t'{$name}'=>['{$isUnique}{$isNullable}|json' , new LanguageShape] , \n";
+                $rules .= "\t\t\t'{$name}'=>['{$isUnique}{$isNullable}', 'json', new LanguageShape] , \n";
             } elseif (($name == 'name' || $name == 'first_name' || $name == 'last_name') && $type == 'string') {
                 $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|string|min:3|max:255',\n";
             } elseif ($name == 'email' && $type == 'string') {

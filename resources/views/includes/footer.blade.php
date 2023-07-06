@@ -27,6 +27,9 @@
             confirmButtonColor: '#0d6efd',
         })
     </script>
+    @php
+        session()->remove('error');
+    @endphp
 @endif
 
 @if(session()->has('success'))
@@ -39,6 +42,9 @@
             confirmButtonColor: '#0d6efd',
         })
     </script>
+    @php
+        session()->remove('success');
+    @endphp
 @endif
 
 @if(session()->has('message'))
@@ -51,7 +57,14 @@
             confirmButtonColor: '#0d6efd',
         })
     </script>
-    @endif
-    @stack('scripts')
+    @php
+        session()->remove('success');
+    @endphp
+@endif
+
+
+@stack('scripts')
+
     </body>
-    </html>
+</html>
+
