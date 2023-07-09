@@ -41,15 +41,22 @@ class CallAppropriateCommand extends Controller
     public function callAddActorCommand(Request $request)
     {
         $roles = $request->roles ?? [];
-        $result = $this->convertRolesPermissionArrayToCommandAcceptableFormat($roles);
+        $authenticated = $request->authenticated ?? [];
 
+        $result = $this->convertRolesPermissionArrayToCommandAcceptableFormat($roles);
         if (!$result) {
             return redirect()->route('cubeta-starter.generate-add-actor.page', ['error' => 'Invalid Role Name']);
         }
+
+        $rolesPermissions = $result['rolesPermissions'];
+        $roleContainer = $result['roleContainer'];
+
         Artisan::call('cubeta-init', [
             'useGui' => true,
-            'rolesPermissionsArray' => $result,
-            'installSpatie' => false
+            'rolesPermissionsArray' => $rolesPermissions,
+            'installSpatie' => false,
+            'roleContainer' => $roleContainer,
+            'authenticated' => $authenticated,
         ]);
 
         $output = Artisan::output();
@@ -355,19 +362,21 @@ class CallAppropriateCommand extends Controller
 
     private function convertRolesPermissionArrayToCommandAcceptableFormat(array $rolesPermissionArray = [])
     {
-        $result = [];
+        $rolesPermissions = [];
+        $roleContainer = [];
 
         foreach ($rolesPermissionArray as $array) {
-            $result[$array['name']] = $this->convertInputStringToArray($array['permissions']);
+            $rolesPermissions[$array['name']] = $this->convertInputStringToArray($array['permissions']);
+            $roleContainer[$array['name']] = $array['container'];
         }
 
-        foreach ($result as $role => $permissions) {
+        foreach ($rolesPermissions as $role => $permissions) {
             if (empty(trim($role))) {
                 return false;
             }
         }
 
-        return $result;
+        return ['rolesPermissions' => $rolesPermissions, 'roleContainer' => $roleContainer];
     }
 
     private function handleWarningAndLogsBeforeRedirecting($output, $redirectRouteName, $successMessage)

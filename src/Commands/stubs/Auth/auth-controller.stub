@@ -1,0 +1,16 @@
+<?php
+
+namespace {namespace};
+
+use App\Enums\RolesPermissionEnum;
+use {serviceNamespace}\User\IUserService;
+
+class {role}AuthController extends BaseAuthController
+{
+    public function __construct(IUserService $userService)
+    {
+        parent::__construct($userService);
+
+        $this->roleHook(RolesPermissionEnum::{roleEnumName}['role']);
+    }
+}

@@ -29,6 +29,7 @@ class InitAuth extends Command
         $this->generateAuthRequests();
         $this->generateBaseAuthController();
         $this->generateResetPasswordNotification();
+        $this->generateResetPasswordEmailView();
     }
 
     /**
@@ -127,7 +128,7 @@ class InitAuth extends Command
     private function generateBaseAuthController()
     {
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.web_controller_namespace'),
+            '{namespace}' => config('cubeta-starter.api_controller_namespace'),
             '{requestsNamespace}' => config('cubeta-starter.request_namespace'),
             '{ServiceNameSpace}' => config('cubeta-starter.service_namespace')
         ];
@@ -196,5 +197,17 @@ class InitAuth extends Command
         ensureDirectoryExists($notificationDirectory);
         generateFileFromStub([], "$notificationDirectory/ResetPasswordCodeEmail.php", __DIR__ . '/stubs/Auth/ResetPasswordCodeEmail.stub', true);
         $this->info("Created Notification: ResetPasswordCodeEmail");
+    }
+
+    /**
+     * @throws FileNotFoundException
+     * @throws BindingResolutionException
+     */
+    private function generateResetPasswordEmailView()
+    {
+        $viewDirectory = resource_path('views/emails');
+        ensureDirectoryExists($viewDirectory);
+        generateFileFromStub([], "$viewDirectory/reset-password.blade.php", __DIR__ . '/stubs/Auth/ResetPasswordCodeEmail.stub', true);
+        $this->info("Created View: reset-password");
     }
 }

@@ -49,7 +49,7 @@ class UserService extends BaseService implements IUserService
 
     public function login($data , $role)
     {
-        $token = auth()->attempt([
+        $token = auth('api')->attempt([
             'email' => $data['email'],
             'password' => $data['password'],
         ]);
@@ -58,7 +58,7 @@ class UserService extends BaseService implements IUserService
             return null;
         }
 
-        $user = auth()->user();
+        $user = auth('api')->user();
 
         if (! $user->hasRole($role)) {
             return null;
@@ -70,7 +70,7 @@ class UserService extends BaseService implements IUserService
             $user->save();
         }
 
-        $refresh_token = auth()->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
+        $refresh_token = auth('api')->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
 
         return [
             'user' => new UserResource($user),
@@ -90,9 +90,9 @@ class UserService extends BaseService implements IUserService
     public function refresh_token()
     {
         try {
-            $user = auth()->user();
-            $token = auth()->setTTL(env('JWT_TTL', 10080))->refresh();
-            $refresh_token = auth()->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
+            $user = auth('api')->user();
+            $token = auth('api')->setTTL(env('JWT_TTL', 10080))->refresh();
+            $refresh_token = auth('api')->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
 
             return ['user' => new UserResource($user),  'token' => $token, 'refresh_token' => $refresh_token];
         } catch (\Exception $exception) {
@@ -104,8 +104,8 @@ class UserService extends BaseService implements IUserService
     {
         $user = $this->repository->create($data);
         $user->assignRole($role);
-        $token = auth()->guard('api')->login($user);
-        $refresh_token = auth()->guard('api')->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
+        $token = auth('api')->login($user);
+        $refresh_token = auth('api')->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
 
         return ['user' => new UserResource($user),  'token' => $token, 'refresh_token' => $refresh_token];
     }

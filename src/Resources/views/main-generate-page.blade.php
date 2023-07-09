@@ -325,35 +325,31 @@
             <script type="module">
                 $(document).ready(function () {
                     let roleIndex = 1;
-
                     $("#addRole").on('click', function (event) {
                         event.preventDefault();
                         const $rolesContainer = $("#rolesContainer");
-                        const $newRoleInputRow = $("<div></div>", {"class": "row m-2"});
-                        const $newRoleInput = $("<div></div>", {"class": "col-md-6", "id": "roleInput"});
-                        const $newRoleInputField = $("<input>", {
+                        const $newRoleInputRow = $("<div></div>").addClass("row mt-2 mb-2");
+                        const $newRoleInput = $("<div></div>").addClass("col-md-3").attr("id", "roleInput");
+                        const $newRoleInputField = $("<input>").attr({
                             "id": "roleName",
                             "name": `roles[${roleIndex}][name]`,
                             "class": "form-control",
                             "type": "text",
                             "placeholder": "Enter role name e.g: admin"
                         });
-                        const $newPermissionInput = $("<div></div>", {
-                            "class": "col-md-5 d-flex align-items-center",
-                            "id": "permissionInput"
-                        });
-                        const $newPermissionInputField = $("<input>", {
+                        const $newPermissionInput = $("<div></div>").addClass("col-md-5 d-flex align-items-center").attr("id", "permissionInput");
+                        const $newPermissionInputField = $("<input>").attr({
                             "id": "permissionName",
                             "name": `roles[${roleIndex}][permissions]`,
                             "class": "form-control",
                             "type": "text",
                             "placeholder": "Enter role permissions e.g: can-edit,can-read, etc."
                         });
-                        const $deleteButton = $("<button></button>", {
-                            "class": "btn btn-sm btn-danger col-md-1 ml-1",
+                        const $deleteButton = $("<button></button>").addClass("btn btn-sm btn-danger col-md-1 ml-1").attr({
                             "type": "button",
-                            "html": "&times;"
+                            "html": "&times;",
                         });
+                        $deleteButton.text("X");
                         $deleteButton.css({
                             "width": "30px",
                             "height": "25px",
@@ -365,10 +361,45 @@
                         $deleteButton.on('click', function () {
                             $newRoleInputRow.remove();
                         });
+
+                        // container type selection
+                        const $containerTypeSelectDiv = $('<div class="col-md-1"></div>')
+                        const $containerTypeSelect = $('<select></select>')
+                        $containerTypeSelect.attr({
+                            "name": `roles[${roleIndex}][container]`,
+                            "class": "form-control",
+                        });
+                        $containerTypeSelectDiv.append($containerTypeSelect);
+
+                        const $apiOption = $('<option value="api" selected>API</option>');
+                        $containerTypeSelect.append($apiOption);
+                        const $webOption = $('<option value="web">WEB</option>');
+                        $containerTypeSelect.append($webOption);
+                        const $constBothOption = $("<option value='both'>Both</option>");
+                        $containerTypeSelect.append($constBothOption);
+                        // end of container type selection
+
+                        const authenticated = $("<div></div>").addClass("col-md-2 m-auto");
+                        const authenticatedCheckbox = $("<input>").attr({
+                            "type": "checkbox",
+                            "id": "authenticated-" + roleIndex,
+                            "name": "authenticated[" + roleIndex + "]",
+                            "class": "form-check-input",
+                            "value": "true"
+                        });
+                        const authenticatedLabel = $("<label></label>").attr("for", "authenticated-" + roleIndex).addClass('').html(" authenticated?");
+                        authenticated.append(authenticatedCheckbox);
+                        authenticated.append(authenticatedLabel);
+                        $newRoleInputField.on("input", function () {
+                            authenticatedCheckbox.val($newRoleInputField.val());
+                        });
+
                         $newRoleInput.append($newRoleInputField);
                         $newPermissionInput.append($newPermissionInputField);
                         $newRoleInputRow.append($newRoleInput);
                         $newRoleInputRow.append($newPermissionInput);
+                        $newRoleInputRow.append($containerTypeSelectDiv);
+                        $newRoleInputRow.append(authenticated);
                         $newRoleInputRow.append($deleteButton);
                         $rolesContainer.find('#addRole').before($newRoleInputRow);
                         roleIndex++;
