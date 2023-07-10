@@ -75,7 +75,7 @@ class InitialProject extends Command
 
         $this->createRoleSeeder();
         $this->createPermissionSeeder();
-        $this->generateAuthControllers($authenticated, $roleContainer);
+        $this->generateAuthControllers($role, $authenticated, $roleContainer);
 
         $this->info("{$role} role created successfully");
     }
@@ -138,8 +138,6 @@ class InitialProject extends Command
 
                 $this->generateActorsFiles($role, $permissions, [], $roleContainer);
             }
-
-            $this->generateAuthControllers($authenticated, $roleContainer);
         }
     }
 
@@ -186,16 +184,16 @@ class InitialProject extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    private function generateAuthControllers(array $authenticated = [], array $roleContainer = [])
+    private function generateAuthControllers(string $role, array $authenticated = [], array $roleContainer = [])
     {
-        $apiControllerNamespace = config('cubeta-starter.api_controller_namespace');
-        $apiServiceNamespace = config('cubeta-starter.service_namespace');
-        $apiControllerDirectory = base_path(config('cubeta-starter.api_controller_path'));
-
-        ensureDirectoryExists($apiControllerDirectory);
-
-        foreach ($authenticated as $role) {
+        if (in_array($role, $authenticated)) {
             if (in_array($roleContainer[$role], ['api', 'both'])) {
+                $apiControllerNamespace = config('cubeta-starter.api_controller_namespace');
+                $apiServiceNamespace = config('cubeta-starter.service_namespace');
+                $apiControllerDirectory = base_path(config('cubeta-starter.api_controller_path'));
+                $controllerName = ucfirst(Str::studly($role)) . "AuthController";
+                ensureDirectoryExists($apiControllerDirectory);
+
                 $stubProperties = [
                     '{namespace}' => $apiControllerNamespace,
                     '{serviceNamespace}' => $apiServiceNamespace,
@@ -203,17 +201,17 @@ class InitialProject extends Command
                     '{roleEnumName}' => roleNaming($role)
                 ];
 
-                $controllerPath = "$apiControllerDirectory/{$stubProperties['{role}']}AuthController.php";
+                $controllerPath = "$apiControllerDirectory/$controllerName.php";
 
                 if (file_exists($controllerPath)) {
                     $this->error('Controller Already Exists');
-                    continue;
+                    return;
                 }
                 generateFileFromStub($stubProperties, "$controllerPath", __DIR__ . '/stubs/Auth/auth-controller.stub');
-                $this->info("Created Controller : {$stubProperties['{role}']}AuthController.php");
+                $this->info("Created Controller : $controllerName");
 
                 if (!file_exists(base_path("routes/api/$role.php"))) {
-                    continue;
+                    return;
                 }
 
                 $routes = file_get_contents(__DIR__ . '/stubs/Auth/auth-api-routes.stub');
@@ -226,9 +224,8 @@ class InitialProject extends Command
                 addImportStatement($importStatement, $routeFilePath);
                 $this->info("$role auth routes has been added");
 
-                //TODO:: test it
                 $this->addPostmanAuthCollection($role);
-                $this->info("Auth Collection Added to postman");
+                $this->info("Auth collection added to postman");
             }
         }
     }

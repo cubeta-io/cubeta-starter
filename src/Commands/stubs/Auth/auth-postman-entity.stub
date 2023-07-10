@@ -14,7 +14,7 @@
 							}
 						},
 						{
-							"listen": "test",
+							"listen": "{role}",
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);\r",
@@ -53,17 +53,17 @@
 							"formdata": [
 								{
 									"key": "first_name",
-									"value": "test",
+									"value": "{role}",
 									"type": "text"
 								},
 								{
 									"key": "last_name",
-									"value": "test",
+									"value": "{role}",
 									"type": "text"
 								},
 								{
 									"key": "email",
-									"value": "test@email.com",
+									"value": "{role}@email.com",
 									"type": "text"
 								},
 								{
@@ -103,7 +103,7 @@
 							}
 						},
 						{
-							"listen": "test",
+							"listen": "{role}",
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);\r",
@@ -137,7 +137,7 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "test@email.com"
+									"value": "{role}@email.com"
 								},
 								{
 									"key": "password",
@@ -220,7 +220,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "test@email.com",
+									"value": "{role}@email.com",
 									"type": "text"
 								}
 							]
