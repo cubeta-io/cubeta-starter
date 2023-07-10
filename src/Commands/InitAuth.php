@@ -30,6 +30,7 @@ class InitAuth extends Command
         $this->generateBaseAuthController();
         $this->generateResetPasswordNotification();
         $this->generateResetPasswordEmailView();
+        $this->generateUserFactory();
     }
 
     /**
@@ -209,5 +210,19 @@ class InitAuth extends Command
         ensureDirectoryExists($viewDirectory);
         generateFileFromStub([], "$viewDirectory/reset-password.blade.php", __DIR__ . '/stubs/Auth/reset-password.stub', true);
         $this->info("Created View: reset-password");
+    }
+
+    /**
+     * @throws FileNotFoundException
+     * @throws BindingResolutionException
+     */
+    private function generateUserFactory()
+    {
+        $factoryDirectory = base_path(config('cubeta-starter.factory_path'));
+        ensureDirectoryExists($factoryDirectory);
+        $factoryPath = "$factoryDirectory/UserFactory.php";
+
+        generateFileFromStub([], $factoryPath, __DIR__ . '/stubs/Auth/user-factory.stub', true);
+        $this->info("Created Factory: UserFactory");
     }
 }
