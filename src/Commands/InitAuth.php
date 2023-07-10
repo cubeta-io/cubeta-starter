@@ -230,7 +230,7 @@ class InitAuth extends Command
      */
     private function generateResetPasswordEmailView()
     {
-        $viewDirectory = base_path(resource_path('views/emails'));
+        $viewDirectory = resource_path('views/emails');
         ensureDirectoryExists($viewDirectory);
         generateFileFromStub([], "$viewDirectory/reset-password-email.blade.php", __DIR__ . '/stubs/Auth/reset-password.stub', true);
         $this->info("Created View: reset-password");
