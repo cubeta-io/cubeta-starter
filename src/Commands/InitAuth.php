@@ -207,7 +207,7 @@ class InitAuth extends Command
     {
         $viewDirectory = resource_path('views/emails');
         ensureDirectoryExists($viewDirectory);
-        generateFileFromStub([], "$viewDirectory/reset-password.blade.php", __DIR__ . '/stubs/Auth/reset-password.stub.stub', true);
+        generateFileFromStub([], "$viewDirectory/reset-password.blade.php", __DIR__ . '/stubs/Auth/reset-password.stub', true);
         $this->info("Created View: reset-password");
     }
 }
