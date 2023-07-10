@@ -1,6 +1,6 @@
 <?php
 
-namespace {namespace};
+namespace Database\Seeders;
 
 use App\Enums\RolesPermissionEnum;
 use Illuminate\Database\Seeder;
@@ -18,7 +18,7 @@ class RoleSeeder extends Seeder
         $roles = RolesPermissionEnum::ALL;
 
         foreach ($roles as $role) {
-            $current = Role::create(['name' => $role['role']]);
+            $current = Role::updateOrCreate(['name' => $role['role']], []);
             $current->syncPermissions($role['permissions']);
         }
     }

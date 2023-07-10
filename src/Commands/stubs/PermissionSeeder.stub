@@ -1,6 +1,6 @@
 <?php
 
-namespace {namespace};
+namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -13,17 +13,18 @@ class PermissionSeeder extends Seeder
      *
      * @return void
      */
-     public function run(): void
+    public function run(): void
     {
-        $roles = RolesPermissionEnum::ALL;
+        $roles = RolesPermissionEnum::ALL ;
+
         foreach ($roles as $role) {
-            $permissions = $role['permissions'];
-            if (isset($permissions)) {
-                foreach ($permissions as $permission) {
-                    Permission::create([
-                        'name' => $permission,
-                    ]);
-                }
+
+            $permissions = $role['permissions'] ;
+
+            foreach ($permissions as $permission) {
+                $createdPermission = Permission::updateOrCreate([
+                    'name' => $permission,
+                ], []);
             }
         }
     }
