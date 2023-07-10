@@ -7,9 +7,9 @@ use {ServiceNameSpace}\User\IUserService;
 use Cubeta\CubetaStarter\Contracts\ApiController;
 use {requestsNamespace}\AuthRequests\AuthLoginRequest;
 use {requestsNamespace}\AuthRequests\AuthRegisterRequest;
+use {requestsNamespace}\AuthRequests\ResetPasswordRequest;
 use {requestsNamespace}\AuthRequests\CheckPasswordResetRequest;
 use {requestsNamespace}\AuthRequests\RequestResetPasswordRequest;
-use {requestsNamespace}\AuthRequests\ResetPasswordRequest;
 
 class BaseAuthController extends ApiController
 {
@@ -28,7 +28,9 @@ class BaseAuthController extends ApiController
 
     public function login(AuthLoginRequest $request)
     {
-        $data = $this->userService->login($request->validated() , $this->role);
+        //you can pass additional data as an array for the third parameter in the 
+        //login method and this data will be stored in the users table 
+        $data = $this->userService->login($request->validated() , $this->role , []);
         if (! $data) {
             return $this->apiResponse(null, self::STATUS_NOT_FOUND, __('site.credentials_not_match_records'));
         }
@@ -83,5 +85,16 @@ class BaseAuthController extends ApiController
         }
 
         return $this->apiResponse(null, self::STATUS_BAD_REQUEST, __('site.code_incorrect'));
+    }
+
+    public function updateUserDetails(UpdateUserRequest $request)
+    {
+        $result = $this->userService->updateUserDetails($request->validated(), $this->role);
+
+        if ($result) {
+            return $this->apiResponse($result, self::STATUS_OK, __('site.update_successfully'));
+        }
+
+        return $this->apiResponse(null, self::STATUS_BAD_REQUEST, __('site.unauthorized_user'));
     }
 }

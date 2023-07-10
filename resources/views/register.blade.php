@@ -1,7 +1,6 @@
 @include('includes.header')
 <main>
     <div class="container">
-
         <section
             class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
             <div class="container">
@@ -19,12 +18,29 @@
                             <div class="card-body">
 
                                 <div class="pt-4 pb-2">
-                                    <h5 class="card-title text-center pb-0 fs-4">Login to Your Account</h5>
-                                    <p class="text-center small">Enter your email & password to login</p>
+                                    <h5 class="card-title text-center pb-0 fs-4">Create An Account</h5>
                                 </div>
 
                                 <form class="row g-3 needs-validation" action="#" method="POST" novalidate>
                                     @csrf
+                                    <div class="col-6">
+                                        <label for="first_name" class="form-label">First Name</label>
+                                        <div class="input-group has-validation">
+                                            <input type="text" name="first_name" class="form-control"
+                                                   id="first_name" required>
+                                            <div class="invalid-feedback">Please enter your first name.</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label for="last_name" class="form-label">Last Name</label>
+                                        <div class="input-group has-validation">
+                                            <input type="text" name="last_name" class="form-control"
+                                                   id="last_name" required>
+                                            <div class="invalid-feedback">Please enter your last name.</div>
+                                        </div>
+                                    </div>
+
                                     <div class="col-12">
                                         <label for="email" class="form-label">Email</label>
                                         <div class="input-group has-validation">
@@ -40,6 +56,14 @@
                                         <input type="password" name="password" class="form-control"
                                                id="password" required>
                                         <div class="invalid-feedback">Please enter your password!</div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label for="password_confirmation" class="form-label">Confirm Password</label>
+                                        <input type="password" name="password_confirmation"
+                                               class="form-control"
+                                               id="password_confirmation" required>
+                                        <div class="invalid-feedback">Please confirm your password!</div>
                                     </div>
 
                                     @if($errors->any())
@@ -60,10 +84,6 @@
                                         <button class="btn btn-primary w-100" type="submit">Login</button>
                                     </div>
                                     <div class="col-12">
-                                        <p class="small mb-1">Don't have account? <a href="#">Create
-                                                an account</a></p>
-                                        <p class="small mb-1">Forgot Your Password ? <a href="#">Reset Your Password</a>
-                                        </p>
                                     </div>
                                 </form>
 

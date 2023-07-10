@@ -9,5 +9,15 @@ use Cubeta\CubetaStarter\Contracts\Services\IBaseService;
  */
 interface IUserService extends IBaseService
 {
-    
+    public function login(array $data, string $role, array $additionalData = []);
+
+    public function logout();
+
+    public function register(array $data, string $role);
+
+    public function passwordResetRequest(string $email);
+
+    public function passwordReset(string $reset_password_code, string $password);
+
+    public function updateUserDetails(array $data, string $role);
 }

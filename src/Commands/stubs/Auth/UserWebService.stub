@@ -1,0 +1,153 @@
+<?php
+
+namespace {namespace}\User;
+
+use {repositoryNamespace}\UserRepository;
+use App\Notifications\ResetPasswordCodeEmail;
+use Cubeta\CubetaStarter\Contracts\Services\BaseService;
+
+/**
+ * Class UserWebService
+ */
+class UserWebService extends BaseService implements IUserService
+
+{
+    private string $guard = 'web';
+
+    /**
+     * UserService constructor.
+     *
+     * @param UserRepository $repository
+     */
+    public function __construct(UserRepository $repository)
+    {
+        parent::__construct($repository);
+    }
+
+    public function clearFcmTokenFromOtherUsers($fcm_token)
+    {
+        $users = $this->repository->getByFcmToken($fcm_token);
+        foreach ($users as $user) {
+            $user->fcm_token = null;
+            $user->save();
+        }
+    }
+
+    public function login(array $data, string $role, array $additionalData = []): User|Authenticatable|null
+    {
+        try {
+            if (!auth($this->guard)->attempt($data)) {
+                return null;
+            }
+
+            $user = auth()->user();
+
+            if (!auth()->user()->hasRole($role)) {
+                return null;
+            }
+
+            if (isset($data['fcm_token']) && $data['fcm_token']) {
+                $this->clearFcmTokenFromOtherUsers($data['fcm_token']);
+                $user->fcm_token = $data['fcm_token'];
+                $user->save();
+            }
+
+            foreach ($additionalData as $value) {
+                $user->{$additionalData} = $value;
+                $user->save();
+            }
+
+            return $user;
+        } catch (Exception) {
+            return null;
+        }
+    }
+
+    public function logout(): ?bool
+    {
+        try {
+            $user = auth($this->guard)->user();
+            auth($this->guard)->logout();
+            $user->fcm_token = null;
+            $user->save();
+            return true;
+        } catch (Exception) {
+            return null;
+        }
+    }
+
+    public function register(array $data, string $role)
+    {
+        try {
+            $user = $this->repository->create($data);
+            $user->assignRole($role);
+            auth($this->guard)->login($user);
+            return $user;
+        } catch (Exception) {
+            return null;
+        }
+    }
+
+    public function passwordResetRequest(string $email): ?bool
+    {
+        $user = $this->repository->getUserByEmail($email);
+
+        if ($user) {
+            do {
+                $code = sprintf('%06d', mt_rand(1, 999999));
+                $temp_user = $this->repository->getUserByPasswordResetCode($code);
+            } while ($temp_user != null);
+
+            $user->reset_password_code = $code;
+            $user->save();
+
+            try {
+                $user->notify(new ResetPasswordCodeEmail($code));
+            } catch (Exception) {
+                return null;
+            }
+
+            return true;
+        }
+        return null;
+    }
+
+    public function passwordReset(string $reset_password_code, string $password): ?bool
+    {
+        $user = $this->repository->getUserByPasswordResetCode($reset_password_code);
+
+        if ($user) {
+            $user->password = $password;
+            $user->reset_password_code = null;
+            $user->save();
+
+            return true;
+        }
+
+        return null;
+    }
+
+    public function updateUserDetails(array $data, string $role)
+    {
+        try {
+            $user = auth($this->guard)->user();
+
+            if (!$user) {
+                return null;
+            }
+
+            if (!$user->hasRole($role)) {
+                auth($this->guard)->logout();
+                return null;
+            }
+
+            $user = $this->repository->update($data, $user->id);
+
+            auth($this->guard)->login($user);
+
+            return $user;
+        } catch (Exception) {
+            return null;
+        }
+    }
+}

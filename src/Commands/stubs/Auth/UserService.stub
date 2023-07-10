@@ -6,26 +6,22 @@ use {repositoryNamespace}\UserRepository;
 use {resourceNamespace}\UserResource;
 use App\Notifications\ResetPasswordCodeEmail;
 use Cubeta\CubetaStarter\Contracts\Services\BaseService;
-use Cubeta\CubetaStarter\Traits\PushNotificationHelper;
 
 /**
  * Class UserService
  */
 class UserService extends BaseService implements IUserService
 {
-    use PushNotificationHelper;
-
-    private $role; 
+    private string $guard = 'api';
 
     /**
      * UserService constructor.
      *
-     * @param  UserRepository  $repository
+     * @param UserRepository $repository
      */
     public function __construct(UserRepository $repository)
     {
         parent::__construct($repository);
-
     }
 
     public function getUserByEmail($email)
@@ -47,20 +43,20 @@ class UserService extends BaseService implements IUserService
         }
     }
 
-    public function login($data , $role , array $additionalData = [])
+    public function login(array $data, string $role, array $additionalData = []): ?array
     {
-        $token = auth('api')->attempt([
+        $token = auth($this->guard)->attempt([
             'email' => $data['email'],
             'password' => $data['password'],
         ]);
 
-        if (! $token) {
+        if (!$token) {
             return null;
         }
 
-        $user = auth('api')->user();
+        $user = auth($this->guard)->user();
 
-        if (! $user->hasRole($role)) {
+        if (!$user->hasRole($role)) {
             return null;
         }
 
@@ -70,12 +66,12 @@ class UserService extends BaseService implements IUserService
             $user->save();
         }
 
-        foreach($additionalData as $key => $value){
+        foreach ($additionalData as $value) {
             $user->{$additionalData} = $value;
             $user->save();
         }
 
-        $refresh_token = auth('api')->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
+        $refresh_token = auth($this->guard)->setTTL(ttl: env('JWT_REFRESH_TTL', 20160))->refresh();
 
         return [
             'user' => new UserResource($user),
@@ -84,38 +80,59 @@ class UserService extends BaseService implements IUserService
         ];
     }
 
+    public function updateUserDetails(array $data, string $role): ?array
+    {
+        $user = auth($this->guard)->user();
+
+        if (!$user) {
+            return null;
+        }
+
+        if (!$user->hasRole($role)) {
+            return null;
+        }
+
+        $user = $this->repository->update($data, $user->id);
+
+        $token = auth($this->guard)->login($user);
+        $refresh_token = auth($this->guard)->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
+
+        return ['user' => new UserResource($user), 'token' => $token, 'refresh_token' => $refresh_token];
+    }
+
     public function logout()
     {
-        $auth_user = auth('api')->user();
-        auth('api')->logout();
+        $auth_user = auth($this->guard)->user();
+        auth($this->guard)->logout();
         $auth_user->fcm_token = null;
         $auth_user->save();
     }
 
-    public function refresh_token()
+    public function refresh_token(): ?array
     {
         try {
-            $user = auth('api')->user();
-            $token = auth('api')->setTTL(env('JWT_TTL', 10080))->refresh();
-            $refresh_token = auth('api')->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
+            $user = auth($this->guard)->user();
+            $token = auth($this->guard)->setTTL(env('JWT_TTL', 10080))->refresh();
+            $refresh_token = auth($this->guard)->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
 
-            return ['user' => new UserResource($user),  'token' => $token, 'refresh_token' => $refresh_token];
-        } catch (\Exception $exception) {
+            return ['user' => new UserResource($user), 'token' => $token, 'refresh_token' => $refresh_token];
+        } catch (Exception) {
             return null;
         }
     }
 
-    public function register($data , $role)
+    #[ArrayShape(['user' => "\App\Http\Resources\UserResource", 'token' => "void", 'refresh_token' => "mixed"])]
+    public function register(array $data, string $role): array
     {
         $user = $this->repository->create($data);
         $user->assignRole($role);
-        $token = auth('api')->login($user);
-        $refresh_token = auth('api')->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
+        $token = auth($this->guard)->login($user);
+        $refresh_token = auth($this->guard)->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
 
-        return ['user' => new UserResource($user),  'token' => $token, 'refresh_token' => $refresh_token];
+        return ['user' => new UserResource($user), 'token' => $token, 'refresh_token' => $refresh_token];
     }
 
-    public function passwordResetRequest($email)
+    public function passwordResetRequest(string $email): ?bool
     {
         $user = $this->getUserByEmail($email);
 
@@ -130,7 +147,7 @@ class UserService extends BaseService implements IUserService
 
             try {
                 $user->notify(new ResetPasswordCodeEmail($code));
-            } catch (\Exception $exception) {
+            } catch (Exception) {
                 return null;
             }
 
@@ -140,7 +157,7 @@ class UserService extends BaseService implements IUserService
         return null;
     }
 
-    public function passwordReset($reset_password_code, $password)
+    public function passwordReset(string $reset_password_code, string $password): ?bool
     {
         $user = $this->getUserByPasswordResetCode($reset_password_code);
 

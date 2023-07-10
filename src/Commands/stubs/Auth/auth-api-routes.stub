@@ -5,3 +5,5 @@ Route::post('/{role}/password-reset-request', [v1\{role}AuthController::class, '
 Route::post('/{role}/check-reset-password-code', [v1\{role}AuthController::class, 'checkPasswordResetCode'])->name("{role}.check-reset-password-code");
 Route::post('/{role}/reset-password', [v1\{role}AuthController::class, 'passwordReset'])->name("{role}.password-reset");
 Route::post('/{role}/logout', [v1\{role}AuthController::class, 'logout'])->middleware('auth:api')->name("{role}.logout");
+Route::post('/{role}/update-user-data' , [v1\{role}AuthController::class, 'updateUserDetails'])->name('update-user-data');
+

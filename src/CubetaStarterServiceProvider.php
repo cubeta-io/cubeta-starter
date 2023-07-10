@@ -36,6 +36,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->publishConfigFiles();
         $this->publishExceptionHandler();
         $this->publishAssets();
+        $this->publishAuthViews();
 
         // loaded from the package
         $this->loadComponents();
@@ -193,5 +194,17 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         if (app()->environment('local')) {
             $this->loadRoutesFrom(__DIR__ . '/Routes/ui-routes.php');
         }
+    }
+
+    public function publishAuthViews()
+    {
+        $this->publishes([
+            __DIR__ . '/../resources/views/login.blade.php' => resource_path('views/login.blade.php'),
+            __DIR__ . '/../resources/views/register.blade.php' => resource_path('views/register.blade.php'),
+            __DIR__ . '/../resources/views/user-details.blade.php' => resource_path('views/user-details.blade.php'),
+            __DIR__ . '/../resources/views/reset-password-request.blade.php' => resource_path('views/reset-password-request.blade.php'),
+            __DIR__ . '/../resources/views/check-reset-code.blade.php' => resource_path('views/check-reset-code.blade.php'),
+            __DIR__ . '/../resources/views/reset-password.blade.php' => resource_path('views/reset-password.blade.php'),
+        ], 'cubeta-auth-views');
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Facades\Artisan;
 
 class InitAuth extends Command
 {
@@ -13,7 +14,7 @@ class InitAuth extends Command
 
     protected $description = 'initialize authentication tools';
 
-    protected $signature = 'init-auth';
+    protected $signature = 'init-auth {container?}';
 
     /**
      * @throws BindingResolutionException
@@ -21,13 +22,21 @@ class InitAuth extends Command
      */
     public function handle()
     {
+        $container = $this->argument('container') ?? 'both';
+
         $this->generateUserMigration();
         $this->generateUserModel();
+        if ($container == 'api' || $container == 'both') {
+            $this->generateUserResource();
+            $this->generateBaseAuthController();
+        }
+        if ($container == 'web' || $container == 'both') {
+            $this->generateBaseAuthWebController();
+            Artisan::call('vendor:publish --tag=cubeta-auth-views --force');
+        }
+        $this->generateUserService($container);
         $this->generateUserRepository();
-        $this->generateUserService();
-        $this->generateUserResource();
         $this->generateAuthRequests();
-        $this->generateBaseAuthController();
         $this->generateResetPasswordNotification();
         $this->generateResetPasswordEmailView();
         $this->generateUserFactory();
@@ -63,7 +72,7 @@ class InitAuth extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    private function generateUserService()
+    private function generateUserService(string $container = 'api')
     {
         // user service
         $stubProperties = [
@@ -73,13 +82,25 @@ class InitAuth extends Command
         ];
 
         $serviceDirectory = base_path(config('cubeta-starter.service_path') . '/User');
-        $servicePath = "$serviceDirectory/UserService.php";
 
-        ensureDirectoryExists($serviceDirectory);
+        if ($container == 'api' || $container == 'both') {
+            $servicePath = "$serviceDirectory/UserService.php";
 
-        generateFileFromStub($stubProperties, $servicePath, __DIR__ . '/stubs/Auth/UserService.stub', true);
+            ensureDirectoryExists($serviceDirectory);
 
-        $this->info("Created Service: UserService");
+            generateFileFromStub($stubProperties, $servicePath, __DIR__ . '/stubs/Auth/UserService.stub', true);
+
+            $this->info("Created Service: UserService");
+        }
+        if ($container == 'web' || $container == 'both') {
+            $servicePath = "$serviceDirectory/UserWebService.php";
+
+            ensureDirectoryExists($serviceDirectory);
+
+            generateFileFromStub($stubProperties, $servicePath, __DIR__ . '/stubs/Auth/UserWebService.stub', true);
+
+            $this->info("Created Service: UserWebService");
+        }
 
         // service interface
         $interfacePath = "$serviceDirectory/IUserService.php";
@@ -208,7 +229,7 @@ class InitAuth extends Command
     {
         $viewDirectory = resource_path('views/emails');
         ensureDirectoryExists($viewDirectory);
-        generateFileFromStub([], "$viewDirectory/reset-password.blade.php", __DIR__ . '/stubs/Auth/reset-password.stub', true);
+        generateFileFromStub([], "$viewDirectory/reset-password-email.blade.php", __DIR__ . '/stubs/Auth/reset-password.stub', true);
         $this->info("Created View: reset-password");
     }
 
@@ -224,5 +245,27 @@ class InitAuth extends Command
 
         generateFileFromStub([], $factoryPath, __DIR__ . '/stubs/Auth/user-factory.stub', true);
         $this->info("Created Factory: UserFactory");
+    }
+
+    /**
+     * @throws FileNotFoundException
+     * @throws BindingResolutionException
+     */
+    private function generateBaseAuthWebController()
+    {
+        $stubProperties = [
+            '{namespace}' => config('cubeta-starter.web_controller_namespace'),
+            '{requestsNamespace}' => config('cubeta-starter.request_namespace'),
+            '{ServiceNameSpace}' => config('cubeta-starter.service_namespace')
+        ];
+
+        $controllerDirectory = base_path(config('cubeta-starter.web_controller_path'));
+        $controllerPath = "$controllerDirectory/BaseAuthController.php";
+
+        ensureDirectoryExists($controllerDirectory);
+
+        generateFileFromStub($stubProperties, $controllerPath, __DIR__ . '/stubs/Auth/BaseAuthWebController.stub', true);
+
+        $this->info("Created Controller: BaseAuthController");
     }
 }
