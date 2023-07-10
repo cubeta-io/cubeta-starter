@@ -55,6 +55,8 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['addActor'] = true;
         $this->arguments['modalBody'] = "Adding Actors";
         $this->arguments['notes'] = "<li class='notes'>Don't forgot to run migrations after installing spatie <a href='https://spatie.be/docs/laravel-permission/v5/introduction'>Check spatie/permissions Documentation</a></li>
+                                        <li class='notes'>Init api auth depends on <a href='https://github.com/PHP-Open-Source-Saver/jwt-auth'>jwt-auth</a> package so you need to configure it before using auth tools</li>
+                                        <li class='notes'>You don't need to install jwt-auth it is included in the package just configure it</li>
                                         <li class='notes'>Using add actors feature needs Spatie/Permissions Package to be installed</li>
                                         <li class='notes'>RolesPermissionEnum class will be created in your app/Enums directory after adding new roles</li>
                                         <li class='notes'>If you want to remove a role just remove it from RolesPermissionsEnum</li>

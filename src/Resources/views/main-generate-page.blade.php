@@ -163,6 +163,60 @@
                                             </div>
                                         </div>
                                     @endif
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <p class="description-font">
+                                                this will generate the required classes for you to handle users
+                                                authentication in api container.
+                                                the generated are files :
+                                                Migration: 2014_10_12_000000_create_users_table.php
+                                                Model: User
+                                                Repository: UserRepository
+                                                Service: UserService
+                                                Resource: UserResource
+                                                Requests: AuthRequests
+                                                Controller: BaseAuthController
+                                                View: reset-password-email
+                                            </p>
+                                            <a class="btn btn-primary"
+                                               href="{{route('cubeta-starter.init-auth' , 'api')}}">init api auth</a>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <p class="description-font">
+                                                this will generate the required classes for you to handle users
+                                                authentication in web container.
+                                                the generated are files :
+                                                Migration: 2014_10_12_000000_create_users_table.php
+                                                Model: User
+                                                Repository: UserRepository
+                                                Service: UserWebService
+                                                Requests: AuthRequests
+                                                Controller: BaseAuthWebController
+                                                View: reset-password-email and some other views
+                                            </p>
+                                            <a class="btn btn-primary"
+                                               href="{{route('cubeta-starter.init-auth' , 'web')}}">init web
+                                                auth</a>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <p class="description-font">
+                                                this will generate the required classes for you to handle users
+                                                authentication in web and api containers.
+                                                this will generate the files like the initialization in web and api
+                                                containers combined
+                                            </p>
+                                            <br>
+                                            <br>
+                                            <br>
+                                            <br>
+                                            <a class="btn btn-primary mt-3"
+                                               href="{{route('cubeta-starter.init-auth')}}">init auth</a>
+                                        </div>
+                                    </div>
+
                                     <div class="col-md-12 p-3">
                                         <p class="description-font">
                                             Here add your actors and their permissions if they have

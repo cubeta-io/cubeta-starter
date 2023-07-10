@@ -32,7 +32,10 @@ class InitAuth extends Command
         }
         if ($container == 'web' || $container == 'both') {
             $this->generateBaseAuthWebController();
-            Artisan::call('vendor:publish --tag=cubeta-auth-views --force');
+            Artisan::call('vendor:publish', [
+                '--tag' => 'cubeta-auth-views',
+                '--force' => true
+            ]);
         }
         $this->generateUserService($container);
         $this->generateUserRepository();

@@ -390,4 +390,20 @@ class CallAppropriateCommand extends Controller
         Cache::put('logs', $output);
         return redirect()->route($redirectRouteName, ['success' => $successMessage]);
     }
+
+    public function initAuth($container = null)
+    {
+        try {
+            Artisan::call('init-auth', [
+                'container' => $container
+            ]);
+
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.generate-add-actor.page', 'Authentication Tools Prepared Successfully');
+
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
+        }
+    }
 }

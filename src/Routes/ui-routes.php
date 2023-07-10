@@ -43,4 +43,5 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
     Route::get('/publish-handler', [CallAppropriateCommand::class, 'publishHandler'])->name('publish-handler');
     Route::get('publish-assets', [CallAppropriateCommand::class, 'publishAssets'])->name('publish-assets');
     Route::get('/install-web-packages', [CallAppropriateCommand::class, 'installingWebPackages'])->name('install-web-packages');
+    Route::get('/call-auth-init/{container?}', [CallAppropriateCommand::class, 'initAuth'])->name('init-auth');
 });
