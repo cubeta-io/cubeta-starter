@@ -3,13 +3,13 @@
 namespace {namespace};
 
 use App\Http\Controllers\Controller;
-use {requestNamespace}\AuthRequests\AuthLoginRequest;
-use {requestNamespace}\AuthRequests\AuthRegisterRequest;
-use {requestNamespace}\AuthRequests\CheckPasswordResetRequest;
-use {requestNamespace}\AuthRequests\RequestResetPasswordRequest;
-use {requestNamespace}\AuthRequests\ResetPasswordRequest;
-use {requestNamespace}\AuthRequests\UpdateUserRequest;
-use {serviceNamespace}\User\IUserService;
+use {ServiceNameSpace}\User\IUserService;
+use {requestsNamespace}\AuthRequests\AuthLoginRequest;
+use {requestsNamespace}\AuthRequests\UpdateUserRequest;
+use {requestsNamespace}\AuthRequests\AuthRegisterRequest;
+use {requestsNamespace}\AuthRequests\ResetPasswordRequest;
+use {requestsNamespace}\AuthRequests\CheckPasswordResetRequest;
+use {requestsNamespace}\AuthRequests\RequestResetPasswordRequest;
 
 class BaseAuthController extends Controller
 {

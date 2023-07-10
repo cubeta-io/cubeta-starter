@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use {ServiceNameSpace}\User\IUserService;
 use Cubeta\CubetaStarter\Contracts\ApiController;
 use {requestsNamespace}\AuthRequests\AuthLoginRequest;
+use {requestsNamespace}\AuthRequests\UpdateUserRequest;
 use {requestsNamespace}\AuthRequests\AuthRegisterRequest;
 use {requestsNamespace}\AuthRequests\ResetPasswordRequest;
 use {requestsNamespace}\AuthRequests\CheckPasswordResetRequest;
