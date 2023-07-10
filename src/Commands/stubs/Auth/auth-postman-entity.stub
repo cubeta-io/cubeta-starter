@@ -228,7 +228,7 @@
 						"url": {
 							"raw": "{{local}}/{role}/password-reset-request",
 							"host": [
-								"{{local}}/{role}-reset-request"
+								"{{local}}/{role}"
 							],
 							"path": [
 								"password-reset-request"
@@ -270,7 +270,7 @@
 						"url": {
 							"raw": "{{local}}/{role}/check-reset-password-code",
 							"host": [
-								"{{local}}/{role}-reset-password-code"
+								"{{local}}/{role}"
 							],
 							"path": [
 								"check-reset-password-code"
@@ -323,7 +323,7 @@
 						"url": {
 							"raw": "{{local}}/{role}/reset-password",
 							"host": [
-								"{{local}}/{role}-password"
+								"{{local}}/{role}"
 							],
 							"path": [
 								"reset-password"
