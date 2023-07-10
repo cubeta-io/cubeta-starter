@@ -140,7 +140,7 @@ class InitAuth extends Command
      */
     private function generateUserMigration()
     {
-        $migrationPath = config('cubeta-starter.migration_path') . '/2014_10_12_000000_create_users_table.php';
+        $migrationPath = base_path(config('cubeta-starter.migration_path') . '/2014_10_12_000000_create_users_table.php');
         generateFileFromStub([], $migrationPath, __DIR__ . '/stubs/Auth/UserMigration.stub', true);
 
         $this->info("Created Migration: 2014_10_12_000000_create_users_table.php");
@@ -218,7 +218,7 @@ class InitAuth extends Command
      */
     private function generateResetPasswordNotification()
     {
-        $notificationDirectory = 'app/Notifications';
+        $notificationDirectory = base_path('app/Notifications');
         ensureDirectoryExists($notificationDirectory);
         generateFileFromStub([], "$notificationDirectory/ResetPasswordCodeEmail.php", __DIR__ . '/stubs/Auth/ResetPasswordCodeEmail.stub', true);
         $this->info("Created Notification: ResetPasswordCodeEmail");
@@ -230,7 +230,7 @@ class InitAuth extends Command
      */
     private function generateResetPasswordEmailView()
     {
-        $viewDirectory = resource_path('views/emails');
+        $viewDirectory = base_path(resource_path('views/emails'));
         ensureDirectoryExists($viewDirectory);
         generateFileFromStub([], "$viewDirectory/reset-password-email.blade.php", __DIR__ . '/stubs/Auth/reset-password.stub', true);
         $this->info("Created View: reset-password");
