@@ -127,7 +127,7 @@ class InitialProject extends Command
                     $permissions = $this->convertInputStringToArray($permissionsString);
                 }
 
-                $isAuthenticated = $this->choice("Do you want us to generate an authentication controller for this actor ? (note: you need to run <php artisan init-auth> if you hit yes)", ['No', 'Yes'], 'yes');
+                $isAuthenticated = $this->choice("Do you want us to generate an authentication controller for this actor ? (note: you need to run <<<php artisan init-auth>>> if you hit yes)", ['No', 'Yes'], 'yes');
 
                 if ($isAuthenticated == 'Yes') {
                     $authenticated[] = $role;
@@ -139,10 +139,7 @@ class InitialProject extends Command
                 $this->generateActorsFiles($role, $permissions, [], $roleContainer);
             }
 
-            $generateAuth = $this->choice("Do You Want us to generate auth controllers for your actors ?", ["No", "Yes"], "No");
-            if ($generateAuth == 'Yes') {
-                $this->generateAuthControllers($authenticated, $roleContainer);
-            }
+            $this->generateAuthControllers($authenticated, $roleContainer);
         }
     }
 
@@ -191,31 +188,30 @@ class InitialProject extends Command
      */
     private function generateAuthControllers(array $authenticated = [], array $roleContainer = [])
     {
-        $namespace = config('cubeta-starter.api_controller_namespace');
-        $serviceNamespace = config('cubeta-starter.service_namespace');
-        $controllerDirectory = base_path(config('cubeta-starter.api_controller_path'));
+        $apiControllerNamespace = config('cubeta-starter.api_controller_namespace');
+        $apiServiceNamespace = config('cubeta-starter.service_namespace');
+        $apiControllerDirectory = base_path(config('cubeta-starter.api_controller_path'));
 
-        ensureDirectoryExists($controllerDirectory);
+        ensureDirectoryExists($apiControllerDirectory);
 
         foreach ($authenticated as $role) {
-            $stubProperties = [
-                '{namespace}' => $namespace,
-                '{serviceNamespace}' => $serviceNamespace,
-                '{role}' => ucfirst(Str::studly($role)),
-                '{roleEnumName}' => strtoupper(Str::snake($role))
-            ];
-
-            $controllerPath = "$controllerDirectory/{$stubProperties['{role}']}AuthController.php";
-
-            if (file_exists($controllerPath)) {
-                $this->error('Controller Already Exists');
-                continue;
-            }
-
-            generateFileFromStub($stubProperties, "$controllerPath", __DIR__ . '/stubs/Auth/auth-controller.stub');
-            $this->info("Created Controller : {$stubProperties['{role}']}AuthController.php");
-
             if (in_array($roleContainer[$role], ['api', 'both'])) {
+                $stubProperties = [
+                    '{namespace}' => $apiControllerNamespace,
+                    '{serviceNamespace}' => $apiServiceNamespace,
+                    '{role}' => ucfirst(Str::studly($role)),
+                    '{roleEnumName}' => strtoupper(Str::snake($role))
+                ];
+
+                $controllerPath = "$apiControllerDirectory/{$stubProperties['{role}']}AuthController.php";
+
+                if (file_exists($controllerPath)) {
+                    $this->error('Controller Already Exists');
+                    continue;
+                }
+                generateFileFromStub($stubProperties, "$controllerPath", __DIR__ . '/stubs/Auth/auth-controller.stub');
+                $this->info("Created Controller : {$stubProperties['{role}']}AuthController.php");
+
                 if (!file_exists(base_path("routes/api/$role.php"))) {
                     continue;
                 }
@@ -224,7 +220,7 @@ class InitialProject extends Command
 
                 $routes = str_replace('{role}', $role, $routes);
                 $routeFilePath = base_path("routes/api/$role.php");
-                $importStatement = "use " . config('cubeta-starter.api_controller_namespace');
+                $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . ";";
 
                 file_put_contents($routeFilePath, $routes, FILE_APPEND);
                 addImportStatement($importStatement, $routeFilePath);

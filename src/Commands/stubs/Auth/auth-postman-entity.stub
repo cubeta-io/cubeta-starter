@@ -81,7 +81,7 @@
 						"url": {
 							"raw": "{{local}}/{role}/register",
 							"host": [
-								"{{local}}"
+								"{{local}}/{role}"
 							],
 							"path": [
 								"register"
@@ -148,7 +148,7 @@
 						"url": {
 							"raw": "{{local}}/{role}/login",
 							"host": [
-								"{{local}}"
+								"{{local}}/{role}"
 							],
 							"path": [
 								"login"
@@ -185,7 +185,7 @@
 						"url": {
 							"raw": "{{local}}/{role}/refresh",
 							"host": [
-								"{{local}}"
+								"{{local}}/{role}"
 							],
 							"path": [
 								"refresh"
@@ -228,7 +228,7 @@
 						"url": {
 							"raw": "{{local}}/{role}/password-reset-request",
 							"host": [
-								"{{local}}"
+								"{{local}}/{role}-reset-request"
 							],
 							"path": [
 								"password-reset-request"
@@ -270,7 +270,7 @@
 						"url": {
 							"raw": "{{local}}/{role}/check-reset-password-code",
 							"host": [
-								"{{local}}"
+								"{{local}}/{role}-reset-password-code"
 							],
 							"path": [
 								"check-reset-password-code"
@@ -323,7 +323,7 @@
 						"url": {
 							"raw": "{{local}}/{role}/reset-password",
 							"host": [
-								"{{local}}"
+								"{{local}}/{role}-password"
 							],
 							"path": [
 								"reset-password"
@@ -360,7 +360,7 @@
 						"url": {
 							"raw": "{{local}}/{role}/logout",
 							"host": [
-								"{{local}}"
+								"{{local}}/{role}"
 							],
 							"path": [
 								"logout"
@@ -370,6 +370,6 @@
 					"response": []
 				}
 			]
-		}
+		},
 
 "// add-your-cruds-here"
