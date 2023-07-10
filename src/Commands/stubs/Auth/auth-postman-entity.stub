@@ -14,7 +14,7 @@
 							}
 						},
 						{
-							"listen": "{role}",
+							"listen": "test",
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);\r",
@@ -178,7 +178,7 @@
 								"{{local}}/{role}"
 							],
 							"path": [
-								"register"
+								"update-user-data"
 							]
 						}
 					},
@@ -197,7 +197,7 @@
 							}
 						},
 						{
-							"listen": "{role}",
+							"listen": "test",
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);\r",
