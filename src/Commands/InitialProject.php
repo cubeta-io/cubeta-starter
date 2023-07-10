@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\Traits\RouteFileTrait;
 use Cubeta\CubetaStarter\Traits\RolePermissionTrait;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 class InitialProject extends Command
@@ -74,7 +75,7 @@ class InitialProject extends Command
 
         $this->createRoleSeeder();
         $this->createPermissionSeeder();
-        $this->generateAuthControllers($authenticated);
+        $this->generateAuthControllers($authenticated, $roleContainer);
 
         $this->info("{$role} role created successfully");
     }
@@ -138,7 +139,10 @@ class InitialProject extends Command
                 $this->generateActorsFiles($role, $permissions, [], $roleContainer);
             }
 
-            $this->generateAuthControllers($authenticated);
+            $generateAuth = $this->choice("Do You Want us to generate auth controllers for your actors ?", ["No", "Yes"], "No");
+            if ($generateAuth == 'Yes') {
+                $this->generateAuthControllers($authenticated, $roleContainer);
+            }
         }
     }
 
@@ -185,7 +189,7 @@ class InitialProject extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    private function generateAuthControllers(array $authenticated = [])
+    private function generateAuthControllers(array $authenticated = [], array $roleContainer = [])
     {
         $namespace = config('cubeta-starter.api_controller_namespace');
         $serviceNamespace = config('cubeta-starter.service_namespace');
@@ -210,6 +214,61 @@ class InitialProject extends Command
 
             generateFileFromStub($stubProperties, "$controllerPath", __DIR__ . '/stubs/Auth/auth-controller.stub');
             $this->info("Created Controller : {$stubProperties['{role}']}AuthController.php");
+
+            if (in_array($roleContainer[$role], ['api', 'both'])) {
+                if (!file_exists(base_path("routes/api/$role.php"))) {
+                    continue;
+                }
+
+                $routes = file_get_contents(__DIR__ . '/stubs/Auth/auth-api-routes.stub');
+
+                $routes = str_replace('{role}', $role, $routes);
+                $routeFilePath = base_path("routes/api/$role.php");
+                $importStatement = "use " . config('cubeta-starter.api_controller_namespace');
+
+                file_put_contents($routeFilePath, $routes, FILE_APPEND);
+                addImportStatement($importStatement, $routeFilePath);
+                $this->info("$role auth routes has been added");
+
+                //TODO:: test it
+                $this->addPostmanAuthCollection($role);
+                $this->info("Auth Collection Added to postman");
+            }
         }
+    }
+
+    private function addPostmanAuthCollection(string $role)
+    {
+        $authPostmanEntity = file_get_contents(__DIR__ . "/stubs/Auth/auth-postman-entity.stub");
+        $authPostmanEntity = str_replace("{role}", $role, $authPostmanEntity);
+
+        $projectName = config('cubeta-starter.project_name');
+        $collectionDirectory = base_path(config('cubeta-starter.postman_collection _path'));
+        ensureDirectoryExists($collectionDirectory);
+        $collectionPath = "{$collectionDirectory}/{$projectName}.postman_collection.json";
+
+        if (File::exists($collectionPath)) {
+            $collection = file_get_contents($collectionPath);
+
+            if (Str::contains(preg_replace('/\s+/', '', $collection), trim("\"name\":\"{$role} auth\","))) {
+                $this->error('An endpoint for ' . $role . 'Auth Controller Endpoint is Already Exists in the Postman collection');
+
+                return;
+            }
+
+            $collection = str_replace('"// add-your-cruds-here"', $authPostmanEntity, $collection);
+            file_put_contents($collectionPath, $collection);
+        } else {
+            $projectURL = config('cubeta-starter.project_url') ?? "http://localhost/" . config('cubeta-starter.project_name') . "/public/";
+            $collectionStub = file_get_contents(__DIR__ . '/stubs/postman-collection.stub');
+            $collectionStub = str_replace(
+                ['{projectName}', '{project-url}', '// add-your-cruds-here'],
+                [$projectName, $projectURL, $authPostmanEntity],
+                $collectionStub
+            );
+            file_put_contents($collectionPath, $collectionStub);
+        }
+
+        $this->info("Created Postman Collection: {$projectName}.postman_collection.json ");
     }
 }

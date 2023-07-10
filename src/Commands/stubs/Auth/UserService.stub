@@ -47,7 +47,7 @@ class UserService extends BaseService implements IUserService
         }
     }
 
-    public function login($data , $role)
+    public function login($data , $role , array $additionalData = [])
     {
         $token = auth('api')->attempt([
             'email' => $data['email'],
@@ -67,6 +67,11 @@ class UserService extends BaseService implements IUserService
         if (isset($data['fcm_token']) && $data['fcm_token']) {
             $this->clearFcmTokenFromOtherUsers($data['fcm_token']);
             $user->fcm_token = $data['fcm_token'];
+            $user->save();
+        }
+
+        foreach($additionalData as $key => $value){
+            $user->{$additionalData} = $value;
             $user->save();
         }
 
