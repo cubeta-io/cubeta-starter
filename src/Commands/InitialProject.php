@@ -200,7 +200,7 @@ class InitialProject extends Command
                     '{namespace}' => $apiControllerNamespace,
                     '{serviceNamespace}' => $apiServiceNamespace,
                     '{role}' => ucfirst(Str::studly($role)),
-                    '{roleEnumName}' => strtoupper(Str::snake($role))
+                    '{roleEnumName}' => roleNaming($role)
                 ];
 
                 $controllerPath = "$apiControllerDirectory/{$stubProperties['{role}']}AuthController.php";

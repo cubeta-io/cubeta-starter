@@ -28,7 +28,7 @@ function modelNaming($name): string
 
 /**
  * return the lower case and the plural in kebab case of the input string
- * @param  string $name
+ * @param string $name
  * @return string
  */
 function lowerPluralKebabNaming(string $name): string
@@ -62,11 +62,10 @@ function relationFunctionNaming($name, bool $singular = true): string
         return Str::camel(lcfirst(Str::singular(Str::studly($name))));
     }
     return Str::camel(lcfirst(Str::plural(Str::studly($name))));
-
 }
 
 /**
- * @param  string $name
+ * @param string $name
  * @return string
  */
 function viewNaming(string $name): string
@@ -75,7 +74,7 @@ function viewNaming(string $name): string
 }
 
 /**
- * @param  string $name
+ * @param string $name
  * @return string
  */
 function columnNaming(string $name): string
@@ -84,10 +83,20 @@ function columnNaming(string $name): string
 }
 
 /**
- * @param  string $name
+ * @param string $name
  * @return string
  */
 function titleNaming(string $name): string
 {
     return Str::headline($name);
+}
+
+/**
+ * return the role enum for a given string
+ * @param string $name
+ * @return string
+ */
+function roleNaming(string $name): string
+{
+    return Str::singular(Str::upper(Str::snake($name)));
 }

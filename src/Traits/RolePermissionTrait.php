@@ -53,10 +53,11 @@ trait RolePermissionTrait
             __DIR__ . '/../Commands/stubs/RoleSeeder.stub'
         );
     }
+
     public function createRolesEnum(string $role, array $permissions = null): void
     {
         $enum = file_get_contents(__DIR__ . '/../Commands/stubs/RolesPermissionEnum-entity.stub');
-        $roleEnum = Str::singular(Str::upper($role));
+        $roleEnum = roleNaming($role);
         $roleEnumValue = Str::singular(Str::lower($role));
 
         if ($permissions) {
@@ -65,7 +66,7 @@ trait RolePermissionTrait
             }
         }
 
-        $placedPermission = $permissions ? json_encode($permissions, JSON_PRETTY_PRINT) : 'null';
+        $placedPermission = $permissions ? json_encode($permissions, JSON_PRETTY_PRINT) : '[]';
 
         $enum = str_replace(
             ['{enum}', '{roleValue}', '{permissions}'],
@@ -80,7 +81,7 @@ trait RolePermissionTrait
 
         if (file_exists($enumDirectory . 'RolesPermissionEnum.php')) {
             $enumFileContent = file_get_contents($enumDirectory . 'RolesPermissionEnum.php');
-            if (! str_contains($enumFileContent, $role)) {
+            if (!str_contains($enumFileContent, $role)) {
                 // If the new code does not exist, add it to the end of the class definition
                 $pattern = '/}\s*$/';
                 $replacement = "{$enum}}";
