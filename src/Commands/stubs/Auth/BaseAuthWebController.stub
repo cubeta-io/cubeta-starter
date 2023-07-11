@@ -2,6 +2,7 @@
 
 namespace {namespace};
 
+use Exception;
 use App\Http\Controllers\Controller;
 use {ServiceNameSpace}\User\IUserService;
 use {requestsNamespace}\AuthRequests\AuthLoginRequest;
@@ -11,91 +12,148 @@ use {requestsNamespace}\AuthRequests\ResetPasswordRequest;
 use {requestsNamespace}\AuthRequests\CheckPasswordResetRequest;
 use {requestsNamespace}\AuthRequests\RequestResetPasswordRequest;
 
-class BaseAuthController extends Controller
+class UserWebService extends BaseService implements IUserService
+
 {
-    private IUserService $userService;
-    private string $role;
+    private string $guard = 'web';
 
-    public function __construct(IUserService $userService)
+    /**
+     * UserService constructor.
+     *
+     * @param UserRepository $repository
+     */
+    public function __construct(UserRepository $repository)
     {
-        $this->userService = $userService;
+        parent::__construct($repository);
     }
 
-    public function roleHook(string $role)
+    public function clearFcmTokenFromOtherUsers($fcm_token)
     {
-        $this->role = $role;
+        $users = $this->repository->getByFcmToken($fcm_token);
+        foreach ($users as $user) {
+            $user->fcm_token = null;
+            $user->save();
+        }
     }
 
-    public function login(AuthLoginRequest $request)
+    public function login(array $data, $role = null, array $additionalData = [])
     {
-        //you can pass additional data as an array for the third parameter in the
-        //login method and this data will be stored in the users table
-        $user = $this->userService->login($request->validated(), $this->role, []);
+        try {
+            if (!auth($this->guard)->attempt($data)) {
+                return null;
+            }
+
+            $user = auth()->user();
+
+            if ($role && !auth()->user()->hasRole($role)) {
+                return null;
+            }
+
+            if (isset($data['fcm_token']) && $data['fcm_token']) {
+                $this->clearFcmTokenFromOtherUsers($data['fcm_token']);
+                $user->fcm_token = $data['fcm_token'];
+                $user->save();
+            }
+
+            foreach ($additionalData as $value) {
+                $user->{$additionalData} = $value;
+                $user->save();
+            }
+
+            return $user;
+        } catch (Exception) {
+            return null;
+        }
+    }
+
+    public function logout(): ?bool
+    {
+        try {
+            $user = auth($this->guard)->user();
+            auth($this->guard)->logout();
+            $user->fcm_token = null;
+            $user->save();
+            return true;
+        } catch (Exception) {
+            return null;
+        }
+    }
+
+    public function register(array $data, $role = null)
+    {
+        try {
+            $user = $this->repository->create($data);
+
+            if ($role) {
+                $user->assignRole($role);
+            }
+
+            auth($this->guard)->login($user);
+            return $user;
+        } catch (Exception) {
+            return null;
+        }
+    }
+
+    public function passwordResetRequest(string $email): ?bool
+    {
+        $user = $this->repository->getUserByEmail($email);
+
         if ($user) {
-            return view('user-details', compact('user'));
-        } else {
-            return redirect()->back()->with('error', __('site.credentials_not_match_records'));
+            do {
+                $code = sprintf('%06d', mt_rand(1, 999999));
+                $temp_user = $this->repository->getUserByPasswordResetCode($code);
+            } while ($temp_user != null);
+
+            $user->reset_password_code = $code;
+            $user->save();
+
+            try {
+                $user->notify(new ResetPasswordCodeEmail($code));
+            } catch (Exception) {
+                return null;
+            }
+
+            return true;
         }
+        return null;
     }
 
-    public function register(AuthRegisterRequest $request)
+    public function passwordReset(string $reset_password_code, string $password): ?bool
     {
-        $user = $this->userService->register($request->validated(), $this->role);
-        if ($user) {
-            return view('user-details', compact('user'));
-        } else {
-            return redirect()->back()->with('error', __('site.something_went_wrong'));
-        }
-    }
-
-    public function updateUserData(UpdateUserRequest $request)
-    {
-        $user = $this->userService->register($request->validated(), $this->role);
-
-        if ($user) {
-            return view('user-details', compact('user'));
-        } else {
-            return redirect()->back()->with('error', __('site.something_went_wrong'));
-        }
-    }
-
-    public function userDetails()
-    {
-        $user = $this->userService->showUserDetails($this->role);
+        $user = $this->repository->getUserByPasswordResetCode($reset_password_code);
 
         if ($user) {
-            return view('user-details', compact('user'));
-        } else {
-            return redirect()->back()->with('error', __('site.something_went_wrong'));
+            $user->password = $password;
+            $user->reset_password_code = null;
+            $user->save();
+
+            return true;
         }
+
+        return null;
     }
 
-    public function requestResetPasswordCode(RequestResetPasswordRequest $request)
+    public function updateUserDetails(array $data, $role = null)
     {
-        $result = $this->userService->passwordResetRequest($request->email);
-        if ($result) {
-            return view('enter-reset-password-code');
-        } else {
-            return redirect()->back()->with('error', __('site.something_went_wrong'));
-        }
-    }
+        try {
+            $user = auth($this->guard)->user();
 
-    public function validateResetPasswordCode(CheckPasswordResetRequest $request)
-    {
-        $request->validated();
-        return view('change-password');
-    }
+            if (!$user) {
+                return null;
+            }
 
-    public function changePassword(ResetPasswordRequest $request)
-    {
-        $data = $request->validated();
-        $result = $this->userService->passwordReset($data['reset_password_code'], $data['password']);
+            if ($role && !$user->hasRole($role)) {
+                return null;
+            }
 
-        if ($result) {
-            session()->put('success', __('site.password_changed_successfully'));
-            return view('login');
-        } else {
-            return redirect()->back()->with('error', __('site.something_went_wrong'));
+            $user = $this->repository->update($data, $user->id);
+
+            auth($this->guard)->login($user);
+
+            return $user;
+        } catch (Exception) {
+            return null;
         }
     }
 }

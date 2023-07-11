@@ -15,7 +15,7 @@ use {requestsNamespace}\AuthRequests\RequestResetPasswordRequest;
 class BaseAuthController extends ApiController
 {
     private IUserService $userService;
-    private string $role;
+    private $role = null;
 
     public function roleHook(string $role)
     {
@@ -29,8 +29,8 @@ class BaseAuthController extends ApiController
 
     public function login(AuthLoginRequest $request)
     {
-        //you can pass additional data as an array for the third parameter in the 
-        //login method and this data will be stored in the users table 
+        //you can pass additional data as an array for the third parameter in the
+        //login method and this data will be stored in the users table
         $data = $this->userService->login($request->validated() , $this->role , []);
         if (! $data) {
             return $this->apiResponse(null, self::STATUS_NOT_FOUND, __('site.credentials_not_match_records'));
