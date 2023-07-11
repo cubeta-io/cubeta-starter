@@ -191,7 +191,7 @@ class MakeFactory extends Command
                 $relatedFactories .= "
                 public function {$functionName}(\$count = 1)
                 {
-                    return \$this->has(\\" . config('cubeta - starter . model_namespace') . "\\{$className}::factory(\$count));
+                    return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$className}::factory(\$count));
                 } \n";
             }
         }
