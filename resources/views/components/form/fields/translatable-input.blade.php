@@ -21,10 +21,6 @@
 
 <!--Handling Validation Errors-->
 @error(columnNaming($label))
-    @isset($errors)
-        @foreach($errors->get(columnNaming($label)) as $error)
-            <div class="invalid-feedback">{{$error}}</div>
-        @endforeach
-    @endisset
+<div class="invalid-feedback">{{$message}}</div>
 @enderror
 <!--End Of Handling Validation Errors-->

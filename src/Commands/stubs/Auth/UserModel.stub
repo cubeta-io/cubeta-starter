@@ -24,6 +24,17 @@ class User extends Authenticatable implements JWTSubject
 
     protected $guarded = ['id'];
 
+    protected $guard_name;
+
+    public function guardName(): string
+    {
+        if (request()->acceptsHtml()){
+            return 'web';
+        } else{
+            return 'api';
+        }
+    }
+
     protected $fillable = [
         'first_name' , 
         'last_name' , 

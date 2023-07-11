@@ -74,7 +74,7 @@ class BaseAuthController extends Controller
     {
         $result = $this->userService->passwordResetRequest($request->email);
         if ($result) {
-            return view('enter-reset-password-code');
+            return view('check-reset-code');
         } else {
             return redirect()->back()->with('error', __('site.something_went_wrong'));
         }
@@ -83,7 +83,7 @@ class BaseAuthController extends Controller
     public function validateResetPasswordCode(CheckPasswordResetRequest $request)
     {
         $request->validated();
-        return view('change-password');
+        return view('reset-password');
     }
 
     public function changePassword(ResetPasswordRequest $request)
@@ -97,5 +97,11 @@ class BaseAuthController extends Controller
         } else {
             return redirect()->back()->with('error', __('site.something_went_wrong'));
         }
+    }
+
+    public function logout()
+    {
+        $this->userService->logout();
+        return redirect('/');
     }
 }

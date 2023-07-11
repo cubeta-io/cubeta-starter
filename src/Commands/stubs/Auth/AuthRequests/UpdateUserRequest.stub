@@ -23,10 +23,12 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules()
     {
+        $guard = request()->acceptsHtml() ? 'web' : 'api';
+        
         return [
             'first_name' => 'nullable|string',
             'last_name' => 'nullable|string',
-            'email' => 'nullable|email|unique:users,email,'.auth()->user()->id,
+            'email' => 'nullable|email|unique:users,email,'.auth($guard)->user()->id,
             'password' => 'nullable|min:8|confirmed',
             'fcm_token' => 'nullable|string',
         ];

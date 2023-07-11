@@ -56,10 +56,10 @@ trait ViewGenerating
     }
 
     /**
-     * @param  string                     $modelName
-     * @param  string                     $creatRoute
-     * @param  string                     $dataRoute
-     * @param  array                      $attributes
+     * @param string $modelName
+     * @param string $creatRoute
+     * @param string $dataRoute
+     * @param array $attributes
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -233,10 +233,10 @@ trait ViewGenerating
             }
             if ($type == 'file') {
                 $json .= "{
-                                \"data\": 'image',render:
+                                \"data\": '$attribute',render:
                                     function (data) {
                                         const filePath = \"{{asset(\"storage/\")}}/\" + data;
-                                        return '<a href=\"' + filePath + '\" class=\"btn btn-sm btn-primary\"  target=\"_blank\">show file</a>';
+                                        return '<a href=\"' + filePath + '\" class=\"btn btn-sm btn-primary\"  target=\"_blank\">view</a>';
                                     }
                            }, \n";
                 $html .= "\n<th>{$label}</th>\n";
@@ -297,7 +297,7 @@ trait ViewGenerating
 
     /**
      * get the component label name
-     * @param  string       $attribute
+     * @param string $attribute
      * @return array|string
      */
     private function getLabelName(string $attribute): array|string

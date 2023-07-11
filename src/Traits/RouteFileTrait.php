@@ -46,7 +46,7 @@ trait RouteFileTrait
         }
 
         if ($container == 'web') {
-            $line_to_add = "\t\t Route::middleware('api')\n" .
+            $line_to_add = "\t\t Route::middleware('web')\n" .
                 "\t\t\t->group(base_path('routes/{$routeFilePath}'));\n";
         }
 
