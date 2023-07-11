@@ -17,14 +17,15 @@
 
         {{$slot}}
     </select>
-    <!--Validation Errors Handling-->
+    <!--Handling Validation Errors-->
     @error(columnNaming($label))
-    @foreach($errors->get(columnNaming($label)) as $error)
-        <div class="invalid-feedback">{{$error}}</div>
-    @endforeach
+    @isset($errors)
+        @foreach($errors->get(columnNaming($label)) as $error)
+            <div class="invalid-feedback">{{$error}}</div>
+        @endforeach
+    @endisset
     @enderror
-
-    <!--Select 2 Initialization Scripts-->
+    <!--End Of Handling Validation Errors-->
     @push('scripts')
         <script type="module">
             $(document).ready(function () {
