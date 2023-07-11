@@ -22,7 +22,7 @@ class {modelName}Test extends TestCase
     // if your endpoints return the model with its relation put the relations in the array
     protected $relations = [];
 
-    public function test_user_can_index_{modelName}s()
+    public function test_user_can_index_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'index');
         $this->indexTest();

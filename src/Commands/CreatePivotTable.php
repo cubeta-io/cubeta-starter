@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Str;
 
 class CreatePivotTable extends Command
 {
@@ -29,13 +30,13 @@ class CreatePivotTable extends Command
         $table1 = $this->argument('table1');
         $table2 = $this->argument('table2');
 
-        if ((! $table1 || empty(trim($table1))) || (! $table2 || empty(trim($table2)))) {
+        if ((!$table1 || empty(trim($table1))) || (!$table2 || empty(trim($table2)))) {
             $this->error('Invalid input');
             return;
         }
 
-        $table1 = tableNaming($table1);
-        $table2 = tableNaming($table2);
+        $table1 = Str::singular(tableNaming($table1));
+        $table2 = Str::singular(tableNaming($table2));
 
         $tables = [$table1, $table2];
         sort($tables);
