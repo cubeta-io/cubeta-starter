@@ -10,7 +10,6 @@ use Cubeta\CubetaStarter\Contracts\Services\BaseService;
  * Class UserWebService
  */
 class UserWebService extends BaseService implements IUserService
-
 {
     private string $guard = 'web';
 
@@ -33,7 +32,7 @@ class UserWebService extends BaseService implements IUserService
         }
     }
 
-    public function login(array $data, string $role, array $additionalData = []): User|Authenticatable|null
+    public function login(array $data, $role = null, array $additionalData = [])
     {
         try {
             if (!auth($this->guard)->attempt($data)) {
@@ -42,7 +41,7 @@ class UserWebService extends BaseService implements IUserService
 
             $user = auth()->user();
 
-            if (!auth()->user()->hasRole($role)) {
+            if ($role && !auth()->user()->hasRole($role)) {
                 return null;
             }
 
@@ -76,11 +75,15 @@ class UserWebService extends BaseService implements IUserService
         }
     }
 
-    public function register(array $data, string $role)
+    public function register(array $data, $role = null)
     {
         try {
             $user = $this->repository->create($data);
-            $user->assignRole($role);
+
+            if ($role) {
+                $user->assignRole($role);
+            }
+
             auth($this->guard)->login($user);
             return $user;
         } catch (Exception) {
@@ -127,7 +130,7 @@ class UserWebService extends BaseService implements IUserService
         return null;
     }
 
-    public function updateUserDetails(array $data, string $role)
+    public function updateUserDetails(array $data, $role = null)
     {
         try {
             $user = auth($this->guard)->user();
@@ -136,8 +139,7 @@ class UserWebService extends BaseService implements IUserService
                 return null;
             }
 
-            if (!$user->hasRole($role)) {
-                auth($this->guard)->logout();
+            if ($role && !$user->hasRole($role)) {
                 return null;
             }
 
