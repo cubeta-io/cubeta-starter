@@ -94,6 +94,12 @@
                             Add Actors
                         </a>
                     </li>
+                    <li class="nav-item @if(request()->fullUrl() == route('cubeta-starter.get-documentation')) my-nav-active @endif">
+                        <a href="{{route('cubeta-starter.get-documentation')}}"
+                           class="nav-link text-white">
+                            Documentation
+                        </a>
+                    </li>
                 </ul>
                 <hr>
             </div>

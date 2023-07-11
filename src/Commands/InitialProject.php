@@ -136,7 +136,7 @@ class InitialProject extends Command
                 $container = $this->choice("What is the container of this actor ? ", ['api', 'web', 'both'], 'api');
                 $roleContainer[$role] = $container;
 
-                $this->generateActorsFiles($role, $permissions, [], $roleContainer);
+                $this->generateActorsFiles($role, $permissions, $authenticated, $roleContainer);
             }
         }
     }
