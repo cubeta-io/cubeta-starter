@@ -1,18 +1,18 @@
 @props(['label' , 'api' , 'optionValue' , 'optionInnerText' , 'selected' => null])
 <div class="col-md-6 p-2">
-    <label for="{{columnNaming($label)}}">{{$label}}</label>
-    <select class="form-select select-2 @error(columnNaming($label)) is-invalid @enderror"
-            id="{{columnNaming($label)}}"
+    <label for="{{strtolower(Str::snake($label))}}">{{$label}}</label>
+    <select class="form-select select-2 @error(strtolower(Str::snake($label))) is-invalid @enderror"
+            id="{{strtolower(Str::snake($label))}}"
             data-placeholder="Chose A {{$label}}"
-            name="{{columnNaming($label)}}[]"
+            name="{{strtolower(Str::snake($label))}}[]"
             multiple
             onchange="disableSubmitUntilFillRequiredFields()"
         {{$attributes->merge()}}
     >
         <!--Handling Preselected Options-->
-        @if(old(columnNaming($label)))
+        @if(old(strtolower(Str::snake($label))))
 
-            @foreach(old(columnNaming($label)) as $oldValue)
+            @foreach(old(strtolower(Str::snake($label))) as $oldValue)
                 <option value="{{$oldValue}}" selected>{{$oldValue}}</option>
             @endforeach
 
@@ -31,7 +31,7 @@
     </select>
 
     <!--Handling Validation Errors-->
-    @error(columnNaming($label))
+    @error(strtolower(Str::snake($label)))
     <div class="invalid-feedback">{{$message}}</div>
     @enderror
     <!--End Of Handling Validation Errors-->
@@ -40,7 +40,7 @@
     @push('scripts')
         <script type="module">
             $(document).ready(function () {
-                const select2element = $("#{{columnNaming($label)}}");
+                const select2element = $("#{{strtolower(Str::snake($label))}}");
                 select2element.select2({
                     theme: 'bootstrap-5',
                     placeholder: $(this).data('placeholder'),

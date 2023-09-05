@@ -2,8 +2,8 @@
 @if (is_array($value))
     @foreach ($value as $v)
         <div class="form-check">
-            <input class="form-check-input @error(columnNaming($name)) is-invalid @enderror" type="radio"
-                   name="{{ columnNaming($name) }}" id="{{ $name }}-{{ $v }}-radio"
+            <input class="form-check-input @error(strtolower(Str::snake($name))) is-invalid @enderror" type="radio"
+                   name="{{ strtolower(Str::snake($name)) }}" id="{{ $name }}-{{ $v }}-radio"
                    value="{{ $v }}" {{ $attributes->merge() }}
                    @if ($checked == $v)
                        checked
@@ -23,8 +23,8 @@
     @endforeach
 @else
     <div class="form-check">
-        <input class="form-check-input @error(columnNaming($name)) is-invalid @enderror" type="radio"
-               name="{{ columnNaming($name) }}" id="{{ $name }}-{{ $value }}-radio"
+        <input class="form-check-input @error(strtolower(Str::snake($name))) is-invalid @enderror" type="radio"
+               name="{{ strtolower(Str::snake($name)) }}" id="{{ $name }}-{{ $value }}-radio"
                value="{{ $value }}" {{ $attributes->merge() }}
                @if ($checked == $value)
                    checked

@@ -80,8 +80,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakePolicy::class)
             ->hasCommand(MakeWebController::class)
             ->hasCommand(InstallWebPackages::class)
-            ->hasCommand(InitAuth::class)
-            ->hasCommand(PublishHelpers::class);
+            ->hasCommand(InitAuth::class);
     }
 
     /**

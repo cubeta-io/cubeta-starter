@@ -85,18 +85,13 @@
                                             <button type="submit" class="btn btn-primary">Save Changes</button>
                                         </div>
                                     </form><!-- End Profile Edit Form -->
-
                                 </div>
-
                             </div><!-- End Bordered Tabs -->
-
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>
-
     </main>
 
 @endsection

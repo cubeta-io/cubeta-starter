@@ -74,7 +74,6 @@
                             },
                             success: function (response) {
                                 location.reload();
-                                console.log(response);
                             }
                         });
                     });
