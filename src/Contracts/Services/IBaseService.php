@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Contracts\Services;
+namespace App\Services\Contracts;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;

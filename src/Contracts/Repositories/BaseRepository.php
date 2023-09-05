@@ -1,13 +1,13 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Contracts\Repositories;
+namespace App\Repositories\Contracts;
 
 use JetBrains\PhpStorm\ArrayShape;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use Cubeta\CubetaStarter\Traits\FileHandler;
+use App\Traits\FileHandler;
 use Illuminate\Database\Eloquent\Collection;
 
 /**

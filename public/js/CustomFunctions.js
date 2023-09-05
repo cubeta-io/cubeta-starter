@@ -37,7 +37,7 @@ function disableSubmitUntilFillRequiredFields() {
 }
 
 /**
- * this function to handle the delete request for the an image
+ * this function to handle the delete request for the image
  * you should a data-deleteurl attribute to your button tag
  * @param buttonClass
  */

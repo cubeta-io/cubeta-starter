@@ -3,10 +3,10 @@
 namespace App\Exceptions;
 
 use Throwable;
-use Cubeta\CubetaStarter\Traits\RestTrait;
+use App\Traits\RestTrait;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
-use Cubeta\CubetaStarter\Contracts\ApiController;
+use App\Http\Controllers\ApiController;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;

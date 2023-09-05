@@ -4,7 +4,7 @@ namespace {namespace};
 
 use Illuminate\Http\Request;
 use {ServiceNameSpace}\User\IUserService;
-use Cubeta\CubetaStarter\Contracts\ApiController;
+use App\Http\Controllers\ApiController;
 use {requestsNamespace}\AuthRequests\AuthLoginRequest;
 use {requestsNamespace}\AuthRequests\UpdateUserRequest;
 use {requestsNamespace}\AuthRequests\AuthRegisterRequest;

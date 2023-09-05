@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Traits;
+namespace App\Traits;
 
 use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ArrayShape;

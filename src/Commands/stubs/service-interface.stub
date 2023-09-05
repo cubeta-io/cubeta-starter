@@ -2,7 +2,7 @@
 
 namespace {namespace};
 
-use Cubeta\CubetaStarter\Contracts\Services\IBaseService;
+use App\Services\Contracts\IBaseService;
 
 /**
  * Interface I{modelName}Service

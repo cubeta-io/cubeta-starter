@@ -3,7 +3,7 @@
 namespace {namespace};
 
 use {repositoryNamespace}\{repositoryName};
-use Cubeta\CubetaStarter\Contracts\Services\BaseService;
+use App\Services\Contracts\BaseService;
 
 /**
  * Class {{modelName}}Service

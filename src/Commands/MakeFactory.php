@@ -221,7 +221,7 @@ class MakeFactory extends Command
         $usedTraits = '';
 
         if (in_array('file', $attributes)) {
-            $usedTraits .= "use \Cubeta\CubetaStarter\Traits\FileHandler; \n";
+            $usedTraits .= "use \App\Traits\FileHandler; \n";
         }
 
         return $usedTraits;

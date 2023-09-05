@@ -1,9 +1,9 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Contracts;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Cubeta\CubetaStarter\Traits\RestTrait;
+use App\Traits\RestTrait;
 
 /**
  * Class ApiController

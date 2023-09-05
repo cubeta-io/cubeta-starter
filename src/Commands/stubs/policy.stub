@@ -2,7 +2,7 @@
 
 namespace {namespace};
 
-use Cubeta\CubetaStarter\Contracts\Policy\BasePolicy;
+use App\Policies\BasePolicy;
 
 class {modelName}Policy extends BasePolicy
 {

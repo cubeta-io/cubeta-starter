@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Middleware;
+namespace App\Http\Middleware;
 
 use Closure;
 use Carbon\Carbon;

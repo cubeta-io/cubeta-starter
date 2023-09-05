@@ -698,7 +698,7 @@ but if we go to the others you need to know :
    just put the name of it like if the route name is 'brands' just put the value of it as 'brands' .
 
 another thing you have to do is to use MainTestCase trait in the TestCase Class in the `tests` directory (just put this
-line inside the class : `use \Cubeta\CubetaStarter\Traits\MainTestCase;`) . <br>
+line inside the class : `use \App\Traits\MainTestCase;`) . <br>
 
 maybe you want to check on MainTestCase trait to know how the test methods work and see if they are good for you, or you
 have to create another ones .
@@ -784,7 +784,7 @@ it returns a message informing you that there isn't .
 
 <p>`AcceptedLanguagesMiddleware` middleware :</p>
 to use this just put this line in your `$middlewareGroups` array in the `api`
-element : `\Cubeta\CubetaStarter\Middleware\AcceptedLanguagesMiddleware::class` in this way every received request will
+element : `\App\Http\Middleware\AcceptedLanguagesMiddleware::class` in this way every received request will
 be checked for having an _accept-language_ header and change the project locale depending on it.
 in addition to that you will notice that the generated postman collection will have a `"locale"` variable which will be
 the default value of all the generated requests' locale you can set it in postman in the variables' section of the
@@ -794,7 +794,7 @@ collection .
 To use the RestfulTrait in your PHP application, follow these steps:
 
 Include the RestfulTrait in your controller or service class by adding the use statement at the top of the file:
-php `use Cubeta\CubetaStarter\Traits\RestfulTrait;` .
+php `use App\Traits\RestfulTrait;` .
 Implement the methods provided by the RestfulTrait within your controller or service class.<br>
 These methods can be used to
 handle API responses and validations. Here's a breakdown of each method:

@@ -1,11 +1,11 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Contracts\Services;
+namespace App\Services\Contracts;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Cubeta\CubetaStarter\Contracts\Repositories\IBaseRepository;
+use App\Repositories\Contracts\IBaseRepository;
 
 abstract class BaseService implements IBaseService
 {

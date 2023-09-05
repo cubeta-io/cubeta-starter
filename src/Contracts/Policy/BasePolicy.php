@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Contracts\Policy;
+namespace App\Policies;
 
 use App\Models\User;
 use Illuminate\Support\Str;

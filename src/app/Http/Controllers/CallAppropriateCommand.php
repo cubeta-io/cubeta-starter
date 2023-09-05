@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\app\Http\Controllers;
 
-use Artisan;
 use Exception;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -406,4 +406,20 @@ class CallAppropriateCommand extends Controller
             return view('CubetaStarter::command-output', compact('error'));
         }
     }
+
+    public function publishHelpers()
+    {
+        try {
+            Artisan::call('publish-helpers');
+
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Helper Files Published Successfully');
+
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
+        }
+    }
+
+
 }

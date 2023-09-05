@@ -94,7 +94,7 @@ class MakeRequest extends Command
         );
 
         if (in_array('translatable', $attributes)) {
-            addImportStatement("use Cubeta\CubetaStarter\Rules\LanguageShape; \n", $requestPath);
+            addImportStatement("use App\Rules\LanguageShape; \n", $requestPath);
         }
 
         $this->formatFile($requestPath);

@@ -4,7 +4,7 @@ namespace {namespace}\User;
 
 use {repositoryNamespace}\UserRepository;
 use App\Notifications\ResetPasswordCodeEmail;
-use Cubeta\CubetaStarter\Contracts\Services\BaseService;
+use App\Services\Contracts\BaseService;
 
 /**
  * Class UserWebService

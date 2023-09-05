@@ -226,7 +226,7 @@ class MakeModel extends Command
 
         $methodsArrayKeys = $this->fillArrayKeysMethodsInTheModel($attributes, $this->relations);
 
-        $useTranslationsTrait = in_array('translatable', $attributes) ? "use HasFactory; \n use \Cubeta\CubetaStarter\Traits\Translations;\n" : "use HasFactory;";
+        $useTranslationsTrait = in_array('translatable', $attributes) ? "use HasFactory; \n use \App\Traits\Translations;\n" : "use HasFactory;";
 
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.model_namespace'),

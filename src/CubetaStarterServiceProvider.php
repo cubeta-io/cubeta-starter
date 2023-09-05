@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter;
 
 use Cubeta\CubetaStarter\Commands\InitAuth;
+use Cubeta\CubetaStarter\Commands\PublishHelpers;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
@@ -48,6 +49,14 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
 
         // register the set locale route
         $this->registerSetLocaleRoute();
+
+        $this->publishRepositoriesContracts();
+        $this->publishServices();
+        $this->publishApiControllerClass();
+        $this->publishMiddlewares();
+        $this->publishHelpers();
+        $this->publishValidationRules();
+        $this->publishTraits();
     }
 
     public function configurePackage(Package $package): void
@@ -71,7 +80,8 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakePolicy::class)
             ->hasCommand(MakeWebController::class)
             ->hasCommand(InstallWebPackages::class)
-            ->hasCommand(InitAuth::class);
+            ->hasCommand(InitAuth::class)
+            ->hasCommand(PublishHelpers::class);
     }
 
     /**
@@ -123,8 +133,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     protected function publishAssets(): void
     {
         $this->publishes([
-            __DIR__ . '/../resources/views/includes' => resource_path('views/includes'),
-            __DIR__ . '/../resources/views/layout.blade.php' => resource_path('views/layout.blade.php'),
+            __DIR__ . '/../resources/views' => resource_path('views'),
             __DIR__ . '/../resources/js' => resource_path('js'),
             __DIR__ . '/../resources/sass' => resource_path('sass'),
             __DIR__ . '/../public' => public_path(),
@@ -206,5 +215,63 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../resources/views/check-reset-code.blade.php' => resource_path('views/check-reset-code.blade.php'),
             __DIR__ . '/../resources/views/reset-password.blade.php' => resource_path('views/reset-password.blade.php'),
         ], 'cubeta-auth-views');
+    }
+
+    public function publishRepositoriesContracts()
+    {
+        $this->publishes([
+            __DIR__ . "/../src/Contracts/Repositories/BaseRepository.php" => app_path("Repositories/Contracts/BaseRepository.php"),
+            __DIR__ . "/../src/Contracts/Repositories/IBaseRepository.php" => app_path("Repositories/Contracts/IBaseRepository.php")
+        ], 'cubeta-starter-repositories');
+    }
+
+    public function publishServices()
+    {
+        $this->publishes([
+            __DIR__ . "/../src/Contracts/Services/BaseService.php" => app_path("Services/Contracts/BaseService.php"),
+            __DIR__ . "/../src/Contracts/Services/IBaseService.php" => app_path("Services/Contracts/IBaseService.php")
+        ], 'cubeta-starter-services');
+    }
+
+    public function publishApiControllerClass()
+    {
+        $this->publishes([
+            __DIR__ . "/../src/Contracts/ApiController.php" => app_path("Http/Controllers/ApiController.php")
+        ], 'cubeta-starter-api-controller');
+    }
+
+    public function publishMiddlewares()
+    {
+        $this->publishes([
+            __DIR__ . "/../src/Middleware/AcceptedLanguagesMiddleware.php" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
+            __DIR__ . "/../src/Middleware/SetLocaleMiddleware.php" => app_path("Http/Middleware/SetLocaleMiddleware.php"),
+        ], "cubeta-starter-middlewares");
+    }
+
+    public function publishHelpers()
+    {
+        $this->publishes([
+            __DIR__ . "/../src/Helpers/NamingHelpers.php" => app_path('Helpers/NamingHelpers.php'),
+            __DIR__ . "/../src/Helpers/TranslateHelpers.php" => app_path("Helpers/TranslateHelpers.php"),
+        ], 'cubeta-starter-helpers');
+    }
+
+    public function publishValidationRules()
+    {
+        $this->publishes([
+            __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
+        ], 'cubeta-starter-validation-rules');
+    }
+
+    public function publishTraits()
+    {
+        $this->publishes([
+            __DIR__ . '/../src/Traits/FileHandler.php' => app_path("Traits/FileHandler.php"),
+            __DIR__ . '/../src/Traits/MainTestCase.php' => app_path("Traits/MainTestCase.php"),
+            __DIR__ . '/../src/Traits/PushNotificationHelper.php' => app_path('Traits/PushNotificationHelper.php'),
+            __DIR__ . '/../src/Traits/RestTrait.php' => app_path('Traits/RestTrait.php'),
+            __DIR__ . '/../src/Traits/TestHelpers.php' => app_path('/Traits/TestHelpers.php'),
+            __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
+        ], 'cubeta-starter-traits');
     }
 }

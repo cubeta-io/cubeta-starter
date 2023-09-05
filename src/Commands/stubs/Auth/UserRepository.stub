@@ -3,7 +3,7 @@
 namespace  {namespace};
 
 use {modelNamespace}\User;
-use Cubeta\CubetaStarter\Contracts\Repositories\BaseRepository;
+use App\Repositories\BaseRepository;
 
 class UserRepository extends BaseRepository
 {
