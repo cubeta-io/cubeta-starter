@@ -35,8 +35,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Cubeta\\CubetaStarter\\CubetaStarterServiceProvider",
-                "Cubeta\\CubetaStarter\\RepositoryServiceProvider"
+                "Cubeta\\CubetaStarter\\CubetaStarterServiceProvider"
             ]
         }
     }

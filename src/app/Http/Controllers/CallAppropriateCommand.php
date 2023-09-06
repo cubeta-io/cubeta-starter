@@ -308,8 +308,21 @@ class CallAppropriateCommand extends Controller
                 '--tag' => 'cubeta-starter-assets',
             ]);
 
+            if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
+                $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->name('set-locale');";
+            } else {
+                $route = "Route::post('/blank', function () {
+                    return response()->noContent();
+                })->middleware('web')->name('set-locale');";
+            }
+
+            $routePath = base_path("routes/web.php");
+
+            if (file_exists($routePath)) {
+                file_put_contents($routePath, $route, FILE_APPEND);
+            }
+
             $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'The Assets Has Been Published Successfully');
         } catch (Exception $e) {
             $error = $e->getMessage();
             return view('CubetaStarter::command-output', compact('error'));

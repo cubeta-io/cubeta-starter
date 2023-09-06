@@ -3,7 +3,6 @@
 namespace Cubeta\CubetaStarter;
 
 use Cubeta\CubetaStarter\Commands\InitAuth;
-use Cubeta\CubetaStarter\Commands\PublishHelpers;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
@@ -39,9 +38,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
 
         // register the route files
         $this->registerGuiRoutesFile();
-
-        // register the set locale route
-        $this->registerSetLocaleRoute();
 
         // publishes
         $this->publishConfigFiles();
@@ -123,17 +119,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../public' => public_path(),
             __DIR__ . '/Commands/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php')
         ], 'cubeta-starter-assets');
-    }
-
-    protected function registerSetLocaleRoute()
-    {
-        if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
-            Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->name('set-locale');
-        } else {
-            Route::post('/blank', function () {
-                return response()->noContent();
-            })->middleware('web')->name('set-locale');
-        }
     }
 
     /**
@@ -235,7 +220,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     public function publishHelpers()
     {
         $this->publishes([
-            __DIR__ . "/../src/Helpers/TranslateHelpers.stub" => app_path("Helpers/TranslateHelpers.php"),
+            __DIR__ . "/../src/Helpers/TranslateHelpers.php" => app_path("Helpers/TranslateHelpers.php"),
         ], 'cubeta-starter-helpers');
     }
 
