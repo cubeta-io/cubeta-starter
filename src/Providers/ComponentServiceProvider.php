@@ -20,11 +20,11 @@ class ComponentServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Blade::anonymousComponentPath(resource_path() . '/views/components/form');
-        Blade::anonymousComponentPath(resource_path() . '/views/components/form/checkboxes');
-        Blade::anonymousComponentPath(resource_path() . '/views/components/form/fields');
-        Blade::anonymousComponentPath(resource_path() . '/views/components/form/validation');
-        Blade::anonymousComponentPath(resource_path() . '/views/components/show');
-        Blade::anonymousComponentPath(resource_path() . '/views/components/images');
+//        Blade::anonymousComponentPath(base_path('resources/views/components/form'));
+//        Blade::anonymousComponentPath(base_path('resources/views/components/form/checkboxes'));
+//        Blade::anonymousComponentPath(base_path('resources/views/components/form/fields'));
+//        Blade::anonymousComponentPath(base_path('resources/views/components/form/validation'));
+//        Blade::anonymousComponentPath(base_path('resources/views/components/show/'));
+//        Blade::anonymousComponentPath(base_path('resources/views/components/images'));
     }
 }

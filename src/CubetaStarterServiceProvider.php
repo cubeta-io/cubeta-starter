@@ -33,12 +33,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         parent::boot();
 
-        // publishes
-        $this->publishConfigFiles();
-        $this->publishExceptionHandler();
-        $this->publishAssets();
-        $this->publishAuthViews();
-
         // loaded from the package
         $this->loadGuiViews();
         $this->loadGuiViewsVariables();
@@ -49,6 +43,11 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         // register the set locale route
         $this->registerSetLocaleRoute();
 
+        // publishes
+        $this->publishConfigFiles();
+        $this->publishExceptionHandler();
+        $this->publishAssets();
+        $this->publishAuthViews();
         $this->publishRepositoriesContracts();
         $this->publishServices();
         $this->publishApiControllerClass();
@@ -236,7 +235,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     public function publishHelpers()
     {
         $this->publishes([
-            __DIR__ . "/../src/Helpers/TranslateHelpers.php" => app_path("Helpers/TranslateHelpers.php"),
+            __DIR__ . "/../src/Helpers/TranslateHelpers.stub" => app_path("Helpers/TranslateHelpers.php"),
         ], 'cubeta-starter-helpers');
     }
 

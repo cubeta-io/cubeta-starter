@@ -11,7 +11,7 @@
         @checked($checked)
         {{$attributes->merge()}}
     >
-    <label class="form-check-label" for="{{columnNaming($label)}}[]">
+    <label class="form-check-label" for="{{strtolower(Str::snake($label))}}[]">
         {{$label}}
     </label>
 </div>

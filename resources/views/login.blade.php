@@ -66,15 +66,12 @@
                                         </p>
                                     </div>
                                 </form>
-
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </section>
-
     </div>
 </main>
 @include('includes.footer')

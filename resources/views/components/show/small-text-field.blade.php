@@ -11,6 +11,14 @@
     <div
         {{ $attributes->merge(['class' => 'col-lg-9 col-md-8 label'.$classes]) }}
     >
-        {{$value}}
+        @if(is_bool($value))
+            @if($value)
+                <i class="bi bi-check-circle text-success"></i>
+            @else
+                <i class="bi bi-x-circle text-danger"></i>
+            @endif
+        @else
+            {{$value}}
+        @endif
     </div>
 </div>
