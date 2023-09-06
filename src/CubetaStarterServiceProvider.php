@@ -40,7 +40,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->publishAuthViews();
 
         // loaded from the package
-        $this->loadComponents();
         $this->loadGuiViews();
         $this->loadGuiViewsVariables();
 
@@ -57,6 +56,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->publishHelpers();
         $this->publishValidationRules();
         $this->publishTraits();
+        $this->publishProviders();
     }
 
     public function configurePackage(Package $package): void
@@ -109,20 +109,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->packageRegistered();
 
         return $this;
-    }
-
-    /**
-     * load the used web views components so the user can use them
-     * @return void
-     */
-    protected function loadComponents(): void
-    {
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form');
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form/checkboxes');
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form/fields');
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/form/validation');
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/show');
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components/images');
     }
 
     /**
@@ -272,5 +258,12 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../src/Traits/TestHelpers.php' => app_path('/Traits/TestHelpers.php'),
             __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
         ], 'cubeta-starter-traits');
+    }
+
+    public function publishProviders()
+    {
+        $this->publishes([
+            __DIR__ . '/../src/Providers' => app_path('/Providers')
+        ], 'cubeta-starter-providers');
     }
 }

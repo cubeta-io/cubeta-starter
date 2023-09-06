@@ -14,5 +14,4 @@
     <div class="invalid-feedback">{{$message}}</div>
     @enderror
     <!--End Of Handling Validation Errors-->
-
 </div>
