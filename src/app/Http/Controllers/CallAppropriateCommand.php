@@ -323,6 +323,7 @@ class CallAppropriateCommand extends Controller
             }
 
             $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'The Assets Has Been Published Successfully');
         } catch (Exception $e) {
             $error = $e->getMessage();
             return view('CubetaStarter::command-output', compact('error'));
