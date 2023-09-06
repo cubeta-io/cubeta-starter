@@ -21,6 +21,13 @@
                         </a>
                     </li>
 
+                    <li class="nav-item @if(request()->fullUrl() == route('cubeta-starter.publishes')) my-nav-active @endif">
+                        <a href="{{route('cubeta-starter.publishes')}}" class="nav-link text-white"
+                           aria-current="page">
+                            Publishes (required step)
+                        </a>
+                    </li>
+
                     <li class="nav-item @if(request()->fullUrl() == route('cubeta-starter.generate-full.page')) my-nav-active @endif">
                         <a href="{{route('cubeta-starter.generate-full.page')}}" class="nav-link text-white"
                            aria-current="page">

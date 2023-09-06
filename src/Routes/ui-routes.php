@@ -24,6 +24,19 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
         Route::get('/add-actor', [RenderAppropriateViewController::class, 'addActor'])->name('add-actor.page');
         Route::get('/web-controller', [RenderAppropriateViewController::class, 'generateWebController'])->name('web-controller.page');
     });
+
+    Route::prefix('/publishes')->group(function () {
+        Route::view('/', 'CubetaStarter::publishes')->name('publishes');
+        Route::get('/repositories', [CallAppropriateCommand::class, 'publishRepositories'])->name('repositories-publish');
+        Route::get('/services', [CallAppropriateCommand::class, 'publishServices'])->name('publish-services');
+        Route::get('/api-controller', [CallAppropriateCommand::class, 'publishApiController'])->name('publish-api-controller');
+        Route::get('/middlewares', [CallAppropriateCommand::class, 'publishMiddlewares'])->name('publish-middlewares');
+        Route::get('/helpers', [CallAppropriateCommand::class, 'publishHelpers'])->name('publish-helpers');
+        Route::get('/traits', [CallAppropriateCommand::class, 'publishTraits'])->name('publish-traits');
+        Route::get('validation-rules' , [CallAppropriateCommand::class , 'publishValidationRules'])->name('publish-validation-rules');
+        Route::get('/service-providers', [CallAppropriateCommand::class, 'publishProviders'])->name('publish-providers');
+        Route::get('/all' , [CallAppropriateCommand::class , 'publishAll'])->name('publish-all');
+    });
     Route::post('/full-generate', [CallAppropriateCommand::class, 'callCreateModelCommand'])->name('call-create-model-command');
     Route::post('/migration', [CallAppropriateCommand::class, 'callCreateMigrationCommand'])->name('call-create-migration-command');
     Route::post('/factory', [CallAppropriateCommand::class, 'callCreateFactoryCommand'])->name('call-create-factory-command');

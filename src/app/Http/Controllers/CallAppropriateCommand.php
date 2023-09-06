@@ -406,4 +406,72 @@ class CallAppropriateCommand extends Controller
             return view('CubetaStarter::command-output', compact('error'));
         }
     }
+
+    protected function callPublishCommand(string $tag)
+    {
+        try {
+            Artisan::call('vendor:publish', [
+                '--tag' => $tag,
+            ]);
+
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.publishes', 'Published Successfully');
+
+        } catch (Exception $exception) {
+            $error = $exception->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
+        }
+    }
+
+    public function publishRepositories()
+    {
+        return $this->callPublishCommand('cubeta-starter-repositories');
+    }
+
+    public function publishServices()
+    {
+        return $this->callPublishCommand('cubeta-starter-services');
+    }
+
+    public function publishApiController()
+    {
+        return $this->callPublishCommand('cubeta-starter-api-controller');
+    }
+
+    public function publishMiddlewares()
+    {
+        return $this->callPublishCommand('cubeta-starter-middlewares');
+    }
+
+    public function publishHelpers()
+    {
+        return $this->callPublishCommand('cubeta-starter-helpers');
+    }
+
+    public function publishValidationRules()
+    {
+        return $this->callPublishCommand('cubeta-starter-validation-rules');
+    }
+
+    public function publishTraits()
+    {
+        return $this->callPublishCommand('cubeta-starter-traits');
+    }
+
+    public function publishProviders()
+    {
+        return $this->callPublishCommand('cubeta-starter-providers');
+    }
+
+    public function publishAll()
+    {
+        $this->callPublishCommand('cubeta-starter-repositories');
+        $this->callPublishCommand('cubeta-starter-services');
+        $this->callPublishCommand('cubeta-starter-api-controller');
+        $this->callPublishCommand('cubeta-starter-middlewares');
+        $this->callPublishCommand('cubeta-starter-helpers');
+        $this->callPublishCommand('cubeta-starter-validation-rules');
+        $this->callPublishCommand('cubeta-starter-traits');
+        return $this->callPublishCommand('cubeta-starter-providers');
+    }
 }

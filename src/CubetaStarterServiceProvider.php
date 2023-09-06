@@ -236,7 +236,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     public function publishHelpers()
     {
         $this->publishes([
-            __DIR__ . "/../src/Helpers/NamingHelpers.php" => app_path('Helpers/NamingHelpers.php'),
             __DIR__ . "/../src/Helpers/TranslateHelpers.php" => app_path("Helpers/TranslateHelpers.php"),
         ], 'cubeta-starter-helpers');
     }
