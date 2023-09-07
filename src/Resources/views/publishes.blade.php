@@ -36,14 +36,6 @@
                             </div>
 
                             <div class="col-md-6 mb-2">
-                                <p>Publish Helpers</p>
-                                <a href="{{route('cubeta-starter.publish-helpers')}}">
-                                    <button class="btn btn-sm btn-primary">Publish</button>
-                                </a>
-                                <hr>
-                            </div>
-
-                            <div class="col-md-6 mb-2">
                                 <p>Publish Validation Rules</p>
                                 <a href="{{route('cubeta-starter.publish-validation-rules')}}">
                                     <button class="btn btn-sm btn-primary">Publish</button>

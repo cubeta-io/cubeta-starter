@@ -48,7 +48,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->publishServices();
         $this->publishApiControllerClass();
         $this->publishMiddlewares();
-        $this->publishHelpers();
         $this->publishValidationRules();
         $this->publishTraits();
         $this->publishProviders();
@@ -215,13 +214,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Middleware/AcceptedLanguagesMiddleware.php" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
             __DIR__ . "/../src/Middleware/SetLocaleMiddleware.php" => app_path("Http/Middleware/SetLocaleMiddleware.php"),
         ], "cubeta-starter-middlewares");
-    }
-
-    public function publishHelpers()
-    {
-        $this->publishes([
-            __DIR__ . "/../src/Helpers/TranslateHelpers.php" => app_path("Helpers/TranslateHelpers.php"),
-        ], 'cubeta-starter-helpers');
     }
 
     public function publishValidationRules()

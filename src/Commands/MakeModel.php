@@ -347,7 +347,7 @@ class MakeModel extends Command
                         public function {$attributeMethod}(): \Illuminate\Database\Eloquent\Casts\Attribute
                         {
                             return \Illuminate\Database\Eloquent\Casts\Attribute::make(
-                                get: fn (string \$value) => getTranslation(\$value),
+                                get: fn (string \$value) => \$this->getTranslation('$attribute'),
                             );
                         } \n";
         }

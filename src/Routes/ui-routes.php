@@ -31,7 +31,6 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
         Route::get('/services', [CallAppropriateCommand::class, 'publishServices'])->name('publish-services');
         Route::get('/api-controller', [CallAppropriateCommand::class, 'publishApiController'])->name('publish-api-controller');
         Route::get('/middlewares', [CallAppropriateCommand::class, 'publishMiddlewares'])->name('publish-middlewares');
-        Route::get('/helpers', [CallAppropriateCommand::class, 'publishHelpers'])->name('publish-helpers');
         Route::get('/traits', [CallAppropriateCommand::class, 'publishTraits'])->name('publish-traits');
         Route::get('validation-rules' , [CallAppropriateCommand::class , 'publishValidationRules'])->name('publish-validation-rules');
         Route::get('/service-providers', [CallAppropriateCommand::class, 'publishProviders'])->name('publish-providers');

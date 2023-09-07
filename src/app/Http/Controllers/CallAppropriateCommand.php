@@ -457,11 +457,6 @@ class CallAppropriateCommand extends Controller
         return $this->callPublishCommand('cubeta-starter-middlewares');
     }
 
-    public function publishHelpers()
-    {
-        return $this->callPublishCommand('cubeta-starter-helpers');
-    }
-
     public function publishValidationRules()
     {
         return $this->callPublishCommand('cubeta-starter-validation-rules');
