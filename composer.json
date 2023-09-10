@@ -1,6 +1,6 @@
 {
     "name": "cubeta/cubeta-starter",
-    "description": "Project starter kit to generate everything and make things easier!",
+    "description": "Cubeta-Starter: A developer's Swiss army knife for seamless CRUD operations. Choose between core integration or dev dependency. Enjoy a user-friendly GUI for code generation, enhancing your development workflow. Say goodbye to repetition, embrace productivity with Cubeta-Starter!",
     "license": "MIT",
     "authors": [
         {
