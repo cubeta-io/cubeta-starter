@@ -31,7 +31,7 @@ cubeta-starter is a developer-centric package designed to streamline CRUD operat
 it is using Repository and Service design pattern so every model created there will be a corresponding repository
 class and service class
 
-Each created model will have a :
+Each created model will have :
 
 - migration file
 - controller
