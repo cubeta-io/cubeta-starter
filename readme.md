@@ -2,6 +2,13 @@
 
 - <a href="#introduction">Introduction</a>
 - <a href="#installation">Installation</a>
+    - <a href="#complete-installation">Complete Installation</a>
+    - <a href="#use-gui">Using Gui</a>
+    - <a href="#use-terminal">Using Terminal Commands</a>
+    - <a href="#required-tags">Required Publish Tags</a>
+    - <a href="#api-tags">Required Publish Tags For API Generation Usage</a>
+    - <a href="#web-tags">Required Publish Tags For WEB Generation Usage</a>
+    - <a href="#translations-tags">Translations Tools Publish Tags</a>
 - <a href="#usage">Usage</a>
     - <a href="#available-commands">Available Commands</a>
     - <a href="#cubeta-init-command">cubeta-init Command</a>
@@ -49,29 +56,76 @@ and a postman collection file will be generated for the whole model created (mod
 
 **<h1 id="installation">installation</h1>**
 
-1 - in your project root directory open packages' directory (if it doesn't create it) then add this
-directory : `/cubeta` then in the created directory clone this project
+in your project root directory open the terminal and run `composer require cubeta/cubeta-starter`
 
-2 - open _composer.json_ file in your root directory and add this code :
+**<h2 id="complete-installation">Complete Installation</h1>**
+After installing the package you have two choices :
 
-```
- "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://gitlab.com/cubetaio/backend/cubeta-starter.git"
-        }
-    ],
-```
+1. use the GUI that the package provide
+2. use the terminal to perform the required actions
 
-3 - run `composer update`
+**<h3 id="use-gui">Using GUI : </h3>**
+head to your browser and get into `http://yourdomain.com/cubeta-starter`
+for example if you are working in your local `http://localhost/your-project-folder-name/public/cubeta-starter`
+you will find a complete installation interface (available just in development environment)
 
-4 - publish the config file : `php artisan vendor:publish --tag=cubeta-starter-config`
+in this page you'll find all publishes options since the package follow the zero dependencies principle, so you can
+publish and use whatever file the package provide (controllers , views , components , ....)
+<br><br>
+__<span style="color:red">Note :</span>__
+In This Page you'll find all the available publish tags and button to perform them in addition to a button to run all
+publishes at once and another one to install all used npm packages
 
-5 - publish the exception handler : `php artisan vendor:publish --tag=cubeta-starter-handler --force`
+__<span style="color:red">Note :</span>__**There is a button in the bottom of the page that will run all the publishes
+at one click**
+
+**<h3 id="use-terminal">Using Terminal Commands</h3>**
+the available publish tags are :
+
+1. cubeta-starter-repositories =>`php artisan vendor:publish --tag=cubeta-starter-repositories`
+2. cubeta-starter-services =>`php artisan vendor:publish --tag=cubeta-starter-services`
+3. cubeta-starter-traits =>`php artisan vendor:publish --tag=cubeta-starter-traits`
+4. cubeta-starter-config =>`php artisan vendor:publish --tag=cubeta-starter-config`
+5. cubeta-starter-providers =>`php artisan vendor:publish --tag=cubeta-starter-providers`
+6. cubeta-starter-handler (this requires you to publish the traits
+   before `number 3`             =>`php artisan vendor:publish --tag=cubeta-starter-handler --force`
+7. cubeta-starter-api-controller =>`php artisan vendor:publish --tag=cubeta-starter-api-controller`
+8. cubeta-starter-assets =>`php artisan vendor:publish --tag=cubeta-starter-assets`
+9. cubeta-starter-middlewares =>`php artisan vendor:publish --tag=cubeta-starter-middlewares`
+10. cubeta-starter-validation-rules =>`php artisan vendor:publish --tag=cubeta-starter-validation-rules`
+
+**publish the exception handler : `php artisan vendor:publish --tag=cubeta-starter-handler --force`
 executing this command will replace your default exception handler in the directory `app/exceptions/handler.php` with a
 file with the same name .
 it is important to use the option `--force` when publishing the exception handler, so it can override Laravel default
-exception handler , or you may delete the default one and then re-run the publish command.
+exception handler , or you may delete the default one and then re-run the publish command.**
+
+**<h3 id="required-tags">Required Publish Tags</h3>**
+
+1. cubeta-starter-repositories
+2. cubeta-starter-services
+3. cubeta-starter-traits
+4. cubeta-starter-config
+5. cubeta-starter-providers
+6. cubeta-starter-handler (this requires you to publish the traits before `number 3`)
+
+**<h3 id="api-tags">Required Publish Tags For API Generation Usage</h3>**
+
+1. cubeta-starter-api-controller
+
+**<h3 id="web-tags">Required Publish Tags For WEB Generation Usage</h3>**
+
+1. cubeta-starter-assets
+2. cubeta-starter-middlewares
+
+__<span style="color:red">Note :</span>__ If you are publishing the tag : `cubeta-starter-assets` from the terminal then
+you'll find that there is a new controller in the `app/Http/Controllers` directory named SetLocaleController, so you
+need to add a route named (set-locale) in your routes files so the generated views can use it.
+
+**<h3 id="translations-tags">Required Publish Tags If You Are Willing To Use Our Translations Tools</h3>**
+
+1. cubeta-starter-middlewares
+2. cubeta-starter-validation-rules
 
 **<h1 id="usage">Usage</h1>**
 
@@ -103,15 +157,15 @@ the commands :
 
 1. `php artisan cubeta-init`
 2. `php artisan create:model <model-name> <--option=eg:controller>`
-3. `php artisan create:migration <table-name> ?<table-columns-array> ?<relations-array>`
-4. `php artisan create:factory <factory-name> ?<table-columns-array> ?<relations-array>`
-5. `php artisan create:seeder <seeder-name> ?<table-columns-array>`
-6. `php artisan create:request <request-name> ?<table-columns-array>`
-7. `php artisan create:repository <repository-name>`
-8. `php artisan create:service <service-name>`
-9. `php artisan create:resource <resource-name> ?<table-columns-array> ?<relations-array>`
-10. `php artisan create:controller <controller-name> ?<actor>`
-11. `php artisan create:test <test-name> ?<actor>`
+3. `php artisan create:migration <model-name> ?<table-columns-array> ?<relations-array>`
+4. `php artisan create:factory <model-name> ?<table-columns-array> ?<relations-array>`
+5. `php artisan create:seeder <model-name> ?<table-columns-array>`
+6. `php artisan create:request <model-name> ?<table-columns-array>`
+7. `php artisan create:repository <model-name>`
+8. `php artisan create:service <model-name>`
+9. `php artisan create:resource <model-name> ?<table-columns-array> ?<relations-array>`
+10. `php artisan create:controller <model-name> ?<actor>`
+11. `php artisan create:test <model-name> ?<actor>`
 12. `php artisan create:postman-collection <model-name> ?<table-columns-array>`
 
 Now for the <name> parameter in each command it referenced to the related model of the created file
@@ -152,7 +206,7 @@ and it takes the below shape :
 **<h2 id="cubeta-init-command">cubeta-init command</h2>**
 
 now this command will Initialize your project on specific roles :
-
+note that you can do this using the GUI Interface.
 **<label for="cubeta-init-command">how to use it :</label>**
 
 1- run this command : `php artisan cubeta-init` so an output will appear :
@@ -264,6 +318,12 @@ The `LanguageShape` validation rule will make sure that the received json is sim
 "en" : "name" ,
 "fr" : "nom"
 }`
+and not like this for example `[
+"en" : "name" ,
+"fr" : "paris" :{
+"nom"
+}
+]`
 
 and in addition to that it's make sure that the entered translation is corresponding to one of the locales defined in
 the `cubeta-starter.php` config file if it is not it will return a validation error.
@@ -349,10 +409,10 @@ attributes : <br>
 
 the created controller contains the five basic methods `(index , show , store , update , delete)`
 
-it is extends the ApiController class which use the RestfulTrait
+it is extends the ApiController class which use the RestTrait
 <br>
 <br>
-**Restful Trait** : it is a trait with methods that will handle your json response using the following
+**RestTrait** : it is a trait with methods that will handle your json response using the following
 methods `(apiResponse , apiValidation , formatPaginateData)`
 
 [_you can have a look at it ._](#restful-trait)
@@ -578,7 +638,7 @@ if the model has one of this relation (has many , many to many) a function like 
 
 ```
 
- public function $withProducts($count = 1)
+ public function withProducts($count = 1)
  {
     return $this->has(\App\Models\Product::factory($count));
  };
@@ -612,7 +672,8 @@ so any database operation related to your model we prefer you do it in the corre
 each repository class will be bind in the service provider by default (if it was created by the package)
 
 if you opened the created repository class you'll notice that it extends another class named <h4 id="baserepository">
-BaseRepository</h4> this class contain the following methods :
+BaseRepository</h4> and it is in the `app/Repositories/Contracts` (You have to publish `cubeta-starter-repositories` tag
+to find it) Directory this class contain the following methods :
 
 - `all(array $relations = [])` : <br>
   this method will return all the corresponding model records without any format
@@ -669,13 +730,15 @@ article : [Service Design Patterns](https://davislevine.medium.com/service-desig
 and based on that we placed the code that handle the logic on the service layer and this layer will be placed above the
 repository layer .
 
-after your model creation is done you'll find 2 php files in the services' directory you defined in the package config
+after your model creation is done you'll find 2 php files in the services' in the directory you defined in the package
+config
 file :
 
 1. `YourModelService.php` this is the service class
 2. `IYourModelService.php` this is the service interface
 
-if you opened the service class you will notice that the class extends a class named BaseService .
+if you opened the service class you will notice that the class extends a class named BaseService this class is in
+the `app/Services/Contracts` (You have to publish `cubeta-starter-services` tag to find it) .
 
 if you remember the BaseRepository class methods you'll find that BaseService class use those methods to do its job.
 
@@ -698,17 +761,18 @@ but if we go to the others you need to know :
    just put the name of it like if the route name is 'brands' just put the value of it as 'brands' .
 
 another thing you have to do is to use MainTestCase trait in the TestCase Class in the `tests` directory (just put this
-line inside the class : `use \App\Traits\MainTestCase;`) . <br>
-
+line inside the class : `use \App\Traits\MainTestCase;`and you have to publish `cubeta-starter-traits` tag before)
+. <br>
+****
 maybe you want to check on MainTestCase trait to know how the test methods work and see if they are good for you, or you
 have to create another ones .
 
 - <h4 id="maintestcase-trait-methods">MainTestCase Trait Methods</h4>
 
 **notice :** those methods depends on the model resource and factory and the response of the endpoint to be generated by
-the `RestfulTrait` and the exceptions thrown by our exception handler.  <br>
+the `RestTrait` and the exceptions thrown by our exception handler.  <br>
 so each model must have a resource and a factory (not necessarily generated by the package) but the endpoint for it
-must be using RestfulTrait for handling its responses .
+must be using RestTrait for handling its responses .
 
 - `indexTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false)` : <br>
   this method will test the index endpoint by creating 5 records of fake data and try to get them
@@ -776,13 +840,25 @@ for now (the first version) our tools for the translations are a helper to get t
 column based on your choices and validation rule in addition to a middleware that take the accept-language
 value from the request header and change the project locale according to it .
 
-<p>`getTranslation(string $translationColumn, $locale = null): mixed` method : </p>
+`getTranslation(string $translationColumn, $locale = null): mixed` method :
+this method is provided by `Translations` Trait, so you need to publish `cubeta-starter-traits` tag and use this trait
+inside your model
 it returns the corresponding value for the provided locale if it is not provided then for the current locale
 and if there isn't a value corresponding to them, it returns the corresponding value for the default locale
 defined in the config file of the package and if there isn't a corresponding value for it,
 it returns a message informing you that there isn't .
+<br>
+example :
+`$product->getTranslation('name' , 'en');`
 
-<p>`AcceptedLanguagesMiddleware` middleware :</p>
+`updateTranslation(string $translatableColumn, mixed $value, string $locale = null): self` method :
+another method provided by Tanslations trait, and it is updating the locale value for a specified column of a model
+instance
+<br>
+example :
+`$product->updateTranslation('name' , 'word' , 'en');`
+
+`AcceptedLanguagesMiddleware` middleware :
 to use this just put this line in your `$middlewareGroups` array in the `api`
 element : `\App\Http\Middleware\AcceptedLanguagesMiddleware::class` in this way every received request will
 be checked for having an _accept-language_ header and change the project locale depending on it.
@@ -790,12 +866,12 @@ in addition to that you will notice that the generated postman collection will h
 the default value of all the generated requests' locale you can set it in postman in the variables' section of the
 collection .
 
-<h1 id="restful-trait">RestFul Trait</h1>
-To use the RestfulTrait in your PHP application, follow these steps:
+<h1 id="restful-trait">RestTrait</h1>
+To use the RestTrait in your PHP application, follow these steps:
 
-Include the RestfulTrait in your controller or service class by adding the use statement at the top of the file:
-php `use App\Traits\RestfulTrait;` .
-Implement the methods provided by the RestfulTrait within your controller or service class.<br>
+Include the RestTrait in your controller or service class by adding the use statement at the top of the child class:
+php `use App\Traits\RestTrait;`but you need to publish `cubeta-starter-traits` tag before .
+Implement the methods provided by the RestTrait within your controller or service class.<br>
 These methods can be used to
 handle API responses and validations. Here's a breakdown of each method:
 `apiResponse($data = null, int $code = 200, $message = null, $paginate = null)`: This method creates a standardized API
@@ -815,7 +891,7 @@ accepts the paginated data and returns an associative array containing fields li
 Customize the response messages, HTTP status codes, and validation rules to suit your application's needs. Update the
 method parameters and content based on your specific requirements.
 
-By using the RestfulTrait and its provided methods, you can simplify the handling of API responses, improve code
+By using the RestTrait and its provided methods, you can simplify the handling of API responses, improve code
 organization, and ensure consistent response structures and data validations throughout your application.
 
 <hr>
@@ -823,6 +899,8 @@ organization, and ensure consistent response structures and data validations thr
 <h1 id="file-handler-trait">FileHandler Trait</h1>
 remember when I told you that the BaseRepository handle your files columns automatically without the need
 from you to do that well it uses this trait to do that and so as you can.
+
+but before make sure you have published `cubeta-starter-traits` tag, so you can use it.
 
 this trait provides the following methods which you can use :
 
