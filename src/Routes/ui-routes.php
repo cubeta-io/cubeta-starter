@@ -26,7 +26,6 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
     });
 
     Route::prefix('/publishes')->group(function () {
-        Route::view('/', 'CubetaStarter::publishes')->name('publishes');
         Route::get('/repositories', [CallAppropriateCommand::class, 'publishRepositories'])->name('repositories-publish');
         Route::get('/services', [CallAppropriateCommand::class, 'publishServices'])->name('publish-services');
         Route::get('/api-controller', [CallAppropriateCommand::class, 'publishApiController'])->name('publish-api-controller');

@@ -429,7 +429,7 @@ class CallAppropriateCommand extends Controller
             ]);
 
             $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.publishes', 'Published Successfully');
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
 
         } catch (Exception $exception) {
             $error = $exception->getMessage();
@@ -474,13 +474,13 @@ class CallAppropriateCommand extends Controller
 
     public function publishAll()
     {
-        $this->callPublishCommand('cubeta-starter-repositories');
-        $this->callPublishCommand('cubeta-starter-services');
-        $this->callPublishCommand('cubeta-starter-api-controller');
-        $this->callPublishCommand('cubeta-starter-middlewares');
-        $this->callPublishCommand('cubeta-starter-helpers');
-        $this->callPublishCommand('cubeta-starter-validation-rules');
-        $this->callPublishCommand('cubeta-starter-traits');
-        return $this->callPublishCommand('cubeta-starter-providers');
+        try {
+            Artisan::call('cubeta-publish');
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
+        }
     }
 }
