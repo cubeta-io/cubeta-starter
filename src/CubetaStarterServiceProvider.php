@@ -5,8 +5,6 @@ namespace Cubeta\CubetaStarter;
 use Cubeta\CubetaStarter\Commands\InitAuth;
 use Cubeta\CubetaStarter\Commands\PublishAllAssetsCommand;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Route;
 use Spatie\LaravelPackageTools\Package;
 use Cubeta\CubetaStarter\Commands\MakeTest;
 use Cubeta\CubetaStarter\Commands\MakeModel;
@@ -29,7 +27,7 @@ use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 
 class CubetaStarterServiceProvider extends PackageServiceProvider
 {
-    public function boot()
+    public function boot(): void
     {
         parent::boot();
 
@@ -97,7 +95,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         }
 
         foreach ($this->package->configFileNames as $configFileName) {
-            $this->mergeConfigFrom($this->package->basePath("/../config/{$configFileName}.php"), $configFileName);
+            $this->mergeConfigFrom($this->package->basePath("/../config/$configFileName.php"), $configFileName);
         }
 
         $this->mergeConfigFrom(__DIR__ . '/../config/cubeta-starter.php', 'cubeta-starter');
@@ -175,7 +173,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         }
     }
 
-    public function publishAuthViews()
+    public function publishAuthViews(): void
     {
         $this->publishes([
             __DIR__ . '/../resources/views/login.blade.php' => resource_path('views/login.blade.php'),
@@ -187,7 +185,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         ], 'cubeta-auth-views');
     }
 
-    public function publishRepositoriesContracts()
+    public function publishRepositoriesContracts(): void
     {
         $this->publishes([
             __DIR__ . "/../src/Contracts/Repositories/BaseRepository.php" => app_path("Repositories/Contracts/BaseRepository.php"),
@@ -195,7 +193,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         ], 'cubeta-starter-repositories');
     }
 
-    public function publishServices()
+    public function publishServices(): void
     {
         $this->publishes([
             __DIR__ . "/../src/Contracts/Services/BaseService.php" => app_path("Services/Contracts/BaseService.php"),
@@ -203,29 +201,28 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         ], 'cubeta-starter-services');
     }
 
-    public function publishApiControllerClass()
+    public function publishApiControllerClass(): void
     {
         $this->publishes([
             __DIR__ . "/../src/Contracts/ApiController.php" => app_path("Http/Controllers/ApiController.php")
         ], 'cubeta-starter-api-controller');
     }
 
-    public function publishMiddlewares()
+    public function publishMiddlewares(): void
     {
         $this->publishes([
             __DIR__ . "/../src/Middleware/AcceptedLanguagesMiddleware.php" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
-            __DIR__ . "/../src/Middleware/SetLocaleMiddleware.php" => app_path("Http/Middleware/SetLocaleMiddleware.php"),
         ], "cubeta-starter-middlewares");
     }
 
-    public function publishValidationRules()
+    public function publishValidationRules(): void
     {
         $this->publishes([
             __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
         ], 'cubeta-starter-validation-rules');
     }
 
-    public function publishTraits()
+    public function publishTraits(): void
     {
         $this->publishes([
             __DIR__ . '/../src/Traits/FileHandler.php' => app_path("Traits/FileHandler.php"),
@@ -237,7 +234,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         ], 'cubeta-starter-traits');
     }
 
-    public function publishProviders()
+    public function publishProviders(): void
     {
         $this->publishes([
             __DIR__ . '/../src/Providers' => app_path('/Providers')

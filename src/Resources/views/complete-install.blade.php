@@ -111,14 +111,10 @@
                                 <h4 class="form-label m-auto">Publish Middlewares</h4>
                                 <br>
                                 <p class="description-font">
-                                    this will publish 2 middlewares for you
-                                    the AcceptedLanguageMiddleware is a middleware for api usage that accept the
-                                    selected
-                                    locale as a header within the request
-                                    and the SetLocalMiddleware is a middleware for web usage that check for the selected
-                                    language (by SetLocaleController in the controllers base bath) which will be present
-                                    in
-                                    the session with the key locale and set the app locale according to it.
+                                    this will publish AcceptedLanguageMiddleware which will change the app locale
+                                    depends on the defined locales in the package config file and either the
+                                    "SetLocaleController" or the "Accept-Language" header
+                                    remember to register it in the <code>$middleware</code> array in the <code>app/Http/kernel.php</code>
                                 </p>
                                 <a id="publish-middlewares"
                                    href="{{route('cubeta-starter.publish-middlewares')}}"
