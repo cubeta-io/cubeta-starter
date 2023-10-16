@@ -174,7 +174,7 @@ class UserService extends BaseService implements IUserService
 
     public function userDetails(?string $role = null)
     {
-        if ($role && !auth()->user()->hasRole($role)) {
+        if ($role && !auth($this->guard)->user()->hasRole($role)) {
             return null;
         }
 

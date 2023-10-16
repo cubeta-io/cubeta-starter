@@ -40,9 +40,9 @@ class UserWebService extends BaseService implements IUserService
                 return null;
             }
 
-            $user = auth()->user();
+            $user = auth($this->guard)->user();
 
-            if ($role && !auth()->user()->hasRole($role)) {
+            if ($role && !auth($this->guard)->user()->hasRole($role)) {
                 return null;
             }
 
@@ -158,7 +158,7 @@ class UserWebService extends BaseService implements IUserService
 
     public function userDetails(?string $role = null): User|Authenticatable|null
     {
-        if ($role && !auth()->user()->hasRole($role)) {
+        if ($role && !auth($this->guard)->user()->hasRole($role)) {
             return null;
         }
 
