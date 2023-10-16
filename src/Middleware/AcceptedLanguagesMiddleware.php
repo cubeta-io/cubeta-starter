@@ -3,9 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\App;
 

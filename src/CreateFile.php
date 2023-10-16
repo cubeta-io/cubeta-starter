@@ -53,7 +53,7 @@ class CreateFile
     }
 
     /**
-     * @param bool $override
+     * @param  bool                       $override
      * @return $this
      * @throws BindingResolutionException
      * @throws FileNotFoundException

@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Artisan;
 
 class InitAuth extends Command
 {
-    use AssistCommand, RouteFileTrait;
+    use AssistCommand;
+    use RouteFileTrait;
 
     protected $description = 'initialize authentication tools';
 
@@ -64,7 +65,7 @@ class InitAuth extends Command
         ];
 
         $repositoryDirectory = base_path(config('cubeta-starter.repository_path'));
-        $repositoryPath = "$repositoryDirectory/UserRepository.php";
+        $repositoryPath = "{$repositoryDirectory}/UserRepository.php";
 
         ensureDirectoryExists($repositoryDirectory);
 
@@ -79,7 +80,7 @@ class InitAuth extends Command
     }
 
     /**
-     * @param string $container
+     * @param  string                     $container
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -96,7 +97,7 @@ class InitAuth extends Command
         $serviceDirectory = base_path(config('cubeta-starter.service_path') . '/User');
 
         if ($container == 'api' || $container == 'both') {
-            $servicePath = "$serviceDirectory/UserService.php";
+            $servicePath = "{$serviceDirectory}/UserService.php";
 
             ensureDirectoryExists($serviceDirectory);
 
@@ -105,7 +106,7 @@ class InitAuth extends Command
             $this->info("Created Service: UserService");
         }
         if ($container == 'web' || $container == 'both') {
-            $servicePath = "$serviceDirectory/UserWebService.php";
+            $servicePath = "{$serviceDirectory}/UserWebService.php";
 
             ensureDirectoryExists($serviceDirectory);
 
@@ -115,7 +116,7 @@ class InitAuth extends Command
         }
 
         // service interface
-        $interfacePath = "$serviceDirectory/IUserService.php";
+        $interfacePath = "{$serviceDirectory}/IUserService.php";
         generateFileFromStub([
             '{namespace}' => config('cubeta-starter.service_namespace')
         ], $interfacePath, __DIR__ . '/stubs/Auth/IUserService.stub', true);
@@ -135,7 +136,7 @@ class InitAuth extends Command
         ];
 
         $modelDirectory = base_path(config('cubeta-starter.model_path'));
-        $modelPath = "$modelDirectory/User.php";
+        $modelPath = "{$modelDirectory}/User.php";
 
         ensureDirectoryExists($modelDirectory);
 
@@ -172,7 +173,7 @@ class InitAuth extends Command
         ];
 
         $controllerDirectory = base_path(config('cubeta-starter.api_controller_path'));
-        $controllerPath = "$controllerDirectory/BaseAuthController.php";
+        $controllerPath = "{$controllerDirectory}/BaseAuthController.php";
 
         ensureDirectoryExists($controllerDirectory);
 
@@ -196,12 +197,12 @@ class InitAuth extends Command
 
         ensureDirectoryExists($requestDirectory);
 
-        generateFileFromStub($stubProperties, "$requestDirectory/AuthLoginRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/AuthLoginRequest.stub', true);
-        generateFileFromStub($stubProperties, "$requestDirectory/AuthRegisterRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/AuthRegisterRequest.stub', true);
-        generateFileFromStub($stubProperties, "$requestDirectory/CheckPasswordResetRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/CheckPasswordResetRequest.stub', true);
-        generateFileFromStub($stubProperties, "$requestDirectory/RequestResetPasswordRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/RequestResetPasswordRequest.stub', true);
-        generateFileFromStub($stubProperties, "$requestDirectory/ResetPasswordRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/ResetPasswordRequest.stub', true);
-        generateFileFromStub($stubProperties, "$requestDirectory/UpdateUserRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/UpdateUserRequest.stub', true);
+        generateFileFromStub($stubProperties, "{$requestDirectory}/AuthLoginRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/AuthLoginRequest.stub', true);
+        generateFileFromStub($stubProperties, "{$requestDirectory}/AuthRegisterRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/AuthRegisterRequest.stub', true);
+        generateFileFromStub($stubProperties, "{$requestDirectory}/CheckPasswordResetRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/CheckPasswordResetRequest.stub', true);
+        generateFileFromStub($stubProperties, "{$requestDirectory}/RequestResetPasswordRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/RequestResetPasswordRequest.stub', true);
+        generateFileFromStub($stubProperties, "{$requestDirectory}/ResetPasswordRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/ResetPasswordRequest.stub', true);
+        generateFileFromStub($stubProperties, "{$requestDirectory}/UpdateUserRequest.php", __DIR__ . '/stubs/Auth/AuthRequests/UpdateUserRequest.stub', true);
 
         $this->info("Created Requests: AuthRequests");
     }
@@ -218,7 +219,7 @@ class InitAuth extends Command
         ];
 
         $resourceDirectory = base_path(config('cubeta-starter.resource_path'));
-        $resourcePath = "$resourceDirectory/UserResource.php";
+        $resourcePath = "{$resourceDirectory}/UserResource.php";
 
         ensureDirectoryExists($resourceDirectory);
 
@@ -236,7 +237,7 @@ class InitAuth extends Command
     {
         $notificationDirectory = base_path('app/Notifications');
         ensureDirectoryExists($notificationDirectory);
-        generateFileFromStub([], "$notificationDirectory/ResetPasswordCodeEmail.php", __DIR__ . '/stubs/Auth/ResetPasswordCodeEmail.stub', true);
+        generateFileFromStub([], "{$notificationDirectory}/ResetPasswordCodeEmail.php", __DIR__ . '/stubs/Auth/ResetPasswordCodeEmail.stub', true);
         $this->info("Created Notification: ResetPasswordCodeEmail");
     }
 
@@ -249,7 +250,7 @@ class InitAuth extends Command
     {
         $viewDirectory = resource_path('views/emails');
         ensureDirectoryExists($viewDirectory);
-        generateFileFromStub([], "$viewDirectory/reset-password-email.blade.php", __DIR__ . '/stubs/Auth/reset-password.stub', true);
+        generateFileFromStub([], "{$viewDirectory}/reset-password-email.blade.php", __DIR__ . '/stubs/Auth/reset-password.stub', true);
         $this->info("Created View: reset-password");
     }
 
@@ -262,7 +263,7 @@ class InitAuth extends Command
     {
         $factoryDirectory = base_path(config('cubeta-starter.factory_path'));
         ensureDirectoryExists($factoryDirectory);
-        $factoryPath = "$factoryDirectory/UserFactory.php";
+        $factoryPath = "{$factoryDirectory}/UserFactory.php";
 
         generateFileFromStub([], $factoryPath, __DIR__ . '/stubs/Auth/user-factory.stub', true);
         $this->info("Created Factory: UserFactory");
@@ -282,7 +283,7 @@ class InitAuth extends Command
         ];
 
         $controllerDirectory = base_path(config('cubeta-starter.web_controller_path'));
-        $controllerPath = "$controllerDirectory/BaseAuthController.php";
+        $controllerPath = "{$controllerDirectory}/BaseAuthController.php";
 
         ensureDirectoryExists($controllerDirectory);
 
@@ -299,14 +300,15 @@ class InitAuth extends Command
     public function generateWebAuthRouteFile(): void
     {
         $routeFileName = "dashboard-auth.php";
-        $routeFilePath = "v1/web/$routeFileName";
+        $routeFilePath = "v1/web/{$routeFileName}";
         ensureDirectoryExists(base_path("routes/v1/web/"));
         generateFileFromStub(
             [
                 '{controllerNamespace}' => config('cubeta-starter.web_controller_namespace')
             ],
-            base_path("routes/$routeFilePath"),
-            __DIR__ . '/stubs/Auth/auth-web-routes.stub');
+            base_path("routes/{$routeFilePath}"),
+            __DIR__ . '/stubs/Auth/auth-web-routes.stub'
+        );
 
         $this->addRouteFileToServiceProvider($routeFilePath, ContainerType::WEB);
     }

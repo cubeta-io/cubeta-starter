@@ -49,10 +49,10 @@ class InitialProject extends Command
     }
 
     /**
-     * @param mixed $role
-     * @param array|null $permissions
-     * @param array $authenticated
-     * @param array $roleContainer
+     * @param  mixed                      $role
+     * @param  array|null                 $permissions
+     * @param  array                      $authenticated
+     * @param  array                      $roleContainer
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -167,9 +167,9 @@ class InitialProject extends Command
     /**
      * Handle the roles and permissions passed as arguments
      *
-     * @param array $rolesPermissions
-     * @param array $authenticated
-     * @param array $roleContainer
+     * @param  array                      $rolesPermissions
+     * @param  array                      $authenticated
+     * @param  array                      $roleContainer
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -201,28 +201,28 @@ class InitialProject extends Command
                     '{roleEnumName}' => roleNaming($role)
                 ];
 
-                $controllerPath = "$apiControllerDirectory/$controllerName.php";
+                $controllerPath = "{$apiControllerDirectory}/{$controllerName}.php";
 
                 if (file_exists($controllerPath)) {
                     $this->error('Controller Already Exists');
                     return;
                 }
-                generateFileFromStub($stubProperties, "$controllerPath", __DIR__ . '/stubs/Auth/auth-controller.stub');
-                $this->info("Created Controller : $controllerName");
+                generateFileFromStub($stubProperties, "{$controllerPath}", __DIR__ . '/stubs/Auth/auth-controller.stub');
+                $this->info("Created Controller : {$controllerName}");
 
-                if (!file_exists(base_path("routes/api/$role.php"))) {
+                if (!file_exists(base_path("routes/api/{$role}.php"))) {
                     return;
                 }
 
                 $routes = file_get_contents(__DIR__ . '/stubs/Auth/auth-api-routes.stub');
 
                 $routes = str_replace('{role}', $role, $routes);
-                $routeFilePath = base_path("routes/api/$role.php");
+                $routeFilePath = base_path("routes/api/{$role}.php");
                 $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . ";";
 
                 file_put_contents($routeFilePath, $routes, FILE_APPEND);
                 addImportStatement($importStatement, $routeFilePath);
-                $this->info("$role auth routes has been added");
+                $this->info("{$role} auth routes has been added");
 
                 $this->addPostmanAuthCollection($role);
                 $this->info("Auth collection added to postman");

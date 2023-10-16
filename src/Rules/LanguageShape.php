@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Rules;
+
 ;
 
 use Closure;
@@ -50,7 +51,7 @@ class LanguageShape implements ValidationRule
                 $fail(implode(',', $theDifferenceBetweenTheProvidedLanguages) . " don't exist in your project languages");
             }
         } catch (Exception) {
-            $fail("invalid $attribute");
+            $fail("invalid {$attribute}");
         }
     }
 }

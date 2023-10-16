@@ -99,7 +99,7 @@ class MakeModel extends Command
 
     /**
      * create scopes for the model boolean values
-     * @param array $attributes
+     * @param  array  $attributes
      * @return string
      */
     public function boolValuesScope(array $attributes = []): string
@@ -252,7 +252,7 @@ class MakeModel extends Command
 
     /**
      * create a pivot table if there is a many-to-many relation
-     * @param string $modelName
+     * @param  string $modelName
      * @return void
      */
     public function createPivots(string $modelName): void
@@ -327,7 +327,7 @@ class MakeModel extends Command
 
     /**
      * get the model attributes for the translatable columns
-     * @param array $attributes
+     * @param  array  $attributes
      * @return string
      */
     public function getTranslatableModelAttributes(array $attributes): string
@@ -347,7 +347,7 @@ class MakeModel extends Command
                         public function {$attributeMethod}(): \Illuminate\Database\Eloquent\Casts\Attribute
                         {
                             return \Illuminate\Database\Eloquent\Casts\Attribute::make(
-                                get: fn (string \$value) => \$this->getTranslation('$attribute'),
+                                get: fn (string \$value) => \$this->getTranslation('{$attribute}'),
                             );
                         } \n";
         }
@@ -377,8 +377,8 @@ class MakeModel extends Command
 
     /**
      * generate the getFileProperty method for each file typ columns in the model
-     * @param $modelName
-     * @param array $attributes
+     * @param         $modelName
+     * @param  array  $attributes
      * @return string
      */
     private function generateGetFilePropertyPathMethod($modelName, array $attributes = []): string
@@ -408,7 +408,7 @@ class MakeModel extends Command
 
     /**
      * return the model path from the config
-     * @param string $className
+     * @param  string $className
      * @return string
      */
     private function getModelPath(string $className): string
@@ -421,8 +421,8 @@ class MakeModel extends Command
 
     /**
      * generates the PHPDoc properties for the model class
-     * @param array $attributes
-     * @param array $relations
+     * @param  array  $attributes
+     * @param  array  $relations
      * @return string
      */
     private function getModelProperty(array $attributes = [], array $relations = []): string
@@ -458,8 +458,8 @@ class MakeModel extends Command
     }
 
     /**
-     * @param array $attributes
-     * @param array $relations
+     * @param  array  $attributes
+     * @param  array  $relations
      * @return string
      */
     private function getModelRelation(array $attributes = [], array $relations = []): string
@@ -582,7 +582,7 @@ class MakeModel extends Command
     }
 
     /**
-     * @param array $attributes
+     * @param  array  $attributes
      * @return string
      */
     private function getCastArray(array $attributes = []): string
@@ -591,7 +591,7 @@ class MakeModel extends Command
         foreach ($attributes as $name => $type) {
 
             if ($type == 'boolean') {
-                $casts .= "'$name' => 'boolean' , ";
+                $casts .= "'{$name}' => 'boolean' , ";
             }
 
         }

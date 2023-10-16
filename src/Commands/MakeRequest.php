@@ -38,7 +38,7 @@ class MakeRequest extends Command
     }
 
     /**
-     * @param array $attributes
+     * @param  array  $attributes
      * @return string
      */
     public function getPrepareForValidationMethod(array $attributes): string

@@ -85,7 +85,7 @@ class MakeTest extends Command
     }
 
     /**
-     * @param array $attributes
+     * @param  array  $attributes
      * @return string
      */
     private function getAdditionalFactoryData(array $attributes = []): string

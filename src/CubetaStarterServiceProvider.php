@@ -96,7 +96,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         }
 
         foreach ($this->package->configFileNames as $configFileName) {
-            $this->mergeConfigFrom($this->package->basePath("/../config/$configFileName.php"), $configFileName);
+            $this->mergeConfigFrom($this->package->basePath("/../config/{$configFileName}.php"), $configFileName);
         }
 
         $this->mergeConfigFrom(__DIR__ . '/../config/cubeta-starter.php', 'cubeta-starter');

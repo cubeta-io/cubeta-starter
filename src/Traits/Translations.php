@@ -11,9 +11,9 @@ trait Translations
      * if the locale isn't provided it will work for the project current locale
      * if a corresponding translation didn't exist it will create one
      * if the provided local isn't in the cubeta-starter config file in the available locales array it will return an exception
-     * @param string $translatableColumn
-     * @param mixed $value
-     * @param string|null $locale
+     * @param  string      $translatableColumn
+     * @param  mixed       $value
+     * @param  string|null $locale
      * @return self
      * @throws Exception
      */
@@ -45,8 +45,8 @@ trait Translations
      * defined in the config file of the package and if there isn't a corresponding value for it,
      * it returns a message informing you that there isn't
      *
-     * @param string $translationColumn must be a json string
-     * @param  ?string $locale
+     * @param  string     $translationColumn must be a json string
+     * @param  ?string    $locale
      * @return mixed|null
      */
     public function getTranslation(string $translationColumn, string $locale = null): mixed

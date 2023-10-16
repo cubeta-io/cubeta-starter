@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Traits\RestTrait;
 use Illuminate\Http\JsonResponse;
 
@@ -39,7 +38,7 @@ class ApiController extends Controller
     public const TOKEN_EXPIRATION = 406;
 
     /**
-     * @param mixed $response
+     * @param  mixed        $response
      * @return JsonResponse
      */
     public function noData(mixed $response): JsonResponse
