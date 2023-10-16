@@ -51,7 +51,7 @@ class MakeWebController extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    public function createWebController(string $modelName, array $attributes = [], array $nullables = [], array $relations = [], $actor = null)
+    public function createWebController(string $modelName, array $attributes = [], array $nullables = [], array $relations = [], $actor = null): void
     {
         $modelNameCamelCase = variableNaming($modelName);
         $idVariable = $modelNameCamelCase . 'Id';
@@ -60,7 +60,7 @@ class MakeWebController extends Command
         $controllerPath = $this->getWebControllerPath($controllerName);
 
         if (file_exists($controllerPath)) {
-            $this->error("{$controllerName} Already Exists");
+            $this->error("$controllerName Already Exists");
 
             return;
         }
@@ -80,7 +80,7 @@ class MakeWebController extends Command
             '{modelNameCamelCase}' => $modelNameCamelCase,
             '{idVariable}' => $idVariable,
             '{tableName}' => $tableName,
-            '{addColumns}' => $addColumns ?? '',
+            '{addColumns}' => $addColumns ,
             '{rawColumns}' => $this->rawColumns ?? '',
             '{showRouteName}' => $routesNames['show'],
             '{editRouteName}' => $routesNames['edit'],
@@ -108,7 +108,7 @@ class MakeWebController extends Command
             __DIR__ . '/stubs/controller.web.stub'
         );
 
-        $this->info("{$controllerName} Created");
+        $this->info("$controllerName Created");
         $this->addRoute($modelName, $actor, 'web', $this->additionalRoutes);
 
         $this->addSidebarItem($modelName, $routesNames['index']);
@@ -135,7 +135,7 @@ class MakeWebController extends Command
     }
 
     /**
-     * @param  null     $actor
+     * @param null $actor
      * @return string[]
      */
     #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
@@ -159,7 +159,7 @@ class MakeWebController extends Command
 
     }
 
-    private function addSidebarItem(string $modelName, string $routeName)
+    private function addSidebarItem(string $modelName, string $routeName): void
     {
         $modelName = titleNaming($modelName);
         $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');
@@ -167,7 +167,7 @@ class MakeWebController extends Command
             return;
         }
 
-        $sidebarItem = "<li class=\"nav-item\">\n  <a class=\"nav-link collapsed\" href=\"{{route('{$routeName}')}}\">\n  <i class=\"bi bi-circle\"></i>\n  <span>{$modelName}</span>\n  </a>\n  </li>\n  </ul>";
+        $sidebarItem = "<li class=\"nav-item\">\n  <a class=\"nav-link collapsed\" href=\"{{route('$routeName')}}\">\n  <i class=\"bi bi-circle\"></i>\n  <span>$modelName</span>\n  </a>\n  </li>\n  </ul>";
 
         $sidebar = file_get_contents($sidebarPath);
         $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);
@@ -179,7 +179,7 @@ class MakeWebController extends Command
         $directory = base_path(config('cubeta-starter.web_controller_path'));
         ensureDirectoryExists($directory);
 
-        return "{$directory}/{$controllerName}.php";
+        return "$directory/$controllerName.php";
     }
 
     private function getKeyColumnsHyperlink(array $attributes = []): string
@@ -190,9 +190,9 @@ class MakeWebController extends Command
                 $relatedModel = modelNaming(str_replace('_id', '', $column));
                 $showRouteName = $this->getRoutesNames($relatedModel)['show'];
                 $dataColumn .= "
-                    ->editColumn('{$column}', function (\$row) {
+                    ->editColumn('$column', function (\$row) {
                     //TODO::check on the used show route of the related model key
-                        return \"<a href='\" . route('{$showRouteName}', \$row->{$column}) . \"'>\$row->{$column}</a>\";
+                        return \"<a href='\" . route('$showRouteName', \$row->$column) . \"'>\$row->{$column}</a>\";
                     })";
                 $this->rawColumns .= "'{$column}' ,";
             }

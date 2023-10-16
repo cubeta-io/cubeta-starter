@@ -159,7 +159,7 @@ trait ViewGenerating
                 $select2Route = $this->getRouteName($modelName, 'web', $actor) . '.allPaginatedJson';
                 $inputs .= "
                 <!-- TODO::if you created this before the parent model configure this route here as you want -->
-                <x-select2 label=\"{$label}\" api=\"{{route('{$select2Route}')}}\" option-value=\"name\" option-inner-text=\"name\" {$value} {$isRequired}></x-select2> \n";
+                <x-select2 label=\"{$label}\" api=\"{{route('{$select2Route}')}}\" option-value=\"id\" option-inner-text=\"id\" {$value} {$isRequired}></x-select2> \n";
             } elseif ($type == 'translatable') {
                 $inputs .= "<x-translatable-input label=\"{$label}\" type='text' {$value} {$isRequired}></x-translatable-input> \n";
             } elseif ($attribute == 'email') {

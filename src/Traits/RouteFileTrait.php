@@ -17,7 +17,7 @@ trait RouteFileTrait
     {
         $role = Str::singular(Str::lower($role));
 
-        $routeFile = "{$container}/{$role}.php";
+        $routeFile = "v1/{$container}/{$role}.php";
         $routeFileDirectory = base_path("routes/{$routeFile}");
 
         !(File::makeDirectory(dirname($routeFileDirectory), 0777, true, true)) ??
