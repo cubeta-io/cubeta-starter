@@ -22,7 +22,8 @@ class PublishAllAssetsCommand extends Command
             'cubeta-starter-traits',
             'cubeta-starter-config',
             'cubeta-starter-assets',
-            'cubeta-starter-providers'
+            'cubeta-starter-providers',
+            'cubeta-starter-test-tools'
         ];
 
         $output = "";

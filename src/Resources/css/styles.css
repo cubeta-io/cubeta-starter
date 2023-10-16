@@ -96,7 +96,7 @@ p {
 .btn-primary:hover {
     background-color: rgb(226, 232, 240);
     color: #001e4a;
-    border-color: rgb(226, 232, 240);
+    border: 1px solid #001e4a;
 }
 
 .form-control {

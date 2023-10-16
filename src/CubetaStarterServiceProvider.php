@@ -50,6 +50,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->publishValidationRules();
         $this->publishTraits();
         $this->publishProviders();
+        $this->publishTestingTools();
     }
 
     public function configurePackage(Package $package): void
@@ -226,12 +227,18 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../src/Traits/FileHandler.php' => app_path("Traits/FileHandler.php"),
-            __DIR__ . '/../src/Traits/MainTestCase.php' => app_path("Traits/MainTestCase.php"),
             __DIR__ . '/../src/Traits/PushNotificationHelper.php' => app_path('Traits/PushNotificationHelper.php'),
             __DIR__ . '/../src/Traits/RestTrait.php' => app_path('Traits/RestTrait.php'),
-            __DIR__ . '/../src/Traits/TestHelpers.php' => app_path('/Traits/TestHelpers.php'),
             __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
         ], 'cubeta-starter-traits');
+    }
+
+    public function publishTestingTools(): void
+    {
+        $this->publishes([
+            __DIR__ . '/../src/Contracts/Tests/MainTestCase.php' => base_path("/tests/Contracts/MainTestCase.php"),
+            __DIR__ . '/../src/Traits/TestHelpers.php' => app_path('/Traits/TestHelpers.php'),
+        ], 'cubeta-starter-test-tools');
     }
 
     public function publishProviders(): void

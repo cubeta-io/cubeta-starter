@@ -6,6 +6,7 @@
         .border.border-2 {
             margin: 25px !important;
             padding: 10px !important;
+            border-radius: 10px;
         }
     </style>
     <main class="main">
@@ -179,6 +180,20 @@
                                     Publish ApiController
                                 </a>
                             </div>
+
+
+                            <div class="col-md-5 border border-2">
+                                <h4 class="form-label m-auto">Publish Testing Tools</h4>
+                                <br>
+                                <p class="description-font">Note : this tools required for the generated tests</p>
+                                <a id="publish-providers"
+                                   href="{{route('cubeta-starter.publish-testing-tools')}}"
+                                   class="btn btn-primary w-auto">
+                                    Publish Testing Tools
+                                </a>
+                            </div>
+
+
                             <a href="{{route('cubeta-starter.publish-all')}}" class="my-3">
                                 <button class="btn btn-primary w-100">Publish All</button>
                             </a>

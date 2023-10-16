@@ -14,7 +14,7 @@ class {modelName}Controller extends ApiController{
     public function __construct(I{modelName}Service ${variableNaming}Service) {
 
         $this->{variableNaming}Service = ${variableNaming}Service;
-        
+
         // place the relations you want to return them within the response
         $this->relations = [] ;
     }
@@ -26,7 +26,7 @@ class {modelName}Controller extends ApiController{
             return $this->apiResponse({modelName}Resource::collection($items['data']), self::STATUS_OK, __('site.get_successfully'), $items['pagination_data']);
         }
 
-        return $this->apiResponse([], self::STATUS_OK, __('site.there_is_no_data'));
+        return $this->noData([]);
     }
 
     public function show(${idVariable})
@@ -36,7 +36,7 @@ class {modelName}Controller extends ApiController{
             return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.get_successfully'));
         }
 
-        return $this->apiResponse(null, self::STATUS_OK, __('site.there_is_no_data'));
+        return $this->noData(null);
     }
 
     public function store(StoreUpdate{modelName}Request $request)
@@ -56,7 +56,7 @@ class {modelName}Controller extends ApiController{
             return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.update_successfully'));
         }
 
-        return $this->apiResponse(null, self::STATUS_OK, __('site.there_is_no_data'));
+        return $this->noData(null);
     }
 
     public function destroy(${idVariable})
@@ -66,6 +66,6 @@ class {modelName}Controller extends ApiController{
             return $this->apiResponse(true, self::STATUS_OK, __('site.delete_successfully'));
         }
 
-        return $this->apiResponse(false, self::STATUS_OK, __('site.there_is_no_data'));
+        return $this->noData(false);
     }
 }

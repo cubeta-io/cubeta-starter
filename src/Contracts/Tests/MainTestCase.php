@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Traits;
+
+namespace Tests\Contracts;
 
 use App\Models\User;
+use App\Traits\TestHelpers;
+use Tests\TestCase;
 
-trait MainTestCase
+class MainTestCase extends TestCase
 {
     use TestHelpers;
 

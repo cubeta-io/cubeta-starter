@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Traits\RestTrait;
+use Illuminate\Http\JsonResponse;
 
 /**
  * Class ApiController
@@ -12,7 +13,7 @@ class ApiController extends Controller
 {
     use RestTrait;
 
-    public array $relations = [] ;
+    public array $relations = [];
 
     //Exception
     public const STATUS_BAD_REQUEST = 400;
@@ -36,4 +37,13 @@ class ApiController extends Controller
     public const STATUS_VALIDATION = 405;
 
     public const TOKEN_EXPIRATION = 406;
+
+    /**
+     * @param mixed $response
+     * @return JsonResponse
+     */
+    public function noData(mixed $response): JsonResponse
+    {
+        return $this->apiResponse($response, self::STATUS_OK, __('site.there_is_no_data'));
+    }
 }

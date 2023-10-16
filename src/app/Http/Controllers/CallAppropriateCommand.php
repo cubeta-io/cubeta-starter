@@ -472,6 +472,11 @@ class CallAppropriateCommand extends Controller
         return $this->callPublishCommand('cubeta-starter-providers');
     }
 
+    public function publishTestingTools()
+    {
+        return $this->callPublishCommand('cubeta-starter-test-tools');
+    }
+
     public function publishAll()
     {
         try {
