@@ -3,8 +3,9 @@
 namespace {namespace};
 
 use Illuminate\Http\Request;
-use {ServiceNameSpace}\User\IUserService;
+use {resourceNamespace}\UserResource;
 use App\Http\Controllers\ApiController;
+use {ServiceNameSpace}\User\IUserService;
 use {requestsNamespace}\AuthRequests\AuthLoginRequest;
 use {requestsNamespace}\AuthRequests\UpdateUserRequest;
 use {requestsNamespace}\AuthRequests\AuthRegisterRequest;
@@ -12,10 +13,11 @@ use {requestsNamespace}\AuthRequests\ResetPasswordRequest;
 use {requestsNamespace}\AuthRequests\CheckPasswordResetRequest;
 use {requestsNamespace}\AuthRequests\RequestResetPasswordRequest;
 
+
 class BaseAuthController extends ApiController
 {
     private IUserService $userService;
-    private $role = null;
+    private ?string $role = null;
 
     public function roleHook(string $role)
     {
@@ -31,8 +33,8 @@ class BaseAuthController extends ApiController
     {
         //you can pass additional data as an array for the third parameter in the
         //login method and this data will be stored in the users table
-        $data = $this->userService->login($request->validated() , $this->role , []);
-        if (! $data) {
+        $data = $this->userService->login($request->validated(), $this->role, []);
+        if (!$data) {
             return $this->apiResponse(null, self::STATUS_NOT_FOUND, __('site.credentials_not_match_records'));
         }
 
@@ -58,7 +60,7 @@ class BaseAuthController extends ApiController
 
     public function register(AuthRegisterRequest $request)
     {
-        $data = $this->userService->register($request->validated() , $this->role);
+        $data = $this->userService->register($request->validated(), $this->role);
 
         return $this->apiResponse($data, self::STATUS_OK, __('site.registered_successfully'));
     }
@@ -97,5 +99,16 @@ class BaseAuthController extends ApiController
         }
 
         return $this->apiResponse(null, self::STATUS_BAD_REQUEST, __('site.unauthorized_user'));
+    }
+
+    public function userDetails()
+    {
+        $user = $this->userService->userDetails($this->role);
+
+        if ($user) {
+            return $this->apiResponse(new UserResource($user), self::STATUS_OK, __('site.get_successfully'));
+        } else {
+            return $this->apiResponse(null, self::STATUS_BAD_REQUEST, __('site.unauthorized_user'));
+        }
     }
 }

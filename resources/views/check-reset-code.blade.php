@@ -17,7 +17,8 @@
                                     <h5 class="card-title text-center pb-0 fs-4">Enter Your The Reset Code</h5>
                                     <p class="text-center small">You Will Find The Reset Code In Your Email Inbox</p>
                                 </div>
-                                <form class="row g-3 needs-validation" action="#" method="POST" novalidate>
+                                <form class="row g-3 needs-validation"
+                                      action="{{route('dashboard.validate-reset-password-code')}}" method="POST" novalidate>
                                     @csrf
                                     <div class="col-12">
                                         <label for="reset_password_code" class="form-label">Code</label>

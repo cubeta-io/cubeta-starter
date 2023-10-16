@@ -2,6 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Traits\RouteFileTrait;
 use Illuminate\Console\Command;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -10,28 +12,32 @@ use Illuminate\Support\Facades\Artisan;
 
 class InitAuth extends Command
 {
-    use AssistCommand;
+    use AssistCommand, RouteFileTrait;
 
     protected $description = 'initialize authentication tools';
 
     protected $signature = 'init-auth {container?}';
 
     /**
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function handle()
+    public function handle(): void
     {
         $container = $this->argument('container') ?? 'both';
 
         $this->generateUserMigration();
         $this->generateUserModel();
+
         if ($container == 'api' || $container == 'both') {
             $this->generateUserResource();
             $this->generateBaseAuthController();
         }
+
         if ($container == 'web' || $container == 'both') {
             $this->generateBaseAuthWebController();
+            $this->generateWebAuthRouteFile();
             Artisan::call('vendor:publish', [
                 '--tag' => 'cubeta-auth-views',
                 '--force' => true
@@ -46,10 +52,11 @@ class InitAuth extends Command
     }
 
     /**
-     * @throws FileNotFoundException
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function generateUserRepository()
+    private function generateUserRepository(): void
     {
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.repository_namespace'),
@@ -72,10 +79,12 @@ class InitAuth extends Command
     }
 
     /**
-     * @throws FileNotFoundException
+     * @param string $container
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function generateUserService(string $container = 'api')
+    private function generateUserService(string $container = 'api'): void
     {
         // user service
         $stubProperties = [
@@ -115,10 +124,11 @@ class InitAuth extends Command
     }
 
     /**
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function generateUserModel()
+    private function generateUserModel(): void
     {
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.model_namespace'),
@@ -135,10 +145,11 @@ class InitAuth extends Command
     }
 
     /**
-     * @throws FileNotFoundException
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function generateUserMigration()
+    private function generateUserMigration(): void
     {
         $migrationPath = base_path(config('cubeta-starter.migration_path') . '/2014_10_12_000000_create_users_table.php');
         generateFileFromStub([], $migrationPath, __DIR__ . '/stubs/Auth/UserMigration.stub', true);
@@ -147,15 +158,17 @@ class InitAuth extends Command
     }
 
     /**
-     * @throws FileNotFoundException
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function generateBaseAuthController()
+    private function generateBaseAuthController(): void
     {
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.api_controller_namespace'),
             '{requestsNamespace}' => config('cubeta-starter.request_namespace'),
-            '{ServiceNameSpace}' => config('cubeta-starter.service_namespace')
+            '{ServiceNameSpace}' => config('cubeta-starter.service_namespace'),
+            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
         ];
 
         $controllerDirectory = base_path(config('cubeta-starter.api_controller_path'));
@@ -169,10 +182,11 @@ class InitAuth extends Command
     }
 
     /**
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function generateAuthRequests()
+    private function generateAuthRequests(): void
     {
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.request_namespace'),
@@ -193,10 +207,11 @@ class InitAuth extends Command
     }
 
     /**
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function generateUserResource()
+    private function generateUserResource(): void
     {
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.resource_namespace'),
@@ -213,10 +228,11 @@ class InitAuth extends Command
     }
 
     /**
-     * @throws FileNotFoundException
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function generateResetPasswordNotification()
+    private function generateResetPasswordNotification(): void
     {
         $notificationDirectory = base_path('app/Notifications');
         ensureDirectoryExists($notificationDirectory);
@@ -225,10 +241,11 @@ class InitAuth extends Command
     }
 
     /**
-     * @throws FileNotFoundException
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function generateResetPasswordEmailView()
+    private function generateResetPasswordEmailView(): void
     {
         $viewDirectory = resource_path('views/emails');
         ensureDirectoryExists($viewDirectory);
@@ -237,10 +254,11 @@ class InitAuth extends Command
     }
 
     /**
-     * @throws FileNotFoundException
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function generateUserFactory()
+    private function generateUserFactory(): void
     {
         $factoryDirectory = base_path(config('cubeta-starter.factory_path'));
         ensureDirectoryExists($factoryDirectory);
@@ -251,10 +269,11 @@ class InitAuth extends Command
     }
 
     /**
-     * @throws FileNotFoundException
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
-    private function generateBaseAuthWebController()
+    private function generateBaseAuthWebController(): void
     {
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.web_controller_namespace'),
@@ -270,5 +289,25 @@ class InitAuth extends Command
         generateFileFromStub($stubProperties, $controllerPath, __DIR__ . '/stubs/Auth/BaseAuthWebController.stub', true);
 
         $this->info("Created Controller: BaseAuthController");
+    }
+
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function generateWebAuthRouteFile(): void
+    {
+        $routeFileName = "dashboard-auth.php";
+        $routeFilePath = "v1/web/$routeFileName";
+        ensureDirectoryExists(base_path("routes/v1/web/"));
+        generateFileFromStub(
+            [
+                '{controllerNamespace}' => config('cubeta-starter.web_controller_namespace')
+            ],
+            base_path("routes/$routeFilePath"),
+            __DIR__ . '/stubs/Auth/auth-web-routes.stub');
+
+        $this->addRouteFileToServiceProvider($routeFilePath, ContainerType::WEB);
     }
 }

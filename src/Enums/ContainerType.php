@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Enums;
 
-final class CommandTypeEnum
+final class ContainerType
 {
     public const API = 'api';
 

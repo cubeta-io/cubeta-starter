@@ -58,3 +58,20 @@ function addImportStatement(string $importStatement, string $filePath): void
     // Write the updated contents back to the file
     file_put_contents($filePath, $contents);
 }
+
+/**
+ * this function check for a php file syntax error by running php -l command on the file
+ * @param string $path
+ * @return bool
+ */
+function checkForSyntaxErrors(string $path): bool
+{
+    // PHP interpreter with the '-l' flag to check for syntax errors
+    $output = shell_exec("php -l $path");
+
+    if (str_contains($output, 'No syntax errors detected')) {
+        return true;
+    } else {
+        return false;
+    }
+}

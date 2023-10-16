@@ -23,7 +23,9 @@
                                     <p class="text-center small">We will send to your email a reset code</p>
                                 </div>
 
-                                <form class="row g-3 needs-validation" action="#" method="POST" novalidate>
+                                <form class="row g-3 needs-validation"
+                                      action="{{route('dashboard.request-reset-password-code')}}" method="POST"
+                                      novalidate>
                                     @csrf
                                     <div class="col-12">
                                         <label for="email" class="form-label">Email</label>

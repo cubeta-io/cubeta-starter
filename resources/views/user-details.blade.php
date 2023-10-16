@@ -1,6 +1,5 @@
 @extends('layout')
 @section('content')
-
     <main id="main" class="main">
 
         <div class="pagetitle">
@@ -49,9 +48,9 @@
                                 <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
 
                                     <!-- Profile Edit Form -->
-                                    <form action="" method="POST">
-                                        @csrf
+                                    <form action="{{route('dashboard.update-user-data')}}" method="POST">
                                         @method('PUT')
+                                        @csrf
                                         <div class="row mb-3">
                                             <label for="first_name" class="col-md-4 col-lg-3 col-form-label">First
                                                 Name</label>
@@ -93,5 +92,4 @@
             </div>
         </section>
     </main>
-
 @endsection

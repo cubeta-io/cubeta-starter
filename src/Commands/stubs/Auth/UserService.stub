@@ -1,11 +1,12 @@
 <?php
 
 namespace {namespace}\User;
-
-use {repositoryNamespace}\UserRepository;
-use {resourceNamespace}\UserResource;
+use Illuminate\Contracts\Auth\Authenticatable;
 use App\Notifications\ResetPasswordCodeEmail;
-use App\Services\Contracts\BaseService;
+use {repositoryNamespace}\UserRepository;
+use {namespace}\Contracts\BaseService;
+use {resourceNamespace}\UserResource;
+use Exception;
 
 /**
  * Class UserService
@@ -34,7 +35,7 @@ class UserService extends BaseService implements IUserService
         return $this->repository->getUserByPasswordResetCode($token);
     }
 
-    public function clearFcmTokenFromOtherUsers($fcm_token)
+    public function clearFcmTokenFromOtherUsers($fcm_token): void
     {
         $users = $this->repository->getByFcmToken($fcm_token);
         foreach ($users as $user) {
@@ -80,7 +81,7 @@ class UserService extends BaseService implements IUserService
         ];
     }
 
-    public function updateUserDetails(array $data, string $role): ?array
+    public function updateUserDetails(array $data, ?string $role): ?array
     {
         $user = auth($this->guard)->user();
 
@@ -100,7 +101,7 @@ class UserService extends BaseService implements IUserService
         return ['user' => new UserResource($user), 'token' => $token, 'refresh_token' => $refresh_token];
     }
 
-    public function logout()
+    public function logout(): void
     {
         $auth_user = auth($this->guard)->user();
         auth($this->guard)->logout();
@@ -121,8 +122,7 @@ class UserService extends BaseService implements IUserService
         }
     }
 
-    #[ArrayShape(['user' => "\App\Http\Resources\UserResource", 'token' => "void", 'refresh_token' => "mixed"])]
-    public function register(array $data, string $role): array
+    public function register(array $data, ?string $role): array
     {
         $user = $this->repository->create($data);
         $user->assignRole($role);
@@ -170,5 +170,14 @@ class UserService extends BaseService implements IUserService
         }
 
         return null;
+    }
+
+    public function userDetails(?string $role = null)
+    {
+        if ($role && !auth()->user()->hasRole($role)) {
+            return null;
+        }
+
+        return auth($this->guard)->user();
     }
 }
