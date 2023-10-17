@@ -40,28 +40,28 @@ trait RouteFileTrait
         $routeServiceProvider = app_path('Providers/RouteServiceProvider.php');
 
         if ($container == 'api') {
-            $line_to_add = "\t\t Route::middleware('api')\n" .
+            $lineToAdd = "\t\t Route::middleware('api')\n" .
                 "\t\t\t->prefix('api')\n" .
                 "\t\t\t->group(base_path('routes/{$routeFilePath}'));\n";
         }
 
         if ($container == 'web') {
-            $line_to_add = "\t\t Route::middleware('web')\n" .
+            $lineToAdd = "\t\t Route::middleware('web')\n" .
                 "\t\t\t->group(base_path('routes/{$routeFilePath}'));\n";
         }
 
         // Read the contents of the file
-        $file_contents = file_get_contents($routeServiceProvider);
+        $fileContent = file_get_contents($routeServiceProvider);
 
         // Check if the line to add already exists in the file
-        if (!str_contains($file_contents, $line_to_add)) {
+        if (!str_contains($fileContent, $lineToAdd)) {
             // If the line does not exist, add it to the boot() method
             $pattern = '/\$this->routes\(function\s*\(\)\s*{\s*/';
-            $replacement = "$0{$line_to_add}";
+            $replacement = "$0{$lineToAdd}";
 
-            $file_contents = preg_replace($pattern, $replacement, $file_contents, 1);
+            $fileContent = preg_replace($pattern, $replacement, $fileContent, 1);
             // Write the modified contents back to the file
-            file_put_contents($routeServiceProvider, $file_contents);
+            file_put_contents($routeServiceProvider, $fileContent);
         }
 
         $this->formatFile($routeServiceProvider);

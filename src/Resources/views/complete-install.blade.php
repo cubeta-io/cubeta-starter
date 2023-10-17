@@ -38,6 +38,8 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
+
+
                             <div class="col-md-5 border border-2">
                                 <h4 class="form-label m-auto">Publish the Package Config Files</h4>
                                 <br>
@@ -54,18 +56,7 @@
                                     Publish Config
                                 </a>
                             </div>
-                            <div class="col-md-5 border border-2">
-                                <h4 class="form-label m-auto">Publish the provided exception handler</h4>
-                                <br>
-                                <p class="description-font">
-                                    this will publish our exception handler which will organize your responses
-                                </p>
-                                <a id="publish-handler"
-                                   href="{{route('cubeta-starter.publish-handler')}}"
-                                   class="btn btn-primary w-auto">
-                                    Publish Handler
-                                </a>
-                            </div>
+
                             <div class="col-md-5 border border-2">
                                 <h4 class="form-label m-auto">Publish The Package Assets</h4>
                                 <br>
@@ -81,78 +72,6 @@
                                     Publish Assets
                                 </a>
                             </div>
-                            <div class="col-md-5 border border-2">
-                                <h4 class="form-label m-auto">
-                                    Publish BaseRepository Classes
-                                </h4>
-                                <br>
-                                <p class="description-font">
-                                    this will publish the BaseRepository class with its interface
-                                    this class is required for the generated files
-                                </p>
-                                <a id="publish-assets"
-                                   href="{{route('cubeta-starter.repositories-publish')}}"
-                                   class="btn btn-primary w-auto">
-                                    Publish BaseRepository class
-                                </a>
-                            </div>
-                            <div class="col-md-5 border border-2">
-                                <h4 class="form-label m-auto">Publish BaseService Classes</h4>
-                                <br>
-                                <p class="description-font">this will publish the BaseService class with its interface
-                                    this class is required for the generated files</p>
-                                <a id="publish-assets"
-                                   href="{{route('cubeta-starter.publish-services')}}"
-                                   class="btn btn-primary w-auto">
-                                    Publish BaseService class
-                                </a>
-                            </div>
-
-                            <div class="col-md-5 border border-2">
-                                <h4 class="form-label m-auto">Publish Middlewares</h4>
-                                <br>
-                                <p class="description-font">
-                                    this will publish AcceptedLanguageMiddleware which will change the app locale
-                                    depends on the defined locales in the package config file and either the
-                                    "SetLocaleController" or the "Accept-Language" header
-                                    remember to register it in the <code>$middleware</code> array in the <code>app/Http/kernel.php</code>
-                                </p>
-                                <a id="publish-middlewares"
-                                   href="{{route('cubeta-starter.publish-middlewares')}}"
-                                   class="btn btn-primary w-auto">
-                                    Publish Middlewares
-                                </a>
-                            </div>
-
-                            <div class="col-md-5 border border-2">
-                                <h4 class="form-label m-auto">Publish Validation Rules</h4>
-                                <br>
-                                <p class="description-font">
-                                    For Now this command will publish just one rule, and it is LanguageShape rule class
-                                    which is useful when using the Translations trait to make sure that the incoming
-                                    translated input value isn't a nested array and its keys exist within the defined
-                                    app locales
-                                </p>
-                                <a id="publish-middlewares"
-                                   href="{{route('cubeta-starter.publish-traits')}}"
-                                   class="btn btn-primary w-auto">
-                                    Publish Traits
-                                </a>
-                            </div>
-
-                            <div class="col-md-5 border border-2">
-                                <h4 class="form-label m-auto">Publish Traits</h4>
-                                <br>
-                                <p class="description-font">
-                                    We've provided plenty of helpful traits you can check on them in the <span
-                                        class="bg-secondary">app\Traits</span> directory or go to the documentation
-                                </p>
-                                <a id="publish-traits"
-                                   href="{{route('cubeta-starter.publish-validation-rules')}}"
-                                   class="btn btn-primary w-auto">
-                                    Publish Validation Rules
-                                </a>
-                            </div>
 
                             <div class="col-md-5 border border-2">
                                 <h4 class="form-label">Publish Service Providers</h4>
@@ -160,7 +79,7 @@
                                 <p class="description-font">The package will publish one service provider to make sure
                                     that the package working
                                     under the 0 dependency principle.<br>
-                                    You Need to register it in the <span class="bg-secondary">config/app.php</span>
+                                    You Need to register it in the <code>config/app.php</code>
                                     directory
                                 </p>
                                 <a id="publish-providers"
@@ -169,24 +88,104 @@
                                     Publish Service Providers
                                 </a>
                             </div>
+
                             <div class="col-md-5 border border-2">
-                                <h4 class="form-label m-auto">Publish ApiController Class</h4>
+                                <h4 class="form-label">Publish Response Handlers</h4>
                                 <br>
-                                <p class="description-font">Note : this class is required if you are trying to create an
-                                    api</p>
-                                <a id="publish-providers"
-                                   href="{{route('cubeta-starter.publish-api-controller')}}"
+                                <p class="description-font">
+                                    This will publish :
+                                </p>
+                                <ul>
+                                    <li>new exception handler to <code>app/Exceptions</code> and replace it with the
+                                        default one
+                                    </li>
+
+                                    <li>
+                                        RestTrait which is a helpful trait that will unify your api responses
+                                    </li>
+
+                                    <li>
+                                        APIController class which will add more functionality and the ability to unify
+                                        your controllers and responses
+                                    </li>
+                                </ul>
+                                <p class="description-font">
+                                    make use of this tools will make your development experience easier and more
+                                    maintainable
+                                </p>
+                                <a id="publish-response-handlers"
+                                   href="{{route('cubeta-starter.publish-response-handlers')}}"
                                    class="btn btn-primary w-auto">
-                                    Publish ApiController
+                                    Publish Response Handlers
                                 </a>
                             </div>
 
+                            <div class="col-md-5 border border-2">
+                                <h4 class="form-label">Publish CRUD Helper Classes</h4>
+                                <br>
+                                <p class="description-font">
+                                    This will publish :
+                                </p>
+                                <ul>
+                                    <li>BaseRepository class and its interface to :
+                                        <code>app/Repositories/Contracts</code></li>
+
+                                    <li>
+                                        BaseService class with its interface to : <code>app/Services/Contracts</code>
+                                    </li>
+
+                                    <li>
+                                        FileHandlerTrait to : <code>app/Traits</code> which will help you to deal with
+                                        images and files
+                                    </li>
+                                </ul>
+                                <a id="publish-crud-handlers"
+                                   href="{{route('cubeta-starter.publish-crud-handlers')}}"
+                                   class="btn btn-primary w-auto">
+                                    Publish CRUD Helpers
+                                </a>
+                            </div>
+
+                            <div class="col-md-5 border border-2">
+                                <h4 class="form-label">Publish Locale Handlers</h4>
+                                <br>
+                                <p class="description-font">
+                                    This will publish :
+                                </p>
+                                <ul>
+                                    <li>AcceptedLanguageMiddleware to :
+                                        <code>app/Http/Middlewares</code>
+                                        <span style="font-weight: bolder;" class="text-danger">
+                                            Don't Forget to register it in the
+                                            <code>app/Http/kernel.php</code>
+                                        </span>
+                                    </li>
+
+                                    <li>
+                                        LanguageShape validation rule to :
+                                        <code>app/Rules</code>
+                                        this will help you validate the requested translated field which is an array
+                                    </li>
+
+                                    <li>
+                                        Translation Trait to :
+                                        <code>app/Traits</code>
+                                        this will add helper method to your models which has translated columns by just
+                                        add it to the desired model
+                                    </li>
+                                </ul>
+                                <a id="publish-locale-handlers"
+                                   href="{{route('cubeta-starter.publish-locale-handlers')}}"
+                                   class="btn btn-primary w-auto">
+                                    Publish Locale Helpers
+                                </a>
+                            </div>
 
                             <div class="col-md-5 border border-2">
                                 <h4 class="form-label m-auto">Publish Testing Tools</h4>
                                 <br>
                                 <p class="description-font">Note : this tools required for the generated tests</p>
-                                <a id="publish-providers"
+                                <a id="publish-testing-tools"
                                    href="{{route('cubeta-starter.publish-testing-tools')}}"
                                    class="btn btn-primary w-auto">
                                     Publish Testing Tools
@@ -194,7 +193,7 @@
                             </div>
 
 
-                            <a href="{{route('cubeta-starter.publish-all')}}" class="my-3">
+                            <a href="{{route('cubeta-starter.publish-all')}}" class="my-3" id="publish-all">
                                 <button class="btn btn-primary w-100">Publish All</button>
                             </a>
                         </div>
@@ -233,11 +232,12 @@
                                 install web packages
                             </a>
                         </div>
+
                     </div>
                     <div class="card-footer">
                         <div class="d-flex align-items-center justify-content-center">
                             <ul>
-                                <li class="notes">publishing the config file and the exception handler is necessary
+                                <li class="notes">publishing the config file is necessary
                                     for the package to work fine
                                 </li>
                                 <li class="notes">publishing the package assets will publish our assets inside the
@@ -246,11 +246,13 @@
                                 <li class="notes">installing web packages require you to have npm installed on your
                                     machine and may take long time depends on your internet
                                 </li>
-                                <li class="notes">publishing config files and the exception handler is very important to
-                                    the package to work properly
-                                </li>
                                 <li class="notes">publishing the package assets and installing the web packages is
                                     required when using web controllers
+                                </li>
+                                <li class="notes">
+                                    We recommend to publish all publishable files <code>(except the package assets unless
+                                        you want to use it for web based generation)</code>
+                                    because a full generation process require all of those files
                                 </li>
                             </ul>
                         </div>
@@ -260,95 +262,8 @@
         </section>
     </main>
 
-    @if(request('error'))
-        @push('scripts')
-            <script type="module">
-                const swalWithBootstrapButtons = Swal.mixin({
-                    customClass: {
-                        confirmButton: 'btn btn-danger',
-                        cancelButton: 'btn btn-secondary'
-                    },
-                    buttonsStyling: false
-                })
 
-                swalWithBootstrapButtons.fire({
-                    title: 'Error',
-                    text: "{{ request('error') }}",
-                    icon: 'error',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ok',
-                    cancelButtonText: 'Show Log',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{url()->previous()}}";
-                    } else if (result.isDismissed) {
-                        window.location.href = "{{route('cubeta-starter.output')}}";
-                    }
-                })
-            </script>
-        @endpush
-    @endif
-
-    @if(request('success'))
-        @push('scripts')
-            <script type="module">
-                const swalWithBootstrapButtons = Swal.mixin({
-                    customClass: {
-                        confirmButton: 'btn btn-primary',
-                        cancelButton: 'btn btn-secondary'
-                    },
-                    buttonsStyling: false
-                })
-
-                swalWithBootstrapButtons.fire({
-                    title: 'Success',
-                    text: "{{ request('success') }}",
-                    icon: 'success',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ok',
-                    cancelButtonText: 'Show Log',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{url()->previous()}}";
-                    } else if (result.isDismissed) {
-                        window.location.href = "{{route('cubeta-starter.output')}}";
-                    }
-                })
-            </script>
-        @endpush
-    @endif
-
-    @if(request('warning'))
-        @push('scripts')
-            <script type="module">
-                const swalWithBootstrapButtons = Swal.mixin({
-                    customClass: {
-                        confirmButton: 'btn btn-primary',
-                        cancelButton: 'btn btn-secondary'
-                    },
-                    buttonsStyling: false
-                })
-
-                swalWithBootstrapButtons.fire({
-                    title: 'Warning',
-                    text: "{{ request('warning') }}",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ok',
-                    cancelButtonText: 'Show Log',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{url()->previous()}}";
-                    } else if (result.isDismissed) {
-                        window.location.href = "{{route('cubeta-starter.output')}}";
-                    }
-                })
-            </script>
-        @endpush
-    @endif
+    @include('CubetaStarter::includes.handle-messages-scripts')
 
     @push('scripts')
         <script type="module">
@@ -368,12 +283,33 @@
                     document.getElementById('modal-title').innerText = "publishing assets"
                     modal.show();
                 })
-                $('#publish-handler').click(function () {
-                    document.getElementById('modal-title').innerText = "publishing exception handler"
+                $('#publish-response-handlers').click(function () {
+                    document.getElementById('modal-title').innerText = "publishing response handlers"
                     modal.show();
                 })
+
                 $('#publish-config').click(function () {
                     document.getElementById('modal-title').innerText = "publishing config file"
+                    modal.show();
+                })
+
+                $('#publish-providers').click(function () {
+                    document.getElementById('modal-title').innerText = "Publishing Service Providers"
+                    modal.show();
+                })
+
+                $('#publish-crud-handlers').click(function () {
+                    document.getElementById('modal-title').innerText = "Publishing CRUD Handlers"
+                    modal.show();
+                })
+
+                $('#publish-locale-handlers').click(function () {
+                    document.getElementById('modal-title').innerText = "Publishing Locale Handlers"
+                    modal.show();
+                })
+
+                $('#publish-testing-tools').click(function () {
+                    document.getElementById('modal-title').innerText = "Publishing Testing Tools"
                     modal.show();
                 })
 

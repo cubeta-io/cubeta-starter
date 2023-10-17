@@ -44,6 +44,7 @@ class InitAuth extends Command
                 '--force' => true
             ]);
         }
+
         $this->generateUserService($container);
         $this->generateUserRepository();
         $this->generateAuthRequests();

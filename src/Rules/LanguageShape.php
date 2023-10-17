@@ -2,8 +2,6 @@
 
 namespace App\Rules;
 
-;
-
 use Closure;
 use Exception;
 use Illuminate\Contracts\Validation\ValidationRule;
