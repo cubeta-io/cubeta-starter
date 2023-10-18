@@ -289,7 +289,7 @@
                 })
 
                 $('#publish-config').click(function () {
-                    document.getElementById('modal-title').innerText = "publishing config file"
+                    document.getElementById('modal-title').innerText = "publishing config files"
                     modal.show();
                 })
 

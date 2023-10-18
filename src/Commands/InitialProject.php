@@ -19,7 +19,7 @@ class InitialProject extends Command
 
     protected $description = 'Prepare the necessary files to work with the package';
 
-    protected $signature = 'cubeta-init {useGui?} {installSpatie?} {rolesPermissionsArray?} {authenticated?} {roleContainer?}';
+    protected $signature = 'cubeta-init {useGui?} {rolesPermissionsArray?} {authenticated?} {roleContainer?}';
 
 
     /**
@@ -29,19 +29,17 @@ class InitialProject extends Command
     public function handle(): void
     {
         $useGui = $this->argument('useGui') ?? false;
-        $installSpatie = $this->argument('installSpatie') ?? false;
         $rolesPermissionsArray = $this->argument('rolesPermissionsArray') ?? false;
         $authenticated = $this->argument('authenticated') ?? [];
         $roleContainer = $this->argument('roleContainer') ?? [];
 
+        $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
+        $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
+
         if ($useGui) {
-            if ($installSpatie) {
-                $this->installSpatie(true);
-            }
             if ($rolesPermissionsArray) {
                 $this->handleRolesPermissionsArray($rolesPermissionsArray, $authenticated, $roleContainer);
             }
-
             return;
         }
 
@@ -62,13 +60,13 @@ class InitialProject extends Command
         $this->createRolesEnum($role, $permissions);
 
         if (in_array($roleContainer[$role], ['web', 'both'])) {
-            if (!file_exists(base_path("routes/web/{$role}.php"))) {
+            if (!file_exists(base_path("routes/v1/web/{$role}.php"))) {
                 $this->addRouteFile($role, 'web');
             }
         }
 
         if (in_array($roleContainer[$role], ['api', 'both'])) {
-            if (!file_exists(base_path("routes/api/{$role}.php"))) {
+            if (!file_exists(base_path("routes/v1/api/{$role}.php"))) {
                 $this->addRouteFile($role, 'api');
             }
         }
@@ -91,8 +89,6 @@ class InitialProject extends Command
         $hasActors = $this->choice('Does your project have multiple actors?', ['No', 'Yes'], 'No') == 'Yes';
 
         if ($hasActors) {
-            $this->installSpatie();
-
             $actorsNumber = $this->ask('How many actors are there?', 2);
 
             while (!is_numeric($actorsNumber) || $actorsNumber < 0) {
@@ -184,7 +180,7 @@ class InitialProject extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    private function generateAuthControllers(string $role, array $authenticated = [], array $roleContainer = [])
+    private function generateAuthControllers(string $role, array $authenticated = [], array $roleContainer = []): void
     {
         if (in_array($role, $authenticated)) {
             if (in_array($roleContainer[$role], ['api', 'both'])) {
@@ -230,7 +226,7 @@ class InitialProject extends Command
         }
     }
 
-    private function addPostmanAuthCollection(string $role)
+    private function addPostmanAuthCollection(string $role): void
     {
         $authPostmanEntity = file_get_contents(__DIR__ . "/stubs/Auth/auth-postman-entity.stub");
         $authPostmanEntity = str_replace("{role}", $role, $authPostmanEntity);

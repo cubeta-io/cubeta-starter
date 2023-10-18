@@ -59,7 +59,6 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
             Route::post('/add-actor', 'callAddActorCommand')->name('add-actor-command');
         });
 
-        Route::get('/install-spatie', 'callInstallSpatie')->name('call-install-spatie');
         Route::get('/install-web-packages', 'installingWebPackages')->name('install-web-packages');
         Route::get('/auth-init/{container?}', 'initAuth')->name('init-auth');
     });
