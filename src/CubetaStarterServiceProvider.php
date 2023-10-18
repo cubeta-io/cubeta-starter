@@ -2,13 +2,11 @@
 
 namespace Cubeta\CubetaStarter;
 
-use Cubeta\CubetaStarter\Commands\InitAuth;
-use Cubeta\CubetaStarter\Commands\PublishAllAssetsCommand;
 use Illuminate\Support\Facades\View;
 use Spatie\LaravelPackageTools\Package;
 use Cubeta\CubetaStarter\Commands\MakeTest;
+use Cubeta\CubetaStarter\Commands\InitAuth;
 use Cubeta\CubetaStarter\Commands\MakeModel;
-use Cubeta\CubetaStarter\Commands\MakePolicy;
 use Cubeta\CubetaStarter\Commands\MakeSeeder;
 use Cubeta\CubetaStarter\Commands\MakeFactory;
 use Cubeta\CubetaStarter\Commands\MakeRequest;
@@ -24,6 +22,7 @@ use Cubeta\CubetaStarter\Commands\InstallWebPackages;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Cubeta\CubetaStarter\Commands\MakePostmanCollection;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
+use Cubeta\CubetaStarter\Commands\PublishAllAssetsCommand;
 
 class CubetaStarterServiceProvider extends PackageServiceProvider
 {
@@ -67,7 +66,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeTest::class)
             ->hasCommand(MakePostmanCollection::class)
             ->hasCommand(InitialProject::class)
-            ->hasCommand(MakePolicy::class)
             ->hasCommand(MakeWebController::class)
             ->hasCommand(InstallWebPackages::class)
             ->hasCommand(InitAuth::class)

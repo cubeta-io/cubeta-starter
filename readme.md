@@ -857,8 +857,8 @@ If a translation value is still not found, it returns a message indicating that 
 provided locale or the default locale.
 
 `AcceptedLanguagesMiddleware` middleware :
-to use this just put this line in your `$middlewareGroups` array in the `api`
-element : `\App\Http\Middleware\AcceptedLanguagesMiddleware::class` in this way every received request will
+to use this just put this line (`\App\Http\Middleware\AcceptedLanguagesMiddleware::class`) in your `$middleware` array
+in the `app/Http/Kernel.php` class in this way every received request will
 be checked for having an _accept-language_ header or the session for having key named `locale` and change the project
 locale depending on it.
 in addition to that you will notice that the generated postman collection will have a `"locale"` variable which will be
