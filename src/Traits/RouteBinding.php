@@ -2,17 +2,24 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 
 trait RouteBinding
 {
+    use RouteFileTrait;
+
     /**
-     * @param string $modelName
-     * @param $actor
-     * @param string $container
-     * @param array $additionalRoutes
+     * @param  string                     $modelName
+     * @param  null                       $actor
+     * @param  string                     $container
+     * @param  array                      $additionalRoutes
      * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     public function addRoute(string $modelName, $actor = null, string $container = 'api', array $additionalRoutes = []): void
     {
@@ -20,10 +27,23 @@ trait RouteBinding
 
         if (isset($actor) && $actor != 'none' && $actor != '') {
             $actor = Str::singular(Str::lower($actor));
-            $routePath = base_path() . "\\routes\\{$container}\\" . $actor . '.php';
+            $routePath = base_path() . "\\routes\\v1\\{$container}\\" . $actor . '.php';
         } else {
-            $routePath = base_path() . "\\routes\\{$container}.php";
+            if ($container == ContainerType::API) {
+                $routePath = base_path() . "\\routes\\v1\\{$container}\\{$container}.php";
+
+                if (!file_exists($routePath)) {
+                    $this->addRouteFile($container, ContainerType::API);
+                }
+            } else {
+                $routePath = base_path() . "\\routes\\v1\\{$container}\\dashboard.php";
+
+                if (!file_exists($routePath)) {
+                    $this->addRouteFile("dashboard", ContainerType::WEB);
+                }
+            }
         }
+
         $routeName = $this->getRouteName($modelName, $container, $actor);
 
         if ($container == 'web') {
@@ -56,8 +76,8 @@ trait RouteBinding
     }
 
     /**
-     * @param string $routePath
-     * @param string $route
+     * @param  string $routePath
+     * @param  string $route
      * @return bool
      */
     public function checkIfRouteExist(string $routePath, string $route): bool
@@ -79,9 +99,9 @@ trait RouteBinding
     }
 
     /**
-     * @param string $modelName
-     * @param string $container
-     * @param $actor
+     * @param  string $modelName
+     * @param  string $container
+     * @param         $actor
      * @return string
      */
     public function getRouteName(string $modelName, string $container = 'api', $actor = null): string
@@ -90,6 +110,7 @@ trait RouteBinding
         if (!isset($actor) || $actor == '' || $actor = 'none') {
             return $container . '.' . $modelLowerPluralName;
         }
+
         return $container . '.' . $actor . '.' . $modelLowerPluralName;
     }
 

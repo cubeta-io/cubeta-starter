@@ -2,10 +2,11 @@
 
 namespace {namespace}\User;
 
-use {repositoryNamespace}\UserRepository;
+use Illuminate\Contracts\Auth\Authenticatable;
 use App\Notifications\ResetPasswordCodeEmail;
-use App\Services\Contracts\BaseService;
-
+use {repositoryNamespace}\UserRepository;
+use {namespace}\Contracts\BaseService;
+use Exception;
 /**
  * Class UserWebService
  */
@@ -23,7 +24,7 @@ class UserWebService extends BaseService implements IUserService
         parent::__construct($repository);
     }
 
-    public function clearFcmTokenFromOtherUsers($fcm_token)
+    public function clearFcmTokenFromOtherUsers($fcm_token): void
     {
         $users = $this->repository->getByFcmToken($fcm_token);
         foreach ($users as $user) {
@@ -32,16 +33,16 @@ class UserWebService extends BaseService implements IUserService
         }
     }
 
-    public function login(array $data, $role = null, array $additionalData = [])
+    public function login(array $data, $role = null, array $additionalData = []): User|Authenticatable|null
     {
         try {
             if (!auth($this->guard)->attempt($data)) {
                 return null;
             }
 
-            $user = auth()->user();
+            $user = auth($this->guard)->user();
 
-            if ($role && !auth()->user()->hasRole($role)) {
+            if ($role && !auth($this->guard)->user()->hasRole($role)) {
                 return null;
             }
 
@@ -124,6 +125,8 @@ class UserWebService extends BaseService implements IUserService
             $user->reset_password_code = null;
             $user->save();
 
+            auth($this->guard)->login($user);
+
             return true;
         }
 
@@ -151,5 +154,14 @@ class UserWebService extends BaseService implements IUserService
         } catch (Exception) {
             return null;
         }
+    }
+
+    public function userDetails(?string $role = null): User|Authenticatable|null
+    {
+        if ($role && !auth($this->guard)->user()->hasRole($role)) {
+            return null;
+        }
+
+        return auth($this->guard)->user();
     }
 }

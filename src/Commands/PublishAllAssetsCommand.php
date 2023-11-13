@@ -2,27 +2,36 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Artisan;
 
 class PublishAllAssetsCommand extends Command
 {
+    use RouteBinding;
+
     protected $description = 'publish all package dependencies';
 
     protected $signature = 'cubeta-publish';
 
+    /**
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
     public function handle(): void
     {
         $tags = [
-            'cubeta-starter-repositories',
-            'cubeta-starter-services',
-            'cubeta-starter-api-controller',
-            'cubeta-starter-middlewares',
-            'cubeta-starter-validation-rules',
-            'cubeta-starter-traits',
-            'cubeta-starter-config',
+            'cubeta-auth-views',
+            'cubeta-starter-test-tools',
+            'cubeta-starter-providers',
+            'cubeta-starter-response',
+            'cubeta-starter-crud',
+            'cubeta-starter-locale',
             'cubeta-starter-assets',
-            'cubeta-starter-providers'
+            'cubeta-starter-config',
         ];
 
         $output = "";
@@ -37,7 +46,7 @@ class PublishAllAssetsCommand extends Command
         $this->addSetLocalRoute();
 
         Artisan::call('vendor:publish', [
-            '--tag' => 'cubeta-starter-handler',
+            '--tag' => 'cubeta-starter-response',
             '--force' => true
         ]);
         $output . "\n" . Artisan::output();
@@ -45,7 +54,11 @@ class PublishAllAssetsCommand extends Command
         $this->info($output);
     }
 
-    private function addSetLocalRoute()
+    /**
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    private function addSetLocalRoute(): void
     {
         if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
             $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->name('set-locale');";
@@ -55,7 +68,11 @@ class PublishAllAssetsCommand extends Command
                 })->middleware('web')->name('set-locale');";
         }
 
-        $routePath = base_path("routes/web.php");
+        $routePath = base_path("routes/v1/web/dashboard.php");
+
+        if (!file_exists($routePath)) {
+            $this->addRouteFile("dashboard", ContainerType::WEB);
+        }
 
         if (file_exists($routePath)) {
             file_put_contents($routePath, $route, FILE_APPEND);

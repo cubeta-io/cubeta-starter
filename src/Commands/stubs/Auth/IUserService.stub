@@ -2,7 +2,7 @@
 
 namespace {namespace}\User;
 
-use App\Services\Contracts\IBaseService;
+use {namespace}\Contracts\IBaseService;
 
 /**
  * Interface IUserService
@@ -13,11 +13,13 @@ interface IUserService extends IBaseService
 
     public function logout();
 
-    public function register(array $data, string $role);
+    public function register(array $data, ?string $role);
 
     public function passwordResetRequest(string $email);
 
     public function passwordReset(string $reset_password_code, string $password);
 
-    public function updateUserDetails(array $data, string $role);
+    public function updateUserDetails(array $data, ?string $role);
+
+    public function userDetails(?string $role);
 }

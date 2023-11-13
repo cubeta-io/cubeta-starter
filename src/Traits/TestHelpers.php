@@ -118,7 +118,7 @@ trait TestHelpers
     }
 
     /**
-     * @param string $routeName the route name
+     * @param  string $routeName the route name
      * @return void
      */
     public function requestPathHook(string $routeName = ''): void

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Traits\RestTrait;
 
 /**
@@ -12,7 +11,7 @@ class ApiController extends Controller
 {
     use RestTrait;
 
-    public array $relations = [] ;
+    public array $relations = [];
 
     //Exception
     public const STATUS_BAD_REQUEST = 400;

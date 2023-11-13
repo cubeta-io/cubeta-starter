@@ -7,10 +7,10 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
- * @param array $stubProperties
- * @param string $path
- * @param string $stubPath
- * @param bool $override override file if exist
+ * @param  array                      $stubProperties
+ * @param  string                     $path
+ * @param  string                     $stubPath
+ * @param  bool                       $override       override file if exist
  * @return void
  * @throws BindingResolutionException
  * @throws FileNotFoundException
@@ -57,4 +57,21 @@ function addImportStatement(string $importStatement, string $filePath): void
 
     // Write the updated contents back to the file
     file_put_contents($filePath, $contents);
+}
+
+/**
+ * this function check for a php file syntax error by running php -l command on the file
+ * @param  string $path
+ * @return bool
+ */
+function checkForSyntaxErrors(string $path): bool
+{
+    // PHP interpreter with the '-l' flag to check for syntax errors
+    $output = shell_exec("php -l {$path}");
+
+    return (bool) (str_contains($output, 'No syntax errors detected'))
+
+
+    ;
+
 }

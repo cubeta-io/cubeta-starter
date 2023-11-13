@@ -56,10 +56,10 @@ trait ViewGenerating
     }
 
     /**
-     * @param string $modelName
-     * @param string $creatRoute
-     * @param string $dataRoute
-     * @param array $attributes
+     * @param  string                     $modelName
+     * @param  string                     $creatRoute
+     * @param  string                     $dataRoute
+     * @param  array                      $attributes
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -159,7 +159,7 @@ trait ViewGenerating
                 $select2Route = $this->getRouteName($modelName, 'web', $actor) . '.allPaginatedJson';
                 $inputs .= "
                 <!-- TODO::if you created this before the parent model configure this route here as you want -->
-                <x-select2 label=\"{$label}\" api=\"{{route('{$select2Route}')}}\" option-value=\"name\" option-inner-text=\"name\" {$value} {$isRequired}></x-select2> \n";
+                <x-select2 label=\"{$label}\" api=\"{{route('{$select2Route}')}}\" option-value=\"id\" option-inner-text=\"id\" {$value} {$isRequired}></x-select2> \n";
             } elseif ($type == 'translatable') {
                 $inputs .= "<x-translatable-input label=\"{$label}\" type='text' {$value} {$isRequired}></x-translatable-input> \n";
             } elseif ($attribute == 'email') {
@@ -233,7 +233,7 @@ trait ViewGenerating
             }
             if ($type == 'file') {
                 $json .= "{
-                                \"data\": '$attribute',render:
+                                \"data\": '{$attribute}',render:
                                     function (data) {
                                         const filePath = \"{{asset(\"storage/\")}}/\" + data;
                                         return '<a href=\"' + filePath + '\" class=\"btn btn-sm btn-primary\"  target=\"_blank\">view</a>';
@@ -297,7 +297,7 @@ trait ViewGenerating
 
     /**
      * get the component label name
-     * @param string $attribute
+     * @param  string       $attribute
      * @return array|string
      */
     private function getLabelName(string $attribute): array|string

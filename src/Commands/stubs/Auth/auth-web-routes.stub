@@ -1,0 +1,20 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use {controllerNamespace};
+
+Route::controller(v1\BaseAuthController::class)->prefix('dashboard')->name('dashboard.')->group(function () {
+    Route::post('/login', 'login')->name('login');
+    Route::post('/register', 'register')->name('register');
+    Route::put('/update-user-data', 'updateUserData')->name('update-user-data');
+    Route::get('/user-details', 'userDetails')->name('user-details');
+    Route::post('/request-reset-password-code', 'requestResetPasswordCode')->name('request-reset-password-code');
+    Route::view('/request-reset-password-code-page', 'reset-password-request')->name('request-reset-password-code-page');
+    Route::post('validate-reset-password-code', 'validateResetPasswordCode')->name('validate-reset-password-code');
+    Route::post('change-password', 'changePassword')->name('change-password');
+    Route::view('reset-page', 'reset-password')->name('reset-password-page');
+    Route::get('/logout', 'logout');
+    Route::view('/login-page', 'login')->name('login-page');
+    Route::view('register-page', 'register')->name('register-page');
+});
+

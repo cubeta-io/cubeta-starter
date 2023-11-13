@@ -51,7 +51,7 @@ class MakeWebController extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    public function createWebController(string $modelName, array $attributes = [], array $nullables = [], array $relations = [], $actor = null)
+    public function createWebController(string $modelName, array $attributes = [], array $nullables = [], array $relations = [], $actor = null): void
     {
         $modelNameCamelCase = variableNaming($modelName);
         $idVariable = $modelNameCamelCase . 'Id';
@@ -80,7 +80,7 @@ class MakeWebController extends Command
             '{modelNameCamelCase}' => $modelNameCamelCase,
             '{idVariable}' => $idVariable,
             '{tableName}' => $tableName,
-            '{addColumns}' => $addColumns ?? '',
+            '{addColumns}' => $addColumns ,
             '{rawColumns}' => $this->rawColumns ?? '',
             '{showRouteName}' => $routesNames['show'],
             '{editRouteName}' => $routesNames['edit'],
@@ -159,7 +159,7 @@ class MakeWebController extends Command
 
     }
 
-    private function addSidebarItem(string $modelName, string $routeName)
+    private function addSidebarItem(string $modelName, string $routeName): void
     {
         $modelName = titleNaming($modelName);
         $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');

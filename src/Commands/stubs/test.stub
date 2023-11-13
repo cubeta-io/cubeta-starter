@@ -1,12 +1,12 @@
 <?php
 
-namespace {namespace} ; 
+namespace {namespace} ;
 
 use {resourceNamespace}\{modelName}Resource;
 use {modelNamespace}\{modelName};
-use Tests\TestCase;
+use Tests\Contracts\MainTestCase;
 
-class {modelName}Test extends TestCase
+class {modelName}Test extends MainTestCase
 {
     protected $model = {modelName}::class;
 

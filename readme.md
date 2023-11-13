@@ -22,12 +22,11 @@
     - <a href="#factories">Factories</a>
     - <a href="#seeders">Seeders</a>
     - <a href="#repositories">Repositories</a>
-        - [BaseRepository Class](#baserepository)
+        - <a href="#baserepository">BaseRepository Class</a>
     - <a href="#services">Services</a>
     - <a href="#tests">Tests</a>
-        - [MainTestCase Trait](#maintestcase-trait-methods)
+        - <a href='#main-testcase-class'>MainTestCase Class</a>
     - <a href="#postman-collection">Postman Collection</a>
-    - <a href="#policies">Policies</a>
 - <a href="#translations">Translation Handling</a>
 - <a href="#restful-trait">Restful Trait</a>
 - <a href="#file-handler-trait">FileHandler Trait</a>
@@ -49,7 +48,6 @@ Each created model will have :
 - repository
 - service
 - test
-- postman collection
 
 and a postman collection file will be generated for the whole model created (models created by the package)
 
@@ -81,50 +79,33 @@ at one click**
 **<h3 id="use-terminal">Using Terminal Commands</h3>**
 the available publish tags are :
 
-1. cubeta-starter-repositories =>`php artisan vendor:publish --tag=cubeta-starter-repositories`
-2. cubeta-starter-services =>`php artisan vendor:publish --tag=cubeta-starter-services`
-3. cubeta-starter-traits =>`php artisan vendor:publish --tag=cubeta-starter-traits`
-4. cubeta-starter-config =>`php artisan vendor:publish --tag=cubeta-starter-config`
-5. cubeta-starter-providers =>`php artisan vendor:publish --tag=cubeta-starter-providers`
-6. cubeta-starter-handler (this requires you to publish the traits
-   before `number 3`             =>`php artisan vendor:publish --tag=cubeta-starter-handler --force`
-7. cubeta-starter-api-controller =>`php artisan vendor:publish --tag=cubeta-starter-api-controller`
-8. cubeta-starter-assets =>`php artisan vendor:publish --tag=cubeta-starter-assets`
-9. cubeta-starter-middlewares =>`php artisan vendor:publish --tag=cubeta-starter-middlewares`
-10. cubeta-starter-validation-rules =>`php artisan vendor:publish --tag=cubeta-starter-validation-rules`
+1. cubeta-starter-config =>`php artisan vendor:publish --tag=cubeta-starter-config`
+2. cubeta-starter-providers => `php artisan vendor:publish
+   --tag=cubeta-starter-providers`
+3. cubeta-starter-response => `php artisan vendor:publish --tag=cubeta-starter-response --force`
+4. cubeta-starter-crud => `php artisan vendor:publish --tag=cubeta-starter-crud`
+5. cubeta-starter-locale => `php artisan vendor:publish --tag=cubeta-starter-locale`
+6. cubeta-starter-test-tools => `php artisan vendor:publish --tag=cubeta-starter-test-tools`
+7. cubeta-starter-assets =>`php artisan vendor:publish --tag=cubeta-starter-assets`
+8. cubeta-auth-views => `php artisan vendor:publish --tag=cubeta-auth-views`
 
-**publish the exception handler : `php artisan vendor:publish --tag=cubeta-starter-handler --force`
-executing this command will replace your default exception handler in the directory `app/exceptions/handler.php` with a
-file with the same name .
-it is important to use the option `--force` when publishing the exception handler, so it can override Laravel default
-exception handler , or you may delete the default one and then re-run the publish command.**
+**publish tag cubeta-starter-response :has to use the force option because it is publishing an exception handler in with
+the same name of Laravel default exception handler in the `app/Exceptions` directory.**
 
-**<h3 id="required-tags">Required Publish Tags</h3>**
+**all the available publish tags are required when you are willing to get use of the package generation process except
+two tags :**
 
-1. cubeta-starter-repositories
-2. cubeta-starter-services
-3. cubeta-starter-traits
-4. cubeta-starter-config
-5. cubeta-starter-providers
-6. cubeta-starter-handler (this requires you to publish the traits before `number 3`)
+1. `cubeta-starter-auth-views`
+2. `cubeta-starter-assets`
+   <br>   **those two tags are for using the package t generate web controllers so if you're willing to use it for web
+   generating you should publish them**
 
-**<h3 id="api-tags">Required Publish Tags For API Generation Usage</h3>**
+<h1>Important Step !</h1>
 
-1. cubeta-starter-api-controller
-
-**<h3 id="web-tags">Required Publish Tags For WEB Generation Usage</h3>**
-
-1. cubeta-starter-assets
-2. cubeta-starter-middlewares
-
-__<span style="color:red">Note :</span>__ If you are publishing the tag : `cubeta-starter-assets` from the terminal then
-you'll find that there is a new controller in the `app/Http/Controllers` directory named SetLocaleController, so you
-need to add a route named (set-locale) in your routes files so the generated views can use it.
-
-**<h3 id="translations-tags">Required Publish Tags If You Are Willing To Use Our Translations Tools</h3>**
-
-1. cubeta-starter-middlewares
-2. cubeta-starter-validation-rules
+after publishing `cubeta-starter-providers` a new provider will appear in the `app/Providers` directory, so you need to
+register it in your project by going to `config/app.php` and in the file search for the `providers` array and add this
+line to it : `App\Providers\CubetaStarterServiceProvider::class
+`
 
 **<h1 id="usage">Usage</h1>**
 
@@ -135,7 +116,8 @@ The most elements in the config array are for the generated files directories an
 1. `project_name` : the created postman collection will be named corresponding to it
 2. `project_url` : here define your project public url, so we can add it to the postman collection
    if you let it **_null_** we will place it in the collection as like you're using xampp
-   e.g :`http://localhost/example-project/public/` [read more about the generated postman collection](#postman-collection)
+   e.g :`http://localhost/example-project/public/` <a href="#postman-collection">read more about the generated postman
+   collection</a>
 3. `available_locales` : the package provides a way to store your table columns with their
    translations <a href="#translations">(read more about it here)</a> so in this case this situation you'll need to
    define your project available locales in here
@@ -144,7 +126,7 @@ The most elements in the config array are for the generated files directories an
 <h2 id="gui">The Package Interface</h2>
 It is easy when you don't have to deal with the command line, so we've created an elegant interface to make your
 experience smoother. you can use it after installing the package by visiting the
-route `Your-Project-Domain/cubeta-starter`.
+route `http://localhost/your-project-folder-name/public/cubeta-starter`.
 This interface will work only on the local environment .
 
 **<h2 id="available-commands">Available Commands</h2>**
@@ -155,7 +137,7 @@ with the benefit of getting a full generated CRUD support code from them .
 the commands :
 
 1. `php artisan cubeta-init`
-2. `php artisan create:model <model-name> <--option=eg:controller>`
+2. `php artisan create:model <model-name> <--option=migration|request|resource|factory|seeder|repository|service|controller|web_controller|test|postman_collection>`
 3. `php artisan create:migration <model-name> ?<table-columns-array> ?<relations-array>`
 4. `php artisan create:factory <model-name> ?<table-columns-array> ?<relations-array>`
 5. `php artisan create:seeder <model-name> ?<table-columns-array>`
@@ -176,6 +158,27 @@ but it is always better to provide the right names for the commands instead on d
 unexpected behaviour .
 
 The `actor` parameter will define the actor on the created endpoints, and it is important for route placing and naming .
+
+<h3>create:model command options</h3>
+if you'd like you can generate the model with just a specific file you can just add the desired file as an option lik if
+you execute this command :
+
+`php artisan create:model Product --controller --postman_collection`
+just the model and the controller and the postman collection will be generated
+
+**the available options for these commands are :**
+
+1. --migration
+2. --request
+3. --resource
+4. --factory
+5. --seeder
+6. --repository
+7. --service
+8. --controller
+9. --web_controller
+10. --test
+11. --postman_collection
 
 <h3>the table columns array</h3>
 it is an array that take this shape :
@@ -253,14 +256,14 @@ just type your actor permissions and you're okay . <br>
 
 this will initialize your actors permissions in the database seeders and make them in one Enum, so you can reach
 them <br>
-and in the `routes/api` directory you will find a routes file named after your actor where each actor will have his
+and in the `routes/v1/api` directory you will find a routes file named after your actor where each actor will have his
 endpoints in it <br>
 and in the `app/Enums` directory you'll find a `RolesPermissionEnum.php` file which contain Enums represent your actors
 and their permissions (_it is better to check on them_) <br>
 
 **note:** if you ran this command and your choice was to have multi actors then on each created model an output will
 ask you about its controller actor and based on your choice the route for this controller will be placed in the
-compatible route file in the `routes/api` directory .
+compatible route file in the `routes/v1/api` directory .
 
 <h2 id="generating-files">Generating Files</h2>
 
@@ -310,7 +313,7 @@ those are the column type you just enter the number of the type
 Of course there isn't a column type called translatable in Laravel . to make it easier for you to use the prepared
 things for the translation we called this column translatable in fact the generated column type is json but in this way
 we've marked this column as translatable so the generated code will make sure to use the `LanguageShape` validation rule
-on the validation and the `getTranslation()` method when getting the translation .
+on the validation and the  `Translation`   trait in your model.
 
 The `LanguageShape` validation rule will make sure that the received json is simple and hasn't any nesting objects e.g :
 `{
@@ -352,14 +355,13 @@ so you will find a :
 2. migration for your model
 3. factory for your model
 4. seeder for your model
-5. request for your model
-6. resource for Your model
-7. controller filled with CRUD methods
-8. named api-resource rout for your controller will be appended in the appropriate route file
-9. repository class for your model
-10. service class and its interface for your model
-11. test class for your model with a test for CRUD operations
-12. postman collection
+5. request for your model if you've chosen api instead of web
+6. controller filled with CRUD methods
+7. named resource rout for your controller will be appended in the appropriate route file
+8. repository class for your model
+9. service class and its interface for your model
+10. test class for your model with a test for CRUD operations
+11. postman collection
 
 <h1 id="created-classes-and-files">Created Classes And Files</h1>
 
@@ -375,8 +377,8 @@ As mentioned before you'll find a model class corresponding to the name you ente
 
 - you'll notice the existence of `searchableArray()` method in the returned array of this method you can define the
   searchable columns in the table of this model so in the index method if you passed a query param named `search` with
-  the
-  value of the wanted value the index method search within the defined columns in the `searchableArray()` method .
+  the value of the wanted value the index method will search within the defined columns in the `searchableArray()`
+  method .
 - you'll notice the existence of `relationsSearchableArray()` method in the returned array of this method you can define
   the related tables and their desired columns to search within in the same way for the `searchableArray()` method .
 - the `filesKeys()` method will determine the columns you want to treat them as a files so
@@ -414,7 +416,7 @@ it is extends the ApiController class which use the RestTrait
 **RestTrait** : it is a trait with methods that will handle your json response using the following
 methods `(apiResponse , apiValidation , formatPaginateData)`
 
-[_you can have a look at it ._](#restful-trait)
+<a href="#restful-trait">_you can have a look at it ._</a>
 
 <h2 id='requests'>Requests</h2>
 
@@ -502,7 +504,7 @@ make sure that these rules are compatible with your application purposes and to 
 
 
 <h1 id="resources">Resources</h1>
-if you have checked on the created controllers you should notice that their return value is a resource created after the model name
+if you have checked on the created controllers you should notice that their return value is a resource named after the model name
 this resource will structure your json response to be in a united structure across your application 
 
 **notice:** this resource will return the relations of this model also` (it is better to check on its code)`
@@ -743,7 +745,7 @@ if you remember the BaseRepository class methods you'll find that BaseService cl
 
 <h2 id="tests">Tests</h2>
 
-each created model there will be a corresponding test class for its controller
+each created model there will be a corresponding test class which extends `MainTestClass`
 you can find it in the `tests/Feature` directory
 
 this test class will test the CRUD endpoints
@@ -759,14 +761,13 @@ but if we go to the others you need to know :
 2. `$baseUrl` : if you've checked on the appended rout of your model you'll notice that this route is named so here you
    just put the name of it like if the route name is 'brands' just put the value of it as 'brands' .
 
-another thing you have to do is to use MainTestCase trait in the TestCase Class in the `tests` directory (just put this
-line inside the class : `use \App\Traits\MainTestCase;`and you have to publish `cubeta-starter-traits` tag before)
-. <br>
-****
-maybe you want to check on MainTestCase trait to know how the test methods work and see if they are good for you, or you
+ <br>
+
+maybe you want to check on `MainTestCase` class trait to know how the test methods work and see if they are good for
+you, or you
 have to create another ones .
 
-- <h4 id="maintestcase-trait-methods">MainTestCase Trait Methods</h4>
+- <h4 id="main-testcase-class">MainTestCase Trait Methods</h4>
 
 **notice :** those methods depends on the model resource and factory and the response of the endpoint to be generated by
 the `RestTrait` and the exceptions thrown by our exception handler.  <br>
@@ -812,7 +813,7 @@ the model factory .<br>
 **notice :** you have to configure the `phpunit.xml` file before running any test check
 on [Laravel Testing documentation](https://laravel.com/docs/10.x/testing) <br>
 
-<p style="color:red;">I truly recommend to check on the MainTestCase Trait </p>
+<p style="color:red;">I truly recommend to check on the MainTestCase Class in  <code>tests/Contracts</code>   directory </p>
 
 <h2 id="postman-collection">Postman Collection</h2>
 the generated postman collection will have HTTP requests grouped by your model name .
@@ -825,45 +826,47 @@ it has two variables for the whole collection :
 when generating another postman collection assuming that you've already generated one it will not replace the older one
 it will just add a new group of requests to the previous one .
 
-<h2 id="policies">Policies</h2>
-the policies will be generated **just** if you run the command `php artisan create:policy <YourModelName>` .
-if you opened it you'll see that it extends the BasePolicy Class which contains the policy functions for the CRUD'S
-actions and those functions depends on the roles given to each actor on the model but assuming your model name is :
-Brand then the policy will make sure that this user has this
-roles : `('index brand , show brand , store brand , update brand' , 'delete brand')`
 <hr>
 <h1 id="translations">Translations Handling</h1>
 
 As we mentioned before the corresponding type for the translatable columns is json .
-for now (the first version) our tools for the translations are a helper to get the translation from this
-column based on your choices and validation rule in addition to a middleware that take the accept-language
-value from the request header and change the project locale according to it .
+every model that has a translated column will use this trait : <code>app/Traits/Translation</code>
 
-`getTranslation(string $translationColumn, $locale = null): mixed` method :
-this method is provided by `Translations` Trait, so you need to publish `cubeta-starter-traits` tag and use this trait
-inside your model
-it returns the corresponding value for the provided locale if it is not provided then for the current locale
-and if there isn't a value corresponding to them, it returns the corresponding value for the default locale
-defined in the config file of the package and if there isn't a corresponding value for it,
-it returns a message informing you that there isn't .
-<br>
-example :
-`$product->getTranslation('name' , 'en');`
+`updateTranslation(string $translatableColumn, mixed $value, string $locale = null)` Method:
 
-`updateTranslation(string $translatableColumn, mixed $value, string $locale = null): self` method :
-another method provided by Tanslations trait, and it is updating the locale value for a specified column of a model
-instance
+This method is used to update the corresponding translation for a given locale in a translatable column.
+Parameters:
+`$translatableColumn`: The name of the translatable column in your model's database table.
+`$value`: The value to set for the translation.
+`$locale` (optional): The locale for which to update the translation. If not provided, it uses the current application
+locale.
+If the provided locale is not in the list of available locales (configured in the available_locales key in the package
+config file), it throws an exception.
+It updates the translation in the JSON-encoded column, then saves the model and returns itself (the model).
 <br>
-example :
-`$product->updateTranslation('name' , 'word' , 'en');`
+<br>
+`getTranslation Method`:
+This method retrieves the corresponding translation value for a given locale from a JSON-encoded column.
+Parameters:
+$translationColumn: The name of the JSON-encoded column containing translations.
+$locale (optional): The locale for which to retrieve the translation. If not provided, it uses the current application
+locale.
+It first attempts to retrieve the translation for the provided locale. If not found, it falls back to the default locale
+configured in the package's config file.
+If a translation value is still not found, it returns a message indicating that there's no corresponding value for the
+provided locale or the default locale.
 
 `AcceptedLanguagesMiddleware` middleware :
-to use this just put this line in your `$middlewareGroups` array in the `api`
-element : `\App\Http\Middleware\AcceptedLanguagesMiddleware::class` in this way every received request will
-be checked for having an _accept-language_ header and change the project locale depending on it.
+to use this just put this line (`\App\Http\Middleware\AcceptedLanguagesMiddleware::class`) in your `$middleware` array
+in the `app/Http/Kernel.php` class in this way every received request will
+be checked for having an _accept-language_ header or the session for having key named `locale` and change the project
+locale depending on it.
 in addition to that you will notice that the generated postman collection will have a `"locale"` variable which will be
 the default value of all the generated requests' locale you can set it in postman in the variables' section of the
 collection .
+and for web usage when you published the `cubeta-starter-assets` tag a `SetLocaleController` has been published to
+the `app/Http/Controllers` directory **(if you published this tag from the command line make sure to add a rout for this
+controller)**
 
 <h1 id="restful-trait">RestTrait</h1>
 To use the RestTrait in your PHP application, follow these steps:

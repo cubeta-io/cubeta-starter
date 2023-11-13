@@ -3,6 +3,7 @@
 namespace {namespace};
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Session;
 use {ServiceNameSpace}\User\IUserService;
 use {requestsNamespace}\AuthRequests\AuthLoginRequest;
 use {requestsNamespace}\AuthRequests\UpdateUserRequest;
@@ -14,7 +15,7 @@ use {requestsNamespace}\AuthRequests\RequestResetPasswordRequest;
 class BaseAuthController extends Controller
 {
     private IUserService $userService;
-    private $role = null;
+    private ?string $role = null;
 
     public function __construct(IUserService $userService)
     {
@@ -32,9 +33,10 @@ class BaseAuthController extends Controller
         //login method and this data will be stored in the users table
         $user = $this->userService->login($request->validated(), $this->role, []);
         if ($user) {
-            return view('user-details', compact('user'));
+            return redirect()->route('dashboard.user-details');
         } else {
-            return redirect()->back()->with('error', __('site.credentials_not_match_records'));
+            Session::flash('error', __('site.credentials_not_match_records'));
+            return redirect()->back();
         }
     }
 
@@ -42,31 +44,34 @@ class BaseAuthController extends Controller
     {
         $user = $this->userService->register($request->validated(), $this->role);
         if ($user) {
-            return view('user-details', compact('user'));
+            return redirect()->route('dashboard.user-details');
         } else {
-            return redirect()->back()->with('error', __('site.something_went_wrong'));
+            Session::flash('error', __('site.something_went_wrong'));
+            return redirect()->back();
         }
     }
 
     public function updateUserData(UpdateUserRequest $request)
     {
-        $user = $this->userService->register($request->validated(), $this->role);
+        $user = $this->userService->updateUserDetails($request->validated(), $this->role);
 
         if ($user) {
-            return view('user-details', compact('user'));
+            return redirect()->route('dashboard.user-details');
         } else {
-            return redirect()->back()->with('error', __('site.something_went_wrong'));
+            Session::flash('error', __('site.something_went_wrong'));
+            return redirect()->back();
         }
     }
 
     public function userDetails()
     {
-        $user = $this->userService->showUserDetails($this->role);
+        $user = $this->userService->userDetails($this->role);
 
         if ($user) {
             return view('user-details', compact('user'));
         } else {
-            return redirect()->back()->with('error', __('site.something_went_wrong'));
+            Session::flash('error', __('site.something_went_wrong'));
+            return redirect()->back();
         }
     }
 
@@ -76,14 +81,15 @@ class BaseAuthController extends Controller
         if ($result) {
             return view('check-reset-code');
         } else {
-            return redirect()->back()->with('error', __('site.something_went_wrong'));
+            Session::flash('error', __('site.something_went_wrong'));
+            return redirect()->back();
         }
     }
 
     public function validateResetPasswordCode(CheckPasswordResetRequest $request)
     {
         $request->validated();
-        return view('reset-password');
+        return redirect()->route('dashboard.reset-password-page');
     }
 
     public function changePassword(ResetPasswordRequest $request)
@@ -92,10 +98,11 @@ class BaseAuthController extends Controller
         $result = $this->userService->passwordReset($data['reset_password_code'], $data['password']);
 
         if ($result) {
-            session()->put('success', __('site.password_changed_successfully'));
-            return view('login');
+            Session::flash('success', __('site.password_changed_successfully'));
+            return redirect()->route('dashboard.user-details');
         } else {
-            return redirect()->back()->with('error', __('site.something_went_wrong'));
+            Session::flash('error', __('site.credentials_not_match_records'));
+            return redirect()->back();
         }
     }
 

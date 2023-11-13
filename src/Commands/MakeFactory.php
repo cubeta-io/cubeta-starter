@@ -213,7 +213,7 @@ class MakeFactory extends Command
     }
 
     /**
-     * @param array $attributes
+     * @param  array  $attributes
      * @return string
      */
     private function getUsedTraits(array $attributes = []): string

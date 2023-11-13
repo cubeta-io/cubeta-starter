@@ -19,7 +19,7 @@ class InitialProject extends Command
 
     protected $description = 'Prepare the necessary files to work with the package';
 
-    protected $signature = 'cubeta-init {useGui?} {installSpatie?} {rolesPermissionsArray?} {authenticated?} {roleContainer?}';
+    protected $signature = 'cubeta-init {useGui?} {rolesPermissionsArray?} {authenticated?} {roleContainer?}';
 
 
     /**
@@ -29,19 +29,17 @@ class InitialProject extends Command
     public function handle(): void
     {
         $useGui = $this->argument('useGui') ?? false;
-        $installSpatie = $this->argument('installSpatie') ?? false;
         $rolesPermissionsArray = $this->argument('rolesPermissionsArray') ?? false;
         $authenticated = $this->argument('authenticated') ?? [];
         $roleContainer = $this->argument('roleContainer') ?? [];
 
+        $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
+        $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
+
         if ($useGui) {
-            if ($installSpatie) {
-                $this->installSpatie(true);
-            }
             if ($rolesPermissionsArray) {
                 $this->handleRolesPermissionsArray($rolesPermissionsArray, $authenticated, $roleContainer);
             }
-
             return;
         }
 
@@ -49,10 +47,10 @@ class InitialProject extends Command
     }
 
     /**
-     * @param mixed $role
-     * @param array|null $permissions
-     * @param array $authenticated
-     * @param array $roleContainer
+     * @param  mixed                      $role
+     * @param  array|null                 $permissions
+     * @param  array                      $authenticated
+     * @param  array                      $roleContainer
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -62,13 +60,13 @@ class InitialProject extends Command
         $this->createRolesEnum($role, $permissions);
 
         if (in_array($roleContainer[$role], ['web', 'both'])) {
-            if (!file_exists(base_path("routes/web/{$role}.php"))) {
+            if (!file_exists(base_path("routes/v1/web/{$role}.php"))) {
                 $this->addRouteFile($role, 'web');
             }
         }
 
         if (in_array($roleContainer[$role], ['api', 'both'])) {
-            if (!file_exists(base_path("routes/api/{$role}.php"))) {
+            if (!file_exists(base_path("routes/v1/api/{$role}.php"))) {
                 $this->addRouteFile($role, 'api');
             }
         }
@@ -91,8 +89,6 @@ class InitialProject extends Command
         $hasActors = $this->choice('Does your project have multiple actors?', ['No', 'Yes'], 'No') == 'Yes';
 
         if ($hasActors) {
-            $this->installSpatie();
-
             $actorsNumber = $this->ask('How many actors are there?', 2);
 
             while (!is_numeric($actorsNumber) || $actorsNumber < 0) {
@@ -167,9 +163,9 @@ class InitialProject extends Command
     /**
      * Handle the roles and permissions passed as arguments
      *
-     * @param array $rolesPermissions
-     * @param array $authenticated
-     * @param array $roleContainer
+     * @param  array                      $rolesPermissions
+     * @param  array                      $authenticated
+     * @param  array                      $roleContainer
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -184,7 +180,7 @@ class InitialProject extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    private function generateAuthControllers(string $role, array $authenticated = [], array $roleContainer = [])
+    private function generateAuthControllers(string $role, array $authenticated = [], array $roleContainer = []): void
     {
         if (in_array($role, $authenticated)) {
             if (in_array($roleContainer[$role], ['api', 'both'])) {
@@ -201,28 +197,28 @@ class InitialProject extends Command
                     '{roleEnumName}' => roleNaming($role)
                 ];
 
-                $controllerPath = "$apiControllerDirectory/$controllerName.php";
+                $controllerPath = "{$apiControllerDirectory}/{$controllerName}.php";
 
                 if (file_exists($controllerPath)) {
                     $this->error('Controller Already Exists');
                     return;
                 }
-                generateFileFromStub($stubProperties, "$controllerPath", __DIR__ . '/stubs/Auth/auth-controller.stub');
-                $this->info("Created Controller : $controllerName");
+                generateFileFromStub($stubProperties, "{$controllerPath}", __DIR__ . '/stubs/Auth/auth-controller.stub');
+                $this->info("Created Controller : {$controllerName}");
 
-                if (!file_exists(base_path("routes/api/$role.php"))) {
+                if (!file_exists(base_path("routes/api/{$role}.php"))) {
                     return;
                 }
 
                 $routes = file_get_contents(__DIR__ . '/stubs/Auth/auth-api-routes.stub');
 
                 $routes = str_replace('{role}', $role, $routes);
-                $routeFilePath = base_path("routes/api/$role.php");
+                $routeFilePath = base_path("routes/api/{$role}.php");
                 $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . ";";
 
                 file_put_contents($routeFilePath, $routes, FILE_APPEND);
                 addImportStatement($importStatement, $routeFilePath);
-                $this->info("$role auth routes has been added");
+                $this->info("{$role} auth routes has been added");
 
                 $this->addPostmanAuthCollection($role);
                 $this->info("Auth collection added to postman");
@@ -230,7 +226,7 @@ class InitialProject extends Command
         }
     }
 
-    private function addPostmanAuthCollection(string $role)
+    private function addPostmanAuthCollection(string $role): void
     {
         $authPostmanEntity = file_get_contents(__DIR__ . "/stubs/Auth/auth-postman-entity.stub");
         $authPostmanEntity = str_replace("{role}", $role, $authPostmanEntity);

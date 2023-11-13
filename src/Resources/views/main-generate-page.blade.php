@@ -135,21 +135,6 @@
 
                             @if($addActor)
                                 <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <p class="description-font">If You Have Multi Actors System
-                                                and You're
-                                                Planing To Use Our Multi Actors Configuration You Need
-                                                to Have
-                                                Spatie/Permission Package. Do you want to install it?
-                                            </p>
-                                            <a id="install-spatie"
-                                               href="{{route('cubeta-starter.call-install-spatie')}}"
-                                               class="btn btn-primary">
-                                                install spatie
-                                            </a>
-                                        </div>
-                                    </div>
                                     @if($roles && count($roles) >0)
                                         <div class="col-md-12 p-3">
                                             <label>Your Project Roles</label>
@@ -170,15 +155,18 @@
                                                 this will generate the required classes for you to handle users
                                                 authentication in api container.
                                                 the generated are files :
-                                                Migration: 2014_10_12_000000_create_users_table.php
-                                                Model: User
-                                                Repository: UserRepository
-                                                Service: UserService
-                                                Resource: UserResource
-                                                Requests: AuthRequests
-                                                Controller: BaseAuthController
-                                                View: reset-password-email
                                             </p>
+
+                                            <ul>
+                                                <li> Migration: 2014_10_12_000000_create_users_table.php</li>
+                                                <li> Model: User</li>
+                                                <li> Repository: UserRepository</li>
+                                                <li> Service: UserService</li>
+                                                <li> Resource: UserResource</li>
+                                                <li> Requests: AuthRequests</li>
+                                                <li>Controller: BaseAuthController</li>
+                                                <li>View: reset-password-email</li>
+                                            </ul>
                                             <a class="btn btn-primary"
                                                href="{{route('cubeta-starter.init-auth' , 'api')}}">init api auth</a>
                                         </div>
@@ -188,14 +176,16 @@
                                                 this will generate the required classes for you to handle users
                                                 authentication in web container.
                                                 the generated are files :
-                                                Migration: 2014_10_12_000000_create_users_table.php
-                                                Model: User
-                                                Repository: UserRepository
-                                                Service: UserWebService
-                                                Requests: AuthRequests
-                                                Controller: BaseAuthWebController
-                                                View: reset-password-email and some other views
                                             </p>
+                                            <ul>
+                                                <li>Migration: 2014_10_12_000000_create_users_table.php</li>
+                                                <li>Model: User</li>
+                                                <li>Repository: UserRepository</li>
+                                                <li>Service: UserWebService</li>
+                                                <li>Requests: AuthRequests</li>
+                                                <li>Controller: BaseAuthWebController</li>
+                                                <li>View: reset-password-email and some other views</li>
+                                            </ul>
                                             <a class="btn btn-primary"
                                                href="{{route('cubeta-starter.init-auth' , 'web')}}">init web
                                                 auth</a>
@@ -208,6 +198,10 @@
                                                 this will generate the files like the initialization in web and api
                                                 containers combined
                                             </p>
+                                            <br>
+                                            <br>
+                                            <br>
+                                            <br>
                                             <br>
                                             <br>
                                             <br>
@@ -257,122 +251,7 @@
         </section>
     </main>
 
-    @if(request('error'))
-        @push('scripts')
-            <script type="module">
-                const swalWithBootstrapButtons = Swal.mixin({
-                    customClass: {
-                        confirmButton: 'btn btn-danger',
-                        cancelButton: 'btn btn-secondary'
-                    },
-                    buttonsStyling: false
-                })
-
-                swalWithBootstrapButtons.fire({
-                    title: 'Error',
-                    text: "{{ request('error') }}",
-                    icon: 'error',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ok',
-                    cancelButtonText: 'Show Log',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{url()->previous()}}";
-                    } else if (result.isDismissed) {
-                        window.location.href = "{{route('cubeta-starter.output')}}";
-                    }
-                })
-            </script>
-        @endpush
-    @endif
-
-    @if(request('success'))
-        @push('scripts')
-            <script type="module">
-                const swalWithBootstrapButtons = Swal.mixin({
-                    customClass: {
-                        confirmButton: 'btn btn-primary',
-                        cancelButton: 'btn btn-secondary'
-                    },
-                    buttonsStyling: false
-                })
-
-                swalWithBootstrapButtons.fire({
-                    title: 'Success',
-                    text: "{{ request('success') }}",
-                    icon: 'success',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ok',
-                    cancelButtonText: 'Show Log',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{url()->previous()}}";
-                    } else if (result.isDismissed) {
-                        window.location.href = "{{route('cubeta-starter.output')}}";
-                    }
-                })
-            </script>
-        @endpush
-    @endif
-
-    @if(request('warning'))
-        @push('scripts')
-            <script type="module">
-                const swalWithBootstrapButtons = Swal.mixin({
-                    customClass: {
-                        confirmButton: 'btn btn-primary',
-                        cancelButton: 'btn btn-secondary'
-                    },
-                    buttonsStyling: false
-                })
-
-                swalWithBootstrapButtons.fire({
-                    title: 'Warning',
-                    text: "{{ request('warning') }}",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ok',
-                    cancelButtonText: 'Show Log',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{url()->previous()}}";
-                    } else if (result.isDismissed) {
-                        window.location.href = "{{route('cubeta-starter.output')}}";
-                    }
-                })
-            </script>
-        @endpush
-    @endif
-
-    @push('scripts')
-        <script type="module">
-            $(document).ready(function () {
-                const myModal = document.getElementById('spinner');
-                const modal = new bootstrap.Modal(myModal, {
-                    keyboard: false,
-                    backdrop: "static"
-                });
-                modal.hide();
-                $('#generator-form').submit(function () {
-                    modal.show();
-                })
-
-                $('#install-spatie').click(function () {
-                    document.getElementById('modal-title').innerText = "Installing Spatie/Permissions"
-                    modal.show();
-                })
-
-                $(document).on('keydown', function (event) {
-                    if (event.key === 'Escape') {
-                        modal.hide();
-                    }
-                });
-            });
-        </script>
-    @endpush
+    @include('CubetaStarter::includes.handle-messages-scripts')
 
     @if($addActor)
         @push('scripts')

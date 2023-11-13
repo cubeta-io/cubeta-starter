@@ -18,15 +18,17 @@ class MakeModel extends Command
 
     public $signature = 'create:model
         {name : The name of the model }
-        {gui?}
         {attributes?}
+        {nullables? : nullable columns}
+        {uniques? : unique columns}
         {relations?}
         {actor?}
         {container?}
-        {option? : string to generate a single file (migration, request, resource, factory, seeder, repository, service, controller, test, postman-collection)}
-        {nullables? : nullable columns}
-        {uniques? : unique columns}';
-
+        {gui?}
+        {--migration} {--request} {--resource}
+        {--factory} {--seeder} {--repository}
+        {--service} {--controller} {--web_controller}
+        {--test} {--postman_collection}';
     protected array $relations = [];
 
     protected bool $useGui = false;
@@ -60,7 +62,7 @@ class MakeModel extends Command
     public function handle(): void
     {
         $name = $this->argument('name');
-        $option = $this->argument('option');
+        $options = $this->options();
         $guiAttributes = $this->argument('attributes') ?? [];
         $nullables = $this->argument('nullables') ?? [];
         $uniques = $this->argument('uniques') ?? [];
@@ -79,7 +81,7 @@ class MakeModel extends Command
         if ($this->useGui) {
             $this->relations = $relations;
             $this->createModel($modelName, $guiAttributes);
-            $this->callAppropriateCommand($name, $option, $actor, $guiAttributes, $nullables, $uniques);
+            $this->callAppropriateCommand($name, $options, $actor, $guiAttributes, $nullables, $uniques);
             $this->createPivots($modelName);
             return;
         }
@@ -92,7 +94,7 @@ class MakeModel extends Command
 
         $actor = $this->checkTheActor();
 
-        $this->callAppropriateCommand($name, $option, $actor, $attributes, $nullables, $uniques);
+        $this->callAppropriateCommand($name, $options, $actor, $attributes, $nullables, $uniques);
 
         $this->createPivots($modelName);
     }
@@ -124,25 +126,34 @@ class MakeModel extends Command
     /**
      * call to command base on the option flag
      */
-    public function callAppropriateCommand(string $name, $option, string $actor, array $attributes = [], array $nullables = [], array $uniques = []): void
+    public function callAppropriateCommand(string $name, $options, string $actor, array $attributes = [], array $nullables = [], array $uniques = []): void
     {
         $container = $this->checkContainer();
-        $result = match ($option) {
-            'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables, 'uniques' => $uniques]),
-            'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques]),
-            'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
-            'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'uniques' => $uniques]),
-            'seeder' => $this->call('create:seeder', ['name' => $name]),
-            'repository' => $this->call('create:repository', ['name' => $name]),
-            'service' => $this->call('create:service', ['name' => $name]),
-            'controller' => $this->call('create:controller', ['name' => $name, 'actor' => $actor]),
-            'web-controller' => $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables]),
-            'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]),
-            'postman-collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
-            '', null => 'all',
-        };
+        $options = array_filter($options, function ($value) {
+            return $value !== false && $value !== null;
+        });
 
-        if ($result === 'all') {
+        if (!count($options)) {
+            $result = 'all';
+        } else {
+            foreach ($options as $key => $option) {
+                $result = match ($key) {
+                    'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables, 'uniques' => $uniques]),
+                    'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques]),
+                    'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
+                    'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'uniques' => $uniques]),
+                    'seeder' => $this->call('create:seeder', ['name' => $name]),
+                    'repository' => $this->call('create:repository', ['name' => $name]),
+                    'service' => $this->call('create:service', ['name' => $name]),
+                    'controller' => $this->call('create:controller', ['name' => $name, 'actor' => $actor]),
+                    'web_controller' => $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables]),
+                    'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]),
+                    'postman_collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
+                };
+            }
+        }
+
+        if (!isset($result) || $result === 'all') {
             $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables, 'uniques' => $uniques]);
             $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'uniques' => $uniques]);
             $this->call('create:seeder', ['name' => $name]);
@@ -194,7 +205,6 @@ class MakeModel extends Command
     {
         if (file_exists(base_path('app/Enums/RolesPermissionEnum.php'))) {
             if (class_exists('\App\Enums\RolesPermissionEnum')) {
-                /** @noinspection PhpUndefinedNamespaceInspection */
                 /** @noinspection PhpFullyQualifiedNameUsageInspection */
                 $roles = \App\Enums\RolesPermissionEnum::ALLROLES;
                 $roles[] = 'none';
@@ -347,7 +357,7 @@ class MakeModel extends Command
                         public function {$attributeMethod}(): \Illuminate\Database\Eloquent\Casts\Attribute
                         {
                             return \Illuminate\Database\Eloquent\Casts\Attribute::make(
-                                get: fn (string \$value) => \$this->getTranslation('$attribute'),
+                                get: fn (string \$value) => \$this->getTranslation('{$attribute}'),
                             );
                         } \n";
         }
@@ -377,7 +387,7 @@ class MakeModel extends Command
 
     /**
      * generate the getFileProperty method for each file typ columns in the model
-     * @param $modelName
+     * @param         $modelName
      * @param array $attributes
      * @return string
      */
@@ -591,7 +601,7 @@ class MakeModel extends Command
         foreach ($attributes as $name => $type) {
 
             if ($type == 'boolean') {
-                $casts .= "'$name' => 'boolean' , ";
+                $casts .= "'{$name}' => 'boolean' , ";
             }
 
         }

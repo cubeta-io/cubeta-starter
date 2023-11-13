@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Http\Controllers;
+namespace Cubeta\CubetaStarter\app\Http\Controllers;
 
 use Exception;
 use Illuminate\Support\Facades\Artisan;
@@ -19,12 +19,10 @@ class CallAppropriateCommand extends Controller
     private mixed $actor;
     private mixed $columns;
     private mixed $container;
-
     private mixed $modelName;
     private mixed $nullables;
     private mixed $relations;
     private mixed $uniques;
-
 
     public function __construct(Request $request)
     {
@@ -95,14 +93,14 @@ class CallAppropriateCommand extends Controller
             }
 
             if (isset($this->nullables) && count($this->nullables) > 0) {
-                foreach ($this->nullables as $key => &$value) {
+                foreach ($this->nullables as &$value) {
                     $value = columnNaming($value);
                 }
                 $arguments['nullables'] = $this->nullables;
             }
 
             if (isset($this->uniques) && count($this->uniques) > 0) {
-                foreach ($this->uniques as $key => &$value) {
+                foreach ($this->uniques as &$value) {
                     $value = columnNaming($value);
                 }
                 $arguments['uniques'] = $this->uniques;
@@ -267,26 +265,6 @@ class CallAppropriateCommand extends Controller
         return $this->callCommand($command);
     }
 
-    public function callInstallSpatie()
-    {
-        try {
-            set_time_limit(0);
-
-            Artisan::call('cubeta-init', [
-                'useGui' => true,
-                'installSpatie' => true,
-                'rolesPermissionsArray' => null
-            ]);
-
-            $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.generate-add-actor.page', "Spatie Has Been Installed \n Don't Forgot To Run Your Migrations");
-
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
-    }
-
     public function installingWebPackages()
     {
         set_time_limit(0);
@@ -294,68 +272,6 @@ class CallAppropriateCommand extends Controller
             Artisan::call('init-web-packages');
             $output = Artisan::output();
             return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'The Packages Have Been Installed Successfully');
-
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
-    }
-
-    public function publishAssets()
-    {
-        try {
-            Artisan::call('vendor:publish', [
-                '--tag' => 'cubeta-starter-assets',
-            ]);
-
-            if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
-                $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->name('set-locale');";
-            } else {
-                $route = "Route::post('/blank', function () {
-                    return response()->noContent();
-                })->middleware('web')->name('set-locale');";
-            }
-
-            $routePath = base_path("routes/web.php");
-
-            if (file_exists($routePath)) {
-                file_put_contents($routePath, $route, FILE_APPEND);
-            }
-
-            $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'The Assets Has Been Published Successfully');
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
-    }
-
-    public function publishConfig()
-    {
-        try {
-            Artisan::call('vendor:publish', [
-                '--tag' => 'cubeta-starter-config',
-            ]);
-
-            $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Config File Published Successfully');
-
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
-    }
-
-    public function publishHandler()
-    {
-        try {
-            Artisan::call('vendor:publish', [
-                '--tag' => 'cubeta-starter-handler',
-                '--force' => true
-            ]);
-
-            $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Exception Handler Published Successfully');
 
         } catch (Exception $e) {
             $error = $e->getMessage();
@@ -421,7 +337,7 @@ class CallAppropriateCommand extends Controller
         }
     }
 
-    protected function callPublishCommand(string $tag)
+    private function callPublishCommand(string $tag)
     {
         try {
             Artisan::call('vendor:publish', [
@@ -437,39 +353,63 @@ class CallAppropriateCommand extends Controller
         }
     }
 
-    public function publishRepositories()
+    public function publishAssets()
     {
-        return $this->callPublishCommand('cubeta-starter-repositories');
+        try {
+            Artisan::call('vendor:publish', [
+                '--tag' => 'cubeta-starter-assets',
+            ]);
+
+            if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
+                $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->name('set-locale');";
+            } else {
+                $route = "Route::post('/blank', function () {
+                    return response()->noContent();
+                })->middleware('web')->name('set-locale');";
+            }
+
+            $routePath = base_path("routes/web.php");
+
+            if (file_exists($routePath)) {
+                file_put_contents($routePath, $route, FILE_APPEND);
+            }
+
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'The Assets Has Been Published Successfully');
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
+        }
     }
 
-    public function publishServices()
+    public function publishConfig()
     {
-        return $this->callPublishCommand('cubeta-starter-services');
-    }
-
-    public function publishApiController()
-    {
-        return $this->callPublishCommand('cubeta-starter-api-controller');
-    }
-
-    public function publishMiddlewares()
-    {
-        return $this->callPublishCommand('cubeta-starter-middlewares');
-    }
-
-    public function publishValidationRules()
-    {
-        return $this->callPublishCommand('cubeta-starter-validation-rules');
-    }
-
-    public function publishTraits()
-    {
-        return $this->callPublishCommand('cubeta-starter-traits');
+        return $this->callPublishCommand('cubeta-starter-config');
     }
 
     public function publishProviders()
     {
         return $this->callPublishCommand('cubeta-starter-providers');
+    }
+
+    public function publishTestingTools()
+    {
+        return $this->callPublishCommand('cubeta-starter-test-tools');
+    }
+
+    public function callPublishResponseHandlers()
+    {
+        return $this->callPublishCommand('cubeta-starter-response');
+    }
+
+    public function callPublishCrudHandlers()
+    {
+        return $this->callPublishCommand('cubeta-starter-crud');
+    }
+
+    public function callPublishLocaleHandler()
+    {
+        return $this->callPublishCommand('cubeta-starter-locale');
     }
 
     public function publishAll()

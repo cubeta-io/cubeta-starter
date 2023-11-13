@@ -63,4 +63,13 @@ trait RestTrait
             'per_page' => $paginated_arr['per_page'],
         ];
     }
+
+    /**
+     * @param mixed $response
+     * @return JsonResponse
+     */
+    public function noData(mixed $response): JsonResponse
+    {
+        return $this->apiResponse($response, ApiController::STATUS_OK, __('site.there_is_no_data'));
+    }
 }
