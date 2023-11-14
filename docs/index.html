@@ -86,50 +86,36 @@
             attention: {
                 label: "Attention"
             }
-        }, plugins: [
-            function (hook, vm) {
-                hook.doneEach(function () {
-                    // Add click event listener to toggle the position
-                    var sidebarToggle = document.querySelector('.sidebar-toggle');
-                    var sidebar = document.querySelector('.sidebar');
-                    var isLeft = sidebarToggle.style.left === '260px';
-
-                    sidebarToggle.addEventListener('click', function () {
-                        if (isLeft) {
-                            sidebarToggle.style.left = '0';
-                            sidebar.style.paddingTop = '60px';
-                        } else {
-                            sidebarToggle.style.left = '260px';
-                            sidebar.style.paddingTop = '80px'; // Adjust this value based on the icon's height and spacing
-                        }
-                    });
-                });
-            }
-        ]
+        }
     }
 </script>
 <script type="module">
     document.addEventListener('DOMContentLoaded', function () {
-        let sidebarToggle = document.querySelector('.sidebar-toggle-button');
+        let sidebarToggleButton = document.querySelector('.sidebar-toggle-button');
+        let sidebarToggle =  document.querySelector('.sidebar-toggle');
         let isToggled = false;
 
         function toggleStyles() {
             if (isToggled) {
+                sidebarToggleButton.style.left = '18%';
                 sidebarToggle.style.left = '18%';
+                sidebarToggleButton.style.top = '3%';
                 sidebarToggle.style.top = '3%';
             } else {
+                sidebarToggleButton.style.left = '3%';
+                sidebarToggleButton.style.top = '3%';
                 sidebarToggle.style.left = '3%';
                 sidebarToggle.style.top = '3%';
             }
 
             // Triggering reflow to apply the transition
-            void sidebarToggle.offsetWidth;
+            void sidebarToggleButton.offsetWidth;
 
-            sidebarToggle.style.transition = 'left 0.3s ease, top 0.3s ease'; // Reapply transition
+            sidebarToggleButton.style.transition = 'left 0.3s ease, top 0.3s ease'; // Reapply transition
             isToggled = !isToggled;
         }
 
-        sidebarToggle.addEventListener('click', toggleStyles);
+        sidebarToggleButton.addEventListener('click', toggleStyles);
     });
 </script>
 <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
