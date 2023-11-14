@@ -30,18 +30,21 @@ After installing the package you have two choices :
 
 **<h3 id="use-gui">Using GUI : </h3>**
 head to your browser and get into `http://yourdomain.com/cubeta-starter`
+
 for example if you are working in your local `http://localhost/your-project-folder-name/public/cubeta-starter`
+
 you will find a complete installation interface (available just in development environment)
 
 in this page you'll find all publishes options since the package follow the zero dependencies principle, so you can
 publish and use whatever file the package provide (controllers , views , components , ....)
 <br><br>
-__<span style="color:red">Note :</span>__
+
 In This Page you'll find all the available publish tags and button to perform them in addition to a button to run all
 publishes at once and another one to install all used npm packages
 
-__<span style="color:red">Note :</span>__**There is a button in the bottom of the page that will run all the publishes
-at one click**
+> [!note]
+> There is a button in the bottom of the page that will run all the publishes
+> at one click
 
 **<h3 id="use-terminal">Using Terminal Commands</h3>**
 **<h4 id="publish-tags">Available Publish Tags</h4>**
@@ -57,16 +60,18 @@ the available publish tags are :
 7. cubeta-starter-assets =>`php artisan vendor:publish --tag=cubeta-starter-assets`
 8. cubeta-auth-views => `php artisan vendor:publish --tag=cubeta-auth-views`
 
-**publish tag cubeta-starter-response :has to use the force option because it is publishing an exception handler in with
-the same name of Laravel default exception handler in the `app/Exceptions` directory.**
+> [!note]
+> Publish tag cubeta-starter-response :has to use the force option because it is publishing an exception handler in with
+> the same name of Laravel default exception handler in the `app/Exceptions` directory.
 
-**all the available publish tags are required when you are willing to get use of the package generation process except
-two tags :**
+> [!note]
+> all the available publish tags are required when you are willing to get use of the package generation process except
+> two tags :
+> 1. `cubeta-starter-auth-views`
+> 2. `cubeta-starter-assets`
+> 
+> those two tags are for using the package t generate web controllers so if you're willing to use it for web generating you should publish them
 
-1. `cubeta-starter-auth-views`
-2. `cubeta-starter-assets`
-   <br>   **those two tags are for using the package t generate web controllers so if you're willing to use it for web
-   generating you should publish them**
 
 <h1>Important Step !</h1>
 
@@ -128,7 +133,8 @@ unexpected behaviour .
 The `actor` parameter will define the actor on the created endpoints, and it is important for route placing and naming .
 
 <h3>create:model command options</h3>
-if you'd like you can generate the model with just a specific file you can just add the desired file as an option like if
+if you'd like you can generate the model with just a specific file you can just add the desired file as an option like
+if
 you execute this command :
 
 `php artisan create:model Product --controller --postman_collection`
@@ -176,7 +182,9 @@ and it takes the below shape :
 **<h2 id="cubeta-init-command">cubeta-init command</h2>**
 
 now this command will Initialize your project on specific roles :
-note that you can do this using the GUI Interface.
+> [!note]
+> you can do this using the GUI Interface.
+
 **<label for="cubeta-init-command">how to use it :</label>**
 
 1- run this command : `php artisan cubeta-init` so an output will appear :
@@ -229,9 +237,10 @@ endpoints in it <br>
 and in the `app/Enums` directory you'll find a `RolesPermissionEnum.php` file which contain Enums represent your actors
 and their permissions (_it is better to check on them_) <br>
 
-**note:** if you ran this command and your choice was to have multi actors then on each created model an output will
-ask you about its controller actor and based on your choice the route for this controller will be placed in the
-compatible route file in the `routes/v1/api` directory .
+> [!note]
+> if you ran this command and your choice was to have multi actors then on each created model an output will
+> ask you about its controller actor and based on your choice the route for this controller will be placed in the
+> compatible route file in the `routes/v1/api` directory .
 
 <h2 id="generating-files">Generating Files</h2>
 
@@ -274,8 +283,9 @@ What is the data type of the (( name field )) ? default is  [string]:
 
 those are the column type you just enter the number of the type
 
-- **notice** : the key type is a foreignId so if your column name is something like this : ``user_id`` you need to
-  define it as a key type
+> [!note]
+> the `key` type is a foreignId so if your column name is something like this : `user_id` you need to
+> define it as a key type
 
 <h3 id="translatable-column-type">Translatable Column Type</h3>
 Of course there isn't a column type called translatable in Laravel . to make it easier for you to use the prepared
@@ -361,18 +371,21 @@ your preferences**
 
 the corresponding created migration will match the types of the columns you entered before
 
-**notice 1:** columns of type files will be placed on the migration file as a string columns with a nullable
-attribute <br>
-**notice 2:** columns of type key will be placed on the migration file as a `foreignIdFor` columns with these
-attributes : <br>
+> [!note]
+> columns of type files will be placed on the migration file as a string columns with a nullable
+> attribute
 
-1. constrained
-2. cascadeOnDelete
+> [!note]
+> columns of type key will be placed on the migration file as a `foreignIdFor` columns with these
+> attributes :
+> 1. constrained
+> 2. cascadeOnDelete
 
-**notice 3:** columns of type translatable will be placed on the migration file as a `json` columns<br>
+> [!note]
+> columns of type translatable will be placed on the migration file as a `json` columns
 
-<div class="alert alert-danger" style="color: crimson"> it is always better to check on the created files</div>
-
+> [!tip]
+> it is always better to check on the created files
 
 <h2 id="controllers">Controllers</h2>
 
@@ -467,15 +480,18 @@ required|integer|exists:_parent table_,id
 
 <br>
 
-**notice** : it is important to check on the rules of the created form request after each created model to
-make sure that these rules are compatible with your application purposes and to check if there is any invalid rule usage
+> [!attention]
+> it is important to check on the rules of the created form request after each created model to
+> make sure that these rules are compatible with your application purposes and to check if there is any invalid rule
+> usage
 
 
 <h1 id="resources">Resources</h1>
 if you have checked on the created controllers you should notice that their return value is a resource named after the model name
-this resource will structure your json response to be in a united structure across your application 
+this resource will structure your json response to be in a united structure across your application .
 
-**notice:** this resource will return the relations of this model also` (it is better to check on its code)`
+> [!warning]
+> this resource will return the relations of this model also
 
 <h2 id="factories">Factories</h2>
 the created factory fill the database according to this :
@@ -735,12 +751,24 @@ maybe you want to check on `MainTestCase` class trait to know how the test metho
 you, or you
 have to create another ones .
 
-- <h3 id="main-testcase-class">MainTestCase Class Methods</h3>
+<h2 id="postman-collection">Postman Collection</h2>
+the generated postman collection will have HTTP requests grouped by your model name .
+it has two variables for the whole collection :
 
-**notice :** those methods depends on the model resource and factory and the response of the endpoint to be generated by
-the `RestTrait` and the exceptions thrown by our exception handler.  <br>
-so each model must have a resource and a factory (not necessarily generated by the package) but the endpoint for it
-must be using RestTrait for handling its responses .
+1. **{{local}}** :  this will be generated as we mentioned before from the value you defined in the config or by
+   assuming you're using `xampp` so the url will be like the projects route which use xampp as a host.
+2. **{{locale}}** : this will represent the accept-language header in all the generated requests
+
+when generating another postman collection assuming that you've already generated one it will not replace the older one
+it will just add a new group of requests to the previous one .
+
+<h3 id="main-testcase-class">MainTestCase Class Methods</h3>
+
+> [!attention]
+> those methods depends on the model resource and factory and the response of the endpoint to be generated by
+> the `RestTrait` and the exceptions thrown by our exception handler.  <br>
+> so each model must have a resource and a factory (not necessarily generated by the package) but the endpoint for it
+> must be using RestTrait for handling its responses .
 
 - `indexTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false)` : <br>
   this method will test the index endpoint by creating 5 records of fake data and try to get them
@@ -772,27 +800,19 @@ must be using RestTrait for handling its responses .
   `$replacing` : sometimes your update endpoint doesn't edit the selected database record it is just create another one
   with the desired edits so if this what happens in your endpoint just make this parameter `false` . <br>
 
-**notice :** it is important to mention that the storeTest and updateTest methods generate their requests body data from
-the model factory .<br>
+> [!note]
+> it is important to mention that the storeTest and updateTest methods generate their requests body data from
+> the model factory .
 
 - `deleteTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false)` : <br>
   all the parameters of this method has explained before . <br>
 
-**notice :** you have to configure the `phpunit.xml` file before running any test check
-on [Laravel Testing documentation](https://laravel.com/docs/10.x/testing) <br>
+> [!warning]
+> don't forget to configure the `phpunit.xml` file before running any test check
+> on [Laravel Testing documentation](https://laravel.com/docs/10.x/testing)
 
-<p style="color:red;">I truly recommend to check on the MainTestCase Class in  <code>tests/Contracts</code>   directory </p>
-
-<h2 id="postman-collection">Postman Collection</h2>
-the generated postman collection will have HTTP requests grouped by your model name .
-it has two variables for the whole collection :
-
-1. **{{local}}** :  this will be generated as we mentioned before from the value you defined in the config or by
-   assuming you're using `xampp` so the url will be like the projects route which use xampp as a host.
-2. **{{locale}}** : this will represent the accept-language header in all the generated requests
-
-when generating another postman collection assuming that you've already generated one it will not replace the older one
-it will just add a new group of requests to the previous one .
+> [!tip]
+> I truly recommend to check on the MainTestCase Class in
 
 <hr>
 <h1 id="translations">Translations Handling</h1>
@@ -833,8 +853,11 @@ in addition to that you will notice that the generated postman collection will h
 the default value of all the generated requests' locale you can set it in postman in the variables' section of the
 collection .
 and for web usage when you published the `cubeta-starter-assets` tag a `SetLocaleController` has been published to
-the `app/Http/Controllers` directory **(if you published this tag from the command line make sure to add a rout for this
-controller)**
+the `app/Http/Controllers` directory.
+
+> [!warning]
+> if you published this tag from the command line make sure to add a rout for this
+> controller
 
 <h1 id="restful-trait">RestTrait</h1>
 To use the RestTrait in your PHP application, follow these steps:
