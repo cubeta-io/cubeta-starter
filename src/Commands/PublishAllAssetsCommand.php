@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Artisan;
 
 class PublishAllAssetsCommand extends Command
 {
-    use RouteBinding;
+    use RouteBinding, AssistCommand;
 
     protected $description = 'publish all package dependencies';
 

@@ -69,9 +69,5 @@ function checkForSyntaxErrors(string $path): bool
     // PHP interpreter with the '-l' flag to check for syntax errors
     $output = shell_exec("php -l {$path}");
 
-    return (bool) (str_contains($output, 'No syntax errors detected'))
-
-
-    ;
-
+    return (bool) (str_contains($output, 'No syntax errors detected'));
 }
