@@ -52,7 +52,6 @@ class CallAppropriateCommand extends Controller
         Artisan::call('cubeta-init', [
             'useGui' => true,
             'rolesPermissionsArray' => $rolesPermissions,
-            'installSpatie' => false,
             'roleContainer' => $roleContainer,
             'authenticated' => $authenticated,
         ]);
