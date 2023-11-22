@@ -4,6 +4,7 @@ namespace {namespace};
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin {model} */
 class {class} extends JsonResource
 {
     /**

@@ -28,7 +28,7 @@ class MakeResource extends Command
         $attributes = $this->argument('attributes') ?? [];
         $relations = $this->argument('relations') ?? [];
 
-        if (! $modelName || empty(trim($modelName))) {
+        if (!$modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
@@ -46,6 +46,7 @@ class MakeResource extends Command
         $resourceName = $this->getResourceName($modelName);
 
         $stubProperties = [
+            '{model}' => config('cubeta-starter.model_namespace') . "\\$modelName",
             '{namespace}' => config('cubeta-starter.resource_namespace'),
             '{class}' => $resourceName,
             '{resource_fields}' => $this->generateCols($attributes, $relations),
