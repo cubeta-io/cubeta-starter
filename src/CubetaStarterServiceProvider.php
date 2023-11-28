@@ -184,6 +184,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Middleware/AcceptedLanguagesMiddleware.php" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
             __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
             __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
+            __DIR__ . "/../src/Casts/Translatable.php" => app_path('Casts/Translatable.php'),
         ], 'cubeta-starter-locale');
     }
 

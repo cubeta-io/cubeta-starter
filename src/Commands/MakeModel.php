@@ -249,7 +249,6 @@ class MakeModel extends Command
             '{scopes}' => $this->boolValuesScope($attributes),
             '{searchableKeys}' => $methodsArrayKeys['searchable'],
             '{searchableRelations}' => $methodsArrayKeys['relationSearchable'],
-            '{translatedAttributes}' => $this->getTranslatableModelAttributes($attributes),
             "use HasFactory;" => $useTranslationsTrait,
             '{casts}' => $this->getCastArray($attributes),
         ];
@@ -333,36 +332,6 @@ class MakeModel extends Command
         }
 
         return $paramsString;
-    }
-
-    /**
-     * get the model attributes for the translatable columns
-     * @param array $attributes
-     * @return string
-     */
-    public function getTranslatableModelAttributes(array $attributes): string
-    {
-        $translatableAttributes = array_keys($attributes, 'translatable');
-        $result = '';
-
-        if (!count($translatableAttributes)) {
-            return '';
-        }
-
-        foreach ($translatableAttributes as $attribute) {
-            $attributeMethod = Str::camel($attribute);
-            $result .= "/**
-                        * get the model {$attribute} translated based on the app locale
-                        */
-                        public function {$attributeMethod}(): \Illuminate\Database\Eloquent\Casts\Attribute
-                        {
-                            return \Illuminate\Database\Eloquent\Casts\Attribute::make(
-                                get: fn (string \$value) => \$this->getTranslation('{$attribute}'),
-                            );
-                        } \n";
-        }
-
-        return $result;
     }
 
     /**
@@ -602,10 +571,12 @@ class MakeModel extends Command
 
             if ($type == 'boolean') {
                 $casts .= "'{$name}' => 'boolean' , ";
+            } elseif ($type == 'translatable') {
+                $casts .= "{$name} => App\\Casts\\Translatable::class";
             }
 
         }
-
+        
         return $casts;
     }
 }

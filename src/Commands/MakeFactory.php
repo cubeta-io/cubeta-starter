@@ -94,7 +94,7 @@ class MakeFactory extends Command
     }
 
     /**
-     * @return string[]\
+     * @return string[]
      */
     #[ArrayShape(['rows' => 'string', 'relatedFactories' => 'string'])]
     private function generateCols(array $attributes = [], array $relations = [], array $uniques = []): array
@@ -174,7 +174,7 @@ class MakeFactory extends Command
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->boolean(),\n";
 
             } elseif ($type == 'json') {
-                $rows .= "\t\t\t'{$name}' => json_encode([fake(){$isUnique}->word() => fake(){$isUnique}->word()]),\n";
+                $rows .= "\t\t\t'{$name}' => \$this->fakeTranslation('word'),\n";
             } elseif (array_key_exists($type, $this->typeFaker)) {
                 $faker = $this->typeFaker["{$type}"];
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}{$faker}, \n";
@@ -213,7 +213,7 @@ class MakeFactory extends Command
     }
 
     /**
-     * @param  array  $attributes
+     * @param array $attributes
      * @return string
      */
     private function getUsedTraits(array $attributes = []): string
@@ -222,6 +222,10 @@ class MakeFactory extends Command
 
         if (in_array('file', $attributes)) {
             $usedTraits .= "use \App\Traits\FileHandler; \n";
+        }
+
+        if (in_array('translatable', $attributes)) {
+            $usedTraits .= "use \App\Traits\Translations; \n";
         }
 
         return $usedTraits;
