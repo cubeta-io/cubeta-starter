@@ -13,10 +13,10 @@ trait RouteBinding
     use RouteFileTrait;
 
     /**
-     * @param  string                     $modelName
-     * @param  null                       $actor
-     * @param  string                     $container
-     * @param  array                      $additionalRoutes
+     * @param string $modelName
+     * @param null $actor
+     * @param string $container
+     * @param array $additionalRoutes
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -76,8 +76,8 @@ trait RouteBinding
     }
 
     /**
-     * @param  string $routePath
-     * @param  string $route
+     * @param string $routePath
+     * @param string $route
      * @return bool
      */
     public function checkIfRouteExist(string $routePath, string $route): bool
@@ -99,8 +99,8 @@ trait RouteBinding
     }
 
     /**
-     * @param  string $modelName
-     * @param  string $container
+     * @param string $modelName
+     * @param string $container
      * @param         $actor
      * @return string
      */
@@ -111,7 +111,7 @@ trait RouteBinding
             return $container . '.' . $modelLowerPluralName;
         }
 
-        return $container . '.' . $actor . '.' . $modelLowerPluralName;
+        return "$actor.$container.$modelLowerPluralName";
     }
 
     public function addAdditionalRoutesForAdditionalControllerMethods(string $modelName, string $routeName, array $additionalRoutes = []): string
