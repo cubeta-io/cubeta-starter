@@ -27,3 +27,4 @@
 - [Translations](#translations)
 - [Restful Trait](#restful-trait)
 - [FileHandler Trait](#file-handler-trait)
+- [Changelog](CHANGELOG.md)
