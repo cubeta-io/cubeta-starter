@@ -15,11 +15,7 @@ class SetLocaleController extends Controller
             return response()->json(['message' => 'failed'] , 404);
         }
 
-        // Get the current session
-        $session = $request->session();
-
-        // Set the locale in the session
-        $session->put('locale', $lang);
+        session()->put('locale', $lang);
 
         // Set the locale for the current application
         app()->setLocale($lang);
