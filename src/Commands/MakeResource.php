@@ -46,7 +46,7 @@ class MakeResource extends Command
         $resourceName = $this->getResourceName($modelName);
 
         $stubProperties = [
-            '{model}' => config('cubeta-starter.model_namespace') . "\\$modelName",
+            '{model}' => "\\" . config('cubeta-starter.model_namespace') . "\\$modelName",
             '{namespace}' => config('cubeta-starter.resource_namespace'),
             '{class}' => $resourceName,
             '{resource_fields}' => $this->generateCols($attributes, $relations),

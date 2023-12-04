@@ -570,13 +570,13 @@ class MakeModel extends Command
         foreach ($attributes as $name => $type) {
 
             if ($type == 'boolean') {
-                $casts .= "'{$name}' => 'boolean' , ";
+                $casts .= "'{$name}' => 'boolean' , \n";
             } elseif ($type == 'translatable') {
-                $casts .= "{$name} => App\\Casts\\Translatable::class";
+                $casts .= "'{$name}' => \\App\\Casts\\Translatable::class, \n";
             }
 
         }
-        
+
         return $casts;
     }
 }

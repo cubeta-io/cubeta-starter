@@ -14,9 +14,12 @@
         markRequiredFields();
         initPluginsByClass();
         handleImageGalleryExistence();
+        handleLocaleDropDown("{{route('set-locale')}}", _CSRF_TOKEN);
     });
     disableSubmitUntilFillRequiredFields();
 </script>
+
+
 @if(session()->has('error'))
     <script type="module">
         Swal.fire({
@@ -65,6 +68,5 @@
 
 @stack('scripts')
 
-    </body>
-</html>
+
 

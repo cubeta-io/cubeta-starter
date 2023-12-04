@@ -109,13 +109,8 @@ class MakeFactory extends Command
                 $relatedModel = modelNaming(str_replace('_id', '', $name));
                 $rows .= "\t\t\t'{$name}' => \\" . config('cubeta-starter.model_namespace') . "\\{$relatedModel}::factory() ,\n";
             } elseif ($type == 'translatable') {
-                $availableLocales = config('cubeta-starter.available_locales');
-                $rows .= "'{$name}' => json_encode([";
 
-                foreach ($availableLocales as $locale) {
-                    $rows .= "'{$locale}' => fake('{$locale}'){$isUnique}->word() , ";
-                }
-                $rows .= "]) ,\n";
+                $rows .= "\t\t\t'{$name}' => \$this->fakeTranslation('word'),\n";
 
             } elseif (in_array($name, ['name', 'username', 'first_name', 'last_name', 'user_name']) && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->firstName(),\n";
@@ -174,12 +169,15 @@ class MakeFactory extends Command
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->boolean(),\n";
 
             } elseif ($type == 'json') {
-                $rows .= "\t\t\t'{$name}' => \$this->fakeTranslation('word'),\n";
+                $rows .= "\t\t\t'{$name}' => json_encode([fake()->word() => fake()->word()])";
+
             } elseif (array_key_exists($type, $this->typeFaker)) {
                 $faker = $this->typeFaker["{$type}"];
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}{$faker}, \n";
+
             } else {
                 $rows .= "\t\t\t '{$name}' => fake(){$isUnique}->{$type}(), \n";
+
             }
         }
 

@@ -62,7 +62,7 @@ class PublishAllAssetsCommand extends Command
     private function addSetLocalRoute(): void
     {
         if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
-            $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->name('set-locale');";
+            $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->name('set-locale');";
         } else {
             $route = "Route::post('/blank', function () {
                     return response()->noContent();
