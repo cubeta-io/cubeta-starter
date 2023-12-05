@@ -72,7 +72,7 @@ class {modelName}Controller extends Controller
 
     public function show(${idVariable})
     {
-        /** @var {modelName} ${modelNameCamelCase} */
+        /** @var {modelName}|null ${modelNameCamelCase} */
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->view(${idVariable}, $this->relations);
         if (${modelNameCamelCase}) {
             return view('{showView}', compact('{modelNameCamelCase}'));
@@ -82,6 +82,7 @@ class {modelName}Controller extends Controller
 
     public function store(StoreUpdate{modelName}Request $request)
     {
+        /** @var {modelName}|null $item */
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->store($request->validated(), $this->relations);
         if (${modelNameCamelCase}) {
             return redirect()->route('{indexRoute}', ${modelNameCamelCase}->id)->with('message' , __('site.stored_successfully'));
@@ -91,7 +92,7 @@ class {modelName}Controller extends Controller
 
     public function edit(${idVariable})
     {
-        /** @var {modelName} ${modelNameCamelCase} */
+        /** @var {modelName}|null ${modelNameCamelCase} */
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->view(${idVariable}, $this->relations);
 
         if (${modelNameCamelCase}) {
@@ -103,6 +104,7 @@ class {modelName}Controller extends Controller
 
     public function update(StoreUpdate{modelName}Request $request, ${idVariable})
     {
+        /** @var {modelName}|null $item */
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->update($request->validated(), ${idVariable}, $this->relations);
         if (${modelNameCamelCase}) {
             return redirect()->route('{indexRoute}', ${idVariable})->with('message' , __('site.update_successfully'));
