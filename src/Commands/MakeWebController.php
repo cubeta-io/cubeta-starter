@@ -192,7 +192,7 @@ class MakeWebController extends Command
                 $dataColumn .= "
                     ->editColumn('{$column}', function (\$row) {
                     //TODO::check on the used show route of the related model key
-                        return \"<a href='\" . route('{$showRouteName}', \$row->{$column}) . \"'>\$row->{$column}</a>\";
+                        return \"<a href='\" . route('{$showRouteName}', \$row->{$column}) . \"'>{\$row->{$column}}</a>\";
                     })";
                 $this->rawColumns .= "'{$column}' ,";
             }

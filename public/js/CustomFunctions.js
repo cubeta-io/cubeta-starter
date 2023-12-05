@@ -120,33 +120,6 @@ function handleImageGalleryExistence() {
     }
 }
 
-function handleLocaleDropDown(route, csrfToken) {
-    $('.dropdown-menu a').click(function (e) {
-        e.preventDefault();
-        const lang = $(this).text();
-        $.ajax({
-            url: route,
-            method: 'POST',
-            data: {
-                _token: csrfToken,
-                lang: lang
-            },
-            success: function (response) {
-                location.reload();
-            },
-            error: function (e) {
-                Swal.fire({
-                    title: 'Error!',
-                    text: e.statusText,
-                    icon: 'error',
-                    confirmButtonText: 'Ok',
-                    confirmButtonColor: '#0d6efd',
-                })
-            }
-        });
-    });
-}
-
 function triggerSwalError(message) {
     Swal.fire({
         title: 'Error!',

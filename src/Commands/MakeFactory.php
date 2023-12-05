@@ -129,7 +129,7 @@ class MakeFactory extends Command
             } elseif (Str::contains($name, 'phone') && $type == 'string') {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->phoneNumber(),\n";
 
-            } elseif (Str::contains($name, ['image', 'icon', 'logo', 'photo']) && $type == 'file') {
+            } elseif ($type == 'file') {
                 $rows .= "\t\t\t'{$name}' => \$this->storeImageFromUrl(fake()->imageUrl)['name'],\n";
 
             } elseif ((Str::contains($name, ['longitude', '_lon', '_lng', 'lon_', 'lng_']) || $name == 'lng' || $name == 'lon') && $type == 'string') {
@@ -169,7 +169,7 @@ class MakeFactory extends Command
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->boolean(),\n";
 
             } elseif ($type == 'json') {
-                $rows .= "\t\t\t'{$name}' => json_encode([fake()->word() => fake()->word()])";
+                $rows .= "\t\t\t'{$name}' => json_encode([fake()->word() => fake()->word()]), \n";
 
             } elseif (array_key_exists($type, $this->typeFaker)) {
                 $faker = $this->typeFaker["{$type}"];

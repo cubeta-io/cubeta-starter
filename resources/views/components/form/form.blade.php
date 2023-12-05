@@ -63,7 +63,6 @@
     </main>
     <script type="module">
         const radioButtons = document.querySelectorAll('input[name="selected-language"]');
-
         if (radioButtons) {
             const translatableInputs = document.querySelectorAll('.translatable');
             if (translatableInputs.length > 0) {

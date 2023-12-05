@@ -1,18 +1,25 @@
-@props(['label' , 'api' , 'optionValue' , 'optionInnerText' , 'selected' => null])
+@props(['label' ,'name' => null , 'api' , 'optionValue' , 'optionInnerText' , 'selected' => null])
+
+@php
+    if (!$name){
+        $name = strtolower(\Illuminate\Support\Str::snake($label));
+    }
+@endphp
+
 <div class="col-md-6 p-2">
-    <label for="{{strtolower(Str::snake($label))}}">{{$label}}</label>
-    <select class="form-select select-2 @error(strtolower(Str::snake($label))) is-invalid @enderror"
-            id="{{strtolower(Str::snake($label))}}"
+    <label for="{{$name}}">{{$label}}</label>
+    <select class="form-select select-2 @error($name) is-invalid @enderror"
+            id="{{$name}}"
             data-placeholder="Chose A {{$label}}"
-            name="{{strtolower(Str::snake($label))}}[]"
+            name="{{$name}}[]"
             multiple
             onchange="disableSubmitUntilFillRequiredFields()"
         {{$attributes->merge()}}
     >
         <!--Handling Preselected Options-->
-        @if(old(strtolower(Str::snake($label))))
+        @if(old($name))
 
-            @foreach(old(strtolower(Str::snake($label))) as $oldValue)
+            @foreach(old($name) as $oldValue)
                 <option value="{{$oldValue}}" selected>{{$oldValue}}</option>
             @endforeach
 
@@ -31,7 +38,7 @@
     </select>
 
     <!--Handling Validation Errors-->
-    @error(strtolower(Str::snake($label)))
+    @error($name)
     <div class="invalid-feedback">{{$message}}</div>
     @enderror
     <!--End Of Handling Validation Errors-->
@@ -40,7 +47,7 @@
     @push('scripts')
         <script type="module">
             $(document).ready(function () {
-                const select2element = $("#{{strtolower(Str::snake($label))}}");
+                const select2element = $("#{{$name}}");
                 select2element.select2({
                     theme: 'bootstrap-5',
                     placeholder: $(this).data('placeholder'),

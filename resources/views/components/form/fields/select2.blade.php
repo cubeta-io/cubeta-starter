@@ -1,16 +1,22 @@
-@props(['label' , 'api' , 'optionValue' , 'optionInnerText' , 'selected' => null])
+@props(['label' , 'name' => null , 'api' , 'optionValue' , 'optionInnerText' , 'selected' => null])
+
+@php
+    if (!$name){
+        $name = strtolower(\Illuminate\Support\Str::snake($label));
+    }
+@endphp
 
 <div class="col-md-6 p-2">
-    <label for="{{strtolower(Str::snake($label))}}">{{$label}}</label>
-    <select class="form-select select-2 @error(strtolower(Str::snake($label))) is-invalid @enderror"
-            id="{{strtolower(Str::snake($label))}}"
+    <label for="{{$name}}">{{$label}}</label>
+    <select class="form-select select-2 @error($name) is-invalid @enderror"
+            id="{{$name}}"
             data-placeholder="Chose A {{$label}}"
-            name="{{strtolower(Str::snake($label))}}"
+            name="{{$name}}"
             onchange="disableSubmitUntilFillRequiredFields()"
         {{$attributes->merge()}}
     >
-        @if(old(strtolower(Str::snake($label))))
-            <option value="{{ old(strtolower(Str::snake($label))) }}">{{old(strtolower(Str::snake($label)))}}</option>
+        @if(old($name))
+            <option value="{{ old($name) }}">{{old($name)}}</option>
         @elseif(isset($selected))
             <option value="{{ $selected->{$optionValue} }}">{{ $selected->{$optionInnerText} }}</option>
         @endif
@@ -18,15 +24,15 @@
         {{$slot}}
     </select>
     <!--Handling Validation Errors-->
-    @error(strtolower(Str::snake($label)))
+    @error($name)
     <div class="invalid-feedback">{{$message}}</div>
     @enderror
     <!--End Of Handling Validation Errors-->
     @push('scripts')
         <script type="module">
             $(document).ready(function () {
-                const select2Eelement = $("#{{strtolower(Str::snake($label))}}");
-                select2Eelement.select2({
+                const select2Element = $("#{{$name}}");
+                select2Element.select2({
                     theme: 'bootstrap-5',
                     placeholder: $(this).data('placeholder'),
                     ajax: {
