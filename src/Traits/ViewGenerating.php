@@ -69,7 +69,20 @@ trait ViewGenerating
         foreach ($attributes as $attribute => $type) {
             $attribute = columnNaming($attribute);
             $label = $this->getLabelName($attribute);
-            $isRequired = !in_array($attribute, $nullables) || $type == 'file' ? 'required' : '';
+
+            $isRequired = (!in_array($attribute, $nullables) || $type == 'file')
+                ? 'required'
+                : '';
+
+            /**
+             * this for checking if the current inputs are for an update form
+             * so if it is an update remove required attribute
+             * if it isn't an update form left the $isRequired variable as it is
+             */
+            $isRequired = ($modelVariable != '')
+                ? ''
+                : $isRequired;
+
             $value = $updateInput ? ($type == 'translatable' ? ":value=\"\${$modelVariable}->getRawOriginal('{$attribute}')\"" : ":value=\"\${$modelVariable}->{$attribute}\"") : null;
             $checked = $updateInput ? ":checked=\"\${$modelVariable}->{$attribute}\"" : 'checked';
 

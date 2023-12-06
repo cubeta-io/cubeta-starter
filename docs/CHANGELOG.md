@@ -2,6 +2,8 @@
 
 1. Now every input component has a `name` attribute this attribute is nullable, when it is `null` this attribute will
    take the value of the `label` attribute transformed to **lower** _and_ **snake case**
+2. new attribute `exact` has been added to the `gallery-item` blade component so if you'd like to provide the exact
+   source of the image
 
 ### **V 1.1.4**
 
