@@ -1,6 +1,3 @@
-const $ = jQuery = window.jQuery;
-const Swal = window.Swal;
-
 /**
  * this function add a red * char to the label of the input field if it has required attribute
  */

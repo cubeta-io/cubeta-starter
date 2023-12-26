@@ -9,7 +9,7 @@
 
 <script type="module">
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         markRequiredFields();
         initPluginsByClass();
         handleImageGalleryExistence();
