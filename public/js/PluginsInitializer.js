@@ -44,11 +44,6 @@ function initPluginsByClass() {
             initMultipleSelect2State = false;
         }
 
-        if (elements[i].classList.contains('Trumbowyg-text-editor') && initTrumbowygState) {
-            initTrumbowyg('.Trumbowyg-text-editor');
-            initTrumbowygState = false;
-        }
-
         if (elements[i].classList.contains('gallery') && initBaguetteBoxState) {
             initBaguetteBox('.gallery');
             initBaguetteBoxState = false;
