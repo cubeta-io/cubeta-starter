@@ -130,7 +130,7 @@ function triggerSwalError(message) {
     })
 }
 
-function triggerSwalSuccess(message){
+function triggerSwalSuccess(message) {
     Swal.fire({
         title: 'Success!',
         text: message,
@@ -138,4 +138,14 @@ function triggerSwalSuccess(message){
         confirmButtonText: 'Ok',
         confirmButtonColor: '#0d6efd',
     })
+}
+
+function triggerSwalMessage(message) {
+    Swal.fire({
+        title: 'Info !',
+        text: message,
+        icon: 'info',
+        confirmButtonText: 'Ok',
+        confirmButtonColor: '#0d6efd',
+    });
 }
