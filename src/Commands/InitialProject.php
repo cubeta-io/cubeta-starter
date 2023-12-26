@@ -2,12 +2,13 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Illuminate\Console\Command;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Cubeta\CubetaStarter\Traits\RouteFileTrait;
 use Cubeta\CubetaStarter\Traits\RolePermissionTrait;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Traits\RouteFileTrait;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -47,10 +48,26 @@ class InitialProject extends Command
     }
 
     /**
-     * @param  mixed                      $role
-     * @param  array|null                 $permissions
-     * @param  array                      $authenticated
-     * @param  array                      $roleContainer
+     * Handle the roles and permissions passed as arguments
+     *
+     * @param array $rolesPermissions
+     * @param array $authenticated
+     * @param array $roleContainer
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    private function handleRolesPermissionsArray(array $rolesPermissions, array $authenticated = [], array $roleContainer = []): void
+    {
+        foreach ($rolesPermissions as $role => $permissions) {
+            $this->generateActorsFiles($role, $permissions, $authenticated, $roleContainer);
+        }
+    }
+
+    /**
+     * @param mixed $role
+     * @param array|null $permissions
+     * @param array $authenticated
+     * @param array $roleContainer
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -76,104 +93,6 @@ class InitialProject extends Command
         $this->generateAuthControllers($role, $authenticated, $roleContainer);
 
         $this->info("{$role} role created successfully");
-    }
-
-    /**
-     * Handle the actors and initialize them based on user input
-     *
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    public function handleActorsExistenceAsQuestionsInput(): void
-    {
-        $hasActors = $this->choice('Does your project have multiple actors?', ['No', 'Yes'], 'No') == 'Yes';
-
-        if ($hasActors) {
-            $actorsNumber = $this->ask('How many actors are there?', 2);
-
-            while (!is_numeric($actorsNumber) || $actorsNumber < 0) {
-                $this->error('Invalid input');
-                $actorsNumber = $this->ask('How many actors are there?', 2);
-            }
-
-            $authenticated = [];
-            $roleContainer = [];
-
-            for ($i = 0; $i < $actorsNumber; $i++) {
-                $this->info("Actor Number: {$i}");
-
-                $role = $this->ask('What is the name of this actor? (e.g., admin, customer)');
-
-                while (empty(trim($role))) {
-                    $this->error('Invalid input');
-                    $role = $this->ask('What is the name of this actor? (e.g., admin, customer)');
-                }
-
-                $hasPermission = $this->choice('Does this actor have permissions? (e.g., can-edit, can-read, can-publish)', ['No', 'Yes'], 'No') == 'Yes';
-
-                $permissions = null;
-                if ($hasPermission) {
-                    $permissionsString = $this->ask("What are the permissions for this actor? (e.g., can-edit, can-read, can-publish)");
-
-                    while (empty(trim($permissionsString))) {
-                        $this->error('Invalid input');
-                        $permissionsString = $this->ask("What are the permissions for this actor? (e.g., can-edit, can-read, can-publish)");
-                    }
-
-                    $permissions = $this->convertInputStringToArray($permissionsString);
-                }
-
-                $isAuthenticated = $this->choice("Do you want us to generate an authentication controller for this actor ? (note: you need to run <<<php artisan init-auth>>> if you hit yes)", ['No', 'Yes'], 'yes');
-
-                if ($isAuthenticated == 'Yes') {
-                    $authenticated[] = $role;
-                }
-
-                $container = $this->choice("What is the container of this actor ? ", ['api', 'web', 'both'], 'api');
-                $roleContainer[$role] = $container;
-
-                $this->generateActorsFiles($role, $permissions, $authenticated, $roleContainer);
-            }
-        }
-    }
-
-
-    /**
-     * Ask about the need for Spatie permissions and install it
-     */
-    public function installSpatie(bool $skipQuestions = false): void
-    {
-        $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
-
-        // this mean that the user using the web ui
-        if ($skipQuestions) {
-            $install = 'Yes';
-        } else {
-            $install = $this->choice('Using multiple actors requires installing "spatie/permission". Do you want to install it?', ['No', 'Yes'], 'No');
-        }
-
-        if ($install == 'Yes') {
-            $this->info('Please wait while spatie/laravel-permission is being installed');
-            $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
-            $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
-            $this->warn("Don't forget to run 'php artisan migrate'");
-        }
-    }
-
-    /**
-     * Handle the roles and permissions passed as arguments
-     *
-     * @param  array                      $rolesPermissions
-     * @param  array                      $authenticated
-     * @param  array                      $roleContainer
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    private function handleRolesPermissionsArray(array $rolesPermissions, array $authenticated = [], array $roleContainer = []): void
-    {
-        foreach ($rolesPermissions as $role => $permissions) {
-            $this->generateActorsFiles($role, $permissions, $authenticated, $roleContainer);
-        }
     }
 
     /**
@@ -259,5 +178,86 @@ class InitialProject extends Command
         }
 
         $this->info("Created Postman Collection: {$projectName}.postman_collection.json ");
+    }
+
+    /**
+     * Handle the actors and initialize them based on user input
+     *
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function handleActorsExistenceAsQuestionsInput(): void
+    {
+        $hasActors = $this->choice('Does your project have multiple actors?', ['No', 'Yes'], 'No') == 'Yes';
+
+        if ($hasActors) {
+            $actorsNumber = $this->ask('How many actors are there?', 2);
+
+            while (!is_numeric($actorsNumber) || $actorsNumber < 0) {
+                $this->error('Invalid input');
+                $actorsNumber = $this->ask('How many actors are there?', 2);
+            }
+
+            $authenticated = [];
+            $roleContainer = [];
+
+            for ($i = 0; $i < $actorsNumber; $i++) {
+                $this->info("Actor Number: {$i}");
+
+                $role = $this->ask('What is the name of this actor? (e.g., admin, customer)');
+
+                while (empty(trim($role))) {
+                    $this->error('Invalid input');
+                    $role = $this->ask('What is the name of this actor? (e.g., admin, customer)');
+                }
+
+                $hasPermission = $this->choice('Does this actor have permissions? (e.g., can-edit, can-read, can-publish)', ['No', 'Yes'], 'No') == 'Yes';
+
+                $permissions = null;
+                if ($hasPermission) {
+                    $permissionsString = $this->ask("What are the permissions for this actor? (e.g., can-edit, can-read, can-publish)");
+
+                    while (empty(trim($permissionsString))) {
+                        $this->error('Invalid input');
+                        $permissionsString = $this->ask("What are the permissions for this actor? (e.g., can-edit, can-read, can-publish)");
+                    }
+
+                    $permissions = $this->convertInputStringToArray($permissionsString);
+                }
+
+                $isAuthenticated = $this->choice("Do you want us to generate an authentication controller for this actor ? (note: you need to run <<<php artisan init-auth>>> if you hit yes)", ['No', 'Yes'], 'yes');
+
+                if ($isAuthenticated == 'Yes') {
+                    $authenticated[] = $role;
+                }
+
+                $container = $this->choice("What is the container of this actor ? ", ContainerType::ALL, ContainerType::API);
+                $roleContainer[$role] = $container;
+
+                $this->generateActorsFiles($role, $permissions, $authenticated, $roleContainer);
+            }
+        }
+    }
+
+    /**
+     * Ask about the need for Spatie permissions and install it
+     */
+    public function installSpatie(bool $skipQuestions = false): void
+    {
+        $spatiePublishCommand = 'php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"';
+
+        // this mean that the user using the web ui
+        if ($skipQuestions) {
+            $install = 'Yes';
+        } else {
+            $install = $this->choice('Using multiple actors requires installing "spatie/permission". Do you want to install it?', ['No', 'Yes'], 'No');
+        }
+
+        if ($install == 'Yes') {
+            $this->info('Please wait while spatie/laravel-permission is being installed');
+            $this->line($this->executeCommandInTheBaseDirectory('composer require spatie/laravel-permission'));
+            $this->line($this->executeCommandInTheBaseDirectory($spatiePublishCommand));
+            $this->warn("Don't forget to run 'php artisan migrate'");
+        }
     }
 }

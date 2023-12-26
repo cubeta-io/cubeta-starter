@@ -25,7 +25,7 @@ class CreatePivotTable extends Command
     /**
      * @throws BindingResolutionException
      */
-    public function handle()
+    public function handle(): void
     {
         $table1 = $this->argument('table1');
         $table2 = $this->argument('table2');
@@ -54,7 +54,7 @@ class CreatePivotTable extends Command
      * @throws BindingResolutionException
      * @throws Exception
      */
-    protected function createMigration($table1, $table2, $pivotTableName)
+    protected function createMigration($table1, $table2, $pivotTableName): void
     {
 
         $migrationName = 'create_' . $pivotTableName . '_table';

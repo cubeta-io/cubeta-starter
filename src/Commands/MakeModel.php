@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use JetBrains\PhpStorm\ArrayShape;
@@ -186,14 +187,14 @@ class MakeModel extends Command
             $container = $this->choice('<info>What is the container type of this model controller</info>', ['api', 'web', 'both'], 'api');
         } else {
             $container = $this->argument('container');
-            if (!in_array($container, ['api', 'web', 'both'])) {
+            if (!in_array($container, ContainerType::ALL)) {
                 $this->error('Invalid container use one of this strings as an input : [api , web , both]');
                 return ['api' => false, 'web' => false];
             }
         }
         return [
-            'api' => $container == 'api' || $container == 'both',
-            'web' => $container == 'web' || $container == 'both',
+            'api' => $container == ContainerType::API || $container == ContainerType::BOTH,
+            'web' => $container == ContainerType::WEB || $container == ContainerType::BOTH,
         ];
     }
 

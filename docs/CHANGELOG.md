@@ -5,6 +5,12 @@
 2. new attribute `exact` has been added to the `gallery-item` blade component so if you'd like to provide the exact
    source of the image
 
+## **fixing some bugs**
+
+1. remove `required` attribute from the input fields in the generated _edit_ forms
+2. adding `.gallery` css class to the `gallery-item` blade component so the functions in the `PluginInitializer.js` file
+   can handle it.
+
 ### **V 1.1.4**
 
 1. Making the columns of type translatable being cast into `Translatable::class` custom cast instead of generating an
