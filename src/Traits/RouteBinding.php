@@ -128,7 +128,7 @@ trait RouteBinding
 
     public function addSetLocalRoute(): void
     {
-        if (file_exists(base_path('app/Http/Middleware/AcceptedLanguageMiddleware.php'))) {
+        if (file_exists(base_path('/app/Http/Middleware/AcceptedLanguagesMiddleware.php'))) {
             $middlewareExist = true;
         } else {
             $middlewareExist = false;
