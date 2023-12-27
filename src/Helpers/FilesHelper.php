@@ -1,16 +1,16 @@
 <?php
 
-use Illuminate\Support\Str;
 use Cubeta\CubetaStarter\CreateFile;
-use Illuminate\Support\Facades\File;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 /**
- * @param  array                      $stubProperties
- * @param  string                     $path
- * @param  string                     $stubPath
- * @param  bool                       $override       override file if exist
+ * @param array $stubProperties
+ * @param string $path
+ * @param string $stubPath
+ * @param bool $override override file if exist
  * @return void
  * @throws BindingResolutionException
  * @throws FileNotFoundException
@@ -22,6 +22,8 @@ function generateFileFromStub(array $stubProperties, string $path, string $stubP
 
 /**
  * check if the directory exist if not create it
+ * @param string $directory
+ * @return void
  */
 function ensureDirectoryExists(string $directory): void
 {
@@ -32,6 +34,9 @@ function ensureDirectoryExists(string $directory): void
 
 /**
  * add the use statement to the top of the desired file
+ * @param string $importStatement
+ * @param string $filePath
+ * @return void
  */
 function addImportStatement(string $importStatement, string $filePath): void
 {
@@ -61,7 +66,7 @@ function addImportStatement(string $importStatement, string $filePath): void
 
 /**
  * this function check for a php file syntax error by running php -l command on the file
- * @param  string $path
+ * @param string $path
  * @return bool
  */
 function checkForSyntaxErrors(string $path): bool
@@ -69,5 +74,42 @@ function checkForSyntaxErrors(string $path): bool
     // PHP interpreter with the '-l' flag to check for syntax errors
     $output = shell_exec("php -l {$path}");
 
-    return (bool) (str_contains($output, 'No syntax errors detected'));
+    return str_contains($output, 'No syntax errors detected');
+}
+
+/**
+ * get the package (cubeta-starter)  json file settings as an array
+ * @return array
+ */
+function getJsonSettings(): array
+{
+    $filePath = base_path('/settings.json');
+
+    if (!file_exists($filePath)) {
+        return [];
+    }
+
+    $data = json_decode(
+        file_get_contents(
+            $filePath
+        ),
+        true
+    );
+
+    if (!$data) {
+        return [];
+    } else return $data;
+}
+
+/**
+ * store the provided array in the package (cubeta-starter) json file settings as an array
+ * @param array $data
+ * @return void
+ */
+function storeJsonSettings(array $data): void
+{
+    file_put_contents(
+        base_path('/settings.json'),
+        json_encode($data, JSON_PRETTY_PRINT)
+    );
 }

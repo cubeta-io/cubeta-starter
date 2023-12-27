@@ -3,16 +3,17 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Carbon\Carbon;
-use Illuminate\Support\Str;
-use Illuminate\Console\Command;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Traits\SettingsHandler;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Str;
 
 class MakeMigration extends Command
 {
-    use AssistCommand;
+    use AssistCommand, SettingsHandler;
 
     public $description = 'Create a new migration';
 
@@ -39,6 +40,8 @@ class MakeMigration extends Command
             $this->error('Invalid input');
             return;
         }
+
+        $this->addMigration($modelName, $attributes, $nullables, $uniques);
 
         $this->createMigration($modelName, $attributes, $relations, $nullables, $uniques);
     }
@@ -76,6 +79,13 @@ class MakeMigration extends Command
         $this->info("Created migration: {$migrationName}");
     }
 
+    private function getMigrationName($modelName): string
+    {
+        $date = Carbon::now()->subSecond()->format('Y_m_d_His');
+
+        return $date . '_create_' . tableNaming($modelName) . '_table';
+    }
+
     /**
      * return the columns of the migration file
      */
@@ -106,13 +116,6 @@ class MakeMigration extends Command
         }
 
         return $columns;
-    }
-
-    private function getMigrationName($modelName): string
-    {
-        $date = Carbon::now()->subSecond()->format('Y_m_d_His');
-
-        return $date . '_create_' . tableNaming($modelName) . '_table';
     }
 
     private function getMigrationsPath($migrationName): string
