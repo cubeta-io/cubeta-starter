@@ -22,7 +22,7 @@ function initBaguetteBox(className) {
 
 
 function initPluginsByClass() {
-    let elements = document.querySelectorAll('.select-2, .multiple-select-2, .Trumbowyg-text-editor, .gallery');
+    let elements = document.querySelectorAll('.select-2, .multiple-select-2, .gallery');
 
     let initSelect2State = true;
     let initMultipleSelect2State = true;

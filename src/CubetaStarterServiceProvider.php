@@ -185,6 +185,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
             __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
             __DIR__ . "/../src/Casts/Translatable.php" => app_path('Casts/Translatable.php'),
+            __DIR__ . '/Commands/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php')
         ], 'cubeta-starter-locale');
     }
 
@@ -199,7 +200,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../resources/js' => resource_path('js'),
             __DIR__ . '/../resources/sass' => resource_path('sass'),
             __DIR__ . '/../public' => public_path(),
-            __DIR__ . '/Commands/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php')
         ], 'cubeta-starter-assets');
     }
 

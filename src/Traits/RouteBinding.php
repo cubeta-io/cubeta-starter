@@ -125,4 +125,48 @@ trait RouteBinding
 
         return $routes;
     }
+
+    public function addSetLocalRoute(): void
+    {
+        if (file_exists(base_path('app/Http/Middleware/AcceptedLanguageMiddleware.php'))) {
+            $middlewareExist = true;
+        } else {
+            $middlewareExist = false;
+        }
+
+        if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
+
+            if ($middlewareExist) {
+                $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->withoutMiddleware([App\Http\Middleware\AcceptedLanguagesMiddleware::class])->name('set-locale');";
+            } else {
+                $route = "
+                    // TODO:: the package didn't detect the AcceptedLanguageMiddleware so even you deleted or there is been an error while publishing it ,
+                    // so please add the middleware that handle your selected locale to withoutMiddleware() method of this route
+                    Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->withoutMiddleware([])->name('set-locale');
+                    ";
+            }
+        } else {
+            if ($middlewareExist) {
+                $route = "
+                    // TODO:: this is the route that will handle the selected locale of your app but the package didn't detect the controller for it due to some error or you've deleted it ,
+                    // so please define a controller for it or define the functionality of this rout within it
+                    Route::post('/blank', function () {
+                        return response()->noContent();
+                    })->middleware('web')->middleware('web')->withoutMiddleware([App\Http\Middleware\AcceptedLanguagesMiddleware::class])->name('set-locale');";
+            } else {
+                $route = "
+                    // TODO:: this is the route that will handle the selected locale of your app but the package didn't detect the controller for it due to some error or you've deleted it ,
+                    // so please define a controller for it or define the functionality of this rout within it
+                    Route::post('/blank', function () {
+                        return response()->noContent();
+                    })->middleware('web')->middleware('web')->name('set-locale');";
+            }
+        }
+
+        $routePath = base_path("routes/web.php");
+
+        if (file_exists($routePath)) {
+            file_put_contents($routePath, $route, FILE_APPEND);
+        }
+    }
 }

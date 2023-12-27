@@ -2,12 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Artisan;
 
 class PublishAllAssetsCommand extends Command
@@ -16,14 +13,15 @@ class PublishAllAssetsCommand extends Command
 
     protected $description = 'publish all package dependencies';
 
-    protected $signature = 'cubeta-publish';
+    protected $signature = 'cubeta-publish {--force}';
 
     /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
+     * @return void
      */
     public function handle(): void
     {
+        $override = $this->option('force') ?? false;
+
         $tags = [
             'cubeta-auth-views',
             'cubeta-starter-test-tools',
@@ -40,6 +38,7 @@ class PublishAllAssetsCommand extends Command
         foreach ($tags as $tag) {
             Artisan::call('vendor:publish', [
                 '--tag' => $tag,
+                '--force' => $override
             ]);
             $output = $output . "\n" . Artisan::output();
         }
@@ -53,30 +52,5 @@ class PublishAllAssetsCommand extends Command
         $output . "\n" . Artisan::output();
 
         $this->info($output);
-    }
-
-    /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    private function addSetLocalRoute(): void
-    {
-        if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
-            $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->name('set-locale');";
-        } else {
-            $route = "Route::post('/blank', function () {
-                    return response()->noContent();
-                })->middleware('web')->name('set-locale');";
-        }
-
-        $routePath = base_path("routes/v1/web/dashboard.php");
-
-        if (!file_exists($routePath)) {
-            $this->addRouteFile("dashboard", ContainerType::WEB);
-        }
-
-        if (file_exists($routePath)) {
-            file_put_contents($routePath, $route, FILE_APPEND);
-        }
     }
 }

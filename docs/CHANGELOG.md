@@ -10,6 +10,8 @@
 1. remove `required` attribute from the input fields in the generated _edit_ forms
 2. adding `.gallery` css class to the `gallery-item` blade component so the functions in the `PluginInitializer.js` file
    can handle it.
+3. there is now three function for sweet alert
+   messages `triggerSwallSuccess(message)` , `triggerSwalError(message)` , `triggerSwallMessage(message)`
 
 ### **V 1.1.4**
 

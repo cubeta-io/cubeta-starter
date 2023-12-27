@@ -2,18 +2,19 @@
 
 namespace Cubeta\CubetaStarter\app\Http\Controllers;
 
-use Exception;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Cubeta\CubetaStarter\Enums\ErrorTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class CallAppropriateCommand extends Controller
 {
-    use  AssistCommand;
+    use  AssistCommand, RouteBinding;
 
     public Request $request;
     private mixed $actor;
@@ -34,6 +35,17 @@ class CallAppropriateCommand extends Controller
         $this->container = $request->containerType;
         $this->nullables = $request->nullables;
         $this->uniques = $request->uniques;
+    }
+
+    private function configureRequestArray($array = null)
+    {
+        if (!isset($array) || $array == []) {
+            return [];
+        }
+
+        return collect($array)->mapWithKeys(function ($item) {
+            return [$item['name'] => $item['type']];
+        })->toArray();
     }
 
     public function callAddActorCommand(Request $request)
@@ -58,6 +70,47 @@ class CallAppropriateCommand extends Controller
 
         $output = Artisan::output();
         return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.generate-add-actor.page', "New Roles Added");
+    }
+
+    private function convertRolesPermissionArrayToCommandAcceptableFormat(array $rolesPermissionArray = [])
+    {
+        $rolesPermissions = [];
+        $roleContainer = [];
+
+        foreach ($rolesPermissionArray as $array) {
+            $rolesPermissions[$array['name']] = $this->convertInputStringToArray($array['permissions']);
+            $roleContainer[$array['name']] = $array['container'];
+        }
+
+        foreach ($rolesPermissions as $role => $permissions) {
+            if (empty(trim($role))) {
+                return false;
+            }
+        }
+
+        return ['rolesPermissions' => $rolesPermissions, 'roleContainer' => $roleContainer];
+    }
+
+    private function handleWarningAndLogsBeforeRedirecting($output, $redirectRouteName, $successMessage)
+    {
+        foreach (ErrorTypeEnum::ALL_ERRORS as $error) {
+            if (Str::contains($output, $error, true)) {
+                Cache::put('logs', $output);
+                return redirect()->route($redirectRouteName, ['warning' => $error]);
+            }
+        }
+        Cache::put('logs', $output);
+        return redirect()->route($redirectRouteName, ['success' => $successMessage]);
+    }
+
+    public function callCreateApiControllerCommand()
+    {
+        $command = [
+            'name' => 'create:controller',
+            'route' => 'cubeta-starter.generate-api-controller.page'
+        ];
+
+        return $this->callCommand($command);
     }
 
     public function callCommand($command)
@@ -132,16 +185,6 @@ class CallAppropriateCommand extends Controller
             return view('CubetaStarter::command-output', compact('error'));
 
         }
-    }
-
-    public function callCreateApiControllerCommand()
-    {
-        $command = [
-            'name' => 'create:controller',
-            'route' => 'cubeta-starter.generate-api-controller.page'
-        ];
-
-        return $this->callCommand($command);
     }
 
     public function callCreateFactoryCommand()
@@ -278,48 +321,6 @@ class CallAppropriateCommand extends Controller
         }
     }
 
-    private function configureRequestArray($array = null)
-    {
-        if (!isset($array) || $array == []) {
-            return [];
-        }
-
-        return collect($array)->mapWithKeys(function ($item) {
-            return [$item['name'] => $item['type']];
-        })->toArray();
-    }
-
-    private function convertRolesPermissionArrayToCommandAcceptableFormat(array $rolesPermissionArray = [])
-    {
-        $rolesPermissions = [];
-        $roleContainer = [];
-
-        foreach ($rolesPermissionArray as $array) {
-            $rolesPermissions[$array['name']] = $this->convertInputStringToArray($array['permissions']);
-            $roleContainer[$array['name']] = $array['container'];
-        }
-
-        foreach ($rolesPermissions as $role => $permissions) {
-            if (empty(trim($role))) {
-                return false;
-            }
-        }
-
-        return ['rolesPermissions' => $rolesPermissions, 'roleContainer' => $roleContainer];
-    }
-
-    private function handleWarningAndLogsBeforeRedirecting($output, $redirectRouteName, $successMessage)
-    {
-        foreach (ErrorTypeEnum::ALL_ERRORS as $error) {
-            if (Str::contains($output, $error, true)) {
-                Cache::put('logs', $output);
-                return redirect()->route($redirectRouteName, ['warning' => $error]);
-            }
-        }
-        Cache::put('logs', $output);
-        return redirect()->route($redirectRouteName, ['success' => $successMessage]);
-    }
-
     public function initAuth($container = null)
     {
         try {
@@ -336,6 +337,11 @@ class CallAppropriateCommand extends Controller
         }
     }
 
+    public function publishAssets()
+    {
+        return $this->callPublishCommand('cubeta-starter-assets');
+    }
+
     private function callPublishCommand(string $tag)
     {
         try {
@@ -348,35 +354,6 @@ class CallAppropriateCommand extends Controller
 
         } catch (Exception $exception) {
             $error = $exception->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
-    }
-
-    public function publishAssets()
-    {
-        try {
-            Artisan::call('vendor:publish', [
-                '--tag' => 'cubeta-starter-assets',
-            ]);
-
-            if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
-                $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->name('set-locale');";
-            } else {
-                $route = "Route::post('/blank', function () {
-                    return response()->noContent();
-                })->middleware('web')->name('set-locale');";
-            }
-
-            $routePath = base_path("routes/web.php");
-
-            if (file_exists($routePath)) {
-                file_put_contents($routePath, $route, FILE_APPEND);
-            }
-
-            $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'The Assets Has Been Published Successfully');
-        } catch (Exception $e) {
-            $error = $e->getMessage();
             return view('CubetaStarter::command-output', compact('error'));
         }
     }
@@ -408,7 +385,20 @@ class CallAppropriateCommand extends Controller
 
     public function callPublishLocaleHandler()
     {
-        return $this->callPublishCommand('cubeta-starter-locale');
+        try {
+            Artisan::call('vendor:publish', [
+                '--tag' => 'cubeta-starter-locale',
+            ]);
+
+            $this->addSetLocalRoute();
+
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
+
+        } catch (Exception $exception) {
+            $error = $exception->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
+        }
     }
 
     public function publishAll()

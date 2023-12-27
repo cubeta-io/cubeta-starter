@@ -74,11 +74,14 @@
                 <div class="dropdown">
                     <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
-                        {{app()->getLocale()}}
+                        {{ strtoupper(app()->getLocale()) }}
                     </button>
-                    <ul class="dropdown-menu">
-                        @foreach(config('cubeta-starter.available_locales') as $lang)
-                            <li style="cursor: pointer"><a class="dropdown-item">{{$lang}}</a></li>
+                    <ul class="dropdown-menu" id="lang-changer">
+                        @foreach (config('cubeta-starter.available_locales') as $lang)
+                            <li style="cursor: pointer" data-lang="{{ $lang }}"
+                                data-route="{{ route('set-locale') }}">
+                                <a class="dropdown-item">{{ strtoupper($lang) }}</a>
+                            </li>
                         @endforeach
                     </ul>
                 </div>
