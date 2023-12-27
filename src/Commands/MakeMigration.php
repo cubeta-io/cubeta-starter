@@ -41,7 +41,7 @@ class MakeMigration extends Command
             return;
         }
 
-        $this->addMigration($modelName, $attributes, $nullables, $uniques);
+        $this->handleTableSettings($modelName, $attributes, $nullables, $uniques);
 
         $this->createMigration($modelName, $attributes, $relations, $nullables, $uniques);
     }

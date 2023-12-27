@@ -3,17 +3,126 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\Enums\ColumnType;
-use Cubeta\CubetaStarter\Enums\SettingsEnum;
 use Illuminate\Support\Str;
 
 trait SettingsHandler
 {
-    public function addMigration($modelName, $attributes, $nullables, $uniques): void
+    /**
+     * add new table to settings json and if it exists update it
+     * @param string $modelName
+     * @param array $attributes
+     * @param array $nullables
+     * @param array $uniques
+     * @return void
+     */
+    public function handleTableSettings(string $modelName, array $attributes, array $nullables, array $uniques, $relations = []): void
     {
         $settings = getJsonSettings();
-        $this->checkForKey($settings, "migrations");
-        $migrations = $settings["migrations"];
+        $this->checkForKey($settings, "tables");
+        $tables = $settings["tables"];
 
+        if ($this->checkIfTableExists($tables, $modelName)) {
+            $tables = $this->handleAddToExisted($attributes, $nullables, $uniques, $modelName, $tables);
+        } else {
+            $tables = $this->handleAddNewOne($attributes, $nullables, $uniques, $modelName, $tables);
+        }
+
+        $settings['tables'] = $tables;
+        storeJsonSettings($settings);
+    }
+
+    /**
+     * make sure that this array key exists
+     * @param array $settings
+     * @param string $key
+     * @return void
+     */
+    protected function checkForKey(array &$settings, string $key): void
+    {
+        if (isset($settings[$key])) {
+            return;
+        } else {
+            $settings[$key] = [];
+        }
+    }
+
+    /**
+     * check if table exist in the settings json
+     * @param array $tables
+     * @param string $name
+     * @return bool
+     */
+    protected function checkIfTableExists(array $tables, string $name): bool
+    {
+        $result = $this->searchForTable($tables, $name);
+
+        if ($result) {
+            return true;
+        } else return false;
+    }
+
+    /**
+     * search for table in settings json
+     * @param array $tables
+     * @param string $name
+     * @return array|null
+     */
+    protected function searchForTable(array $tables, string $name): ?array
+    {
+        $tableName = tableNaming($name);
+        $modelName = modelNaming($name);
+
+        foreach ($tables as $table) {
+            if (isset($table["model_name"])) {
+                if ($table["model_name"] == $modelName) {
+                    return $table;
+                }
+            }
+
+            if (isset($table['table_name'])) {
+                if ($table['table_name'] == $tableName) {
+                    return $table;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * handle updating an existed table in settings json
+     * @param array $attributes
+     * @param array $nullables
+     * @param array $uniques
+     * @param string $modelName
+     * @param array $tables
+     * @return array
+     */
+    public function handleAddToExisted(array $attributes, array $nullables, array $uniques, string $modelName, array $tables): array
+    {
+        $table = $this->searchForTable($tables, $modelName);
+
+        list($columns, $relations) = $this->extractColumnsAndRelations($attributes, $nullables, $uniques);
+
+        $newTable = [
+            "model_name" => modelNaming($modelName),
+            "table_name" => tableNaming($modelName),
+            "attributes" => array_merge($columns, $table["attributes"]),
+            "relations" => array_merge($relations, $table["relations"])
+        ];
+
+        $this->replaceTable($tables, $modelName, $newTable);
+        return $tables;
+    }
+
+    /**
+     * @param array $attributes
+     * @param array $nullables
+     * @param array $uniques
+     * @return array
+     */
+    protected function extractColumnsAndRelations(array $attributes, array $nullables, array $uniques): array
+    {
         $columns = [];
         $relations = [];
 
@@ -35,24 +144,55 @@ trait SettingsHandler
                 "unique" => in_array($colName, $uniques)
             ];
         }
+        return array($columns, $relations);
+    }
 
-        $migrations[] = [
-            "name" => modelNaming($modelName),
+    /**
+     * replace a table data with a new one in settings json
+     * @param array $tables
+     * @param string $name
+     * @param array $newTable
+     * @return void
+     */
+    protected function replaceTable(array &$tables, string $name, array $newTable): void
+    {
+        $tableName = tableNaming($name);
+        $modelName = modelNaming($name);
+
+        foreach ($tables as &$table) {
+            if (isset($table["model_name"])) {
+                if ($table["model_name"] == $modelName) {
+                    $table = $newTable;
+                }
+            }
+
+            if (isset($table['table_name'])) {
+                if ($table['table_name'] == $tableName) {
+                    $table = $newTable;
+                }
+            }
+        }
+    }
+
+    /**
+     * handle the addition on a new table in settings json
+     * @param array $attributes
+     * @param array $nullables
+     * @param array $uniques
+     * @param string $modelName
+     * @param mixed $tables
+     * @return array
+     */
+    public function handleAddNewOne(array $attributes, array $nullables, array $uniques, string $modelName, array $tables): array
+    {
+        list($columns, $relations) = $this->extractColumnsAndRelations($attributes, $nullables, $uniques);
+
+        $tables[] = [
+            "model_name" => modelNaming($modelName),
+            "table_name" => tableNaming($modelName),
             "attributes" => $columns,
             "relations" => $relations
         ];
-
-        $settings['migrations'] = $migrations;
-
-        storeJsonSettings($settings);
-    }
-
-    protected function checkForKey(array &$settings, string $key): void
-    {
-        if (isset($settings[$key])) {
-            return;
-        } else {
-            $settings[$key] = [];
-        }
+        return $tables;
     }
 }
