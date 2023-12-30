@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\Enums\ColumnType;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Illuminate\Support\Str;
 
 trait SettingsHandler
@@ -13,18 +14,19 @@ trait SettingsHandler
      * @param array $attributes
      * @param array $nullables
      * @param array $uniques
+     * @param array $relations
      * @return void
      */
-    public function handleTableSettings(string $modelName, array $attributes, array $nullables, array $uniques, $relations = []): void
+    public function handleTableSettings(string $modelName, array $attributes, array $nullables, array $uniques, array $relations = []): void
     {
         $settings = getJsonSettings();
         $this->checkForKey($settings, "tables");
         $tables = $settings["tables"];
 
         if ($this->checkIfTableExists($tables, $modelName)) {
-            $tables = $this->handleAddToExisted($attributes, $nullables, $uniques, $modelName, $tables);
+            $tables = $this->handleAddToExisted($attributes, $nullables, $uniques, $modelName, $relations, $tables);
         } else {
-            $tables = $this->handleAddNewOne($attributes, $nullables, $uniques, $modelName, $tables);
+            $tables = $this->handleAddNewOne($attributes, $nullables, $uniques, $modelName, $relations, $tables);
         }
 
         $settings['tables'] = $tables;
@@ -95,14 +97,15 @@ trait SettingsHandler
      * @param array $nullables
      * @param array $uniques
      * @param string $modelName
+     * @param array $related
      * @param array $tables
      * @return array
      */
-    public function handleAddToExisted(array $attributes, array $nullables, array $uniques, string $modelName, array $tables): array
+    public function handleAddToExisted(array $attributes, array $nullables, array $uniques, string $modelName, array $related, array $tables): array
     {
         $table = $this->searchForTable($tables, $modelName);
 
-        list($columns, $relations) = $this->extractColumnsAndRelations($attributes, $nullables, $uniques);
+        list($columns, $relations) = $this->extractColumnsAndRelations($attributes, $nullables, $uniques, $related);
 
         $newTable = [
             "model_name" => modelNaming($modelName),
@@ -119,9 +122,10 @@ trait SettingsHandler
      * @param array $attributes
      * @param array $nullables
      * @param array $uniques
+     * @param array $related
      * @return array
      */
-    protected function extractColumnsAndRelations(array $attributes, array $nullables, array $uniques): array
+    protected function extractColumnsAndRelations(array $attributes, array $nullables, array $uniques, array $related = []): array
     {
         $columns = [];
         $relations = [];
@@ -131,9 +135,9 @@ trait SettingsHandler
             if ($type == ColumnType::KEY) {
                 $type = ColumnType::FOREIGN_KEY;
                 $parent = modelNaming(Str::singular(str_replace('_id', '', $colName)));
-                $relations["belongs_to"][] = [
+                $relations[RelationsTypeEnum::BelongsTo][] = [
                     "key" => $colName,
-                    "parent" => $parent
+                    "model_name" => $parent
                 ];
             }
 
@@ -144,6 +148,19 @@ trait SettingsHandler
                 "unique" => in_array($colName, $uniques)
             ];
         }
+
+        foreach ($related as $relation => $type) {
+            if ($type == RelationsTypeEnum::ManyToMany) {
+                $relations[RelationsTypeEnum::ManyToMany][] = [
+                    "model_name" => modelNaming($relation)
+                ];
+            } else if ($type == RelationsTypeEnum::HasMany) {
+                $relations[RelationsTypeEnum::HasMany][] = [
+                    "model_name" => modelNaming($relation)
+                ];
+            }
+        }
+
         return array($columns, $relations);
     }
 
@@ -180,12 +197,13 @@ trait SettingsHandler
      * @param array $nullables
      * @param array $uniques
      * @param string $modelName
+     * @param array $related
      * @param mixed $tables
      * @return array
      */
-    public function handleAddNewOne(array $attributes, array $nullables, array $uniques, string $modelName, array $tables): array
+    public function handleAddNewOne(array $attributes, array $nullables, array $uniques, string $modelName, array $related, array $tables): array
     {
-        list($columns, $relations) = $this->extractColumnsAndRelations($attributes, $nullables, $uniques);
+        list($columns, $relations) = $this->extractColumnsAndRelations($attributes, $nullables, $uniques, $related);
 
         $tables[] = [
             "model_name" => modelNaming($modelName),
@@ -194,5 +212,19 @@ trait SettingsHandler
             "relations" => $relations
         ];
         return $tables;
+    }
+
+    public function getAllModelsName(): array
+    {
+        $tables = getJsonSettings();
+        $all = [];
+        foreach ($tables as $table) {
+            if (isset($table['model_name'])) {
+                $all[] = $table['model_name'];
+            } elseif (isset($table['table_name'])) {
+                $all[] = modelNaming($table['table_name']);
+            }
+        }
+        return $all;
     }
 }

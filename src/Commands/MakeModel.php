@@ -2,18 +2,22 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
-use Illuminate\Support\Str;
-use Illuminate\Console\Command;
-use JetBrains\PhpStorm\ArrayShape;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Traits\CommandsPrompts;
+use Cubeta\CubetaStarter\Traits\SettingsHandler;
+use Cubeta\CubetaStarter\Traits\StringsGenerator;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Str;
+use JetBrains\PhpStorm\ArrayShape;
 
 class MakeModel extends Command
 {
-    use AssistCommand;
+    use AssistCommand, SettingsHandler, CommandsPrompts, StringsGenerator;
 
     public $description = 'Create a new model class';
 
@@ -81,23 +85,244 @@ class MakeModel extends Command
         // handling the usage of the gui
         if ($this->useGui) {
             $this->relations = $relations;
-            $this->createModel($modelName, $guiAttributes);
+            $this->handleTableSettings($modelName, $guiAttributes, $nullables, $uniques, $relations);
+            $this->createModel($modelName, $guiAttributes, $relations);
             $this->callAppropriateCommand($name, $options, $actor, $guiAttributes, $nullables, $uniques);
             $this->createPivots($modelName);
+            CodeSniffer::make()->setModel($modelName)->checkForRelations();
             return;
         }
 
         $paramsString = $this->getModelAttributesFromTheUser();
 
+        $relations = $this->relations = $this->getRelationsFromPrompts();
+
         $attributes = $this->convertToArrayOfAttributes($paramsString);
 
-        $this->createModel($modelName, $attributes);
+        $this->handleTableSettings($modelName, $attributes, $nullables, $uniques, $relations);
+
+        $this->createModel($modelName, $attributes, $relations);
 
         $actor = $this->checkTheActor();
 
         $this->callAppropriateCommand($name, $options, $actor, $attributes, $nullables, $uniques);
 
+        CodeSniffer::make()->setModel($modelName)->checkForRelations();
+
         $this->createPivots($modelName);
+    }
+
+    /**
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function createModel(string $className, array $attributes, array $relations = []): void
+    {
+        $modelPath = $this->getModelPath($className);
+
+        if (file_exists($modelPath)) {
+            $this->error("{$className} Model Already Exists");
+            return;
+        }
+
+        /**
+         * removing this from here will cause the $this->relations variable to be empty when calling it
+         * in the fillArrayKeysMethodsInTheModel() method and that if we're not using the gui
+         */
+        $modelRelationsFunctions = $this->getModelRelation($attributes, $relations);
+
+        $methodsArrayKeys = $this->fillArrayKeysMethodsInTheModel($attributes, $this->relations);
+
+        $useTranslationsTrait = in_array('translatable', $attributes) ? "use HasFactory; \n use \App\Traits\Translations;\n" : "use HasFactory;";
+
+        $stubProperties = [
+            '{namespace}' => config('cubeta-starter.model_namespace'),
+            '{modelName}' => $className,
+            '{relations}' => $modelRelationsFunctions,
+            '{properties}' => $this->getModelProperty($attributes, $this->relations),
+            '{fileGetter}' => $this->generateGetFilePropertyPathMethod($className, $attributes),
+            '{fillable}' => $methodsArrayKeys['fillable'],
+            '{filesKeys}' => $methodsArrayKeys['filesKeys'],
+            '{scopes}' => $this->boolValuesScope($attributes),
+            '{searchableKeys}' => $methodsArrayKeys['searchable'],
+            '{searchableRelations}' => $methodsArrayKeys['relationSearchable'],
+            "use HasFactory;" => $useTranslationsTrait,
+            '{casts}' => $this->getCastArray($attributes),
+        ];
+
+        generateFileFromStub($stubProperties, $modelPath, __DIR__ . '/stubs/model.stub');
+
+        $this->formatFile($modelPath);
+        $this->info("Created model: {$className}");
+    }
+
+    /**
+     * return the model path from the config
+     * @param string $className
+     * @return string
+     */
+    private function getModelPath(string $className): string
+    {
+        $modelDirectory = base_path(config('cubeta-starter.model_path'));
+        ensureDirectoryExists($modelDirectory);
+
+        return "{$modelDirectory}/{$className}.php";
+    }
+
+    /**
+     * @param array $attributes
+     * @param array $relations
+     * @return string
+     */
+    private function getModelRelation(array $attributes = [], array $relations = []): string
+    {
+        $relationsFunctions = '';
+
+        if (isset($attributes) && count($attributes) > 0) {
+
+            $foreignKeys = array_keys($attributes, 'key');
+
+            foreach ($foreignKeys as $value) {
+                $relatedModelName = modelNaming(str_replace('_id', '', $value));
+                if (file_exists(getModelPath($relatedModelName)) and class_exists(getModelClassName($relatedModelName))) {
+                    $relationsFunctions .= $this->belongsToFunction($relatedModelName);
+                }
+            }
+
+        }
+
+        if (isset($relations) && count($relations) > 0) {
+            foreach ($relations as $relation => $type) {
+
+                if (!file_exists(getModelPath(modelNaming($relation))) or !class_exists(getModelClassName(modelNaming($relation)))) {
+                    continue;
+                }
+
+                if ($type == RelationsTypeEnum::HasMany) {
+                    $relationsFunctions .= $this->hasManyFunction($relation);
+                }
+
+                if ($type == RelationsTypeEnum::ManyToMany) {
+                    $relationsFunctions .= $this->manyToManyFunction($relation);
+                }
+
+            }
+        }
+
+        return $relationsFunctions;
+    }
+
+    /**
+     * returns methods arrays : fillable = [] , filesKeys() , orderableArray() , searchableArray() , relationsSearchableArray()
+     *
+     * @return string[]
+     */
+    #[ArrayShape(['fillable' => 'string', 'filesKeys' => 'string', 'searchable' => 'string', 'relationSearchable' => 'string'])]
+    public function fillArrayKeysMethodsInTheModel(array $attributes = [], array $relations = []): array
+    {
+        $fillable = '';
+        $filesKeys = '';
+        $searchable = '';
+        $relationsSearchable = '';
+        if (isset($attributes) && count($attributes) > 0) {
+            foreach ($attributes as $attribute => $type) {
+                $attribute = columnNaming($attribute);
+                $fillable .= "'{$attribute}' ,\n";
+
+                if (in_array($type, ['string', 'text', 'json', 'translatable'])) {
+                    $searchable .= "'{$attribute}' , \n";
+                }
+
+                if ($type == 'file') {
+                    $filesKeys .= "'{$attribute}' ,\n";
+                }
+            }
+        }
+
+        if (isset($relations) && count($relations) > 0) {
+            foreach ($relations as $relation => $type) {
+                $relationsSearchable .=
+                    "'{$relation}' => [
+                    //add your {$relation} desired column to be search within
+                  ] , \n";
+            }
+        }
+
+        return [
+            'fillable' => $fillable,
+            'filesKeys' => $filesKeys,
+            'searchable' => $searchable,
+            'relationSearchable' => $relationsSearchable,
+        ];
+    }
+
+    /**
+     * generates the PHPDoc properties for the model class
+     * @param array $attributes
+     * @param array $relations
+     * @return string
+     */
+    private function getModelProperty(array $attributes = [], array $relations = []): string
+    {
+        $properties = "/**  \n";
+
+        if (isset($relations) && count($relations) > 0) {
+            foreach ($relations as $name => $type) {
+                $modelName = modelNaming($name);
+                $properties .= "* @property {$modelName} {$name}\n";
+            }
+        }
+
+        if (isset($attributes) && count($attributes) > 0) {
+            foreach ($attributes as $name => $type) {
+                if (in_array($type, ['translatable', 'file', 'text', 'json'])) {
+                    $properties .= "* @property string {$name} \n";
+                } elseif ($type == 'key') {
+                    $properties .= "* @property integer {$name} \n";
+                } elseif (in_array($type, ['time', 'date', 'dateTime', 'timestamp'])) {
+                    $properties .= "* @property \DateTime {$name} \n";
+                } elseif (in_array($type, ['bigInteger', 'unsignedBigInteger', 'unsignedDouble'])) {
+                    $properties .= "* @property numeric {$name} \n";
+                } else {
+                    $properties .= "* @property {$type} {$name} \n";
+                }
+            }
+        }
+
+        $properties .= "*/ \n";
+
+        return $properties;
+    }
+
+    /**
+     * generate the getFileProperty method for each file typ columns in the model
+     * @param         $modelName
+     * @param array $attributes
+     * @return string
+     */
+    private function generateGetFilePropertyPathMethod($modelName, array $attributes = []): string
+    {
+        if (!isset($attributes) || count($attributes) == 0) {
+            return '';
+        }
+
+        $file = '';
+        $columnsNames = array_keys($attributes, 'file');
+        foreach ($columnsNames as $colName) {
+            $file .=
+                '/**
+                 * return the full path of the stored ' . modelNaming($colName) . '
+                 * @return string|null
+                 */
+                 public function get' . modelNaming($colName) . "Path() : ?string
+                 {
+                     return \$this->{$colName} != null ? asset('storage/'.\$this->{$colName}) : null;
+                 }\n";
+
+            ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
+        }
+
+        return $file;
     }
 
     /**
@@ -122,6 +347,26 @@ class MakeModel extends Command
         }
 
         return $scopes;
+    }
+
+    /**
+     * @param array $attributes
+     * @return string
+     */
+    private function getCastArray(array $attributes = []): string
+    {
+        $casts = '';
+        foreach ($attributes as $name => $type) {
+
+            if ($type == 'boolean') {
+                $casts .= "'{$name}' => 'boolean' , \n";
+            } elseif ($type == 'translatable') {
+                $casts .= "'{$name}' => \\App\\Casts\\Translatable::class, \n";
+            }
+
+        }
+
+        return $casts;
     }
 
     /**
@@ -199,68 +444,6 @@ class MakeModel extends Command
     }
 
     /**
-     * ask the user about the actor of the created model endpoints
-     * @return array|string|null
-     */
-    public function checkTheActor(): array|string|null
-    {
-        if (file_exists(base_path('app/Enums/RolesPermissionEnum.php'))) {
-            if (class_exists('\App\Enums\RolesPermissionEnum')) {
-                /** @noinspection PhpFullyQualifiedNameUsageInspection */
-                $roles = \App\Enums\RolesPermissionEnum::ALLROLES;
-                $roles[] = 'none';
-                return $this->choice('Who Is The Actor Of this Endpoint ? ', $roles, 'none');
-            }
-        }
-
-        return 'none';
-    }
-
-    /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    public function createModel(string $className, array $attributes): void
-    {
-        $modelPath = $this->getModelPath($className);
-
-        if (file_exists($modelPath)) {
-            $this->error("{$className} Model Already Exists");
-            return;
-        }
-
-        /**
-         * removing this from here will cause the $this->relations variable to be empty when calling it
-         * in the fillArrayKeysMethodsInTheModel() method and that if we're not using the gui
-         */
-        $modelRelationsFunctions = $this->getModelRelation($attributes, $this->relations);
-
-        $methodsArrayKeys = $this->fillArrayKeysMethodsInTheModel($attributes, $this->relations);
-
-        $useTranslationsTrait = in_array('translatable', $attributes) ? "use HasFactory; \n use \App\Traits\Translations;\n" : "use HasFactory;";
-
-        $stubProperties = [
-            '{namespace}' => config('cubeta-starter.model_namespace'),
-            '{modelName}' => $className,
-            '{relations}' => $modelRelationsFunctions,
-            '{properties}' => $this->getModelProperty($attributes, $this->relations),
-            '{fileGetter}' => $this->generateGetFilePropertyPathMethod($className, $attributes),
-            '{fillable}' => $methodsArrayKeys['fillable'],
-            '{filesKeys}' => $methodsArrayKeys['filesKeys'],
-            '{scopes}' => $this->boolValuesScope($attributes),
-            '{searchableKeys}' => $methodsArrayKeys['searchable'],
-            '{searchableRelations}' => $methodsArrayKeys['relationSearchable'],
-            "use HasFactory;" => $useTranslationsTrait,
-            '{casts}' => $this->getCastArray($attributes),
-        ];
-
-        generateFileFromStub($stubProperties, $modelPath, __DIR__ . '/stubs/model.stub');
-
-        $this->formatFile($modelPath);
-        $this->info("Created model: {$className}");
-    }
-
-    /**
      * create a pivot table if there is a many-to-many relation
      * @param string $modelName
      * @return void
@@ -274,50 +457,6 @@ class MakeModel extends Command
                 'table2' => $relation,
             ]);
         }
-    }
-
-    /**
-     * returns methods arrays : fillable = [] , filesKeys() , orderableArray() , searchableArray() , relationsSearchableArray()
-     *
-     * @return string[]
-     */
-    #[ArrayShape(['fillable' => 'string', 'filesKeys' => 'string', 'searchable' => 'string', 'relationSearchable' => 'string'])]
-    public function fillArrayKeysMethodsInTheModel(array $attributes = [], array $relations = []): array
-    {
-        $fillable = '';
-        $filesKeys = '';
-        $searchable = '';
-        $relationsSearchable = '';
-        if (isset($attributes) && count($attributes) > 0) {
-            foreach ($attributes as $attribute => $type) {
-                $attribute = columnNaming($attribute);
-                $fillable .= "'{$attribute}' ,\n";
-
-                if (in_array($type, ['string', 'text', 'json', 'translatable'])) {
-                    $searchable .= "'{$attribute}' , \n";
-                }
-
-                if ($type == 'file') {
-                    $filesKeys .= "'{$attribute}' ,\n";
-                }
-            }
-        }
-
-        if (isset($relations) && count($relations) > 0) {
-            foreach ($relations as $relation => $type) {
-                $relationsSearchable .=
-                    "'{$relation}' => [
-                    //add your {$relation} desired column to be search within
-                  ] , \n";
-            }
-        }
-
-        return [
-            'fillable' => $fillable,
-            'filesKeys' => $filesKeys,
-            'searchable' => $searchable,
-            'relationSearchable' => $relationsSearchable,
-        ];
     }
 
     /**
@@ -356,228 +495,20 @@ class MakeModel extends Command
     }
 
     /**
-     * generate the getFileProperty method for each file typ columns in the model
-     * @param         $modelName
-     * @param array $attributes
-     * @return string
+     * ask the user about the actor of the created model endpoints
+     * @return array|string|null
      */
-    private function generateGetFilePropertyPathMethod($modelName, array $attributes = []): string
+    public function checkTheActor(): array|string|null
     {
-        if (!isset($attributes) || count($attributes) == 0) {
-            return '';
-        }
-
-        $file = '';
-        $columnsNames = array_keys($attributes, 'file');
-        foreach ($columnsNames as $colName) {
-            $file .=
-                '/**
-                 * return the full path of the stored ' . modelNaming($colName) . '
-                 * @return string|null
-                 */
-                 public function get' . modelNaming($colName) . "Path() : ?string
-                 {
-                     return \$this->{$colName} != null ? asset('storage/'.\$this->{$colName}) : null;
-                 }\n";
-
-            ensureDirectoryExists(storage_path('app/public/' . Str::lower($modelName) . '/' . Str::plural($colName)));
-        }
-
-        return $file;
-    }
-
-    /**
-     * return the model path from the config
-     * @param string $className
-     * @return string
-     */
-    private function getModelPath(string $className): string
-    {
-        $modelDirectory = base_path(config('cubeta-starter.model_path'));
-        ensureDirectoryExists($modelDirectory);
-
-        return "{$modelDirectory}/{$className}.php";
-    }
-
-    /**
-     * generates the PHPDoc properties for the model class
-     * @param array $attributes
-     * @param array $relations
-     * @return string
-     */
-    private function getModelProperty(array $attributes = [], array $relations = []): string
-    {
-        $properties = "/**  \n";
-
-        if (isset($relations) && count($relations) > 0) {
-            foreach ($relations as $name => $type) {
-                $modelName = modelNaming($name);
-                $properties .= "* @property {$modelName} {$name}\n";
+        if (file_exists(base_path('app/Enums/RolesPermissionEnum.php'))) {
+            if (class_exists('\App\Enums\RolesPermissionEnum')) {
+                /** @noinspection PhpFullyQualifiedNameUsageInspection */
+                $roles = \App\Enums\RolesPermissionEnum::ALLROLES;
+                $roles[] = 'none';
+                return $this->choice('Who Is The Actor Of this Endpoint ? ', $roles, 'none');
             }
         }
 
-        if (isset($attributes) && count($attributes) > 0) {
-            foreach ($attributes as $name => $type) {
-                if (in_array($type, ['translatable', 'file', 'text', 'json'])) {
-                    $properties .= "* @property string {$name} \n";
-                } elseif ($type == 'key') {
-                    $properties .= "* @property integer {$name} \n";
-                } elseif (in_array($type, ['time', 'date', 'dateTime', 'timestamp'])) {
-                    $properties .= "* @property \DateTime {$name} \n";
-                } elseif (in_array($type, ['bigInteger', 'unsignedBigInteger', 'unsignedDouble'])) {
-                    $properties .= "* @property numeric {$name} \n";
-                } else {
-                    $properties .= "* @property {$type} {$name} \n";
-                }
-            }
-        }
-
-        $properties .= "*/ \n";
-
-        return $properties;
-    }
-
-    /**
-     * @param array $attributes
-     * @param array $relations
-     * @return string
-     */
-    private function getModelRelation(array $attributes = [], array $relations = []): string
-    {
-        $relationsFunctions = '';
-
-        if (isset($attributes) && count($attributes) > 0) {
-            $foreignKeys = array_keys($attributes, 'key');
-
-            foreach ($foreignKeys as $value) {
-                $relationName = relationFunctionNaming(str_replace('_id', '', $value));
-
-                $relationsFunctions .=
-                    'public function ' . $relationName . '():belongsTo
-                {
-                    return $this->belongsTo(' . modelNaming($relationName) . "::class);
-                }\n";
-
-                $this->relations[$relationName] = RelationsTypeEnum::BelongsTo;
-            }
-        }
-
-        if ($this->useGui) {
-            if (isset($relations) && count($relations) > 0) {
-                foreach ($relations as $relation => $type) {
-                    $relationName = relationFunctionNaming($relation, false);
-                    if ($type == RelationsTypeEnum::HasMany) {
-                        $relationsFunctions .= '
-                public function ' . $relationName . '():hasMany
-                {
-                    return $this->hasMany(' . modelNaming($relation) . "::class);
-                }\n";
-                    }
-
-                    if ($type == RelationsTypeEnum::ManyToMany) {
-                        $relationsFunctions .= '
-                 public function ' . $relationName . '() : BelongsToMany
-                 {
-                     return $this->belongsToMany(' . modelNaming($relation) . "::class);
-                 }\n";
-                    }
-
-                }
-            } else {
-                return $relationsFunctions;
-            }
-        } else {
-            $thereIsHasMany = true;
-            $decision = 'No';
-            $result = 'No';
-
-            while ($thereIsHasMany) {
-
-                if ($decision == 'No') {
-                    $result = $this->choice('Does this model related with another model by <fg=red>has many</fg=red> relation ?', ['No', 'Yes'], 'No');
-                }
-
-                if ($result == 'Yes') {
-                    $table = $this->ask('What is the name of the related model table ? ');
-
-                    while (empty(trim($table))) {
-                        $this->error('Invalid Input');
-                        $table = $this->ask('What is the name of the related model table ? ');
-                    }
-
-                    $relationName = relationFunctionNaming($table, false);
-
-                    $relationsFunctions .= '
-                public function ' . $relationName . '():hasMany
-                {
-                    return $this->hasMany(' . modelNaming($table) . "::class);
-                }\n";
-
-                    $result = $this->choice('Does it has another <fg=red>has many</fg=red> relation ? ', ['No', 'Yes'], 'No');
-
-                    $this->relations[$relationName] = RelationsTypeEnum::HasMany;
-                }
-
-                $thereIsHasMany = $result == 'Yes';
-                $decision = 'Yes';
-            }
-
-            $thereIsManyToMany = true;
-            $decision = 'No';
-            $result = 'No';
-
-            while ($thereIsManyToMany) {
-
-                if ($decision == 'No') {
-                    $result = $this->choice('Does this model related with another model by <fg=red>many to many</fg=red> relation ?', ['No', 'Yes'], 'No');
-                }
-
-                if ($result == 'Yes') {
-                    $table = $this->ask('What is the name of the related model table ? ');
-
-                    while (empty(trim($table))) {
-                        $this->error('Invalid Input');
-                        $table = $this->ask('What is the name of the related model table ? ');
-                    }
-
-                    $relationName = relationFunctionNaming($table, false);
-
-                    $relationsFunctions .= '
-                 public function ' . $relationName . '() : BelongsToMany
-                 {
-                     return $this->belongsToMany(' . modelNaming($table) . "::class);
-                 }\n";
-
-                    $result = $this->choice('Does it has another <fg=red>many to many</fg=red> relation ? ', ['No', 'Yes'], 'No');
-
-                    $this->relations[$relationName] = RelationsTypeEnum::ManyToMany;
-                }
-
-                $thereIsManyToMany = $result == 'Yes';
-                $decision = 'Yes';
-            }
-        }
-
-        return $relationsFunctions;
-    }
-
-    /**
-     * @param array $attributes
-     * @return string
-     */
-    private function getCastArray(array $attributes = []): string
-    {
-        $casts = '';
-        foreach ($attributes as $name => $type) {
-
-            if ($type == 'boolean') {
-                $casts .= "'{$name}' => 'boolean' , \n";
-            } elseif ($type == 'translatable') {
-                $casts .= "'{$name}' => \\App\\Casts\\Translatable::class, \n";
-            }
-
-        }
-
-        return $casts;
+        return 'none';
     }
 }
