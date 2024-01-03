@@ -17,7 +17,10 @@ use JetBrains\PhpStorm\ArrayShape;
 
 class MakeModel extends Command
 {
-    use AssistCommand, SettingsHandler, CommandsPrompts, StringsGenerator;
+    use AssistCommand;
+    use SettingsHandler;
+    use CommandsPrompts;
+    use StringsGenerator;
 
     public $description = 'Create a new model class';
 
@@ -184,7 +187,8 @@ class MakeModel extends Command
 
             foreach ($foreignKeys as $value) {
                 $relatedModelName = modelNaming(str_replace('_id', '', $value));
-                if (file_exists(getModelPath($relatedModelName)) and class_exists(getModelClassName($relatedModelName))) {
+
+                if (file_exists(getModelPath($relatedModelName))) {
                     $relationsFunctions .= $this->belongsToFunction($relatedModelName);
                 }
             }
@@ -194,7 +198,7 @@ class MakeModel extends Command
         if (isset($relations) && count($relations) > 0) {
             foreach ($relations as $relation => $type) {
 
-                if (!file_exists(getModelPath(modelNaming($relation))) or !class_exists(getModelClassName(modelNaming($relation)))) {
+                if (!file_exists(getModelPath(modelNaming($relation)))) {
                     continue;
                 }
 

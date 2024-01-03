@@ -8,7 +8,8 @@ use Cubeta\CubetaStarter\Traits\StringsGenerator;
 
 class CodeSniffer
 {
-    use SettingsHandler, StringsGenerator;
+    use SettingsHandler;
+    use StringsGenerator;
 
     private static $instance;
 
@@ -35,8 +36,8 @@ class CodeSniffer
     public function setModel(string $modelName): static
     {
         $this->currentModel = modelNaming($modelName);
-        $this->currentModelClass = config("cubeta-starter.model_namespace", "App\Models") . "\\$this->currentModel";
-        $this->currentModelPath = config("cubeta-starter.model_path", "app/Models") . "/$this->currentModel.php";
+        $this->currentModelClass = config("cubeta-starter.model_namespace", "App\Models") . "\\{$this->currentModel}";
+        $this->currentModelPath = config("cubeta-starter.model_path", "app/Models") . "/{$this->currentModel}.php";
         return $this;
     }
 
@@ -45,19 +46,24 @@ class CodeSniffer
         $tables = getJsonSettings();
         $currentTable = $this->searchForTable($tables["tables"], $this->currentModel);
 
+        if (!$currentTable) {
+            return $this;
+        }
+
         foreach ($currentTable['relations'] as $type => $relation) {
             $relatedModelName = $relation[0]["model_name"];
             $relatedClassName = getModelClassName($relatedModelName);
             $relatedPath = getModelPath($relatedModelName);
 
             // check if the related class exists
-            if (!file_exists($relatedPath) or !class_exists($relatedClassName)) {
+            if (!file_exists($relatedPath) || !class_exists($relatedClassName)) {
                 continue;
             }
 
             switch ($type) {
                 case RelationsTypeEnum::HasMany:
-                    addMethodToClass(relationFunctionNaming($this->currentModel),
+                    addMethodToClass(
+                        relationFunctionNaming($this->currentModel),
                         $relatedClassName,
                         $relatedPath,
                         $this->belongsToFunction($this->currentModel)
