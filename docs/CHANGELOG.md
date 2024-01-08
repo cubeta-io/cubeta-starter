@@ -14,7 +14,7 @@
 ## **fixing some bugs**
 
 1. remove `required` attribute from the input fields in the generated _edit_ forms
-2. adding `.gallery` css class to the `gallery-item` blade component so the functions in the `PluginInitializer.js` file
+2. adding `.gallery` css class to the `gallery-item` blade component so the functions in the `public/js/PluginInitializer.js` file
    can handle it.
 
 ### **V 1.1.4**
