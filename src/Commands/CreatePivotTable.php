@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Exception;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 
@@ -16,11 +16,6 @@ class CreatePivotTable extends Command
     protected $description = 'Create a migration file for a pivot table between two tables';
 
     protected $signature = 'create:pivot {table1} {table2}';
-
-    public function getPivotPath(string $date, string $migrationName): string
-    {
-        return base_path(config('cubeta-starter.migration_path') . '/' . $date . '_' . $migrationName . '.php');
-    }
 
     /**
      * @throws BindingResolutionException
@@ -42,6 +37,11 @@ class CreatePivotTable extends Command
         sort($tables);
 
         $pivotTableName = $tables[0] . '_' . $tables[1];
+
+        if (!$this->checkIfMigrationExists(tableNaming($tables[0])) && !$this->checkIfMigrationExists(tableNaming($tables[1]))) {
+            $this->warn("The Related Table Migration Isn't Defined When \n Remember When Creating The Related Model To Mention The Many-To-Many Relation In The Generation Form");
+            return;
+        }
 
         $this->info('Creating migration for pivot table ' . $pivotTableName);
 
@@ -91,5 +91,10 @@ class CreatePivotTable extends Command
         $this->info("Pivot Table For {$className1} and {$className2} Created");
 
         $this->formatFile($migrationPath);
+    }
+
+    public function getPivotPath(string $date, string $migrationName): string
+    {
+        return base_path(config('cubeta-starter.migration_path') . '/' . $date . '_' . $migrationName . '.php');
     }
 }

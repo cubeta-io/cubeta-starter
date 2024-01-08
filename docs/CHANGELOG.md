@@ -4,6 +4,8 @@
    take the value of the `label` attribute transformed to **lower** _and_ **snake case**
 2. new attribute `exact` has been added to the `gallery-item` blade component so if you'd like to provide the exact
    source of the image
+3. add 2 new components `<x-translatable-text-editor />` and `<x-translatable-long-text-field />` to handle the
+   localized long text field (the one that needs text editors)
 
 ## **fixing some bugs**
 

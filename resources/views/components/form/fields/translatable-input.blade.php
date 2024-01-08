@@ -17,7 +17,7 @@
     @foreach (config('cubeta-starter.available_locales') as $lang)
         <label for="{{ $name }}-{{ $lang }}"
                @if ($loop->index != 0) style="display: none" @endif>
-            {{ $lang }} : {{ $label }}</label>
+            {{ strtoupper($lang) }} : {{ $label }}</label>
         <input class="form-control translatable @error($name) is-invalid @enderror"
                id="{{ $name }}-{{ $lang }}"
                name="{{ $name }}[{{ $lang }}]"

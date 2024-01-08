@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Contracts;
 
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\SettingsHandler;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 
@@ -10,6 +11,7 @@ class CodeSniffer
 {
     use SettingsHandler;
     use StringsGenerator;
+    use AssistCommand;
 
     private static $instance;
 
@@ -86,6 +88,8 @@ class CodeSniffer
                     );
                     break;
             }
+
+            $this->formatFile($relatedPath);
         }
 
         return $this;
