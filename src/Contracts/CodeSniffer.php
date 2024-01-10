@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\SettingsHandler;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
+use Illuminate\Support\Str;
 
 class CodeSniffer
 {
@@ -17,7 +18,7 @@ class CodeSniffer
 
     private string $currentModel;
 
-    private string $currentModelClass;
+    private string $currentModelClassName;
 
     private string $currentModelPath;
 
@@ -35,15 +36,20 @@ class CodeSniffer
         return self::$instance;
     }
 
+    public static function destroy(): void
+    {
+        self::$instance = null;
+    }
+
     public function setModel(string $modelName): static
     {
         $this->currentModel = modelNaming($modelName);
-        $this->currentModelClass = config("cubeta-starter.model_namespace", "App\Models") . "\\{$this->currentModel}";
+        $this->currentModelClassName = config("cubeta-starter.model_namespace", "App\Models") . "\\{$this->currentModel}";
         $this->currentModelPath = config("cubeta-starter.model_path", "app/Models") . "/{$this->currentModel}.php";
         return $this;
     }
 
-    public function checkForRelations(): static
+    public function checkForModelsRelations(): static
     {
         $tables = getJsonSettings();
         $currentTable = $this->searchForTable($tables["tables"], $this->currentModel);
@@ -88,10 +94,51 @@ class CodeSniffer
                     );
                     break;
             }
-
-            $this->formatFile($relatedPath);
         }
 
+        return $this;
+    }
+
+    public function checkForFactoryRelations(): static
+    {
+        $tables = getJsonSettings();
+        $currentTable = $this->searchForTable($tables["tables"], $this->currentModel);
+
+        if (!$currentTable) {
+            return $this;
+        }
+
+        foreach ($currentTable['relations'] as $type => $relation) {
+            $relatedModelName = $relation[0]["model_name"];
+            $relatedClassName = getFactoryClassName($relatedModelName);
+            $relatedPath = getFactoryPath($relatedModelName);
+
+            // check if the related class exists
+            if (!file_exists($relatedPath) || !class_exists($relatedClassName)) {
+                continue;
+            }
+
+            switch ($type) {
+                case RelationsTypeEnum::BelongsTo :
+                    $methodName = "with" . Str::plural($this->currentModel);
+                    addMethodToClass(
+                        $methodName,
+                        $relatedClassName,
+                        $relatedPath,
+                        $this->factoryRelationMethod($this->currentModel)
+                    );
+                    break;
+
+                case RelationsTypeEnum::ManyToMany :
+                    $methodName = "with" . Str::plural($this->currentModel);
+                    addMethodToClass(
+                        $methodName,
+                        $relatedClassName,
+                        $relatedPath,
+                        $this->factoryRelationMethod($this->currentModel)
+                    );
+            }
+        }
         return $this;
     }
 }

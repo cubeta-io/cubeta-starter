@@ -5,8 +5,8 @@ namespace Cubeta\CubetaStarter\Traits;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 trait RouteBinding
 {
@@ -52,10 +52,10 @@ trait RouteBinding
             $route .= "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$modelName}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\"); \n" .
                 'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
 
-            $importStatement = 'use App\Http\Controllers\WEB\v1;';
+            $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . ';';
         } else {
             $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
-            $importStatement = 'use App\Http\Controllers\API\v1;';
+            $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . ';';
         }
         if (file_exists($routePath)) {
             addImportStatement($importStatement, $routePath);
@@ -73,29 +73,6 @@ trait RouteBinding
         } else {
             $this->error("Actor Routes Files Does not exist");
         }
-    }
-
-    /**
-     * @param string $routePath
-     * @param string $route
-     * @return bool
-     */
-    public function checkIfRouteExist(string $routePath, string $route): bool
-    {
-        $file = file_get_contents($routePath);
-        if (Str::contains($file, $route)) {
-            return false;
-        }
-
-        $fileLines = File::lines($routePath);
-        foreach ($fileLines as $line) {
-            $cleanLine = trim($line);
-            if (Str::contains($cleanLine, $route)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -124,6 +101,29 @@ trait RouteBinding
         }
 
         return $routes;
+    }
+
+    /**
+     * @param string $routePath
+     * @param string $route
+     * @return bool
+     */
+    public function checkIfRouteExist(string $routePath, string $route): bool
+    {
+        $file = file_get_contents($routePath);
+        if (Str::contains($file, $route)) {
+            return false;
+        }
+
+        $fileLines = File::lines($routePath);
+        foreach ($fileLines as $line) {
+            $cleanLine = trim($line);
+            if (Str::contains($cleanLine, $route)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function addSetLocalRoute(): void

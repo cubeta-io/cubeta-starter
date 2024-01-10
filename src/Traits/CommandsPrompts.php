@@ -9,6 +9,10 @@ trait CommandsPrompts
 {
     use SettingsHandler;
 
+    /**
+     * get model relations from the user using the command line
+     * @return array
+     */
     public function getRelationsFromPrompts(): array
     {
         $createdModels = $this->getAllModelsName();
@@ -45,5 +49,51 @@ trait CommandsPrompts
         }
 
         return $relations;
+    }
+
+    /**
+     * get model attributes from the user using the command line
+     * @return array
+     */
+    public function getModelAttributesFromPrompts(): array
+    {
+        $paramsString = $this->ask('Enter your params like "name,started_at,..."');
+
+        while (empty(trim($paramsString))) {
+            $this->error('Invalid Input');
+            $paramsString = $this->ask('Enter your params like "name,started_at,..."');
+        }
+
+        $paramsString = explode(',', $paramsString);
+        $fieldsWithDataType = [];
+        foreach ($paramsString as $field) {
+            $field = columnNaming($field);
+            $type = $this->choice(
+                "What is the data type of the (( {$field} field )) ? default is ",
+                $this->types,
+                6,
+            );
+            $fieldsWithDataType[$field] = $type;
+        }
+
+        return $fieldsWithDataType;
+    }
+
+    /**
+     * ask the user about the actor of the created model endpoints
+     * @return array|string|null
+     */
+    public function checkTheActorUsingPrompts(): array|string|null
+    {
+        if (file_exists(base_path('app/Enums/RolesPermissionEnum.php'))) {
+            if (class_exists('\App\Enums\RolesPermissionEnum')) {
+                /** @noinspection PhpFullyQualifiedNameUsageInspection */
+                $roles = \App\Enums\RolesPermissionEnum::ALLROLES;
+                $roles[] = 'none';
+                return $this->choice('Who Is The Actor Of this Endpoint ? ', $roles, 'none');
+            }
+        }
+
+        return 'none';
     }
 }

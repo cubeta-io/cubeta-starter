@@ -76,15 +76,15 @@ class InitialProject extends Command
     {
         $this->createRolesEnum($role, $permissions);
 
-        if (in_array($roleContainer[$role], ['web', 'both'])) {
+        if (in_array($roleContainer[$role], [ContainerType::WEB, ContainerType::BOTH])) {
             if (!file_exists(base_path("routes/v1/web/{$role}.php"))) {
-                $this->addRouteFile($role, 'web');
+                $this->addRouteFile($role, ContainerType::WEB);
             }
         }
 
-        if (in_array($roleContainer[$role], ['api', 'both'])) {
+        if (in_array($roleContainer[$role], [ContainerType::API, ContainerType::BOTH])) {
             if (!file_exists(base_path("routes/v1/api/{$role}.php"))) {
-                $this->addRouteFile($role, 'api');
+                $this->addRouteFile($role, ContainerType::API);
             }
         }
 
@@ -102,7 +102,7 @@ class InitialProject extends Command
     private function generateAuthControllers(string $role, array $authenticated = [], array $roleContainer = []): void
     {
         if (in_array($role, $authenticated)) {
-            if (in_array($roleContainer[$role], ['api', 'both'])) {
+            if (in_array($roleContainer[$role], [ContainerType::API, ContainerType::BOTH])) {
                 $apiControllerNamespace = config('cubeta-starter.api_controller_namespace');
                 $apiServiceNamespace = config('cubeta-starter.service_namespace');
                 $apiControllerDirectory = base_path(config('cubeta-starter.api_controller_path'));

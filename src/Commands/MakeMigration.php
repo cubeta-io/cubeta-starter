@@ -3,7 +3,6 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Carbon\Carbon;
-use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\SettingsHandler;
 use Illuminate\Console\Command;
@@ -97,21 +96,20 @@ class MakeMigration extends Command
             $nullable = (in_array($name, $nullables) || $type == 'file') ? '->nullable()' : '';
             $unique = in_array($name, $uniques) ? '->unique()' : '';
 
-            if ($type == 'key') {
-                continue;
-            }
-            if ($type == 'translatable') {
-                $columns .= "\t\t\t\$table->json('{$name}')" . $nullable . $unique . "; \n";
-            } else {
-                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . $nullable . $unique . "; \n";
-            }
-        }
+            switch ($type) {
+                case 'key':
+                    $nullable = in_array($name, $nullables) ? '->nullable()' : '';
+                    $modelName = ucfirst(Str::singular(str_replace('_id', '', $name)));
+                    $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::class){$nullable}->constrained()->cascadeOnDelete(); \n";
+                    break;
 
-        foreach ($relations as $rel => $type) {
-            if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
-                $nullable = in_array($rel . '_id', $nullables) ? '->nullable()' : '';
-                $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
-                $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::class){$nullable}->constrained()->cascadeOnDelete(); \n";
+                case  'translatable':
+                    $columns .= "\t\t\t\$table->json('{$name}')" . $nullable . $unique . "; \n";
+                    break;
+
+                default:
+                    $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . $nullable . $unique . "; \n";
+                    break;
             }
         }
 

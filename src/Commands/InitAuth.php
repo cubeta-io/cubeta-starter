@@ -26,7 +26,7 @@ class InitAuth extends Command
      */
     public function handle(): void
     {
-        $container = $this->argument('container') ?? 'both';
+        $container = $this->argument('container') ?? ContainerType::BOTH;
 
         $this->generateUserMigration();
         $this->generateUserModel();

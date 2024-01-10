@@ -2,17 +2,22 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Illuminate\Support\Str;
-use Illuminate\Console\Command;
-use JetBrains\PhpStorm\ArrayShape;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Traits\SettingsHandler;
+use Cubeta\CubetaStarter\Traits\StringsGenerator;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Str;
+use JetBrains\PhpStorm\ArrayShape;
 
 class MakeFactory extends Command
 {
     use AssistCommand;
+    use StringsGenerator;
+    use SettingsHandler;
 
     public $description = 'Create a new factory';
 
@@ -54,6 +59,9 @@ class MakeFactory extends Command
             return;
         }
 
+        $this->handleTableSettings($modelName, $attributes, [], $uniques, $relations);
+        CodeSniffer::make()->setModel($modelName)->checkForFactoryRelations();
+
         $this->createFactory($modelName, $attributes, $relations, $uniques);
     }
 
@@ -91,6 +99,11 @@ class MakeFactory extends Command
         );
         $this->formatFile($factoryPath);
         $this->info("Created factory: {$factoryName}");
+    }
+
+    private function getFactoryName($modelName): string
+    {
+        return $modelName . 'Factory';
     }
 
     /**
@@ -183,23 +196,16 @@ class MakeFactory extends Command
 
         foreach ($relations as $rel => $type) {
             if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
-                $functionName = 'with' . ucfirst(Str::plural(Str::studly($rel)));
-                $className = modelNaming($rel);
 
-                $relatedFactories .= "
-                public function {$functionName}(\$count = 1)
-                {
-                    return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$className}::factory(\$count));
-                } \n";
+                if (!file_exists(getModelPath($rel))) {
+                    continue;
+                }
+
+                $relatedFactories .= $this->factoryRelationMethod($rel);
             }
         }
 
         return ['rows' => $rows, 'relatedFactories' => $relatedFactories];
-    }
-
-    private function getFactoryName($modelName): string
-    {
-        return $modelName . 'Factory';
     }
 
     private function getFactoryPath($factoryName): string

@@ -9,7 +9,7 @@
 function addToClass(string $classPath, string $content): void
 {
     if (!file_exists($classPath)) {
-        echo "path : $classPath doesn't exist \n";
+        echo "error : path : $classPath doesn't exist \n";
         return;
     }
     $currentContent = file_get_contents($classPath);
@@ -37,12 +37,12 @@ function addToClass(string $classPath, string $content): void
 function addMethodToClass(string $methodName, string $className, string $classPath, string $methodDeclaration): void
 {
     if (!file_exists($classPath)) {
-        \Illuminate\Console\Command::error("$classPath doesn't exists");
+        echo("error : $classPath doesn't exists");
         return;
     }
 
     if (method_exists($className, $methodName)) {
-        \Illuminate\Console\Command::error("$methodName method already exists in $className");
+        echo("error : $methodName method already exists in $className");
         return;
     }
 
@@ -57,5 +57,15 @@ function getModelClassName(string $modelName): string
 function getModelPath(string $modelName): string
 {
     return base_path(config("cubeta-starter.model_path", "app/Models") . "/" . modelNaming($modelName) . ".php");
+}
+
+function getFactoryClassName(string $modelName): string
+{
+    return config("cubeta-starter.factory_namespace", "Database\Factories") . "\\" . modelNaming($modelName) . "Factory";
+}
+
+function getFactoryPath(string $modelName): string
+{
+    return base_path(config("cubeta-starter.factory_path", "database/factories") . "/" . modelNaming($modelName) . "Factory.php");
 }
 

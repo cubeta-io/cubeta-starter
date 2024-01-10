@@ -17,7 +17,7 @@ trait SettingsHandler
      * @param array $relations
      * @return void
      */
-    public function handleTableSettings(string $modelName, array $attributes, array $nullables, array $uniques, array $relations = []): void
+    public function handleTableSettings(string $modelName, array $attributes, array $nullables = [], array $uniques = [], array $relations = []): void
     {
         $settings = getJsonSettings();
         $this->checkForKey($settings, "tables");

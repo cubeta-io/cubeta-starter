@@ -92,25 +92,25 @@ class MakeModel extends Command
             $this->createModel($modelName, $guiAttributes, $relations);
             $this->callAppropriateCommand($name, $options, $actor, $guiAttributes, $nullables, $uniques);
             $this->createPivots($modelName);
-            CodeSniffer::make()->setModel($modelName)->checkForRelations();
+            CodeSniffer::make()
+                ->setModel($modelName)
+                ->checkForModelsRelations();
             return;
         }
 
-        $paramsString = $this->getModelAttributesFromTheUser();
-
         $relations = $this->relations = $this->getRelationsFromPrompts();
 
-        $attributes = $this->convertToArrayOfAttributes($paramsString);
+        $attributes = $this->getModelAttributesFromPrompts();
 
         $this->handleTableSettings($modelName, $attributes, $nullables, $uniques, $relations);
 
         $this->createModel($modelName, $attributes, $relations);
 
-        $actor = $this->checkTheActor();
+        $actor = $this->checkTheActorUsingPrompts();
 
         $this->callAppropriateCommand($name, $options, $actor, $attributes, $nullables, $uniques);
 
-        CodeSniffer::make()->setModel($modelName)->checkForRelations();
+        CodeSniffer::make()->setModel($modelName)->checkForModelsRelations();
 
         $this->createPivots($modelName);
     }
@@ -496,23 +496,5 @@ class MakeModel extends Command
         }
 
         return $fieldsWithDataType;
-    }
-
-    /**
-     * ask the user about the actor of the created model endpoints
-     * @return array|string|null
-     */
-    public function checkTheActor(): array|string|null
-    {
-        if (file_exists(base_path('app/Enums/RolesPermissionEnum.php'))) {
-            if (class_exists('\App\Enums\RolesPermissionEnum')) {
-                /** @noinspection PhpFullyQualifiedNameUsageInspection */
-                $roles = \App\Enums\RolesPermissionEnum::ALLROLES;
-                $roles[] = 'none';
-                return $this->choice('Who Is The Actor Of this Endpoint ? ', $roles, 'none');
-            }
-        }
-
-        return 'none';
     }
 }
