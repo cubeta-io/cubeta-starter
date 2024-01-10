@@ -2,11 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Illuminate\Console\Command;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class MakeResource extends Command
 {
@@ -70,6 +70,11 @@ class MakeResource extends Command
         $this->info("Created resource: {$resourceName}");
     }
 
+    private function getResourceName($modelName): string
+    {
+        return $modelName . 'Resource';
+    }
+
     private function generateCols(array $attributes = [], array $relations = []): string
     {
         $columns = "'id' => \$this->id, \n\t\t\t";
@@ -98,11 +103,6 @@ class MakeResource extends Command
         }
 
         return $columns;
-    }
-
-    private function getResourceName($modelName): string
-    {
-        return $modelName . 'Resource';
     }
 
     private function getResourcePath($ResourceName): string

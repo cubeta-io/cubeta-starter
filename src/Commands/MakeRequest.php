@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Illuminate\Console\Command;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class MakeRequest extends Command
 {
@@ -35,33 +35,6 @@ class MakeRequest extends Command
         }
 
         $this->createRequest($modelName, $attributes, $nullables, $uniques);
-    }
-
-    /**
-     * @param  array  $attributes
-     * @return string
-     */
-    public function getPrepareForValidationMethod(array $attributes): string
-    {
-        $translatedAttributes = array_keys($attributes, 'translatable');
-        $method = '';
-        if (count($translatedAttributes) > 0) {
-            $method .= "protected function prepareForValidation()
-                        {
-                            if (request()->acceptsHtml()){
-                                \$this->merge([\n";
-
-            foreach ($translatedAttributes as $attr) {
-                $attr = columnNaming($attr);
-                $method .= "'{$attr}' => json_encode(\$this->{$attr}), \n";
-            }
-
-            $method .= "]);
-                            }
-                        }";
-        }
-
-        return $method;
     }
 
     /**
@@ -99,6 +72,11 @@ class MakeRequest extends Command
 
         $this->formatFile($requestPath);
         $this->info("Created request: {$requestName}");
+    }
+
+    private function getRequestName($modelName): string
+    {
+        return 'StoreUpdate' . $modelName . 'Request';
     }
 
     private function generateCols(array $attributes = [], array $nullables = [], array $uniques = [], string $modelName = null): string
@@ -144,9 +122,31 @@ class MakeRequest extends Command
         return $rules;
     }
 
-    private function getRequestName($modelName): string
+    /**
+     * @param array $attributes
+     * @return string
+     */
+    public function getPrepareForValidationMethod(array $attributes): string
     {
-        return 'StoreUpdate' . $modelName . 'Request';
+        $translatedAttributes = array_keys($attributes, 'translatable');
+        $method = '';
+        if (count($translatedAttributes) > 0) {
+            $method .= "protected function prepareForValidation()
+                        {
+                            if (request()->acceptsHtml()){
+                                \$this->merge([\n";
+
+            foreach ($translatedAttributes as $attr) {
+                $attr = columnNaming($attr);
+                $method .= "'{$attr}' => json_encode(\$this->{$attr}), \n";
+            }
+
+            $method .= "]);
+                            }
+                        }";
+        }
+
+        return $method;
     }
 
     private function getRequestPath($requestName, $modelName): string

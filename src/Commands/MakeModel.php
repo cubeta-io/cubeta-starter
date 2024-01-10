@@ -85,9 +85,10 @@ class MakeModel extends Command
 
         $modelName = modelNaming($name);
 
+
         // handling the usage of the gui
         if ($this->useGui) {
-            $this->relations = $relations;
+            $this->relations = array_merge($this->relations, $relations, $this->getBelongToRelations($guiAttributes));
             $this->handleTableSettings($modelName, $guiAttributes, $nullables, $uniques, $relations);
             $this->createModel($modelName, $guiAttributes, $relations);
             $this->callAppropriateCommand($name, $options, $actor, $guiAttributes, $nullables, $uniques);
@@ -98,9 +99,11 @@ class MakeModel extends Command
             return;
         }
 
-        $relations = $this->relations = $this->getRelationsFromPrompts();
+        $this->relations = $this->getRelationsFromPrompts();
 
         $attributes = $this->getModelAttributesFromPrompts();
+
+        $relations = $this->relations = array_merge($this->relations, $this->getBelongToRelations($guiAttributes));
 
         $this->handleTableSettings($modelName, $attributes, $nullables, $uniques, $relations);
 
@@ -113,6 +116,18 @@ class MakeModel extends Command
         CodeSniffer::make()->setModel($modelName)->checkForModelsRelations();
 
         $this->createPivots($modelName);
+    }
+
+    public function getBelongToRelations(array $attributes = []): array
+    {
+        $attrs = [];
+        foreach ($attributes as $attribute => $type) {
+            if ($type == 'key') {
+                $attrs["$attribute"] = RelationsTypeEnum::BelongsTo;
+            }
+        }
+
+        return $attrs;
     }
 
     /**

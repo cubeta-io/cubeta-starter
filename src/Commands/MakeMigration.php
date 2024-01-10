@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Carbon\Carbon;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\SettingsHandler;
 use Illuminate\Console\Command;
@@ -96,20 +97,18 @@ class MakeMigration extends Command
             $nullable = (in_array($name, $nullables) || $type == 'file') ? '->nullable()' : '';
             $unique = in_array($name, $uniques) ? '->unique()' : '';
 
-            switch ($type) {
-                case 'key':
-                    $nullable = in_array($name, $nullables) ? '->nullable()' : '';
-                    $modelName = ucfirst(Str::singular(str_replace('_id', '', $name)));
-                    $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::class){$nullable}->constrained()->cascadeOnDelete(); \n";
-                    break;
+            $columns .= match ($type) {
+                'key' => '',
+                'translatable' => "\t\t\t\$table->json('{$name}')" . $nullable . $unique . "; \n",
+                default => "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . $nullable . $unique . "; \n",
+            };
+        }
 
-                case  'translatable':
-                    $columns .= "\t\t\t\$table->json('{$name}')" . $nullable . $unique . "; \n";
-                    break;
-
-                default:
-                    $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . $nullable . $unique . "; \n";
-                    break;
+        foreach ($relations as $rel => $type) {
+            if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
+                $nullable = in_array($rel . '_id', $nullables) ? '->nullable()' : '';
+                $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
+                $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::class){$nullable}->constrained()->cascadeOnDelete(); \n";
             }
         }
 
