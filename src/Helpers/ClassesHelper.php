@@ -69,3 +69,15 @@ function getFactoryPath(string $modelName): string
     return base_path(config("cubeta-starter.factory_path", "database/factories") . "/" . modelNaming($modelName) . "Factory.php");
 }
 
+function getResourceClassName(string $modelName): string
+{
+    $resourceName = resourceNaming($modelName);
+    return config("cubeta-starter.resource_namespace", "App\Http\Resources") . "\\$resourceName";
+}
+
+function getResourcePath(string $modelName): string
+{
+    $resourceName = resourceNaming($modelName);
+    return base_path(config("cubeta-starter.resource_path", 'app/Http/Resources')) . "/$resourceName.php";
+}
+
