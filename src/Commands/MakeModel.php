@@ -284,6 +284,11 @@ class MakeModel extends Command
 
         if (isset($relations) && count($relations) > 0) {
             foreach ($relations as $name => $type) {
+                
+                if ($type == RelationsTypeEnum::BelongsTo) {
+                    continue;
+                }
+
                 $modelName = modelNaming($name);
                 $properties .= "* @property {$modelName} {$name}\n";
             }

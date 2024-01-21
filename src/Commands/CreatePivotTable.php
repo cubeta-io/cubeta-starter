@@ -36,9 +36,9 @@ class CreatePivotTable extends Command
         $tables = [$table1, $table2];
         sort($tables);
 
-        $pivotTableName = $tables[0] . '_' . $tables[1];
+        $pivotTableName = $tables[0] . '_' . tableNaming($tables[1]);
 
-        if (!$this->checkIfMigrationExists(tableNaming($tables[0])) && !$this->checkIfMigrationExists(tableNaming($tables[1]))) {
+        if (!$this->checkIfMigrationExists(tableNaming($tables[0])) || !$this->checkIfMigrationExists(tableNaming($tables[1]))) {
             $this->warn("The Related Table Migration Isn't Defined When \n Remember When Creating The Related Model To Mention The Many-To-Many Relation In The Generation Form");
             return;
         }

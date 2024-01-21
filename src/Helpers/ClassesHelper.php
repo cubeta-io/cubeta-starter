@@ -123,7 +123,7 @@ function addToMethodReturnArray(string $classPath, string $className, string $me
 
         file_put_contents($classPath, $updatedContent);
 
-        echo "New Content Has Benn Added Successfully To : $classPath \n";
+        echo "New Content Has Been Added Successfully To : $classPath \n";
         return true;
     } else {
         echo "Failed To Get A Match For A Method Called ($methodName) And Return An Array \n";

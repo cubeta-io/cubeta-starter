@@ -29,6 +29,7 @@ class MakeExample extends Command
                         "container" => "both",
                         "gui" => true
                     ]);
+
                     break;
                 case "Product" :
                     Artisan::call('create:model', [
