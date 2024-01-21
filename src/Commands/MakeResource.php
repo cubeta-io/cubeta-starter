@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
@@ -34,6 +35,10 @@ class MakeResource extends Command
         }
 
         $this->createResource($modelName, $attributes, $relations);
+
+        CodeSniffer::make()
+            ->setModel($modelName)
+            ->checkForResourceRelations();
     }
 
     /**
@@ -46,7 +51,7 @@ class MakeResource extends Command
         $resourceName = resourceNaming($modelName);
 
         $stubProperties = [
-            '{model}' => getModelClassName($modelName),
+            '{model}' => "\\" . getModelClassName($modelName),
             '{namespace}' => config('cubeta-starter.resource_namespace'),
             '{class}' => $resourceName,
             '{resource_fields}' => $this->generateCols($modelName, $attributes, $relations),

@@ -60,7 +60,6 @@ class MakeFactory extends Command
         }
 
         $this->handleTableSettings($modelName, $attributes, [], $uniques, $relations);
-        CodeSniffer::make()->setModel($modelName)->checkForFactoryRelations();
 
         $this->createFactory($modelName, $attributes, $relations, $uniques);
     }
@@ -98,6 +97,8 @@ class MakeFactory extends Command
             __DIR__ . '/stubs/factory.stub'
         );
         $this->formatFile($factoryPath);
+        CodeSniffer::make()->setModel($modelName)->checkForFactoryRelations();
+
         $this->info("Created factory: {$factoryName}");
     }
 

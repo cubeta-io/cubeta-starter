@@ -84,10 +84,12 @@ function getResourcePath(string $modelName): string
 function addToMethodReturnArray(string $classPath, string $className, string $methodName, string $content): bool
 {
     if (!file_exists($classPath) || !class_exists($className)) {
+        echo "Targeted Class Or File Doesn't Exists \n";
         return false;
     }
 
     if (!method_exists($className, $methodName)) {
+        echo "Method : $methodName Doesn't Exists In The Targeted Class $className \n";
         return false;
     }
 
@@ -104,7 +106,8 @@ function addToMethodReturnArray(string $classPath, string $className, string $me
         $contentNormalized = preg_replace('/\s+/', ' ', $content);
 
         // Check for duplicated content, ignoring whitespace differences
-        if (str_contains($existingElementsNormalized, $contentNormalized)) {
+        if (str_contains(trim(str_replace(',', '', $existingElementsNormalized)), trim(str_replace(',', '', $contentNormalized)))) {
+            echo "The Content You're Trying To Add Is Already Exists \n";
             return false;
         }
         /*******************************************************************************************/
@@ -120,52 +123,35 @@ function addToMethodReturnArray(string $classPath, string $className, string $me
 
         file_put_contents($classPath, $updatedContent);
 
+        echo "New Content Has Benn Added Successfully To : $classPath \n";
         return true;
     } else {
+        echo "Failed To Get A Match For A Method Called ($methodName) And Return An Array \n";
         return false;
     }
 }
 
+function isMethodDefined($filePath, $functionName): bool
+{
+    if (!file_exists($filePath)) {
+        return false; // File doesn't exist
+    }
 
+    $tokens = token_get_all(file_get_contents($filePath));
 
+    $isFunction = false;
+    foreach ($tokens as $token) {
+        if (is_array($token) && $token[0] == T_FUNCTION) {
+            $isFunction = true;
+        } elseif ($isFunction && is_array($token) && $token[0] == T_STRING) {
+            // Found a function name
+            $currentFunctionName = $token[1];
+            if ($currentFunctionName == $functionName) {
+                return true; // Function is defined in the file
+            }
+            $isFunction = false; // Reset flag after checking this function
+        }
+    }
 
-//
-//function addToMethodReturnArray(string $classPath, string $className, string $methodName, string $content): bool
-//{
-//    if (!file_exists($classPath) || !class_exists($className)) {
-//        return false;
-//    }
-//
-//    if (!method_exists($className, $methodName)) {
-//        return false;
-//    }
-//
-//    $fileContent = file_get_contents($classPath);
-//
-//    // Pattern to match the toArray method and its return statement
-//    $pattern = '/public\s+function\s+' . preg_quote($methodName, '/') . '\s*\([^)]*\)\s*(?::[^{;]+)?\s*{\s*return\s*(\[.*?]\s*]);\s*}/s';
-//
-//    // Search for the pattern in the content
-//    if (preg_match($pattern, $fileContent, $matches)) {
-//        // Check if the returned array is empty
-//        if (empty(trim($matches[1]))) {
-//            // If empty, add the new content without a trailing comma
-//            $updatedContent = str_replace($matches[1], "\n\t\t" . $content, $fileContent);
-//        } else {
-//            // If not empty, add the new content before the closing bracket of the array
-//            $existingElements = rtrim($matches[1], ",");
-//            $updatedContent = rtrim($content, ","); // Still remove trailing comma from new content
-//            $updatedContent = str_replace($matches[1], $existingElements . ($existingElements !== "" && !str_ends_with($existingElements, ",") ? "," : "") . "\n\t\t" . $updatedContent, $fileContent);
-//        }
-//
-//        // Check for repeated commas
-//        $updatedContent = preg_replace('/,\s*,+/', ',', $updatedContent);
-//
-//        // Save the updated content back to the class file
-//        file_put_contents($classPath, $updatedContent);
-//
-//        return true;
-//    } else {
-//        return false;
-//    }
-//}
+    return false; // Function not found in the file
+}

@@ -93,9 +93,6 @@ class MakeModel extends Command
             $this->createModel($modelName, $guiAttributes, $relations);
             $this->callAppropriateCommand($name, $options, $actor, $guiAttributes, $nullables, $uniques);
             $this->createPivots($modelName);
-            CodeSniffer::make()
-                ->setModel($modelName)
-                ->checkForModelsRelations();
             return;
         }
 
@@ -112,8 +109,6 @@ class MakeModel extends Command
         $actor = $this->checkTheActorUsingPrompts();
 
         $this->callAppropriateCommand($name, $options, $actor, $attributes, $nullables, $uniques);
-
-        CodeSniffer::make()->setModel($modelName)->checkForModelsRelations();
 
         $this->createPivots($modelName);
     }
@@ -169,6 +164,8 @@ class MakeModel extends Command
         ];
 
         generateFileFromStub($stubProperties, $modelPath, __DIR__ . '/stubs/model.stub');
+
+        CodeSniffer::make()->setModel($className)->checkForModelsRelations();
 
         $this->formatFile($modelPath);
         $this->info("Created model: {$className}");
