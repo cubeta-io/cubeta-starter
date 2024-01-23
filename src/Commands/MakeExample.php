@@ -27,7 +27,13 @@ class MakeExample extends Command
                             'products' => RelationsTypeEnum::HasMany,
                         ],
                         "container" => "both",
-                        "gui" => true
+                        "gui" => true,
+                        'nullables' => [
+                            "description"
+                        ],
+                        'uniques' => [
+                            'name'
+                        ]
                     ]);
 
                     break;

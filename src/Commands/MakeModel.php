@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
@@ -89,22 +90,21 @@ class MakeModel extends Command
         // handling the usage of the gui
         if ($this->useGui) {
             $this->relations = array_merge($this->relations, $relations, $this->getBelongToRelations($guiAttributes));
-            $this->handleTableSettings($modelName, $guiAttributes, $nullables, $uniques, $relations);
+            Settings::make()->serialize($modelName, $guiAttributes, $relations, $nullables, $uniques);
             $this->createModel($modelName, $guiAttributes, $relations);
             $this->callAppropriateCommand($name, $options, $actor, $guiAttributes, $nullables, $uniques);
             $this->createPivots($modelName);
             return;
         }
 
+        $attributes = $this->getModelAttributesFromPrompts();
         $this->relations = $this->getRelationsFromPrompts();
 
-        $attributes = $this->getModelAttributesFromPrompts();
+        $this->relations = array_merge($this->relations, $this->getBelongToRelations($guiAttributes));
 
-        $relations = $this->relations = array_merge($this->relations, $this->getBelongToRelations($guiAttributes));
+        Settings::make()->serialize($modelName, $attributes, $this->relations, $nullables, $uniques);
 
-        $this->handleTableSettings($modelName, $attributes, $nullables, $uniques, $relations);
-
-        $this->createModel($modelName, $attributes, $relations);
+        $this->createModel($modelName, $attributes, $this->relations);
 
         $actor = $this->checkTheActorUsingPrompts();
 
@@ -284,7 +284,7 @@ class MakeModel extends Command
 
         if (isset($relations) && count($relations) > 0) {
             foreach ($relations as $name => $type) {
-                
+
                 if ($type == RelationsTypeEnum::BelongsTo) {
                     continue;
                 }

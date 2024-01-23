@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
@@ -59,9 +60,10 @@ class MakeFactory extends Command
             return;
         }
 
-        $this->handleTableSettings($modelName, $attributes, [], $uniques, $relations);
+        Settings::make()->serialize($modelName, $attributes, $relations, [], $uniques);
 
         $this->createFactory($modelName, $attributes, $relations, $uniques);
+        CodeSniffer::make()->setModel($modelName)->checkForFactoryRelations();
     }
 
     /**
@@ -97,7 +99,6 @@ class MakeFactory extends Command
             __DIR__ . '/stubs/factory.stub'
         );
         $this->formatFile($factoryPath);
-        CodeSniffer::make()->setModel($modelName)->checkForFactoryRelations();
 
         $this->info("Created factory: {$factoryName}");
     }

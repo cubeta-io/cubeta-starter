@@ -155,3 +155,28 @@ function isMethodDefined($filePath, $functionName): bool
 
     return false; // Function not found in the file
 }
+
+function getApiControllerPath(string $modelName): string
+{
+    $controllerName = modelNaming($modelName) . "Controller.php";
+    return base_path(config('cubeta-starter.api_controller_path', 'app/Http/Controllers/API/v1')) . $controllerName;
+}
+
+function getWebControllerPath(string $modelName): string
+{
+    $controllerName = modelNaming($modelName) . "Controller.php";
+    return base_path(config('cubeta-starter.web_controller_path', 'app/Http/Controllers/WEB/v1')) . "/" . $controllerName;
+}
+
+
+function getViewPath(string $modelName, string $type): string
+{
+    $viewsPath = base_path('resources/views/dashboard') . '/' . viewNaming($modelName);
+
+    return match ($type) {
+        'show' => "$viewsPath/show.blade.php",
+        "create" => "$viewsPath/create.blade.php",
+        "update", "edit" => "$viewsPath/edit.blade.php",
+        "index" => "$viewsPath/index.blade.php",
+    };
+}

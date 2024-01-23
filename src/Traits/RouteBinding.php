@@ -78,10 +78,10 @@ trait RouteBinding
     /**
      * @param string $modelName
      * @param string $container
-     * @param         $actor
+     * @param string|null $actor
      * @return string
      */
-    public function getRouteName(string $modelName, string $container = 'api', $actor = null): string
+    public function getRouteName(string $modelName, string $container = 'api', ?string $actor = null): string
     {
         $modelLowerPluralName = routeNameNaming($modelName);
         if (!isset($actor) || $actor == '' || $actor = 'none') {

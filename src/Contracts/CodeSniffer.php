@@ -2,7 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Contracts;
 
-use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\app\Models\CubetaRelation;
+use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\SettingsHandler;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
@@ -27,15 +28,6 @@ class CodeSniffer
         //
     }
 
-    public static function make(): CodeSniffer
-    {
-        if (self::$instance == null) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
-
     public static function destroy(): void
     {
         self::$instance = null;
@@ -51,223 +43,199 @@ class CodeSniffer
 
     public function checkForModelsRelations(): static
     {
-        $tables = getJsonSettings();
-        $currentTable = $this->searchForTable($tables["tables"], $this->currentModel);
+        $currentTable = Settings::make()->getTable($this->currentModel);
 
         if (!$currentTable) {
             return $this;
         }
 
-        if (isset($currentTable['relations']) and isset($currentTable['relations'][RelationsTypeEnum::HasMany])) {
+        $currentTable->relations()->each(function (CubetaRelation $relation) {
+            $relatedClassName = getModelClassName($relation->modelName);
+            $relatedPath = getModelPath($relation->modelName);
+            if (file_exists($relatedPath) && class_exists($relatedClassName)) {
 
-            foreach ($currentTable['relations'][RelationsTypeEnum::HasMany] as $relation) {
-                $relatedModelName = modelNaming($relation["model_name"]);
-                $relatedClassName = getModelClassName($relatedModelName);
-                $relatedPath = getModelPath($relatedModelName);
+                if ($relation->isHasMany()) {
 
-                // check if the related class exists
-                if (!file_exists($relatedPath) || !class_exists($relatedClassName)) {
-                    continue;
+                    addMethodToClass(
+                        relationFunctionNaming($this->currentModel),
+                        $relatedClassName,
+                        $relatedPath,
+                        $this->belongsToFunction($this->currentModel)
+                    );
+
                 }
 
-                addMethodToClass(
-                    relationFunctionNaming($this->currentModel),
-                    $relatedClassName,
-                    $relatedPath,
-                    $this->belongsToFunction($this->currentModel)
-                );
-            }
-        }
-
-        if (isset($currentTable['relations']) and isset($currentTable['relations'][RelationsTypeEnum::ManyToMany])) {
-            foreach ($currentTable['relations'][RelationsTypeEnum::ManyToMany] as $relation) {
-                $relatedModelName = modelNaming($relation["model_name"]);
-                $relatedClassName = getModelClassName($relatedModelName);
-                $relatedPath = getModelPath($relatedModelName);
-
-                // check if the related class exists
-                if (!file_exists($relatedPath) || !class_exists($relatedClassName)) {
-                    continue;
+                if ($relation->isManyToMany()) {
+                    addMethodToClass(
+                        relationFunctionNaming($this->currentModel, false),
+                        $relatedClassName,
+                        $relatedPath,
+                        $this->manyToManyFunction($this->currentModel)
+                    );
                 }
 
-                addMethodToClass(
-                    relationFunctionNaming($this->currentModel, false),
-                    $relatedClassName,
-                    $relatedPath,
-                    $this->manyToManyFunction($this->currentModel)
-                );
-            }
-        }
-
-        if (isset($currentTable['relations']) and isset($currentTable['relations'][RelationsTypeEnum::BelongsTo])) {
-            foreach ($currentTable['relations'][RelationsTypeEnum::BelongsTo] as $relation) {
-                $relatedModelName = modelNaming($relation["model_name"]);
-                $relatedClassName = getModelClassName($relatedModelName);
-                $relatedPath = getModelPath($relatedModelName);
-
-                // check if the related class exists
-                if (!file_exists($relatedPath) || !class_exists($relatedClassName)) {
-                    continue;
+                if ($relation->isBelongsTo() || $relation->isHasOne()) {
+                    addMethodToClass(
+                        relationFunctionNaming($this->currentModel, false),
+                        $relatedClassName,
+                        $relatedPath,
+                        $this->hasManyFunction($this->currentModel)
+                    );
                 }
-
-                addMethodToClass(
-                    relationFunctionNaming($this->currentModel, false),
-                    $relatedClassName,
-                    $relatedPath,
-                    $this->hasManyFunction($this->currentModel)
-                );
             }
-        }
+        });
+
         return $this;
+    }
+
+    public static function make(): CodeSniffer
+    {
+        if (self::$instance == null) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
     }
 
     public function checkForFactoryRelations(): static
     {
-        $tables = getJsonSettings();
-        $currentTable = $this->searchForTable($tables["tables"], $this->currentModel);
+        $currentTable = Settings::make()->getTable($this->currentModel);
 
         if (!$currentTable) {
             return $this;
         }
 
-        if (isset($currentTable['relations']) and isset($currentTable['relations'][RelationsTypeEnum::BelongsTo])) {
-            foreach ($currentTable['relations'][RelationsTypeEnum::BelongsTo] as $relation) {
-                $relatedModelName = modelNaming($relation["model_name"]);
-                $relatedClassName = getFactoryClassName($relatedModelName);
-                $relatedPath = getFactoryPath($relatedModelName);
+        $currentTable->relations()->each(function (CubetaRelation $relation) {
+            $relatedClassName = getFactoryClassName($relation->modelName);
+            $relatedPath = getFactoryPath($relation->modelName);
 
-                // check if the related class exists
-                if (!file_exists($relatedPath) || !class_exists($relatedClassName)) {
-                    continue;
+            if (file_exists($relatedPath) && class_exists($relatedClassName)) {
+
+                if ($relation->isBelongsTo() || $relation->isHasOne() || $relation->isManyToMany()) {
+                    $methodName = "with" . Str::plural($this->currentModel);
+                    addMethodToClass(
+                        $methodName,
+                        $relatedClassName,
+                        $relatedPath,
+                        $this->factoryRelationMethod($this->currentModel)
+                    );
                 }
-
-                $methodName = "with" . Str::plural($this->currentModel);
-                addMethodToClass(
-                    $methodName,
-                    $relatedClassName,
-                    $relatedPath,
-                    $this->factoryRelationMethod($this->currentModel)
-                );
             }
-        }
-
-        if (isset($currentTable['relations']) and isset($currentTable['relations'][RelationsTypeEnum::ManyToMany])) {
-            foreach ($currentTable['relations'][RelationsTypeEnum::ManyToMany] as $relation) {
-                $relatedModelName = modelNaming($relation["model_name"]);
-                $relatedClassName = getFactoryClassName($relatedModelName);
-                $relatedPath = getFactoryPath($relatedModelName);
-
-                // check if the related class exists
-                if (!file_exists($relatedPath) || !class_exists($relatedClassName)) {
-                    continue;
-                }
-
-                $methodName = "with" . Str::plural($this->currentModel);
-                addMethodToClass(
-                    $methodName,
-                    $relatedClassName,
-                    $relatedPath,
-                    $this->factoryRelationMethod($this->currentModel)
-                );
-            }
-        }
+        });
 
         return $this;
     }
 
     public function checkForResourceRelations(): static
     {
-        $tables = getJsonSettings();
-        $currentTable = $this->searchForTable($tables["tables"], $this->currentModel);
+        $currentTable = Settings::make()->getTable($this->currentModel);
 
         if (!$currentTable) {
             return $this;
         }
 
+        $currentTable->relations()->each(function (CubetaRelation $relation) {
+            $relatedClassName = getResourceClassName($relation->modelName);
+            $relatedResourcePath = getResourcePath($relation->modelName);
+            $currentResourceClass = getResourceClassName($this->currentModel);
 
-        if (isset($currentTable['relations']) and isset($currentTable['relations'][RelationsTypeEnum::HasMany])) {
-            foreach ($currentTable['relations'][RelationsTypeEnum::HasMany] as $relation) {
-                $relatedModelName = modelNaming($relation["model_name"]);
-                $relatedClassName = getResourceClassName($relatedModelName);
-                $relatedResourcePath = getResourcePath($relatedModelName);
-                $currentResourceClass = getResourceClassName($this->currentModel);
+            if (
+                file_exists($relatedResourcePath) and
+                class_exists($relatedClassName) and
+                file_exists(getModelPath($relation->modelName)) and
+                class_exists(getModelClassName($relation->modelName))
+            ) {
+                if ($relation->isHasMany()) {
+                    $relationName = relationFunctionNaming($this->currentModel);
 
-                if (!file_exists($relatedResourcePath) || !class_exists($relatedClassName)) {
-                    continue;
+                    if (isMethodDefined(getModelPath($relation->modelName), $relationName)) {
+                        $content = "'$relationName' => new \\$currentResourceClass(\$this->whenLoaded('$relationName')) , \n";
+                        addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
+                    } else {
+                        echo "Relation : $relationName does not exist in : " . getModelClassName($relation->modelName) . " \n";
+                    }
+
                 }
 
-                if (!file_exists(getModelPath($relatedModelName)) || !class_exists(getModelClassName($relatedModelName))) {
-                    continue;
+                if ($relation->isManyToMany()) {
+                    $relationName = relationFunctionNaming($this->currentModel, false);
+
+                    if (isMethodDefined(getModelPath($relation->modelName), $relationName)) {
+                        $content = "'$relationName' => \\$currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
+                        addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
+                    } else {
+                        echo "Relation : $relationName does not exist in : " . getModelClassName($relation->modelName) . " \n";
+                    }
+
                 }
 
-                $relationName = relationFunctionNaming($this->currentModel);
+                if ($relation->isBelongsTo() || $relation->isHasOne()) {
+                    $relationName = relationFunctionNaming($this->currentModel, false);
+                    $content = "'$relationName' => \\$currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
 
-                if (!isMethodDefined(getModelPath($relatedModelName), $relationName)) {
-                    echo "Relation : $relationName does not exist in : " . getModelClassName($relatedModelName) . " \n";
-                    break;
+                    if (isMethodDefined(getModelPath($relation->modelName), $relationName)) {
+                        addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
+                    } else {
+                        echo "Relation : $relationName does not exist in : " . getModelClassName($relation->modelName) . " \n";
+                    }
+
                 }
-
-                $content = "'$relationName' => new \\$currentResourceClass(\$this->whenLoaded('$relationName')) , \n";
-                addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
-
             }
+        });
+
+        return $this;
+    }
+
+    public function checkForWebRelations(string $select2RouteName): static
+    {
+        $currentTable = Settings::make()->getTable($this->currentModel);
+
+        if (!$currentTable) {
+            return $this;
         }
 
-        if (isset($currentTable['relations']) and isset($currentTable['relations'][RelationsTypeEnum::ManyToMany])) {
-            foreach ($currentTable['relations'][RelationsTypeEnum::ManyToMany] as $relation) {
-                $relatedModelName = modelNaming($relation["model_name"]);
-                $relatedClassName = getResourceClassName($relatedModelName);
-                $relatedResourcePath = getResourcePath($relatedModelName);
-                $currentResourceClass = getResourceClassName($this->currentModel);
+        $currentTable->relations()->each(function (CubetaRelation $relation) use ($select2RouteName) {
+            if ($relation->isHasMany()) {
 
-                if (!file_exists($relatedResourcePath) || !class_exists($relatedClassName)) {
-                    continue;
+                if (file_exists(getModelPath($relation->modelName)) and file_exists(getWebControllerPath($relation->modelName))) {
+
+                    $attribute = strtolower($this->currentModel) . '_id';
+                    $relatedTable = Settings::make()->getTable($relation->modelName);
+
+                    if ($relatedTable->getAttribute($attribute)->nullable) {
+                        $required = "required";
+                    } else $required = "";
+
+                    if (file_exists(getViewPath($relation->modelName, "create"))) {
+                        $inputField = "<x-select2 label=\"{$this->currentModel}\" name=\"{$attribute}\" api=\"{{route('{$select2RouteName}')}}\" option-value=\"id\" option-inner-text=\"id\" $required/> \n";;
+
+                        $createView = file_get_contents(getViewPath($relation->modelName, "create"));
+
+                        $createView = str_replace("</x-form>", "\n \t $inputField\n</x-form>", $createView);
+
+                        file_put_contents(getViewPath($relation->modelName, "create"), $createView);
+
+                        echo getViewPath($relation->modelName, "create") . "Has Been Edited \n";
+                    }
+
+                    if (file_exists(getViewPath($relation->modelName, "update"))) {
+                        $value = ":value=\"\$" . variableNaming($relation->modelName) . "->$attribute\"";
+                        $inputField = "<x-select2 label=\"{$this->currentModel}\" name=\"{$attribute}\" api=\"{{route('{$select2RouteName}')}}\" option-value=\"id\" option-inner-text=\"id\" $value/> \n";;
+
+                        $createView = file_get_contents(getViewPath($relation->modelName, "update"));
+
+                        $createView = str_replace("</x-form>", "\n \t $inputField\n</x-form>", $createView);
+
+                        file_put_contents(getViewPath($relation->modelName, "update"), $createView);
+
+                        echo getViewPath($relation->modelName, "update") . "Has Been Edited \n";
+                    }
+
                 }
-
-                if (!file_exists(getModelPath($relatedModelName)) || !class_exists(getModelClassName($relatedModelName))) {
-                    continue;
-                }
-                $relationName = relationFunctionNaming($this->currentModel, false);
-
-                if (!isMethodDefined(getModelPath($relatedModelName), $relationName)) {
-                    echo "Relation : $relationName does not exist in : " . getModelClassName($relatedModelName) . " \n";
-                    break;
-                }
-
-                $content = "'$relationName' => \\$currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
-                addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
-
             }
-        }
-
-        if (isset($currentTable['relations']) and isset($currentTable['relations'][RelationsTypeEnum::BelongsTo])) {
-            foreach ($currentTable['relations'][RelationsTypeEnum::BelongsTo] as $relation) {
-                $relatedModelName = modelNaming($relation["model_name"]);
-                $relatedClassName = getResourceClassName($relatedModelName);
-                $relatedResourcePath = getResourcePath($relatedModelName);
-                $currentResourceClass = getResourceClassName($this->currentModel);
-
-                if (!file_exists($relatedResourcePath) || !class_exists($relatedClassName)) {
-                    continue;
-                }
-
-                if (!file_exists(getModelPath($relatedModelName)) || !class_exists(getModelClassName($relatedModelName))) {
-                    continue;
-                }
-
-                $relationName = relationFunctionNaming($this->currentModel, false);
-                $content = "'$relationName' => \\$currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
-
-                if (!isMethodDefined(getModelPath($relatedModelName), $relationName)) {
-                    echo "Relation : $relationName does not exist in : " . getModelClassName($relatedModelName) . " \n";
-                    break;
-                }
-
-                addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
-            }
-        }
-
+        });
 
         return $this;
     }
 }
+

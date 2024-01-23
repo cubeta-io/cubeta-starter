@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
@@ -89,7 +90,16 @@ trait ViewGenerating
             if ($type == 'key') {
                 $modelName = modelNaming(str_replace('_id', '', $attribute));
                 $value = str_replace('_id', '', $value);
-                $select2Route = $this->getRouteName($modelName, 'web', $actor) . '.allPaginatedJson';
+                $select2Route = $this->getRouteName($modelName, ContainerType::WEB, $actor) . '.allPaginatedJson';
+
+                if (!file_exists(getModelPath($modelName)) || !file_exists(getWebControllerPath($modelName))) {
+                    continue;
+                }
+
+                if (!isMethodDefined(getWebControllerPath($modelName), 'allPaginatedJson')) {
+                    continue;
+                }
+
                 $inputs .= "
                 <!-- TODO::if you created this before the parent model configure this route here as you want -->
                 <x-select2 label=\"{$label}\" name=\"{$attribute}\" api=\"{{route('{$select2Route}')}}\" option-value=\"id\" option-inner-text=\"id\" {$value} {$isRequired}/> \n";
@@ -179,7 +189,7 @@ trait ViewGenerating
     public function generateIndexView(string $modelName, string $creatRoute, string $dataRoute, array $attributes = []): void
     {
         $viewsName = viewNaming($modelName);
-        $dataColumns = $this->generateViewDataColumns($attributes);
+        $dataColumns = $this->generateDataTableColumns($attributes);
 
         $stubProperties = [
             '{modelName}' => $modelName,
@@ -214,7 +224,7 @@ trait ViewGenerating
      * @return string[]
      */
     #[ArrayShape(['html' => "string", 'json' => "string"])]
-    private function generateViewDataColumns(array $attributes = []): array
+    private function generateDataTableColumns(array $attributes = []): array
     {
         $html = '';
         $json = '';
@@ -226,6 +236,7 @@ trait ViewGenerating
                 continue;
             }
             if ($type == 'file') {
+                //TODO::change it to deal with baguettebox
                 $json .= "{
                                 \"data\": '{$attribute}',render:
                                     function (data) {

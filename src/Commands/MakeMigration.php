@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Carbon\Carbon;
+use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\SettingsHandler;
@@ -41,7 +42,7 @@ class MakeMigration extends Command
             return;
         }
 
-        $this->handleTableSettings($modelName, $attributes, $nullables, $uniques);
+        Settings::make()->serialize($modelName, $attributes, $relations, $nullables, $uniques);
 
         $this->createMigration($modelName, $attributes, $relations, $nullables, $uniques);
     }

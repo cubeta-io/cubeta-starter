@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
@@ -33,6 +34,8 @@ class MakeResource extends Command
             $this->error('Invalid input');
             return;
         }
+
+        Settings::make()->serialize($modelName, $attributes, $relations, [], []);
 
         $this->createResource($modelName, $attributes, $relations);
 
