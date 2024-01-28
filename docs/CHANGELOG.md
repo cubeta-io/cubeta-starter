@@ -1,4 +1,4 @@
-### **V 1.1.5**
+### **V 1.1.6**
 
 1. new attribute `exact` has been added to the `gallery-item` blade component so if you'd like to provide the exact
    source of the image
