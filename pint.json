@@ -33,7 +33,7 @@
         },
         "no_superfluous_elseif": true,
         "no_useless_else": true,
-        "no_unused_imports": true,
+        "no_unused_imports": false,
         "statement_indentation": true,
         "heredoc_indentation": true,
         "phpdoc_align": true

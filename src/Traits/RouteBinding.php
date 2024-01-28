@@ -5,8 +5,8 @@ namespace Cubeta\CubetaStarter\Traits;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 trait RouteBinding
 {
@@ -52,10 +52,10 @@ trait RouteBinding
             $route .= "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$modelName}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\"); \n" .
                 'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
 
-            $importStatement = 'use App\Http\Controllers\WEB\v1;';
+            $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . ';';
         } else {
             $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
-            $importStatement = 'use App\Http\Controllers\API\v1;';
+            $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . ';';
         }
         if (file_exists($routePath)) {
             addImportStatement($importStatement, $routePath);
@@ -73,6 +73,34 @@ trait RouteBinding
         } else {
             $this->error("Actor Routes Files Does not exist");
         }
+    }
+
+    /**
+     * @param string $modelName
+     * @param string $container
+     * @param string|null $actor
+     * @return string
+     */
+    public function getRouteName(string $modelName, string $container = 'api', ?string $actor = null): string
+    {
+        $modelLowerPluralName = routeNameNaming($modelName);
+        if (!isset($actor) || $actor == '' || $actor = 'none') {
+            return $container . '.' . $modelLowerPluralName;
+        }
+
+        return "$actor.$container.$modelLowerPluralName";
+    }
+
+    public function addAdditionalRoutesForAdditionalControllerMethods(string $modelName, string $routeName, array $additionalRoutes = []): string
+    {
+        $pluralLowerModelName = routeUrlNaming($modelName);
+        $routes = "\n";
+
+        if (in_array('allPaginatedJson', $additionalRoutes)) {
+            $routes .= "Route::get(\"dashboard/{$pluralLowerModelName}/all-paginated-json\", [v1\\{$modelName}" . "Controller::class, \"allPaginatedJson\"])->name(\"{$routeName}.allPaginatedJson\"); \n";
+        }
+
+        return $routes;
     }
 
     /**
@@ -98,31 +126,47 @@ trait RouteBinding
         return true;
     }
 
-    /**
-     * @param string $modelName
-     * @param string $container
-     * @param         $actor
-     * @return string
-     */
-    public function getRouteName(string $modelName, string $container = 'api', $actor = null): string
+    public function addSetLocalRoute(): void
     {
-        $modelLowerPluralName = routeNameNaming($modelName);
-        if (!isset($actor) || $actor == '' || $actor = 'none') {
-            return $container . '.' . $modelLowerPluralName;
+        if (file_exists(base_path('/app/Http/Middleware/AcceptedLanguagesMiddleware.php'))) {
+            $middlewareExist = true;
+        } else {
+            $middlewareExist = false;
         }
 
-        return "$actor.$container.$modelLowerPluralName";
-    }
+        if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
 
-    public function addAdditionalRoutesForAdditionalControllerMethods(string $modelName, string $routeName, array $additionalRoutes = []): string
-    {
-        $pluralLowerModelName = routeUrlNaming($modelName);
-        $routes = "\n";
-
-        if (in_array('allPaginatedJson', $additionalRoutes)) {
-            $routes .= "Route::get(\"dashboard/{$pluralLowerModelName}/all-paginated-json\", [v1\\{$modelName}" . "Controller::class, \"allPaginatedJson\"])->name(\"{$routeName}.allPaginatedJson\"); \n";
+            if ($middlewareExist) {
+                $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->withoutMiddleware([App\Http\Middleware\AcceptedLanguagesMiddleware::class])->name('set-locale');";
+            } else {
+                $route = "
+                    // TODO:: the package didn't detect the AcceptedLanguageMiddleware so even you deleted or there is been an error while publishing it ,
+                    // so please add the middleware that handle your selected locale to withoutMiddleware() method of this route
+                    Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->withoutMiddleware([])->name('set-locale');
+                    ";
+            }
+        } else {
+            if ($middlewareExist) {
+                $route = "
+                    // TODO:: this is the route that will handle the selected locale of your app but the package didn't detect the controller for it due to some error or you've deleted it ,
+                    // so please define a controller for it or define the functionality of this rout within it
+                    Route::post('/blank', function () {
+                        return response()->noContent();
+                    })->middleware('web')->middleware('web')->withoutMiddleware([App\Http\Middleware\AcceptedLanguagesMiddleware::class])->name('set-locale');";
+            } else {
+                $route = "
+                    // TODO:: this is the route that will handle the selected locale of your app but the package didn't detect the controller for it due to some error or you've deleted it ,
+                    // so please define a controller for it or define the functionality of this rout within it
+                    Route::post('/blank', function () {
+                        return response()->noContent();
+                    })->middleware('web')->middleware('web')->name('set-locale');";
+            }
         }
 
-        return $routes;
+        $routePath = base_path("routes/web.php");
+
+        if (file_exists($routePath)) {
+            file_put_contents($routePath, $route, FILE_APPEND);
+        }
     }
 }

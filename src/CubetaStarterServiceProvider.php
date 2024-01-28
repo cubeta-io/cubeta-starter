@@ -2,27 +2,28 @@
 
 namespace Cubeta\CubetaStarter;
 
-use Illuminate\Support\Facades\View;
-use Spatie\LaravelPackageTools\Package;
-use Cubeta\CubetaStarter\Commands\MakeTest;
-use Cubeta\CubetaStarter\Commands\InitAuth;
-use Cubeta\CubetaStarter\Commands\MakeModel;
-use Cubeta\CubetaStarter\Commands\MakeSeeder;
-use Cubeta\CubetaStarter\Commands\MakeFactory;
-use Cubeta\CubetaStarter\Commands\MakeRequest;
-use Cubeta\CubetaStarter\Commands\MakeService;
-use Cubeta\CubetaStarter\Commands\MakeResource;
-use Cubeta\CubetaStarter\Commands\MakeMigration;
-use Cubeta\CubetaStarter\Commands\InitialProject;
-use Cubeta\CubetaStarter\Commands\MakeController;
-use Cubeta\CubetaStarter\Commands\MakeRepository;
 use Cubeta\CubetaStarter\Commands\CreatePivotTable;
-use Cubeta\CubetaStarter\Commands\MakeWebController;
+use Cubeta\CubetaStarter\Commands\InitAuth;
+use Cubeta\CubetaStarter\Commands\InitialProject;
 use Cubeta\CubetaStarter\Commands\InstallWebPackages;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Cubeta\CubetaStarter\Commands\MakeController;
+use Cubeta\CubetaStarter\Commands\MakeExample;
+use Cubeta\CubetaStarter\Commands\MakeFactory;
+use Cubeta\CubetaStarter\Commands\MakeMigration;
+use Cubeta\CubetaStarter\Commands\MakeModel;
 use Cubeta\CubetaStarter\Commands\MakePostmanCollection;
-use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
+use Cubeta\CubetaStarter\Commands\MakeRepository;
+use Cubeta\CubetaStarter\Commands\MakeRequest;
+use Cubeta\CubetaStarter\Commands\MakeResource;
+use Cubeta\CubetaStarter\Commands\MakeSeeder;
+use Cubeta\CubetaStarter\Commands\MakeService;
+use Cubeta\CubetaStarter\Commands\MakeTest;
+use Cubeta\CubetaStarter\Commands\MakeWebController;
 use Cubeta\CubetaStarter\Commands\PublishAllAssetsCommand;
+use Illuminate\Support\Facades\View;
+use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class CubetaStarterServiceProvider extends PackageServiceProvider
 {
@@ -46,58 +47,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->publishResponseHandlers();
         $this->publishCrudHandlers();
         $this->publishLocaleHandlers();
-    }
-
-    public function configurePackage(Package $package): void
-    {
-        $package
-            ->name('cubeta-starter')
-            ->hasConfigFile()
-            ->hasCommand(CreatePivotTable::class)
-            ->hasCommand(MakeController::class)
-            ->hasCommand(MakeResource::class)
-            ->hasCommand(MakeModel::class)
-            ->hasCommand(MakeMigration::class)
-            ->hasCommand(MakeFactory::class)
-            ->hasCommand(MakeSeeder::class)
-            ->hasCommand(MakeRequest::class)
-            ->hasCommand(MakeRepository::class)
-            ->hasCommand(MakeService::class)
-            ->hasCommand(MakeTest::class)
-            ->hasCommand(MakePostmanCollection::class)
-            ->hasCommand(InitialProject::class)
-            ->hasCommand(MakeWebController::class)
-            ->hasCommand(InstallWebPackages::class)
-            ->hasCommand(InitAuth::class)
-            ->hasCommand(PublishAllAssetsCommand::class);
-    }
-
-    /**
-     * @throws InvalidPackage
-     */
-    public function register()
-    {
-        $this->registeringPackage();
-
-        $this->package = new Package();
-
-        $this->package->setBasePath($this->getPackageBaseDir());
-
-        $this->configurePackage($this->package);
-
-        if (empty($this->package->name)) {
-            throw InvalidPackage::nameIsRequired();
-        }
-
-        foreach ($this->package->configFileNames as $configFileName) {
-            $this->mergeConfigFrom($this->package->basePath("/../config/$configFileName.php"), $configFileName);
-        }
-
-        $this->mergeConfigFrom(__DIR__ . '/../config/cubeta-starter.php', 'cubeta-starter');
-
-        $this->packageRegistered();
-
-        return $this;
     }
 
     /**
@@ -131,6 +80,34 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         }
     }
 
+    /**
+     * publish the package config file
+     * @return void
+     */
+    private function publishConfigFiles(): void
+    {
+        $this->publishes([
+            __DIR__ . '/../config/cubeta-starter.php' => base_path('config') . '/cubeta-starter.php',
+            __DIR__ . '/../pint.json' => base_path('pint.json'),
+            __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
+        ], 'cubeta-starter-config');
+    }
+
+    /**
+     * publishing the package assets used to generate the web views
+     * @return void
+     */
+    private function publishAssets(): void
+    {
+        $this->publishes([
+            __DIR__ . '/../resources/views' => resource_path('views'),
+            __DIR__ . '/../resources/js' => resource_path('js'),
+            __DIR__ . '/../resources/sass' => resource_path('sass'),
+            __DIR__ . '/../public' => public_path(),
+            __DIR__ . '/Traits/DataTablesTrait.php' => app_path("Traits/DataTablesTrait.php"),
+        ], 'cubeta-starter-assets');
+    }
+
     private function publishAuthViews(): void
     {
         $this->publishes([
@@ -143,19 +120,19 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         ], 'cubeta-auth-views');
     }
 
+    private function publishProviders(): void
+    {
+        $this->publishes([
+            __DIR__ . '/../src/Providers' => app_path('/Providers')
+        ], 'cubeta-starter-providers');
+    }
+
     private function publishTestingTools(): void
     {
         $this->publishes([
             __DIR__ . '/../src/Contracts/Tests/MainTestCase.php' => base_path("/tests/Contracts/MainTestCase.php"),
             __DIR__ . '/../src/Traits/TestHelpers.php' => app_path('/Traits/TestHelpers.php'),
         ], 'cubeta-starter-test-tools');
-    }
-
-    private function publishProviders(): void
-    {
-        $this->publishes([
-            __DIR__ . '/../src/Providers' => app_path('/Providers')
-        ], 'cubeta-starter-providers');
     }
 
     private function publishResponseHandlers(): void
@@ -185,34 +162,60 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
             __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
             __DIR__ . "/../src/Casts/Translatable.php" => app_path('Casts/Translatable.php'),
+            __DIR__ . '/Commands/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php')
         ], 'cubeta-starter-locale');
     }
 
     /**
-     * publishing the package assets used to generate the web views
-     * @return void
+     * @throws InvalidPackage
      */
-    private function publishAssets(): void
+    public function register()
     {
-        $this->publishes([
-            __DIR__ . '/../resources/views' => resource_path('views'),
-            __DIR__ . '/../resources/js' => resource_path('js'),
-            __DIR__ . '/../resources/sass' => resource_path('sass'),
-            __DIR__ . '/../public' => public_path(),
-            __DIR__ . '/Commands/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php')
-        ], 'cubeta-starter-assets');
+        $this->registeringPackage();
+
+        $this->package = new Package();
+
+        $this->package->setBasePath($this->getPackageBaseDir());
+
+        $this->configurePackage($this->package);
+
+        if (empty($this->package->name)) {
+            throw InvalidPackage::nameIsRequired();
+        }
+
+        foreach ($this->package->configFileNames as $configFileName) {
+            $this->mergeConfigFrom($this->package->basePath("/../config/$configFileName.php"), $configFileName);
+        }
+
+        $this->mergeConfigFrom(__DIR__ . '/../config/cubeta-starter.php', 'cubeta-starter');
+
+        $this->packageRegistered();
+
+        return $this;
     }
 
-    /**
-     * publish the package config file
-     * @return void
-     */
-    private function publishConfigFiles(): void
+    public function configurePackage(Package $package): void
     {
-        $this->publishes([
-            __DIR__ . '/../config/cubeta-starter.php' => base_path('config') . '/cubeta-starter.php',
-            __DIR__ . '/../pint.json' => base_path('pint.json'),
-            __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
-        ], 'cubeta-starter-config');
+        $package
+            ->name('cubeta-starter')
+            ->hasConfigFile()
+            ->hasCommand(CreatePivotTable::class)
+            ->hasCommand(MakeController::class)
+            ->hasCommand(MakeResource::class)
+            ->hasCommand(MakeModel::class)
+            ->hasCommand(MakeMigration::class)
+            ->hasCommand(MakeFactory::class)
+            ->hasCommand(MakeSeeder::class)
+            ->hasCommand(MakeRequest::class)
+            ->hasCommand(MakeRepository::class)
+            ->hasCommand(MakeService::class)
+            ->hasCommand(MakeTest::class)
+            ->hasCommand(MakePostmanCollection::class)
+            ->hasCommand(InitialProject::class)
+            ->hasCommand(MakeWebController::class)
+            ->hasCommand(InstallWebPackages::class)
+            ->hasCommand(InitAuth::class)
+            ->hasCommand(PublishAllAssetsCommand::class)
+            ->hasCommand(MakeExample::class);
     }
 }

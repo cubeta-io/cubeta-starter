@@ -2,11 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Illuminate\Support\Str;
-use Illuminate\Console\Command;
-use Illuminate\Filesystem\Filesystem;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 
 class MakePostmanCollection extends Command
 {
@@ -18,25 +18,6 @@ class MakePostmanCollection extends Command
         {name : The name of the model }
         {attributes? : columns with data types}';
 
-    public function generateBodyData($attributes): string
-    {
-        $fields = '';
-        $attributesCount = count($attributes);
-        foreach ($attributes as $attribute => $type) {
-            $attribute = columnNaming($attribute);
-            $separator = ($attributesCount > 1) ? ', ' : '';
-            $fields .= sprintf(
-                '{ "key": "%s", "type": "%s" }%s',
-                $attribute,
-                $type == 'file' ? 'file' : 'text',
-                $separator
-            );
-            $attributesCount--;
-        }
-
-        return $fields;
-    }
-
     /**
      * @throws BindingResolutionException
      */
@@ -45,7 +26,7 @@ class MakePostmanCollection extends Command
         $modelName = $this->argument('name');
         $attributes = $this->argument('attributes');
 
-        if (! $modelName || empty(trim($modelName))) {
+        if (!$modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
@@ -108,6 +89,25 @@ class MakePostmanCollection extends Command
         }
 
         $this->info("Created Postman Collection: {$projectName}.postman_collection.json ");
+    }
+
+    public function generateBodyData($attributes): string
+    {
+        $fields = '';
+        $attributesCount = count($attributes);
+        foreach ($attributes as $attribute => $type) {
+            $attribute = columnNaming($attribute);
+            $separator = ($attributesCount > 1) ? ', ' : '';
+            $fields .= sprintf(
+                '{ "key": "%s", "type": "%s" }%s',
+                $attribute,
+                $type == 'file' ? 'file' : 'text',
+                $separator
+            );
+            $attributesCount--;
+        }
+
+        return $fields;
     }
 
     private function getProjectUrl()

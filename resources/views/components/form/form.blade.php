@@ -66,21 +66,40 @@
         if (radioButtons) {
             const translatableInputs = document.querySelectorAll('.translatable');
             if (translatableInputs.length > 0) {
-                radioButtons.forEach(function (radioButton) {
-                    radioButton.addEventListener('change', function () {
+                radioButtons.forEach(function(radioButton) {
+                    radioButton.addEventListener('change', function() {
                         const selectedLanguage = this.value; // Get the value of the selected radio button
 
-                        translatableInputs.forEach(function (input) {
+                        translatableInputs.forEach(function(input) {
                             const inputName = input.name;
+                            const inputId = input.id;
                             const languageCode = inputName.match(/\[(.*?)\]/)[1]; // Extract language code from input name
 
 
                             if (languageCode === selectedLanguage) {
-                                input.style.display = 'block'; // Show input for selected language
-                                input.labels[0].style.display = 'block';
+                                if (input.tagName.toLowerCase() === 'textarea') {
+                                    input.labels[0].style.display = 'block';
+                                    document.querySelector('label[for="' + inputId + '"]').style.display = '';
+                                    tinymce.get(inputId).show()
+                                } else {
+                                    input.style.display ='block'; // Show input for selected language
+                                    input.labels[0].style.display = 'block';
+                                }
                             } else {
-                                input.style.display = "none"; // Hide input for other languages
-                                input.labels[0].style.display = "none";
+                                if (input.tagName.toLowerCase() === 'textarea') {
+                                    input.labels[0].style.display = "none";
+
+                                    document.querySelector('label[for="' + inputId + '"]').style.display = 'none';
+
+                                    // the order of the next two rows is very important
+                                    // check the tinymce docs for hide() method : https://www.tiny.cloud/docs/tinymce/latest/apis/tinymce.editor/#hide
+                                    tinymce.get(inputId).hide()
+                                    input.style.display = 'none';
+
+                                } else {
+                                    input.style.display = "none"; // Hide input for other languages
+                                    input.labels[0].style.display = "none";
+                                }
                             }
                         });
                     });

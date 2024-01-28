@@ -2,11 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Illuminate\Console\Command;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class MakeController extends Command
 {
@@ -18,11 +18,6 @@ class MakeController extends Command
     protected $signature = 'create:controller
         {name : The name of the model }
         {actor? : The actor of the endpoint of this model }';
-
-    public function getControllerName($modelName): string
-    {
-        return $modelName . 'Controller';
-    }
 
     /**
      * @throws BindingResolutionException
@@ -78,6 +73,11 @@ class MakeController extends Command
         $this->info("Created controller: {$controllerName}");
         $this->addRoute($modelName, $actor);
         $this->formatFile($controllerPath);
+    }
+
+    public function getControllerName($modelName): string
+    {
+        return $modelName . 'Controller';
     }
 
     private function getControllerPath($controllerName): string
