@@ -27,4 +27,4 @@
 - [Translations](README.md#translations)
 - [Restful Trait](README.md#restful-trait)
 - [FileHandler Trait](README.md#file-handler-trait)
-- [Changelog](../CHANGELOG.md)
+- [Changelog](CHANGELOG.md)
