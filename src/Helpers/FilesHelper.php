@@ -113,3 +113,45 @@ function storeJsonSettings(array $data): void
         json_encode($data, JSON_PRETTY_PRINT)
     );
 }
+
+/**
+ * check if content exist in a file
+ * @param $filePath
+ * @param $content
+ * @return bool
+ */
+function checkIfContentExistInFile($filePath, $content): bool
+{
+    $fileContent = file_get_contents($filePath);
+
+    if (!$fileContent) {
+        return false;
+    }
+
+    $fileContent = preg_replace('/\s+/', '', $fileContent);
+
+    $content = preg_replace('/\s+/', '', $content);
+
+    if (str_contains(strtolower($fileContent), strtolower($content))) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * @param string $pattern
+ * @param string $replacement
+ * @param string $subject
+ * @return string
+ */
+function prependLastMatch(string $pattern, string $replacement, string $subject): string
+{
+    preg_match_all($pattern, $subject, $matches, PREG_OFFSET_CAPTURE);
+
+    // Get the offset of the last match
+    $lastMatchOffset = end($matches[0])[1];
+
+    // Replace the last match with the new content
+    return substr_replace($subject, $replacement, $lastMatchOffset, 0);
+}

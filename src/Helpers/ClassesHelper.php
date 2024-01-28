@@ -40,7 +40,7 @@ function addMethodToClass(string $methodName, string $className, string $classPa
         return;
     }
 
-    if (method_exists($className, $methodName)) {
+    if (isMethodDefined($classPath, $methodName)) {
         echo("\n error : $methodName method already exists in $className");
         return;
     }
@@ -83,12 +83,12 @@ function getResourcePath(string $modelName): string
 // work version with a problem in the addition to the return array
 function addToMethodReturnArray(string $classPath, string $className, string $methodName, string $content): bool
 {
-    if (!file_exists($classPath) || !class_exists($className)) {
+    if (!file_exists($classPath)) {
         echo "Targeted Class Or File Doesn't Exists \n";
         return false;
     }
 
-    if (!method_exists($className, $methodName)) {
+    if (!isMethodDefined($classPath, $methodName)) {
         echo "Method : $methodName Doesn't Exists In The Targeted Class $className \n";
         return false;
     }
@@ -131,7 +131,12 @@ function addToMethodReturnArray(string $classPath, string $className, string $me
     }
 }
 
-function isMethodDefined($filePath, $functionName): bool
+/**
+ * @param string $filePath
+ * @param string $functionName
+ * @return bool
+ */
+function isMethodDefined(string $filePath, string $functionName): bool
 {
     if (!file_exists($filePath)) {
         return false; // File doesn't exist
@@ -179,4 +184,49 @@ function getViewPath(string $modelName, string $type): string
         "update", "edit" => "$viewsPath/edit.blade.php",
         "index" => "$viewsPath/index.blade.php",
     };
+}
+
+
+function addNewRelationsToWithMethod(string $modelName, string $filePath, array $additionalRelations): bool
+{
+    if (!file_exists($filePath)) {
+        echo "$filePath Doesn't Exists \n ";
+        return false;
+    }
+
+    $content = file_get_contents($filePath);
+
+    $pattern = "/$modelName::.*?->with\((.*?)\)/s";
+
+    // Callback function to add relations
+    $callback = function ($matches) use ($additionalRelations) {
+        $withMethod = $matches[0];
+
+        foreach ($additionalRelations as $key => $relation) {
+            if (str_contains($withMethod, $relation)) {
+                unset($additionalRelations[$key]);
+            }
+        }
+        $newRelations = "";
+        foreach ($additionalRelations as $additionalRelation) {
+            if ($additionalRelation != null and strlen(trim($additionalRelation)) > 0) {
+                $newRelations .= "'$additionalRelation' , ";
+            }
+        }
+        $result = str_replace('with([', "with([$newRelations, ", $withMethod);
+        $filtered = preg_replace('/\\s*,\\s*,/', "", $result);
+        return preg_replace('/\\[\\s*,\\s*/', "[", $filtered);
+    };
+
+    // Perform the replacement
+    $updated = preg_replace_callback($pattern, $callback, $content);
+
+    if (!$updated) {
+        echo "No Match Found To Add New Relations To with() Method In [$filePath] \n";
+        return false;
+    }
+
+    file_put_contents($filePath, $updated);
+    echo "$filePath Has Been Updated Successfully \n";
+    return true;
 }

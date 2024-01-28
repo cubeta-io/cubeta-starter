@@ -2,6 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\app\Models\CubetaRelation;
+use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
@@ -19,6 +21,8 @@ class MakeWebController extends Command
     use AssistCommand;
     use RouteBinding;
     use ViewGenerating;
+
+    protected CubetaTable $tableObject;
 
     protected $description = 'Create a new web controller';
 
@@ -47,7 +51,7 @@ class MakeWebController extends Command
 
         $modelName = modelNaming($name);
 
-        Settings::make()->serialize($modelName, $attributes, $relations, $nullables , []);
+        $this->tableObject = Settings::make()->serialize($modelName, $attributes, $relations, $nullables, []);
 
         $this->createWebController($modelName, $attributes, $nullables, $relations, $actor);
 
@@ -93,9 +97,6 @@ class MakeWebController extends Command
             '{tableName}' => $tableName,
             '{addColumns}' => $addColumns,
             '{rawColumns}' => $this->rawColumns ?? '',
-            '{showRouteName}' => $routesNames['show'],
-            '{editRouteName}' => $routesNames['edit'],
-            '{deleteRouteName}' => $routesNames['destroy'],
             '{indexRoute}' => $routesNames['index'],
             '{createForm}' => $views['create'],
             '{indexView}' => $views['index'],
@@ -107,6 +108,8 @@ class MakeWebController extends Command
             '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
             '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns($attributes),
             '{additionalMethods}' => $this->additionalControllerMethods($modelName, $relations),
+            '{loadedRelations}' => $this->getLoadedRelations(),
+            '{baseRouteName}' => $routesNames['base']
         ];
 
         if (!is_dir(base_path(config('cubeta-starter.web_controller_path')))) {
@@ -136,7 +139,7 @@ class MakeWebController extends Command
     /**
      * @return string[]
      */
-    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string'])]
+    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string'])]
     public function getRoutesNames(string $modelName, $actor = null): array
     {
         $baseRouteName = $this->getRouteName($modelName, 'web', $actor);
@@ -150,6 +153,7 @@ class MakeWebController extends Command
             'create' => $baseRouteName . '.create',
             'data' => $baseRouteName . '.data',
             'update' => $baseRouteName . '.update',
+            'base' => $baseRouteName
         ];
     }
 
@@ -221,6 +225,27 @@ class MakeWebController extends Command
         }
 
         return $methods;
+    }
+
+    public function getLoadedRelations(): string
+    {
+        $loaded = $this->tableObject->relations()->filter(function (CubetaRelation $rel) {
+            $relatedModelPath = getModelPath($rel->modelName);
+            $currentModelPath = getModelPath($this->tableObject->modelName);
+            return file_exists($relatedModelPath)
+                and (
+                ($rel->isHasMany()) ?
+                    isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName, false)) :
+                    isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName))
+                );
+        })->map(fn(CubetaRelation $rel) => $rel->method())->toArray();
+
+        $loadedString = '';
+        foreach ($loaded as $item) {
+            $loadedString .= "'$item' , ";
+        }
+
+        return $loadedString;
     }
 
     private function addSidebarItem(string $modelName, string $routeName): void

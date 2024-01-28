@@ -20,8 +20,10 @@ class MakeExample extends Command
                     Artisan::call('create:model', [
                         'name' => 'Category',
                         'attributes' => [
-                            'name' => 'string',
-                            'description' => 'text'
+                            'name' => 'translatable',
+                            'title' => 'translatable',
+                            'description' => 'text' ,
+                            "image" => "file" ,
                         ],
                         'relations' => [
                             'products' => RelationsTypeEnum::HasMany,
@@ -41,8 +43,10 @@ class MakeExample extends Command
                     Artisan::call('create:model', [
                         'name' => "Product",
                         "attributes" => [
-                            "name" => "string",
-                            "category_id" => "key"
+                            "name" => "translatable",
+                            'title' => 'translatable',
+                            "category_id" => "key" ,
+                            "image" => "file" ,
                         ],
                         "relations" => [
                             "brands" => RelationsTypeEnum::ManyToMany
@@ -55,7 +59,9 @@ class MakeExample extends Command
                     Artisan::call("create:model", [
                         'name' => "Brand",
                         "attributes" => [
-                            "name" => "string",
+                            "name" => "translatable",
+                            'group' => 'translatable',
+                            "image" => "file" ,
                         ],
                         "relations" => [
                             "products" => RelationsTypeEnum::ManyToMany

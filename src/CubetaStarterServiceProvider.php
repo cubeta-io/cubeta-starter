@@ -104,6 +104,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../resources/js' => resource_path('js'),
             __DIR__ . '/../resources/sass' => resource_path('sass'),
             __DIR__ . '/../public' => public_path(),
+            __DIR__ . '/Traits/DataTablesTrait.php' => app_path("Traits/DataTablesTrait.php"),
         ], 'cubeta-starter-assets');
     }
 

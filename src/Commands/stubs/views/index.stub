@@ -59,8 +59,9 @@
                             const lengthMenu = $('#table_length');
                             const tableFilter = $('#table_filter');
                             lengthMenu.add(tableFilter).wrapAll('<div class="row"></div>');
-                            tableFilter.wrap('<div class="col-md-6"></div>')
-                            lengthMenu.wrap('<div class="col-md-6"></div>')
+                            tableFilter.wrap('<div class="col-md-6"></div>');
+                            lengthMenu.wrap('<div class="col-md-6"></div>');
+                            initPluginsByClass();
                         });
 
                         table.on('click', '.remove-item-from-table-btn', function () {

@@ -95,9 +95,6 @@ class MakeResource extends Command
 
         foreach ($relations as $rel => $type) {
             $relatedModelName = modelNaming(str_replace('_id', '', $rel));
-            if (!class_exists(getModelClassName($relatedModelName)) or !class_exists(getResourceClassName($relatedModelName))) {
-                continue;
-            }
 
             if (!file_exists(getModelPath($relatedModelName)) or !file_exists(getResourcePath($relatedModelName))) {
                 continue;

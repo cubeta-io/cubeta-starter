@@ -54,14 +54,26 @@ class CubetaRelation
         ];
     }
 
-    public function isHasMany(): bool
-    {
-        return $this->type == RelationsTypeEnum::HasMany;
-    }
-
     public function isBelongsTo(): bool
     {
         return $this->type == RelationsTypeEnum::BelongsTo;
+    }
+
+    public function isHasOne(): bool
+    {
+        return $this->type == RelationsTypeEnum::HasOne;
+    }
+
+    public function method(): string
+    {
+        if ($this->isHasMany() || $this->isManyToMany()) {
+            return relationFunctionNaming($this->modelName, false);
+        } else return relationFunctionNaming($this->modelName, true);
+    }
+
+    public function isHasMany(): bool
+    {
+        return $this->type == RelationsTypeEnum::HasMany;
     }
 
     public function isManyToMany(): bool
@@ -69,8 +81,8 @@ class CubetaRelation
         return $this->type == RelationsTypeEnum::ManyToMany;
     }
 
-    public function isHasOne(): bool
+    public function modelPath(): string
     {
-        return $this->type == RelationsTypeEnum::HasOne;
+        return getModelPath($this->modelName);
     }
 }

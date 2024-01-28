@@ -38,7 +38,7 @@ class Settings
      */
     private static function getJsonSettings(): array
     {
-        $filePath = base_path('/settings.json');
+        $filePath = base_path('/cubeta-starter.config.json');
 
         if (!file_exists($filePath)) {
             return [];
@@ -53,7 +53,7 @@ class Settings
 
         if (!$data) {
             return [];
-        } else return $data;
+        }  return $data;
     }
 
     public function getTable(string $modelName): ?CubetaTable
@@ -104,6 +104,10 @@ class Settings
         }
 
         foreach ($relations as $relation => $type) {
+            if (str_contains($relation, '_id')) {
+                continue;
+            }
+
             $relationships[] = new CubetaRelation($type, modelNaming($relation));
         }
 
@@ -139,13 +143,13 @@ class Settings
 
     /**
      * store the provided array in the package (cubeta-starter) json file settings as an array
-     * @param array $data
+     * @param  array $data
      * @return void
      */
     private static function storeJsonSettings(array $data): void
     {
         file_put_contents(
-            base_path('/settings.json'),
+            base_path('/cubeta-starter.config.json'),
             json_encode($data, JSON_PRETTY_PRINT)
         );
     }

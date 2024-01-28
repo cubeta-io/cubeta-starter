@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -89,6 +90,7 @@ trait ViewGenerating
 
             if ($type == 'key') {
                 $modelName = modelNaming(str_replace('_id', '', $attribute));
+                $relatedTable = Settings::make()->getTable($modelName);
                 $value = str_replace('_id', '', $value);
                 $select2Route = $this->getRouteName($modelName, ContainerType::WEB, $actor) . '.allPaginatedJson';
 
@@ -102,7 +104,7 @@ trait ViewGenerating
 
                 $inputs .= "
                 <!-- TODO::if you created this before the parent model configure this route here as you want -->
-                <x-select2 label=\"{$label}\" name=\"{$attribute}\" api=\"{{route('{$select2Route}')}}\" option-value=\"id\" option-inner-text=\"id\" {$value} {$isRequired}/> \n";
+                <x-select2 label=\"{$label}\" name=\"{$attribute}\" api=\"{{route('{$select2Route}')}}\" option-value=\"id\" option-inner-text=\"{$relatedTable->titleable()->name}\" {$value} {$isRequired}/> \n";
             } elseif ($type == 'translatable') {
 
                 $inputs .= "<x-translatable-input label=\"{$label}\" name=\"{$attribute}\" type='text' {$value} {$isRequired}/> \n";
@@ -174,7 +176,7 @@ trait ViewGenerating
      */
     private function getLabelName(string $attribute): array|string
     {
-        return str_replace('_', ' ', ucfirst($attribute));
+        return str_replace('_id', ' ', ucfirst($attribute));
     }
 
     /**
@@ -236,12 +238,11 @@ trait ViewGenerating
                 continue;
             }
             if ($type == 'file') {
-                //TODO::change it to deal with baguettebox
                 $json .= "{
                                 \"data\": '{$attribute}',render:
                                     function (data) {
                                         const filePath = \"{{asset(\"storage/\")}}/\" + data;
-                                        return '<a href=\"' + filePath + '\" class=\"btn btn-sm btn-primary\"  target=\"_blank\">view</a>';
+                                        return `<div class=\"gallery\"><a href=\"\${filePath}\"><img class=\"img-fluid\" src=\"\${filePath}\"/></a>`;
                                     }
                            }, \n";
                 $html .= "\n<th>{$label}</th>\n";
@@ -321,20 +322,12 @@ trait ViewGenerating
             return $queries;
         }
 
-        $queries .= "\$locale = app()->getLocale() ; \n";
-
+        $queries .= "\$query = \$this->orderTranslatableColumns(\$query, [\n";
         foreach ($translatableColumns as $col => $index) {
-            $queries .=
-                "if (request()->has('order') && request('order')[0]['column'] == {$index}) {
-                            \$query->order(function (\$query) use (\$locale) {
-                                if (request('order')[0]['dir'] == 'asc') {
-                                    \$query->orderByRaw(\"JSON_EXTRACT({$col}, ?) ASC\", ['$.\"' . \$locale . '\"']);
-                                } else {
-                                    \$query->orderByRaw(\"JSON_EXTRACT({$col}, ?) DESC\", ['$.\"' . \$locale . '\"']);
-                                }
-                            });
-                 } \n";
+            $queries .= "['orderIndex' => 0, 'columnIndex' => $index, 'columnName' => '$col'],\n";
         }
+
+        $queries .= "\n]);";
 
         return $queries;
     }
@@ -355,5 +348,70 @@ trait ViewGenerating
         }
 
         return $translatableColumnsIndexes;
+    }
+
+    private function addColumnToDataTable(string $filePath, string $newColumn, string $htmlColName = ""): bool
+    {
+        if (!file_exists($filePath)) {
+            echo "$filePath Doesn't Exists \n";
+            return false;
+        }
+
+        if (checkIfContentExistInFile($filePath, $newColumn) || checkIfContentExistInFile($filePath, $htmlColName)) {
+            echo "The New Column Already Exists In [ $filePath ] \n";
+        }
+
+        $fileContent = file_get_contents($filePath);
+
+        // adding html column
+        if (str_contains($fileContent, "<th>Action</th>")) {
+            $fileContent = str_replace("<th>Action</th>", "<th>$htmlColName</th>\n<th>Action</th>\n", $fileContent);
+        } else if (str_contains($fileContent, "</tr>")) {
+            $fileContent = str_replace("</tr>", "<th>$htmlColName</th>\n</tr>\n", $fileContent);
+        } else {
+            echo "We Couldn't find the Proper Place To Add New Column In The HTML Of $filePath \n";
+            return false;
+        }
+
+        // Find the columns array
+        $pattern = '/\bcolumns\s*:\s*\[\s*([^]]*)\s*]/';
+
+        preg_match($pattern, $fileContent, $matches);
+
+        if (isset($matches[1])) {
+            $existingColumns = trim($matches[1]);
+            if (!empty($existingColumns)) {
+                if (preg_match('/}(\s|\n)*,(\s|\n)*\{/i', $existingColumns)) {
+                    $newColumns = prependLastMatch('/\s*}\s*,\s*\{/', "},{" . $newColumn, $existingColumns);
+                } else {
+                    $newColumns = "$existingColumns , $newColumn";
+                }
+            } else {
+                $newColumns = $newColumn;
+            }
+            $updatedContent = str_replace($matches[1], $newColumns, $fileContent);
+
+            file_put_contents($filePath, $updatedContent);
+            echo "New Content Has Been Added To $filePath \n";
+            return true;
+        }
+        // If the columns array is not found, try to find an empty array
+        $emptyArrayPattern = '/\bcolumns\s*:\s*\[\s*]\s*/';
+
+        preg_match($emptyArrayPattern, $fileContent, $emptyArrayMatches);
+
+        if (isset($emptyArrayMatches[0])) {
+            // If an empty array is found, replace it with the new column
+            $updatedContent = str_replace($emptyArrayMatches[0], 'columns: [' . $newColumn . ']', $fileContent);
+
+            // Write the updated content back to the file
+            file_put_contents($filePath, $updatedContent);
+
+            echo "New Content Has Been Added To $filePath \n";
+            return true;
+        }
+
+        echo "We Couldn't find the Proper Place To Add New Column In The Script Tag Of $filePath \n";
+        return false;
     }
 }

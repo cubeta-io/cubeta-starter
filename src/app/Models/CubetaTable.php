@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\app\Models;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class CubetaTable
 {
@@ -129,6 +130,24 @@ class CubetaTable
             ->count();
     }
 
+    public function save(): static
+    {
+        Settings::make()->addTable($this);
+        return $this;
+    }
+
+    public function titleable(): CubetaAttribute
+    {
+        foreach ($this->attributes as $attribute) {
+            if (Str::contains($attribute->name, ['name', 'title'], true)
+                and in_array($attribute->type, ['string', 'text', 'json', 'translatable'])) {
+                return $attribute;
+            }
+        }
+
+        return $this->getAttribute("id");
+    }
+
     /**
      * @param string $name
      * @return CubetaAttribute|null
@@ -148,9 +167,13 @@ class CubetaTable
         return collect($this->attributes);
     }
 
-    public function save(): static
+    public function variableName(): string
     {
-        Settings::make()->addTable($this);
-        return $this;
+        return variableNaming($this->modelName);
+    }
+
+    public function keyName(): string
+    {
+        return strtolower(Str::singular($this->modelName)) . "_id";
     }
 }
