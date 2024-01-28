@@ -1,4 +1,6 @@
-### **V 1.1.6**
+<!-- docs/CHANGELOG.md -->
+
+## **V 1.1.6**
 
 1. new attribute `exact` has been added to the `gallery-item` blade component so if you'd like to provide the exact
    source of the image
@@ -18,17 +20,17 @@
    the proper code (you can check that by running the command : `php artisan create:example` and generate the product
    before the category) .
 
-## **fixing some bugs**
+### **fixing some bugs**
 
 1. remove `required` attribute from the input fields in the generated _edit_ forms
 2. adding `.gallery` css class to the `gallery-item` blade component so the functions in
    the `public/js/PluginInitializer.js` file
    can handle it.
-### **V 1.1.5**
+## **V 1.1.5**
 1. Now every input component has a `name` attribute this attribute is nullable, when it is `null` this attribute will
    take the value of the `label` attribute transformed to **lower** _and_ **snake case**
 
-### **V 1.1.4**
+## **V 1.1.4**
 
 1. Making the columns of type translatable being cast into `Translatable::class` custom cast instead of generating an
    accessor for each translated column . you can find the custom cast `Translatable::class` after
