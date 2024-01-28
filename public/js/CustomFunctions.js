@@ -1,6 +1,3 @@
-const $ = jQuery = window.jQuery;
-const Swal = window.Swal;
-
 /**
  * this function add a red * char to the label of the input field if it has required attribute
  */
@@ -130,7 +127,7 @@ function triggerSwalError(message) {
     })
 }
 
-function triggerSwalSuccess(message){
+function triggerSwalSuccess(message) {
     Swal.fire({
         title: 'Success!',
         text: message,
@@ -139,3 +136,42 @@ function triggerSwalSuccess(message){
         confirmButtonColor: '#0d6efd',
     })
 }
+
+function triggerSwalMessage(message) {
+    Swal.fire({
+        title: 'Info !',
+        text: message,
+        icon: 'info',
+        confirmButtonText: 'Ok',
+        confirmButtonColor: '#0d6efd',
+    });
+}
+
+function changeLocale() {
+    let children = $("#lang-changer").children();
+
+    for (let i = 0; i < children.length; i++) {
+        $(children[i]).on("click", function (e) {
+            e.preventDefault();
+            $.ajaxSetup({
+                headers: {
+                    "X-CSRF-TOKEN": _CSRF_TOKEN,
+                },
+            });
+            $.ajax({
+                method: "POST",
+                data: {
+                    lang: $(this).data("lang"),
+                },
+                url: $(this).data("route"),
+                success: function (response) {
+                    location.reload();
+                },
+                error: function (error) {
+                    console.error("Error:", error);
+                },
+            });
+        });
+    }
+}
+

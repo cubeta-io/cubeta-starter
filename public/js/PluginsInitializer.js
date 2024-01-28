@@ -22,7 +22,7 @@ function initBaguetteBox(className) {
 
 
 function initPluginsByClass() {
-    let elements = document.querySelectorAll('.select-2, .multiple-select-2, .Trumbowyg-text-editor, .gallery');
+    let elements = document.querySelectorAll('.select-2, .multiple-select-2, .gallery');
 
     let initSelect2State = true;
     let initMultipleSelect2State = true;
@@ -42,11 +42,6 @@ function initPluginsByClass() {
         if (elements[i].classList.contains('multiple-select-2') && initMultipleSelect2State) {
             initMultipleSelect2('.multiple-select-2');
             initMultipleSelect2State = false;
-        }
-
-        if (elements[i].classList.contains('Trumbowyg-text-editor') && initTrumbowygState) {
-            initTrumbowyg('.Trumbowyg-text-editor');
-            initTrumbowygState = false;
         }
 
         if (elements[i].classList.contains('gallery') && initBaguetteBoxState) {

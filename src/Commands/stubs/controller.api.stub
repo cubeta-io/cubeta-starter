@@ -31,6 +31,7 @@ class {modelName}Controller extends ApiController{
 
     public function show(${idVariable})
     {
+        /** @var {modelName}|null $item */
         $item = $this->{variableNaming}Service->view(${idVariable}, $this->relations);
         if ($item) {
             return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.get_successfully'));
@@ -41,6 +42,7 @@ class {modelName}Controller extends ApiController{
 
     public function store(StoreUpdate{modelName}Request $request)
     {
+        /** @var {modelName}|null $item */
         $item = $this->{variableNaming}Service->store($request->validated() , $this->relations);
         if ($item) {
             return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.stored_successfully'));
@@ -51,6 +53,7 @@ class {modelName}Controller extends ApiController{
 
     public function update(${idVariable}, StoreUpdate{modelName}Request $request)
     {
+        /** @var {modelName}|null $item */
         $item = $this->{variableNaming}Service->update($request->validated(), ${idVariable} , $this->relations);
         if ($item) {
             return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.update_successfully'));

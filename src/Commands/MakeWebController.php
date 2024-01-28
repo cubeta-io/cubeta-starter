@@ -2,20 +2,27 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\app\Models\CubetaRelation;
+use Cubeta\CubetaStarter\app\Models\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\Settings;
+use Cubeta\CubetaStarter\Contracts\CodeSniffer;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Illuminate\Console\Command;
-use JetBrains\PhpStorm\ArrayShape;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\ViewGenerating;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use JetBrains\PhpStorm\ArrayShape;
 
 class MakeWebController extends Command
 {
     use AssistCommand;
     use RouteBinding;
     use ViewGenerating;
+
+    protected CubetaTable $tableObject;
 
     protected $description = 'Create a new web controller';
 
@@ -44,7 +51,15 @@ class MakeWebController extends Command
 
         $modelName = modelNaming($name);
 
+        $this->tableObject = Settings::make()->serialize($modelName, $attributes, $relations, $nullables, []);
+
         $this->createWebController($modelName, $attributes, $nullables, $relations, $actor);
+
+        CodeSniffer::make()
+            ->setModel($modelName)
+            ->checkForWebRelations(
+                $this->getRouteName($modelName, ContainerType::WEB, $actor) . '.allPaginatedJson'
+            );
     }
 
     /**
@@ -80,11 +95,8 @@ class MakeWebController extends Command
             '{modelNameCamelCase}' => $modelNameCamelCase,
             '{idVariable}' => $idVariable,
             '{tableName}' => $tableName,
-            '{addColumns}' => $addColumns ,
+            '{addColumns}' => $addColumns,
             '{rawColumns}' => $this->rawColumns ?? '',
-            '{showRouteName}' => $routesNames['show'],
-            '{editRouteName}' => $routesNames['edit'],
-            '{deleteRouteName}' => $routesNames['destroy'],
             '{indexRoute}' => $routesNames['index'],
             '{createForm}' => $views['create'],
             '{indexView}' => $views['index'],
@@ -96,6 +108,8 @@ class MakeWebController extends Command
             '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
             '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns($attributes),
             '{additionalMethods}' => $this->additionalControllerMethods($modelName, $relations),
+            '{loadedRelations}' => $this->getLoadedRelations(),
+            '{baseRouteName}' => $routesNames['base']
         ];
 
         if (!is_dir(base_path(config('cubeta-starter.web_controller_path')))) {
@@ -114,10 +128,18 @@ class MakeWebController extends Command
         $this->addSidebarItem($modelName, $routesNames['index']);
     }
 
+    private function getWebControllerPath(string $controllerName): string
+    {
+        $directory = base_path(config('cubeta-starter.web_controller_path'));
+        ensureDirectoryExists($directory);
+
+        return "{$directory}/{$controllerName}.php";
+    }
+
     /**
      * @return string[]
      */
-    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string'])]
+    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string'])]
     public function getRoutesNames(string $modelName, $actor = null): array
     {
         $baseRouteName = $this->getRouteName($modelName, 'web', $actor);
@@ -131,11 +153,12 @@ class MakeWebController extends Command
             'create' => $baseRouteName . '.create',
             'data' => $baseRouteName . '.data',
             'update' => $baseRouteName . '.update',
+            'base' => $baseRouteName
         ];
     }
 
     /**
-     * @param  null     $actor
+     * @param null $actor
      * @return string[]
      */
     #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
@@ -159,35 +182,21 @@ class MakeWebController extends Command
 
     }
 
-    private function addSidebarItem(string $modelName, string $routeName): void
-    {
-        $modelName = titleNaming($modelName);
-        $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');
-        if (!file_exists($sidebarPath)) {
-            return;
-        }
-
-        $sidebarItem = "<li class=\"nav-item\">\n  <a class=\"nav-link collapsed\" href=\"{{route('{$routeName}')}}\">\n  <i class=\"bi bi-circle\"></i>\n  <span>{$modelName}</span>\n  </a>\n  </li>\n  </ul>";
-
-        $sidebar = file_get_contents($sidebarPath);
-        $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);
-        file_put_contents($sidebarPath, $sidebar);
-    }
-
-    private function getWebControllerPath(string $controllerName): string
-    {
-        $directory = base_path(config('cubeta-starter.web_controller_path'));
-        ensureDirectoryExists($directory);
-
-        return "{$directory}/{$controllerName}.php";
-    }
-
     private function getKeyColumnsHyperlink(array $attributes = []): string
     {
         $dataColumn = '';
         foreach ($attributes as $column => $type) {
             if ($type == 'key') {
                 $relatedModel = modelNaming(str_replace('_id', '', $column));
+
+                if (!file_exists(getWebControllerPath($relatedModel)) || !file_exists(getModelPath($relatedModel))) {
+                    continue;
+                }
+
+                if (isMethodDefined(getWebControllerPath($relatedModel), 'show')) {
+                    continue;
+                }
+
                 $showRouteName = $this->getRoutesNames($relatedModel)['show'];
                 $dataColumn .= "
                     ->editColumn('{$column}', function (\$row) {
@@ -216,5 +225,41 @@ class MakeWebController extends Command
         }
 
         return $methods;
+    }
+
+    public function getLoadedRelations(): string
+    {
+        $loaded = $this->tableObject->relations()->filter(function (CubetaRelation $rel) {
+            $relatedModelPath = getModelPath($rel->modelName);
+            $currentModelPath = getModelPath($this->tableObject->modelName);
+            return file_exists($relatedModelPath)
+                and (
+                ($rel->isHasMany()) ?
+                    isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName, false)) :
+                    isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName))
+                );
+        })->map(fn(CubetaRelation $rel) => $rel->method())->toArray();
+
+        $loadedString = '';
+        foreach ($loaded as $item) {
+            $loadedString .= "'$item' , ";
+        }
+
+        return $loadedString;
+    }
+
+    private function addSidebarItem(string $modelName, string $routeName): void
+    {
+        $modelName = titleNaming($modelName);
+        $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');
+        if (!file_exists($sidebarPath)) {
+            return;
+        }
+
+        $sidebarItem = "<li class=\"nav-item\">\n  <a class=\"nav-link collapsed\" href=\"{{route('{$routeName}')}}\">\n  <i class=\"bi bi-circle\"></i>\n  <span>{$modelName}</span>\n  </a>\n  </li>\n  </ul>";
+
+        $sidebar = file_get_contents($sidebarPath);
+        $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);
+        file_put_contents($sidebarPath, $sidebar);
     }
 }

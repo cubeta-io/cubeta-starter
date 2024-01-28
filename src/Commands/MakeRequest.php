@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Illuminate\Console\Command;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class MakeRequest extends Command
 {
@@ -35,33 +35,6 @@ class MakeRequest extends Command
         }
 
         $this->createRequest($modelName, $attributes, $nullables, $uniques);
-    }
-
-    /**
-     * @param  array  $attributes
-     * @return string
-     */
-    public function getPrepareForValidationMethod(array $attributes): string
-    {
-        $translatedAttributes = array_keys($attributes, 'translatable');
-        $method = '';
-        if (count($translatedAttributes) > 0) {
-            $method .= "protected function prepareForValidation()
-                        {
-                            if (request()->acceptsHtml()){
-                                \$this->merge([\n";
-
-            foreach ($translatedAttributes as $attr) {
-                $attr = columnNaming($attr);
-                $method .= "'{$attr}' => json_encode(\$this->{$attr}), \n";
-            }
-
-            $method .= "]);
-                            }
-                        }";
-        }
-
-        return $method;
     }
 
     /**
@@ -101,6 +74,11 @@ class MakeRequest extends Command
         $this->info("Created request: {$requestName}");
     }
 
+    private function getRequestName($modelName): string
+    {
+        return 'StoreUpdate' . $modelName . 'Request';
+    }
+
     private function generateCols(array $attributes = [], array $nullables = [], array $uniques = [], string $modelName = null): string
     {
         $rules = '';
@@ -108,45 +86,67 @@ class MakeRequest extends Command
 
             $name = columnNaming($name);
             $isNullable = in_array($name, $nullables) ? "nullable" : "required";
-            $isUnique = in_array($name, $uniques) ? "unique:" . tableNaming($modelName) . "," . columnNaming($name) . "|" : '';
+            $isUnique = in_array($name, $uniques) ? "unique:" . tableNaming($modelName) . "," . columnNaming($name) : '';
 
             if ($type == 'translatable') {
-                $rules .= "\t\t\t'{$name}'=>['{$isUnique}{$isNullable}', 'json', new LanguageShape] , \n";
+                $rules .= "\t\t\t'{$name}'=>['{$isUnique}' , '{$isNullable}', 'json', new LanguageShape] , \n";
             } elseif (($name == 'name' || $name == 'first_name' || $name == 'last_name') && $type == 'string') {
-                $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|string|min:3|max:255',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|string|min:3|max:255',\n";
             } elseif ($name == 'email' && $type == 'string') {
-                $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|string|max:255|email',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|string|max:255|email',\n";
             } elseif ($name == 'password' && $type == 'string') {
-                $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|string|max:255|min:6|confirmed',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|string|max:255|min:6|confirmed',\n";
             } elseif (($name == 'phone' || $name == 'phone_number' || $name == 'number') && $type == 'string') {
-                $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|string|max:255|min:6',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|string|max:255|min:6',\n";
             } elseif (in_array($type, ['date', 'dateTime', 'timestamp'])) {
-                $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|date',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|date',\n";
             } elseif ($type == 'time') {
-                $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|date_format:H:i',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|date_format:H:i',\n";
             } elseif ($type == 'boolean') {
-                $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|boolean',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|boolean',\n";
             } elseif ($type == 'key') {
                 $relationModel = str_replace('_id', '', $name);
                 $relationModelPluralName = tableNaming($relationModel);
                 $rules .= "\t\t\t'{$name}'=>'{$isNullable}|numeric|exists:{$relationModelPluralName},id',\n";
             } elseif ($type == 'file') {
-                $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|image|mimes:jpeg,png,jpg|max:2048',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|image|mimes:jpeg,png,jpg|max:2048',\n";
             } elseif ($type == 'text') {
-                $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|string',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|string',\n";
             } elseif (in_array($type, ['integer', 'bigInteger', 'unsignedBigInteger', 'unsignedDouble', 'double', 'float'])) {
-                $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|numeric',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|numeric',\n";
             } else {
-                $rules .= "\t\t\t'{$name}'=>'{$isUnique}{$isNullable}|{$type}',\n";
+                $rules .= "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|{$type}',\n";
             }
         }
 
         return $rules;
     }
 
-    private function getRequestName($modelName): string
+    /**
+     * @param array $attributes
+     * @return string
+     */
+    public function getPrepareForValidationMethod(array $attributes): string
     {
-        return 'StoreUpdate' . $modelName . 'Request';
+        $translatedAttributes = array_keys($attributes, 'translatable');
+        $method = '';
+        if (count($translatedAttributes) > 0) {
+            $method .= "protected function prepareForValidation()
+                        {
+                            if (request()->acceptsHtml()){
+                                \$this->merge([\n";
+
+            foreach ($translatedAttributes as $attr) {
+                $attr = columnNaming($attr);
+                $method .= "'{$attr}' => json_encode(\$this->{$attr}), \n";
+            }
+
+            $method .= "]);
+                            }
+                        }";
+        }
+
+        return $method;
     }
 
     private function getRequestPath($requestName, $modelName): string

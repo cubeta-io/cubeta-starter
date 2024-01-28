@@ -6,7 +6,7 @@
     <div class="row">
         <div {{ $attributes->merge(['class' => 'col-lg-3 col-md-4 label ' . $classes]) }}
              id="{{ $lang }}-{{ $label }}-label">
-            {{ $label }} : {{ $lang }}
+            {{ $label }} : {{ strtoupper($lang) }}
         </div>
 
         <div {{ $attributes->merge(['class' => 'col-lg-9 col-md-8 label ' . $classes]) }}

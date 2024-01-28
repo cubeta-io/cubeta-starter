@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 trait AssistCommand
 {
@@ -12,13 +12,14 @@ trait AssistCommand
      */
     public function checkIfMigrationExists($tableName): bool|string
     {
+        $tableName = tableNaming($tableName);
         $migrationsPath = base_path(config('cubeta-starter.migration_path'));
         ensureDirectoryExists($migrationsPath);
 
         $allMigrations = File::allFiles($migrationsPath);
         foreach ($allMigrations as $migration) {
             $migrationName = $migration->getBasename();
-            if (Str::contains($migrationName, "_create_{$tableName}" . '_table')) {
+            if (Str::contains($migrationName, "create_{$tableName}_table.php")) {
                 return $migration->getRealPath();
             }
         }
@@ -41,7 +42,19 @@ trait AssistCommand
     }
 
     /**
-     * @param  string            $command
+     * format the file on the given path
+     *
+     * @param $filePath string the project path of the file eg:app/Models/MyModel.php
+     */
+    public function formatFile(string $filePath): void
+    {
+        $command = base_path() . "./vendor/bin/pint {$filePath}";
+        $output = $this->executeCommandInTheBaseDirectory($command);
+        $this->line((string)$output);
+    }
+
+    /**
+     * @param string $command
      * @return false|string|null
      */
     public function executeCommandInTheBaseDirectory(string $command): bool|string|null
@@ -55,17 +68,5 @@ trait AssistCommand
         $this->error('You are in the production environment this is not allowed');
         return false;
 
-    }
-
-    /**
-     * format the file on the given path
-     *
-     * @param $filePath string the project path of the file eg:app/Models/MyModel.php
-     */
-    public function formatFile(string $filePath): void
-    {
-        $command = base_path() . "./vendor/bin/pint {$filePath}";
-        $output = $this->executeCommandInTheBaseDirectory($command);
-        $this->line((string)$output);
     }
 }

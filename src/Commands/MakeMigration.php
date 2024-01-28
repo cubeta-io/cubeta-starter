@@ -3,16 +3,18 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Carbon\Carbon;
-use Illuminate\Support\Str;
-use Illuminate\Console\Command;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Cubeta\CubetaStarter\Traits\SettingsHandler;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Str;
 
 class MakeMigration extends Command
 {
-    use AssistCommand;
+    use AssistCommand, SettingsHandler;
 
     public $description = 'Create a new migration';
 
@@ -39,6 +41,8 @@ class MakeMigration extends Command
             $this->error('Invalid input');
             return;
         }
+
+        Settings::make()->serialize($modelName, $attributes, $relations, $nullables, $uniques);
 
         $this->createMigration($modelName, $attributes, $relations, $nullables, $uniques);
     }
@@ -76,6 +80,13 @@ class MakeMigration extends Command
         $this->info("Created migration: {$migrationName}");
     }
 
+    private function getMigrationName($modelName): string
+    {
+        $date = Carbon::now()->subSecond()->format('Y_m_d_His');
+
+        return $date . '_create_' . tableNaming($modelName) . '_table';
+    }
+
     /**
      * return the columns of the migration file
      */
@@ -87,14 +98,11 @@ class MakeMigration extends Command
             $nullable = (in_array($name, $nullables) || $type == 'file') ? '->nullable()' : '';
             $unique = in_array($name, $uniques) ? '->unique()' : '';
 
-            if ($type == 'key') {
-                continue;
-            }
-            if ($type == 'translatable') {
-                $columns .= "\t\t\t\$table->json('{$name}')" . $nullable . $unique . "; \n";
-            } else {
-                $columns .= "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . $nullable . $unique . "; \n";
-            }
+            $columns .= match ($type) {
+                'key' => '',
+                'translatable' => "\t\t\t\$table->json('{$name}')" . $nullable . $unique . "; \n",
+                default => "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . $nullable . $unique . "; \n",
+            };
         }
 
         foreach ($relations as $rel => $type) {
@@ -106,13 +114,6 @@ class MakeMigration extends Command
         }
 
         return $columns;
-    }
-
-    private function getMigrationName($modelName): string
-    {
-        $date = Carbon::now()->subSecond()->format('Y_m_d_His');
-
-        return $date . '_create_' . tableNaming($modelName) . '_table';
     }
 
     private function getMigrationsPath($migrationName): string

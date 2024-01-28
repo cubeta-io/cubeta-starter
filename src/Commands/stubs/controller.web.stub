@@ -8,10 +8,13 @@ use {modelNamespace}\{modelName};
 use {serviceNamespace}\{modelName}\I{modelName}Service;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
+use App\Traits\DataTablesTrait;
 
 
 class {modelName}Controller extends Controller
 {
+    use DataTablesTrait;
+
     private ${modelNameCamelCase}Service;
 
     // place the relations you want to return them within the response
@@ -28,31 +31,13 @@ class {modelName}Controller extends Controller
      */
     public function data()
     {
-        $data = {modelName}::query()->select('{tableName}.*');
+        $data = {modelName}::query()->with([{loadedRelations}])->select('{tableName}.*');
 
         $query = DataTables::eloquent($data)
             {addColumns}
-            ->addColumn('action', function ($row) {
-                return "
-                    <div class='d-flex'>
-                        <div class='p-1'>
-                            <a href='" . route('{showRouteName}', $row->id) . "' class='btn btn-xs btn-info'>
-                                <i class='bi bi-chevron-bar-right'></i>
-                            </a>
-                        </div>
-                        <div class='p-1'>
-                            <a href='" . route('{editRouteName}', $row->id) . "' class='btn btn-xs btn-success'>
-                                <i class='bi bi-pencil-square'></i>
-                            </a>
-                        </div>
-                        <div class='p-1'>
-                            <button type='button' class='btn btn-xs btn-danger remove-item-from-table-btn'
-                                    data-deleteurl ='" . route('{deleteRouteName}', $row->id) . "' >
-                                <i class='bi bi-trash3-fill'></i>
-                            </button>
-                        </div>
-                    </div>";
-            }) ; 
+            ->addColumn('action', function ({modelName} $row) {
+                return $this->crudButtons($row, '{baseRouteName}');
+            });
 
             {translationOrderQueries}
 
@@ -72,6 +57,7 @@ class {modelName}Controller extends Controller
 
     public function show(${idVariable})
     {
+        /** @var {modelName}|null ${modelNameCamelCase} */
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->view(${idVariable}, $this->relations);
         if (${modelNameCamelCase}) {
             return view('{showView}', compact('{modelNameCamelCase}'));
@@ -81,6 +67,7 @@ class {modelName}Controller extends Controller
 
     public function store(StoreUpdate{modelName}Request $request)
     {
+        /** @var {modelName}|null $item */
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->store($request->validated(), $this->relations);
         if (${modelNameCamelCase}) {
             return redirect()->route('{indexRoute}', ${modelNameCamelCase}->id)->with('message' , __('site.stored_successfully'));
@@ -90,6 +77,7 @@ class {modelName}Controller extends Controller
 
     public function edit(${idVariable})
     {
+        /** @var {modelName}|null ${modelNameCamelCase} */
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->view(${idVariable}, $this->relations);
 
         if (${modelNameCamelCase}) {
@@ -101,6 +89,7 @@ class {modelName}Controller extends Controller
 
     public function update(StoreUpdate{modelName}Request $request, ${idVariable})
     {
+        /** @var {modelName}|null $item */
         ${modelNameCamelCase} = $this->{modelNameCamelCase}Service->update($request->validated(), ${idVariable}, $this->relations);
         if (${modelNameCamelCase}) {
             return redirect()->route('{indexRoute}', ${idVariable})->with('message' , __('site.update_successfully'));
