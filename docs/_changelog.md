@@ -1,5 +1,7 @@
 <!-- docs/CHANGELOG.md -->
 
+# **Changelog :** 
+
 ## **V 1.1.6**
 
 1. new attribute `exact` has been added to the `gallery-item` blade component so if you'd like to provide the exact
