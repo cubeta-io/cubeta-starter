@@ -2,13 +2,13 @@
 
 namespace App\Repositories\Contracts;
 
-use JetBrains\PhpStorm\ArrayShape;
+use App\Traits\FileHandler;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
-use App\Traits\FileHandler;
-use Illuminate\Database\Eloquent\Collection;
+use JetBrains\PhpStorm\ArrayShape;
 
 /**
  * Class BaseRepository
@@ -53,89 +53,6 @@ abstract class BaseRepository implements IBaseRepository
         $this->modelTableColumns = $this->getTableColumns();
     }
 
-    public function all(array $relationships = []): mixed
-    {
-        $query = $this->model->with($relationships);
-        $query = $this->add_search($query);
-        $query = $this->orderQueryBy($query);
-
-        return $query->get();
-    }
-
-    public function all_with_pagination(array $relationships = [], int $per_page = 10): ?array
-    {
-        $query = $this->model->with($relationships);
-        $query = $this->add_search($query);
-        $query = $this->orderQueryBy($query);
-        $all = $query->paginate($per_page);
-
-        if (count($all) > 0) {
-            $pagination_data = $this->formatPaginateData($all);
-
-            return ['data' => $all, 'pagination_data' => $pagination_data];
-        }
-
-        return null;
-    }
-
-    /**
-     * @noinspection PhpUndefinedMethodInspection
-     */
-    public function create(array $data, array $relationships = []): mixed
-    {
-        $received_data = $data;
-        $col_name = $this->fileColName($data);
-        $file = $this->storeUpdateFileIfExist($col_name, $data);
-        $result = $this->model->create($data);
-        $result->refresh();
-        $result = $this->addFileToModel($file, $result, $received_data, $col_name);
-
-        return $result->load($relationships);
-    }
-
-    /**
-     * @noinspection PhpUndefinedMethodInspection
-     */
-    public function delete($id): ?bool
-    {
-        $result = $this->model->where('id', '=', $id)->first();
-        if ($result) {
-            $result->delete();
-
-            return true;
-        }
-
-        return null;
-    }
-
-    /**
-     * @return Builder|Builder[]|Collection|Model|null
-     */
-    public function find($id, array $relationships = []): Model|Collection|Builder|array|null
-    {
-        $result = $this->model->with($relationships)->find($id);
-
-        if ($result) {
-            return $result;
-        }
-
-        return null;
-    }
-
-    #[ArrayShape(['currentPage' => 'mixed', 'from' => 'mixed', 'to' => 'mixed', 'total' => 'mixed', 'per_page' => 'mixed'])]
-    public function formatPaginateData($data): array
-    {
-        $paginated_arr = $data->toArray();
-
-        return [
-            'currentPage' => $paginated_arr['current_page'],
-            'from' => $paginated_arr['from'],
-            'to' => $paginated_arr['to'],
-            'total' => $paginated_arr['total'],
-            'per_page' => $paginated_arr['per_page'],
-        ];
-    }
-
     public function getTableColumns(): array
     {
         $table = $this->model->getTable();
@@ -143,27 +60,19 @@ abstract class BaseRepository implements IBaseRepository
         return Schema::getColumnListing($table);
     }
 
+    public function all(array $relationships = []): mixed
+    {
+        $query = $this->model->with($relationships);
+        if (request()->method() == 'GET') {
+            $query = $this->add_search($query);
+            $query = $this->orderQueryBy($query);
+        }
+        return $query->get();
+    }
+
     /**
-     * @return mixed|null
-     *
      * @noinspection PhpUndefinedMethodInspection
      */
-    public function update(array $data, $id, array $relationships = []): mixed
-    {
-        $received_data = $data;
-        $item = $this->model->where('id', '=', $id)->first();
-        if ($item) {
-            $col_name = $this->fileColName($data);
-            $file = $this->storeUpdateFileIfExist($col_name, $data, false, $item);
-            $item->fill($data);
-            $item->save();
-            $this->addFileToModel($file, $item, $received_data, $col_name);
-
-            return $item->load($relationships);
-        }
-
-        return null;
-    }
 
     private function add_search($query): mixed
     {
@@ -193,35 +102,9 @@ abstract class BaseRepository implements IBaseRepository
         return $query;
     }
 
-    private function addFileToModel($file, $model, $data, $col_name): mixed
-    {
-        if ($col_name != '') {
-            if (array_key_exists($col_name, $data)) {
-                $model->{"{$col_name}"} = $file;
-                $model->save();
-            }
-        }
-
-        return $model;
-    }
-
-    private function fileColName($data): int|string
-    {
-        foreach ($data as $key => $value) {
-            if (in_array($key, $this->fileColumnsName)) {
-                return $key;
-            }
-        }
-
-        return '';
-    }
-
-    private function makeDirectory($path): mixed
-    {
-        $this->fileSystem->makeDirectory($path, 0777, true, true);
-
-        return $path;
-    }
+    /**
+     * @noinspection PhpUndefinedMethodInspection
+     */
 
     private function orderQueryBy($query): mixed
     {
@@ -241,6 +124,61 @@ abstract class BaseRepository implements IBaseRepository
         }
 
         return $query->orderBy('created_at', 'desc');
+    }
+
+    public function all_with_pagination(array $relationships = [], int $per_page = 10): ?array
+    {
+        $query = $this->model->with($relationships);
+        if (request()->method() == 'GET') {
+            $query = $this->add_search($query);
+            $query = $this->orderQueryBy($query);
+        }
+        $all = $query->paginate($per_page);
+
+        if (count($all) > 0) {
+            $pagination_data = $this->formatPaginateData($all);
+
+            return ['data' => $all, 'pagination_data' => $pagination_data];
+        }
+
+        return null;
+    }
+
+    #[ArrayShape(['currentPage' => 'mixed', 'from' => 'mixed', 'to' => 'mixed', 'total' => 'mixed', 'per_page' => 'mixed'])]
+    public function formatPaginateData($data): array
+    {
+        $paginated_arr = $data->toArray();
+
+        return [
+            'currentPage' => $paginated_arr['current_page'],
+            'from' => $paginated_arr['from'],
+            'to' => $paginated_arr['to'],
+            'total' => $paginated_arr['total'],
+            'per_page' => $paginated_arr['per_page'],
+        ];
+    }
+
+    public function create(array $data, array $relationships = []): mixed
+    {
+        $received_data = $data;
+        $col_name = $this->fileColName($data);
+        $file = $this->storeUpdateFileIfExist($col_name, $data);
+        $result = $this->model->create($data);
+        $result->refresh();
+        $result = $this->addFileToModel($file, $result, $received_data, $col_name);
+
+        return $result->load($relationships);
+    }
+
+    private function fileColName($data): int|string
+    {
+        foreach ($data as $key => $value) {
+            if (in_array($key, $this->fileColumnsName)) {
+                return $key;
+            }
+        }
+
+        return '';
     }
 
     private function storeUpdateFileIfExist(string $col_name, &$data, bool $is_store = true, $item = null): string
@@ -266,5 +204,72 @@ abstract class BaseRepository implements IBaseRepository
         }
 
         return '';
+    }
+
+    private function makeDirectory($path): mixed
+    {
+        $this->fileSystem->makeDirectory($path, 0777, true, true);
+
+        return $path;
+    }
+
+    private function addFileToModel($file, $model, $data, $col_name): mixed
+    {
+        if ($col_name != '') {
+            if (array_key_exists($col_name, $data)) {
+                $model->{"{$col_name}"} = $file;
+                $model->save();
+            }
+        }
+
+        return $model;
+    }
+
+    public function delete($id): ?bool
+    {
+        $result = $this->model->where('id', '=', $id)->first();
+        if ($result) {
+            $result->delete();
+
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return Builder|Builder[]|Collection|Model|null
+     */
+    public function find($id, array $relationships = []): Model|Collection|Builder|array|null
+    {
+        $result = $this->model->with($relationships)->find($id);
+
+        if ($result) {
+            return $result;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return mixed|null
+     *
+     * @noinspection PhpUndefinedMethodInspection
+     */
+    public function update(array $data, $id, array $relationships = []): mixed
+    {
+        $received_data = $data;
+        $item = $this->model->where('id', '=', $id)->first();
+        if ($item) {
+            $col_name = $this->fileColName($data);
+            $file = $this->storeUpdateFileIfExist($col_name, $data, false, $item);
+            $item->fill($data);
+            $item->save();
+            $this->addFileToModel($file, $item, $received_data, $col_name);
+
+            return $item->load($relationships);
+        }
+
+        return null;
     }
 }
