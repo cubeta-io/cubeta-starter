@@ -1,6 +1,7 @@
 <?php
 
 use Cubeta\CubetaStarter\CreateFile;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
@@ -160,5 +161,9 @@ function routeFilePath(string $container, ?string $actor = null): string
 {
     if (isset($actor) and $actor != 'none') {
         return base_path("routes/v1/$container/$actor.php");
-    } else return base_path("routes/v1/$container/$container.php");
+    } elseif (!$actor or $actor == 'none' and $container == ContainerType::WEB) {
+        return base_path("routes/v1/$container/dashboard.php");
+    } else {
+        return base_path("routes/v1/$container/$container.php");
+    }
 }
