@@ -337,11 +337,6 @@ class CallAppropriateCommand extends Controller
         }
     }
 
-    public function publishAssets()
-    {
-        return $this->callPublishCommand('cubeta-starter-assets');
-    }
-
     private function callPublishCommand(string $tag)
     {
         try {
@@ -358,36 +353,29 @@ class CallAppropriateCommand extends Controller
         }
     }
 
-    public function publishConfig()
-    {
-        return $this->callPublishCommand('cubeta-starter-config');
-    }
-
-    public function publishProviders()
-    {
-        return $this->callPublishCommand('cubeta-starter-providers');
-    }
-
-    public function publishTestingTools()
-    {
-        return $this->callPublishCommand('cubeta-starter-test-tools');
-    }
-
-    public function callPublishResponseHandlers()
-    {
-        return $this->callPublishCommand('cubeta-starter-response');
-    }
-
-    public function callPublishCrudHandlers()
-    {
-        return $this->callPublishCommand('cubeta-starter-crud');
-    }
-
-    public function callPublishLocaleHandler()
+    public function callPublishApi()
     {
         try {
             Artisan::call('vendor:publish', [
-                '--tag' => 'cubeta-starter-locale',
+                '--tag' => 'cubeta-starter-api',
+            ]);
+
+            $this->addSetLocalRoute();
+
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
+
+        } catch (Exception $exception) {
+            $error = $exception->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
+        }
+    }
+
+    public function callPublishWeb()
+    {
+        try {
+            Artisan::call('vendor:publish', [
+                '--tag' => 'cubeta-starter-web',
             ]);
 
             $this->addSetLocalRoute();

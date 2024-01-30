@@ -11,10 +11,7 @@ use JetBrains\PhpStorm\ArrayShape;
 
 trait ViewGenerating
 {
-    use RouteBinding {
-        getRouteName as public;
-    }
-
+    use RouteBinding;
     /**
      * create an update or a create form
      *

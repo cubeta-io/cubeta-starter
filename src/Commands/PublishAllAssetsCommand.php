@@ -23,14 +23,8 @@ class PublishAllAssetsCommand extends Command
         $override = $this->option('force') ?? false;
 
         $tags = [
-            'cubeta-auth-views',
-            'cubeta-starter-test-tools',
-            'cubeta-starter-providers',
-            'cubeta-starter-response',
-            'cubeta-starter-crud',
-            'cubeta-starter-locale',
-            'cubeta-starter-assets',
-            'cubeta-starter-config',
+            'cubeta-starter-api',
+            'cubeta-starter-web',
         ];
 
         $output = "";
@@ -41,15 +35,10 @@ class PublishAllAssetsCommand extends Command
                 '--force' => $override
             ]);
             $output = $output . "\n" . Artisan::output();
+            $this->info("$tag Has Been Published Successfully");
         }
 
         $this->addSetLocalRoute();
-
-        Artisan::call('vendor:publish', [
-            '--tag' => 'cubeta-starter-response',
-            '--force' => true
-        ]);
-        $output . "\n" . Artisan::output();
 
         $this->info($output);
     }

@@ -2,10 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 trait RouteFileTrait
 {
@@ -13,15 +14,19 @@ trait RouteFileTrait
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function addRouteFile($role, $container = null): void
+    public function addRouteFile(string $role, $container = null): void
     {
         $role = Str::singular(Str::lower($role));
+
+        if ($role == ContainerType::WEB and $container == ContainerType::WEB) {
+            $role = 'dashboard';
+        }
 
         $routeFile = "v1/{$container}/{$role}.php";
         $routeFileDirectory = base_path("routes/{$routeFile}");
 
-        !(File::makeDirectory(dirname($routeFileDirectory), 0777, true, true)) ??
-        $this->error('Failed To Create Your Route Specified Directory');
+            !(File::makeDirectory(dirname($routeFileDirectory), 0777, true, true)) ??
+            $this->error('Failed To Create Your Route Specified Directory');
 
         generateFileFromStub(
             ['{route}' => '//add-your-routes-here'],
@@ -35,17 +40,17 @@ trait RouteFileTrait
     /**
      * add Route File Binding to the RouteServiceProvider
      */
-    public function addRouteFileToServiceProvider(string $routeFilePath, string $container = 'api'): void
+    public function addRouteFileToServiceProvider(string $routeFilePath, string $container = ContainerType::API): void
     {
         $routeServiceProvider = app_path('Providers/RouteServiceProvider.php');
 
-        if ($container == 'api') {
+        if ($container == ContainerType::API) {
             $lineToAdd = "\t\t Route::middleware('api')\n" .
                 "\t\t\t->prefix('api')\n" .
                 "\t\t\t->group(base_path('routes/{$routeFilePath}'));\n";
         }
 
-        if ($container == 'web') {
+        if ($container == ContainerType::WEB) {
             $lineToAdd = "\t\t Route::middleware('web')\n" .
                 "\t\t\t->group(base_path('routes/{$routeFilePath}'));\n";
         }

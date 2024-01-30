@@ -32,13 +32,8 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
     Route::controller(CallAppropriateCommand::class)->group(function () {
 
         Route::prefix('/publishes')->group(function () {
-            Route::get('/service-providers', 'publishProviders')->name('publish-providers');
-            Route::get('/testing-tools', 'publishTestingTools')->name('publish-testing-tools');
-            Route::get('/publish-config', 'publishConfig')->name('config-publish');
-            Route::get('/publish-assets', 'publishAssets')->name('publish-assets');
-            Route::get('/publish-response-handlers', 'callPublishResponseHandlers')->name('publish-response-handlers');
-            Route::get('/publish-crud-handlers', 'callPublishCrudHandlers')->name('publish-crud-handlers');
-            Route::get('/publish-locale-handlers', 'callPublishLocaleHandler')->name('publish-locale-handlers');
+            Route::get('/publish-web', 'callPublishWeb')->name('web.publish');
+            Route::get('/publish-api', 'callPublishApi')->name('api.publish');
             Route::get('/all', 'publishAll')->name('publish-all');
         });
 

@@ -14,34 +14,21 @@ trait RouteBinding
 
     /**
      * @param string $modelName
-     * @param null $actor
+     * @param string|null $actor
      * @param string $container
      * @param array $additionalRoutes
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function addRoute(string $modelName, $actor = null, string $container = 'api', array $additionalRoutes = []): void
+    public function addRoute(string $modelName, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = []): void
     {
         $pluralLowerModelName = routeUrlNaming($modelName);
 
-        if (isset($actor) && $actor != 'none' && $actor != '') {
-            $actor = Str::singular(Str::lower($actor));
-            $routePath = base_path() . "\\routes\\v1\\{$container}\\" . $actor . '.php';
-        } else {
-            if ($container == ContainerType::API) {
-                $routePath = base_path() . "\\routes\\v1\\{$container}\\{$container}.php";
+        $routePath = routeFilePath($container, $actor);
 
-                if (!file_exists($routePath)) {
-                    $this->addRouteFile($container, ContainerType::API);
-                }
-            } else {
-                $routePath = base_path() . "\\routes\\v1\\{$container}\\dashboard.php";
-
-                if (!file_exists($routePath)) {
-                    $this->addRouteFile("dashboard", ContainerType::WEB);
-                }
-            }
+        if (!file_exists($routePath)) {
+            $this->addRouteFile($actor ?? $container, $container);
         }
 
         $routeName = $this->getRouteName($modelName, $container, $actor);
@@ -57,21 +44,18 @@ trait RouteBinding
             $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
             $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . ';';
         }
-        if (file_exists($routePath)) {
-            addImportStatement($importStatement, $routePath);
 
-            if (!($this->checkIfRouteExist($routePath, $route))) {
-                return;
-            }
+        addImportStatement($importStatement, $routePath);
 
-            if (file_put_contents($routePath, $route, FILE_APPEND)) {
-                $this->info('Controller Route Appended Successfully');
-                $this->formatFile($routePath);
-            } else {
-                $this->error('Failed to Append a Route For This Controller');
-            }
+        if (!($this->checkIfRouteExist($routePath, $route))) {
+            return;
+        }
+
+        if (file_put_contents($routePath, $route, FILE_APPEND)) {
+            $this->info('Controller Route Appended Successfully');
+            $this->formatFile($routePath);
         } else {
-            $this->error("Actor Routes Files Does not exist");
+            $this->error('Failed to Append a Route For This Controller');
         }
     }
 
@@ -84,11 +68,12 @@ trait RouteBinding
     public function getRouteName(string $modelName, string $container = 'api', ?string $actor = null): string
     {
         $modelLowerPluralName = routeNameNaming($modelName);
-        if (!isset($actor) || $actor == '' || $actor = 'none') {
+
+        if (!isset($actor) || $actor == '' || $actor == 'none') {
             return $container . '.' . $modelLowerPluralName;
         }
 
-        return "$actor.$container.$modelLowerPluralName";
+        return "$container.$actor.$modelLowerPluralName";
     }
 
     public function addAdditionalRoutesForAdditionalControllerMethods(string $modelName, string $routeName, array $additionalRoutes = []): string

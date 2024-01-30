@@ -125,14 +125,16 @@ class InitialProject extends Command
                 generateFileFromStub($stubProperties, "{$controllerPath}", __DIR__ . '/stubs/Auth/auth-controller.stub');
                 $this->info("Created Controller : {$controllerName}");
 
-                if (!file_exists(base_path("routes/api/{$role}.php"))) {
+                if (!file_exists(base_path("routes/v1/api/{$role}.php"))) {
+                    $this->warn("$role API Route File Doesn't Exist \n");
                     return;
                 }
 
                 $routes = file_get_contents(__DIR__ . '/stubs/Auth/auth-api-routes.stub');
 
                 $routes = str_replace('{role}', $role, $routes);
-                $routeFilePath = base_path("routes/api/{$role}.php");
+                $routes = str_replace("{controllerName}", ucfirst($role), $routes);
+                $routeFilePath = base_path("routes/v1/api/{$role}.php");
                 $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . ";";
 
                 file_put_contents($routeFilePath, $routes, FILE_APPEND);

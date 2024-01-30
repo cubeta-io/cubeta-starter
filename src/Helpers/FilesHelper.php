@@ -155,3 +155,10 @@ function prependLastMatch(string $pattern, string $replacement, string $subject)
     // Replace the last match with the new content
     return substr_replace($subject, $replacement, $lastMatchOffset, 0);
 }
+
+function routeFilePath(string $container, ?string $actor = null): string
+{
+    if (isset($actor) and $actor != 'none') {
+        return base_path("routes/v1/$container/$actor.php");
+    } else return base_path("routes/v1/$container/$container.php");
+}

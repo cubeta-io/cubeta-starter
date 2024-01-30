@@ -14,6 +14,7 @@ use Cubeta\CubetaStarter\Traits\ViewGenerating;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Facades\Route;
 use JetBrains\PhpStorm\ArrayShape;
 
 class MakeWebController extends Command
@@ -66,7 +67,7 @@ class MakeWebController extends Command
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    public function createWebController(string $modelName, array $attributes = [], array $nullables = [], array $relations = [], $actor = null): void
+    public function createWebController(string $modelName, array $attributes = [], array $nullables = [], array $relations = [], ?string $actor = null): void
     {
         $modelNameCamelCase = variableNaming($modelName);
         $idVariable = $modelNameCamelCase . 'Id';
@@ -76,7 +77,6 @@ class MakeWebController extends Command
 
         if (file_exists($controllerPath)) {
             $this->error("{$controllerName} Already Exists");
-
             return;
         }
 
@@ -88,7 +88,7 @@ class MakeWebController extends Command
         $this->generateShowView($modelName, $routesNames['edit'], $attributes);
         $this->generateIndexView($modelName, $routesNames['create'], $routesNames['data'], $attributes);
         $this->generateCreateOrUpdateForm($modelName, $attributes, $nullables, null, $routesNames['update'], $actor);
-        $addColumns = $this->getKeyColumnsHyperlink($attributes);
+        $addColumns = $this->getKeyColumnsHyperlink($attributes, $actor);
 
         $stubProperties = [
             '{modelName}' => $modelName,
@@ -123,7 +123,8 @@ class MakeWebController extends Command
         );
 
         $this->info("{$controllerName} Created");
-        $this->addRoute($modelName, $actor, 'web', $this->additionalRoutes);
+
+        $this->addRoute($modelName, $actor, ContainerType::WEB, $this->additionalRoutes);
 
         $this->addSidebarItem($modelName, $routesNames['index']);
     }
@@ -140,7 +141,7 @@ class MakeWebController extends Command
      * @return string[]
      */
     #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string'])]
-    public function getRoutesNames(string $modelName, $actor = null): array
+    public function getRoutesNames(string $modelName, ?string $actor = null): array
     {
         $baseRouteName = $this->getRouteName($modelName, 'web', $actor);
 
@@ -182,7 +183,7 @@ class MakeWebController extends Command
 
     }
 
-    private function getKeyColumnsHyperlink(array $attributes = []): string
+    private function getKeyColumnsHyperlink(array $attributes = [], ?string $actor = null): string
     {
         $dataColumn = '';
         foreach ($attributes as $column => $type) {
@@ -197,13 +198,22 @@ class MakeWebController extends Command
                     continue;
                 }
 
-                $showRouteName = $this->getRoutesNames($relatedModel)['show'];
+
+                $showRouteName = $this->getRoutesNames($relatedModel, $actor)['show'];
+
+                if (!Route::has($showRouteName)) {
+                    continue;
+                }
+
+                $relatedTable = Settings::make()->getTable($relatedModel);
+                $columnName = relationFunctionNaming($relatedTable->modelName) . '.' . $relatedTable->titleable()->name;
+                $columnCalling = "\$row->" . relationFunctionNaming($relatedTable->modelName) . "->" . $relatedTable->titleable()->name;
                 $dataColumn .= "
-                    ->editColumn('{$column}', function (\$row) {
+                    ->editColumn('{$columnName}', function (\$row) {
                     //TODO::check on the used show route of the related model key
-                        return \"<a href='\" . route('{$showRouteName}', \$row->{$column}) . \"'>{\$row->{$column}}</a>\";
+                        return \"<a href='\" . route('{$showRouteName}', \$row->{$column}) . \"'>{$columnCalling}</a>\";
                     })";
-                $this->rawColumns .= "'{$column}' ,";
+                $this->rawColumns .= "'{$columnName}' ,";
             }
         }
 
