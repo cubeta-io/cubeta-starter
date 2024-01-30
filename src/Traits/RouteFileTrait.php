@@ -18,6 +18,11 @@ trait RouteFileTrait
     {
         $role = Str::singular(Str::lower($role));
 
+
+        if ($role == 'none') {
+            $role = $container;
+        }
+
         if ($role == ContainerType::WEB and $container == ContainerType::WEB) {
             $role = 'dashboard';
         }
