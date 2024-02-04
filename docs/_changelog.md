@@ -1,6 +1,14 @@
 <!-- docs/CHANGELOG.md -->
 
-# **Changelog :** 
+# **Changelog :**
+
+## **V 1.1.7**
+
+### **fixing some bugs**
+
+1. fixing the generated routes names for the generated controllers . 
+2. now when publishing for api or for web 2 route files will be generated ( `public` , `protected` ) to give more
+   customizable routing instead of the generated route files based on the actor name .
 
 ## **V 1.1.6**
 
@@ -14,7 +22,8 @@
    already included).
 4. now there is a `cubeta-starter.config.json` in the root directory of your project this will guid the package for some
    tables data, and it is a first step on the next feature which is (presets handling) .
-5. we've added `create:example` command for those who are trying to se what the package capable of , this command will give you three option : 
+5. we've added `create:example` command for those who are trying to se what the package capable of , this command will
+   give you three option :
     - the first one is to create the Category model which has many products
     - the second one is to create the Product model which related to brands by many to many relation
     - finally the brands model
@@ -28,7 +37,6 @@
 2. adding `.gallery` css class to the `gallery-item` blade component so the functions in
    the `public/js/PluginInitializer.js` file
    can handle it.
-
 
 ## **V 1.1.5**
 
