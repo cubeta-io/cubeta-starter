@@ -46,8 +46,8 @@ class PublishAllAssetsCommand extends Command
         $this->addSetLocalRoute();
         $this->addRouteFile('public', ContainerType::API);
         $this->addRouteFile('protected', ContainerType::API);
-        $this->addRouteFile('public', ContainerType::API);
-        $this->addRouteFile('protected', ContainerType::API);
+        $this->addRouteFile('public', ContainerType::WEB);
+        $this->addRouteFile('protected', ContainerType::WEB);
 
         $this->info($output);
     }

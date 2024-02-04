@@ -385,8 +385,8 @@ class CallAppropriateCommand extends Controller
 
             $this->addRouteFile('public', ContainerType::API);
             $this->addRouteFile('protected', ContainerType::API);
-            $this->addRouteFile('public', ContainerType::API);
-            $this->addRouteFile('protected', ContainerType::API);
+            $this->addRouteFile('public', ContainerType::WEB);
+            $this->addRouteFile('protected', ContainerType::WEB);
 
             $output = Artisan::output();
             return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
