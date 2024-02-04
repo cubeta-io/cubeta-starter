@@ -161,24 +161,31 @@ abstract class BaseRepository implements IBaseRepository
     public function create(array $data, array $relationships = []): mixed
     {
         $received_data = $data;
-        $col_name = $this->fileColName($data);
-        $file = $this->storeUpdateFileIfExist($col_name, $data);
+        $fileCols = $this->fileColName($data);
+
+        foreach ($fileCols as $col) {
+            $path = $this->storeUpdateFileIfExist($col, $data);
+            if ($path != '') {
+                $data["$col"] = $path;
+            }
+        }
+
         $result = $this->model->create($data);
         $result->refresh();
-        $result = $this->addFileToModel($file, $result, $received_data, $col_name);
 
         return $result->load($relationships);
     }
 
-    private function fileColName($data): int|string
+    private function fileColName($data): array
     {
+        $cols = [];
         foreach ($data as $key => $value) {
             if (in_array($key, $this->fileColumnsName)) {
-                return $key;
+                $cols[] = $key;
             }
         }
 
-        return '';
+        return $cols;
     }
 
     private function storeUpdateFileIfExist(string $col_name, &$data, bool $is_store = true, $item = null): string
@@ -211,18 +218,6 @@ abstract class BaseRepository implements IBaseRepository
         $this->fileSystem->makeDirectory($path, 0777, true, true);
 
         return $path;
-    }
-
-    private function addFileToModel($file, $model, $data, $col_name): mixed
-    {
-        if ($col_name != '') {
-            if (array_key_exists($col_name, $data)) {
-                $model->{"{$col_name}"} = $file;
-                $model->save();
-            }
-        }
-
-        return $model;
     }
 
     public function delete($id): ?bool
@@ -258,18 +253,35 @@ abstract class BaseRepository implements IBaseRepository
      */
     public function update(array $data, $id, array $relationships = []): mixed
     {
-        $received_data = $data;
         $item = $this->model->where('id', '=', $id)->first();
+
         if ($item) {
-            $col_name = $this->fileColName($data);
-            $file = $this->storeUpdateFileIfExist($col_name, $data, false, $item);
+            $fileCols = $this->fileColName($data);
+            foreach ($fileCols as $col) {
+                $path = $this->storeUpdateFileIfExist($col, $data, false, $item);
+                if ($path != '') {
+                    $data["$col"] = $path;
+                }
+            }
+
             $item->fill($data);
             $item->save();
-            $this->addFileToModel($file, $item, $received_data, $col_name);
 
             return $item->load($relationships);
         }
 
         return null;
+    }
+
+    private function addFileToModel($file, $model, $data, $col_name): mixed
+    {
+        if ($col_name != '') {
+            if (array_key_exists($col_name, $data)) {
+                $model->{"{$col_name}"} = $file;
+                $model->save();
+            }
+        }
+
+        return $model;
     }
 }
