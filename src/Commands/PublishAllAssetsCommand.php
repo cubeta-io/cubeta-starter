@@ -2,9 +2,12 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Artisan;
 
 class PublishAllAssetsCommand extends Command
@@ -17,6 +20,8 @@ class PublishAllAssetsCommand extends Command
 
     /**
      * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     public function handle(): void
     {
@@ -39,6 +44,10 @@ class PublishAllAssetsCommand extends Command
         }
 
         $this->addSetLocalRoute();
+        $this->addRouteFile('public', ContainerType::API);
+        $this->addRouteFile('protected', ContainerType::API);
+        $this->addRouteFile('public', ContainerType::API);
+        $this->addRouteFile('protected', ContainerType::API);
 
         $this->info($output);
     }

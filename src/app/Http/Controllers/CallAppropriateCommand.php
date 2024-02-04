@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\ErrorTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
@@ -337,22 +338,6 @@ class CallAppropriateCommand extends Controller
         }
     }
 
-    private function callPublishCommand(string $tag)
-    {
-        try {
-            Artisan::call('vendor:publish', [
-                '--tag' => $tag,
-            ]);
-
-            $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
-
-        } catch (Exception $exception) {
-            $error = $exception->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
-    }
-
     public function callPublishApi()
     {
         try {
@@ -361,6 +346,8 @@ class CallAppropriateCommand extends Controller
             ]);
 
             $this->addSetLocalRoute();
+            $this->addRouteFile('public', ContainerType::API);
+            $this->addRouteFile('protected', ContainerType::API);
 
             $output = Artisan::output();
             return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
@@ -379,6 +366,8 @@ class CallAppropriateCommand extends Controller
             ]);
 
             $this->addSetLocalRoute();
+            $this->addRouteFile('public', ContainerType::WEB);
+            $this->addRouteFile('protected', ContainerType::WEB);
 
             $output = Artisan::output();
             return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
@@ -393,10 +382,32 @@ class CallAppropriateCommand extends Controller
     {
         try {
             Artisan::call('cubeta-publish');
+
+            $this->addRouteFile('public', ContainerType::API);
+            $this->addRouteFile('protected', ContainerType::API);
+            $this->addRouteFile('public', ContainerType::API);
+            $this->addRouteFile('protected', ContainerType::API);
+
             $output = Artisan::output();
             return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
         } catch (Exception $e) {
             $error = $e->getMessage();
+            return view('CubetaStarter::command-output', compact('error'));
+        }
+    }
+
+    private function callPublishCommand(string $tag)
+    {
+        try {
+            Artisan::call('vendor:publish', [
+                '--tag' => $tag,
+            ]);
+
+            $output = Artisan::output();
+            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
+
+        } catch (Exception $exception) {
+            $error = $exception->getMessage();
             return view('CubetaStarter::command-output', compact('error'));
         }
     }
