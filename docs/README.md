@@ -35,47 +35,38 @@ for example if you are working in your local `http://localhost/your-project-fold
 
 you will find a complete installation interface (available just in development environment)
 
-in this page you'll find all publishes options since the package follow the zero dependencies principle, so you can
-publish and use whatever file the package provide (controllers , views , components , ....)
+in this page you'll find four options :
+
+1. **Publish Fore API Usage** : this will publish all the needed classes for generating api based CRUDs .
+2. **Publish For Web Usage** : this will publish all the needed classes for generating web based CRUDs .
+3. **Publish All** : this will publish both api and web files .
+4. **install web packages** : this option will install the npm packages that has been used in the blade pages (
+   bootstrap , jQuery , select2 , .....) .
+
+>[!note]
+> when publishing there is to route files will be generated ( `protected` , `public` ) just in case you didn't like the
+> way that the package handle the routes (based on actor name) .
+
 <br><br>
-
-In This Page you'll find all the available publish tags and button to perform them in addition to a button to run all
-publishes at once and another one to install all used npm packages
-
-> [!note]
-> There is a button in the bottom of the page that will run all the publishes
-> at one click
 
 **<h3 id="use-terminal">Using Terminal Commands</h3>**
 **<h4 id="publish-tags">Available Publish Tags</h4>**
 the available publish tags are :
 
-1. cubeta-starter-config =>`php artisan vendor:publish --tag=cubeta-starter-config`
-2. cubeta-starter-providers => `php artisan vendor:publish
-   --tag=cubeta-starter-providers`
-3. cubeta-starter-response => `php artisan vendor:publish --tag=cubeta-starter-response --force`
-4. cubeta-starter-crud => `php artisan vendor:publish --tag=cubeta-starter-crud`
-5. cubeta-starter-locale => `php artisan vendor:publish --tag=cubeta-starter-locale`
-6. cubeta-starter-test-tools => `php artisan vendor:publish --tag=cubeta-starter-test-tools`
-7. cubeta-starter-assets =>`php artisan vendor:publish --tag=cubeta-starter-assets`
-8. cubeta-auth-views => `php artisan vendor:publish --tag=cubeta-auth-views`
+1. cubeta-starter-api =>`php artisan vendor:publish --tag=cubeta-starter-api`
+2. cubeta-starter-web => `php artisan vendor:publish --tag=cubeta-starter-web`
 
 > [!note]
-> Publish tag cubeta-starter-response :has to use the force option because it is publishing an exception handler in with
-> the same name of Laravel default exception handler in the `app/Exceptions` directory.
+> publishing package files from the command line will not add  (`protected` and `public`) route files just if you do it
+> from the GUI or by publishing them all using the following command : `php artisan cubeta-publish`
+> this command will publish all the files needed either for web based generating or api based generating.
 
-> [!note]
-> all the available publish tags are required when you are willing to get use of the package generation process except
-> two tags :
-> 1. `cubeta-starter-auth-views`
-> 2. `cubeta-starter-assets`
-> 
-> those two tags are for using the package t generate web controllers so if you're willing to use it for web generating you should publish them
-
+>[!warning]
+> publishing package assets is critical to make the generated endpoints work properly
 
 <h1>Important Step !</h1>
 
-after publishing `cubeta-starter-providers` a new provider will appear in the `app/Providers` directory, so you need to
+after publishing a new provider will appear in the `app/Providers` directory, so you need to
 register it in your project by going to `config/app.php` and in the file search for the `providers` array and add this
 line to it : `App\Providers\CubetaStarterServiceProvider::class
 `
@@ -929,3 +920,8 @@ containing the name of the stored image and the image object.
 
 Overall, this trait provides convenient methods for storing, updating, and deleting files, with specific support for
 image handling, in a Laravel application.
+
+> [!warning]
+> after the first generation a `cubeta-starter.config.js` file will be created in the base directory of your project
+> for now this file is useless for you but helpful for us to make you generating experience better but in the coming
+> releases it will give you a lot of features .
