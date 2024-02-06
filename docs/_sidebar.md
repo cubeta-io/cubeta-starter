@@ -23,7 +23,7 @@
     - [Services](README.md#services)
     - [Tests](README.md#tests)
     - [Postman Collection](README.md#postman-collection)
-- [MainTestCase Class](README.md#main-testcase-class)
+- [TestHelpers Trait](README.md#main-testcase-class)
 - [Translations](README.md#translations)
 - [Restful Trait](README.md#restful-trait)
 - [FileHandler Trait](README.md#file-handler-trait)

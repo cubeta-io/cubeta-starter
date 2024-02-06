@@ -1,54 +1,39 @@
 <?php
 
-namespace {namespace} ;
-
 use {resourceNamespace}\{modelName}Resource;
 use {modelNamespace}\{modelName};
-use Tests\Contracts\MainTestCase;
 
-class {modelName}Test extends MainTestCase
-{
-    protected $model = {modelName}::class;
+beforeEach(function () {
+    $this->initialize(
+        {modelName}::class,
+        {modelName}Resource::class,
+        '{baseRouteName}', // the named route eg: 'user.products.' //!!! Note: the dot "." in the end of the baseUrl is important !!!
+        '{{actor}}',  // define the actor
+        [] // if your endpoints return the model with its relation put the relations in the array
+    );
+});
 
-    protected $resource = {modelName}Resource::class;
+it('Test User Can Index {modelName}', function () {
+    $this->requestPathHook('api.categories.index');
+    $this->indexTest();
+});
 
-    // define the actor
-    protected $userType = "{{actor}}";
+it('Test User Can Show A {modelName}', function () {
+    $this->requestPathHook($this->baseUrl . 'show');
+    $this->showTest();
+});
 
-    // the named route eg: 'user.products.'
-    //!!! Note: the dot "." in the end of the baseUrl is important !!!
-    protected string $baseUrl = '{baseRouteName}';
+it('Test User Can Create A {modelName}', function () {
+    $this->requestPathHook($this->baseUrl . 'store');
+    $this->storeTest([{additionalFactoryData}]);
+});
 
-    // if your endpoints return the model with its relation put the relations in the array
-    protected $relations = [];
+it('Test User Can Update {modelName}', function () {
+    $this->requestPathHook($this->baseUrl . 'update');
+    $this->updateTest([{additionalFactoryData}]);
+});
 
-    public function test_user_can_index_{modelName}()
-    {
-        $this->requestPathHook($this->baseUrl.'index');
-        $this->indexTest();
-    }
-
-    public function test_user_can_show_a_{modelName}()
-    {
-        $this->requestPathHook($this->baseUrl.'show');
-        $this->showTest();
-    }
-
-    public function test_user_can_create_a_{modelName}()
-    {
-        $this->requestPathHook($this->baseUrl.'store');
-        $this->storeTest([{additionalFactoryData}]);
-    }
-
-    public function test_user_can_update_{modelName}()
-    {
-        $this->requestPathHook($this->baseUrl.'update');
-        $this->updateTest([{additionalFactoryData}]);
-    }
-
-    public function test_user_can_delete_a_{modelName}()
-    {
-        $this->requestPathHook($this->baseUrl.'destroy');
-        $this->deleteTest();
-    }
-}
+it('Test User Can delete A {modelName}', function () {
+    $this->requestPathHook($this->baseUrl . 'destroy');
+    $this->deleteTest();
+});

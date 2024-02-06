@@ -43,7 +43,7 @@ in this page you'll find four options :
 4. **install web packages** : this option will install the npm packages that has been used in the blade pages (
    bootstrap , jQuery , select2 , .....) .
 
->[!note]
+> [!note]
 > when publishing there is to route files will be generated ( `protected` , `public` ) just in case you didn't like the
 > way that the package handle the routes (based on actor name) .
 
@@ -61,7 +61,7 @@ the available publish tags are :
 > from the GUI or by publishing them all using the following command : `php artisan cubeta-publish`
 > this command will publish all the files needed either for web based generating or api based generating.
 
->[!warning]
+> [!warning]
 > publishing package assets is critical to make the generated endpoints work properly
 
 <h1>Important Step !</h1>
@@ -148,10 +148,10 @@ just the model and the controller and the postman collection will be generated
 <h3>the table columns array</h3>
 it is an array that take this shape :
 
-```angular2html
+```php
 [
-"name" => 'string' ,
-'price' => 'float'
+    "name" => 'string' ,
+    'price' => 'float'
 ]
 ```
 
@@ -159,12 +159,12 @@ it is an array that take this shape :
 it is an array defining the related tables to the created file related model ,
 and it takes the below shape :
 
-```angular2html
+```php
 [
-"students" => 'hasOne' ,
-'school' => 'belongsTo' ,
-'books' => 'hasMany' ,
-'teachers' => 'manyToMany'
+    "students" => 'hasOne' ,
+    'school' => 'belongsTo' ,
+    'books' => 'hasMany' ,
+    'teachers' => 'manyToMany'
 ]
 ```
 
@@ -184,15 +184,7 @@ now this command will Initialize your project on specific roles :
 > [0] No <br>
 > [1] Yes <br>
 
-if you hit yes then the output will be :
-
-> Using multi actors need to install spatie/permission do you want to install it ?  [No]:
-> [0] No
-> [1] Yes
-
 we've chosen spatie/permission package to handle your multi actor project because of its usability and reliability so if
-you're willing to use multi actors in your project hit yes, and then we will install this package for you (if you've
-already installed it hit **no**)
 now another question will pop up :
 
 > How Many Are They ? [2] :
@@ -243,15 +235,19 @@ generated code leave the option empty so the `create:model` command will generat
 
 1 - run this command : `php artisan create:model <YourMoodel>` then an output will show :
 
-`Enter your params like "name,started_at,...":`
+```shell
+    Enter your params like "name,started_at,...":
+```
 
 2 - write your model properties that will correspond to its table columns like this :
 
-`name,email,password`
+```shell
+  name,email,password
+```
 
 then an output for each property of your model will appear like this :
 
-```
+```shell
 What is the data type of the (( name field )) ? default is  [string]:
   [0 ] integer         
   [1 ] bigInteger      
@@ -272,7 +268,7 @@ What is the data type of the (( name field )) ? default is  [string]:
   [16] translatable
 ```
 
-those are the column type you just enter the number of the type
+those are the column type you just enter the number of the type.
 
 > [!note]
 > the `key` type is a foreignId so if your column name is something like this : `user_id` you need to
@@ -285,32 +281,42 @@ we've marked this column as translatable so the generated code will make sure to
 on the validation and the  `Translation`   trait in your model.
 
 The `LanguageShape` validation rule will make sure that the received json is simple and hasn't any nesting objects e.g :
-`{
-"en" : "name" ,
-"fr" : "nom"
-}`
-and not like this for example `[
-"en" : "name" ,
-"fr" : "paris" :{
-"nom"
+
+```json
+{
+    "en": "name",
+    "fr": "nom"
 }
-]`
+```
+
+and not like this for example
+
+```json
+{
+    "en": "name",
+    "fr": {
+        "paris": {
+            "nom": "name"
+        }
+    }
+}
+```
 
 and in addition to that it's make sure that the entered translation is corresponding to one of the locales defined in
 the `cubeta-starter.php` config file if it is not it will return a validation error.
 
-3 - then the output will be :
+3 - then the output will be:
 
 > Does this model related with another model by has many relation ? [No]:
 > [0] No
 > [1] Yes
 
 if you hit yes it will ask you about the name of the related model so just type it
-then it will reask you if you have another has many related model just do the same
+then it will reask you if you have another has many related model just do the same.
 
-4 - this output will come next :
+4 - this output will come next:
 
-> Does this model related with another model by many to many relation ? [No]:
+> Does this model related with another model by many to many relation ? [No] :
 > [0] No
 > [1] Yes
 
@@ -368,9 +374,9 @@ the corresponding created migration will match the types of the columns you ente
 
 > [!note]
 > columns of type key will be placed on the migration file as a `foreignIdFor` columns with these
-> attributes :
-> 1. constrained
-> 2. cascadeOnDelete
+> attributes:
+>1. constrained
+>2. cascadeOnDelete
 
 > [!note]
 > columns of type translatable will be placed on the migration file as a `json` columns
@@ -380,21 +386,19 @@ the corresponding created migration will match the types of the columns you ente
 
 <h2 id="controllers">Controllers</h2>
 
-the created controller contains the five basic methods `(index , show , store , update , delete)`
+the created controller contains the five basic methods `(index, show, store, update, delete)`
 
 it is extends the ApiController class which use the RestTrait
 <br>
 <br>
-**RestTrait** : it is a trait with methods that will handle your json response using the following
-methods `(apiResponse , apiValidation , formatPaginateData)`
+**RestTrait**: it is a trait with methods that will handle your json response using the following
+methods `(apiResponse, apiValidation, formatPaginateData)`
 
 <a href="#restful-trait">_you can have a look at it ._</a>
 
 <h2 id='requests'>Requests</h2>
 
-each model property will have this rules : `required|PropertyType` unless this :
-
-<table>
+each model property will have this rules: `required|PropertyType` unless this: <table>
 <thead>
 
 <tr>
@@ -405,28 +409,28 @@ each model property will have this rules : `required|PropertyType` unless this :
 <tbody>
 <tr>
 <td>name | first_name | last_name</td>
-<td>required|string|min:3|max:255</td>
+<td>required|string|min: 3|max: 255</td>
 </tr>
 
 <tr>
 <td>email</td>
-<td>required|string|max:255|email</td>
+<td>required|string|max: 255|email</td>
 </tr>
 
 <tr>
 <td>password</td>
-<td>required|string|max:255|min:6|confirmed</td>
+<td>required|string|max: 255|min: 6|confirmed</td>
 </tr>
 
 <tr>
 <td>phone | phone_number | number</td>
-<td>required|string|max:255|min:6</td>
+<td>required|string|max: 255|min: 6</td>
 </tr>
 
 <tr>
 <td>
 
-any word ends with `_at` (started_at , ends_at , ... , any type that seems to be a date type)
+any word ends with `_at` (started_at, ends_at, ..., any type that seems to be a date type)
 </td>
 <td>required|date</td>
 </tr>
@@ -435,7 +439,7 @@ any word ends with `_at` (started_at , ends_at , ... , any type that seems to be
 <tr>
 <td>
 
-any word starts with `is_` (is_original , is_available , .... , any type that seems to be boolean value)
+any word starts with `is_` (is_original, is_available, ...., any type that seems to be boolean value)
 </td>
 <td>required|boolean</td>
 </tr>
@@ -443,17 +447,17 @@ any word starts with `is_` (is_original , is_available , .... , any type that se
 <tr>
 <td>
 
-any word ends with `_id` (user_id , product_id , .... , any type that seems to be foreign key)
+any word ends with `_id` (user_id, product_id, ...., any type that seems to be foreign key)
 </td>
 <td>
 
-required|integer|exists:_parent table_,id
+required|integer|exists: _parent table_, id
 </td>
 </tr>
 
 <tr>
 <td>columns with file type</td>
-<td>nullable|image|mimes:jpeg,png,jpg|max:2048</td>
+<td>nullable|image|mimes:jpeg, png, jpg|max: 2048</td>
 </tr>
 
 <tr>
@@ -485,9 +489,7 @@ this resource will structure your json response to be in a united structure acro
 > this resource will return the relations of this model also
 
 <h2 id="factories">Factories</h2>
-the created factory fill the database according to this :
-
-<table>
+the created factory fill the database according to this: <table>
 <thead>
 <tr>
 <th>Model Property Type</th>
@@ -497,7 +499,11 @@ the created factory fill the database according to this :
 <tbody>
 <tr>
 <td>integer|bigInteger|unsignedBigInteger</td>
-<td>fake()->numberBetween(1,2000)</td>
+<td>
+
+`fake()->numberBetween(1, 2000)`
+
+</td>
 </tr>
 
 <tr>
@@ -511,7 +517,7 @@ the created factory fill the database according to this :
 <td>translatable type column</td>
 <td>
 
-json_encode(["en":fake()->word()]) in fact the array inside the `json_encode` method will be a fake word for each
+`json_encode(["en": fake()->word()])` in fact the array inside the `json_encode` method will be a fake word for each
 available locale you defined in the `cubeta-starter.php` config file
 
 </td>
@@ -519,41 +525,62 @@ available locale you defined in the `cubeta-starter.php` config file
 
 <tr>
 <td>unsignedDouble</td>
-<td>fake()->randomFloat(1,2000)</td>
+<td>
+
+`fake()->randomFloat(1, 2000)`
+
+</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td>fake()->randomFloat(1,2000)</td>
+<td>
+
+`fake()->randomFloat(1, 2000)`
+
+</td>
 </tr>
 
 <tr>
 <td>float</td>
-<td>fake()->randomFloat(1,2000)</td>
+<td>
+
+`fake()->randomFloat(1, 2000)`
+
+</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td>fake()->sentence()</td>
+<td>
+
+`fake()->sentence()`
+
+</td>
 </tr>
 
 <tr>
 <td>text</td>
-<td>fake()->text()</td>
+<td>
+
+`fake()->text()`
+
+</td>
 </tr>
 
 <tr>
 <td>json</td>
-<td>{'".'fake()->word()'."':'".'fake()->word()'."'}</td>
+<td>
+
+`{'".'fake()->word()'."': '".'fake()->word()'."'}`
+
+</td>
 </tr>
 
 </tbody>
 </table>
 
-if the property is not in those types then this will be applied according to its name:
-
-
-<table>
+if the property is not in those types then this will be applied according to its name: <table>
 <thead>
 <tr>
 <td>Property Name</td>
@@ -565,37 +592,44 @@ if the property is not in those types then this will be applied according to its
 <tr>
 <td>
 
-any word ends with `_at` (started_at , ends_at , ... , any type that seems to be a date type)
-
-</td>
-<td>fake()->date()</td>
-</tr>
-
-<tr>
-<td>
-
-
-
-any word starts with `_is` (is_original , is_available , .... , any type that seems to be boolean value)
-
+any word ends with `_at` (started_at, ends_at, ..., any type that seems to be a date type)
 
 </td>
 <td>
-fake()->boolean()
+
+`fake()->date()`
+
 </td>
 </tr>
 
 <tr>
 <td>
 
-any word ends with `_id` (user_id , product_id , .... , any type that seems to be foreign key)
+
+
+any word starts with `_is` (is_original , is_available, ...., any type that seems to be boolean value)
+
+
+</td>
+<td>
+
+`fake()->boolean()`
+
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+any word ends with `_id` (user_id, product_id , ...., any type that seems to be foreign key)
 
 
 </td>
 <td>
 
 
-\App\Models\ _**Related Model Class**_::factory()
+`\App\Models\RelatedModel::factory()`
 
 
 </td>
@@ -606,18 +640,18 @@ any word ends with `_id` (user_id , product_id , .... , any type that seems to b
 </tbody>
 </table>
 
-- sometimes the factory could be predicted according to its name like if you have a column named _image , logo , icon_
+- sometimes the factory could be predicted according to its name like if you have a column named _image, logo, icon_
   the used faker will be `imageUrl()` or if the name of the column contain the phone word the used faker will
   be `phoneNumber()`.
 
-if the model has one of this relation (has many , many to many) a function like below will be added to the factory :
+if the model has one of this relation (has many, many to many) a function like below will be added to the factory:
 
-```
+```php
 
- public function withProducts($count = 1)
- {
+public function withProducts($count = 1)
+{
     return $this->has(\App\Models\Product::factory($count));
- };
+};
 
 ```
 
@@ -720,25 +754,24 @@ if you remember the BaseRepository class methods you'll find that BaseService cl
 
 <h2 id="tests">Tests</h2>
 
-each created model there will be a corresponding test class which extends `MainTestClass`
-you can find it in the `tests/Feature` directory
+each created model there will be a corresponding pest test created in the `tests/Feature` directory
 
-this test class will test the CRUD endpoints
+but before running this test you should initialize the `pest` environment basically by running the following
+command : `./vendor/bin/pest --init`
+for more information please check the official documentation of [PEST PHP](https://pestphp.com/docs/installation) .
 
-in the created test you'll see the following variables : `$model , $resource , $userType , $baseUrl` and you'll see that
-the two of them have a value
+another important step it is to use the `TestHelpers` trait inside your `/tests/TestCase.php` class by adding the
+following line : `use \App\Traits\TestHelpers.php` so the file would look like this :
 
-but if we go to the others you need to know :
+```php
+abstract class TestCase extends BaseTestCase
+{
+    use CreatesApplication;
+    use TestHelpers;
+}
+```
 
-1. `$userType` : if your application use multi actors by this package so in this variable just give it the actor role
-   for those endpoints if there is not just leave it as 'none'
-
-2. `$baseUrl` : if you've checked on the appended rout of your model you'll notice that this route is named so here you
-   just put the name of it like if the route name is 'brands' just put the value of it as 'brands' .
-
- <br>
-
-maybe you want to check on `MainTestCase` class trait to know how the test methods work and see if they are good for
+maybe you want to check on `TestHelpers` trait to know how the test methods work and see if they are good for
 you, or you
 have to create another ones .
 
@@ -753,7 +786,7 @@ it has two variables for the whole collection :
 when generating another postman collection assuming that you've already generated one it will not replace the older one
 it will just add a new group of requests to the previous one .
 
-<h3 id="main-testcase-class">MainTestCase Class Methods</h3>
+<h3 id="main-testcase-class">TestHelpers Trait Methods</h3>
 
 > [!attention]
 > those methods depends on the model resource and factory and the response of the endpoint to be generated by
@@ -803,7 +836,7 @@ it will just add a new group of requests to the previous one .
 > on [Laravel Testing documentation](https://laravel.com/docs/10.x/testing)
 
 > [!tip]
-> I truly recommend to check on the MainTestCase Class in
+> I truly recommend to check on the TestHelpers trait in `app/Traits/` directory
 
 <hr>
 <h1 id="translations">Translations Handling</h1>
@@ -923,5 +956,5 @@ image handling, in a Laravel application.
 
 > [!warning]
 > after the first generation a `cubeta-starter.config.js` file will be created in the base directory of your project
-> for now this file is useless for you but helpful for us to make you generating experience better but in the coming
+> for now this file is useless for you but helpful for us to make your generating experience better but in the coming
 > releases it will give you a lot of features .

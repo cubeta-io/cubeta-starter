@@ -2,11 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Console\Command;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class MakeTest extends Command
 {
@@ -49,7 +49,6 @@ class MakeTest extends Command
         $baseRouteName = $this->getRouteName($modelName, 'api', $actor) . '.';
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.test_namespace'),
             '{modelName}' => $modelName,
             '{{actor}}' => $actor,
             '{baseRouteName}' => $baseRouteName,
@@ -75,17 +74,8 @@ class MakeTest extends Command
         $this->info("<info>Created Test:</info> {$testName}");
     }
 
-    private function getTestPath($testName): string
-    {
-        $directory = base_path(config('cubeta-starter.test_path'));
-
-        ensureDirectoryExists($directory);
-
-        return $directory . "/{$testName}" . '.php';
-    }
-
     /**
-     * @param  array  $attributes
+     * @param array $attributes
      * @return string
      */
     private function getAdditionalFactoryData(array $attributes = []): string
@@ -100,6 +90,15 @@ class MakeTest extends Command
         }
 
         return $data;
+    }
+
+    private function getTestPath($testName): string
+    {
+        $directory = base_path(config('cubeta-starter.test_path'));
+
+        ensureDirectoryExists($directory);
+
+        return $directory . "/{$testName}" . '.php';
     }
 
 }
