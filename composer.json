@@ -1,4 +1,4 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  {
+{
     "name": "cubeta/cubeta-starter",
     "description": "Cubeta-Starter: A developer's Swiss army knife for seamless CRUD operations. Choose between core integration or dev dependency. Enjoy a user-friendly GUI for code generation, enhancing your development workflow. Say goodbye to repetition, embrace productivity with Cubeta-Starter!",
     "license": "MIT",
@@ -12,8 +12,7 @@
         "intervention/image": "^2.7",
         "spatie/laravel-package-tools": "^1.11",
         "illuminate/support": "*",
-        "php-open-source-saver/jwt-auth": "^2.1",
-        "spatie/laravel-permission": "^5.11"
+        "php-open-source-saver/jwt-auth": "^2.1"
     },
     "require-dev": {
         "orchestra/testbench": "^7.5",
@@ -39,6 +38,11 @@
             "providers": [
                 "Cubeta\\CubetaStarter\\CubetaStarterServiceProvider"
             ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
         }
     }
 }
