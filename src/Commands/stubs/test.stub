@@ -14,7 +14,7 @@ beforeEach(function () {
 });
 
 it('Test User Can Index {modelName}', function () {
-    $this->requestPathHook('api.categories.index');
+    $this->requestPathHook($this->baseUrl . 'index');
     $this->indexTest();
 });
 
