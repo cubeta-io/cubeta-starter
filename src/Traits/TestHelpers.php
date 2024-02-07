@@ -3,20 +3,30 @@
 namespace App\Traits;
 
 use App\Models\User;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
+use Orchestra\Testbench\TestCase;
+use Spatie\Permission\PermissionRegistrar;
 
+/**
+ * @mixin   TestCase
+ */
 trait TestHelpers
 {
     use RefreshDatabase;
 
+    /** @var Model */
     protected string $model;
 
     protected array $relations = [];
 
     protected string $requestPath;
 
+    /** @var JsonResource */
     protected string $resource;
 
     protected User $user;
@@ -54,7 +64,7 @@ trait TestHelpers
      *
      * @return void
      */
-    public function failedMultiResponse()
+    public function failedMultiResponse(): void
     {
         $this->responseBody['data'] = [];
         $this->responseBody['message'] = __('site.there_is_no_data');
@@ -62,10 +72,14 @@ trait TestHelpers
 
     /**
      * this function for login using email address and default password is 12345678
+     * @param string $email
+     * @param string $password
+     * @param string $guard
+     * @return bool
      */
-    public function login(string $email, string $password = '12345678'): void
+    public function login(string $email, string $password = '12345678', string $guard = 'api'): bool
     {
-        auth()->attempt([
+        return auth($guard)->attempt([
             'email' => $email,
             'password' => $password,
         ]);
@@ -88,6 +102,7 @@ trait TestHelpers
      * @param string $userType
      * @param array $relations
      * @return void
+     * @throws BindingResolutionException
      */
     public function initialize(string $model, string $resource, string $baseUrl, string $userType = 'none', array $relations = []): void
     {
@@ -107,7 +122,7 @@ trait TestHelpers
 
 
         if (isset($this->userType) && $this->userType != 'none') {
-            $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->registerPermissions();
+            app()->make(PermissionRegistrar::class)->registerPermissions();
             Artisan::call('db:seed PermissionSeeder');
             Artisan::call('db:seed RoleSeeder');
         }
@@ -115,11 +130,15 @@ trait TestHelpers
         $this->signIn($this->userType);
     }
 
-    public function signIn($type = null): void
+    /**
+     * @param string|null $role
+     * @return void
+     */
+    public function signIn(string $role = null): void
     {
         $this->user = User::factory()->create();
-        if (isset($type) && $type != 'none') {
-            $this->user->assignRole($type);
+        if (isset($role) && $role != 'none') {
+            $this->user->assignRole($role);
         }
         $this->be($this->user);
     }
@@ -127,6 +146,8 @@ trait TestHelpers
     /**
      * @param array $additionalFactoryData optional data to the factories
      * @param bool $ownership determine if the action has to be on the authenticated user data
+     * @param bool $isDebug
+     * @return void
      */
     public function deleteTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
     {
@@ -180,12 +201,14 @@ trait TestHelpers
         $tableName = (new $this->model())->getTable();
         $columns = Schema::getColumnListing($tableName);
 
-        return (bool)(in_array('deleted_at', $columns));
+        return in_array('deleted_at', $columns);
     }
 
     /**
      * @param array $additionalFactoryData optional data to the factories
      * @param bool $ownership determine if the action has to be on the authenticated user data
+     * @param bool $isDebug
+     * @return void
      */
     public function indexTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
     {
@@ -249,6 +272,8 @@ trait TestHelpers
     /**
      * @param array $additionalFactoryData optional data to the factories
      * @param bool $ownership determine if the action has to be on the authenticated user data
+     * @param bool $isDebug
+     * @return void
      */
     public function showTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
     {
@@ -259,21 +284,7 @@ trait TestHelpers
             ->assertExactJson($this->responseBody)
             ->assertOk();
 
-        if ($ownership) {
-            // the user tried to show another user data
-            $array = array_merge($additionalFactoryData, ['user_id' => User::factory()->create()->id]);
-            $factoryData = $this->model::factory()->create($array);
-
-            $this->get(route($this->requestPath, $factoryData->id))
-                ->assertExactJson($this->responseBody)
-                ->assertOk();
-
-            // the user tried to show his own data
-            $array = array_merge($additionalFactoryData, ['user_id' => auth()->user()->id]);
-            $factoryData = $this->model::factory()->create($array);
-        } else {
-            $factoryData = $this->model::factory()->create($additionalFactoryData);
-        }
+        $factoryData = $this->testOwnerShip($ownership, $additionalFactoryData);
 
         // the user provided the right id
         $this->responseBody['data'] = $this->convertResourceToArray($factoryData->load($this->relations));
@@ -288,9 +299,37 @@ trait TestHelpers
     }
 
     /**
-     * @param array $additionalAttributes optional data to the factories
+     * @param bool $ownership
+     * @param array $additionalFactoryData
+     * @return Model
      */
-    public function storeTest(array $additionalAttributes = [], mixed $requestParams = null, bool $isDebug = false): void
+    private function testOwnerShip(bool $ownership, array $additionalFactoryData): Model
+    {
+        if ($ownership) {
+            // the user tried to deal with another user data
+            $array = array_merge($additionalFactoryData, ['user_id' => User::factory()->create()->id]);
+            $factoryData = $this->model::factory()->create($array);
+
+            $this->get(route($this->requestPath, $factoryData->id))
+                ->assertExactJson($this->responseBody)
+                ->assertOk();
+
+            // the user tried to show his own data
+            $array = array_merge($additionalFactoryData, ['user_id' => auth()->user()->id]);
+            $factoryData = $this->model::factory()->create($array);
+        } else {
+            $factoryData = $this->model::factory()->create($additionalFactoryData);
+        }
+        return $factoryData;
+    }
+
+    /**
+     * @param array $additionalAttributes optional data to the factories
+     * @param array $requestParams
+     * @param bool $isDebug
+     * @return void
+     */
+    public function storeTest(array $additionalAttributes = [], array $requestParams = [], bool $isDebug = false): void
     {
         $attributes = $this->model::factory()->raw($additionalAttributes);
         $response = $this->post(route($this->requestPath, $requestParams), $attributes);
@@ -326,21 +365,7 @@ trait TestHelpers
             ->assertExactJson($this->responseBody)
             ->assertOk();
 
-        if ($ownership) {
-            // the user tried to update another user data
-            $array = array_merge($additionalFactoryData, ['user_id' => User::factory()->create()->id]);
-            $factoryData = $this->model::factory()->create($array);
-
-            $this->get(route($this->requestPath, $factoryData->id))
-                ->assertExactJson($this->responseBody)
-                ->assertOk();
-
-            // the user tried to update his data
-            $array = array_merge($additionalFactoryData, ['user_id' => auth()->user()->id]);
-            $factoryData = $this->model::factory()->create($array);
-        } else {
-            $factoryData = $this->model::factory()->create($additionalFactoryData);
-        }
+        $factoryData = $this->testOwnerShip($ownership, $additionalFactoryData);
 
         //the user provided the right ID
         $response = $this->put(route($this->requestPath, $factoryData->id), $attributes)->assertOk();
