@@ -11,6 +11,7 @@ use Throwable;
 class MigrationGenerator extends AbstractGenerator
 {
     public static string $key = 'migration';
+    public static string $configPath = 'cubeta-starter.migration_path';
 
     /**
      * @throws Throwable
@@ -26,22 +27,19 @@ class MigrationGenerator extends AbstractGenerator
             '{col}' => $this->generateColumns(),
         ];
 
-        $migrationPath = $this->getMigrationsPath($migrationName);
+        $migrationPath = $this->getGeneratingPath($migrationName);
 
         $this->generateFileFromStub($stubProperties, $migrationPath);
+
+        $this->addToJsonFile();
+
+        $this->formatFile($migrationPath);
     }
 
     public function generatedFileName(): string
     {
         $date = now()->subSecond()->format('Y_m_d_His');
         return $date . '_create_' . $this->tableName($this->fileName) . '_table';
-    }
-
-    private function getMigrationsPath($migrationName): string
-    {
-        $path = base_path(config('cubeta-starter.migration_path'));
-        $this->ensureDirectoryExists($path);
-        return "{$path}/{$migrationName}" . '.php';
     }
 
     private function checkIfMigrationExists(): ?string

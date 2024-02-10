@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Generators;
 
-use Cubeta\CubetaStarter\Generators\Sources\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\ModelGenerator;
 use Throwable;
 
 class GeneratorFactory
@@ -18,10 +18,26 @@ class GeneratorFactory
     /**
      * @throws Throwable
      */
-    public function make(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = []): void
+    public function make(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], array $options = [], array $actors = [], string $generatedFor = ''): void
     {
         $generator = match ($this->source) {
-            MigrationGenerator::$key => new MigrationGenerator($fileName, $attributes, $relations, $nullables, $uniques),
+            MigrationGenerator::$key => new MigrationGenerator(
+                fileName: $fileName,
+                attributes: $attributes,
+                relations: $relations,
+                nullables: $nullables,
+                uniques: $uniques
+            ),
+            ModelGenerator::$key => new ModelGenerator(
+                fileName: $fileName,
+                attributes: $attributes,
+                relations: $relations,
+                nullables: $nullables,
+                uniques: $uniques,
+                options: $options,
+                actors: $actors,
+                generatedFor: $generatedFor
+            ),
             default => throw new \Error("Not supported generator"),
         };
         $generator->run();
