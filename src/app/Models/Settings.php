@@ -53,7 +53,8 @@ class Settings
 
         if (!$data) {
             return [];
-        }  return $data;
+        }
+        return $data;
     }
 
     public function getTable(string $modelName): ?CubetaTable
@@ -97,7 +98,7 @@ class Settings
             if ($type == ColumnType::KEY) {
                 $type = ColumnType::FOREIGN_KEY;
                 $parent = modelNaming(Str::singular(str_replace('_id', '', $colName)));
-                $relationships[] = new CubetaRelation(RelationsTypeEnum::BelongsTo, $parent, $colName);
+                $relationships[] = new CubetaRelation(RelationsTypeEnum::BelongsTo->value, $parent, $colName);
             }
 
             $columns[] = new CubetaAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques));
@@ -143,7 +144,7 @@ class Settings
 
     /**
      * store the provided array in the package (cubeta-starter) json file settings as an array
-     * @param  array $data
+     * @param array $data
      * @return void
      */
     private static function storeJsonSettings(array $data): void

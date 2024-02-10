@@ -2,19 +2,15 @@
 
 namespace Cubeta\CubetaStarter\Enums;
 
-class RelationsTypeEnum
+enum RelationsTypeEnum: string
 {
-    public const ALL = [
-        self::HasOne,
-        self::HasMany,
-        self::BelongsTo,
-        self::ManyToMany,
-    ];
+    case BelongsTo = 'belongsTo';
+    case HasMany = 'hasMany';
+    case HasOne = 'hasOne';
+    case ManyToMany = 'manyToMany';
 
-    public const BelongsTo = 'belongsTo';
-
-    public const HasMany = 'hasMany';
-    public const HasOne = 'hasOne';
-
-    public const ManyToMany = 'manyToMany';
+    public static function getAllValues(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }

@@ -135,7 +135,7 @@ trait SettingsHandler
             if ($type == ColumnType::KEY) {
                 $type = ColumnType::FOREIGN_KEY;
                 $parent = modelNaming(Str::singular(str_replace('_id', '', $colName)));
-                $relations[RelationsTypeEnum::BelongsTo][] = [
+                $relations[RelationsTypeEnum::BelongsTo->value][] = [
                     "key" => $colName,
                     "model_name" => $parent
                 ];
@@ -150,12 +150,12 @@ trait SettingsHandler
         }
 
         foreach ($related as $relation => $type) {
-            if ($type == RelationsTypeEnum::ManyToMany) {
-                $relations[RelationsTypeEnum::ManyToMany][] = [
+            if ($type == RelationsTypeEnum::ManyToMany->value) {
+                $relations[RelationsTypeEnum::ManyToMany->value][] = [
                     "model_name" => modelNaming($relation)
                 ];
-            } else if ($type == RelationsTypeEnum::HasMany) {
-                $relations[RelationsTypeEnum::HasMany][] = [
+            } else if ($type == RelationsTypeEnum::HasMany->value) {
+                $relations[RelationsTypeEnum::HasMany->value][] = [
                     "model_name" => modelNaming($relation)
                 ];
             }

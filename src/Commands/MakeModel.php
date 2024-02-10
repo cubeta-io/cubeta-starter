@@ -118,7 +118,7 @@ class MakeModel extends Command
         $attrs = [];
         foreach ($attributes as $attribute => $type) {
             if ($type == 'key') {
-                $attrs["$attribute"] = RelationsTypeEnum::BelongsTo;
+                $attrs["$attribute"] = RelationsTypeEnum::BelongsTo->value;
             }
         }
 
@@ -214,11 +214,11 @@ class MakeModel extends Command
                     continue;
                 }
 
-                if ($type == RelationsTypeEnum::HasMany) {
+                if ($type == RelationsTypeEnum::HasMany->value) {
                     $relationsFunctions .= $this->hasManyFunction($relation);
                 }
 
-                if ($type == RelationsTypeEnum::ManyToMany) {
+                if ($type == RelationsTypeEnum::ManyToMany->value) {
                     $relationsFunctions .= $this->manyToManyFunction($relation);
                 }
 
@@ -285,7 +285,7 @@ class MakeModel extends Command
         if (isset($relations) && count($relations) > 0) {
             foreach ($relations as $name => $type) {
 
-                if ($type == RelationsTypeEnum::BelongsTo) {
+                if ($type == RelationsTypeEnum::BelongsTo->value) {
                     continue;
                 }
 
@@ -471,7 +471,7 @@ class MakeModel extends Command
      */
     public function createPivots(string $modelName): void
     {
-        $manyToManyRelations = array_keys($this->relations, RelationsTypeEnum::ManyToMany);
+        $manyToManyRelations = array_keys($this->relations, RelationsTypeEnum::ManyToMany->value);
         foreach ($manyToManyRelations as $relation) {
             $this->call('create:pivot', [
                 'table1' => $modelName,

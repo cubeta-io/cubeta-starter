@@ -56,12 +56,12 @@ class CubetaRelation
 
     public function isBelongsTo(): bool
     {
-        return $this->type == RelationsTypeEnum::BelongsTo;
+        return $this->type == RelationsTypeEnum::BelongsTo->value;
     }
 
     public function isHasOne(): bool
     {
-        return $this->type == RelationsTypeEnum::HasOne;
+        return $this->type == RelationsTypeEnum::HasOne->value;
     }
 
     public function method(): string
@@ -73,12 +73,12 @@ class CubetaRelation
 
     public function isHasMany(): bool
     {
-        return $this->type == RelationsTypeEnum::HasMany;
+        return $this->type == RelationsTypeEnum::HasMany->value;
     }
 
     public function isManyToMany(): bool
     {
-        return $this->type == RelationsTypeEnum::ManyToMany;
+        return $this->type == RelationsTypeEnum::ManyToMany->value;
     }
 
     public function modelPath(): string

@@ -28,7 +28,7 @@ trait CommandsPrompts
                 $relatedModel = Command::anticipate('What is the name of the related model table ?', $createdModels);
             }
 
-            $relations[$relatedModel] = RelationsTypeEnum::HasMany;
+            $relations[$relatedModel] = RelationsTypeEnum::HasMany->value;
 
             $itHasMany = Command::confirm('Does it has another <fg=red>has many</fg=red> relation ? ', false);
         }
@@ -43,7 +43,7 @@ trait CommandsPrompts
                 $relatedModel = Command::anticipate('What is the name of the related model table ?', $createdModels);
             }
 
-            $relations[$relatedModel] = RelationsTypeEnum::ManyToMany;
+            $relations[$relatedModel] = RelationsTypeEnum::ManyToMany->value;
 
             $itManToMany = Command::confirm("Does it has another <fg=red>many to many</fg=red> relation ? ", false);
         }

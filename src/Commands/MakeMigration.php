@@ -106,7 +106,7 @@ class MakeMigration extends Command
         }
 
         foreach ($relations as $rel => $type) {
-            if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
+            if ($type == RelationsTypeEnum::HasOne->value || $type == RelationsTypeEnum::BelongsTo->value) {
                 $nullable = in_array($rel . '_id', $nullables) ? '->nullable()' : '';
                 $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
                 $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::class){$nullable}->constrained()->cascadeOnDelete(); \n";

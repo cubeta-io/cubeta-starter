@@ -197,7 +197,7 @@ class MakeFactory extends Command
         }
 
         foreach ($relations as $rel => $type) {
-            if ($type == RelationsTypeEnum::HasMany || $type == RelationsTypeEnum::ManyToMany) {
+            if ($type == RelationsTypeEnum::HasMany->value || $type == RelationsTypeEnum::ManyToMany->value) {
 
                 if (!file_exists(getModelPath($rel))) {
                     continue;

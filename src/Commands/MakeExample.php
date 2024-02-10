@@ -22,11 +22,11 @@ class MakeExample extends Command
                         'attributes' => [
                             'name' => 'translatable',
                             'title' => 'translatable',
-                            'description' => 'text' ,
-                            "image" => "file" ,
+                            'description' => 'text',
+                            "image" => "file",
                         ],
                         'relations' => [
-                            'products' => RelationsTypeEnum::HasMany,
+                            'products' => RelationsTypeEnum::HasMany->value,
                         ],
                         "container" => "both",
                         "gui" => true,
@@ -45,11 +45,11 @@ class MakeExample extends Command
                         "attributes" => [
                             "name" => "translatable",
                             'title' => 'translatable',
-                            "category_id" => "key" ,
-                            "image" => "file" ,
+                            "category_id" => "key",
+                            "image" => "file",
                         ],
                         "relations" => [
-                            "brands" => RelationsTypeEnum::ManyToMany
+                            "brands" => RelationsTypeEnum::ManyToMany->value
                         ],
                         "container" => "both",
                         "gui" => true
@@ -61,10 +61,10 @@ class MakeExample extends Command
                         "attributes" => [
                             "name" => "translatable",
                             'group' => 'translatable',
-                            "image" => "file" ,
+                            "image" => "file",
                         ],
                         "relations" => [
-                            "products" => RelationsTypeEnum::ManyToMany
+                            "products" => RelationsTypeEnum::ManyToMany->value
                         ],
                         "container" => "both",
                         "gui" => true

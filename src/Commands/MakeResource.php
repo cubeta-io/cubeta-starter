@@ -100,7 +100,7 @@ class MakeResource extends Command
                 continue;
             }
 
-            if ($type == RelationsTypeEnum::HasOne || $type == RelationsTypeEnum::BelongsTo) {
+            if ($type == RelationsTypeEnum::HasOne->value || $type == RelationsTypeEnum::BelongsTo->value) {
 
                 $relation = relationFunctionNaming(str_replace('_id', '', $rel));
                 $relatedModelResource = modelNaming($relation) . 'Resource';
@@ -111,7 +111,7 @@ class MakeResource extends Command
                 }
 
                 $columns .= "'{$relation}' =>  new {$relatedModelResource}(\$this->whenLoaded('{$relation}')) , \n\t\t\t";
-            } elseif ($type == RelationsTypeEnum::ManyToMany || $type == RelationsTypeEnum::HasMany) {
+            } elseif ($type == RelationsTypeEnum::ManyToMany->value || $type == RelationsTypeEnum::HasMany->value) {
                 $relation = relationFunctionNaming($rel, false);
                 $relatedModelResource = modelNaming($relation) . 'Resource';
 

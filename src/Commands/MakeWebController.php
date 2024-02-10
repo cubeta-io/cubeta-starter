@@ -225,7 +225,7 @@ class MakeWebController extends Command
         $methods = '';
         $variableName = variableNaming($modelName);
 
-        if (in_array(RelationsTypeEnum::HasMany, $relations)) {
+        if (in_array(RelationsTypeEnum::HasMany->value, $relations)) {
             $methods .= "public function allPaginatedJson()
                         {
                             \${$variableName} = \$this->{$variableName}Service->indexWithPagination([], 7);
