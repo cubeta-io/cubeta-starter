@@ -37,6 +37,14 @@ trait HasPermissions
     }
 
     /**
+     * @return Collection<Role>
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->morphToMany(Role::class, 'roleable', 'roleables');
+    }
+
+    /**
      * @template T of Model<T>
      * @param string $roleName
      * @return T
@@ -55,14 +63,6 @@ trait HasPermissions
     }
 
     /**
-     * @return Collection<Role>
-     */
-    public function roles(): BelongsToMany
-    {
-        return $this->morphToMany(Role::class, 'roleable', 'roleables');
-    }
-
-    /**
      * @param string $roleName
      * @return bool
      */
@@ -78,6 +78,7 @@ trait HasPermissions
      * @param string $permission
      * @param class-string $model the full qualified name of the model that should the permission give access to
      * @return bool
+     * @throws BindingResolutionException
      */
     public function assignPermission(string $permission, string $model): bool
     {
@@ -107,13 +108,21 @@ trait HasPermissions
     }
 
     /**
+     * if the provided permission isn't in the authorizedActions() returned array in the provided model the method will return true .
+     * Additional action is that you can provide an instance of the model to check for the abilities that is correspond
+     * to the provided permission
      * @param string $permission
      * @param string $model
      * @param Model|null $modelInstance
      * @return bool
+     * @throws BindingResolutionException
      */
     public function hasPermission(string $permission, string $model, Model $modelInstance = null): bool
     {
+        if (!in_array($permission, app()->make($model)::authorizedActions())) {
+            return true;
+        }
+
         /** @var ModelHasPermission|null $permissions */
         $permissions = $this->permissions()
             ->where('model_name', $model)
@@ -123,7 +132,7 @@ trait HasPermissions
 
         if ($permissions && in_array($permission, $permissions->permissions)) {
 
-            return $this->checkForAbility($modelInstance, $model, $attributeName);
+            return $this->applyAbilityIfExist($modelInstance, $model, $attributeName);
         }
 
 
@@ -133,7 +142,7 @@ trait HasPermissions
         foreach ($roles as $role) {
             $rolePermissions = $role->permissions()->where('model_name', $model)->first()->permissions;
             if (in_array($permission, $rolePermissions)) {
-                return $this->checkForAbility($modelInstance, $model, $attributeName);
+                return $this->applyAbilityIfExist($modelInstance, $model, $attributeName);
             }
         }
 
@@ -141,9 +150,36 @@ trait HasPermissions
     }
 
     /**
+     * @return Collection<ModelHasPermission>
+     */
+    public function permissions(): MorphMany
+    {
+        return $this->morphMany(ModelHasPermission::class, 'model');
+    }
+
+    /**
+     * @param Model|null $modelInstance
+     * @param string $model
+     * @param string $attributeName
+     * @return bool
+     */
+    private function applyAbilityIfExist(?Model $modelInstance, string $model, string $attributeName): bool
+    {
+        if (isset($modelInstance)
+            && $modelInstance instanceof $model
+            && method_exists($modelInstance, $attributeName)
+        ) {
+            return $modelInstance->{"$attributeName"}();
+        }
+
+        return true;
+    }
+
+    /**
      * @param string $permissionName
      * @param class-string $model
      * @return void
+     * @throws BindingResolutionException
      */
     public function removePermission(string $permissionName, string $model): void
     {
@@ -165,34 +201,6 @@ trait HasPermissions
             ->toArray();
 
         $permission->save();
-    }
-
-    /**
-     * @return Collection<ModelHasPermission>
-     */
-    public function permissions(): MorphMany
-    {
-        return $this->morphMany(ModelHasPermission::class, 'model');
-    }
-
-    /**
-     * @param Model|null $modelInstance
-     * @param string $model
-     * @param string $attributeName
-     * @return bool
-     */
-    private function checkForAbility(?Model $modelInstance, string $model, string $attributeName): bool
-    {
-        if (isset($modelInstance)
-            && $modelInstance instanceof $model
-            && method_exists($modelInstance, $attributeName)
-        ) {
-            if (!$modelInstance->{"$attributeName"}()) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -220,10 +228,10 @@ trait HasPermissions
                 ->whereJsonContains('permissions', $permission);
         })
             ->orWhereHas('roles', function (Builder $builder) use ($permission, $model) {
-            $builder->whereHas('permissions', function (Builder $q) use ($permission, $model) {
-                $q->where('model_name', $model)
-                    ->whereJsonContains('permissions', $permission);
+                $builder->whereHas('permissions', function (Builder $q) use ($permission, $model) {
+                    $q->where('model_name', $model)
+                        ->whereJsonContains('permissions', $permission);
+                });
             });
-        });
     }
 }

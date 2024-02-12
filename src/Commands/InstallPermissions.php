@@ -3,92 +3,101 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\Traits\AssistCommand;
+use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class InstallPermissions extends Command
 {
     use AssistCommand;
 
-    protected $signature = 'cubeta:install-permissions';
+    protected $signature = 'cubeta:install-permissions {--force}';
     protected $description = "this command will initialize your project with the required classes to handle multi actor project";
 
     /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
+     * @return void
      */
     public function handle(): void
     {
-        $this->generateMigrations();
+        $override = $this->option('force') ?? false;
 
-        $this->generateModels();
+        $this->generateMigrations($override);
 
-        $this->generateTraits();
+        $this->generateModels($override);
 
-        $this->generateExceptions();
+        $this->generateTraits($override);
+
+        $this->generateExceptions($override);
     }
 
     /**
-     * @throws FileNotFoundException
-     * @throws BindingResolutionException
+     * @param bool $override
+     * @return void
      */
-    public function generateMigrations(): void
+    public function generateMigrations(bool $override = false): void
     {
+        $migrationPath = base_path(config('cubeta-starter.migration_path'));
+        ensureDirectoryExists($migrationPath);
+
         try {
             if (!$this->checkIfMigrationExists("model_has_permissions")) {
                 generateFileFromStub(
                     [],
-                    config('cubeta-starter.migration_path') . '/' . now()->format('Y_m_d_His') . '_create_model_has_permissions_table.php',
-                    __DIR__ . '/stubs/permissions/create_model_has_permissions_table.stub'
+                    $migrationPath . '/' . now()->format('Y_m_d_His') . '_create_model_has_permissions_table.php',
+                    __DIR__ . '/stubs/permissions/create_model_has_permissions_table.stub',
+                    $override
                 );
             } else {
-                $this->warn("model_has_permissions Migration Already Exists");
+                $this->error("model_has_permissions Migration Already Exists");
             }
 
 
             if (!$this->checkIfMigrationExists("roleables")) {
                 generateFileFromStub(
                     [],
-                    config('cubeta-starter.migration_path') . '/' . now()->addSecond()->format('Y_m_d_His') . '_create_roleables_table.php',
-                    __DIR__ . '/stubs/permissions/create_roleables_table.stub'
+                    $migrationPath . '/' . now()->addSecond()->format('Y_m_d_His') . '_create_roleables_table.php',
+                    __DIR__ . '/stubs/permissions/create_roleables_table.stub',
+                    $override
                 );
             } else {
-                $this->warn("roleables Migration Already Exists");
+                $this->error("roleables Migration Already Exists");
             }
 
 
             if (!$this->checkIfMigrationExists("roles")) {
                 generateFileFromStub(
                     [],
-                    config('cubeta-starter.migration_path') . '/' . now()->addSeconds(2)->format('Y_m_d_His') . '_create_roles_table.php',
-                    __DIR__ . '/stubs/permissions/create_roles_table.stub'
+                    $migrationPath . '/' . now()->addSeconds(2)->format('Y_m_d_His') . '_create_roles_table.php',
+                    __DIR__ . '/stubs/permissions/create_roles_table.stub',
+                    $override
                 );
             } else {
-                $this->warn("roles Migration Already Exists");
+                $this->error("roles Migration Already Exists");
             }
 
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
     }
 
     /**
+     * @param bool $override
      * @return void
      */
-    public function generateModels(): void
+    public function generateModels(bool $override = false): void
     {
+        $modelPath = base_path(config('cubeta-starter.model_path'));
+        ensureDirectoryExists($modelPath);
         try {
-            generateFileFromStub([
-                '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
-            ],
-                config('cubeta-starter.model_path') . '/ModelHasPermission.php',
-                __DIR__ . '/stubs/permissions/ModelHasPermission.stub'
+            generateFileFromStub(['{{modelNamespace}}' => config('cubeta-starter.model_namespace'),],
+                $modelPath . '/ModelHasPermission.php',
+                __DIR__ . '/stubs/permissions/ModelHasPermission.stub',
+                $override
             );
             $this->info('ModelHasPermission Generated Successfully');
-        } catch (\Exception $e) {
+        } catch
+        (Exception $e) {
             if ($e->getMessage() == "The class exists!") {
-                $this->warn("The ModelHasPermission Is Already Exists");
+                $this->error("The ModelHasPermission Is Already Exists");
             } else $this->error($e->getMessage());
         }
 
@@ -96,13 +105,14 @@ class InstallPermissions extends Command
             generateFileFromStub([
                 '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
             ],
-                config('cubeta-starter.model_path') . '/Role.php',
-                __DIR__ . '/stubs/permissions/Role.stub'
+                $modelPath . '/Role.php',
+                __DIR__ . '/stubs/permissions/Role.stub',
+                $override
             );
             $this->info('Role Model Generated Successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($e->getMessage() == "The class exists!") {
-                $this->warn("The Role Is Already Exists");
+                $this->error("The Role Is Already Exists");
             } else $this->error($e->getMessage());
         }
 
@@ -110,23 +120,28 @@ class InstallPermissions extends Command
             generateFileFromStub([
                 '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
             ],
-                config('cubeta-starter.model_path') . '/Roleable.php',
-                __DIR__ . '/stubs/permissions/Roleable.stub'
+                $modelPath . '/Roleable.php',
+                __DIR__ . '/stubs/permissions/Roleable.stub',
+                $override
             );
             $this->info('Roleable Model Generated Successfully');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($e->getMessage() == "The class exists!") {
-                $this->warn("The Roleable Is Already Exists");
+                $this->error("The Roleable Is Already Exists");
             } else $this->error($e->getMessage());
         }
     }
 
     /**
+     * @param bool $override
      * @return void
      */
-    public function generateTraits(): void
+    public function generateTraits(bool $override = false): void
     {
+        $traitsPath = base_path(config('cubeta-starter.trait_path'));
+        ensureDirectoryExists($traitsPath);
+
         try {
             generateFileFromStub(
                 [
@@ -134,34 +149,40 @@ class InstallPermissions extends Command
                     '{{exceptionsNameSpace}}' => config('cubeta-starter.exception_namespace'),
                     '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
                 ],
-                config('cubeta-starter.trait_path') . '/HasPermissions.php',
-                __DIR__ . '/stubs/permissions/HasPermissions.stub'
+                $traitsPath . '/HasPermissions.php',
+                __DIR__ . '/stubs/permissions/HasPermissions.stub',
+                $override
             );
 
             $this->info('Permissions Traits Generated Successfully');
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             if ($exception->getMessage() == "The class exists!") {
-                $this->warn("HasPermission Trait Is Already Exists");
+                $this->error("HasPermission Trait Is Already Exists");
             } else $this->error($exception->getMessage());
         }
     }
 
     /**
+     * @param bool $override
      * @return void
      */
-    public function generateExceptions(): void
+    public function generateExceptions(bool $override = false): void
     {
+        $exceptionsPath = base_path(config('cubeta-starter.exception_path'));
+        ensureDirectoryExists($exceptionsPath);
+
         try {
             generateFileFromStub(
                 ["{{exceptionNamespace}}" => config('cubeta-starter.exception_namespace')],
-                config('cubeta-starter.exception_path') . '/RoleDoesNotExistException.php',
-                __DIR__ . '/stubs/permissions/RoleDoesNotExistException.stub'
+                $exceptionsPath . '/RoleDoesNotExistException.php',
+                __DIR__ . '/stubs/permissions/RoleDoesNotExistException.stub',
+                $override
             );
 
             $this->info('Permissions Exceptions Generated Successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($e->getMessage() == "The class exists!") {
-                $this->warn("The RoleDoesNotExistExceptions Is Already Exist");
+                $this->error("The RoleDoesNotExistExceptions Is Already Exist");
             } else $this->error($e->getMessage());
         }
     }

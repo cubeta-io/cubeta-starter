@@ -15,9 +15,9 @@ class Role extends Model
     protected $fillable = ['name'];
 
     /**
-    * @param string $name
-    * @return Role|null
-    */
+     * @param string $name
+     * @return Role|null
+     */
     public static function getByName(string $name): ?Role
     {
         return self::where('name', $name)->first();
@@ -36,6 +36,7 @@ class Role extends Model
      * @param string $permission
      * @param class-string $model
      * @return bool
+     * @throws BindingResolutionException
      */
     public function assignPermission(string $permission, string $model): bool
     {
@@ -63,12 +64,18 @@ class Role extends Model
     }
 
     /**
+     * if the provided permission isn't in the authorizedActions() returned array in the provided model the method will return true .
      * @param string $permission
      * @param class-string $model
      * @return bool
+     * @throws BindingResolutionException
      */
     public function hasPermission(string $permission, string $model): bool
     {
+        if (!in_array($permission, app()->make($model)::authorizedActions())) {
+            return true;
+        }
+
         $rolePermissions = $this->permissions()
             ->where('model_name', $model)
             ->first();
@@ -85,9 +92,18 @@ class Role extends Model
     }
 
     /**
+     * @return Collection<ModelHasPermission>
+     */
+    public function permissions(): MorphMany
+    {
+        return $this->morphMany(ModelHasPermission::class, 'model');
+    }
+
+    /**
      * @param string $permissionName
      * @param class-string $model
      * @return void
+     * @throws BindingResolutionException
      */
     public function removePermission(string $permissionName, string $model): void
     {
@@ -109,13 +125,5 @@ class Role extends Model
             ->toArray();
 
         $permission->save();
-    }
-
-    /**
-     * @return Collection<ModelHasPermission>
-     */
-    public function permissions(): MorphMany
-    {
-        return $this->morphMany(ModelHasPermission::class, 'model');
     }
 }
