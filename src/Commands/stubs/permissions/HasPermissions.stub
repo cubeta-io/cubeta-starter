@@ -1,0 +1,151 @@
+<?php
+
+namespace {{traitsNamespace}};
+
+use {{exceptionsNameSpace}}\RoleDoesNotExistException;
+use {{modelNamespace}}\ModelHasPermission;
+use {{modelNamespace}}\Role;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+
+/**
+ * @mixin Model
+ */
+trait HasPermissions
+{
+    /**
+     * @template T of Model<T>
+     * @param string $roleName
+     * @return Model
+     * @throws RoleDoesNotExistException
+     */
+    public function assignRole(string $roleName): static
+    {
+        $role = Role::where('name', $roleName)->first();
+
+        if (!$role) {
+            throw new RoleDoesNotExistException($roleName);
+        }
+
+        $this->roles()->attach($role);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<Role>
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->morphToMany(Role::class, 'roleable', 'roleables');
+    }
+
+    /**
+     * @param string $roleName
+     * @return bool
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    /**
+     * this method assign a permission to access given model
+     * it returns true when the permission created successfully
+     * and false when the permission is already exist for the current user on this model or in one of the user roles
+     * @param string $permission
+     * @param class-string $model the full qualified name of the model that should the permission give access to
+     * @return bool
+     */
+    public function assignPermissions(string $permission, string $model): bool
+    {
+        if ($this->hasPermission($permission, $model)) {
+            return false;
+        }
+
+        /** @var ModelHasPermission|null $ownerPermission */
+        $ownerPermission = $this->permissions()
+            ->where('model_name', $model)
+            ->first();
+
+        if (isset($ownerPermission)) {
+            $newPermissions = $ownerPermission->permissions;
+            $newPermissions[] = $permission;
+            $ownerPermission->permissions = $newPermissions;
+            $ownerPermission->save();
+        } else {
+            $this->permissions()->create([
+                'model_name' => $model,
+                'permissions' => [$permission]
+            ]);
+
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $permission
+     * @param string $model
+     * @param Model|null $modelInstance
+     * @return bool
+     */
+    public function hasPermission(string $permission, string $model, Model $modelInstance = null): bool
+    {
+        /** @var ModelHasPermission|null $permissions */
+        $permissions = $this->permissions()
+            ->where('model_name', $model)
+            ->first();
+
+        $attributeName = Str::camel('can-' . $permission);
+
+        if ($permissions && in_array($permission, $permissions->permissions)) {
+
+            return $this->checkForAbility($modelInstance, $model, $attributeName);
+        }
+
+
+        /** @var Collection<Role> $roles */
+        $roles = $this->roles()->get();
+
+        foreach ($roles as $role) {
+            $rolePermissions = $role->permissions()->where('model_name', $model)->first()->permissions;
+            if (in_array($permission, $rolePermissions)) {
+                return $this->checkForAbility($modelInstance, $model, $attributeName);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return Collection<ModelHasPermission>
+     */
+    public function permissions(): MorphMany
+    {
+        return $this->morphMany(ModelHasPermission::class, 'model');
+    }
+
+    /**
+     * @param Model|null $modelInstance
+     * @param string $model
+     * @param string $attributeName
+     * @return bool
+     */
+    private function checkForAbility(?Model $modelInstance, string $model, string $attributeName): bool
+    {
+        if (isset($modelInstance)
+            && $modelInstance instanceof $model
+            && method_exists($modelInstance, $attributeName)
+        ) {
+            if (!$modelInstance->{"$attributeName"}()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}

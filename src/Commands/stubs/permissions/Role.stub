@@ -1,0 +1,94 @@
+<?php
+
+namespace {{modelNamespace}};
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Collection;
+
+class Role extends Model
+{
+    public $timestamps = true;
+    protected $table = 'roles';
+    protected $guarded = ['id'];
+    protected $fillable = ['name'];
+
+    /**
+     * @param string $name
+     * @return Role
+     */
+    public static function getByName(string $name): Role
+    {
+        return self::where('name', $name)->first();
+    }
+
+    /**
+     * @param class-string $model
+     * @return MorphToMany
+     */
+    public function ownersByModel(string $model): MorphToMany
+    {
+        return $this->morphedByMany($model, 'roleable', 'roleables');
+    }
+
+    /**
+     * @param string $permission
+     * @param class-string $model
+     * @return bool
+     */
+    public function assignPermission(string $permission, string $model)
+    {
+        if ($this->hasPermission($permission, $model)) {
+            return false;
+        }
+
+        $rolePermission = $this->permissions()
+            ->where('model_name', $model)
+            ->first();
+
+        if ($rolePermission) {
+            $permArr = $rolePermission->permissions;
+            $permArr[] = $permission;
+            $rolePermission->permissions = $permArr;
+            $rolePermission->save();
+            return true;
+        }
+
+        $this->permissions()->create([
+            'model_name' => $model,
+            'permissions' => [$permission]
+        ]);
+        return true;
+    }
+
+    /**
+     * @param string $permission
+     * @param class-string $model
+     * @return bool
+     */
+    public function hasPermission(string $permission, string $model): bool
+    {
+        $rolePermissions = $this->permissions()
+            ->where('model_name', $model)
+            ->first();
+
+        if (!$rolePermissions) {
+            return false;
+        }
+
+        if (in_array($permission, $rolePermissions->permissions)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return Collection<ModelHasPermission>
+     */
+    public function permissions(): MorphMany
+    {
+        return $this->morphMany(ModelHasPermission::class, 'model');
+    }
+}
