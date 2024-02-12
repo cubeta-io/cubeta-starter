@@ -85,6 +85,33 @@ class Role extends Model
     }
 
     /**
+     * @param string $permissionName
+     * @param class-string $model
+     * @return void
+     */
+    public function removePermission(string $permissionName, string $model): void
+    {
+        if (!$this->hasPermission($permissionName, $model)) {
+            return;
+        }
+
+        /** @var ModelHasPermission $permission */
+        $permission = $this->permissions()
+            ->where('model_name', $model)
+            ->whereJsonContains('permissions', $permissionName)
+            ->first();
+
+        if (!$permission) return;
+
+        $permission->permissions = collect($permission->permissions)
+            ->filter(fn($value) => ($value != $permissionName))
+            ->values()
+            ->toArray();
+
+        $permission->save();
+    }
+
+    /**
      * @return Collection<ModelHasPermission>
      */
     public function permissions(): MorphMany
