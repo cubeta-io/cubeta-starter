@@ -110,6 +110,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/Services/BaseService.php" => app_path("Services/Contracts/BaseService.php"),
             __DIR__ . "/../src/Contracts/Services/IBaseService.php" => app_path("Services/Contracts/IBaseService.php"),
             __DIR__ . '/../src/Traits/FileHandler.php' => app_path("Traits/FileHandler.php"),
+            __DIR__ . '/../src/app/Http/Resources/BaseResource.php' => app_path('Http/Resources/BaseResource.php')
         ], 'cubeta-starter-api');
     }
 
