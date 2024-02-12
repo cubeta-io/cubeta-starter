@@ -15,10 +15,10 @@ class Role extends Model
     protected $fillable = ['name'];
 
     /**
-     * @param string $name
-     * @return Role
-     */
-    public static function getByName(string $name): Role
+    * @param string $name
+    * @return Role|null
+    */
+    public static function getByName(string $name): ?Role
     {
         return self::where('name', $name)->first();
     }
@@ -37,7 +37,7 @@ class Role extends Model
      * @param class-string $model
      * @return bool
      */
-    public function assignPermission(string $permission, string $model)
+    public function assignPermission(string $permission, string $model): bool
     {
         if ($this->hasPermission($permission, $model)) {
             return false;

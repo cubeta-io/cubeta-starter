@@ -5,6 +5,7 @@ namespace {{traitsNamespace}};
 use {{exceptionsNameSpace}}\RoleDoesNotExistException;
 use {{modelNamespace}}\ModelHasPermission;
 use {{modelNamespace}}\Role;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -36,6 +37,24 @@ trait HasPermissions
     }
 
     /**
+     * @template T of Model<T>
+     * @param string $roleName
+     * @return T
+     * @throws RoleDoesNotExistException
+     */
+    public function removeRole(string $roleName): static
+    {
+        $role = Role::getByName($roleName);
+
+        if (!$role) {
+            throw new RoleDoesNotExistException($roleName);
+        }
+
+        $this->roles()->detach($role);
+        return $this;
+    }
+
+    /**
      * @return Collection<Role>
      */
     public function roles(): BelongsToMany
@@ -60,7 +79,7 @@ trait HasPermissions
      * @param class-string $model the full qualified name of the model that should the permission give access to
      * @return bool
      */
-    public function assignPermissions(string $permission, string $model): bool
+    public function assignPermission(string $permission, string $model): bool
     {
         if ($this->hasPermission($permission, $model)) {
             return false;
@@ -122,6 +141,33 @@ trait HasPermissions
     }
 
     /**
+     * @param string $permissionName
+     * @param class-string $model
+     * @return void
+     */
+    public function removePermission(string $permissionName, string $model): void
+    {
+        if (!$this->hasPermission($permissionName, $model)) {
+            return;
+        }
+
+        /** @var ModelHasPermission $permission */
+        $permission = $this->permissions()
+            ->where('model_name', $model)
+            ->whereJsonContains('permissions', $permissionName)
+            ->first();
+
+        if (!$permission) return;
+
+        $permission->permissions = collect($permission->permissions)
+            ->filter(fn($value) => ($value != $permissionName))
+            ->values()
+            ->toArray();
+
+        $permission->save();
+    }
+
+    /**
      * @return Collection<ModelHasPermission>
      */
     public function permissions(): MorphMany
@@ -147,5 +193,37 @@ trait HasPermissions
         }
 
         return true;
+    }
+
+    /**
+     * @param Builder $query
+     * @param string $roleName
+     * @return void
+     */
+    public function scopeByRole(Builder $query, string $roleName): void
+    {
+        $query->whereHas('roles', function (Builder $q) use ($roleName) {
+            $q->where('name', $roleName);
+        });
+    }
+
+    /**
+     * @param Builder $query
+     * @param string $permission
+     * @param class-string $model
+     * @return void
+     */
+    public function scopeByPermission(Builder $query, string $permission, string $model): void
+    {
+        $query->whereHas('permissions', function (Builder $builder) use ($permission, $model) {
+            $builder->where('model_name', $model)
+                ->whereJsonContains('permissions', $permission);
+        })
+            ->orWhereHas('roles', function (Builder $builder) use ($permission, $model) {
+            $builder->whereHas('permissions', function (Builder $q) use ($permission, $model) {
+                $q->where('model_name', $model)
+                    ->whereJsonContains('permissions', $permission);
+            });
+        });
     }
 }
