@@ -78,7 +78,6 @@ trait HasPermissions
      * @param string $permission
      * @param class-string $model the full qualified name of the model that should the permission give access to
      * @return bool
-     * @throws BindingResolutionException
      */
     public function assignPermission(string $permission, string $model): bool
     {
@@ -115,11 +114,14 @@ trait HasPermissions
      * @param string $model
      * @param Model|null $modelInstance
      * @return bool
-     * @throws BindingResolutionException
      */
     public function hasPermission(string $permission, string $model, Model $modelInstance = null): bool
     {
-        if (!in_array($permission, app()->make($model)::authorizedActions())) {
+        if(!method_exists($model , 'authorizedActions')){
+            return true;
+        }
+
+        if (!in_array($permission, $model::authorizedActions())) {
             return true;
         }
 

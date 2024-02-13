@@ -27,6 +27,8 @@ class InstallPermissions extends Command
         $this->generateTraits($override);
 
         $this->generateExceptions($override);
+
+        $this->generateInterface($override);
     }
 
     /**
@@ -183,6 +185,26 @@ class InstallPermissions extends Command
         } catch (Exception $e) {
             if ($e->getMessage() == "The class exists!") {
                 $this->error("The RoleDoesNotExistExceptions Is Already Exist");
+            } else $this->error($e->getMessage());
+        }
+    }
+
+    public function generateInterface(bool $override = false): void
+    {
+        $interfacePath = app_path('Interfaces');
+        ensureDirectoryExists($interfacePath);
+        try {
+            generateFileFromStub(
+                [],
+                "$interfacePath/ActionsMustBeAuthorized.php",
+                __DIR__ . '/stubs/permissions/ActionsMustBeAuthorized.stub',
+                $override
+            );
+
+            $this->info("ActionsMustBeAuthorized Interface Generated Successfully");
+        } catch (Exception $e) {
+            if ($e->getMessage() == "The class exists!") {
+                $this->error("The ActionsMustBeAuthorized Interface Is Already Exist");
             } else $this->error($e->getMessage());
         }
     }

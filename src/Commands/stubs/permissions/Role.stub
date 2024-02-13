@@ -36,7 +36,6 @@ class Role extends Model
      * @param string $permission
      * @param class-string $model
      * @return bool
-     * @throws BindingResolutionException
      */
     public function assignPermission(string $permission, string $model): bool
     {
@@ -68,11 +67,14 @@ class Role extends Model
      * @param string $permission
      * @param class-string $model
      * @return bool
-     * @throws BindingResolutionException
      */
     public function hasPermission(string $permission, string $model): bool
     {
-        if (!in_array($permission, app()->make($model)::authorizedActions())) {
+        if(!method_exists($model , 'authorizedActions')){
+            return true;
+        }
+
+        if (!in_array($permission, $model::authorizedActions())) {
             return true;
         }
 
@@ -103,7 +105,6 @@ class Role extends Model
      * @param string $permissionName
      * @param class-string $model
      * @return void
-     * @throws BindingResolutionException
      */
     public function removePermission(string $permissionName, string $model): void
     {
