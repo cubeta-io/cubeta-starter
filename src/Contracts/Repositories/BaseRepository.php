@@ -6,7 +6,9 @@ use App\Traits\FileHandler;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection as RegularCollection;
 use Illuminate\Support\Facades\Schema;
 use JetBrains\PhpStorm\ArrayShape;
 
@@ -17,18 +19,17 @@ abstract class BaseRepository implements IBaseRepository
 {
     use FileHandler;
 
+    /**
+     * @template T of Model<T>
+     * @var T
+     */
     protected Model $model;
-
-    private array $fileColumnsName = [];
-
     private Filesystem $fileSystem;
-
+    private array $filterKeys = [];
+    private array $fileColumnsName = [];
     private array $modelTableColumns = [];
-
     private array $orderableKeys = [];
-
     private array $relationSearchableKeys = [];
-
     private array $searchableKeys = [];
 
     /**
@@ -50,6 +51,10 @@ abstract class BaseRepository implements IBaseRepository
             $this->relationSearchableKeys = $this->model->relationsSearchableArray();
         }
 
+        if (method_exists($this->model, 'filterArray')) {
+            $this->filterKeys = $this->model->filterArray();
+        }
+
         $this->modelTableColumns = $this->getTableColumns();
     }
 
@@ -60,21 +65,34 @@ abstract class BaseRepository implements IBaseRepository
         return Schema::getColumnListing($table);
     }
 
-    public function all(array $relationships = []): mixed
+    /**
+     * @template T of Model<T>
+     * @param array $relationships
+     * @return Collection<T>|RegularCollection<T>|array
+     */
+    public function all(array $relationships = []): Collection|array|RegularCollection
     {
-        $query = $this->model->with($relationships);
+        return $this->globalQuery($relationships)->get();
+    }
+
+    public function globalQuery(array $relations = []): Builder
+    {
+        $query = $this->model->with($relations);
+
         if (request()->method() == 'GET') {
-            $query = $this->add_search($query);
+            $query = $this->addSearch($query);
+            $query = $this->filterFields($query);
             $query = $this->orderQueryBy($query);
         }
-        return $query->get();
+
+        return $query;
     }
 
     /**
      * @noinspection PhpUndefinedMethodInspection
      */
 
-    private function add_search($query): mixed
+    private function addSearch($query): mixed
     {
         if (request()->has('search')) {
             $keyword = request()->search;
@@ -106,6 +124,50 @@ abstract class BaseRepository implements IBaseRepository
      * @noinspection PhpUndefinedMethodInspection
      */
 
+    /**
+     * this function implement already defined filters in the model
+     * @param Builder $query
+     * @return Builder
+     */
+    private function filterFields(Builder $query): Builder
+    {
+        foreach ($this->filterKeys as $filterFields) {
+            $field = $filterFields['field'] ?? $filterFields['name'];
+            $operator = $filterFields['operator'] ?? "=";
+            $relation = $filterFields['relation'] ?? null;
+            $method = $filterFields['method'] ?? "where";
+            $callback = $filterFields['query'] ?? null;
+            $value = request($relation ?? $field);
+            $range = is_array($value);
+
+            if (!$value) {
+                continue;
+            }
+
+            if ($relation) {
+                $query = $query->whereHas($relation, function (QueryBuilder $q) use ($range, $field, $method, $operator, $value) {
+                    if ($range) {
+                        return $q->whereBetween($field, $value);
+                    }
+                    if ($operator === "like") {
+                        return $q->{$method}($field, $operator, "%" . $value . "%");
+                    }
+                    return $q->{$method}($field, $operator, $value);
+                });
+            } elseif ($callback && is_callable($callback)) {
+                $query = call_user_func($callback, $query, $value);
+            } else {
+                if ($range) {
+                    $query = $query->whereBetween($field, $value);
+                } elseif ($operator == 'like') {
+                    $query = $query->{$method}($field, $operator, "%" . $value . "%");
+                } else $query = $query->{$method}($field, $operator, $value);
+            }
+        }
+
+        return $query;
+    }
+
     private function orderQueryBy($query): mixed
     {
         $sortColumns = request()->sort_col;
@@ -126,25 +188,23 @@ abstract class BaseRepository implements IBaseRepository
         return $query->orderBy('created_at', 'desc');
     }
 
+    /**
+     * @template T of Model<T>
+     * @param array $relationships
+     * @param int $per_page
+     * @return array{data:Collection<T>|array|RegularCollection<T> , pagination_data:array}|null
+     */
     public function all_with_pagination(array $relationships = [], int $per_page = 10): ?array
     {
-        $query = $this->model->with($relationships);
-        if (request()->method() == 'GET') {
-            $query = $this->add_search($query);
-            $query = $this->orderQueryBy($query);
-        }
-        $all = $query->paginate($per_page);
-
+        $all = $this->globalQuery($relationships)->paginate($per_page);
         if (count($all) > 0) {
             $pagination_data = $this->formatPaginateData($all);
-
             return ['data' => $all, 'pagination_data' => $pagination_data];
         }
-
         return null;
     }
 
-    #[ArrayShape(['currentPage' => 'mixed', 'from' => 'mixed', 'to' => 'mixed', 'total' => 'mixed', 'per_page' => 'mixed'])]
+    #[ArrayShape(['currentPage' => 'int', 'from' => 'int', 'to' => 'int', 'total' => 'int', 'per_page' => 'int'])]
     public function formatPaginateData($data): array
     {
         $paginated_arr = $data->toArray();

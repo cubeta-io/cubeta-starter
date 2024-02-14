@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
  */
 interface IBaseRepository
 {
-    public function all(array $relationships = []): mixed;
+    public function all(array $relationships = []);
 
     public function all_with_pagination(array $relationships = [], int $per_page = 10): ?array;
 

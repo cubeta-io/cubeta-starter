@@ -10,23 +10,51 @@ use Illuminate\Support\Collection;
 
 class BaseResource extends JsonResource
 {
+    private const AuthorizedActions = 'authorizedActions';
+    private const FilterMethod = 'filterArray';
+
     protected bool $detailed = false;
     protected ?array $extra;
 
-    public static function collectionWithExtra($data, ?array $extra = null): Collection
+    public static function collectionWithExtra(DBCollection|LengthAwarePaginator $data, ?array $extra = null, bool $withFilters = false): Collection
     {
-        return collect()->wrap($data)->map(fn($item) => self::makeWithExtra($item, $extra))->values();
+        return collect()
+            ->wrap($data)
+            ->map(fn($item) => self::makeWithExtra($item, $extra))
+            ->values()
+            ->merge(self::getFilters(get_class($data->first())));
     }
 
-    public static function makeWithExtra($data, array $extra = null): BaseResource
+    public static function makeWithExtra(Model $data, array $extra = null): BaseResource
     {
         return self::make($data)->withExtra($extra);
     }
 
-    public function withExtra($extra): static
+    public function withExtra(?array $extra): static
     {
         $this->extra = $extra;
         return $this;
+    }
+
+    /**
+     * @param string $class
+     * @return Collection
+     */
+    protected static function getFilters(string $class): Collection
+    {
+        $filters = collect();
+
+        if (method_exists($class, self::FilterMethod)) {
+            $filterCols = collect(call_user_func([$class, self::FilterMethod]));
+            $filters = $filters->merge([
+                    "filters" => $filterCols->map(fn($item) => [
+                        "field" => isset($item["relation"]) ? $item["relation"] . '.' . ($item["field"] ?? $item["name"]) : ($item["field"] ?? $item["name"]),
+                        "operator" => $item['operator'] ?? '='
+                    ])
+                ]
+            );
+        }
+        return $filters;
     }
 
     /**
@@ -35,14 +63,11 @@ class BaseResource extends JsonResource
      * @param array $itemAbilities
      * @param array $generalAbilities
      * @param array|null $extra
+     * @param bool $withFilters
      * @return Collection<T>
      */
-    public static function collectionWithAbilities(DBCollection|LengthAwarePaginator $data, array $itemAbilities = [], array $generalAbilities = [], ?array $extra = null): Collection
+    public static function collectionWithAbilities(DBCollection|LengthAwarePaginator $data, array $itemAbilities = [], array $generalAbilities = [], ?array $extra = null, bool $withFilters = false): Collection
     {
-        if (!in_array(config('cubeta-starter.trait_namespace') . "\HasPermissions", trait_uses_recursive(auth()->user()))) {
-            return self::collectionWithDetail($data, $extra);
-        }
-
         $collection = $data->map(function ($item) use ($extra, $itemAbilities, $generalAbilities) {
             $itemAbs = [];
             $class = get_class($item);
@@ -53,8 +78,8 @@ class BaseResource extends JsonResource
                 }
             }
 
-            if (!count($itemAbilities) && method_exists($class, 'authorizedActions')) {
-                foreach ($class::authorizedActions() as $action) {
+            if (!count($itemAbilities) && method_exists($class, self::AuthorizedActions)) {
+                foreach (call_user_func([$class, self::AuthorizedActions]) as $action) {
                     if (in_array($action, ["update", "delete", "show"])) {
                         $itemAbs["$action"] = self::getAbilityValue($action, $class, $item);
                     }
@@ -73,19 +98,40 @@ class BaseResource extends JsonResource
                 $genAbs["$generalAbility"] = self::getAbilityValue($generalAbility, $class);
             }
         } else {
-            if (method_exists($class, 'authorizedActions') && in_array("create", $class::authorizedActions())) {
+            if (method_exists($class, self::AuthorizedActions) && in_array("create", call_user_func([$class, self::AuthorizedActions]))) {
                 $genAbs["create"] = self::getAbilityValue("create", $class);
             }
         }
-        return collect(["items" => $collection, "abilities" => $genAbs]);
+
+        if (!$withFilters) {
+            return collect(["items" => $collection, "abilities" => $genAbs]);
+        }
+
+        return collect(["items" => $collection, "abilities" => $genAbs])->merge(self::getFilters($class));
     }
 
-    public static function collectionWithDetail($data, array $extra = null): Collection
+    private static function getAbilityValue(string $ability, string $class, ?Model $modelInstance = null)
     {
-        return collect()->wrap($data)->map(fn($item) => self::makeWithDetail($item, $extra))->values();
+        if (auth()->user()) {
+            return auth()->user()?->hasPermission($ability, $class, $modelInstance);
+        } else if (!method_exists($class, self::AuthorizedActions)) {
+            return true;
+        } elseif (!in_array($ability, call_user_func([$class, self::AuthorizedActions]))) {
+            return true;
+        } else
+            return false;
     }
 
-    public static function makeWithDetail($data, array $extra = null): BaseResource
+    public static function collectionWithDetail(DBCollection|LengthAwarePaginator $data, array $extra = null, bool $withFilters = false): Collection
+    {
+        return collect()
+            ->wrap($data)
+            ->map(fn($item) => self::makeWithDetail($item, $extra))
+            ->values()
+            ->merge(self::getFilters(get_class($data->first())));
+    }
+
+    public static function makeWithDetail(Model $data, array $extra = null): BaseResource
     {
         return self::make($data)->withDetail()->withExtra($extra);
     }
@@ -94,17 +140,6 @@ class BaseResource extends JsonResource
     {
         $this->detailed = true;
         return $this;
-    }
-
-    private static function getAbilityValue(string $ability, string $class, ?Model $modelInstance = null)
-    {
-        if (auth()->user()) {
-            return auth()->user()?->hasPermission($ability, $class, $modelInstance);
-        } else if (!method_exists($class, 'authorizedActions')) {
-            return true;
-        } elseif (!in_array($ability, $class::authorizedActions())) {
-            return true;
-        } else return false;
     }
 
     /**
@@ -116,9 +151,6 @@ class BaseResource extends JsonResource
      */
     public static function makeWithAbilities(Model $data, array $itemAbilities = [], array $generalAbilities = [], ?array $extra = null): array|BaseResource
     {
-        if (!in_array(config('cubeta-starter.trait_namespace') . "\HasPermissions", trait_uses_recursive(auth()->user()))) {
-            return self::make($data)->withDetail()->withExtra($extra);
-        }
         $abilities = [];
         $class = get_class($data);
 
@@ -134,8 +166,8 @@ class BaseResource extends JsonResource
             }
         }
 
-        if (!count($generalAbilities) && !count($itemAbilities) && method_exists($class, 'authorizedActions')) {
-            foreach ($class::authorizedActions() as $action) {
+        if (!count($generalAbilities) && !count($itemAbilities) && method_exists($class, self::AuthorizedActions)) {
+            foreach (call_user_func([$class, self::AuthorizedActions]) as $action) {
                 if (!in_array($action, ['create', 'index'])) {
                     $abilities["$action"] = self::getAbilityValue($action, $class, $data);
                 }
