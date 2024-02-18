@@ -1,0 +1,164 @@
+<?php
+
+namespace {{traitsNamespace}};
+
+use {{exceptionsNamespace}}\RoleDoesNotExistException;
+use {{modelsNamespace}}\ModelHasPermission;
+use {{modelsNamespace}}\Role;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+
+/**
+ * @mixin Model
+ */
+trait HasRolesPermissions
+{
+    use HasPermissions;
+
+    /**
+     * @template T of Model<T>
+     * @param string $roleName
+     * @return T
+     * @throws RoleDoesNotExistException
+     */
+    public function assignRole(string $roleName): static
+    {
+        $role = Role::where('name', $roleName)->first();
+
+        if (!$role) {
+            throw new RoleDoesNotExistException($roleName);
+        }
+
+        $this->roles()->attach($role);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<Role>
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->morphToMany(Role::class, 'roleable', 'model_has_roles', 'roleable_id', 'role_id');
+    }
+
+    /**
+     * @template T of Model<T>
+     * @param string $roleName
+     * @return T
+     * @throws RoleDoesNotExistException
+     */
+    public function removeRole(string $roleName): static
+    {
+        $role = Role::getByName($roleName);
+
+        if (!$role) {
+            throw new RoleDoesNotExistException($roleName);
+        }
+
+        $this->roles()->detach($role);
+        return $this;
+    }
+
+    /**
+     * @param string $roleName
+     * @return bool
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    /**
+     * if the provided permission isn't in the authorizedActions() returned array in the provided model the method will return true .
+     * Additional action is that you can provide an instance of the model to check for the abilities that is correspond
+     * to the provided permission
+     * @param string $permission
+     * @param string $model
+     * @param Model|null $modelInstance
+     * @return bool
+     */
+    public function hasPermission(string $permission, string $model, Model $modelInstance = null): bool
+    {
+        if (!method_exists($model, 'authorizedActions')) {
+            return true;
+        }
+
+        if (!in_array($permission, $model::authorizedActions())) {
+            return true;
+        }
+
+        $permissions = ModelHasPermission::where(function (Builder $query) use ($model) {
+            return $query->where('model_has_permissions.model_name', $model)
+                ->where('model_has_permissions.model_type', get_class($this))
+                ->where('model_has_permissions.model_id', $this->id);
+        })->orWhere(function (Builder $query) use ($model) {
+            return $query->where('model_has_permissions.model_type', Role::class)
+                ->whereIn('model_has_permissions.model_id', $this->roles()->pluck('roles.id')->toArray())
+                ->where('model_has_permissions.model_name', $model);
+        })->pluck('permissions')->flatten();
+
+        $attributeName = Str::camel('can-' . $permission);
+
+        if ($permissions->contains($permission)) {
+            return $this->applyAbilityIfExist($modelInstance, $model, $attributeName);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Model|null $modelInstance
+     * @param string $model
+     * @param string $attributeName
+     * @return bool
+     */
+    private function applyAbilityIfExist(?Model $modelInstance, string $model, string $attributeName): bool
+    {
+        if (isset($modelInstance)
+            && $modelInstance instanceof $model
+            && method_exists($modelInstance, $attributeName)
+        ) {
+            return $modelInstance->{"$attributeName"}();
+        }
+
+        return true;
+    }
+
+
+    /**
+     * @param Builder $query
+     * @param string $roleName
+     * @return void
+     */
+    public function scopeByRole(Builder $query, string $roleName): void
+    {
+        $query->whereHas('roles', function (Builder $q) use ($roleName) {
+            $q->where('name', $roleName);
+        });
+    }
+
+    /**
+     * @param Builder $query
+     * @param string $permission
+     * @param class-string $model
+     * @return void
+     */
+    public function scopeByPermission(Builder $query, string $permission, string $model): void
+    {
+        $query->whereHas('permissions', function (Builder $builder) use ($permission, $model) {
+            $builder->where('model_name', $model)
+                ->whereJsonContains('permissions', $permission);
+        })
+            ->orWhereHas('roles', function (Builder $builder) use ($permission, $model) {
+                $builder->whereHas('permissions', function (Builder $q) use ($permission, $model) {
+                    $q->where('model_name', $model)
+                        ->whereJsonContains('permissions', $permission);
+                });
+            });
+    }
+
+}

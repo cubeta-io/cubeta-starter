@@ -12,13 +12,32 @@ use Illuminate\Support\Str;
  * @param string $path
  * @param string $stubPath
  * @param bool $override override file if exist
- * @return void
+ * @param callable|null $handleExisted
+ * @return bool
  * @throws BindingResolutionException
  * @throws FileNotFoundException
  */
-function generateFileFromStub(array $stubProperties, string $path, string $stubPath, bool $override = false): void
+function generateFileFromStub(array $stubProperties, string $path, string $stubPath, bool $override = false, ?callable $handleExisted = null, ?callable $handleSuccess = null): bool
 {
-    CreateFile::make()->setPath($path)->setStubPath($stubPath)->setStubProperties($stubProperties)->callFileGenerateFunctions($override);
+    try {
+        CreateFile::make()
+            ->setPath($path)
+            ->setStubPath($stubPath)
+            ->setStubProperties($stubProperties)
+            ->callFileGenerateFunctions($override);
+
+        call_user_func($handleSuccess);
+        return true;
+    } catch (\Exception $exception) {
+        if ($exception->getMessage() == "The class exists!") {
+            if (isset($handleExisted)) {
+                call_user_func($handleExisted);
+                return false;
+            }
+        }
+
+        throw $exception;
+    }
 }
 
 /**

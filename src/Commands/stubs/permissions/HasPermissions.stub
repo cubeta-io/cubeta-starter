@@ -2,15 +2,11 @@
 
 namespace {{traitsNamespace}};
 
-use {{exceptionsNameSpace}}\RoleDoesNotExistException;
-use {{modelNamespace}}\ModelHasPermission;
-use {{modelNamespace}}\Role;
-use Illuminate\Database\Eloquent\Builder;
+use {{modelsNamespace}}\ModelHasPermission;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 /**
  * @mixin Model
@@ -18,137 +14,34 @@ use Illuminate\Support\Str;
 trait HasPermissions
 {
     /**
-     * @template T of Model<T>
-     * @param string $roleName
-     * @return Model
-     * @throws RoleDoesNotExistException
-     */
-    public function assignRole(string $roleName): static
-    {
-        $role = Role::where('name', $roleName)->first();
-
-        if (!$role) {
-            throw new RoleDoesNotExistException($roleName);
-        }
-
-        $this->roles()->attach($role);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<Role>
-     */
-    public function roles(): BelongsToMany
-    {
-        return $this->morphToMany(Role::class, 'roleable', 'roleables');
-    }
-
-    /**
-     * @template T of Model<T>
-     * @param string $roleName
-     * @return T
-     * @throws RoleDoesNotExistException
-     */
-    public function removeRole(string $roleName): static
-    {
-        $role = Role::getByName($roleName);
-
-        if (!$role) {
-            throw new RoleDoesNotExistException($roleName);
-        }
-
-        $this->roles()->detach($role);
-        return $this;
-    }
-
-    /**
-     * @param string $roleName
-     * @return bool
-     */
-    public function hasRole(string $roleName): bool
-    {
-        return $this->roles()->where('name', $roleName)->exists();
-    }
-
-    /**
      * this method assign a permission to access given model
      * it returns true when the permission created successfully
      * and false when the permission is already exist for the current user on this model or in one of the user roles
-     * @param string $permission
-     * @param class-string $model the full qualified name of the model that should the permission give access to
+     * @param string|array{string} $permission
+     * @param class-string $model
      * @return bool
      */
-    public function assignPermission(string $permission, string $model): bool
+    public function assignPermission(string|array $permission, string $model): bool
     {
-        if ($this->hasPermission($permission, $model)) {
-            return false;
-        }
-
         /** @var ModelHasPermission|null $ownerPermission */
         $ownerPermission = $this->permissions()
-            ->where('model_name', $model)
-            ->first();
+            ->firstWhere('model_name', $model);
+
+        if (!is_array($permission)) {
+            $permission = Arr::wrap($permission);
+        }
 
         if (isset($ownerPermission)) {
-            $newPermissions = $ownerPermission->permissions;
-            $newPermissions[] = $permission;
-            $ownerPermission->permissions = $newPermissions;
-            $ownerPermission->save();
+            $ownerPermission->update(array_merge($ownerPermission->permissions, $permission));
         } else {
             $this->permissions()->create([
                 'model_name' => $model,
-                'permissions' => [$permission]
+                'permissions' => $permission
             ]);
 
         }
 
         return true;
-    }
-
-    /**
-     * if the provided permission isn't in the authorizedActions() returned array in the provided model the method will return true .
-     * Additional action is that you can provide an instance of the model to check for the abilities that is correspond
-     * to the provided permission
-     * @param string $permission
-     * @param string $model
-     * @param Model|null $modelInstance
-     * @return bool
-     */
-    public function hasPermission(string $permission, string $model, Model $modelInstance = null): bool
-    {
-        if(!method_exists($model , 'authorizedActions')){
-            return true;
-        }
-
-        if (!in_array($permission, $model::authorizedActions())) {
-            return true;
-        }
-
-        /** @var ModelHasPermission|null $permissions */
-        $permissions = $this->permissions()
-            ->where('model_name', $model)
-            ->first();
-
-        $attributeName = Str::camel('can-' . $permission);
-
-        if ($permissions && in_array($permission, $permissions->permissions)) {
-
-            return $this->applyAbilityIfExist($modelInstance, $model, $attributeName);
-        }
-
-
-        /** @var Collection<Role> $roles */
-        $roles = $this->roles()->get();
-
-        foreach ($roles as $role) {
-            $rolePermissions = $role->permissions()->where('model_name', $model)->first()->permissions;
-            if (in_array($permission, $rolePermissions)) {
-                return $this->applyAbilityIfExist($modelInstance, $model, $attributeName);
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -160,28 +53,9 @@ trait HasPermissions
     }
 
     /**
-     * @param Model|null $modelInstance
-     * @param string $model
-     * @param string $attributeName
-     * @return bool
-     */
-    private function applyAbilityIfExist(?Model $modelInstance, string $model, string $attributeName): bool
-    {
-        if (isset($modelInstance)
-            && $modelInstance instanceof $model
-            && method_exists($modelInstance, $attributeName)
-        ) {
-            return $modelInstance->{"$attributeName"}();
-        }
-
-        return true;
-    }
-
-    /**
      * @param string $permissionName
      * @param class-string $model
      * @return void
-     * @throws BindingResolutionException
      */
     public function removePermission(string $permissionName, string $model): void
     {
@@ -191,9 +65,7 @@ trait HasPermissions
 
         /** @var ModelHasPermission $permission */
         $permission = $this->permissions()
-            ->where('model_name', $model)
-            ->whereJsonContains('permissions', $permissionName)
-            ->first();
+            ->firstWhere('model_name', $model);
 
         if (!$permission) return;
 
@@ -203,37 +75,5 @@ trait HasPermissions
             ->toArray();
 
         $permission->save();
-    }
-
-    /**
-     * @param Builder $query
-     * @param string $roleName
-     * @return void
-     */
-    public function scopeByRole(Builder $query, string $roleName): void
-    {
-        $query->whereHas('roles', function (Builder $q) use ($roleName) {
-            $q->where('name', $roleName);
-        });
-    }
-
-    /**
-     * @param Builder $query
-     * @param string $permission
-     * @param class-string $model
-     * @return void
-     */
-    public function scopeByPermission(Builder $query, string $permission, string $model): void
-    {
-        $query->whereHas('permissions', function (Builder $builder) use ($permission, $model) {
-            $builder->where('model_name', $model)
-                ->whereJsonContains('permissions', $permission);
-        })
-            ->orWhereHas('roles', function (Builder $builder) use ($permission, $model) {
-                $builder->whereHas('permissions', function (Builder $q) use ($permission, $model) {
-                    $q->where('model_name', $model)
-                        ->whereJsonContains('permissions', $permission);
-                });
-            });
     }
 }

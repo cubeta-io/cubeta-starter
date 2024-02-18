@@ -1,14 +1,15 @@
 <?php
 
-namespace {{modelNamespace}};
+namespace {{modelsNamespace}};
 
+use {{traitsNamespace}}\HasPermissions;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Support\Collection;
 
 class Role extends Model
 {
+    use HasPermissions;
+
     public $timestamps = true;
     protected $table = 'roles';
     protected $guarded = ['id'];
@@ -20,7 +21,7 @@ class Role extends Model
      */
     public static function getByName(string $name): ?Role
     {
-        return self::where('name', $name)->first();
+        return self::firstWhere('name', $name);
     }
 
     /**
@@ -29,38 +30,9 @@ class Role extends Model
      */
     public function ownersByModel(string $model): MorphToMany
     {
-        return $this->morphedByMany($model, 'roleable', 'roleables');
+        return $this->morphedByMany($model, 'roleable', 'model_has_roles');
     }
 
-    /**
-     * @param string $permission
-     * @param class-string $model
-     * @return bool
-     */
-    public function assignPermission(string $permission, string $model): bool
-    {
-        if ($this->hasPermission($permission, $model)) {
-            return false;
-        }
-
-        $rolePermission = $this->permissions()
-            ->where('model_name', $model)
-            ->first();
-
-        if ($rolePermission) {
-            $permArr = $rolePermission->permissions;
-            $permArr[] = $permission;
-            $rolePermission->permissions = $permArr;
-            $rolePermission->save();
-            return true;
-        }
-
-        $this->permissions()->create([
-            'model_name' => $model,
-            'permissions' => [$permission]
-        ]);
-        return true;
-    }
 
     /**
      * if the provided permission isn't in the authorizedActions() returned array in the provided model the method will return true .
@@ -70,7 +42,7 @@ class Role extends Model
      */
     public function hasPermission(string $permission, string $model): bool
     {
-        if(!method_exists($model , 'authorizedActions')){
+        if (!method_exists($model, 'authorizedActions')) {
             return true;
         }
 
@@ -91,40 +63,5 @@ class Role extends Model
         }
 
         return false;
-    }
-
-    /**
-     * @return Collection<ModelHasPermission>
-     */
-    public function permissions(): MorphMany
-    {
-        return $this->morphMany(ModelHasPermission::class, 'model');
-    }
-
-    /**
-     * @param string $permissionName
-     * @param class-string $model
-     * @return void
-     */
-    public function removePermission(string $permissionName, string $model): void
-    {
-        if (!$this->hasPermission($permissionName, $model)) {
-            return;
-        }
-
-        /** @var ModelHasPermission $permission */
-        $permission = $this->permissions()
-            ->where('model_name', $model)
-            ->whereJsonContains('permissions', $permissionName)
-            ->first();
-
-        if (!$permission) return;
-
-        $permission->permissions = collect($permission->permissions)
-            ->filter(fn($value) => ($value != $permissionName))
-            ->values()
-            ->toArray();
-
-        $permission->save();
     }
 }

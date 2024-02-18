@@ -18,6 +18,6 @@ class ModelHasPermission extends Model
 
     public function model(): MorphTo
     {
-        return $this->morphTo('model', 'model_type', 'model_id');
+        return $this->morphTo();
     }
 }
