@@ -4,7 +4,6 @@ namespace {namespace};
 
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,28 +19,17 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable , HasRoles, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $guarded = ['id'];
 
-    protected $guard_name;
-
-    public function guardName(): string
-    {
-        if (request()->acceptsHtml()){
-            return 'web';
-        } else{
-            return 'api';
-        }
-    }
-
     protected $fillable = [
-        'first_name' , 
-        'last_name' , 
-        'email' , 
-        'password' , 
-        'email_verified_at' , 
-        'fcm_token' , 
+        'first_name' ,
+        'last_name' ,
+        'email' ,
+        'password' ,
+        'email_verified_at' ,
+        'fcm_token' ,
         'reset_password_code',
     ];
 
