@@ -114,11 +114,11 @@ class InstallPermissions extends Command
         generateFileFromStub([
             '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
         ],
-            $modelPath . '/Roleable.php',
-            __DIR__ . '/stubs/permissions/Roleable.stub',
+            $modelPath . '/ModelHasRole.php',
+            __DIR__ . '/stubs/permissions/ModelHasRole.stub',
             $override,
-            fn() => $this->error("The Roleable Is Already Exists"),
-            fn() => $this->info('Roleable Model Generated Successfully')
+            fn() => $this->error("The ModelHasRole Model Is Already Exists"),
+            fn() => $this->info('ModelHasRole Model Generated Successfully')
         );
     }
 
