@@ -7,7 +7,7 @@ use App\Repositories\Contracts\BaseRepository;
 
 /**
  * @extends  BaseRepository<{modelName}>
- * @implements IBaseService<{modelName}>
+ * @implements IBaseRepository<{modelName}>
  */
 class {modelName}Repository extends BaseRepository
 {
