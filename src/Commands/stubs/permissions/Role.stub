@@ -25,9 +25,9 @@ class Role extends Model
     }
 
     /**
-     * @param class-string $model
+     * @param class-string<Model> $model
      * @return MorphToMany
-     */
+    */
     public function ownersByModel(string $model): MorphToMany
     {
         return $this->morphedByMany($model, 'roleable', 'model_has_roles');
@@ -37,7 +37,7 @@ class Role extends Model
     /**
      * if the provided permission isn't in the authorizedActions() returned array in the provided model the method will return true .
      * @param string $permission
-     * @param class-string $model
+     * @param class-string<Model> $model
      * @return bool
      */
     public function hasPermission(string $permission, string $model): bool

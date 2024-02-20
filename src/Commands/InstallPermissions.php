@@ -149,8 +149,8 @@ class InstallPermissions extends Command
             "{{traitsNamespace}}" => config('cubeta-starter.trait_namespace'),
             "{{exceptionsNamespace}}" => config('cubeta-starter.exception_namespace'),
             "{{modelsNamespace}}" => config('cubeta-starter.model_namespace'),
-        ], $traitsPath . '/HasRolesPermissions.php',
-            __DIR__ . '/stubs/permissions/HasRolesPermissions.stub',
+        ], $traitsPath . '/HasRoles.php',
+            __DIR__ . '/stubs/permissions/HasRoles.stub',
             $override,
             fn() => $this->error("HasRolePermissions Trait Already Exists"),
             fn() => $this->info("HasRolePermissions Trait Generated Successfully")
