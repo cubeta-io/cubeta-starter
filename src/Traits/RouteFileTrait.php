@@ -5,7 +5,6 @@ namespace Cubeta\CubetaStarter\Traits;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 trait RouteFileTrait
@@ -30,8 +29,7 @@ trait RouteFileTrait
         $routeFile = "v1/{$container}/{$role}.php";
         $routeFileDirectory = base_path("routes/{$routeFile}");
 
-            !(File::makeDirectory(dirname($routeFileDirectory), 0777, true, true)) ??
-            $this->error('Failed To Create Your Route Specified Directory');
+        ensureDirectoryExists(dirname($routeFileDirectory));
 
         generateFileFromStub(
             ['{route}' => '//add-your-routes-here'],

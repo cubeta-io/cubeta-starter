@@ -118,7 +118,7 @@ class CreateFile
     private function fileExists(): void
     {
         if ($this->files->exists($this->path)) {
-            throw new Exception('The class exists!');
+            throw new Exception("The class already exists!   [{$this->path}]");
         }
     }
 
