@@ -6,7 +6,8 @@ use {repositoryNamespace}\{repositoryName};
 use App\Services\Contracts\BaseService;
 
 /**
- * Class {{modelName}}Service
+ * @implements I{modelName}Service
+ * Class UserService
  */
 class {modelName}Service extends BaseService implements I{modelName}Service
 {

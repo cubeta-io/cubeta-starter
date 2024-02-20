@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 use JetBrains\PhpStorm\ArrayShape;
 
 /**
+ * @template T of Model
  * Class BaseRepository
  */
 abstract class BaseRepository implements IBaseRepository
@@ -20,7 +21,6 @@ abstract class BaseRepository implements IBaseRepository
     use FileHandler;
 
     /**
-     * @template T of Model<T>
      * @var T
      */
     protected Model $model;
@@ -66,7 +66,6 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @template T of Model<T>
      * @param array $relationships
      * @return Collection<T>|RegularCollection<T>|array
      */
@@ -189,7 +188,6 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @template T of Model<T>
      * @param array $relationships
      * @param int $per_page
      * @return array{data:Collection<T>|array|RegularCollection<T> , pagination_data:array}|null
