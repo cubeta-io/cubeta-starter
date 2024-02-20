@@ -9,8 +9,8 @@ return new class extends Migration {
     {
         Schema::create('model_has_roles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('roleable_id');
-            $table->string('roleable_type');
+            $table->unsignedBigInteger('modelsHasRole_id');
+            $table->string('modelsHasRole_type');
             $table->unsignedBigInteger('role_id');
             $table->timestamps();
 

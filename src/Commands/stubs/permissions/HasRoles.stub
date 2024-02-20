@@ -38,7 +38,7 @@ trait HasRoles
      */
     public function roles(): BelongsToMany
     {
-        return $this->morphToMany(Role::class, 'modelsHasRole', 'model_has_roles', 'roleable_id', 'role_id');
+        return $this->morphToMany(Role::class, 'modelsHasRole', 'model_has_roles');
     }
 
     /**
