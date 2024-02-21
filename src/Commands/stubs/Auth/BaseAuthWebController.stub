@@ -1,25 +1,30 @@
 <?php
 
-namespace {namespace};
+namespace {{namespace}};
 
+use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
-use {ServiceNameSpace}\User\IUserService;
-use {requestsNamespace}\AuthRequests\AuthLoginRequest;
-use {requestsNamespace}\AuthRequests\UpdateUserRequest;
-use {requestsNamespace}\AuthRequests\AuthRegisterRequest;
-use {requestsNamespace}\AuthRequests\ResetPasswordRequest;
-use {requestsNamespace}\AuthRequests\CheckPasswordResetRequest;
-use {requestsNamespace}\AuthRequests\RequestResetPasswordRequest;
+use {{serviceNamespace}}\User\IUserService;
+use {{requestNamespace}}\AuthRequests\AuthLoginRequest;
+use {{requestNamespace}}\AuthRequests\UpdateUserRequest;
+use {{requestNamespace}}\AuthRequests\AuthRegisterRequest;
+use {{requestNamespace}}\AuthRequests\ResetPasswordRequest;
+use {{requestNamespace}}\AuthRequests\CheckPasswordResetRequest;
+use {{requestNamespace}}\AuthRequests\RequestResetPasswordRequest;
 
 class BaseAuthController extends Controller
 {
     private IUserService $userService;
     private ?string $role = null;
 
+   /**
+    * @throws Exception
+    */
     public function __construct(IUserService $userService)
     {
         $this->userService = $userService;
+        $this->userService->setGuard('web');
     }
 
     public function roleHook(string $role)
@@ -99,7 +104,7 @@ class BaseAuthController extends Controller
 
         if ($result) {
             Session::flash('success', __('site.password_changed_successfully'));
-            return redirect()->route('dashboard.user-details');
+            return redirect()->route('dashboard.login-page');
         } else {
             Session::flash('error', __('site.credentials_not_match_records'));
             return redirect()->back();

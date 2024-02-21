@@ -54,6 +54,7 @@ class MakeController extends Command
             '{requestNamespace}' => config('cubeta-starter.request_namespace'),
             '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
             '{idVariable}' => $idVariable,
+            '{modelNamespace}' => config('cubeta-starter.model_namespace'),
         ];
 
         $controllerName = $this->getControllerName($modelName);

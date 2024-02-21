@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 {properties}
-class {modelName} extends Model 
+class {modelName} extends Model
 {
 
     use HasFactory;
@@ -48,7 +48,7 @@ class {modelName} extends Model
      * add your searchable columns, so you can search within them in the
      * index method
      */
-    public function searchableArray(): array
+    public static function searchableArray(): array
     {
         return [
             {searchableKeys}
@@ -59,7 +59,7 @@ class {modelName} extends Model
      * add your relations and their searchable columns,
      * so you can search within them in the index method
      */
-    public function relationsSearchableArray(): array
+    public static function relationsSearchableArray(): array
     {
         return [
             {searchableRelations}

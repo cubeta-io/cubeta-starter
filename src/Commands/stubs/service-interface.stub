@@ -3,9 +3,11 @@
 namespace {namespace};
 
 use App\Services\Contracts\IBaseService;
+use {modelNamespace}\{modelName};
 
 /**
- * Interface I{modelName}Service
+ * @extends IBaseService<{modelName}>
+ * Interface IUserService
  */
 interface I{modelName}Service extends IBaseService
 {

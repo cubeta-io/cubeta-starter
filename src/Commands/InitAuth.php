@@ -45,7 +45,7 @@ class InitAuth extends Command
             ]);
         }
 
-        $this->generateUserService($container);
+        $this->generateUserService();
         $this->generateUserRepository();
         $this->generateAuthRequests();
         $this->generateResetPasswordNotification();
@@ -116,10 +116,10 @@ class InitAuth extends Command
     private function generateBaseAuthController(): void
     {
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.api_controller_namespace'),
-            '{requestsNamespace}' => config('cubeta-starter.request_namespace'),
-            '{ServiceNameSpace}' => config('cubeta-starter.service_namespace'),
-            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
+            '{{namespace}}' => config('cubeta-starter.api_controller_namespace'),
+            '{{requestNamespace}}' => config('cubeta-starter.request_namespace'),
+            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace'),
+            '{{resourceNamespace}}' => config('cubeta-starter.resource_namespace'),
         ];
 
         $controllerDirectory = base_path(config('cubeta-starter.api_controller_path'));
@@ -140,9 +140,9 @@ class InitAuth extends Command
     private function generateBaseAuthWebController(): void
     {
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.web_controller_namespace'),
-            '{requestsNamespace}' => config('cubeta-starter.request_namespace'),
-            '{ServiceNameSpace}' => config('cubeta-starter.service_namespace')
+            '{{namespace}}' => config('cubeta-starter.web_controller_namespace'),
+            '{{requestNamespace}}' => config('cubeta-starter.request_namespace'),
+            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace')
         ];
 
         $controllerDirectory = base_path(config('cubeta-starter.web_controller_path'));
@@ -177,45 +177,34 @@ class InitAuth extends Command
     }
 
     /**
-     * @param string $container
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    private function generateUserService(string $container = ContainerType::API): void
+    private function generateUserService(): void
     {
         // user service
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.service_namespace'),
-            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
-            '{repositoryNamespace}' => config('cubeta-starter.repository_namespace'),
+            '{{namespace}}' => config('cubeta-starter.service_namespace'),
+            '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
+            '{{repositoryNamespace}}' => config('cubeta-starter.repository_namespace'),
         ];
 
         $serviceDirectory = base_path(config('cubeta-starter.service_path') . '/User');
 
-        if ($container == ContainerType::API || $container == ContainerType::BOTH) {
-            $servicePath = "{$serviceDirectory}/UserService.php";
+        $servicePath = "{$serviceDirectory}/UserService.php";
 
-            ensureDirectoryExists($serviceDirectory);
+        ensureDirectoryExists($serviceDirectory);
 
-            generateFileFromStub($stubProperties, $servicePath, __DIR__ . '/stubs/Auth/UserService.stub', true);
+        generateFileFromStub($stubProperties, $servicePath, __DIR__ . '/stubs/Auth/UserService.stub', true);
 
-            $this->info("Created Service: UserService");
-        }
-        if ($container == ContainerType::WEB || $container == ContainerType::BOTH) {
-            $servicePath = "{$serviceDirectory}/UserWebService.php";
-
-            ensureDirectoryExists($serviceDirectory);
-
-            generateFileFromStub($stubProperties, $servicePath, __DIR__ . '/stubs/Auth/UserWebService.stub', true);
-
-            $this->info("Created Service: UserWebService");
-        }
+        $this->info("Created Service: UserService");
 
         // service interface
         $interfacePath = "{$serviceDirectory}/IUserService.php";
         generateFileFromStub([
-            '{namespace}' => config('cubeta-starter.service_namespace')
+            '{{namespace}}' => config('cubeta-starter.service_namespace'),
+            '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
         ], $interfacePath, __DIR__ . '/stubs/Auth/IUserService.stub', true);
 
         $this->info("Created Service Interface: IUserService");

@@ -1,0 +1,81 @@
+<?php
+
+namespace {{traitsNamespace}};
+
+use {{exceptionsNamespace}}\RoleDoesNotExistException;
+use {{modelsNamespace}}\Role;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+/**
+ * @mixin Model
+ */
+trait HasRoles
+{
+    use HasPermissions;
+
+    /**
+     * @param string $roleName
+     * @return $this
+     * @throws RoleDoesNotExistException
+     */
+    public function assignRole(string $roleName): static
+    {
+        $role = Role::where('name', $roleName)->first();
+
+        if (!$role) {
+            throw new RoleDoesNotExistException($roleName);
+        }
+
+        $this->roles()->attach($role);
+
+        return $this;
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->morphToMany(Role::class, 'modelsHasRole', 'model_has_roles');
+    }
+
+    /**
+     * @param string $roleName
+     * @return $this
+     * @throws RoleDoesNotExistException
+     */
+    public function removeRole(string $roleName): static
+    {
+        $role = Role::getByName($roleName);
+
+        if (!$role) {
+            throw new RoleDoesNotExistException($roleName);
+        }
+
+        $this->roles()->detach($role);
+        return $this;
+    }
+
+    /**
+     * @param string $roleName
+     * @return bool
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    /**
+     * @param Builder $query
+     * @param string $roleName
+     * @return void
+     */
+    public function scopeByRole(Builder $query, string $roleName): void
+    {
+        $query->whereHas('roles', function (Builder $q) use ($roleName) {
+            $q->where('name', $roleName);
+        });
+    }
+}

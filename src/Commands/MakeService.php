@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Illuminate\Console\Command;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class MakeService extends Command
 {
@@ -20,35 +20,6 @@ class MakeService extends Command
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function createServiceInterface(string $modelName, string $namespace): void
-    {
-        $serviceInterfaceName = 'I' . $modelName . 'Service';
-        $stubProperties = [
-            '{namespace}' => $namespace,
-            '{modelName}' => $modelName,
-        ];
-
-        $serviceInterfacePath = $this->getServiceInterfacePath($serviceInterfaceName, $modelName);
-        if (file_exists($serviceInterfacePath)) {
-            $this->error("{$serviceInterfaceName} Already Exists");
-
-            return;
-        }
-
-        generateFileFromStub(
-            $stubProperties,
-            $serviceInterfacePath,
-            __DIR__ . '/stubs/service-interface.stub'
-        );
-
-        $this->formatFile($serviceInterfacePath);
-        $this->info("Created Service Interface: {$serviceInterfaceName}");
-    }
-
-    /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
     public function handle(): void
     {
         $modelName = $this->argument('name');
@@ -56,7 +27,7 @@ class MakeService extends Command
 
         $namespace = config('cubeta-starter.service_namespace') . "\\{$modelName}";
 
-        if (! $modelName || empty(trim($modelName))) {
+        if (!$modelName || empty(trim($modelName))) {
             $this->error('Invalid input');
             return;
         }
@@ -78,7 +49,8 @@ class MakeService extends Command
             '{modelName}' => $modelName,
             '{repositoryName}' => $repositoryName,
             '{namespace}' => $namespace,
-            '{repositoryNamespace}' => config('cubeta-starter.repository_namespace')
+            '{repositoryNamespace}' => config('cubeta-starter.repository_namespace'),
+            '{modelNamespace}' => config('cubeta-starter.model_namespace'),
         ];
 
         $servicePath = $this->getServicePath($serviceName, $modelName);
@@ -99,19 +71,49 @@ class MakeService extends Command
         $this->info("Created Service: {$serviceName}");
     }
 
-    private function getServiceInterfacePath(string $serviceInterfaceName, string $modelName): string
-    {
-        $directory = base_path(config('cubeta-starter.service_path')) . "/{$modelName}";
-        ensureDirectoryExists($directory);
-
-        return "{$directory}/{$serviceInterfaceName}.php";
-    }
-
     private function getServicePath(string $serviceName, string $modelName): string
     {
         $directory = base_path(config('cubeta-starter.service_path')) . "/{$modelName}";
         ensureDirectoryExists($directory);
 
         return "{$directory}/{$serviceName}.php";
+    }
+
+    /**
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function createServiceInterface(string $modelName, string $namespace): void
+    {
+        $serviceInterfaceName = 'I' . $modelName . 'Service';
+        $stubProperties = [
+            '{namespace}' => $namespace,
+            '{modelName}' => $modelName,
+            '{modelNamespace}' => config('cubeta-starter.model_namespace'),
+        ];
+
+        $serviceInterfacePath = $this->getServiceInterfacePath($serviceInterfaceName, $modelName);
+        if (file_exists($serviceInterfacePath)) {
+            $this->error("{$serviceInterfaceName} Already Exists");
+
+            return;
+        }
+
+        generateFileFromStub(
+            $stubProperties,
+            $serviceInterfacePath,
+            __DIR__ . '/stubs/service-interface.stub'
+        );
+
+        $this->formatFile($serviceInterfacePath);
+        $this->info("Created Service Interface: {$serviceInterfaceName}");
+    }
+
+    private function getServiceInterfacePath(string $serviceInterfaceName, string $modelName): string
+    {
+        $directory = base_path(config('cubeta-starter.service_path')) . "/{$modelName}";
+        ensureDirectoryExists($directory);
+
+        return "{$directory}/{$serviceInterfaceName}.php";
     }
 }

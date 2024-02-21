@@ -15,15 +15,10 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
         $roles = RolesPermissionEnum::ALL;
 
         foreach ($roles as $role) {
-            $current = Role::updateOrCreate(['name' => $role['role'], 'guard_name' => 'api'], []);
-            $current->syncPermissions($role['permissions']);
-
-            $current = Role::updateOrCreate(['name' => $role['role'], 'guard_name' => 'web'], []);
-            $current->syncPermissions($role['permissions']);
+            Role::updateOrCreate(['name' => $role['role'], []);
         }
     }
 }

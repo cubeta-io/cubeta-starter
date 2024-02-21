@@ -1,25 +1,91 @@
 <?php
 
-namespace {namespace}\User;
+namespace {{namespace}}\User;
 
-use {namespace}\Contracts\IBaseService;
+use Exception;
+use {{modelNamespace}}\User;
+use App\Services\Contracts\IBaseService;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
  * Interface IUserService
+ * @extends IBaseService<User>
  */
 interface IUserService extends IBaseService
 {
-    public function login(array $data, string $role, array $additionalData = []);
+    /**
+     * @param string $guard
+     * @return void
+     * @throws Exception
+     */
+    public function setGuard(string $guard = 'api'): void;
 
-    public function logout();
+    /**
+     * @param array $data
+     * @param string|null $role
+     * @return array{user:User , token:string , refresh_token:string}|User|null
+     */
+    public function updateUserDetails(array $data, ?string $role = null): array|User|null;
 
-    public function register(array $data, ?string $role);
+    /**
+     * @param array $data
+     * @param string|null $role
+     * @param array $additionalData
+     * @return User|Authenticatable|array{user:User , token:string , refresh_token:string}|null
+     */
+    public function login(array $data, ?string $role = null, array $additionalData = []): User|Authenticatable|array|null;
 
-    public function passwordResetRequest(string $email);
+    /**
+     * @param $fcm_token
+     * @return void
+     */
+    public function clearFcmTokenFromOtherUsers($fcm_token): void;
 
-    public function passwordReset(string $reset_password_code, string $password);
+    /**
+     * @return void
+     */
+    public function logout(): void;
 
-    public function updateUserDetails(array $data, ?string $role);
+    /**
+     * @return array{user:User , token:string , refresh_token:string}|null
+     */
+    public function refresh_token(): ?array;
 
-    public function userDetails(?string $role);
+    /**
+     * @param array $data
+     * @param string|null $role
+     * @return array{user:User , token:string , refresh_token:string}|User
+     */
+    public function register(array $data, ?string $role = null): array|User;
+
+    /**
+     * @param string $email
+     * @return bool|null
+     */
+    public function passwordResetRequest(string $email): ?bool;
+
+    /**
+     * @param $email
+     * @return User|null
+     */
+    public function getUserByEmail($email): ?User;
+
+    /**
+     * @param $token
+     * @return User|null
+     */
+    public function getUserByPasswordResetCode($token): ?User;
+
+    /**
+     * @param string $reset_password_code
+     * @param string $password
+     * @return bool
+     */
+    public function passwordReset(string $reset_password_code, string $password): bool;
+
+    /**
+     * @param string|null $role
+     * @return User|Authenticatable|null
+     */
+    public function userDetails(?string $role = null): User|Authenticatable|null;
 }

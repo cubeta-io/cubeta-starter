@@ -66,17 +66,6 @@ class CubetaStarterServiceProvider extends ServiceProvider
                     continue;
                 }
 
-                if ($service == 'UserWebService' && request()->acceptsHtml()) {
-                    $modelName = "User";
-                    $iService = "IUserService";
-                    $this->app->bind(
-                        'App\Services\\' . $modelName . '\\' . $iService,
-                        'App\Services\\' . $modelName . '\\' . $service
-                    );
-                    $services[] = $service;
-                    continue;
-                }
-
                 if (file_exists($path)) {
                     $this->app->bind(
                         'App\Services\\' . $modelName . '\\' . $iService,

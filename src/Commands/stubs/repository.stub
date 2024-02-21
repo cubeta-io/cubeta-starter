@@ -4,7 +4,12 @@ namespace  {namespace};
 
 use {modelNamespace}\{modelName};
 use App\Repositories\Contracts\BaseRepository;
+use App\Repositories\Contracts\IBaseRepository;
 
+/**
+ * @extends  BaseRepository<{modelName}>
+ * @implements IBaseRepository<{modelName}>
+ */
 class {modelName}Repository extends BaseRepository
 {
     public function __construct({modelName} ${modelVar})

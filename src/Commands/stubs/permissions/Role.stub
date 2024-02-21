@@ -1,0 +1,35 @@
+<?php
+
+namespace {{modelsNamespace}};
+
+use {{traitsNamespace}}\HasPermissions;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+
+class Role extends Model
+{
+    use HasPermissions;
+
+    public $timestamps = true;
+    protected $table = 'roles';
+    protected $guarded = ['id'];
+    protected $fillable = ['name'];
+
+    /**
+     * @param string $name
+     * @return Role|null
+     */
+    public static function getByName(string $name): ?Role
+    {
+        return self::firstWhere('name', $name);
+    }
+
+    /**
+     * @param class-string<Model> $model
+     * @return MorphToMany
+    */
+    public function modelsHasRole(string $model): MorphToMany
+    {
+        return $this->morphedByMany($model, 'model', 'model_has_roles');
+    }
+}

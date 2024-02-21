@@ -44,9 +44,7 @@ class CallAppropriateCommand extends Controller
             return [];
         }
 
-        return collect($array)->mapWithKeys(function ($item) {
-            return [$item['name'] => $item['type']];
-        })->toArray();
+        return collect($array)->mapWithKeys(fn($item) => [$item['name'] => $item['type']])->toArray();
     }
 
     public function callAddActorCommand(Request $request)

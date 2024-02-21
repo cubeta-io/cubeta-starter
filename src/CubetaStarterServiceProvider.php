@@ -2,24 +2,6 @@
 
 namespace Cubeta\CubetaStarter;
 
-use Cubeta\CubetaStarter\Commands\CreatePivotTable;
-use Cubeta\CubetaStarter\Commands\InitAuth;
-use Cubeta\CubetaStarter\Commands\InitialProject;
-use Cubeta\CubetaStarter\Commands\InstallWebPackages;
-use Cubeta\CubetaStarter\Commands\MakeController;
-use Cubeta\CubetaStarter\Commands\MakeExample;
-use Cubeta\CubetaStarter\Commands\MakeFactory;
-use Cubeta\CubetaStarter\Commands\MakeMigration;
-use Cubeta\CubetaStarter\Commands\MakeModel;
-use Cubeta\CubetaStarter\Commands\MakePostmanCollection;
-use Cubeta\CubetaStarter\Commands\MakeRepository;
-use Cubeta\CubetaStarter\Commands\MakeRequest;
-use Cubeta\CubetaStarter\Commands\MakeResource;
-use Cubeta\CubetaStarter\Commands\MakeSeeder;
-use Cubeta\CubetaStarter\Commands\MakeService;
-use Cubeta\CubetaStarter\Commands\MakeTest;
-use Cubeta\CubetaStarter\Commands\MakeWebController;
-use Cubeta\CubetaStarter\Commands\PublishAllAssetsCommand;
 use Illuminate\Support\Facades\View;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
@@ -165,23 +147,24 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $package
             ->name('cubeta-starter')
             ->hasConfigFile()
-            ->hasCommand(CreatePivotTable::class)
-            ->hasCommand(MakeController::class)
-            ->hasCommand(MakeResource::class)
-            ->hasCommand(MakeModel::class)
-            ->hasCommand(MakeMigration::class)
-            ->hasCommand(MakeFactory::class)
-            ->hasCommand(MakeSeeder::class)
-            ->hasCommand(MakeRequest::class)
-            ->hasCommand(MakeRepository::class)
-            ->hasCommand(MakeService::class)
-            ->hasCommand(MakeTest::class)
-            ->hasCommand(MakePostmanCollection::class)
-            ->hasCommand(InitialProject::class)
-            ->hasCommand(MakeWebController::class)
-            ->hasCommand(InstallWebPackages::class)
-            ->hasCommand(InitAuth::class)
-            ->hasCommand(PublishAllAssetsCommand::class)
-            ->hasCommand(MakeExample::class);
+            ->hasCommand(Commands\CreatePivotTable::class)
+            ->hasCommand(Commands\MakeController::class)
+            ->hasCommand(Commands\MakeResource::class)
+            ->hasCommand(Commands\MakeModel::class)
+            ->hasCommand(Commands\MakeMigration::class)
+            ->hasCommand(Commands\MakeFactory::class)
+            ->hasCommand(Commands\MakeSeeder::class)
+            ->hasCommand(Commands\MakeRequest::class)
+            ->hasCommand(Commands\MakeRepository::class)
+            ->hasCommand(Commands\MakeService::class)
+            ->hasCommand(Commands\MakeTest::class)
+            ->hasCommand(Commands\MakePostmanCollection::class)
+            ->hasCommand(Commands\InitialProject::class)
+            ->hasCommand(Commands\MakeWebController::class)
+            ->hasCommand(Commands\InstallWebPackages::class)
+            ->hasCommand(Commands\InitAuth::class)
+            ->hasCommand(Commands\PublishAllAssetsCommand::class)
+            ->hasCommand(Commands\MakeExample::class)
+            ->hasCommand(Commands\InstallPermissions::class);
     }
 }

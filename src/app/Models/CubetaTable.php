@@ -90,17 +90,13 @@ class CubetaTable
     public function nullables(): Collection
     {
         return collect($this->attributes)
-            ->filter(function (CubetaAttribute $attr) {
-                return $attr->nullable == true;
-            });
+            ->filter(fn(CubetaAttribute $attr) => $attr->nullable == true);
     }
 
     public function uniques(): Collection
     {
         return collect($this->attributes)
-            ->filter(function (CubetaAttribute $attr) {
-                return $attr->unique == true;
-            });
+            ->filter(fn(CubetaAttribute $attr) => $attr->unique == true);
     }
 
     public function hasAttribute(string $name, ?string $type): bool

@@ -85,6 +85,12 @@ return [
     'test_namespace' => 'Tests\Feature',
     'test_path' => 'tests/Feature',
 
+    'trait_namespace' => 'App\Traits',
+    'trait_path' => 'app\Traits',
+
+    'exception_namespace' => 'App\Exceptions',
+    'exception_path' => 'app\Exceptions',
+
     /**
      * postman collection path
      */
