@@ -33,7 +33,7 @@ trait HasPermissions
 
         if ($ownerPermission) {
             $ownerPermission->update([
-                'permissions' => array_merge($ownerPermission->permissions, $permission)
+                'permissions' => array_unique(array_merge($ownerPermission->permissions, $permission))
             ]);
         } else {
             $this->permissions()->create([
