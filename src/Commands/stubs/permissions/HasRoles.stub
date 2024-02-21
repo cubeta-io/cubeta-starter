@@ -28,6 +28,10 @@ trait HasRoles
             throw new RoleDoesNotExistException($roleName);
         }
 
+        if ($this->hasRole($roleName)){
+            return $this;
+        }
+
         $this->roles()->attach($role);
 
         return $this;
