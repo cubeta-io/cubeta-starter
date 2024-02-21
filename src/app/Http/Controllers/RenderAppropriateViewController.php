@@ -53,14 +53,13 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['modelNameField'] = false;
         $this->arguments['addActor'] = true;
         $this->arguments['modalBody'] = "Adding Actors";
-        $this->arguments['notes'] = "<li class='notes'>Don't forgot to run your migrations after installing the package because we are using spatie/laravel-permission <a href='https://spatie.be/docs/laravel-permission/v5/introduction'>Check spatie/permissions Documentation</a></li>
+        $this->arguments['notes'] = "
                                         <li class='notes'>Init api auth depends on <a href='https://github.com/PHP-Open-Source-Saver/jwt-auth'>jwt-auth</a> package so you need to configure it before using auth tools</li>
                                         <li class='notes'>You don't need to install jwt-auth ,it is included in the package just configure it</li>
                                         <li class='notes'>init auth commands will override any file with the same name and same path</li>
-                                        <li class='notes'>authenticated checkbox will create an api auth endpoint for the created actor</li>
+                                        <li class='notes'>authenticated checkbox will create an api auth endpoints for the created actor</li>
                                         <li class='notes'>RolesPermissionEnum class will be created in your app/Enums directory after adding new roles</li>
-                                        <li class='notes'>If you want to remove a role just remove it from RolesPermissionsEnum</li>
-                                        <li class='notes'>any change in the roles need you to run the role and the permissions seeders in the seeders directory</li>";
+                                        <li class='notes'>If you want to remove a role just remove it from RolesPermissionsEnum</li>";
         return view('CubetaStarter::main-generate-page', compact('types', 'roles'))->with($this->arguments);
     }
 
@@ -113,7 +112,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['uniques'] = true;
         $this->arguments['modalBody'] = "Generating Factory";
         $this->arguments['notes'] = ' <li class="notes">check on how the factory will be generated <a
-                                                href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md#factories" target="_blank">here</a>
+                                                href="https://cubeta-io.github.io/cubeta-starter/#/README?id=factories" target="_blank">here</a>
                                         </li>';
         return view('CubetaStarter::main-generate-page', compact('types'))->with($this->arguments);
     }
@@ -178,7 +177,7 @@ class RenderAppropriateViewController extends Controller
         $this->arguments['nullables'] = true;
         $this->arguments['modalBody'] = "Generating Form Request";
         $this->arguments['notes'] = ' <li class="notes">check on how the form request will be generated <a
-                                                href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md#requests" target="_blank">here</a>
+                                                href="https://cubeta-io.github.io/cubeta-starter/#/README?id=requests" target="_blank">here</a>
                                         </li>';
         return view('CubetaStarter::main-generate-page', compact('types'))->with($this->arguments);
     }

@@ -3,8 +3,13 @@
 namespace {namespace};
 
 use {modelNamespace}\User;
-use {namespace}\Contracts\BaseRepository;
+use App\Repositories\Contracts\BaseRepository;
+use App\Repositories\Contracts\IBaseRepository;
 
+/**
+ * @extends  BaseRepository<User>
+ * @implements IBaseRepository<User>
+ */
 class UserRepository extends BaseRepository
 {
     public function __construct(User $user)

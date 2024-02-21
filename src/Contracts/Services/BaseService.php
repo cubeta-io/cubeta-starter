@@ -2,14 +2,14 @@
 
 namespace App\Services\Contracts;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use App\Repositories\Contracts\IBaseRepository;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection as RegularCollection;
 
 /**
  * @template T of Model
- * @class BaseService
+ * @implements IBaseService<T>
  */
 abstract class BaseService implements IBaseService
 {
@@ -33,8 +33,6 @@ abstract class BaseService implements IBaseService
      * @param        $data
      * @return array
      */
-    #[ArrayShape(['currentPage' => 'int', 'from' => 'int', 'to' => 'int', 'total' => 'int', 'per_page' => 'int'])]
-
     public function formatPaginationData($data): array
     {
         return $this->repository->formatPaginateData($data);
@@ -42,9 +40,9 @@ abstract class BaseService implements IBaseService
 
     /**
      * @param array $relations
-     * @return Collection<T>|RegularCollection<T>|array
+     * @return Collection<T>|RegularCollection<T>|array<T>
      */
-    public function index(array $relations = []): mixed
+    public function index(array $relations = []): Collection|array|RegularCollection
     {
         return $this->repository->all($relations);
     }
@@ -52,7 +50,7 @@ abstract class BaseService implements IBaseService
     /**
      * @param array $relations
      * @param int $per_page
-     * @return array{data:Collection<T>|array|RegularCollection<T> , pagination_data:array}|null
+     * @return array{data:Collection<T>|array<T>|RegularCollection<T> , pagination_data:array}|null
      */
     public function indexWithPagination(array $relations = [], int $per_page = 10): ?array
     {
@@ -64,7 +62,7 @@ abstract class BaseService implements IBaseService
      * @param array $relationships
      * @return T|null
      */
-    public function store(array $data, array $relationships = []): mixed
+    public function store(array $data, array $relationships = []): Model
     {
         return $this->repository->create($data, $relationships);
     }
@@ -73,9 +71,9 @@ abstract class BaseService implements IBaseService
      * @param array $data
      * @param        $id
      * @param array $relationships
-     * @return T
+     * @return T|null
      */
-    public function update(array $data, $id, array $relationships = []): mixed
+    public function update(array $data, $id, array $relationships = []): ?Model
     {
         return $this->repository->update($data, $id, $relationships);
     }
@@ -85,7 +83,7 @@ abstract class BaseService implements IBaseService
      * @param array $relationships
      * @return T|null
      */
-    public function view($id, array $relationships = []): Model|Collection|Builder|array|null
+    public function view($id, array $relationships = []): ?Model
     {
         return $this->repository->find($id, $relationships);
     }

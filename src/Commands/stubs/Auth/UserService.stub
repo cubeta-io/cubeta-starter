@@ -2,15 +2,16 @@
 
 namespace {{namespace}}\User;
 
-use {{modelNamespace}}\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use App\Notifications\ResetPasswordCodeEmail;
 use {{repositoryNamespace}}\UserRepository;
-use {{namespace}}\Contracts\BaseService;
+use App\Services\Contracts\BaseService;
+use {{modelNamespace}}\User;
 use Exception;
-use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
  * Class UserService
+ * @implements IUserService<User>
  */
 class UserService extends BaseService implements IUserService
 {

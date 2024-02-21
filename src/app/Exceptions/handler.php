@@ -50,13 +50,6 @@ class Handler extends ExceptionHandler
             return $this->apiResponse('', ApiController::STATUS_UNAUTHORIZED, $exception->getMessage());
         }
 
-        if (class_exists('\Spatie\Permission\Exceptions\UnauthorizedException')) {
-            /** @noinspection PhpUndefinedNamespaceInspection */
-            if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
-                return $this->apiResponse('', ApiController::STATUS_UNAUTHORIZED, $exception->getMessage());
-            }
-        }
-
         if ($exception instanceof HttpException) {
             if ($exception->getMessage() == 'Unauthorized Action') {
                 return $this->apiResponse('', ApiController::STATUS_FORBIDDEN, $exception->getMessage());

@@ -5,7 +5,6 @@ namespace App\Services\Contracts;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection as RegularCollection;
-use JetBrains\PhpStorm\ArrayShape;
 
 /**
  * @template T of Model
@@ -22,19 +21,18 @@ interface IBaseService
      * @param        $data
      * @return array
      */
-    #[ArrayShape(['currentPage' => 'int', 'from' => 'int', 'to' => 'int', 'total' => 'int', 'per_page' => 'int'])]
     public function formatPaginationData($data): array;
 
     /**
      * @param  array                                    $relations
-     * @return Collection<T>|RegularCollection<T>|array
+     * @return Collection<T>|RegularCollection<T>|array<T>
      */
     public function index(array $relations = []): RegularCollection|Collection|array;
 
     /**
      * @param  array                                                                             $relations
      * @param  int                                                                               $per_page
-     * @return array{data:Collection<T>|array|RegularCollection<T> , pagination_data:array}|null
+     * @return array{data:Collection<T>|array<T>|RegularCollection<T> , pagination_data:array}|null
      */
     public function indexWithPagination(array $relations = [], int $per_page = 10): ?array;
 
@@ -54,6 +52,8 @@ interface IBaseService
     public function update(array $data, $id, array $relationships = []): ?Model;
 
     /**
+     * @param $id
+     * @param array $relationships
      * @return T|null
      */
     public function view($id, array $relationships = []): ?Model;

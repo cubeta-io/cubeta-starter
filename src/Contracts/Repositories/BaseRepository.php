@@ -10,11 +10,10 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection as RegularCollection;
 use Illuminate\Support\Facades\Schema;
-use JetBrains\PhpStorm\ArrayShape;
 
 /**
  * @template T of Model
- * Class BaseRepository
+ * @implements IBaseRepository<T>
  */
 abstract class BaseRepository implements IBaseRepository
 {
@@ -24,12 +23,19 @@ abstract class BaseRepository implements IBaseRepository
      * @var T
      */
     protected Model $model;
+
     private Filesystem $fileSystem;
+
     private array $filterKeys = [];
+
     private array $fileColumnsName = [];
+
     private array $modelTableColumns = [];
+
     private array $orderableKeys = [];
+
     private array $relationSearchableKeys = [];
+
     private array $searchableKeys = [];
 
     /**
@@ -58,6 +64,9 @@ abstract class BaseRepository implements IBaseRepository
         $this->modelTableColumns = $this->getTableColumns();
     }
 
+    /**
+     * @return array
+     */
     public function getTableColumns(): array
     {
         $table = $this->model->getTable();
@@ -74,6 +83,10 @@ abstract class BaseRepository implements IBaseRepository
         return $this->globalQuery($relationships)->get();
     }
 
+    /**
+     * @param array $relations
+     * @return Builder<T>
+     */
     public function globalQuery(array $relations = []): Builder
     {
         $query = $this->model->with($relations);
@@ -88,9 +101,9 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @noinspection PhpUndefinedMethodInspection
+     * @param $query
+     * @return mixed
      */
-
     private function addSearch($query): mixed
     {
         if (request()->has('search')) {
@@ -120,13 +133,9 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @noinspection PhpUndefinedMethodInspection
-     */
-
-    /**
      * this function implement already defined filters in the model
      * @param Builder $query
-     * @return Builder
+     * @return Builder<T>
      */
     private function filterFields(Builder $query): Builder
     {
@@ -167,6 +176,10 @@ abstract class BaseRepository implements IBaseRepository
         return $query;
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     private function orderQueryBy($query): mixed
     {
         $sortColumns = request()->sort_col;
@@ -190,7 +203,7 @@ abstract class BaseRepository implements IBaseRepository
     /**
      * @param array $relationships
      * @param int $per_page
-     * @return array{data:Collection<T>|array|RegularCollection<T> , pagination_data:array}|null
+     * @return array{data:Collection<T>|array<T>|RegularCollection<T> , pagination_data:array}|null
      */
     public function all_with_pagination(array $relationships = [], int $per_page = 10): ?array
     {
@@ -202,7 +215,10 @@ abstract class BaseRepository implements IBaseRepository
         return null;
     }
 
-    #[ArrayShape(['currentPage' => 'int', 'from' => 'int', 'to' => 'int', 'total' => 'int', 'per_page' => 'int'])]
+    /**
+     * @param $data
+     * @return array
+     */
     public function formatPaginateData($data): array
     {
         $paginated_arr = $data->toArray();
@@ -216,9 +232,13 @@ abstract class BaseRepository implements IBaseRepository
         ];
     }
 
-    public function create(array $data, array $relationships = []): mixed
+    /**
+     * @param array $data
+     * @param array $relationships
+     * @return T
+     */
+    public function create(array $data, array $relationships = []): Model
     {
-        $received_data = $data;
         $fileCols = $this->fileColName($data);
 
         foreach ($fileCols as $col) {
@@ -234,6 +254,10 @@ abstract class BaseRepository implements IBaseRepository
         return $result->load($relationships);
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     private function fileColName($data): array
     {
         $cols = [];
@@ -246,6 +270,13 @@ abstract class BaseRepository implements IBaseRepository
         return $cols;
     }
 
+    /**
+     * @param string $col_name
+     * @param $data
+     * @param bool $is_store
+     * @param $item
+     * @return string
+     */
     private function storeUpdateFileIfExist(string $col_name, &$data, bool $is_store = true, $item = null): string
     {
         $image = '';
@@ -271,6 +302,10 @@ abstract class BaseRepository implements IBaseRepository
         return '';
     }
 
+    /**
+     * @param $path
+     * @return mixed
+     */
     private function makeDirectory($path): mixed
     {
         $this->fileSystem->makeDirectory($path, 0777, true, true);
@@ -278,6 +313,10 @@ abstract class BaseRepository implements IBaseRepository
         return $path;
     }
 
+    /**
+     * @param $id
+     * @return bool|null
+     */
     public function delete($id): ?bool
     {
         $result = $this->model->where('id', '=', $id)->first();
@@ -291,9 +330,11 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @return Builder|Builder[]|Collection|Model|null
+     * @param $id
+     * @param array $relationships
+     * @return T|null
      */
-    public function find($id, array $relationships = []): Model|Collection|Builder|array|null
+    public function find($id, array $relationships = []): ?Model
     {
         $result = $this->model->with($relationships)->find($id);
 
@@ -305,11 +346,12 @@ abstract class BaseRepository implements IBaseRepository
     }
 
     /**
-     * @return mixed|null
-     *
-     * @noinspection PhpUndefinedMethodInspection
+     * @param array $data
+     * @param $id
+     * @param array $relationships
+     * @return T|null
      */
-    public function update(array $data, $id, array $relationships = []): mixed
+    public function update(array $data, $id, array $relationships = []): ?Model
     {
         $item = $this->model->where('id', '=', $id)->first();
 
@@ -331,6 +373,13 @@ abstract class BaseRepository implements IBaseRepository
         return null;
     }
 
+    /**
+     * @param $file
+     * @param $model
+     * @param $data
+     * @param $col_name
+     * @return mixed
+     */
     private function addFileToModel($file, $model, $data, $col_name): mixed
     {
         if ($col_name != '') {

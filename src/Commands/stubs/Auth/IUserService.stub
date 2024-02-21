@@ -4,11 +4,12 @@ namespace {{namespace}}\User;
 
 use Exception;
 use {{modelNamespace}}\User;
-use {{namespace}}\Contracts\IBaseService;
+use App\Services\Contracts\IBaseService;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
  * Interface IUserService
+ * @extends IBaseService<User>
  */
 interface IUserService extends IBaseService
 {
