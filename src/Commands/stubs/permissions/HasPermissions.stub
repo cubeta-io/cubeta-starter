@@ -31,8 +31,10 @@ trait HasPermissions
 
         $permission = Arr::wrap($permission);
 
-        if (isset($ownerPermission)) {
-            $ownerPermission->update(array_merge($ownerPermission->permissions, $permission));
+        if ($ownerPermission) {
+            $ownerPermission->update([
+                'permissions' => array_merge($ownerPermission->permissions, $permission)
+            ]);
         } else {
             $this->permissions()->create([
                 'model_name' => $model,

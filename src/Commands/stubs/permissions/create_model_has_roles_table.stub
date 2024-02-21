@@ -9,12 +9,12 @@ return new class extends Migration {
     {
         Schema::create('model_has_roles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('modelsHasRole_id');
-            $table->string('modelsHasRole_type');
+            $table->unsignedBigInteger('model_id');
+            $table->string('model_type');
             $table->unsignedBigInteger('role_id');
             $table->timestamps();
 
-            $table->index(['modelsHasRole_id', 'modelsHasRole_type', 'role_id'] , 'model_role_index');
+            $table->index(['model_id', 'model_type', 'role_id'] , 'model_role_index');
         });
     }
 };

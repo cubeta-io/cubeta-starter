@@ -15,7 +15,6 @@ class ModelHasPermission extends Model
         'permissions' => 'array'
     ];
 
-
     public function model(): MorphTo
     {
         return $this->morphTo();

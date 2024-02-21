@@ -30,6 +30,6 @@ class Role extends Model
     */
     public function modelsHasRole(string $model): MorphToMany
     {
-        return $this->morphedByMany($model, 'modelsHasRole', 'model_has_roles');
+        return $this->morphedByMany($model, 'model', 'model_has_roles');
     }
 }
