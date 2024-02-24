@@ -52,7 +52,7 @@ class RequestGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/stubs/migration.stub';
+        return __DIR__ . '/stubs/request.stub';
     }
 
     private function generateRules(): array

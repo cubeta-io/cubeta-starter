@@ -63,6 +63,11 @@ abstract class AbstractGenerator
         return strtolower(Str::snake($name));
     }
 
+    protected function modelClassName(string $name): string
+    {
+        return config("cubeta-starter.model_namespace", "App\Models") . "\\" . $this->modelName($name);
+    }
+
     protected function getGeneratingPath(string $fileName): string
     {
         $path = base_path(config(self::$configPath)) . $this->getAdditionalPath();
