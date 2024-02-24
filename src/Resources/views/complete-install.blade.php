@@ -46,7 +46,7 @@
                                     This will publish all the helper classes and traits for API development
                                 </p>
 
-                                <a id="publish-locale-handlers"
+                                <a id="publish-api"
                                    href="{{route('cubeta-starter.api.publish')}}"
                                    class="btn btn-primary w-auto">
                                     Publish API
@@ -62,7 +62,7 @@
                                     Web development
                                 </p>
                                 <p class="description-font fw-bold text-danger">Don't forget to install the npm packages in the section below</p>
-                                <a id="publish-testing-tools"
+                                <a id="publish-web"
                                    href="{{route('cubeta-starter.web.publish')}}"
                                    class="btn btn-primary w-auto">
                                     Publish Web
@@ -144,37 +144,17 @@
                     document.getElementById('modal-title').innerText = "installing web packages"
                     modal.show();
                 })
-                $('#publish-assets').click(function () {
-                    document.getElementById('modal-title').innerText = "publishing assets"
+                $('#publish-api').click(function () {
+                    document.getElementById('modal-title').innerText = "Publishing Api Based Usage Tools"
                     modal.show();
                 })
-                $('#publish-response-handlers').click(function () {
-                    document.getElementById('modal-title').innerText = "publishing response handlers"
-                    modal.show();
-                })
-
-                $('#publish-config').click(function () {
-                    document.getElementById('modal-title').innerText = "publishing config files"
+                $('#publish-web').click(function () {
+                    document.getElementById('modal-title').innerText = "Publishing Web Based Usage Tools"
                     modal.show();
                 })
 
-                $('#publish-providers').click(function () {
-                    document.getElementById('modal-title').innerText = "Publishing Service Providers"
-                    modal.show();
-                })
-
-                $('#publish-crud-handlers').click(function () {
-                    document.getElementById('modal-title').innerText = "Publishing CRUD Handlers"
-                    modal.show();
-                })
-
-                $('#publish-locale-handlers').click(function () {
-                    document.getElementById('modal-title').innerText = "Publishing Locale Handlers"
-                    modal.show();
-                })
-
-                $('#publish-testing-tools').click(function () {
-                    document.getElementById('modal-title').innerText = "Publishing Testing Tools"
+                $('#publish-all').click(function () {
+                    document.getElementById('modal-title').innerText = "Publishing Api And Web Tools"
                     modal.show();
                 })
 

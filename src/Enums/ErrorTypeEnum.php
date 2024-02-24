@@ -9,7 +9,8 @@ class ErrorTypeEnum
         self::ACTOR_ROUTES_FILE_NOT_EXISTS,
         self::ALREADY_EXISTS,
         self::FAILED_TO_APPEND_ROUTE,
-        self::FAILED_TO_CREATE_ROUTE_DIRECTORY
+        self::FAILED_TO_CREATE_ROUTE_DIRECTORY,
+        self::CLASS_EXISTS,
     ];
     public const ACTOR_ROUTES_FILE_NOT_EXISTS = "Actor Routes Files Does not exist";
 
@@ -20,4 +21,6 @@ class ErrorTypeEnum
     public const FAILED_TO_CREATE_ROUTE_DIRECTORY = 'Failed To Create Your Route Specified Directory';
 
     public const INVALID_INPUT = 'Invalid input';
+
+    public const CLASS_EXISTS = 'The class exists!';
 }

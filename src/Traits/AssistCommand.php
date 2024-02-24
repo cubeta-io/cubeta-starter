@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -45,12 +46,17 @@ trait AssistCommand
      * format the file on the given path
      *
      * @param $filePath string the project path of the file eg:app/Models/MyModel.php
+     * @return string|void
      */
-    public function formatFile(string $filePath): void
+    public function formatFile(string $filePath)
     {
         $command = base_path() . "./vendor/bin/pint {$filePath}";
         $output = $this->executeCommandInTheBaseDirectory($command);
-        $this->line((string)$output);
+        if ($this instanceof Command){
+            $this->line((string)$output);
+        } else{
+            return (string)$output;
+        }
     }
 
     /**
