@@ -47,7 +47,7 @@ class FactoryGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/stubs/resource.stub';
+        return __DIR__ . '/stubs/factory.stub';
     }
 
     private function generateFields(): array

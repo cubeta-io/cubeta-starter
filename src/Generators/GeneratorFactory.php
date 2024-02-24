@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ModelGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\RequestGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ResourceGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\SeederGenerator;
 use Throwable;
 
 class GeneratorFactory
@@ -58,6 +59,9 @@ class GeneratorFactory
                 relations: $relations,
                 nullables: $nullables,
                 uniques: $uniques,
+            ),
+            SeederGenerator::$key => new SeederGenerator(
+                fileName: $fileName,
             ),
             default => throw new \Error("Not supported generator"),
         };
