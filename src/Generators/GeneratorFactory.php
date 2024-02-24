@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators;
 
+use Cubeta\CubetaStarter\Generators\Sources\FactoryGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ModelGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\RequestGenerator;
@@ -50,6 +51,13 @@ class GeneratorFactory
                 fileName: $fileName,
                 attributes: $attributes,
                 relations: $relations,
+            ),
+            FactoryGenerator::$key => new FactoryGenerator(
+                fileName: $fileName,
+                attributes: $attributes,
+                relations: $relations,
+                nullables: $nullables,
+                uniques: $uniques,
             ),
             default => throw new \Error("Not supported generator"),
         };

@@ -27,4 +27,26 @@ enum ColumnTypeEnum: string
     {
         return array_column(self::cases(), 'value');
     }
+
+    public static function isNumericType(string $type): bool
+    {
+        return in_array($type, [
+            ColumnTypeEnum::INTEGER->value,
+            ColumnTypeEnum::BIG_INTEGER->value,
+            ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
+            ColumnTypeEnum::UNSIGNED_DOUBLE->value,
+            ColumnTypeEnum::DOUBLE->value,
+            ColumnTypeEnum::FLOAT->value
+        ]);
+    }
+
+    public static function isDateTimeType(string $type): bool
+    {
+        return in_array($type, [
+            ColumnTypeEnum::DATE->value,
+            ColumnTypeEnum::TIME->value,
+            ColumnTypeEnum::DATETIME->value,
+            ColumnTypeEnum::TIMESTAMP->value
+        ]);
+    }
 }
