@@ -18,19 +18,17 @@ abstract class AbstractGenerator
     protected array $relations;
     protected array $nullables;
     protected array $uniques;
-    protected array $options;
     protected string $generatedFor;
     protected array $actors;
     protected string $fileName;
 
-    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], array $options = [], array $actors = [], string $generatedFor = '')
+    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], array $actors = [], string $generatedFor = '')
     {
         $this->fileName = trim($fileName);
         $this->attributes = $attributes;
         $this->relations = $relations;
         $this->nullables = $nullables;
         $this->uniques = $uniques;
-        $this->options = $options;
         $this->actors = $actors;
         $this->generatedFor = $generatedFor === '' ? ContainerType::BOTH : $generatedFor;
     }

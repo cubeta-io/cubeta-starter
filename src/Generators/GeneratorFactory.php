@@ -18,7 +18,7 @@ class GeneratorFactory
     /**
      * @throws Throwable
      */
-    public function make(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], array $options = [], array $actors = [], string $generatedFor = ''): void
+    public function make(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], array $actors = [], string $generatedFor = ''): void
     {
         $generator = match ($this->source) {
             MigrationGenerator::$key => new MigrationGenerator(
@@ -34,7 +34,6 @@ class GeneratorFactory
                 relations: $relations,
                 nullables: $nullables,
                 uniques: $uniques,
-                options: $options,
                 actors: $actors,
                 generatedFor: $generatedFor
             ),

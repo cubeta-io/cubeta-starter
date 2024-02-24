@@ -53,10 +53,6 @@ class ModelGenerator extends AbstractGenerator
         $this->addToJsonFile();
 
         $this->formatFile($modelPath);
-
-        $this->callOtherGenerators();
-
-        $this->createPivots($modelName);
     }
 
     public function generatedFileName(): string
@@ -201,65 +197,5 @@ class ModelGenerator extends AbstractGenerator
     private function generateUsedTraits(): string
     {
         return in_array('translatable', $this->attributes) ? "use HasFactory; \n use \App\Traits\Translations;\n" : "use HasFactory;";
-    }
-
-    private function callOtherGenerators(): void
-    {
-        $name = $this->generatedFileName();
-        $container = $this->generatedFor;
-        $options = array_filter($this->options, function ($value) {
-            return $value !== false && $value !== null;
-        });
-
-        if (!count($options)) {
-            $result = 'all';
-        } else {
-            foreach ($options as $key => $option) {
-                match ($key) {
-                    'migration' => (new MigrationGenerator(fileName: $this->fileName, attributes: $this->attributes, relations: $this->relations, nullables: $this->nullables, uniques: $this->uniques))->run(),
-//                    'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques]),
-//                    'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]),
-//                    'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'uniques' => $uniques]),
-//                    'seeder' => $this->call('create:seeder', ['name' => $name]),
-//                    'repository' => $this->call('create:repository', ['name' => $name]),
-//                    'service' => $this->call('create:service', ['name' => $name]),
-//                    'controller' => $this->call('create:controller', ['name' => $name, 'actor' => $actor]),
-//                    'web_controller' => $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables]),
-//                    'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]),
-//                    'postman_collection' => $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]),
-                };
-            }
-        }
-
-        if (!isset($result) || $result === 'all') {
-            (new MigrationGenerator(fileName: $this->fileName, attributes: $this->attributes, relations: $this->relations, nullables: $this->nullables, uniques: $this->uniques))->run();
-//            $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations, 'uniques' => $uniques]);
-//            $this->call('create:seeder', ['name' => $name]);
-//            $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques]);
-//            $this->call('create:repository', ['name' => $name]);
-//            $this->call('create:service', ['name' => $name]);
-
-//            if ($container['api']) {
-//                $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $this->relations]);
-//                $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
-//                $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
-//                $this->call('create:postman-collection', ['name' => $name, 'attributes' => $attributes]);
-//            }
-
-//            if ($container['web']) {
-//                $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $this->relations, 'nullables' => $nullables]);
-//            }
-        }
-    }
-
-    public function createPivots(string $modelName): void
-    {
-        $manyToManyRelations = array_keys($this->relations, RelationsTypeEnum::ManyToMany->value);
-        foreach ($manyToManyRelations as $relation) {
-//            $this->call('create:pivot', [
-//                'table1' => $modelName,
-//                'table2' => $relation,
-//            ]);
-        }
     }
 }
