@@ -2,13 +2,16 @@
 
 namespace Cubeta\CubetaStarter\Generators;
 
-use Cubeta\CubetaStarter\Generators\Sources\FactoryGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\ModelGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\RepositoryGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\RequestGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\ResourceGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\SeederGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\{
+    FactoryGenerator,
+    MigrationGenerator,
+    ModelGenerator,
+    RepositoryGenerator,
+    RequestGenerator,
+    ResourceGenerator,
+    SeederGenerator,
+    ServiceGenerator,
+};
 use Throwable;
 
 class GeneratorFactory
@@ -63,6 +66,9 @@ class GeneratorFactory
                 fileName: $fileName,
             ),
             RepositoryGenerator::$key => new RepositoryGenerator(
+                fileName: $fileName,
+            ),
+            ServiceGenerator::$key => new ServiceGenerator(
                 fileName: $fileName,
             ),
             default => throw new \Error("Not supported generator"),

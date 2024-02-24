@@ -23,7 +23,7 @@ class RepositoryGenerator extends AbstractGenerator
 
         $repositoryPath = $this->getGeneratingPath($repositoryName);
 
-        $modelVariable = variableNaming($modelName);
+        $modelVariable = $this->variableName($modelName);
 
         throw_if(file_exists($repositoryPath), new Error("{$repositoryName} Already Exists"));
 

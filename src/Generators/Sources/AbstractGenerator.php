@@ -96,11 +96,11 @@ abstract class AbstractGenerator
      * @throws FileNotFoundException
      * @throws BindingResolutionException
      */
-    protected function generateFileFromStub(array $stubProperties, string $path, bool $override = false): void
+    protected function generateFileFromStub(array $stubProperties, string $path, bool $override = false, string $otherStubsPath = null): void
     {
         CreateFile::make()
             ->setPath($path)
-            ->setStubPath($this->stubsPath())
+            ->setStubPath($otherStubsPath ?? $this->stubsPath())
             ->setStubProperties($stubProperties)
             ->callFileGenerateFunctions($override);
     }
