@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators;
 
 use Cubeta\CubetaStarter\Generators\Sources\{
+    ApiControllerGenerator,
     FactoryGenerator,
     MigrationGenerator,
     ModelGenerator,
@@ -10,7 +11,7 @@ use Cubeta\CubetaStarter\Generators\Sources\{
     RequestGenerator,
     ResourceGenerator,
     SeederGenerator,
-    ServiceGenerator,
+    ServiceGenerator
 };
 use Throwable;
 
@@ -69,6 +70,9 @@ class GeneratorFactory
                 fileName: $fileName,
             ),
             ServiceGenerator::$key => new ServiceGenerator(
+                fileName: $fileName,
+            ),
+            ApiControllerGenerator::$key => new ApiControllerGenerator(
                 fileName: $fileName,
             ),
             default => throw new \Error("Not supported generator"),
