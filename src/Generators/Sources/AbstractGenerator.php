@@ -53,6 +53,11 @@ abstract class AbstractGenerator
         return strtolower(Str::plural(Str::snake($name)));
     }
 
+    protected function variableName(string $string): string
+    {
+        return Str::singular(Str::camel($string));
+    }
+
     protected function modelName(string $name): string
     {
         return ucfirst(Str::singular(Str::studly($name)));

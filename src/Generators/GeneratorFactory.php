@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Generators;
 use Cubeta\CubetaStarter\Generators\Sources\FactoryGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ModelGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\RepositoryGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\RequestGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ResourceGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\SeederGenerator;
@@ -22,7 +23,7 @@ class GeneratorFactory
     /**
      * @throws Throwable
      */
-    public function make(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], array $actors = [], string $generatedFor = ''): void
+    public function make(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = []): void
     {
         $generator = match ($this->source) {
             MigrationGenerator::$key => new MigrationGenerator(
@@ -38,8 +39,6 @@ class GeneratorFactory
                 relations: $relations,
                 nullables: $nullables,
                 uniques: $uniques,
-                actors: $actors,
-                generatedFor: $generatedFor
             ),
             RequestGenerator::$key => new RequestGenerator(
                 fileName: $fileName,
@@ -61,6 +60,9 @@ class GeneratorFactory
                 uniques: $uniques,
             ),
             SeederGenerator::$key => new SeederGenerator(
+                fileName: $fileName,
+            ),
+            RepositoryGenerator::$key => new RepositoryGenerator(
                 fileName: $fileName,
             ),
             default => throw new \Error("Not supported generator"),
