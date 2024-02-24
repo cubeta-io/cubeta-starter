@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Cubeta\CubetaStarter\Enums\ColumnType;
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Illuminate\Support\Str;
 
@@ -132,8 +132,8 @@ trait SettingsHandler
 
         foreach ($attributes as $colName => $type) {
 
-            if ($type == ColumnType::KEY) {
-                $type = ColumnType::FOREIGN_KEY;
+            if ($type == ColumnTypeEnum::KEY->value) {
+                $type = ColumnTypeEnum::FOREIGN_KEY->value;
                 $parent = modelNaming(Str::singular(str_replace('_id', '', $colName)));
                 $relations[RelationsTypeEnum::BelongsTo->value][] = [
                     "key" => $colName,

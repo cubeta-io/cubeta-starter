@@ -21,6 +21,7 @@ enum ColumnTypeEnum: string
     case FILE = 'file';
     case KEY = 'key';
     case TRANSLATABLE = 'translatable';
+    case FOREIGN_KEY = 'foreign_key';
 
     public static function getAllValues(): array
     {
