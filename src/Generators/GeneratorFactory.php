@@ -4,6 +4,8 @@ namespace Cubeta\CubetaStarter\Generators;
 
 use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ModelGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\RequestGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\ResourceGenerator;
 use Throwable;
 
 class GeneratorFactory
@@ -36,6 +38,18 @@ class GeneratorFactory
                 uniques: $uniques,
                 actors: $actors,
                 generatedFor: $generatedFor
+            ),
+            RequestGenerator::$key => new RequestGenerator(
+                fileName: $fileName,
+                attributes: $attributes,
+                relations: $relations,
+                nullables: $nullables,
+                uniques: $uniques,
+            ),
+            ResourceGenerator::$key => new ResourceGenerator(
+                fileName: $fileName,
+                attributes: $attributes,
+                relations: $relations,
             ),
             default => throw new \Error("Not supported generator"),
         };
