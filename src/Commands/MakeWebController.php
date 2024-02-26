@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\app\Models\CubetaRelation;
-use Cubeta\CubetaStarter\app\Models\CubetaTable;
-use Cubeta\CubetaStarter\app\Models\Settings;
+use Cubeta\CubetaStarter\app\Models\Table\CubetaRelation;
+use Cubeta\CubetaStarter\app\Models\Table\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\Table\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;

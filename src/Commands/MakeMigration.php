@@ -3,7 +3,7 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Carbon\Carbon;
-use Cubeta\CubetaStarter\app\Models\Settings;
+use Cubeta\CubetaStarter\app\Models\Table\Settings;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\SettingsHandler;

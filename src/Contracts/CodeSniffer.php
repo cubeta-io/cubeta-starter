@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Contracts;
 
-use Cubeta\CubetaStarter\app\Models\CubetaRelation;
-use Cubeta\CubetaStarter\app\Models\Settings;
+use Cubeta\CubetaStarter\app\Models\Table\CubetaRelation;
+use Cubeta\CubetaStarter\app\Models\Table\Settings;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\SettingsHandler;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;

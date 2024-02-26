@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\app\Models;
+namespace Cubeta\CubetaStarter\app\Models\Table;
 
 class CubetaAttribute
 {
