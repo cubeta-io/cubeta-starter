@@ -40,25 +40,6 @@ class PostmanCollection implements PostmanObject
         $this->events = $events;
     }
 
-
-    /**
-     * @param array $data
-     * @return self
-     */
-    public static function serialize(array $data): PostmanCollection
-    {
-        try {
-            return new self(
-                $data['info']['name'] ?? '',
-                array_map(fn($item) => PostmanItem::serialize($item), $data['item']),
-                array_map(fn($variable) => PostmanVariable::serialize($variable), $data['variable'] ?? []),
-                array_map(fn($event) => PostmanEvent::serialize($event), $data['event'] ?? [])
-            );
-        } catch (\Exception $exception) {
-            dd($data, $exception->getMessage());
-        }
-    }
-
     public function collect(): Collection
     {
         return collect($this->toArray());
@@ -123,11 +104,6 @@ class PostmanCollection implements PostmanObject
         return $this;
     }
 
-    public function newAuthApi(string $role){
-        $apiStub = file_get_contents(__DIR__.'/../../../Commands/Commands/stubs/Auth/auth-postman-entity.stub');
-//        $api = str_replace();
-    }
-
     /**
      * @param array $columns
      * @return FormDataField[]
@@ -151,6 +127,32 @@ class PostmanCollection implements PostmanObject
         }
 
         return $data;
+    }
+
+    public function newAuthApi(string $role)
+    {
+        $apiStub = file_get_contents(__DIR__ . '/../../../Commands/stubs/Auth/auth-postman-entity.stub');
+        $api = str_replace("{role}", $role, $apiStub);
+        $this->items[] = PostmanItem::serialize(json_decode($api, true));
+        return $this;
+    }
+
+    /**
+     * @param array $data
+     * @return self
+     */
+    public static function serialize(array $data): PostmanCollection
+    {
+        try {
+            return new self(
+                $data['info']['name'] ?? '',
+                array_map(fn($item) => PostmanItem::serialize($item), $data['item']),
+                array_map(fn($variable) => PostmanVariable::serialize($variable), $data['variable'] ?? []),
+                array_map(fn($event) => PostmanEvent::serialize($event), $data['event'] ?? [])
+            );
+        } catch (\Exception $exception) {
+            dd($data, $exception->getMessage());
+        }
     }
 
     /**
