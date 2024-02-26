@@ -129,7 +129,7 @@ class PostmanCollection implements PostmanObject
         return $data;
     }
 
-    public function newAuthApi(string $role)
+    public function newAuthApi(string $role): static
     {
         $apiStub = file_get_contents(__DIR__ . '/../../../Commands/stubs/Auth/auth-postman-entity.stub');
         $api = str_replace("{role}", $role, $apiStub);
