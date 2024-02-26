@@ -44,7 +44,7 @@ class PostmanRequest implements PostmanObject
      * @param RequestAuth|null $auth
      * @param array $response
      */
-    public function __construct(string $name, string $method, array $events, array $header, ?RequestBody $body, RequestUrl $url, ?RequestAuth $auth, array $response)
+    public function __construct(string $name, string $method, RequestUrl $url, array $events = [], array $header = [], ?RequestBody $body = null, ?RequestAuth $auth = null, array $response = [])
     {
         $this->name = $name;
         $this->method = $method;
@@ -77,10 +77,10 @@ class PostmanRequest implements PostmanObject
         return new self(
             $data['name'],
             $data['request']['method'] ?? self::GET,
+            RequestUrl::serialize($data['request']['url']),
             isset($data['event']) ? array_map(fn($event) => PostmanEvent::serialize($event), $data['event']) : [],
             isset($data['request']['header']) ? array_map(fn($header) => RequestHeader::serialize($header), $data['request']['header']) : [],
             isset($data['request']['body']) ? RequestBody::serialize($data['request']['body']) : null,
-            RequestUrl::serialize($data['request']['url']),
             isset($data['request']['auth']) ? RequestAuth::serialize($data['request']['auth']) : null,
             $data['response'] ?? []
         );

@@ -17,7 +17,10 @@ class RequestUrl implements PostmanObject
      */
     public function __construct(string $raw)
     {
-        $this->raw = $raw;
+        $this->raw = "{{local}}v1/$raw";
+        $this->host = [
+            "{{local}}v1/$raw"
+        ];
     }
 
     /**

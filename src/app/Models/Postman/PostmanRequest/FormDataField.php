@@ -15,16 +15,16 @@ class FormDataField implements PostmanObject
 
     public string $key;
     public string $value;
-    public string $description;
+    public ?string $description = null;
     public string $type = 'text';
 
     /**
      * @param string $key
      * @param string $value
-     * @param string $description
+     * @param string|null $description
      * @param string $type
      */
-    public function __construct(string $key, string $value, string $description, string $type = 'text')
+    public function __construct(string $key, string $value, ?string $description = null, string $type = 'text')
     {
         $this->key = $key;
         $this->value = $value;
@@ -36,7 +36,7 @@ class FormDataField implements PostmanObject
      * @param array{key:string|null , value:string|null , type:string|null} $data
      * @return self
      */
-    public static function serialize(array $data)
+    public static function serialize(array $data): FormDataField
     {
         return new self(
             $data['key'] ?? '',

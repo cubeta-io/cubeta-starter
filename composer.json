@@ -16,8 +16,7 @@
     },
     "require-dev": {
         "orchestra/testbench": "^7.5",
-        "laravel/pint": "^1.7",
-        "laravel/tinker": "^2.9"
+        "laravel/pint": "^1.7"
     },
     "autoload": {
         "files": [

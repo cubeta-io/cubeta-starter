@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 
 class RequestHeader implements PostmanObject
 {
-    public ?string $key = null ;
+    public ?string $key = null;
     public ?string $value = null;
     public ?string $type = 'text';
 
@@ -23,24 +23,22 @@ class RequestHeader implements PostmanObject
         $this->type = $type;
     }
 
+
     /**
-     * @return $this
+     * @return self
      */
-    public function setAcceptJson(): static
+    public static function setAcceptJson(): RequestHeader
     {
-        $this->key = 'Accept';
-        $this->type = 'text';
-        $this->value = 'application/json';
-        return $this;
+        return new self("Accept", 'application/json', 'text');
     }
 
-    public function toArray(): array
+    /**
+     * @param array{key:string , value:string , type:string} $data
+     * @return self
+     */
+    public static function serialize(array $data): RequestHeader
     {
-        return[
-            'key' => $this->key ,
-            'value' => $this->value ,
-            'type' => $this->type,
-        ];
+        return new self($data['key'], $data['value'], $data['type'] ?? 'text');
     }
 
     public function collect(): Collection
@@ -48,17 +46,17 @@ class RequestHeader implements PostmanObject
         return collect($this->toArray());
     }
 
-    public function toJson(): bool|string
+    public function toArray(): array
     {
-        return json_encode($this->toArray() , JSON_PRETTY_PRINT);
+        return [
+            'key' => $this->key,
+            'value' => $this->value,
+            'type' => $this->type,
+        ];
     }
 
-    /**
-     * @param array{key:string , value:string , type:string} $data
-     * @return self
-     */
-    public static function serialize(array $data)
+    public function toJson(): bool|string
     {
-        return new self($data['key'] , $data['value'] , $data['type'] ?? 'text');
+        return json_encode($this->toArray(), JSON_PRETTY_PRINT);
     }
 }
