@@ -57,6 +57,10 @@ class PostmanCollection implements PostmanObject
 
     public function newCrud(string $modelName, string $route, array $columns = []): static
     {
+        if ($this->checkIfCollectionExist($modelName)){
+            return $this;
+        }
+
         $index = new PostmanRequest(
             name: "index",
             method: PostmanRequest::GET,
@@ -104,6 +108,17 @@ class PostmanCollection implements PostmanObject
         return $this;
     }
 
+    public function checkIfCollectionExist(string $name): bool
+    {
+        foreach ($this->items as $item) {
+            if ($item->name == $name && $item?->items){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * @param array $columns
      * @return FormDataField[]
@@ -131,6 +146,10 @@ class PostmanCollection implements PostmanObject
 
     public function newAuthApi(string $role): static
     {
+        if ($this->checkIfCollectionExist("$role auth")){
+            return $this;
+        }
+
         $apiStub = file_get_contents(__DIR__ . '/../../../Commands/stubs/Auth/auth-postman-entity.stub');
         $api = str_replace("{role}", $role, $apiStub);
         $this->items[] = PostmanItem::serialize(json_decode($api, true));
@@ -161,7 +180,7 @@ class PostmanCollection implements PostmanObject
      */
     public function save(): static
     {
-        if (!Postman::$path) throw new Exception("Collection Path isn\t specified");
+        if (!Postman::$path) throw new Exception("Collection Path isn't specified");
         file_put_contents(Postman::$path, json_encode($this->toArray(), JSON_UNESCAPED_SLASHES));
         return $this;
     }
