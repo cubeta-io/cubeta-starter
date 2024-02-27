@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Cubeta\CubetaStarter\app\Models\Settings;
+use Cubeta\CubetaStarter\App\Models\Table\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;

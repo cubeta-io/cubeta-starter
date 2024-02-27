@@ -5,15 +5,6 @@
 					"name": "register",
 					"event": [
 						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
 							"listen": "test",
 							"script": {
 								"exec": [
@@ -93,15 +84,6 @@
 				{
 					"name": "update info",
 					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
 						{
 							"listen": "{role}",
 							"script": {
@@ -187,15 +169,6 @@
 				{
 					"name": "login",
 					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
 						{
 							"listen": "test",
 							"script": {
@@ -464,6 +437,4 @@
 					"response": []
 				}
 			]
-		},
-
-"// add-your-cruds-here"
+		}

@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\App\Models\Postman\Postman;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RolePermissionTrait;
@@ -9,7 +10,6 @@ use Cubeta\CubetaStarter\Traits\RouteFileTrait;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 class InitialProject extends Command
@@ -89,7 +89,6 @@ class InitialProject extends Command
         }
 
         $this->createRoleSeeder();
-        $this->createPermissionSeeder();
         $this->generateAuthControllers($role, $authenticated, $roleContainer);
 
         $this->info("{$role} role created successfully");
@@ -147,39 +146,14 @@ class InitialProject extends Command
         }
     }
 
+    /**
+     * @throws FileNotFoundException
+     * @throws BindingResolutionException
+     */
     private function addPostmanAuthCollection(string $role): void
     {
-        $authPostmanEntity = file_get_contents(__DIR__ . "/stubs/Auth/auth-postman-entity.stub");
-        $authPostmanEntity = str_replace("{role}", $role, $authPostmanEntity);
-
-        $projectName = config('cubeta-starter.project_name');
-        $collectionDirectory = base_path(config('cubeta-starter.postman_collection _path'));
-        ensureDirectoryExists($collectionDirectory);
-        $collectionPath = "{$collectionDirectory}/{$projectName}.postman_collection.json";
-
-        if (File::exists($collectionPath)) {
-            $collection = file_get_contents($collectionPath);
-
-            if (Str::contains(preg_replace('/\s+/', '', $collection), trim("\"name\":\"{$role} auth\","))) {
-                $this->error('An endpoint for ' . $role . 'Auth Controller Endpoint is Already Exists in the Postman collection');
-
-                return;
-            }
-
-            $collection = str_replace('"// add-your-cruds-here"', $authPostmanEntity, $collection);
-            file_put_contents($collectionPath, $collection);
-        } else {
-            $projectURL = config('cubeta-starter.project_url') ?? "http://localhost/" . config('cubeta-starter.project_name') . "/public/";
-            $collectionStub = file_get_contents(__DIR__ . '/stubs/postman-collection.stub');
-            $collectionStub = str_replace(
-                ['{projectName}', '{project-url}', '// add-your-cruds-here'],
-                [$projectName, $projectURL, $authPostmanEntity],
-                $collectionStub
-            );
-            file_put_contents($collectionPath, $collectionStub);
-        }
-
-        $this->info("Created Postman Collection: {$projectName}.postman_collection.json ");
+        $collection = Postman::make()->getCollection()->newAuthApi($role)->save();
+        $this->info("Created Postman Collection: {$collection->name}.postman_collection.json ");
     }
 
     /**
