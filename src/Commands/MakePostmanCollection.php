@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\app\Models\Postman\Postman;
+use Cubeta\CubetaStarter\App\Models\Postman\Postman;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;

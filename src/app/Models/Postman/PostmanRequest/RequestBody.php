@@ -1,8 +1,8 @@
 <?php
 
-namespace Cubeta\CubetaStarter\app\Models\Postman\PostmanRequest;
+namespace Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest;
 
-use Cubeta\CubetaStarter\app\Models\Postman\PostmanObject;
+use Cubeta\CubetaStarter\App\Models\Postman\PostmanObject;
 use Illuminate\Support\Collection;
 
 class RequestBody implements PostmanObject

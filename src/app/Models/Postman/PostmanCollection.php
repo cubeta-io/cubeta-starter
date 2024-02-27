@@ -1,13 +1,13 @@
 <?php
 
-namespace Cubeta\CubetaStarter\app\Models\Postman;
+namespace Cubeta\CubetaStarter\App\Models\Postman;
 
-use Cubeta\CubetaStarter\app\Models\Postman\PostmanRequest\FormDataField;
-use Cubeta\CubetaStarter\app\Models\Postman\PostmanRequest\PostmanRequest;
-use Cubeta\CubetaStarter\app\Models\Postman\PostmanRequest\RequestAuth;
-use Cubeta\CubetaStarter\app\Models\Postman\PostmanRequest\RequestBody;
-use Cubeta\CubetaStarter\app\Models\Postman\PostmanRequest\RequestHeader;
-use Cubeta\CubetaStarter\app\Models\Postman\PostmanRequest\RequestUrl;
+use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\FormDataField;
+use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\PostmanRequest;
+use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestAuth;
+use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestBody;
+use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestHeader;
+use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestUrl;
 use Illuminate\Support\Collection;
 use Mockery\Exception;
 
@@ -181,7 +181,7 @@ class PostmanCollection implements PostmanObject
     public function save(): static
     {
         if (!Postman::$path) throw new Exception("Collection Path isn't specified");
-        file_put_contents(Postman::$path, json_encode($this->toArray(), JSON_UNESCAPED_SLASHES));
+        file_put_contents(Postman::$path, json_encode($this->toArray(), JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT));
         return $this;
     }
 

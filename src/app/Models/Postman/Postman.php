@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\app\Models\Postman;
+namespace Cubeta\CubetaStarter\App\Models\Postman;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;

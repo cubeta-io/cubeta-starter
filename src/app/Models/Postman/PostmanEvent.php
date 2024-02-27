@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\app\Models\Postman;
+namespace Cubeta\CubetaStarter\App\Models\Postman;
 
 use Exception;
 use Illuminate\Support\Collection;

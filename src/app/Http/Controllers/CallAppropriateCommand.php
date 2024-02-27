@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\app\Http\Controllers;
+namespace Cubeta\CubetaStarter\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Cubeta\CubetaStarter\Enums\ContainerType;

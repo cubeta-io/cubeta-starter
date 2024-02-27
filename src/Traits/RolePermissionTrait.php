@@ -13,30 +13,6 @@ trait RolePermissionTrait
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function createPermissionSeeder(): void
-    {
-        $directory = base_path(config('cubeta-starter.seeder_path') . '/PermissionSeeder.php');
-
-        if (file_exists($directory)) {
-            $this->warn('PermissionSeeder is Already Exists');
-            return;
-        }
-
-        $stubProperties = [
-            '{namespace}' => config('cubeta-starter.seeder_namespace'),
-        ];
-
-        generateFileFromStub(
-            $stubProperties,
-            $directory,
-            __DIR__ . '/../Commands/stubs/PermissionSeeder.stub'
-        );
-    }
-
-    /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
     public function createRoleSeeder(): void
     {
         $directory = base_path(config('cubeta-starter.seeder_path') . '/RoleSeeder.php');

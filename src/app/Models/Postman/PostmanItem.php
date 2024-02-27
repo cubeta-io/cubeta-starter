@@ -1,8 +1,8 @@
 <?php
 
-namespace Cubeta\CubetaStarter\app\Models\Postman;
+namespace Cubeta\CubetaStarter\App\Models\Postman;
 
-use Cubeta\CubetaStarter\app\Models\Postman\PostmanRequest\PostmanRequest;
+use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\PostmanRequest;
 use Exception;
 use Illuminate\Support\Collection;
 
