@@ -89,7 +89,6 @@ class InitialProject extends Command
         }
 
         $this->createRoleSeeder();
-        $this->createPermissionSeeder();
         $this->generateAuthControllers($role, $authenticated, $roleContainer);
 
         $this->info("{$role} role created successfully");
