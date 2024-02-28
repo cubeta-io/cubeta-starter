@@ -2,11 +2,14 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Error;
 use Throwable;
 
 class ApiControllerGenerator extends AbstractGenerator
 {
+    use RouteBinding;
+
     public static string $key = 'api-controller';
     public static string $configPath = 'cubeta-starter.api_controller_path';
 
@@ -35,6 +38,8 @@ class ApiControllerGenerator extends AbstractGenerator
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath);
+
+        $this->addRoute($modelName, $this->actor);
 
         $this->formatFile($controllerPath);
     }

@@ -80,7 +80,6 @@ function getResourcePath(string $modelName): string
     return base_path(config("cubeta-starter.resource_path", 'app/Http/Resources')) . "/$resourceName.php";
 }
 
-// work version with a problem in the addition to the return array
 function addToMethodReturnArray(string $classPath, string $className, string $methodName, string $content): bool
 {
     if (!file_exists($classPath)) {

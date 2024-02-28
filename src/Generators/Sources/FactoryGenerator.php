@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Error;
@@ -20,6 +21,7 @@ class FactoryGenerator extends AbstractGenerator
     {
         $modelName = $this->modelName($this->fileName);
         $factoryName = $this->generatedFileName();
+        $this->addToJsonFile();
 
         $factoryPath = $this->getGeneratingPath($factoryName);
 
@@ -36,6 +38,8 @@ class FactoryGenerator extends AbstractGenerator
         ];
 
         $this->generateFileFromStub($stubProperties, $factoryPath);
+
+        CodeSniffer::make()->setModel($modelName)->checkForFactoryRelations();
 
         $this->formatFile($factoryPath);
     }
@@ -162,14 +166,14 @@ class FactoryGenerator extends AbstractGenerator
     private function factoryRelationMethod($relation): string
     {
         $modelName = $this->modelName($relation);
-        $functionName = 'with' . ucfirst(Str::plural(Str::studly($modelName)));;
+        $functionName = 'with' . ucfirst(Str::plural(Str::studly($modelName)));
         return "public function {$functionName}(\$count = 1)\n{\n\t return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::factory(\$count));\n} \n";
     }
 
     private function getUsedTraits(): string
     {
         $usedTraits = '';
-
+        //TODO::when merging with dev there will be a config option for traits so make the use traits use the config option for traits namespace
         if (in_array('file', $this->attributes)) {
             $usedTraits .= "use \App\Traits\FileHandler; \n";
         }

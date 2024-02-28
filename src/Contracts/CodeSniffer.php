@@ -4,10 +4,10 @@ namespace Cubeta\CubetaStarter\Contracts;
 
 use Cubeta\CubetaStarter\app\Models\CubetaRelation;
 use Cubeta\CubetaStarter\app\Models\Settings;
+use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerator;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\SettingsHandler;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
-use Cubeta\CubetaStarter\Traits\ViewGenerating;
 use Illuminate\Support\Str;
 
 class CodeSniffer
@@ -15,7 +15,6 @@ class CodeSniffer
     use SettingsHandler;
     use StringsGenerator;
     use AssistCommand;
-    use ViewGenerating;
 
     private static $instance;
 
@@ -213,7 +212,7 @@ class CodeSniffer
                     } else $required = "";
 
                     if (file_exists($relatedCreateView) and isMethodDefined($relatedModelControllerPath, 'allPaginatedJson')) {
-                        $inputField = "<x-select2 label=\"{$this->currentModel}\" name=\"{$attribute}\" api=\"{{route('{$select2RouteName}')}}\" option-value=\"id\" option-inner-text=\"{$currentTable->titleable()->name}\" $required/> \n";;
+                        $inputField = "<x-select2 label=\"{$this->currentModel}\" name=\"{$attribute}\" api=\"{{route('{$select2RouteName}')}}\" option-value=\"id\" option-inner-text=\"{$currentTable->titleable()->name}\" $required/> \n";
 
                         $createView = file_get_contents($relatedCreateView);
 
@@ -226,7 +225,7 @@ class CodeSniffer
 
                     if (file_exists($relatedUpdateView) and isMethodDefined($relatedModelControllerPath, 'allPaginatedJson')) {
                         $value = ":value=\"\$" . variableNaming($relation->modelName) . "->$attribute\"";
-                        $inputField = "<x-select2 label=\"{$this->currentModel}\" name=\"{$attribute}\" api=\"{{route('{$select2RouteName}')}}\" option-value=\"id\" option-inner-text=\"{$currentTable->titleable()->name}\" $value/> \n";;
+                        $inputField = "<x-select2 label=\"{$this->currentModel}\" name=\"{$attribute}\" api=\"{{route('{$select2RouteName}')}}\" option-value=\"id\" option-inner-text=\"{$currentTable->titleable()->name}\" $value/> \n";
 
                         $createView = file_get_contents($relatedUpdateView);
 
@@ -251,7 +250,7 @@ class CodeSniffer
                             file_put_contents($relatedIndexView, $relatedIndexViewContent);
                         } else { // or add new column to the view
                             $content = "\n\"data\":'$attributeName' , searchable:true , orderable:true";
-                            $this->addColumnToDataTable($relatedIndexView, $content, $currentTable->modelName);
+                            ViewsGenerator::addColumnToDataTable($relatedIndexView, $content, $currentTable->modelName);
                         }
                     }
 

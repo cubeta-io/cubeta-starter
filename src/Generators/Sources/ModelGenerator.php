@@ -24,6 +24,7 @@ class ModelGenerator extends AbstractGenerator
         $modelName = $this->generatedFileName();
         $this->mergeRelations();
         $modelPath = $this->getGeneratingPath($modelName);
+        $this->addToJsonFile();
 
         throw_if(file_exists($modelPath), new Error("{$modelName} Already Exists"));
 
@@ -50,8 +51,6 @@ class ModelGenerator extends AbstractGenerator
 
         CodeSniffer::make()->setModel($modelName)->checkForModelsRelations();
 
-        $this->addToJsonFile();
-
         $this->formatFile($modelPath);
     }
 
@@ -69,11 +68,6 @@ class ModelGenerator extends AbstractGenerator
             }
         }
         $this->relations = array_merge($this->relations, $belongToRelations);
-    }
-
-    protected function stubsPath(): string
-    {
-        return __DIR__ . '/stubs/model.stub';
     }
 
     private function generateModelClassAttributes(): array
@@ -94,10 +88,7 @@ class ModelGenerator extends AbstractGenerator
                 $fillable .= "'{$attribute}' ,\n";
 
                 if ($type === ColumnTypeEnum::BOOLEAN->value) {
-                    $booleanValueScope .= 'public function scope' . ucfirst(Str::studly($attribute)) . "(\$query)
-                                {
-                                    return \$query->where('" . $attribute . "' , 1);
-                                } \n";
+                    $booleanValueScope .= '\tpublic function scope' . ucfirst(Str::studly($attribute)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute . "' , 1);\n\t}\n";
                     $casts .= "'{$attribute}' => 'boolean' , \n";
                 }
 
@@ -137,12 +128,7 @@ class ModelGenerator extends AbstractGenerator
                               }\n";
                     $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->generatedFileName()) . '/' . Str::plural($colName)));
 
-                } elseif (in_array($type, [
-                    ColumnTypeEnum::TIME->value,
-                    ColumnTypeEnum::DATE->value,
-                    ColumnTypeEnum::DATETIME->value,
-                    ColumnTypeEnum::TIMESTAMP->value,
-                ])) {
+                } elseif (ColumnTypeEnum::isDateTimeType($type)) {
                     $properties .= "* @property \DateTime {$attribute} \n";
                 } elseif (in_array($type, [
                     ColumnTypeEnum::BIG_INTEGER->value,
@@ -196,6 +182,12 @@ class ModelGenerator extends AbstractGenerator
 
     private function generateUsedTraits(): string
     {
+        //TODO::when merging with dev there will be a config option for traits so make the use traits use the config option for traits namespace
         return in_array('translatable', $this->attributes) ? "use HasFactory; \n use \App\Traits\Translations;\n" : "use HasFactory;";
+    }
+
+    protected function stubsPath(): string
+    {
+        return __DIR__ . '/stubs/model.stub';
     }
 }

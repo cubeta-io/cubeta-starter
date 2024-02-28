@@ -12,6 +12,7 @@ use JetBrains\PhpStorm\ArrayShape;
 trait ViewGenerating
 {
     use RouteBinding;
+
     /**
      * create an update or a create form
      *
@@ -410,5 +411,17 @@ trait ViewGenerating
 
         echo "We Couldn't find the Proper Place To Add New Column In The Script Tag Of $filePath \n";
         return false;
+    }
+
+    /**
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function generateViews(string $modelName, array $routesNames, array $attributes = [], array $nullables = [], ?string $actor = null): void
+    {
+        $this->generateCreateOrUpdateForm($modelName, $attributes, $nullables, $routesNames['store'], null, $actor);
+        $this->generateShowView($modelName, $routesNames['edit'], $attributes);
+        $this->generateIndexView($modelName, $routesNames['create'], $routesNames['data'], $attributes);
+        $this->generateCreateOrUpdateForm($modelName, $attributes, $nullables, null, $routesNames['update'], $actor);
     }
 }

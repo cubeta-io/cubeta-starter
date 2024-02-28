@@ -2,13 +2,22 @@
 
 namespace Cubeta\CubetaStarter\app\Models;
 
+use Cubeta\CubetaStarter\Traits\NamingConventions;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class CubetaTable
 {
+    use NamingConventions;
+    
+    /**
+     * @var string
+     */
     public string $modelName;
 
+    /**
+     * @var string
+     */
     public string $tableName;
 
     /**
@@ -35,6 +44,27 @@ class CubetaTable
         $this->relations = $relations;
     }
 
+    /**
+     * @param string $modelName
+     * @param array $attributes
+     * @param array $relations
+     * @param array $uniques
+     * @param array $nullables
+     * @return CubetaTable
+     */
+    public static function create(string $modelName, array $attributes = [], array $relations = [], array $uniques = [], array $nullables = []): CubetaTable
+    {
+        return new self(
+            modelNaming($modelName),
+            tableNaming($modelName),
+            collect($attributes)->map(fn($type, $name) => new CubetaAttribute($name, $type, in_array($name, $nullables), in_array($name, $uniques)))->toArray(),
+            collect($relations)->map(fn($type, $rel) => new CubetaRelation($type, modelNaming($rel)))->toArray(),
+        );
+    }
+
+    /**
+     * @return bool|string
+     */
     public function toJson(): bool|string
     {
         $attributes = [];
@@ -57,6 +87,9 @@ class CubetaTable
         ]);
     }
 
+    /**
+     * @return array
+     */
     public function toArray(): array
     {
         $attributes = [];
@@ -87,22 +120,29 @@ class CubetaTable
         return collect($this->relations);
     }
 
+    /**
+     * @return Collection
+     */
     public function nullables(): Collection
     {
         return collect($this->attributes)
-            ->filter(function (CubetaAttribute $attr) {
-                return $attr->nullable == true;
-            });
+            ->filter(fn(CubetaAttribute $attr) => $attr->nullable == true);
     }
 
+    /**
+     * @return Collection
+     */
     public function uniques(): Collection
     {
         return collect($this->attributes)
-            ->filter(function (CubetaAttribute $attr) {
-                return $attr->unique == true;
-            });
+            ->filter(fn(CubetaAttribute $attr) => $attr->unique == true);
     }
 
+    /**
+     * @param string $name
+     * @param string|null $type
+     * @return bool
+     */
     public function hasAttribute(string $name, ?string $type): bool
     {
         return (bool)collect($this->attributes)
@@ -116,6 +156,11 @@ class CubetaTable
             ->count();
     }
 
+    /**
+     * @param string $modelName
+     * @param string|null $type
+     * @return bool
+     */
     public function hasRelation(string $modelName, ?string $type = null): bool
     {
         $modelName = modelNaming($modelName);
@@ -130,12 +175,18 @@ class CubetaTable
             ->count();
     }
 
+    /**
+     * @return $this
+     */
     public function save(): static
     {
         Settings::make()->addTable($this);
         return $this;
     }
 
+    /**
+     * @return CubetaAttribute
+     */
     public function titleable(): CubetaAttribute
     {
         foreach ($this->attributes as $attribute) {
@@ -167,11 +218,17 @@ class CubetaTable
         return collect($this->attributes);
     }
 
+    /**
+     * @return string
+     */
     public function variableName(): string
     {
         return variableNaming($this->modelName);
     }
 
+    /**
+     * @return string
+     */
     public function keyName(): string
     {
         return strtolower(Str::singular($this->modelName)) . "_id";

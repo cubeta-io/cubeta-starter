@@ -1,94 +1,53 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Commands;
+namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\app\Models\CubetaRelation;
 use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Cubeta\CubetaStarter\app\Models\Settings;
-use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Cubeta\CubetaStarter\Traits\ViewGenerating;
-use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Error;
 use Illuminate\Support\Facades\Route;
 use JetBrains\PhpStorm\ArrayShape;
+use Throwable;
 
-class MakeWebController extends Command
+class WebControllerGenerator extends AbstractGenerator
 {
-    use AssistCommand;
-    use RouteBinding;
-    use ViewGenerating;
+    use AssistCommand, RouteBinding;
 
-    protected CubetaTable $tableObject;
-
-    protected $description = 'Create a new web controller';
-
-    protected $signature = 'create:web-controller
-        {name : The name of the model }
-        {attributes? : the model attributes}
-        {relations? : the model relations}
-        {nullables? : the nullables attributes}
-        {actor? : The actor of the endpoint of this model }';
+    public static string $key = 'web_controller';
+    public static string $configPath = 'cubeta-starter.web_controller_path';
 
     protected string $rawColumns = "";
 
     protected array $additionalRoutes = [];
 
-    /**
-     * @throws FileNotFoundException
-     * @throws BindingResolutionException
-     */
-    public function handle(): void
-    {
-        $name = $this->argument('name');
-        $actor = $this->argument('actor') ?? null;
-        $attributes = $this->argument('attributes') ?? [];
-        $relations = $this->argument('relations') ?? [];
-        $nullables = $this->argument('nullables') ?? [];
+    protected CubetaTable $tableObject;
 
-        $modelName = modelNaming($name);
-
-        $this->tableObject = Settings::make()->serialize($modelName, $attributes, $relations, $nullables, []);
-
-        $this->createWebController($modelName, $attributes, $nullables, $relations, $actor);
-
-        CodeSniffer::make()
-            ->setModel($modelName)
-            ->checkForWebRelations(
-                $this->getRouteName($modelName, ContainerType::WEB, $actor) . '.allPaginatedJson'
-            );
-    }
 
     /**
-     * @throws FileNotFoundException
-     * @throws BindingResolutionException
+     * @throws Throwable
      */
-    public function createWebController(string $modelName, array $attributes = [], array $nullables = [], array $relations = [], ?string $actor = null): void
+    public function run(): void
     {
+        $modelName = $this->modelName($this->fileName);
+        $this->tableObject = $this->addToJsonFile();
+
         $modelNameCamelCase = variableNaming($modelName);
         $idVariable = $modelNameCamelCase . 'Id';
+        $controllerName = $this->generatedFileName();
+        $controllerPath = $this->getGeneratingPath($this->fileName);
 
-        $controllerName = $modelName . 'Controller';
-        $controllerPath = $this->getWebControllerPath($controllerName);
-
-        if (file_exists($controllerPath)) {
-            $this->error("{$controllerName} Already Exists");
-            return;
-        }
+        throw_if(file_exists($controllerPath), new Error("{$controllerName} Already Exists"));
 
         $tableName = tableNaming($modelName);
-        $routesNames = $this->getRoutesNames($modelName, $actor);
-        $views = $this->getViewsNames($modelName, $actor);
+        $routesNames = $this->getRoutesNames($modelName, $this->actor);
+        $views = $this->getViewsNames($modelName, $this->actor);
 
-        $this->generateCreateOrUpdateForm($modelName, $attributes, $nullables, $routesNames['store'], null, $actor);
-        $this->generateShowView($modelName, $routesNames['edit'], $attributes);
-        $this->generateIndexView($modelName, $routesNames['create'], $routesNames['data'], $attributes);
-        $this->generateCreateOrUpdateForm($modelName, $attributes, $nullables, null, $routesNames['update'], $actor);
-        $addColumns = $this->getKeyColumnsHyperlink($attributes, $actor);
+        $addColumns = $this->getKeyColumnsHyperlink($this->attributes, $this->actor);
 
         $stubProperties = [
             '{modelName}' => $modelName,
@@ -106,56 +65,28 @@ class MakeWebController extends Command
             '{requestNamespace}' => config('cubeta-starter.request_namespace'),
             '{modelNamespace}' => config('cubeta-starter.model_namespace'),
             '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
-            '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns($attributes),
-            '{additionalMethods}' => $this->additionalControllerMethods($modelName, $relations),
+            '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns($this->attributes),
+            '{additionalMethods}' => $this->additionalControllerMethods($modelName, $this->relations),
             '{loadedRelations}' => $this->getLoadedRelations(),
             '{baseRouteName}' => $routesNames['base']
         ];
 
-        if (!is_dir(base_path(config('cubeta-starter.web_controller_path')))) {
-            mkdir(base_path(config('cubeta-starter.web_controller_path')), 0777, true);
-        }
+        $this->generateFileFromStub($stubProperties, $controllerPath, $this->stubsPath());
 
-        generateFileFromStub(
-            $stubProperties,
-            $controllerPath,
-            __DIR__ . '/stubs/controller.web.stub'
-        );
+        $this->addRoute($modelName, $this->actor);
+        $this->formatFile($controllerPath);
 
-        $this->info("{$controllerName} Created");
-
-        $this->addRoute($modelName, $actor, ContainerType::WEB, $this->additionalRoutes);
-
-        $this->addSidebarItem($modelName, $routesNames['index']);
+        (new ViewsGenerator(
+            fileName: $this->fileName,
+            attributes: $this->attributes,
+            nullables: $this->nullables,
+            actor: $this->actor
+        ))->run();
     }
 
-    private function getWebControllerPath(string $controllerName): string
+    protected function generatedFileName(): string
     {
-        $directory = base_path(config('cubeta-starter.web_controller_path'));
-        ensureDirectoryExists($directory);
-
-        return "{$directory}/{$controllerName}.php";
-    }
-
-    /**
-     * @return string[]
-     */
-    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string'])]
-    public function getRoutesNames(string $modelName, ?string $actor = null): array
-    {
-        $baseRouteName = $this->getRouteName($modelName, 'web', $actor);
-
-        return [
-            'index' => $baseRouteName . '.index',
-            'show' => $baseRouteName . '.show',
-            'edit' => $baseRouteName . '.edit',
-            'destroy' => $baseRouteName . '.destroy',
-            'store' => $baseRouteName . '.store',
-            'create' => $baseRouteName . '.create',
-            'data' => $baseRouteName . '.data',
-            'update' => $baseRouteName . '.update',
-            'base' => $baseRouteName
-        ];
+        return $this->modelName($this->fileName) . "Controller";
     }
 
     /**
@@ -163,7 +94,7 @@ class MakeWebController extends Command
      * @return string[]
      */
     #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
-    public function getViewsNames(string $modelName, $actor = null): array
+    private function getViewsNames(string $modelName, $actor = null): array
     {
         $viewName = viewNaming($modelName);
         if (!isset($actor) || $actor == '' || $actor = 'none') {
@@ -220,6 +151,64 @@ class MakeWebController extends Command
         return $dataColumn;
     }
 
+    /**
+     * @return string[]
+     */
+    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string'])]
+    protected function getRoutesNames(string $modelName, ?string $actor = null): array
+    {
+        $baseRouteName = $this->getRouteName($modelName, ContainerType::WEB, $actor);
+
+        return [
+            'index' => $baseRouteName . '.index',
+            'show' => $baseRouteName . '.show',
+            'edit' => $baseRouteName . '.edit',
+            'destroy' => $baseRouteName . '.destroy',
+            'store' => $baseRouteName . '.store',
+            'create' => $baseRouteName . '.create',
+            'data' => $baseRouteName . '.data',
+            'update' => $baseRouteName . '.update',
+            'base' => $baseRouteName
+        ];
+    }
+
+    private function generateOrderingQueriesForTranslatableColumns(array $attributes = []): string
+    {
+        $translatableColumns = $this->getJQueryDataTablesTranslatableColumnsIndexes($attributes);
+        $queries = '';
+
+        if (count($translatableColumns) <= 0) {
+            return $queries;
+        }
+
+        $queries .= "\$query = \$this->orderTranslatableColumns(\$query, [\n";
+        foreach ($translatableColumns as $col => $index) {
+            $queries .= "['orderIndex' => 0, 'columnIndex' => $index, 'columnName' => '$col'],\n";
+        }
+
+        $queries .= "\n]);";
+
+        return $queries;
+    }
+
+    private function getJQueryDataTablesTranslatableColumnsIndexes(array $attributes = []): array
+    {
+        $translatableIndex = 1;
+        $translatableColumnsIndexes = [];
+
+        foreach ($attributes as $attribute => $type) {
+            if ($type == 'translatable') {
+                $translatableColumnsIndexes[$attribute] = $translatableIndex;
+            }
+            if ($type == 'text') {
+                continue;
+            }
+            $translatableIndex++;
+        }
+
+        return $translatableColumnsIndexes;
+    }
+
     private function additionalControllerMethods(string $modelName, array $relations = []): string
     {
         $methods = '';
@@ -256,6 +245,11 @@ class MakeWebController extends Command
         }
 
         return $loadedString;
+    }
+
+    protected function stubsPath(): string
+    {
+        return __DIR__ . '/stubs/controller.web.stub';
     }
 
     private function addSidebarItem(string $modelName, string $routeName): void

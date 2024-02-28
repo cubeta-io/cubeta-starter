@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Error;
@@ -19,6 +20,7 @@ class ResourceGenerator extends AbstractGenerator
     {
         $modelName = $this->modelName($this->fileName);
         $resourceName = $this->generatedFileName();
+        $this->addToJsonFile();
 
         $stubProperties = [
             '{model}' => "\\" . getModelClassName($modelName),
@@ -32,7 +34,9 @@ class ResourceGenerator extends AbstractGenerator
         throw_if(file_exists($resourcePath), new Error("{$resourceName} Already Exists"));
 
         $this->generateFileFromStub($stubProperties, $resourcePath);
-        
+
+        CodeSniffer::make()->setModel($modelName)->checkForResourceRelations();
+
         $this->formatFile($resourcePath);
     }
 

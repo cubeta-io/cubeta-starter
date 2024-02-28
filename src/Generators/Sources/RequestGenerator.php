@@ -58,8 +58,10 @@ class RequestGenerator extends AbstractGenerator
     private function generateRules(): array
     {
         $rules = '';
-        $translatableAttributeCount = count(array_keys($this->attributes, 'translatable'));
+
+        $translatableAttributeCount = count(array_keys($this->attributes, ColumnTypeEnum::TRANSLATABLE->value));
         $prepareForValidation = $translatableAttributeCount > 0 ? "protected function prepareForValidation()\n{\nif (request()->acceptsHtml()){\$this->merge([\n" : '';
+
         $modelName = $this->modelName($this->fileName);
         foreach ($this->attributes as $name => $type) {
 
@@ -76,9 +78,11 @@ class RequestGenerator extends AbstractGenerator
                 };
                 continue;
             }
+
             if ($type == ColumnTypeEnum::TRANSLATABLE->value) {
                 $prepareForValidation .= "'{$name}' => json_encode(\$this->{$name}), \n";
             }
+
             $rules .= match ($type) {
                 ColumnTypeEnum::TRANSLATABLE->value => "\t\t\t'{$name}'=>['{$isUnique}' , '{$isNullable}', 'json', new LanguageShape] , \n",
                 ColumnTypeEnum::STRING->value => "\t\t\t'{$name}'=>'{$isUnique}|{$isNullable}|string|min:3|max:255',\n",
