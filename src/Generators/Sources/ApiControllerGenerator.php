@@ -40,6 +40,7 @@ class ApiControllerGenerator extends AbstractGenerator
             $this->addRoute($this->table, $this->actor);
         } catch (Exception $exception) {
             CubeLog::add($exception);
+            return;
         }
 
         $this->formatFile($controllerPath);
