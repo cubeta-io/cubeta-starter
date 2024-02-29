@@ -9,7 +9,6 @@ use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Illuminate\Support\Str;
-use Throwable;
 
 class FactoryGenerator extends AbstractGenerator
 {
@@ -18,9 +17,6 @@ class FactoryGenerator extends AbstractGenerator
     public static string $key = 'factory';
     public static string $configPath = 'cubeta-starter.factory_path';
 
-    /**
-     * @throws Throwable
-     */
     public function run(): void
     {
         $this->addToJsonFile();
@@ -31,6 +27,8 @@ class FactoryGenerator extends AbstractGenerator
             $factoryPath->logAlreadyExist("Generating Factory For ({$this->table->modelName}) Model");
             return;
         }
+
+        $factoryPath->ensureDirectoryExists();
 
         $factoryAttributes = $this->generateFields();
 

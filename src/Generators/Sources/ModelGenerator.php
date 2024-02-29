@@ -8,7 +8,6 @@ use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Illuminate\Support\Str;
-use Throwable;
 
 class ModelGenerator extends AbstractGenerator
 {
@@ -16,9 +15,6 @@ class ModelGenerator extends AbstractGenerator
 
     use StringsGenerator;
 
-    /**
-     * @throws Throwable
-     */
     public function run(): void
     {
         $modelPath = $this->table->getModelPath();
@@ -28,6 +24,8 @@ class ModelGenerator extends AbstractGenerator
             $modelPath->logAlreadyExist("Generating {$this->table->modelName} Model");
             return;
         }
+
+        $modelPath->ensureDirectoryExists();
 
         $modelAttributes = $this->generateModelClassAttributes();
 
@@ -48,9 +46,9 @@ class ModelGenerator extends AbstractGenerator
             '{casts}' => $modelAttributes['casts'],
         ];
 
-        $this->generateFileFromStub($stubProperties, $modelPath);
+        $this->generateFileFromStub($stubProperties, $modelPath->fullPath);
 
-        CodeSniffer::make()->setModel($modelName)->checkForModelsRelations();
+        CodeSniffer::make()->setModel($this->table->modelName)->checkForModelsRelations();
 
         $this->formatFile($modelPath);
     }
@@ -84,7 +82,7 @@ class ModelGenerator extends AbstractGenerator
                 $relatedModel = CubetaTable::create($relatedModelName);
 
                 if ($relatedModel->getModelPath()->exist()) {
-                    $relationsFunctions .= $this->belongsToFunction($relatedModelName);
+                    $relationsFunctions .= $this->belongsToFunction($relatedModel);
                 }
             }
 
@@ -110,7 +108,7 @@ class ModelGenerator extends AbstractGenerator
                               {
                                   return \$this->{$colName} != null ? asset('storage/'.\$this->{$colName}) : null;
                               }\n";
-                FileUtils::ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->generatedFileName()) . '/' . Str::plural($colName)));
+                FileUtils::ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->table->modelName) . '/' . Str::plural($colName)));
 
             } elseif (ColumnTypeEnum::isDateTimeType($attribute->type)) {
                 $properties .= "* @property \DateTime {$attribute->name} \n";

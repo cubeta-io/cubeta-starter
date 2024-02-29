@@ -24,6 +24,8 @@ class MigrationGenerator extends AbstractGenerator
             return;
         }
 
+        $migrationPath->ensureDirectoryExists();
+
         $stubProperties = [
             '{table}' => $this->table->tableNaming(),
             '{col}' => $this->generateColumns(),
