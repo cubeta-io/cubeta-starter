@@ -5,14 +5,14 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Cubeta\CubetaStarter\app\Models\Path;
 use Cubeta\CubetaStarter\app\Models\Settings;
-use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\LogsMessages\Log;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
+use Mockery\Exception;
 
 abstract class AbstractGenerator
 {
@@ -65,67 +65,21 @@ abstract class AbstractGenerator
 
     }
 
-    function addImportStatement(string $importStatement, string $filePath): void
-    {
-        $contents = file_get_contents($filePath);
-
-        if (Str::contains($contents, $importStatement)) {
-            return;
-        }
-
-        // Check if import statement already exists
-        $fileLines = File::lines($filePath);
-        foreach ($fileLines as $line) {
-            $cleanLine = trim($line);
-            if (Str::contains($cleanLine, $importStatement)) {
-                return;
-            }
-        }
-
-        // Find the last "use" statement and insert the new import statement after it
-        $lastUseIndex = strrpos($contents, 'use ');
-        $insertIndex = $lastUseIndex !== false ? $lastUseIndex - 1 : 0;
-        $contents = substr_replace($contents, "\n" . $importStatement . "\n", $insertIndex, 0);
-
-        // Write the updated contents back to the file
-        file_put_contents($filePath, $contents);
-    }
-
-    protected function getGeneratingPath(string $fileName): string
-    {
-        $path = base_path(config(self::$configPath)) . $this->getAdditionalPath();
-        $this->ensureDirectoryExists($path);
-        return "{$path}/{$fileName}" . '.php';
-    }
-
-    protected function getAdditionalPath(): string
-    {
-        return "";
-    }
-
-    protected function ensureDirectoryExists(string $directory): void
-    {
-        if (!File::isDirectory($directory)) {
-            File::makeDirectory($directory, 0775, true, true);
-        }
-    }
-
     /**
      * @param array $stubProperties
      * @param string $path
      * @param bool $override
      * @param string|null $otherStubsPath
      * @return void
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
      */
     protected function generateFileFromStub(array $stubProperties, string $path, bool $override = false, string $otherStubsPath = null): void
     {
-        CreateFile::make()
-            ->setPath($path)
-            ->setStubPath($otherStubsPath ?? $this->stubsPath())
-            ->setStubProperties($stubProperties)
-            ->callFileGenerateFunctions($override);
+        try {
+            FileUtils::generateFileFromStub($stubProperties, $path, $otherStubsPath ?? $this->stubsPath(), $override);
+        } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
+            Log::add($e);
+            return;
+        }
     }
 
     protected function stubsPath(): string

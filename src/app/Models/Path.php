@@ -2,6 +2,8 @@
 
 namespace Cubeta\CubetaStarter\app\Models;
 
+use Cubeta\CubetaStarter\Helpers\FileUtils;
+
 class Path
 {
     public string $inProjectPath;
@@ -20,5 +22,10 @@ class Path
         $this->fullDirectory = dirname($this->fullPath);
         $this->inProjectDirectory = dirname($inProjectFilePath);
         $this->fileName = pathinfo($this->fullPath, PATHINFO_BASENAME) ?? null;
+    }
+
+    public function ensureDirectoryExists(): void
+    {
+        FileUtils::ensureDirectoryExists($this->fullDirectory);
     }
 }

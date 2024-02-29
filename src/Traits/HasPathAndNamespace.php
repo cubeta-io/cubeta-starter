@@ -4,15 +4,16 @@ namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\app\Models\CubetaRelation;
 use Cubeta\CubetaStarter\app\Models\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\Path;
 
 /**
  * @mixin CubetaTable|CubetaRelation
  */
 trait HasPathAndNamespace
 {
-    public function getModelPath(): string
+    public function getModelPath(): Path
     {
-        return base_path(config('cubeta-starter.model_path')) . "/{$this->modelName}.php";
+        return new Path(config('cubeta-starter.model_path') . "/{$this->modelName}.php");
     }
 
     public function getModelClassString(): string
@@ -20,9 +21,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.model_namespace') . "\\{$this->modelName}";
     }
 
-    public function getApiControllerPath(): string
+    public function getApiControllerPath(): Path
     {
-        return base_path(config('cubeta-starter.api_controller_path')) . "/{$this->getControllerName()}.php";
+        return new Path(config('cubeta-starter.api_controller_path') . "/{$this->getControllerName()}.php");
     }
 
     public function getApiControllerClassString(): string
@@ -30,9 +31,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.api_controller_namespace') . "\\{$this->getControllerName()}";
     }
 
-    public function getWebControllerPath(): string
+    public function getWebControllerPath(): Path
     {
-        return base_path(config('cubeta-starter.web_controller_path')) . "/{$this->getControllerName()}.php";
+        return new Path(config('cubeta-starter.web_controller_path') . "/{$this->getControllerName()}.php");
     }
 
     public function getWebControllerClassString(): string
@@ -40,9 +41,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.web_controller_namespace') . "\\{$this->getControllerName()}";
     }
 
-    public function getRequestPath(): string
+    public function getRequestPath(): Path
     {
-        return base_path(config('cubeta-starter.request_path')) . "/{$this->getRequestName()}.php";
+        return new Path(config('cubeta-starter.request_path') . "/{$this->getRequestName()}.php");
     }
 
     public function getRequestClassString(): string
@@ -50,9 +51,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.request_namespace') . "\\{$this->getRequestName()}";
     }
 
-    public function getResourcePath(): string
+    public function getResourcePath(): Path
     {
-        return base_path(config('cubeta-starter.resource_path')) . "/{$this->getResourceName()}.php";
+        return new Path(config('cubeta-starter.resource_path') . "/{$this->getResourceName()}.php");
     }
 
     public function getResourceClassString(): string
@@ -60,9 +61,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.resource_namespace') . "\\{$this->getResourceName()}";
     }
 
-    public function getFactoryPath(): string
+    public function getFactoryPath(): Path
     {
-        return base_path(config('cubeta-starter.factory_path')) . "/{$this->getFactoryName()}.php";
+        return new Path(config('cubeta-starter.factory_path') . "/{$this->getFactoryName()}.php");
     }
 
     public function getFactoryClassString(): string
@@ -70,9 +71,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.factory_namespace') . "\\{$this->getFactoryName()}";
     }
 
-    public function getSeederPath(): string
+    public function getSeederPath(): Path
     {
-        return base_path(config('cubeta-starter.seeder_path')) . "/{$this->getSeederName()}.php";
+        return new Path(config('cubeta-starter.seeder_path') . "/{$this->getSeederName()}.php");
     }
 
     public function getSeederClassString(): string
@@ -80,9 +81,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.seeder_namespace') . "\\{$this->getSeederName()}";
     }
 
-    public function getRepositoryPath(): string
+    public function getRepositoryPath(): Path
     {
-        return base_path(config('cubeta-starter.repository_path')) . "/{$this->getRepositoryName()}.php";
+        return new Path(config('cubeta-starter.repository_path') . "/{$this->getRepositoryName()}.php");
     }
 
     public function getRepositoryClassString(): string
@@ -90,9 +91,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.repository_namespace') . "\\{$this->getRepositoryName()}";
     }
 
-    public function getServicePath(): string
+    public function getServicePath(): Path
     {
-        return base_path(config('cubeta-starter.service_path')) . "/{$this->modelName}/{$this->getServiceName()}.php";
+        return new Path(config('cubeta-starter.service_path') . "/{$this->modelName}/{$this->getServiceName()}.php");
     }
 
     public function getServiceNamespace(): string
@@ -105,14 +106,14 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.service_namespace') . "\\{$this->modelName}\\{$this->getServiceInterfaceName()}";
     }
 
-    public function getServiceInterfacePath(): string
+    public function getServiceInterfacePath(): Path
     {
-        return base_path(config('cubeta-starter.service_path')) . ("/{$this->modelName}/{$this->getServiceInterfaceName()}.php");
+        return new Path(config('cubeta-starter.service_path') . ("/{$this->modelName}/{$this->getServiceInterfaceName()}.php"));
     }
 
-    public function getTestPath(): string
+    public function getTestPath(): Path
     {
-        return base_path(config('cubeta-starter.test_path')) . "/{$this->getTestName()}.php";
+        return new Path(config('cubeta-starter.test_path') . "/{$this->getTestName()}.php");
     }
 
     public function getTestClassString(): string

@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\LogsMessages\Errors\AlreadyExist;
+use Cubeta\CubetaStarter\LogsMessages\Log;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Exception;
 
@@ -15,12 +16,13 @@ class ApiControllerGenerator extends AbstractGenerator
 
     public function run(): void
     {
-        $controllerName = $this->table->getControllerName();
-        $controllerPath = $this->getGeneratingPath($controllerName);
+        $controllerPath = $this->table->getApiControllerPath();
 
-        if (file_exists($controllerPath)) {
-            $this->logs[] = new AlreadyExist($controllerPath, "Generating Api Controller");
+        if (file_exists($controllerPath->fullPath)) {
+            Log::add(new AlreadyExist($controllerPath->fullPath, "Generating Api Controller"));
         }
+
+        $controllerPath->ensureDirectoryExists();
 
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.api_controller_namespace'),
@@ -32,16 +34,12 @@ class ApiControllerGenerator extends AbstractGenerator
             '{idVariable}' => $this->table->idVariable(),
         ];
 
-        try {
-            $this->generateFileFromStub($stubProperties, $controllerPath);
-        } catch (Exception $exception) {
-            $this->logs[] = $exception;
-        }
+        $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
 
         try {
-            $this->addRoute($this->table->modelName, $this->actor);
+            $this->addRoute($this->table, $this->actor);
         } catch (Exception $exception) {
-            $this->logs[] = $exception;
+            Log::add($exception);
         }
 
         $this->formatFile($controllerPath);
