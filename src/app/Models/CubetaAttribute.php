@@ -4,16 +4,31 @@ namespace Cubeta\CubetaStarter\app\Models;
 
 use Cubeta\CubetaStarter\Traits\NamingConventions;
 
+/**
+ *
+ */
 class CubetaAttribute
 {
     use NamingConventions;
 
+    /**
+     * @var string
+     */
     public string $name;
 
+    /**
+     * @var string
+     */
     public string $type;
 
+    /**
+     * @var bool
+     */
     public bool $nullable;
 
+    /**
+     * @var bool
+     */
     public bool $unique;
 
     /**
@@ -31,6 +46,9 @@ class CubetaAttribute
         $this->usedString = $this->name;
     }
 
+    /**
+     * @return bool|string
+     */
     public function toJson(): bool|string
     {
         return json_encode([
@@ -41,6 +59,9 @@ class CubetaAttribute
         ], JSON_PRETTY_PRINT);
     }
 
+    /**
+     * @return array{name:string , type:string , nullable:boolean , unique:boolean}
+     */
     public function toArray(): array
     {
         return [

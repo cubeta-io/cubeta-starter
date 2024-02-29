@@ -29,6 +29,7 @@ class FactoryGenerator extends AbstractGenerator
 
         if ($factoryPath->exist()) {
             $factoryPath->logAlreadyExist("Generating Factory For ({$this->table->modelName}) Model");
+            return;
         }
 
         $factoryAttributes = $this->generateFields();

@@ -2,32 +2,33 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Cubeta\CubetaStarter\app\Models\CubetaRelation;
+use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Illuminate\Support\Str;
 
 trait StringsGenerator
 {
-    public function hasManyFunction(string $modelName): string
+    public function hasManyFunction(CubetaTable|CubetaRelation $model): string
     {
-        $relationName = relationFunctionNaming($modelName, false);
-        return "public function $relationName() : HasMany\n{\n\t return \$this->hasMany(" . modelNaming($modelName) . "::class);\n}\n\n";
+        $relationName = $model->relationFunctionNaming(singular: false);
+        return "public function $relationName() : HasMany\n{\n\t return \$this->hasMany(" . $model->modelName . "::class);\n}\n\n";
     }
 
-    public function manyToManyFunction(string $modelName): string
+    public function manyToManyFunction(CubetaTable|CubetaRelation $model): string
     {
-        $relationName = relationFunctionNaming($modelName, false);
-        return "public function $relationName() : BelongsToMany\n{\n\t return \$this->belongsToMany(" . modelNaming($modelName) . "::class);\n}\n\n";
+        $relationName = $model->relationFunctionNaming(singular: false);
+        return "public function $relationName() : BelongsToMany\n{\n\t return \$this->belongsToMany(" . $model->modelName . "::class);\n}\n\n";
     }
 
-    public function belongsToFunction(string $modelName): string
+    public function belongsToFunction(CubetaTable|CubetaRelation $model): string
     {
-        $relationName = relationFunctionNaming($modelName);
-        return "public function $relationName():belongsTo \n {\n\t return \$this->belongsTo(" . modelNaming($modelName) . "::class); \n}\n\n";
+        $relationName = $model->relationFunctionNaming();
+        return "public function $relationName():belongsTo \n {\n\t return \$this->belongsTo(" . $model->modelName . "::class); \n}\n\n";
     }
 
-    public function factoryRelationMethod($modelName): string
+    public function factoryRelationMethod(CubetaTable|CubetaRelation $model): string
     {
-        $modelName = modelNaming($modelName);
-        $functionName = 'with' . ucfirst(Str::plural(Str::studly($modelName)));;
-        return "public function {$functionName}(\$count = 1)\n{\n\t return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::factory(\$count));\n} \n";
+        $functionName = 'with' . ucfirst(Str::plural(Str::studly($model->modelName)));
+        return "public function {$functionName}(\$count = 1)\n{\n\t return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$model->name}::factory(\$count));\n} \n";
     }
 }

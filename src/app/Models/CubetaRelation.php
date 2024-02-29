@@ -7,14 +7,26 @@ use Cubeta\CubetaStarter\Traits\HasPathAndNamespace;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
 use Illuminate\Support\Str;
 
+/**
+ *
+ */
 class CubetaRelation
 {
     use NamingConventions, HasPathAndNamespace;
 
+    /**
+     * @var string
+     */
     public string $type;
 
+    /**
+     * @var string
+     */
     public string $modelName;
 
+    /**
+     * @var string|null
+     */
     public ?string $key = null;
 
     /**
@@ -33,6 +45,9 @@ class CubetaRelation
         $this->usedString = $this->modelName;
     }
 
+    /**
+     * @return bool|string
+     */
     public function toJson(): bool|string
     {
         if ($this->key) {
@@ -48,6 +63,9 @@ class CubetaRelation
         ], JSON_PRETTY_PRINT);
     }
 
+    /**
+     * @return array{type:string , model_name:string , key:null|string}
+     */
     public function toArray(): array
     {
         if ($this->key) {
@@ -63,28 +81,43 @@ class CubetaRelation
         ];
     }
 
+    /**
+     * @return bool
+     */
     public function isBelongsTo(): bool
     {
         return $this->type == RelationsTypeEnum::BelongsTo->value;
     }
 
+    /**
+     * @return bool
+     */
     public function isHasOne(): bool
     {
         return $this->type == RelationsTypeEnum::HasOne->value;
     }
 
+    /**
+     * @return string
+     */
     public function method(): string
     {
         if ($this->isHasMany() || $this->isManyToMany()) {
-            return relationFunctionNaming($this->modelName, false);
-        } else return relationFunctionNaming($this->modelName, true);
+            return $this->relationFunctionNaming(singular: false);
+        } else return $this->relationFunctionNaming();
     }
 
+    /**
+     * @return bool
+     */
     public function isHasMany(): bool
     {
         return $this->type == RelationsTypeEnum::HasMany->value;
     }
 
+    /**
+     * @return bool
+     */
     public function isManyToMany(): bool
     {
         return $this->type == RelationsTypeEnum::ManyToMany->value;

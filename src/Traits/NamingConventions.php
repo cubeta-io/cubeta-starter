@@ -62,10 +62,9 @@ trait NamingConventions
      */
     public function variableNaming(?string $name = null): string
     {
-        if ($name) {
-            return Str::singular(Str::camel($name));
-        }
-        return Str::singular(Str::camel($this->usedString));
+        return $name
+            ? Str::singular(Str::camel($name))
+            : Str::singular(Str::camel($this->usedString));
     }
 
     /**
@@ -76,10 +75,9 @@ trait NamingConventions
      */
     public function lowerPluralKebabNaming(?string $name = null): string
     {
-        if ($name) {
-            return strtolower(Str::plural(Str::kebab($name)));
-        }
-        return strtolower(Str::plural(Str::kebab($this->usedString)));
+        return $name
+            ? strtolower(Str::plural(Str::kebab($name)))
+            : strtolower(Str::plural(Str::kebab($this->usedString)));
     }
 
     /**
@@ -87,10 +85,9 @@ trait NamingConventions
      */
     public function routeUrlNaming(?string $name = null): string
     {
-        if ($name) {
-            return lowerPluralKebabNaming($name);
-        }
-        return lowerPluralKebabNaming($this->usedString);
+        return $name
+            ? lowerPluralKebabNaming($name)
+            : lowerPluralKebabNaming($this->usedString);
     }
 
     /**
@@ -98,10 +95,9 @@ trait NamingConventions
      */
     public function routeNameNaming(?string $name = null): string
     {
-        if ($name) {
-            return str_replace('-', '.', lowerPluralKebabNaming($name));
-        }
-        return str_replace('-', '.', lowerPluralKebabNaming($this->usedString));
+        return $name
+            ? str_replace('-', '.', lowerPluralKebabNaming($name))
+            : str_replace('-', '.', lowerPluralKebabNaming($this->usedString));
     }
 
     /**
@@ -128,10 +124,9 @@ trait NamingConventions
      */
     public function viewNaming(?string $name = null): string
     {
-        if ($name) {
-            return lowerPluralKebabNaming($name);
-        }
-        return lowerPluralKebabNaming($this->usedString);
+        return $name
+            ? lowerPluralKebabNaming($name)
+            : lowerPluralKebabNaming($this->usedString);
     }
 
     /**
@@ -140,10 +135,10 @@ trait NamingConventions
      */
     public function titleNaming(?string $name = null): string
     {
-        if ($name) {
-            return Str::headline($name);
-        }
-        return Str::headline($this->usedString);
+
+        return $name
+            ? Str::headline($name)
+            : Str::headline($this->usedString);
     }
 
     /**
@@ -159,10 +154,9 @@ trait NamingConventions
      */
     public function modelNaming(?string $name = null): string
     {
-        if ($name) {
-            return ucfirst(Str::singular(Str::studly($name)));
-        }
-        return ucfirst(Str::singular(Str::studly($this->usedString)));
+        return $name
+            ? ucfirst(Str::singular(Str::studly($name)))
+            : ucfirst(Str::singular(Str::studly($this->usedString)));
     }
 
     /**
@@ -191,10 +185,9 @@ trait NamingConventions
      */
     public function tableNaming(?string $name = null): string
     {
-        if ($name) {
-            return strtolower(Str::plural(Str::snake($name)));
-        }
-        return strtolower(Str::plural(Str::snake($this->usedString)));
+        return $name
+            ? strtolower(Str::plural(Str::snake($name)))
+            : strtolower(Str::plural(Str::snake($this->usedString)));
     }
 
     /**

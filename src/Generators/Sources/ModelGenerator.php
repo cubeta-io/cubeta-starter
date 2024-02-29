@@ -2,11 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
-use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
-use Error;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -21,11 +21,13 @@ class ModelGenerator extends AbstractGenerator
      */
     public function run(): void
     {
-        $modelName = $this->generatedFileName();
-        $modelPath = $this->getGeneratingPath($modelName);
+        $modelPath = $this->table->getModelPath();
         $this->addToJsonFile();
 
-        throw_if(file_exists($modelPath), new Error("{$modelName} Already Exists"));
+        if ($modelPath->exist()) {
+            $modelPath->logAlreadyExist("Generating {$this->table->modelName} Model");
+            return;
+        }
 
         $modelAttributes = $this->generateModelClassAttributes();
 
@@ -33,7 +35,7 @@ class ModelGenerator extends AbstractGenerator
 
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.model_namespace'),
-            '{modelName}' => $modelName,
+            '{modelName}' => $this->table->modelName,
             '{relations}' => $modelAttributes['relationsCode'],
             '{properties}' => $modelAttributes['properties'],
             '{fileGetter}' => $modelAttributes['filesFunctions'],
@@ -53,11 +55,6 @@ class ModelGenerator extends AbstractGenerator
         $this->formatFile($modelPath);
     }
 
-    public function generatedFileName(): string
-    {
-        return $this->modelName($this->fileName);
-    }
-
     private function generateModelClassAttributes(): array
     {
         $fillable = '';
@@ -70,43 +67,42 @@ class ModelGenerator extends AbstractGenerator
         $casts = '';
         $relationsFunctions = '';
 
-        if (isset($this->attributes) && count($this->attributes) > 0) {
-            foreach ($this->attributes as $attribute => $type) {
-                $attribute = $this->columnName($attribute);
-                $fillable .= "'{$attribute}' ,\n";
+        foreach ($this->table->attributes as $attribute) {
+            $fillable .= "'{$attribute->name}' ,\n";
 
-                if ($type === ColumnTypeEnum::BOOLEAN->value) {
-                    $booleanValueScope .= "\tpublic function scope" . ucfirst(Str::studly($attribute)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute . "' , 1);\n\t}\n";
-                    $casts .= "'{$attribute}' => 'boolean' , \n";
+            if ($attribute->type === ColumnTypeEnum::BOOLEAN->value) {
+                $booleanValueScope .= "\tpublic function scope" . ucfirst(Str::studly($attribute->name)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute->name . "' , 1);\n\t}\n";
+                $casts .= "'{$attribute->name}' => 'boolean' , \n";
+            }
+
+            if ($attribute->type === ColumnTypeEnum::TRANSLATABLE->value) {
+                $casts .= "'{$attribute->name}' => \\App\\Casts\\Translatable::class, \n";
+            }
+
+            if ($attribute->type === ColumnTypeEnum::KEY->value) {
+                $relatedModelName = $attribute->modelNaming(str_replace('_id', '', $attribute->name));
+                $relatedModel = CubetaTable::create($relatedModelName);
+
+                if ($relatedModel->getModelPath()->exist()) {
+                    $relationsFunctions .= $this->belongsToFunction($relatedModelName);
                 }
+            }
 
-                if ($type === ColumnTypeEnum::TRANSLATABLE->value) {
-                    $casts .= "'{$attribute}' => \\App\\Casts\\Translatable::class, \n";
-                }
+            if (in_array($attribute->type, [
+                ColumnTypeEnum::STRING->value,
+                ColumnTypeEnum::TEXT->value,
+                ColumnTypeEnum::JSON->value,
+                ColumnTypeEnum::TRANSLATABLE->value
+            ])) {
 
-                if ($type === ColumnTypeEnum::KEY->value) {
-                    $relatedModelName = $this->modelName(str_replace('_id', '', $attribute));
+                $searchable .= "'{$attribute->name}' , \n";
+                $properties .= "* @property string {$attribute->name} \n";
 
-                    if (file_exists(getModelPath($relatedModelName))) {
-                        $relationsFunctions .= $this->belongsToFunction($relatedModelName);
-                    }
-                }
-
-                if (in_array($type, [
-                    ColumnTypeEnum::STRING->value,
-                    ColumnTypeEnum::TEXT->value,
-                    ColumnTypeEnum::JSON->value,
-                    ColumnTypeEnum::TRANSLATABLE->value
-                ])) {
-
-                    $searchable .= "'{$attribute}' , \n";
-                    $properties .= "* @property string {$attribute} \n";
-
-                } elseif ($type === ColumnTypeEnum::FILE->value) {
-                    $filesKeys .= "'{$attribute}' ,\n";
-                    $properties .= "* @property integer {$attribute} \n";
-                    $colName = $this->modelName($attribute);
-                    $fileFunctions .= '/**
+            } elseif ($attribute->type === ColumnTypeEnum::FILE->value) {
+                $filesKeys .= "'{$attribute->name}' ,\n";
+                $properties .= "* @property integer {$attribute->name} \n";
+                $colName = $attribute->modelNaming();
+                $fileFunctions .= '/**
                               * return the full path of the stored ' . $colName . '
                               * @return string|null
                               */
@@ -114,43 +110,41 @@ class ModelGenerator extends AbstractGenerator
                               {
                                   return \$this->{$colName} != null ? asset('storage/'.\$this->{$colName}) : null;
                               }\n";
-                    $this->ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->generatedFileName()) . '/' . Str::plural($colName)));
+                FileUtils::ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->generatedFileName()) . '/' . Str::plural($colName)));
 
-                } elseif (ColumnTypeEnum::isDateTimeType($type)) {
-                    $properties .= "* @property \DateTime {$attribute} \n";
-                } elseif (in_array($type, [
-                    ColumnTypeEnum::BIG_INTEGER->value,
-                    ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
-                    ColumnTypeEnum::UNSIGNED_DOUBLE->value,
-                ])) {
-                    $properties .= "* @property numeric {$attribute} \n";
-                } else {
-                    $properties .= "* @property {$type} {$attribute} \n";
-                }
+            } elseif (ColumnTypeEnum::isDateTimeType($attribute->type)) {
+                $properties .= "* @property \DateTime {$attribute->name} \n";
+            } elseif (in_array($attribute->type, [
+                ColumnTypeEnum::BIG_INTEGER->value,
+                ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
+                ColumnTypeEnum::UNSIGNED_DOUBLE->value,
+            ])) {
+                $properties .= "* @property numeric {$attribute->name} \n";
+            } else {
+                $properties .= "* @property {$attribute->type} {$attribute->name} \n";
             }
         }
 
-        if (isset($this->relations) && count($this->relations) > 0) {
-            foreach ($this->relations as $relation => $type) {
+        foreach ($this->table->relations as $relation) {
 
-                if (file_exists(getModelPath($this->modelName($relation))) && $type == RelationsTypeEnum::HasMany->value) {
+            if ($relation->getModelPath()->exist()) {
+                if ($relation->isHasMany()) {
                     $relationsFunctions .= $this->hasManyFunction($relation);
                 }
 
-                if (file_exists(getModelPath($this->modelName($relation))) && $type == RelationsTypeEnum::ManyToMany->value) {
+                if ($relation->isManyToMany()) {
                     $relationsFunctions .= $this->manyToManyFunction($relation);
                 }
-
-                if ($type !== RelationsTypeEnum::BelongsTo->value) {
-                    $modelName = $this->modelName($relation);
-                    $properties .= "* @property {$modelName} {$relation}\n";
-                }
-
-                $relationsSearchable .=
-                    "'{$relation}' => [
-                    //add your {$relation} desired column to be search within
-                  ] , \n";
             }
+
+            if ($relation->isBelongsTo()) {
+                $properties .= "* @property {$relation->modelName} {$relation->method()}\n";
+            }
+
+            $relationsSearchable .=
+                "'{$relation->method()}' => [
+                    //add your {$relation->method()} desired column to be search within
+                  ] , \n";
         }
 
         $properties .= "*/ \n";
@@ -171,7 +165,9 @@ class ModelGenerator extends AbstractGenerator
     private function generateUsedTraits(): string
     {
         //TODO::when merging with dev there will be a config option for traits so make the use traits use the config option for traits namespace
-        return in_array('translatable', $this->attributes) ? "use HasFactory; \n use \App\Traits\Translations;\n" : "use HasFactory;";
+        return $this->table->translatables()->count()
+            ? "use HasFactory; \n use \App\Traits\Translations;\n"
+            : "use HasFactory;";
     }
 
     protected function stubsPath(): string

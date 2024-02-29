@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\app\Models;
 
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Traits\HasPathAndNamespace;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
 use Illuminate\Support\Collection;
@@ -65,7 +66,12 @@ class CubetaTable
     }
 
     /**
-     * @return array
+     * @return array{
+     *     model_name:string,
+     *     table_name:string,
+     *     attributes:array{array{name:string , type:string , nullable:boolean , unique:boolean}},
+     *     relations:array{array{type:string , model_name:string , key:null|string}}
+     *     }
      */
     public function toArray(): array
     {
@@ -123,7 +129,7 @@ class CubetaTable
     }
 
     /**
-     * @return Collection
+     * @return Collection<CubetaAttribute>
      */
     public function nullables(): Collection
     {
@@ -132,7 +138,7 @@ class CubetaTable
     }
 
     /**
-     * @return Collection
+     * @return Collection<CubetaAttribute>
      */
     public function uniques(): Collection
     {
@@ -218,5 +224,14 @@ class CubetaTable
     public function attributes(): Collection
     {
         return collect($this->attributes);
+    }
+
+    /**
+     * @return Collection<CubetaAttribute>
+     */
+    public function translatables(): Collection
+    {
+        return $this->attributes()
+            ->filter(fn(CubetaAttribute $attr) => $attr->type == ColumnTypeEnum::TRANSLATABLE->value);
     }
 }
