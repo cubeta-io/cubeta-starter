@@ -19,10 +19,10 @@ use Illuminate\Support\Str;
 trait RouteBinding
 {
     /**
-     * @param  CubetaTable                $table
-     * @param  string|null                $actor
-     * @param  string                     $container
-     * @param  array                      $additionalRoutes
+     * @param CubetaTable $table
+     * @param string|null $actor
+     * @param string $container
+     * @param array $additionalRoutes
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -33,7 +33,7 @@ trait RouteBinding
 
         $routePath = $this->getRouteFilePath($container, $actor);
 
-        if (!file_exists($routePath->fullPath)) {
+        if (!$routePath->exist()) {
             $this->addRouteFile($actor ?? $container, $container);
         }
 
@@ -58,17 +58,17 @@ trait RouteBinding
             return;
         }
 
-        if (file_put_contents($routePath->fullPath, $route, FILE_APPEND)) {
+        if ($routePath->putContent($route, FILE_APPEND)) {
             Log::add(new ContentAppended($route, $routePath->fullPath));
-            $this->formatFile($routePath);
+            $routePath->format();
         } else {
             Log::add(new FailedAppendContent($route, $routePath->fullPath));
         }
     }
 
     /**
-     * @param  string      $container
-     * @param  string|null $actor
+     * @param string $container
+     * @param string|null $actor
      * @return Path
      */
     public function getRouteFilePath(string $container, ?string $actor = null): Path
@@ -81,7 +81,7 @@ trait RouteBinding
     }
 
     /**
-     * @param  string|null                $actor
+     * @param string|null $actor
      * @param                             $container
      * @return void
      * @throws BindingResolutionException
@@ -93,7 +93,7 @@ trait RouteBinding
 
         $filePath = $this->getRouteFilePath($container, $actor);
 
-        FileUtils::ensureDirectoryExists(dirname($filePath->fullPath));
+        $filePath->ensureDirectoryExists();
 
         FileUtils::generateFileFromStub(
             ['{route}' => '//add-your-routes-here'],
@@ -105,13 +105,15 @@ trait RouteBinding
     }
 
     /**
-     * @param  Path   $routeFilePath
-     * @param  string $container
+     * @param Path $routeFilePath
+     * @param string $container
      * @return void
      */
     public function addRouteFileToServiceProvider(Path $routeFilePath, string $container = ContainerType::API): void
     {
         $routeServiceProvider = new Path('app/Providers/RouteServiceProvider.php');
+
+        $lineToAdd = '';
 
         if ($container == ContainerType::API) {
             $lineToAdd = "\t\t Route::middleware('api')\n" .
@@ -125,7 +127,7 @@ trait RouteBinding
         }
 
         // Read the contents of the file
-        $fileContent = file_get_contents($routeServiceProvider->fullPath);
+        $fileContent = $routeServiceProvider->getContent();
 
         // Check if the line to add already exists in the file
         if (!str_contains($fileContent, $lineToAdd)) {
@@ -135,17 +137,17 @@ trait RouteBinding
 
             $fileContent = preg_replace($pattern, $replacement, $fileContent, 1);
             // Write the modified contents back to the file
-            file_put_contents($routeServiceProvider->fullPath, $fileContent);
+            $routeServiceProvider->putContent($fileContent);
         }
 
-        $this->formatFile($routeServiceProvider);
+        $routeServiceProvider->format();
         Log::add(new SuccessGenerating($routeFilePath->fileName, $routeFilePath->fullPath));
     }
 
     /**
-     * @param  CubetaTable $table
-     * @param  string      $container
-     * @param  string|null $actor
+     * @param CubetaTable $table
+     * @param string $container
+     * @param string|null $actor
      * @return string
      */
     public function getRouteName(CubetaTable $table, string $container = 'api', ?string $actor = null): string
@@ -160,9 +162,9 @@ trait RouteBinding
     }
 
     /**
-     * @param  CubetaTable $table
-     * @param  string      $routeName
-     * @param  array       $additionalRoutes
+     * @param CubetaTable $table
+     * @param string $routeName
+     * @param array $additionalRoutes
      * @return string
      */
     public function addAdditionalRoutesForAdditionalControllerMethods(CubetaTable $table, string $routeName, array $additionalRoutes = []): string
@@ -178,13 +180,13 @@ trait RouteBinding
     }
 
     /**
-     * @param  Path   $routePath
-     * @param  string $route
+     * @param Path $routePath
+     * @param string $route
      * @return bool
      */
     public function checkIfRouteExist(Path $routePath, string $route): bool
     {
-        $file = file_get_contents($routePath->fullPath);
+        $file = $routePath->getContent();
         if (Str::contains($file, $route)) {
             return false;
         }
@@ -205,15 +207,12 @@ trait RouteBinding
      */
     public function addSetLocalRoute(): void
     {
-        if (file_exists(base_path('/app/Http/Middleware/AcceptedLanguagesMiddleware.php'))) {
-            $middlewareExist = true;
-        } else {
-            $middlewareExist = false;
-        }
+        $middlewarePath = new Path("/app/Http/Middleware/AcceptedLanguagesMiddleware.php");
 
-        if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
+        $controllerPath = new Path('app/Http/Controllers/SetLocaleController.php');
+        if ($controllerPath->exist()) {
 
-            if ($middlewareExist) {
+            if ($middlewarePath->exist()) {
                 $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->withoutMiddleware([App\Http\Middleware\AcceptedLanguagesMiddleware::class])->name('set-locale');";
             } else {
                 $route = "
@@ -223,7 +222,7 @@ trait RouteBinding
                     ";
             }
         } else {
-            if ($middlewareExist) {
+            if ($middlewarePath->exist()) {
                 $route = "
                     // TODO:: this is the route that will handle the selected locale of your app but the package didn't detect the controller for it due to some error or you've deleted it ,
                     // so please define a controller for it or define the functionality of this rout within it
@@ -240,10 +239,10 @@ trait RouteBinding
             }
         }
 
-        $routePath = base_path("routes/web.php");
+        $routePath = new Path("routes/web.php");
 
-        if (file_exists($routePath)) {
-            file_put_contents($routePath, $route, FILE_APPEND);
+        if ($routePath->exist()) {
+            $routePath->putContent($route, FILE_APPEND);
         }
     }
 }

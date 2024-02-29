@@ -2,54 +2,50 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Error;
+use Cubeta\CubetaStarter\app\Models\CubetaAttribute;
+use Cubeta\CubetaStarter\app\Models\CubetaRelation;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\LogsMessages\Errors\AlreadyExist;
+use Cubeta\CubetaStarter\LogsMessages\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Throwable;
 
 class MigrationGenerator extends AbstractGenerator
 {
     public static string $key = 'migration';
     public static string $configPath = 'cubeta-starter.migration_path';
 
-    /**
-     * @throws Throwable
-     */
     public function run(): void
     {
-        $migrationName = $this->generatedFileName();
+        $migrationPath = $this->table->getMigrationPath();
 
-        throw_if($this->checkIfMigrationExists(), new Error("{$migrationName} Already Exists"));
+        if ($this->checkIfMigrationExists()) {
+            Log::add(new AlreadyExist($migrationPath->fullPath, "Generating A migration For ({$this->table->modelName}) Model)"));
+            return;
+        }
 
         $stubProperties = [
-            '{table}' => $this->tableName($this->fileName),
+            '{table}' => $this->table->tableNaming(),
             '{col}' => $this->generateColumns(),
         ];
 
-        $migrationPath = $this->getGeneratingPath($migrationName);
-
-        $this->generateFileFromStub($stubProperties, $migrationPath);
+        $this->generateFileFromStub($stubProperties, $migrationPath->fullDirectory);
 
         $this->addToJsonFile();
 
-        $this->formatFile($migrationPath);
-    }
-
-    public function generatedFileName(): string
-    {
-        $date = now()->subSecond()->format('Y_m_d_His');
-        return $date . '_create_' . $this->tableName($this->fileName) . '_table';
+        $migrationPath->format();
     }
 
     private function checkIfMigrationExists(): ?string
     {
-        $tableName = $this->tableName($this->fileName);
+        $tableName = $this->table->tableNaming();
 
         $migrationsPath = base_path(config('cubeta-starter.migration_path'));
-        $this->ensureDirectoryExists($migrationsPath);
+
+        FileUtils::ensureDirectoryExists($migrationsPath);
 
         $allMigrations = File::allFiles($migrationsPath);
+
         foreach ($allMigrations as $migration) {
             $migrationName = $migration->getBasename();
             if (Str::contains($migrationName, "create_{$tableName}_table.php")) {
@@ -63,25 +59,24 @@ class MigrationGenerator extends AbstractGenerator
     public function generateColumns(): string
     {
         $columns = '';
-        foreach ($this->attributes as $name => $type) {
-            $name = $this->columnName($name);
-            $nullable = (in_array($name, $this->nullables) || $type == 'file') ? '->nullable()' : '';
-            $unique = in_array($name, $this->uniques) ? '->unique()' : '';
+        $this->table->attributes()->each(function (CubetaAttribute $column) use (&$columns) {
+            $name = $column->name;
+            $nullable = $column->nullable ? '->nullable()' : '';
+            $unique = $column->unique ? '->unique()' : '';
 
-            $columns .= match ($type) {
+            $columns .= match ($column->type) {
                 'key' => '',
                 'translatable' => "\t\t\t\$table->json('{$name}')" . $nullable . $unique . "; \n",
-                default => "\t\t\t\$table->" . ($type == 'file' ? 'string' : $type) . "('{$name}')" . $nullable . $unique . "; \n",
+                default => "\t\t\t\$table->" . ($column->type == 'file' ? 'string' : $column->type) . "('{$name}')" . $nullable . $unique . "; \n",
             };
-        }
+        });
 
-        foreach ($this->relations as $rel => $type) {
-            if ($type == RelationsTypeEnum::HasOne->value || $type == RelationsTypeEnum::BelongsTo->value) {
-                $nullable = in_array($rel . '_id', $this->nullables) ? '->nullable()' : '';
-                $modelName = ucfirst(Str::singular(str_replace('_id', '', $rel)));
-                $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::class){$nullable}->constrained()->cascadeOnDelete(); \n";
+        $this->table->relations()->each(function (CubetaRelation $relation) use (&$columns) {
+            if ($relation->isHasOne() || $relation->isBelongsTo()) {
+                $nullable = in_array($relation->key, $this->nullables) ? '->nullable()' : '';
+                $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\{$relation->modelName}::class){$nullable}->constrained()->cascadeOnDelete(); \n";
             }
-        }
+        });
 
         return $columns;
     }

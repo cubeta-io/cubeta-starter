@@ -120,4 +120,9 @@ trait HasPathAndNamespace
     {
         return "\\" . config('cubeta-starter.test_namespace') . "\\{$this->getTestName()}";
     }
+
+    public function getMigrationPath(): Path
+    {
+        return new Path(config('cubeta-starter.migration_path') . "{$this->getMigrationName()}.php");
+    }
 }

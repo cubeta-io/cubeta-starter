@@ -8,7 +8,6 @@ use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
-use Error;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -26,10 +25,11 @@ class FactoryGenerator extends AbstractGenerator
     {
         $this->addToJsonFile();
 
-        $factoryName = $this->table->getFactoryName();
-        $factoryPath = $this->getGeneratingPath($factoryName);
+        $factoryPath = $this->table->getFactoryPath();
 
-        throw_if(file_exists($factoryPath), new Error("{$factoryName} Already Exists"));
+        if ($factoryPath->exist()) {
+            $factoryPath->logAlreadyExist("Generating Factory For ({$this->table->modelName}) Model");
+        }
 
         $factoryAttributes = $this->generateFields();
 
@@ -41,11 +41,11 @@ class FactoryGenerator extends AbstractGenerator
             '//relationFactories' => $factoryAttributes['relatedFactories'],
         ];
 
-        $this->generateFileFromStub($stubProperties, $factoryPath);
+        $this->generateFileFromStub($stubProperties, $factoryPath->fullPath);
 
         CodeSniffer::make()->setModel($this->table->modelName)->checkForFactoryRelations();
 
-        $this->formatFile($factoryPath);
+        $factoryPath->format();
     }
 
     private function generateFields(): array
@@ -90,7 +90,7 @@ class FactoryGenerator extends AbstractGenerator
 
         $this->table->relations()->each(function (CubetaRelation $rel) use (&$relatedFactories) {
             if ($rel->isHasMany() || $rel->isManyToMany()) {
-                if (file_exists($rel->getModelPath())) {
+                if ($rel->getModelPath()->exist()) {
                     $relatedFactories .= $this->factoryRelationMethod($rel);
                 }
             }

@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\LogsMessages\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\LogsMessages\Log;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Exception;
@@ -18,8 +17,8 @@ class ApiControllerGenerator extends AbstractGenerator
     {
         $controllerPath = $this->table->getApiControllerPath();
 
-        if (file_exists($controllerPath->fullPath)) {
-            Log::add(new AlreadyExist($controllerPath->fullPath, "Generating Api Controller"));
+        if ($controllerPath->exist()) {
+            $controllerPath->logAlreadyExist("Generating Api Controller For ({$this->table->modelName}) Model");
         }
 
         $controllerPath->ensureDirectoryExists();

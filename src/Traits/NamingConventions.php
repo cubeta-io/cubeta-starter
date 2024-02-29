@@ -174,10 +174,14 @@ trait NamingConventions
     }
 
     /**
+     * @param bool $withoutDate
      * @return string
      */
-    public function getMigrationName(): string
+    public function getMigrationName(bool $withoutDate = false): string
     {
+        if ($withoutDate) {
+            return "create_" . $this->tableNaming() . "_table";
+        }
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
         return "{$date}_create_" . $this->tableNaming() . "_table";
     }

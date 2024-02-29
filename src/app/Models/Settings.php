@@ -59,9 +59,10 @@ class Settings
 
     public function getTable(string $modelName): ?CubetaTable
     {
-        $modelName = modelNaming($modelName);
+        $modelName = CubetaTable::getModelName($modelName);
+
         foreach (self::$tables as $table) {
-            if ($table["model_name"] == $modelName || $table['model_name'] == tableNaming($modelName)) {
+            if ($table["model_name"] == $modelName || $table['model_name'] == CubetaTable::getTableName($modelName)) {
                 $attributes = [];
 
                 foreach ($table['attributes'] as $attribute) {
@@ -72,7 +73,7 @@ class Settings
 
                 foreach ($table['relations'] as $type => $relationships) {
                     foreach ($relationships as $relationship) {
-                        $relations[] = new CubetaRelation($type, $relationship['model_name'], $relationship['key'] ?? null);
+                        $relations[] = new CubetaRelation($type, $relationship['model_name']);
                     }
                 }
 
@@ -96,8 +97,8 @@ class Settings
         foreach ($attributes as $colName => $type) {
 
             if ($type == ColumnTypeEnum::KEY->value) {
-                $type = ColumnTypeEnum::FOREIGN_KEY->value;
-                $parent = modelNaming(Str::singular(str_replace('_id', '', $colName)));
+                $type = ColumnTypeEnum::KEY->value;
+                $parent = Str::singular(str_replace('_id', '', $colName));
                 $relationships[] = new CubetaRelation(RelationsTypeEnum::BelongsTo->value, $parent);
             }
 
@@ -109,12 +110,12 @@ class Settings
                 continue;
             }
 
-            $relationships[] = new CubetaRelation($type, modelNaming($relation));
+            $relationships[] = new CubetaRelation($type, $relation);
         }
 
         $table = new CubetaTable(
-            modelNaming($modelName),
-            tableNaming($modelName),
+            $modelName,
+            $modelName,
             $columns,
             $relationships
         );
