@@ -3,7 +3,6 @@
 namespace Cubeta\CubetaStarter\App\Models\Postman;
 
 use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\PostmanRequest;
-use Exception;
 use Illuminate\Support\Collection;
 
 class PostmanItem implements PostmanObject
@@ -25,27 +24,23 @@ class PostmanItem implements PostmanObject
 
     public static function serialize(array $data)
     {
-        try {
-            if (isset($data['item'])) {
-                return new self(
-                    $data['name'],
-                    array_map(
-                        function ($item) {
-                            if (isset($item['item'])) {
-                                return PostmanItem::serialize($item);
-                            } else {
-                                return PostmanRequest::serialize($item);
-                            }
-                        },
-                        $data['item']
-                    )
-                );
-            } else if (isset($data['request'])) {
-                return new self($data['name'], [PostmanRequest::serialize($data)]);
-            };
-        } catch (Exception $e) {
-            dd($data, $e->getMessage(), $e->getLine(), $e->getFile());
-        }
+        if (isset($data['item'])) {
+            return new self(
+                $data['name'],
+                array_map(
+                    function ($item) {
+                        if (isset($item['item'])) {
+                            return PostmanItem::serialize($item);
+                        } else {
+                            return PostmanRequest::serialize($item);
+                        }
+                    },
+                    $data['item']
+                )
+            );
+        } else if (isset($data['request'])) {
+            return new self($data['name'], [PostmanRequest::serialize($data)]);
+        };
     }
 
     public function toJson(): string

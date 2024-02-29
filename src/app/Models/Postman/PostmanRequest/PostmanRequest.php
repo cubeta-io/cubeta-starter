@@ -109,7 +109,7 @@ class PostmanRequest implements PostmanObject
     {
         return [
             'name' => $this->name,
-            'events' => collect($this->events)->filter(fn($event) => $event->toArray())->toArray(),
+            'event' => collect($this->events)->filter(fn($event) => $event->toArray())->toArray(),
             'request' => [
                 'auth' => $this->auth?->toArray(),
                 'method' => $this->method,

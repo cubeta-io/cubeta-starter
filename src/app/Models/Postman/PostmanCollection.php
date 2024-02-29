@@ -57,14 +57,14 @@ class PostmanCollection implements PostmanObject
 
     public function newCrud(string $modelName, string $route, array $columns = []): static
     {
-        if ($this->checkIfCollectionExist($modelName)){
+        if ($this->checkIfCollectionExist($modelName)) {
             return $this;
         }
 
         $index = new PostmanRequest(
             name: "index",
             method: PostmanRequest::GET,
-            url: new RequestUrl($route),
+            url: RequestUrl::getUrlFromRoute($route),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer(),
         );
@@ -72,7 +72,7 @@ class PostmanCollection implements PostmanObject
         $show = new PostmanRequest(
             name: "show",
             method: PostmanRequest::GET,
-            url: new RequestUrl("$route/1"),
+            url: RequestUrl::getUrlFromRoute("$route/1"),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer()
         );
@@ -80,7 +80,7 @@ class PostmanCollection implements PostmanObject
         $store = new PostmanRequest(
             name: "store",
             method: PostmanRequest::POST,
-            url: new RequestUrl("$route"),
+            url: RequestUrl::getUrlFromRoute("$route"),
             header: [RequestHeader::setAcceptJson()],
             body: new RequestBody('formdata', $this->getBodyData($columns)),
             auth: RequestAuth::bearer(),
@@ -89,7 +89,7 @@ class PostmanCollection implements PostmanObject
         $update = new PostmanRequest(
             name: "update",
             method: PostmanRequest::PUT,
-            url: new RequestUrl("$route"),
+            url: RequestUrl::getUrlFromRoute("$route/1"),
             header: [RequestHeader::setAcceptJson()],
             body: new RequestBody('formdata', $this->getBodyData($columns)),
             auth: RequestAuth::bearer(),
@@ -98,7 +98,7 @@ class PostmanCollection implements PostmanObject
         $delete = new PostmanRequest(
             name: "delete",
             method: PostmanRequest::DELETE,
-            url: new RequestUrl("$route"),
+            url: RequestUrl::getUrlFromRoute("$route/1"),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer(),
         );
@@ -111,7 +111,7 @@ class PostmanCollection implements PostmanObject
     public function checkIfCollectionExist(string $name): bool
     {
         foreach ($this->items as $item) {
-            if ($item->name == $name && $item?->items){
+            if ($item->name == $name && $item?->items) {
                 return true;
             }
         }
@@ -146,7 +146,7 @@ class PostmanCollection implements PostmanObject
 
     public function newAuthApi(string $role): static
     {
-        if ($this->checkIfCollectionExist("$role auth")){
+        if ($this->checkIfCollectionExist("$role auth")) {
             return $this;
         }
 
@@ -162,16 +162,12 @@ class PostmanCollection implements PostmanObject
      */
     public static function serialize(array $data): PostmanCollection
     {
-        try {
-            return new self(
-                $data['info']['name'] ?? '',
-                array_map(fn($item) => PostmanItem::serialize($item), $data['item']),
-                array_map(fn($variable) => PostmanVariable::serialize($variable), $data['variable'] ?? []),
-                array_map(fn($event) => PostmanEvent::serialize($event), $data['event'] ?? [])
-            );
-        } catch (\Exception $exception) {
-            dd($data, $exception->getMessage());
-        }
+        return new self(
+            $data['info']['name'] ?? '',
+            array_map(fn($item) => PostmanItem::serialize($item), $data['item']),
+            array_map(fn($variable) => PostmanVariable::serialize($variable), $data['variable'] ?? []),
+            array_map(fn($event) => PostmanEvent::serialize($event), $data['event'] ?? [])
+        );
     }
 
     /**
@@ -181,7 +177,7 @@ class PostmanCollection implements PostmanObject
     public function save(): static
     {
         if (!Postman::$path) throw new Exception("Collection Path isn't specified");
-        file_put_contents(Postman::$path, json_encode($this->toArray(), JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT));
+        file_put_contents(Postman::$path, json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         return $this;
     }
 

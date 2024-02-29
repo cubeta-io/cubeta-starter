@@ -35,7 +35,7 @@ class RequestAuth implements PostmanObject
      * @param array{type:string|null , bearer:string|null} $data
      * @return self
      */
-    public static function serialize(array $data)
+    public static function serialize(array $data): RequestAuth
     {
         return new self($data['type'] ?? 'bearer', $data['bearer'] ?? []);
     }

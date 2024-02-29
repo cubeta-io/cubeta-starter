@@ -26,7 +26,7 @@ class RequestBody implements PostmanObject
      * @param array{mode:string|null , formdata:array{key:string|null , value:string|null , type:string|null}} $data
      * @return self
      */
-    public static function serialize(array $data)
+    public static function serialize(array $data): RequestBody
     {
         return new self(
             $data['mode'] ?? '',

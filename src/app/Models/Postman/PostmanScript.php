@@ -32,7 +32,7 @@ class PostmanScript implements PostmanObject
      * @param array{exec:string , type:string|null} $data
      * @return self
      */
-    public static function serialize(array $data)
+    public static function serialize(array $data): PostmanScript
     {
         return new self($data['exec'], $data['type'] ?? 'text/javascript');
     }

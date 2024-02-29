@@ -12,14 +12,19 @@ class RequestUrl implements PostmanObject
         "{{local}}v1"
     ];
 
+    public static function getUrlFromRoute(string $route): RequestUrl
+    {
+        return new self("{{local}}v1/$route");
+    }
+
     /**
      * @param string $raw
      */
     public function __construct(string $raw)
     {
-        $this->raw = "{{local}}v1/$raw";
+        $this->raw = $raw;
         $this->host = [
-            "{{local}}v1/$raw"
+            $raw,
         ];
     }
 

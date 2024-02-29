@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Postman;
 
-use Exception;
 use Illuminate\Support\Collection;
 
 class PostmanEvent implements PostmanObject
@@ -27,7 +26,7 @@ class PostmanEvent implements PostmanObject
      * @param array{script:array{exec:string , type:string|null} , listen:string} $data
      * @return self
      */
-    public static function serialize(array $data)
+    public static function serialize(array $data): PostmanEvent
     {
         return new self(
             PostmanScript::serialize($data['script']),
