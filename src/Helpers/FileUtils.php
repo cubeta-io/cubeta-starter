@@ -2,12 +2,14 @@
 
 namespace Cubeta\CubetaStarter\Helpers;
 
+use Cubeta\CubetaStarter\app\Models\Path;
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\LogsMessages\Errors\WrongEnvironment;
 use Cubeta\CubetaStarter\LogsMessages\Log;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class FileUtils
 {
@@ -68,7 +70,40 @@ class FileUtils
         }
 
         Log::add(new WrongEnvironment("Running Command : $command"));
-        
+
         return false;
+    }
+
+    /**
+     * add the use statement to the top of the desired file
+     * @param string $importStatement
+     * @param string $filePath
+     * @return void
+     */
+    public static function addImportStatement(string $importStatement, Path $filePath): void
+    {
+        $contents = file_get_contents($filePath->fullPath);
+
+        if (Str::contains($contents, $importStatement)) {
+            return;
+        }
+
+        // Check if import statement already exists
+        $fileLines = File::lines($filePath->fullPath);
+
+        foreach ($fileLines as $line) {
+            $cleanLine = trim($line);
+            if (Str::contains($cleanLine, $importStatement)) {
+                return;
+            }
+        }
+
+        // Find the last "use" statement and insert the new import statement after it
+        $lastUseIndex = strrpos($contents, 'use ');
+        $insertIndex = $lastUseIndex !== false ? $lastUseIndex - 1 : 0;
+        $contents = substr_replace($contents, "\n" . $importStatement . "\n", $insertIndex, 0);
+
+        // Write the updated contents back to the file
+        file_put_contents($filePath->fullPath, $contents);
     }
 }

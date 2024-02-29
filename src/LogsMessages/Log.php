@@ -8,7 +8,7 @@ class Log
 {
     private static array $logs = [];
 
-    public static function add(Exception|Error|string $log): void
+    public static function add(Exception|Error|Info|Warning|string $log): void
     {
         self::$logs[] = $log;
     }

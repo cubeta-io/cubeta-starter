@@ -4,9 +4,9 @@ namespace Cubeta\CubetaStarter\LogsMessages;
 
 abstract class Error
 {
-    public string $message;
-    public ?string $affectedFilePath = null;
-    public ?string $happenedWhen = null;
+    protected string $message;
+    protected ?string $affectedFilePath = null;
+    protected ?string $happenedWhen = null;
 
     /**
      * @param string $message
@@ -22,9 +22,10 @@ abstract class Error
 
     public function getMessage(): string
     {
-        return $this->message .
-            "\n" .
-            "Affected : {$this->affectedFilePath} \n" .
-            "Happened When : {$this->happenedWhen} \n";
+        $msg = "Error : " . $this->message . "\n";
+        if ($this->affectedFilePath) $msg .= "Affected : {$this->affectedFilePath} \n";
+        if ($this->happenedWhen) $msg .= "Happened When : {$this->happenedWhen} \n";
+        
+        return $msg;
     }
 }

@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\app\Models\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\Path;
 use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
@@ -140,9 +141,9 @@ abstract class AbstractGenerator
         return Settings::make()->serialize($this->fileName, $this->attributes, $this->relations, $this->nullables, $this->uniques);
     }
 
-    protected function formatFile(string $filePath): ?string
+    protected function formatFile(Path $filePath): ?string
     {
-        $command = base_path() . "./vendor/bin/pint {$filePath}";
+        $command = base_path() . "./vendor/bin/pint {$filePath->fullPath}";
         $output = $this->executeCommandInTheBaseDirectory($command);
         if (is_string($output)) return $output;
         return null;
