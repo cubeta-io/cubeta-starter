@@ -19,6 +19,11 @@ use Illuminate\Support\Str;
 trait RouteBinding
 {
     /**
+     * @param  CubetaTable                $table
+     * @param  string|null                $actor
+     * @param  string                     $container
+     * @param  array                      $additionalRoutes
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -61,16 +66,24 @@ trait RouteBinding
         }
     }
 
-    function getRouteFilePath(string $container, ?string $actor = null): Path
+    /**
+     * @param  string      $container
+     * @param  string|null $actor
+     * @return Path
+     */
+    public function getRouteFilePath(string $container, ?string $actor = null): Path
     {
-        if ($actor and $actor != "none") {
-            return new Path("routes/v1/$container/$actor.php");
-        } else {
-            return new Path("routes/v1/$container/public.php");
+        if ($actor && $actor != "none") {
+            return new Path("routes/v1/{$container}/{$actor}.php");
         }
+        return new Path("routes/v1/{$container}/public.php");
+
     }
 
     /**
+     * @param  string|null                $actor
+     * @param                             $container
+     * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
@@ -92,7 +105,9 @@ trait RouteBinding
     }
 
     /**
-     * add Route File Binding to the RouteServiceProvider
+     * @param  Path   $routeFilePath
+     * @param  string $container
+     * @return void
      */
     public function addRouteFileToServiceProvider(Path $routeFilePath, string $container = ContainerType::API): void
     {
@@ -128,9 +143,9 @@ trait RouteBinding
     }
 
     /**
-     * @param CubetaTable $table
-     * @param string $container
-     * @param string|null $actor
+     * @param  CubetaTable $table
+     * @param  string      $container
+     * @param  string|null $actor
      * @return string
      */
     public function getRouteName(CubetaTable $table, string $container = 'api', ?string $actor = null): string
@@ -141,9 +156,15 @@ trait RouteBinding
             return $container . '.' . $modelLowerPluralName;
         }
 
-        return "$container.$actor.$modelLowerPluralName";
+        return "{$container}.{$actor}.{$modelLowerPluralName}";
     }
 
+    /**
+     * @param  CubetaTable $table
+     * @param  string      $routeName
+     * @param  array       $additionalRoutes
+     * @return string
+     */
     public function addAdditionalRoutesForAdditionalControllerMethods(CubetaTable $table, string $routeName, array $additionalRoutes = []): string
     {
         $pluralLowerModelName = $table->routeUrlNaming();
@@ -157,8 +178,8 @@ trait RouteBinding
     }
 
     /**
-     * @param Path $routePath
-     * @param string $route
+     * @param  Path   $routePath
+     * @param  string $route
      * @return bool
      */
     public function checkIfRouteExist(Path $routePath, string $route): bool
@@ -179,6 +200,9 @@ trait RouteBinding
         return true;
     }
 
+    /**
+     * @return void
+     */
     public function addSetLocalRoute(): void
     {
         if (file_exists(base_path('/app/Http/Middleware/AcceptedLanguagesMiddleware.php'))) {
