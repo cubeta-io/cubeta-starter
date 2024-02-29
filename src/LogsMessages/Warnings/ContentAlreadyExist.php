@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\LogsMessages\Warnings;
 
-use Cubeta\CubetaStarter\LogsMessages\Warning;
+use Cubeta\CubetaStarter\LogsMessages\CubeWarning;
 
-class ContentAlreadyExist extends Warning
+class ContentAlreadyExist extends CubeWarning
 {
     public function __construct(string $content, string $filePath = null, ?string $context = null)
     {

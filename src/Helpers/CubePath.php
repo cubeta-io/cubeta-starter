@@ -1,29 +1,42 @@
 <?php
 
-namespace Cubeta\CubetaStarter\app\Models;
+namespace Cubeta\CubetaStarter\Helpers;
 
-use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\LogsMessages\CubeLog;
 use Cubeta\CubetaStarter\LogsMessages\Errors\AlreadyExist;
-use Cubeta\CubetaStarter\LogsMessages\Log;
 
-class Path
+class CubePath
 {
+    private static ?CubePath $instance = null;
     public string $inProjectPath;
-    public string $fullPath;
-    public string $fullDirectory;
-    public string $inProjectDirectory;
+    public ?string $fullPath = null;
+    public ?string $fullDirectory = null;
+    public ?string $inProjectDirectory = null;
     public ?string $fileName = null;
 
-    /**
-     * @param string $inProjectFilePath
-     */
     public function __construct(string $inProjectFilePath)
     {
         $this->inProjectPath = $inProjectFilePath;
-        $this->fullPath = base_path($inProjectFilePath);
+        $this->initialize();
+    }
+
+    private function initialize(): void
+    {
+        $this->fullPath = base_path($this->inProjectPath);
         $this->fullDirectory = dirname($this->fullPath);
-        $this->inProjectDirectory = dirname($inProjectFilePath);
+        $this->inProjectDirectory = dirname($this->inProjectPath);
         $this->fileName = pathinfo($this->fullPath, PATHINFO_BASENAME) ?? null;
+    }
+
+    public static function make(string $inProjectFilePath): CubePath
+    {
+        if (!self::$instance) {
+            self::$instance = new self($inProjectFilePath);
+        } else {
+            self::$instance->inProjectPath = $inProjectFilePath;
+            self::$instance->initialize();
+        }
+        return self::$instance;
     }
 
     public function ensureDirectoryExists(): void
@@ -38,13 +51,13 @@ class Path
 
     public function logAlreadyExist(?string $happenedWhen = null): void
     {
-        Log::add(new AlreadyExist($this->fullPath, $happenedWhen));
+        CubeLog::add(new AlreadyExist($this->fullPath, $happenedWhen));
     }
 
     public function format(): void
     {
         FileUtils::formatFile($this->fullPath);
-        Log::add("The File : [{$this->fullPath}] \n Formatted Successfully");
+        CubeLog::add("The File : [{$this->fullPath}] \n Formatted Successfully");
     }
 
     public function getContent(): bool|string

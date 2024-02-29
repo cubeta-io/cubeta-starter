@@ -4,11 +4,11 @@ namespace Cubeta\CubetaStarter\LogsMessages;
 
 use Exception;
 
-class Log
+class CubeLog
 {
     private static array $logs = [];
 
-    public static function add(Exception|Error|Info|Warning|string $log): void
+    public static function add(Exception|CubeError|CubeInfo|CubeWarning|string $log): void
     {
         self::$logs[] = $log;
     }

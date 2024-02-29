@@ -3,13 +3,13 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\app\Models\CubetaTable;
-use Cubeta\CubetaStarter\app\Models\Path;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\LogsMessages\CubeLog;
 use Cubeta\CubetaStarter\LogsMessages\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\LogsMessages\Info\ContentAppended;
 use Cubeta\CubetaStarter\LogsMessages\Info\SuccessGenerating;
-use Cubeta\CubetaStarter\LogsMessages\Log;
 use Cubeta\CubetaStarter\LogsMessages\Warnings\ContentAlreadyExist;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -54,29 +54,29 @@ trait RouteBinding
         FileUtils::addImportStatement($importStatement, $routePath);
 
         if (!($this->checkIfRouteExist($routePath, $route))) {
-            Log::add(new ContentAlreadyExist($route, $routePath->fullPath, "Adding Import Statement To The Route File"));
+            CubeLog::add(new ContentAlreadyExist($route, $routePath->fullPath, "Adding Import Statement To The Route File"));
             return;
         }
 
         if ($routePath->putContent($route, FILE_APPEND)) {
-            Log::add(new ContentAppended($route, $routePath->fullPath));
+            CubeLog::add(new ContentAppended($route, $routePath->fullPath));
             $routePath->format();
         } else {
-            Log::add(new FailedAppendContent($route, $routePath->fullPath));
+            CubeLog::add(new FailedAppendContent($route, $routePath->fullPath));
         }
     }
 
     /**
      * @param string $container
      * @param string|null $actor
-     * @return Path
+     * @return CubePath
      */
-    public function getRouteFilePath(string $container, ?string $actor = null): Path
+    public function getRouteFilePath(string $container, ?string $actor = null): CubePath
     {
         if ($actor && $actor != "none") {
-            return new Path("routes/v1/{$container}/{$actor}.php");
+            return CubePath::make("routes/v1/{$container}/{$actor}.php");
         }
-        return new Path("routes/v1/{$container}/public.php");
+        return CubePath::make("routes/v1/{$container}/public.php");
 
     }
 
@@ -105,13 +105,13 @@ trait RouteBinding
     }
 
     /**
-     * @param Path $routeFilePath
+     * @param CubePath $routeFilePath
      * @param string $container
      * @return void
      */
-    public function addRouteFileToServiceProvider(Path $routeFilePath, string $container = ContainerType::API): void
+    public function addRouteFileToServiceProvider(CubePath $routeFilePath, string $container = ContainerType::API): void
     {
-        $routeServiceProvider = new Path('app/Providers/RouteServiceProvider.php');
+        $routeServiceProvider = CubePath::make('app/Providers/RouteServiceProvider.php');
 
         $lineToAdd = '';
 
@@ -141,7 +141,7 @@ trait RouteBinding
         }
 
         $routeServiceProvider->format();
-        Log::add(new SuccessGenerating($routeFilePath->fileName, $routeFilePath->fullPath));
+        CubeLog::add(new SuccessGenerating($routeFilePath->fileName, $routeFilePath->fullPath));
     }
 
     /**
@@ -180,11 +180,11 @@ trait RouteBinding
     }
 
     /**
-     * @param Path $routePath
+     * @param CubePath $routePath
      * @param string $route
      * @return bool
      */
-    public function checkIfRouteExist(Path $routePath, string $route): bool
+    public function checkIfRouteExist(CubePath $routePath, string $route): bool
     {
         $file = $routePath->getContent();
         if (Str::contains($file, $route)) {
@@ -207,9 +207,9 @@ trait RouteBinding
      */
     public function addSetLocalRoute(): void
     {
-        $middlewarePath = new Path("/app/Http/Middleware/AcceptedLanguagesMiddleware.php");
+        $middlewarePath = CubePath::make("/app/Http/Middleware/AcceptedLanguagesMiddleware.php");
 
-        $controllerPath = new Path('app/Http/Controllers/SetLocaleController.php');
+        $controllerPath = CubePath::make('app/Http/Controllers/SetLocaleController.php');
         if ($controllerPath->exist()) {
 
             if ($middlewarePath->exist()) {
@@ -239,7 +239,7 @@ trait RouteBinding
             }
         }
 
-        $routePath = new Path("routes/web.php");
+        $routePath = CubePath::make("routes/web.php");
 
         if ($routePath->exist()) {
             $routePath->putContent($route, FILE_APPEND);

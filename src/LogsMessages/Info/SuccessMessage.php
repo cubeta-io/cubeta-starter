@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\LogsMessages\Info;
 
-use Cubeta\CubetaStarter\LogsMessages\Info;
+use Cubeta\CubetaStarter\LogsMessages\CubeInfo;
 
-class SuccessMessage extends Info
+class SuccessMessage extends CubeInfo
 {
     public function __construct(string $message)
     {

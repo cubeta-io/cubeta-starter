@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\LogsMessages\Errors;
 
-use Cubeta\CubetaStarter\LogsMessages\Error;
+use Cubeta\CubetaStarter\LogsMessages\CubeError;
 
-class FailedAppendContent extends Error
+class FailedAppendContent extends CubeError
 {
     public function __construct(string $content, string $filePath = null, ?string $context = null)
     {

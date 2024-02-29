@@ -3,13 +3,13 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\app\Models\CubetaTable;
-use Cubeta\CubetaStarter\app\Models\Path;
 use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\LogsMessages\Log;
+use Cubeta\CubetaStarter\LogsMessages\CubeLog;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Mockery\Exception;
@@ -77,7 +77,7 @@ abstract class AbstractGenerator
         try {
             FileUtils::generateFileFromStub($stubProperties, $path, $otherStubsPath ?? $this->stubsPath(), $override);
         } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
-            Log::add($e);
+            CubeLog::add($e);
             return;
         }
     }
@@ -95,7 +95,7 @@ abstract class AbstractGenerator
         return Settings::make()->serialize($this->fileName, $this->attributes, $this->relations, $this->nullables, $this->uniques);
     }
 
-    protected function formatFile(Path $filePath): ?string
+    protected function formatFile(CubePath $filePath): ?string
     {
         $command = base_path() . "./vendor/bin/pint {$filePath->fullPath}";
         $output = $this->executeCommandInTheBaseDirectory($command);

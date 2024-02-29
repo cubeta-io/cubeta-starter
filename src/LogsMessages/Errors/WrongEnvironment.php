@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\LogsMessages\Errors;
 
-use Cubeta\CubetaStarter\LogsMessages\Error;
+use Cubeta\CubetaStarter\LogsMessages\CubeError;
 
-class WrongEnvironment extends Error
+class WrongEnvironment extends CubeError
 {
     public function __construct(string $happenedWhen)
     {

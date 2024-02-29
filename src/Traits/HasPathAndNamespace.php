@@ -4,16 +4,16 @@ namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\app\Models\CubetaRelation;
 use Cubeta\CubetaStarter\app\Models\CubetaTable;
-use Cubeta\CubetaStarter\app\Models\Path;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 
 /**
  * @mixin CubetaTable|CubetaRelation
  */
 trait HasPathAndNamespace
 {
-    public function getModelPath(): Path
+    public function getModelPath(): CubePath
     {
-        return new Path(config('cubeta-starter.model_path') . "/{$this->modelName}.php");
+        return CubePath::make(config('cubeta-starter.model_path') . "/{$this->modelName}.php");
     }
 
     public function getModelClassString(): string
@@ -21,9 +21,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.model_namespace') . "\\{$this->modelName}";
     }
 
-    public function getApiControllerPath(): Path
+    public function getApiControllerPath(): CubePath
     {
-        return new Path(config('cubeta-starter.api_controller_path') . "/{$this->getControllerName()}.php");
+        return CubePath::make(config('cubeta-starter.api_controller_path') . "/{$this->getControllerName()}.php");
     }
 
     public function getApiControllerClassString(): string
@@ -31,9 +31,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.api_controller_namespace') . "\\{$this->getControllerName()}";
     }
 
-    public function getWebControllerPath(): Path
+    public function getWebControllerPath(): CubePath
     {
-        return new Path(config('cubeta-starter.web_controller_path') . "/{$this->getControllerName()}.php");
+        return CubePath::make(config('cubeta-starter.web_controller_path') . "/{$this->getControllerName()}.php");
     }
 
     public function getWebControllerClassString(): string
@@ -41,9 +41,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.web_controller_namespace') . "\\{$this->getControllerName()}";
     }
 
-    public function getRequestPath(): Path
+    public function getRequestPath(): CubePath
     {
-        return new Path(config('cubeta-starter.request_path') . "/{$this->getRequestName()}.php");
+        return CubePath::make(config('cubeta-starter.request_path') . "/{$this->getRequestName()}.php");
     }
 
     public function getRequestClassString(): string
@@ -51,9 +51,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.request_namespace') . "\\{$this->getRequestName()}";
     }
 
-    public function getResourcePath(): Path
+    public function getResourcePath(): CubePath
     {
-        return new Path(config('cubeta-starter.resource_path') . "/{$this->getResourceName()}.php");
+        return CubePath::make(config('cubeta-starter.resource_path') . "/{$this->getResourceName()}.php");
     }
 
     public function getResourceClassString(): string
@@ -61,9 +61,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.resource_namespace') . "\\{$this->getResourceName()}";
     }
 
-    public function getFactoryPath(): Path
+    public function getFactoryPath(): CubePath
     {
-        return new Path(config('cubeta-starter.factory_path') . "/{$this->getFactoryName()}.php");
+        return CubePath::make(config('cubeta-starter.factory_path') . "/{$this->getFactoryName()}.php");
     }
 
     public function getFactoryClassString(): string
@@ -71,9 +71,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.factory_namespace') . "\\{$this->getFactoryName()}";
     }
 
-    public function getSeederPath(): Path
+    public function getSeederPath(): CubePath
     {
-        return new Path(config('cubeta-starter.seeder_path') . "/{$this->getSeederName()}.php");
+        return CubePath::make(config('cubeta-starter.seeder_path') . "/{$this->getSeederName()}.php");
     }
 
     public function getSeederClassString(): string
@@ -81,9 +81,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.seeder_namespace') . "\\{$this->getSeederName()}";
     }
 
-    public function getRepositoryPath(): Path
+    public function getRepositoryPath(): CubePath
     {
-        return new Path(config('cubeta-starter.repository_path') . "/{$this->getRepositoryName()}.php");
+        return CubePath::make(config('cubeta-starter.repository_path') . "/{$this->getRepositoryName()}.php");
     }
 
     public function getRepositoryClassString(): string
@@ -91,9 +91,9 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.repository_namespace') . "\\{$this->getRepositoryName()}";
     }
 
-    public function getServicePath(): Path
+    public function getServicePath(): CubePath
     {
-        return new Path(config('cubeta-starter.service_path') . "/{$this->modelName}/{$this->getServiceName()}.php");
+        return CubePath::make(config('cubeta-starter.service_path') . "/{$this->modelName}/{$this->getServiceName()}.php");
     }
 
     public function getServiceNamespace(): string
@@ -106,14 +106,14 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.service_namespace') . "\\{$this->modelName}\\{$this->getServiceInterfaceName()}";
     }
 
-    public function getServiceInterfacePath(): Path
+    public function getServiceInterfacePath(): CubePath
     {
-        return new Path(config('cubeta-starter.service_path') . ("/{$this->modelName}/{$this->getServiceInterfaceName()}.php"));
+        return CubePath::make(config('cubeta-starter.service_path') . ("/{$this->modelName}/{$this->getServiceInterfaceName()}.php"));
     }
 
-    public function getTestPath(): Path
+    public function getTestPath(): CubePath
     {
-        return new Path(config('cubeta-starter.test_path') . "/{$this->getTestName()}.php");
+        return CubePath::make(config('cubeta-starter.test_path') . "/{$this->getTestName()}.php");
     }
 
     public function getTestClassString(): string
@@ -121,8 +121,8 @@ trait HasPathAndNamespace
         return "\\" . config('cubeta-starter.test_namespace') . "\\{$this->getTestName()}";
     }
 
-    public function getMigrationPath(): Path
+    public function getMigrationPath(): CubePath
     {
-        return new Path(config('cubeta-starter.migration_path') . "{$this->getMigrationName()}.php");
+        return CubePath::make(config('cubeta-starter.migration_path') . "{$this->getMigrationName()}.php");
     }
 }

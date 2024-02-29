@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\LogsMessages\Info;
 
-use Cubeta\CubetaStarter\LogsMessages\Info;
+use Cubeta\CubetaStarter\LogsMessages\CubeInfo;
 
-class ContentAppended extends Info
+class ContentAppended extends CubeInfo
 {
     public function __construct(string $content, string $filePath)
     {

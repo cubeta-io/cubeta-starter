@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\LogsMessages;
 
-abstract class Warning
+abstract class CubeInfo
 {
     protected string $message;
     protected ?string $context;
@@ -19,10 +19,10 @@ abstract class Warning
 
     public function getMessage(): string
     {
-        $msg = "Warning : {$this->message} \n";
-
-        if ($this->context) $msg .= "Context : {$this->context} \n";
-
-        return $msg;
+        if ($this->context) {
+            return "Info : {$this->message} \n
+                Context : {$this->context} \n";
+        }
+        return "Info : {$this->message} \n";
     }
 }

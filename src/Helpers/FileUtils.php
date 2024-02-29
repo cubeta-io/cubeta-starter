@@ -2,10 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Helpers;
 
-use Cubeta\CubetaStarter\app\Models\Path;
 use Cubeta\CubetaStarter\CreateFile;
+use Cubeta\CubetaStarter\LogsMessages\CubeLog;
 use Cubeta\CubetaStarter\LogsMessages\Errors\WrongEnvironment;
-use Cubeta\CubetaStarter\LogsMessages\Log;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
@@ -53,7 +52,7 @@ class FileUtils
     {
         $command = base_path() . "./vendor/bin/pint {$filePath}";
         $output = self::executeCommandInTheBaseDirectory($command);
-        Log::add($output);
+        CubeLog::add($output);
     }
 
     /**
@@ -69,7 +68,7 @@ class FileUtils
             return shell_exec($fullCommand);
         }
 
-        Log::add(new WrongEnvironment("Running Command : $command"));
+        CubeLog::add(new WrongEnvironment("Running Command : $command"));
 
         return false;
     }
@@ -77,12 +76,12 @@ class FileUtils
     /**
      * add the use statement to the top of the desired file
      * @param string $importStatement
-     * @param string $filePath
+     * @param CubePath $filePath
      * @return void
      */
-    public static function addImportStatement(string $importStatement, Path $filePath): void
+    public static function addImportStatement(string $importStatement, CubePath $filePath): void
     {
-        $contents = file_get_contents($filePath->fullPath);
+        $contents = $filePath->getContent();
 
         if (Str::contains($contents, $importStatement)) {
             return;
@@ -104,6 +103,6 @@ class FileUtils
         $contents = substr_replace($contents, "\n" . $importStatement . "\n", $insertIndex, 0);
 
         // Write the updated contents back to the file
-        file_put_contents($filePath->fullPath, $contents);
+        $filePath->putContent($contents);
     }
 }

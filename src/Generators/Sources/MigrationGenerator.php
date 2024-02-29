@@ -5,8 +5,8 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 use Cubeta\CubetaStarter\app\Models\CubetaAttribute;
 use Cubeta\CubetaStarter\app\Models\CubetaRelation;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\LogsMessages\CubeLog;
 use Cubeta\CubetaStarter\LogsMessages\Errors\AlreadyExist;
-use Cubeta\CubetaStarter\LogsMessages\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -20,7 +20,7 @@ class MigrationGenerator extends AbstractGenerator
         $migrationPath = $this->table->getMigrationPath();
 
         if ($this->checkIfMigrationExists()) {
-            Log::add(new AlreadyExist($migrationPath->fullPath, "Generating A migration For ({$this->table->modelName}) Model)"));
+            CubeLog::add(new AlreadyExist($migrationPath->fullPath, "Generating A migration For ({$this->table->modelName}) Model)"));
             return;
         }
 

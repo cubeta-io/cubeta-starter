@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\LogsMessages\Log;
+use Cubeta\CubetaStarter\LogsMessages\CubeLog;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Exception;
 
@@ -38,7 +38,7 @@ class ApiControllerGenerator extends AbstractGenerator
         try {
             $this->addRoute($this->table, $this->actor);
         } catch (Exception $exception) {
-            Log::add($exception);
+            CubeLog::add($exception);
         }
 
         $this->formatFile($controllerPath);

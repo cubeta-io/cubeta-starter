@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\LogsMessages;
 
-abstract class Error
+abstract class CubeError
 {
     protected string $message;
     protected ?string $affectedFilePath = null;
@@ -25,7 +25,7 @@ abstract class Error
         $msg = "Error : " . $this->message . "\n";
         if ($this->affectedFilePath) $msg .= "Affected : {$this->affectedFilePath} \n";
         if ($this->happenedWhen) $msg .= "Happened When : {$this->happenedWhen} \n";
-        
+
         return $msg;
     }
 }
