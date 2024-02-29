@@ -2,7 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Cubeta\CubetaStarter\app\Models\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\Path;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
@@ -10,24 +13,13 @@ use Illuminate\Support\Str;
 
 trait RouteBinding
 {
-    use RouteFileTrait;
-
-    /**
-     * @param string $modelName
-     * @param string|null $actor
-     * @param string $container
-     * @param array $additionalRoutes
-     * @return void
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    public function addRoute(string $modelName, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = []): void
+    public function addRoute(CubetaTable $table, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = []): void
     {
-        $pluralLowerModelName = routeUrlNaming($modelName);
+        $pluralLowerModelName = $table->routeUrlNaming();
 
-        $routePath = routeFilePath($container, $actor);
+        $routePath = $this->getRouteFilePath($container, $actor);
 
-        if (!file_exists($routePath)) {
+        if (!file_exists($routePath->fullPath)) {
             $this->addRouteFile($actor ?? $container, $container);
         }
 
@@ -57,6 +49,71 @@ trait RouteBinding
         } else {
             $this->error('Failed to Append a Route For This Controller');
         }
+    }
+
+    function getRouteFilePath(string $container, ?string $actor = null): Path
+    {
+        if ($actor and $actor != "none") {
+            return new Path("routes/v1/$container/$actor.php");
+        } else {
+            return new Path("routes/v1/$container/public.php");
+        }
+    }
+
+    /**
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function addRouteFile(?string $actor = null, $container = null): void
+    {
+        $actor = Str::singular(Str::lower($actor));
+
+        $filePath = $this->getRouteFilePath($container, $actor);
+
+        FileUtils::ensureDirectoryExists(dirname($filePath->fullPath));
+
+        FileUtils::generateFileFromStub(
+            ['{route}' => '//add-your-routes-here'],
+            $filePath->fullPath,
+            __DIR__ . '/../Commands/stubs/api.stub'
+        );
+
+        $this->addRouteFileToServiceProvider($filePath, $container);
+    }
+
+    /**
+     * add Route File Binding to the RouteServiceProvider
+     */
+    public function addRouteFileToServiceProvider(Path $routeFilePath, string $container = ContainerType::API): void
+    {
+        $routeServiceProvider = app_path('Providers/RouteServiceProvider.php');
+
+        if ($container == ContainerType::API) {
+            $lineToAdd = "\t\t Route::middleware('api')\n" .
+                "\t\t\t->prefix('api')\n" .
+                "\t\t\t->group(base_path('{$routeFilePath->inProjectDirectory}'));\n";
+        }
+
+        if ($container == ContainerType::WEB) {
+            $lineToAdd = "\t\t Route::middleware('web')\n" .
+                "\t\t\t->group(base_path('{$routeFilePath->inProjectDirectory}'));\n";
+        }
+
+        // Read the contents of the file
+        $fileContent = file_get_contents($routeServiceProvider);
+
+        // Check if the line to add already exists in the file
+        if (!str_contains($fileContent, $lineToAdd)) {
+            // If the line does not exist, add it to the boot() method
+            $pattern = '/\$this->routes\(function\s*\(\)\s*{\s*/';
+            $replacement = "$0{$lineToAdd}";
+
+            $fileContent = preg_replace($pattern, $replacement, $fileContent, 1);
+            // Write the modified contents back to the file
+            file_put_contents($routeServiceProvider, $fileContent);
+        }
+
+        $this->formatFile($routeServiceProvider);
     }
 
     /**

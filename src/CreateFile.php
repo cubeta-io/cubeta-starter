@@ -2,21 +2,19 @@
 
 namespace Cubeta\CubetaStarter;
 
-use Exception;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Filesystem\Filesystem;
 
 class CreateFile
 {
+    private static $instance;
     /**
      * The filesystem instance.
      *
      * @property Filesystem
      */
     protected FileSystem $files;
-    private static $instance;
-
     /**
      * The path to create file at
      *
@@ -43,6 +41,25 @@ class CreateFile
         //
     }
 
+    /**
+     * @param bool $override
+     * @return $this
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    public function callFileGenerateFunctions(bool $override = false): static
+    {
+        $this->files = app()->make(Filesystem::class);
+        if (!$override) {
+            if ($this->files->exists($this->path)) {
+                return $this;
+            }
+        }
+        $this->createStub();
+
+        return $this;
+    }
+
     public static function make(): CreateFile
     {
         if (self::$instance == null) {
@@ -50,54 +67,6 @@ class CreateFile
         }
 
         return self::$instance;
-    }
-
-    /**
-     * @param  bool                       $override
-     * @return $this
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     * @throws Exception
-     */
-    public function callFileGenerateFunctions(bool $override = false): static
-    {
-        $this->files = app()->make(Filesystem::class);
-        if (!$override) {
-            $this->fileExists();
-        }
-        $this->createStub();
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setPath($path): static
-    {
-        $this->path = $path;
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setStubPath($stubPath): static
-    {
-        $this->stubPath = $stubPath;
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function setStubProperties($stubProperties): static
-    {
-        $this->stubProperties = $stubProperties;
-
-        return $this;
     }
 
     /**
@@ -110,16 +79,6 @@ class CreateFile
         $stub = $this->getStub();
         $populatedStub = $this->populateStub($stub);
         $this->writeFile($populatedStub);
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function fileExists(): void
-    {
-        if ($this->files->exists($this->path)) {
-            throw new Exception("The class already exists!   [{$this->path}]");
-        }
     }
 
     /**
@@ -150,5 +109,35 @@ class CreateFile
     private function writeFile(mixed $stub): void
     {
         $this->files->put($this->path, $stub);
+    }
+
+    /**
+     * @return $this
+     */
+    public function setPath($path): static
+    {
+        $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setStubPath($stubPath): static
+    {
+        $this->stubPath = $stubPath;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setStubProperties($stubProperties): static
+    {
+        $this->stubProperties = $stubProperties;
+
+        return $this;
     }
 }

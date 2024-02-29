@@ -3,14 +3,59 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Carbon\Carbon;
+use Cubeta\CubetaStarter\app\Models\CubetaAttribute;
+use Cubeta\CubetaStarter\app\Models\CubetaRelation;
 use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Illuminate\Support\Str;
 
 /**
- * @mixin CubetaTable
+ * @mixin CubetaTable|CubetaRelation|CubetaAttribute
  */
 trait NamingConventions
 {
+    /**
+     * @var string
+     */
+    public string $usedString;
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    public static function getModelName(string $name): string
+    {
+        return ucfirst(Str::singular(Str::studly($name)));
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    public static function getTableName(string $name): string
+    {
+        return strtolower(Str::plural(Str::snake($name)));
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    public static function columnNaming(string $name): string
+    {
+        return strtolower(Str::snake($name));
+    }
+
+    /**
+     * @param string|null $name
+     * @return string
+     */
+    public function idVariable(?string $name = null): string
+    {
+        return $name
+            ? $this->variableNaming($name) . "Id"
+            : $this->variableNaming() . "Id";
+    }
+
     /**
      * return the variable name from the model name
      * if string provided the result will be base on the given string else on the modelName property of the class
@@ -20,7 +65,7 @@ trait NamingConventions
         if ($name) {
             return Str::singular(Str::camel($name));
         }
-        return Str::singular(Str::camel($this->modelName));
+        return Str::singular(Str::camel($this->usedString));
     }
 
     /**
@@ -34,7 +79,7 @@ trait NamingConventions
         if ($name) {
             return strtolower(Str::plural(Str::kebab($name)));
         }
-        return strtolower(Str::plural(Str::kebab($this->modelName)));
+        return strtolower(Str::plural(Str::kebab($this->usedString)));
     }
 
     /**
@@ -45,7 +90,7 @@ trait NamingConventions
         if ($name) {
             return lowerPluralKebabNaming($name);
         }
-        return lowerPluralKebabNaming($this->modelName);
+        return lowerPluralKebabNaming($this->usedString);
     }
 
     /**
@@ -56,7 +101,7 @@ trait NamingConventions
         if ($name) {
             return str_replace('-', '.', lowerPluralKebabNaming($name));
         }
-        return str_replace('-', '.', lowerPluralKebabNaming($this->modelName));
+        return str_replace('-', '.', lowerPluralKebabNaming($this->usedString));
     }
 
     /**
@@ -68,7 +113,7 @@ trait NamingConventions
     public function relationFunctionNaming(?string $name = null, bool $singular = true): string
     {
         if (!$name) {
-            $name = $this->modelName;
+            $name = $this->usedString;
         }
 
         if ($singular) {
@@ -86,19 +131,7 @@ trait NamingConventions
         if ($name) {
             return lowerPluralKebabNaming($name);
         }
-        return lowerPluralKebabNaming($this->modelName);
-    }
-
-    /**
-     * @param string|null $name
-     * @return string
-     */
-    public function columnNaming(?string $name = null): string
-    {
-        if ($name) {
-            return strtolower(Str::snake($name));
-        }
-        return strtolower(Str::snake($this->modelName));
+        return lowerPluralKebabNaming($this->usedString);
     }
 
     /**
@@ -110,9 +143,12 @@ trait NamingConventions
         if ($name) {
             return Str::headline($name);
         }
-        return Str::headline($this->modelName);
+        return Str::headline($this->usedString);
     }
 
+    /**
+     * @return string
+     */
     public function getResourceName(): string
     {
         return $this->modelNaming() . "Resource";
@@ -126,14 +162,20 @@ trait NamingConventions
         if ($name) {
             return ucfirst(Str::singular(Str::studly($name)));
         }
-        return ucfirst(Str::singular(Str::studly($this->modelName)));
+        return ucfirst(Str::singular(Str::studly($this->usedString)));
     }
 
+    /**
+     * @return string
+     */
     public function getControllerName(): string
     {
         return $this->modelNaming() . "Controller";
     }
 
+    /**
+     * @return string
+     */
     public function getMigrationName(): string
     {
         $date = Carbon::now()->subSecond()->format('Y_m_d_His');
@@ -148,41 +190,70 @@ trait NamingConventions
         if ($name) {
             return strtolower(Str::plural(Str::snake($name)));
         }
-        return strtolower(Str::plural(Str::snake($this->modelName)));
+        return strtolower(Str::plural(Str::snake($this->usedString)));
     }
 
+    /**
+     * @return string
+     */
     public function getRequestName(): string
     {
         return 'StoreUpdate' . $this->modelNaming() . 'Request';
     }
 
+    /**
+     * @return string
+     */
     public function getFactoryName(): string
     {
         return $this->modelNaming() . "Factory";
     }
 
+    /**
+     * @return string
+     */
     public function getRepositoryName(): string
     {
         return $this->modelNaming() . "Repository";
     }
 
+    /**
+     * @return string
+     */
     public function getServiceInterfaceName(): string
     {
         return "I" . $this->getServiceName();
     }
 
+    /**
+     * @return string
+     */
     public function getServiceName(): string
     {
         return $this->modelNaming() . "Service";
     }
 
+    /**
+     * @return string
+     */
     public function getSeederName(): string
     {
         return $this->modelNaming() . "Seeder";
     }
 
+    /**
+     * @return string
+     */
     public function getTestName(): string
     {
         return $this->modelNaming() . "Test";
+    }
+
+    /**
+     * @return string
+     */
+    public function keyName(): string
+    {
+        return strtolower(Str::singular($this->usedString)) . "_id";
     }
 }

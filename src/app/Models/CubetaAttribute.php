@@ -2,8 +2,12 @@
 
 namespace Cubeta\CubetaStarter\app\Models;
 
+use Cubeta\CubetaStarter\Traits\NamingConventions;
+
 class CubetaAttribute
 {
+    use NamingConventions;
+
     public string $name;
 
     public string $type;
@@ -20,10 +24,11 @@ class CubetaAttribute
      */
     public function __construct(string $name, string $type, bool $nullable, bool $unique)
     {
-        $this->name = $name;
+        $this->name = self::columnNaming($name);
         $this->type = $type;
         $this->nullable = $nullable;
         $this->unique = $unique;
+        $this->usedString = $this->name;
     }
 
     public function toJson(): bool|string

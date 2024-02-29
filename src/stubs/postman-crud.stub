@@ -1,0 +1,194 @@
+{
+	"name": "{modelName}",
+	"item": [
+		{
+					"name": "index",
+					"request": {
+						"auth": 
+						{
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept-Language",
+								"value": "{{locale}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{local}}{indexRoute}?search&sort_col&sort_dir",
+							"host": [
+								"{{local}}{indexRoute}"
+							] , 
+							"query": [
+								{
+									"key": "search",
+									"value": null
+								},
+								{
+									"key": "sort_col",
+									"value": null
+								},
+								{
+									"key": "sort_dir",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+		},
+		{
+					"name": "show",
+					"request": {
+					"auth": 
+						{
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{local}}{showRoute}",
+							"host": [
+								"{{local}}{showRoute}"
+							]
+						}
+					},
+					"response": []
+		},
+		{
+					"name": "store",
+					"request": {
+						"auth": 
+						{
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{formData}
+							]
+						},
+						"url": {
+							"raw": "{{local}}{storeRoute}",
+							"host": [
+								"{{local}}{storeRoute}"
+							]
+						}
+					},
+					"response": []
+		} , 
+		{
+					"name": "update",
+					"request": {
+						"auth": 
+						{
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{formData}
+							]
+						},
+						"url": {
+							"raw": "{{local}}{updateRoute}",
+							"host": [
+								"{{local}}{updateRoute}"
+							]
+						}
+					},
+					"response": []
+		} , 
+		{
+					"name": "delete",
+					"request": {
+					"auth": 
+						{
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{local}}{deleteRoute}",
+							"host": [
+								"{{local}}{deleteRoute}"
+							]
+						}
+					},
+					"response": []
+		} 
+	] 
+} , 
+"// add-your-cruds-here"
+
+

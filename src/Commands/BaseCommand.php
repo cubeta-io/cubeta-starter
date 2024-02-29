@@ -1,0 +1,22 @@
+<?php
+
+namespace Cubeta\CubetaStarter\Commands;
+
+use Cubeta\CubetaStarter\LogsMessages\Error;
+use Exception;
+use Illuminate\Console\Command;
+
+class BaseCommand extends Command
+{
+    public function handleCommandLogsAndErrors(Exception|Error $logs): void
+    {
+        foreach ($logs as $log) {
+            if ($log instanceof Exception) {
+                $this->error("Message : " . $log->getMessage());
+                $this->error("Affected File : " . $log->getFile());
+            } elseif ($log instanceof Error) {
+                $this->error($log->getMessage());
+            }
+        }
+    }
+}

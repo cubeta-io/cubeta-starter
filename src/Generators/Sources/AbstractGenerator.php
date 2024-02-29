@@ -5,7 +5,9 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\CreateFile;
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
@@ -15,6 +17,7 @@ abstract class AbstractGenerator
 {
     public static string $key = '';
     public static string $configPath = '';
+    public array $logs = [];
     protected array $attributes;
     protected array $relations;
     protected array $nullables;
@@ -22,6 +25,7 @@ abstract class AbstractGenerator
     protected string $generatedFor;
     protected ?string $actor = null;
     protected string $fileName;
+    protected CubetaTable $table;
 
     public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '')
     {
@@ -32,6 +36,27 @@ abstract class AbstractGenerator
         $this->uniques = $uniques;
         $this->actor = $actor;
         $this->generatedFor = $generatedFor === '' ? ContainerType::BOTH : $generatedFor;
+
+        $this->mergeRelations();
+
+        $this->table = CubetaTable::create(
+            $this->fileName,
+            $this->attributes,
+            $this->relations,
+            $this->uniques,
+            $this->nullables
+        );
+    }
+
+    protected function mergeRelations(): void
+    {
+        $belongToRelations = [];
+        foreach ($this->attributes as $attribute => $type) {
+            if ($type === ColumnTypeEnum::KEY->value) {
+                $belongToRelations["$attribute"] = RelationsTypeEnum::BelongsTo->value;
+            }
+        }
+        $this->relations = array_merge($this->relations, $belongToRelations);
     }
 
     public function run(): void
@@ -65,36 +90,6 @@ abstract class AbstractGenerator
         file_put_contents($filePath, $contents);
     }
 
-    protected function generatedFileName(): string
-    {
-        return "";
-    }
-
-    protected function tableName(string $name): string
-    {
-        return strtolower(Str::plural(Str::snake($name)));
-    }
-
-    protected function variableName(string $string): string
-    {
-        return Str::singular(Str::camel($string));
-    }
-
-    protected function columnName(string $name): string
-    {
-        return strtolower(Str::snake($name));
-    }
-
-    protected function modelClassName(string $name): string
-    {
-        return config("cubeta-starter.model_namespace", "App\Models") . "\\" . $this->modelName($name);
-    }
-
-    protected function modelName(string $name): string
-    {
-        return ucfirst(Str::singular(Str::studly($name)));
-    }
-
     protected function getGeneratingPath(string $fileName): string
     {
         $path = base_path(config(self::$configPath)) . $this->getAdditionalPath();
@@ -115,8 +110,13 @@ abstract class AbstractGenerator
     }
 
     /**
-     * @throws FileNotFoundException
+     * @param array $stubProperties
+     * @param string $path
+     * @param bool $override
+     * @param string|null $otherStubsPath
+     * @return void
      * @throws BindingResolutionException
+     * @throws FileNotFoundException
      */
     protected function generateFileFromStub(array $stubProperties, string $path, bool $override = false, string $otherStubsPath = null): void
     {

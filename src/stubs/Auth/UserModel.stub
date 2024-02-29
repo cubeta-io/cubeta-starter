@@ -1,0 +1,76 @@
+<?php
+
+namespace {namespace};
+
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+/**
+ * Class User
+ *
+ * @mixin Builder
+ */
+class User extends Authenticatable implements JWTSubject
+{
+    use HasApiTokens, HasFactory, Notifiable , HasRoles, SoftDeletes;
+
+    protected $guarded = ['id'];
+
+    protected $guard_name;
+
+    public function guardName(): string
+    {
+        if (request()->acceptsHtml()){
+            return 'web';
+        } else{
+            return 'api';
+        }
+    }
+
+    protected $fillable = [
+        'first_name' , 
+        'last_name' , 
+        'email' , 
+        'password' , 
+        'email_verified_at' , 
+        'fcm_token' , 
+        'reset_password_code',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected function password(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => Hash::make($value)
+        );
+    }
+
+    protected $casts = [
+        'id' => 'integer',
+        'email_verified_at' => 'datetime',
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s',
+    ];
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+}

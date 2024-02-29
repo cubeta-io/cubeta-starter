@@ -25,7 +25,7 @@ class WebControllerGenerator extends AbstractGenerator
 
     protected array $additionalRoutes = [];
 
-    protected CubetaTable $tableObject;
+    protected CubetaTable $table;
 
 
     /**
@@ -34,7 +34,7 @@ class WebControllerGenerator extends AbstractGenerator
     public function run(): void
     {
         $modelName = $this->modelName($this->fileName);
-        $this->tableObject = $this->addToJsonFile();
+        $this->table = $this->addToJsonFile();
 
         $modelNameCamelCase = variableNaming($modelName);
         $idVariable = $modelNameCamelCase . 'Id';
@@ -82,11 +82,34 @@ class WebControllerGenerator extends AbstractGenerator
             nullables: $this->nullables,
             actor: $this->actor
         ))->run();
+
+        $this->addSidebarItem($routesNames['index']);
     }
 
     protected function generatedFileName(): string
     {
         return $this->modelName($this->fileName) . "Controller";
+    }
+
+    /**
+     * @return string[]
+     */
+    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string'])]
+    protected function getRoutesNames(string $modelName, ?string $actor = null): array
+    {
+        $baseRouteName = $this->getRouteName($modelName, ContainerType::WEB, $actor);
+
+        return [
+            'index' => $baseRouteName . '.index',
+            'show' => $baseRouteName . '.show',
+            'edit' => $baseRouteName . '.edit',
+            'destroy' => $baseRouteName . '.destroy',
+            'store' => $baseRouteName . '.store',
+            'create' => $baseRouteName . '.create',
+            'data' => $baseRouteName . '.data',
+            'update' => $baseRouteName . '.update',
+            'base' => $baseRouteName
+        ];
     }
 
     /**
@@ -151,27 +174,6 @@ class WebControllerGenerator extends AbstractGenerator
         return $dataColumn;
     }
 
-    /**
-     * @return string[]
-     */
-    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string'])]
-    protected function getRoutesNames(string $modelName, ?string $actor = null): array
-    {
-        $baseRouteName = $this->getRouteName($modelName, ContainerType::WEB, $actor);
-
-        return [
-            'index' => $baseRouteName . '.index',
-            'show' => $baseRouteName . '.show',
-            'edit' => $baseRouteName . '.edit',
-            'destroy' => $baseRouteName . '.destroy',
-            'store' => $baseRouteName . '.store',
-            'create' => $baseRouteName . '.create',
-            'data' => $baseRouteName . '.data',
-            'update' => $baseRouteName . '.update',
-            'base' => $baseRouteName
-        ];
-    }
-
     private function generateOrderingQueriesForTranslatableColumns(array $attributes = []): string
     {
         $translatableColumns = $this->getJQueryDataTablesTranslatableColumnsIndexes($attributes);
@@ -228,9 +230,9 @@ class WebControllerGenerator extends AbstractGenerator
 
     public function getLoadedRelations(): string
     {
-        $loaded = $this->tableObject->relations()->filter(function (CubetaRelation $rel) {
+        $loaded = $this->table->relations()->filter(function (CubetaRelation $rel) {
             $relatedModelPath = getModelPath($rel->modelName);
-            $currentModelPath = getModelPath($this->tableObject->modelName);
+            $currentModelPath = getModelPath($this->table->modelName);
             return file_exists($relatedModelPath)
                 and (
                 ($rel->isHasMany()) ?
@@ -252,15 +254,14 @@ class WebControllerGenerator extends AbstractGenerator
         return __DIR__ . '/stubs/controller.web.stub';
     }
 
-    private function addSidebarItem(string $modelName, string $routeName): void
+    private function addSidebarItem(string $routeName): void
     {
-        $modelName = titleNaming($modelName);
         $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');
         if (!file_exists($sidebarPath)) {
             return;
         }
 
-        $sidebarItem = "\t\t<li class=\"nav-item\">\n\t\t\t<a class=\"nav-link collapsed @if(request()->fullUrl() == route('{$routeName}')) active @endif\" href=\"{{route('{$routeName}')}}\">\n\t\t\t\t<i class=\"bi bi-circle\"></i><span>{$modelName}</span>\n\t\t\t</a>\n\t\t</li>\n</ul>";
+        $sidebarItem = "\t\t<li class=\"nav-item\">\n\t\t\t<a class=\"nav-link collapsed @if(request()->fullUrl() == route('{$routeName}')) active @endif\" href=\"{{route('{$routeName}')}}\">\n\t\t\t\t<i class=\"bi bi-circle\"></i><span>{$this->table->modelNaming()}</span>\n\t\t\t</a>\n\t\t</li>\n</ul>";
 
         $sidebar = file_get_contents($sidebarPath);
         $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);

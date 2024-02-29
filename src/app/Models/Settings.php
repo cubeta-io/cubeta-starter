@@ -98,7 +98,7 @@ class Settings
             if ($type == ColumnTypeEnum::KEY->value) {
                 $type = ColumnTypeEnum::FOREIGN_KEY->value;
                 $parent = modelNaming(Str::singular(str_replace('_id', '', $colName)));
-                $relationships[] = new CubetaRelation(RelationsTypeEnum::BelongsTo->value, $parent, $colName);
+                $relationships[] = new CubetaRelation(RelationsTypeEnum::BelongsTo->value, $parent);
             }
 
             $columns[] = new CubetaAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques));

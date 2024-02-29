@@ -1,37 +1,7 @@
 <?php
 
-use Cubeta\CubetaStarter\CreateFile;
-use Cubeta\CubetaStarter\Enums\ContainerType;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-
-/**
- * @param array $stubProperties
- * @param string $path
- * @param string $stubPath
- * @param bool $override override file if exist
- * @return void
- * @throws BindingResolutionException
- * @throws FileNotFoundException
- */
-function generateFileFromStub(array $stubProperties, string $path, string $stubPath, bool $override = false): void
-{
-    CreateFile::make()->setPath($path)->setStubPath($stubPath)->setStubProperties($stubProperties)->callFileGenerateFunctions($override);
-}
-
-/**
- * check if the directory exist if not create it
- * @param string $directory
- * @return void
- */
-function ensureDirectoryExists(string $directory): void
-{
-    if (!File::isDirectory($directory)) {
-        File::makeDirectory($directory, 0775, true, true);
-    }
-}
 
 /**
  * add the use statement to the top of the desired file
@@ -155,15 +125,4 @@ function prependLastMatch(string $pattern, string $replacement, string $subject)
 
     // Replace the last match with the new content
     return substr_replace($subject, $replacement, $lastMatchOffset, 0);
-}
-
-function routeFilePath(string $container, ?string $actor = null): string
-{
-    if (isset($actor) and $actor != 'none') {
-        return base_path("routes/v1/$container/$actor.php");
-    } elseif (!$actor or $actor == 'none' and $container == ContainerType::WEB) {
-        return base_path("routes/v1/$container/dashboard.php");
-    } else {
-        return base_path("routes/v1/$container/$container.php");
-    }
 }

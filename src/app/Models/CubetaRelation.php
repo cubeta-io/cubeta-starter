@@ -3,9 +3,14 @@
 namespace Cubeta\CubetaStarter\app\Models;
 
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Traits\HasPathAndNamespace;
+use Cubeta\CubetaStarter\Traits\NamingConventions;
+use Illuminate\Support\Str;
 
 class CubetaRelation
 {
+    use NamingConventions, HasPathAndNamespace;
+
     public string $type;
 
     public string $modelName;
@@ -15,13 +20,17 @@ class CubetaRelation
     /**
      * @param string $type
      * @param string $modelName
-     * @param string|null $key
      */
-    public function __construct(string $type, string $modelName, ?string $key = null)
+    public function __construct(string $type, string $modelName)
     {
         $this->type = $type;
-        $this->modelName = modelNaming($modelName);
-        $this->key = $key;
+        $this->modelName = self::getModelName($modelName);
+
+        if ($this->type == RelationsTypeEnum::BelongsTo->value) {
+            $this->key = Str::singular(strtolower($this->modelName)) . '_id';
+        }
+
+        $this->usedString = $this->modelName;
     }
 
     public function toJson(): bool|string
@@ -79,10 +88,5 @@ class CubetaRelation
     public function isManyToMany(): bool
     {
         return $this->type == RelationsTypeEnum::ManyToMany->value;
-    }
-
-    public function modelPath(): string
-    {
-        return getModelPath($this->modelName);
     }
 }

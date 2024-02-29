@@ -1,0 +1,70 @@
+<?php
+
+namespace {namespace};
+
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany ;
+use Illuminate\Database\Eloquent\Relations\HasOne ;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+
+{properties}
+class {modelName} extends Model 
+{
+
+    use HasFactory;
+
+    protected $fillable = [
+       {fillable}
+    ];
+
+    protected $casts = [
+        {casts}
+    ];
+
+
+{fileGetter}
+
+{relations}
+
+
+    /**
+     * define your columns which you want to treat them as files
+     * so the base repository can store them in the storage without
+     * any additional files procedures
+     */
+    public function filesKeys() : array
+    {
+        return [
+            {filesKeys}
+            //filesKeys
+        ];
+    }
+
+
+    /**
+     * add your searchable columns, so you can search within them in the
+     * index method
+     */
+    public function searchableArray(): array
+    {
+        return [
+            {searchableKeys}
+        ] ;
+    }
+
+    /**
+     * add your relations and their searchable columns,
+     * so you can search within them in the index method
+     */
+    public function relationsSearchableArray(): array
+    {
+        return [
+            {searchableRelations}
+        ];
+    }
+
+    {scopes}
+}

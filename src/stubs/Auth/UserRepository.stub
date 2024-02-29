@@ -1,0 +1,29 @@
+<?php
+
+namespace {namespace};
+
+use {modelNamespace}\User;
+use {namespace}\Contracts\BaseRepository;
+
+class UserRepository extends BaseRepository
+{
+    public function __construct(User $user)
+    {
+        parent::__construct($user);
+    }
+
+    public function getUserByEmail($email)
+    {
+        return User::where('email', $email)->first();
+    }
+
+    public function getUserByPasswordResetCode($token)
+    {
+        return User::where('reset_password_code', $token)->first();
+    }
+
+    public function getByFcmToken($fcm_token)
+    {
+        return User::where('fcm_token', $fcm_token)->get();
+    }
+}

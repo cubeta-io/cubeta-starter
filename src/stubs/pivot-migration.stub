@@ -1,0 +1,35 @@
+<?php
+
+use App\Models{className1};
+use App\Models{className2};
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('{pivotTableName}', function (Blueprint $table) {
+            $table->id();
+            $table->foreignIdFor({className1}::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor({className2}::class)->constrained()->cascadeOnDelete();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('{pivotTableName}');
+    }
+};

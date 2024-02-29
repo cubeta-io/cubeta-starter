@@ -22,7 +22,6 @@ class ModelGenerator extends AbstractGenerator
     public function run(): void
     {
         $modelName = $this->generatedFileName();
-        $this->mergeRelations();
         $modelPath = $this->getGeneratingPath($modelName);
         $this->addToJsonFile();
 
@@ -59,17 +58,6 @@ class ModelGenerator extends AbstractGenerator
         return $this->modelName($this->fileName);
     }
 
-    public function mergeRelations(): void
-    {
-        $belongToRelations = [];
-        foreach ($this->attributes as $attribute => $type) {
-            if ($type === ColumnTypeEnum::KEY->value) {
-                $belongToRelations["$attribute"] = RelationsTypeEnum::BelongsTo->value;
-            }
-        }
-        $this->relations = array_merge($this->relations, $belongToRelations);
-    }
-
     private function generateModelClassAttributes(): array
     {
         $fillable = '';
@@ -88,7 +76,7 @@ class ModelGenerator extends AbstractGenerator
                 $fillable .= "'{$attribute}' ,\n";
 
                 if ($type === ColumnTypeEnum::BOOLEAN->value) {
-                    $booleanValueScope .= '\tpublic function scope' . ucfirst(Str::studly($attribute)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute . "' , 1);\n\t}\n";
+                    $booleanValueScope .= "\tpublic function scope" . ucfirst(Str::studly($attribute)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute . "' , 1);\n\t}\n";
                     $casts .= "'{$attribute}' => 'boolean' , \n";
                 }
 

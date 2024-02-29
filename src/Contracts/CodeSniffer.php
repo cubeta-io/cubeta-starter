@@ -198,7 +198,7 @@ class CodeSniffer
 
                 $relatedControllerPath = getWebControllerPath($relation->modelName);
 
-                if (file_exists($relation->modelPath()) and file_exists($relatedControllerPath)) {
+                if (file_exists($relation->getModelPath()) and file_exists($relatedControllerPath)) {
                     $attribute = strtolower($this->currentModel) . '_id';
                     $relatedTable = Settings::make()->getTable($relation->modelName);
                     $relatedModelControllerPath = getWebControllerPath($relation->modelName);
@@ -258,9 +258,9 @@ class CodeSniffer
                     if (file_exists($relatedShowView) and isMethodDefined($relatedModelControllerPath, "show")) {
                         $relationName = relationFunctionNaming($currentTable->modelName);
                         $showViewContent = file_get_contents($relatedShowView);
-                        $value = "\${$relatedTable->variableName()}->{$relationName}->{$currentTable->titleable()->name}";
-                        if (str_contains($showViewContent, "\${$relatedTable->variableName()}->{$currentTable->keyName()}")) {
-                            $showViewContent = str_replace("\${$relatedTable->variableName()}->{$currentTable->keyName()}", $value, $showViewContent);
+                        $value = "\${$relatedTable->variableNaming()}->{$relationName}->{$currentTable->titleable()->name}";
+                        if (str_contains($showViewContent, "\${$relatedTable->variableNaming()}->{$currentTable->keyName()}")) {
+                            $showViewContent = str_replace("\${$relatedTable->variableNaming()}->{$currentTable->keyName()}", $value, $showViewContent);
                             $oldLabel = ucfirst(str_replace("_", ' ', $currentTable->keyName()));
                             $showViewContent = str_replace($oldLabel, $currentTable->modelName, $showViewContent);
                         } else {

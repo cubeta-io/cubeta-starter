@@ -2,14 +2,15 @@
 
 namespace Cubeta\CubetaStarter\app\Models;
 
+use Cubeta\CubetaStarter\Traits\HasPathAndNamespace;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class CubetaTable
 {
-    use NamingConventions;
-    
+    use NamingConventions, HasPathAndNamespace;
+
     /**
      * @var string
      */
@@ -38,10 +39,11 @@ class CubetaTable
      */
     public function __construct(string $modelName, string $tableName, array $attributes, array $relations)
     {
-        $this->modelName = modelNaming($modelName);
-        $this->tableName = tableNaming($tableName);
+        $this->modelName = self::getModelName($modelName);
+        $this->tableName = self::getTableName($tableName);
         $this->attributes = $attributes;
         $this->relations = $relations;
+        $this->usedString = $this->modelName;
     }
 
     /**
@@ -55,36 +57,11 @@ class CubetaTable
     public static function create(string $modelName, array $attributes = [], array $relations = [], array $uniques = [], array $nullables = []): CubetaTable
     {
         return new self(
-            modelNaming($modelName),
-            tableNaming($modelName),
+            self::getModelName($modelName),
+            self::getTableName($modelName),
             collect($attributes)->map(fn($type, $name) => new CubetaAttribute($name, $type, in_array($name, $nullables), in_array($name, $uniques)))->toArray(),
-            collect($relations)->map(fn($type, $rel) => new CubetaRelation($type, modelNaming($rel)))->toArray(),
+            collect($relations)->map(fn($type, $rel) => new CubetaRelation($type, self::getModelName($rel)))->toArray(),
         );
-    }
-
-    /**
-     * @return bool|string
-     */
-    public function toJson(): bool|string
-    {
-        $attributes = [];
-        foreach ($this->attributes as $attribute) {
-            $attributes[] = $attribute->toArray();
-        }
-
-        $relations = [];
-        foreach ($this->relations as $relation) {
-            $relations[] = $relation->toArray();
-        }
-
-        $relations = collect($relations)->groupBy("type")->toArray();
-
-        return json_encode([
-            "model_name" => $this->modelName,
-            "table_name" => $this->tableName,
-            "attributes" => $attributes,
-            "relations" => $relations
-        ]);
     }
 
     /**
@@ -110,6 +87,31 @@ class CubetaTable
             "attributes" => $attributes,
             "relations" => $relations
         ];
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function toJson(): bool|string
+    {
+        $attributes = [];
+        foreach ($this->attributes as $attribute) {
+            $attributes[] = $attribute->toArray();
+        }
+
+        $relations = [];
+        foreach ($this->relations as $relation) {
+            $relations[] = $relation->toArray();
+        }
+
+        $relations = collect($relations)->groupBy("type")->toArray();
+
+        return json_encode([
+            "model_name" => $this->modelName,
+            "table_name" => $this->tableName,
+            "attributes" => $attributes,
+            "relations" => $relations
+        ]);
     }
 
     /**
@@ -216,21 +218,5 @@ class CubetaTable
     public function attributes(): Collection
     {
         return collect($this->attributes);
-    }
-
-    /**
-     * @return string
-     */
-    public function variableName(): string
-    {
-        return variableNaming($this->modelName);
-    }
-
-    /**
-     * @return string
-     */
-    public function keyName(): string
-    {
-        return strtolower(Str::singular($this->modelName)) . "_id";
     }
 }

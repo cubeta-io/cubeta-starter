@@ -2,15 +2,20 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\app\Models\CubetaAttribute;
+use Cubeta\CubetaStarter\app\Models\CubetaRelation;
+use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
-use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Error;
 use Illuminate\Support\Str;
 use Throwable;
 
 class FactoryGenerator extends AbstractGenerator
 {
+    use StringsGenerator;
+
     public static string $key = 'factory';
     public static string $configPath = 'cubeta-starter.factory_path';
 
@@ -19,10 +24,9 @@ class FactoryGenerator extends AbstractGenerator
      */
     public function run(): void
     {
-        $modelName = $this->modelName($this->fileName);
-        $factoryName = $this->generatedFileName();
         $this->addToJsonFile();
 
+        $factoryName = $this->table->getFactoryName();
         $factoryPath = $this->getGeneratingPath($factoryName);
 
         throw_if(file_exists($factoryPath), new Error("{$factoryName} Already Exists"));
@@ -31,7 +35,7 @@ class FactoryGenerator extends AbstractGenerator
 
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.factory_namespace'),
-            '{class}' => $modelName,
+            '{class}' => $this->table->modelName,
             '{usedTraits}' => $this->getUsedTraits(),
             '{rows}' => $factoryAttributes['rows'],
             '//relationFactories' => $factoryAttributes['relatedFactories'],
@@ -39,32 +43,24 @@ class FactoryGenerator extends AbstractGenerator
 
         $this->generateFileFromStub($stubProperties, $factoryPath);
 
-        CodeSniffer::make()->setModel($modelName)->checkForFactoryRelations();
+        CodeSniffer::make()->setModel($this->table->modelName)->checkForFactoryRelations();
 
         $this->formatFile($factoryPath);
-    }
-
-    public function generatedFileName(): string
-    {
-        return $this->modelName($this->fileName) . 'Factory';
-    }
-
-    protected function stubsPath(): string
-    {
-        return __DIR__ . '/stubs/factory.stub';
     }
 
     private function generateFields(): array
     {
         $rows = '';
         $relatedFactories = '';
-        foreach ($this->attributes as $name => $type) {
-            $name = $this->columnName($name);
-            $isUnique = in_array($name, $this->uniques) ? "->unique()" : "";
+
+        $this->table->attributes()->each(function (CubetaAttribute $attribute) use (&$rows) {
+            $isUnique = $attribute->name ? "->unique()" : "";
+            $name = $attribute->name;
+            $type = $attribute->type;
 
             if ($type == ColumnTypeEnum::KEY->value) {
-                $relatedModel = $this->modelName(str_replace('_id', '', $name));
-                $rows .= "\t\t\t'{$name}' => \\" . config('cubeta-starter.model_namespace') . "\\{$relatedModel}::factory() ,\n";
+                $relatedModel = CubetaTable::create(str_replace('_id', '', $name));
+                $rows .= "\t\t\t'{$name}' => " . $relatedModel->getFactoryClassString() . "::factory() ,\n";
             } elseif ($type == ColumnTypeEnum::TRANSLATABLE->value) {
                 $rows .= "\t\t\t'{$name}' => \$this->fakeTranslation('word'),\n";
             } elseif ($type == ColumnTypeEnum::STRING->value) {
@@ -90,16 +86,15 @@ class FactoryGenerator extends AbstractGenerator
             } else {
                 $rows .= "\t\t\t '{$name}' => fake(){$isUnique}->{$type}(), \n";
             }
-        }
+        });
 
-        foreach ($this->relations as $rel => $type) {
-            if ($type == RelationsTypeEnum::HasMany->value || $type == RelationsTypeEnum::ManyToMany->value) {
-                if (!file_exists(getModelPath($rel))) {
-                    continue;
+        $this->table->relations()->each(function (CubetaRelation $rel) use (&$relatedFactories) {
+            if ($rel->isHasMany() || $rel->isManyToMany()) {
+                if (file_exists($rel->getModelPath())) {
+                    $relatedFactories .= $this->factoryRelationMethod($rel);
                 }
-                $relatedFactories .= $this->factoryRelationMethod($rel);
             }
-        }
+        });
 
         return ['rows' => $rows, 'relatedFactories' => $relatedFactories];
     }
@@ -163,13 +158,6 @@ class FactoryGenerator extends AbstractGenerator
         };
     }
 
-    private function factoryRelationMethod($relation): string
-    {
-        $modelName = $this->modelName($relation);
-        $functionName = 'with' . ucfirst(Str::plural(Str::studly($modelName)));
-        return "public function {$functionName}(\$count = 1)\n{\n\t return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$modelName}::factory(\$count));\n} \n";
-    }
-
     private function getUsedTraits(): string
     {
         $usedTraits = '';
@@ -183,5 +171,10 @@ class FactoryGenerator extends AbstractGenerator
         }
 
         return $usedTraits;
+    }
+
+    protected function stubsPath(): string
+    {
+        return __DIR__ . '/stubs/factory.stub';
     }
 }

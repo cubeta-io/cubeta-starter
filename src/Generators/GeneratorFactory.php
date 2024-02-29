@@ -2,22 +2,13 @@
 
 namespace Cubeta\CubetaStarter\Generators;
 
-use Cubeta\CubetaStarter\Generators\Sources\{
-    ApiControllerGenerator,
-    FactoryGenerator,
-    MigrationGenerator,
-    ModelGenerator,
-    RepositoryGenerator,
-    RequestGenerator,
-    ResourceGenerator,
-    SeederGenerator,
-    ServiceGenerator
-};
 use Error;
-use Throwable;
+use Mockery\Exception;
 
 class GeneratorFactory
 {
+    private static $instance;
+    public array $logs = [];
     private string $source;
 
     public function __construct(string $source)
@@ -25,59 +16,74 @@ class GeneratorFactory
         $this->source = $source;
     }
 
-    /**
-     * @throws Throwable
-     */
-    public function make(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = []): void
+    public static function make(string $source): GeneratorFactory
+    {
+        if (self::$instance == null) {
+            self::$instance = new self($source);
+        }
+
+        self::$instance->source = $source;
+        return self::$instance;
+    }
+
+
+    public function run(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null): void
     {
         $generator = match ($this->source) {
-            MigrationGenerator::$key => new MigrationGenerator(
+            Sources\MigrationGenerator::$key => new Sources\MigrationGenerator(
                 fileName: $fileName,
                 attributes: $attributes,
                 relations: $relations,
                 nullables: $nullables,
                 uniques: $uniques
             ),
-            ModelGenerator::$key => new ModelGenerator(
+            Sources\ModelGenerator::$key => new Sources\ModelGenerator(
                 fileName: $fileName,
                 attributes: $attributes,
                 relations: $relations,
                 nullables: $nullables,
                 uniques: $uniques,
             ),
-            RequestGenerator::$key => new RequestGenerator(
+            Sources\RequestGenerator::$key => new Sources\RequestGenerator(
                 fileName: $fileName,
                 attributes: $attributes,
                 relations: $relations,
                 nullables: $nullables,
                 uniques: $uniques,
             ),
-            ResourceGenerator::$key => new ResourceGenerator(
+            Sources\ResourceGenerator::$key => new Sources\ResourceGenerator(
                 fileName: $fileName,
                 attributes: $attributes,
                 relations: $relations,
             ),
-            FactoryGenerator::$key => new FactoryGenerator(
+            Sources\FactoryGenerator::$key => new Sources\FactoryGenerator(
                 fileName: $fileName,
                 attributes: $attributes,
                 relations: $relations,
                 nullables: $nullables,
                 uniques: $uniques,
+                actor: $actor
             ),
-            SeederGenerator::$key => new SeederGenerator(
+            Sources\SeederGenerator::$key => new Sources\SeederGenerator(
                 fileName: $fileName,
             ),
-            RepositoryGenerator::$key => new RepositoryGenerator(
+            Sources\RepositoryGenerator::$key => new Sources\RepositoryGenerator(
                 fileName: $fileName,
             ),
-            ServiceGenerator::$key => new ServiceGenerator(
+            Sources\ServiceGenerator::$key => new Sources\ServiceGenerator(
                 fileName: $fileName,
             ),
-            ApiControllerGenerator::$key => new ApiControllerGenerator(
+            Sources\ApiControllerGenerator::$key => new Sources\ApiControllerGenerator(
                 fileName: $fileName,
+                actor: $actor
             ),
             default => throw new Error("Not supported generator"),
         };
-        $generator->run();
+        try {
+            $generator->run();
+        } catch (Exception $exception) {
+            $this->logs[] = $exception->getMessage();
+        }
+        $this->logs = array_merge($this->logs, $generator->logs);
     }
 }
