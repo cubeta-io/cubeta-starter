@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Error;
 use Throwable;
 
 class RepositoryGenerator extends AbstractGenerator
@@ -15,30 +14,22 @@ class RepositoryGenerator extends AbstractGenerator
      */
     public function run(): void
     {
-        $modelName = $this->modelName($this->fileName);
-        $repositoryName = $this->generatedFileName();
+        $repositoryPath = $this->table->getRepositoryPath();
 
-        $repositoryPath = $this->getGeneratingPath($repositoryName);
-
-        $modelVariable = $this->variableName($modelName);
-
-        throw_if(file_exists($repositoryPath), new Error("{$repositoryName} Already Exists"));
+        if ($repositoryPath->exist()) {
+            $repositoryPath->logAlreadyExist("Generating Repository Class For ({$this->table->modelName}) Model");
+        }
 
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.repository_namespace'),
-            '{modelName}' => $modelName,
-            '{modelVar}' => $modelVariable,
+            '{modelName}' => $this->table->modelName,
+            '{modelVar}' => $this->table->variableNaming(),
             '{modelNamespace}' => config('cubeta-starter.model_namespace')
         ];
 
-        $this->generateFileFromStub($stubProperties, $repositoryPath);
+        $this->generateFileFromStub($stubProperties, $repositoryPath->fullPath);
 
-        $this->formatFile($repositoryPath);
-    }
-
-    public function generatedFileName(): string
-    {
-        return $this->modelName($this->fileName) . 'Repository';
+        $repositoryPath->format();
     }
 
     protected function stubsPath(): string
