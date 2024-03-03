@@ -2,10 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\app\Models\CubetaAttribute;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
-use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Error;
 use Throwable;
 
 class ResourceGenerator extends AbstractGenerator
@@ -18,77 +17,63 @@ class ResourceGenerator extends AbstractGenerator
      */
     public function run(): void
     {
-        $modelName = $this->modelName($this->fileName);
-        $resourceName = $this->generatedFileName();
+        $resourceName = $this->table->getResourceName();
         $this->addToJsonFile();
 
         $stubProperties = [
-            '{model}' => "\\" . getModelClassName($modelName),
+            '{model}' => "\\" . $this->table->getModelClassString(),
             '{namespace}' => config('cubeta-starter.resource_namespace'),
             '{class}' => $resourceName,
             '{resource_fields}' => $this->generateFields(),
         ];
 
-        $resourcePath = $this->getGeneratingPath($resourceName);
+        $resourcePath = $this->table->getResourcePath();
 
-        throw_if(file_exists($resourcePath), new Error("{$resourceName} Already Exists"));
+        if ($resourcePath->exist()) {
+            $resourcePath->logAlreadyExist("Generating Resource For {$this->table->modelName} Model");
+        }
 
-        $this->generateFileFromStub($stubProperties, $resourcePath);
+        $this->generateFileFromStub($stubProperties, $resourcePath->fullPath);
 
-        CodeSniffer::make()->setModel($modelName)->checkForResourceRelations();
+        CodeSniffer::make()->setModel($this->table->modelName)->checkForResourceRelations();
 
-        $this->formatFile($resourcePath);
-    }
-
-    public function generatedFileName(): string
-    {
-        return $this->modelName($this->fileName) . 'Resource';
-    }
-
-    protected function stubsPath(): string
-    {
-        return __DIR__ . '/stubs/resource.stub';
+        $resourcePath->format();
     }
 
     private function generateFields(): string
     {
-        $modelName = $this->modelName($this->fileName);
         $fields = "'id' => \$this->id, \n\t\t\t";
-        foreach ($this->attributes as $attribute => $type) {
-
-            $attribute = $this->columnName($attribute);
-
-            if ($type == ColumnTypeEnum::FILE->value) {
-                $fields .= "'{$attribute}' => \$this->get" . $this->modelName($attribute) . "Path(), \n\t\t\t";
-                continue;
+        $this->table->attributes()->each(function (CubetaAttribute $attribute) use (&$fields) {
+            if ($attribute->type == ColumnTypeEnum::FILE->value) {
+                $fields .= "'{$attribute->name}' => \$this->get" . $attribute->modelNaming() . "Path(), \n\t\t\t";
+            } else {
+                $fields .= "'{$attribute->name}' => \$this->{$attribute->name},\n\t\t\t";
             }
-            $fields .= "'{$attribute}' => \$this->{$attribute},\n\t\t\t";
-        }
+        });
 
-        foreach ($this->relations as $rel => $type) {
-            $relatedModelName = $this->modelName(str_replace('_id', '', $rel));
+        foreach ($this->table->relations() as $rel) {
 
-            if (!file_exists(getModelPath($relatedModelName)) or !file_exists(getResourcePath($relatedModelName))) {
+            if (!$rel->getModelPath()->exist() or !$rel->getResourcePath()->exist()) {
                 continue;
             }
 
-            if ($type == RelationsTypeEnum::HasOne->value || $type == RelationsTypeEnum::BelongsTo->value) {
-
-                $relation = relationFunctionNaming(str_replace('_id', '', $rel));
-                $relatedModelResource = modelNaming($relation) . 'Resource';
+            if ($rel->isHasOne() || $rel->isBelongsTo()) {
+                $relation = $rel->method();
+                $relatedModelResource = $rel->getResourceName();
 
                 // check that the resource model has the relation method
-                if (!method_exists(getModelClassName($modelName), $relation)) {
+                if (!method_exists($this->table->getModelClassString(), $relation)) {
                     continue;
                 }
 
                 $fields .= "'{$relation}' =>  new {$relatedModelResource}(\$this->whenLoaded('{$relation}')) , \n\t\t\t";
-            } elseif ($type == RelationsTypeEnum::ManyToMany->value || $type == RelationsTypeEnum::HasMany->value) {
-                $relation = relationFunctionNaming($rel, false);
-                $relatedModelResource = modelNaming($relation) . 'Resource';
+
+            } elseif ($rel->isManyToMany() || $rel->isHasMany()) {
+                $relation = $rel->method();
+                $relatedModelResource = $rel->getResourceName();
 
                 // check that the resource model has the relation method
-                if (!method_exists(getModelClassName($modelName), $relation)) {
+                if (!method_exists($this->table->getModelClassString(), $relation)) {
                     continue;
                 }
 
@@ -97,5 +82,10 @@ class ResourceGenerator extends AbstractGenerator
         }
 
         return $fields;
+    }
+
+    protected function stubsPath(): string
+    {
+        return __DIR__ . '/stubs/resource.stub';
     }
 }
