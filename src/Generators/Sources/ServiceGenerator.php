@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Error;
 use Throwable;
 
 class ServiceGenerator extends AbstractGenerator
@@ -15,48 +14,37 @@ class ServiceGenerator extends AbstractGenerator
      */
     public function run(): void
     {
-        $modelName = $this->modelName($this->fileName);
-        $repositoryName = $modelName . "Repository";
-        $serviceName = $this->generatedFileName();
+        $servicePath = $this->table->getServicePath();
 
-        $servicePath = $this->getGeneratingPath($serviceName);
-
-        throw_if(file_exists($servicePath), new Error("{$serviceName} Already Exists"));
+        if ($servicePath->exist()) {
+            $servicePath->logAlreadyExist("Generating Service Class For : ({$this->table->modelName}) Model");
+        }
 
         $stubProperties = [
-            '{modelName}' => $modelName,
-            '{repositoryName}' => $repositoryName,
-            '{namespace}' => config('cubeta-starter.service_namespace') . "\\{$modelName}",
+            '{modelName}' => $this->table->modelName,
+            '{repositoryName}' => $this->table->getRepositoryName(),
+            '{namespace}' => config('cubeta-starter.service_namespace') . "\\{$this->table->modelName}",
             '{repositoryNamespace}' => config('cubeta-starter.repository_namespace')
         ];
 
-        $this->generateFileFromStub($stubProperties, $servicePath);
+        $this->generateFileFromStub($stubProperties, $servicePath->fullPath);
 
-        $this->formatFile($servicePath);
+        $servicePath->format();
 
-        $serviceInterfaceName = "I" . $serviceName;
-        $serviceInterfacePath = $this->getGeneratingPath($serviceInterfaceName);
+        $serviceInterfacePath = $this->table->getServiceInterfacePath();
 
-        throw_if(file_exists($serviceInterfacePath), new Error("{$serviceInterfaceName} Already Exists"));
+        if ($serviceInterfacePath->exist()) {
+            $serviceInterfacePath->logAlreadyExist("Generating Service Interface For ({$this->table->modelName}) Model");
+        }
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.service_namespace') . "\\{$modelName}",
-            '{modelName}' => $modelName,
+            '{namespace}' => config('cubeta-starter.service_namespace') . "\\{$this->table->modelName}",
+            '{modelName}' => $this->table->modelName,
         ];
 
-        $this->generateFileFromStub($stubProperties, $serviceInterfacePath, otherStubsPath: $this->serviceInterfaceStubs());
+        $this->generateFileFromStub($stubProperties, $serviceInterfacePath->fullPath, otherStubsPath: $this->serviceInterfaceStubs());
 
         $this->formatFile($serviceInterfacePath);
-    }
-
-    protected function getAdditionalPath(): string
-    {
-        return "/" . $this->modelName($this->fileName);
-    }
-
-    public function generatedFileName(): string
-    {
-        return $this->modelName($this->fileName) . 'Service';
     }
 
     protected function stubsPath(): string
