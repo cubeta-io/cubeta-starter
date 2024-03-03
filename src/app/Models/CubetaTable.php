@@ -164,7 +164,7 @@ class CubetaTable
      */
     public function hasRelation(string $modelName, ?string $type = null): bool
     {
-        $modelName = modelNaming($modelName);
+        $modelName = self::getModelName($modelName);
         return (bool)collect($this->relations)
             ->filter(function (CubetaRelation $rel) use ($type, $modelName) {
                 if ($type) {
@@ -219,7 +219,7 @@ class CubetaTable
         if (!$type) {
             return collect($this->attributes);
         }
-        
+
         return collect($this->attributes)
             ->filter(function (CubetaAttribute $attr) use ($type) {
                 if ($type instanceof RelationsTypeEnum) {

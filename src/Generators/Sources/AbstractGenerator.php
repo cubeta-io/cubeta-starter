@@ -7,7 +7,6 @@ use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\LogsMessages\CubeLog;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -87,24 +86,5 @@ abstract class AbstractGenerator
     protected function addToJsonFile(): CubetaTable
     {
         return Settings::make()->serialize($this->fileName, $this->attributes, $this->relations, $this->nullables, $this->uniques);
-    }
-
-    protected function formatFile(CubePath $filePath): ?string
-    {
-        $command = base_path() . "./vendor/bin/pint {$filePath->fullPath}";
-        $output = $this->executeCommandInTheBaseDirectory($command);
-        if (is_string($output)) return $output;
-        return null;
-    }
-
-    private function executeCommandInTheBaseDirectory(string $command): bool|string|null
-    {
-        if (app()->environment('local')) {
-            $rootDirectory = base_path();
-            $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
-
-            return shell_exec($fullCommand);
-        }
-        return false;
     }
 }

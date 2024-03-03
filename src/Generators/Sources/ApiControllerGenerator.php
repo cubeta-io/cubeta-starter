@@ -42,8 +42,7 @@ class ApiControllerGenerator extends AbstractGenerator
             CubeLog::add($exception);
             return;
         }
-
-        $this->formatFile($controllerPath);
+        $controllerPath->format();
     }
 
     protected function stubsPath(): string

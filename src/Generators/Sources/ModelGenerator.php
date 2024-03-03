@@ -47,9 +47,9 @@ class ModelGenerator extends AbstractGenerator
 
         $this->generateFileFromStub($stubProperties, $modelPath->fullPath);
 
-        CodeSniffer::make()->setModel($this->table->modelName)->checkForModelsRelations();
+        CodeSniffer::make()->setModel($this->table)->checkForModelsRelations();
 
-        $this->formatFile($modelPath);
+        $modelPath->format();
     }
 
     private function generateModelClassAttributes(): array

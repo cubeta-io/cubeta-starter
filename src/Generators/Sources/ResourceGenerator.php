@@ -34,7 +34,7 @@ class ResourceGenerator extends AbstractGenerator
 
         $this->generateFileFromStub($stubProperties, $resourcePath->fullPath);
 
-        CodeSniffer::make()->setModel($this->table->modelName)->checkForResourceRelations();
+        CodeSniffer::make()->setModel($this->table)->checkForResourceRelations();
 
         $resourcePath->format();
     }

@@ -86,8 +86,8 @@ trait NamingConventions
     public function routeUrlNaming(?string $name = null): string
     {
         return $name
-            ? lowerPluralKebabNaming($name)
-            : lowerPluralKebabNaming($this->usedString);
+            ? $this->lowerPluralKebabNaming($name)
+            : $this->lowerPluralKebabNaming($this->usedString);
     }
 
     /**
@@ -96,8 +96,8 @@ trait NamingConventions
     public function routeNameNaming(?string $name = null): string
     {
         return $name
-            ? str_replace('-', '.', lowerPluralKebabNaming($name))
-            : str_replace('-', '.', lowerPluralKebabNaming($this->usedString));
+            ? str_replace('-', '.', $this->lowerPluralKebabNaming($name))
+            : str_replace('-', '.', $this->lowerPluralKebabNaming($this->usedString));
     }
 
     /**
@@ -125,8 +125,8 @@ trait NamingConventions
     public function viewNaming(?string $name = null): string
     {
         return $name
-            ? lowerPluralKebabNaming($name)
-            : lowerPluralKebabNaming($this->usedString);
+            ? $this->lowerPluralKebabNaming($name)
+            : $this->lowerPluralKebabNaming($this->usedString);
     }
 
     /**

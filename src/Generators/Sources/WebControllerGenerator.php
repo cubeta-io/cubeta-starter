@@ -87,7 +87,7 @@ class WebControllerGenerator extends AbstractGenerator
         $this->addSidebarItem($routesNames['index']);
 
         CodeSniffer::make()
-            ->setModel($this->table->modelName)
+            ->setModel($this->table)
             ->checkForWebRelations(
                 $this->getRouteName($this->table, ContainerType::WEB, $this->actor) . '.allPaginatedJson'
             );
@@ -238,8 +238,8 @@ class WebControllerGenerator extends AbstractGenerator
             return $relatedModelPath->exist()
                 and (
                 ($rel->isHasMany())
-                    ? ClassUtils::isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName, false))
-                    : ClassUtils::isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName))
+                    ? ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming(singular: false))
+                    : ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming())
                 );
         })->map(fn(CubetaRelation $rel) => $rel->method())->toArray();
 

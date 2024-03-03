@@ -2,6 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Cubeta\CubetaStarter\app\Models\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Illuminate\Support\Str;
@@ -19,7 +21,7 @@ trait SettingsHandler
      */
     public function handleTableSettings(string $modelName, array $attributes, array $nullables = [], array $uniques = [], array $relations = []): void
     {
-        $settings = getJsonSettings();
+        $settings = Settings::getJsonSettings();
         $this->checkForKey($settings, "tables");
         $tables = $settings["tables"];
 
@@ -30,7 +32,7 @@ trait SettingsHandler
         }
 
         $settings['tables'] = $tables;
-        storeJsonSettings($settings);
+        Settings::storeJsonSettings($settings);
     }
 
     /**
@@ -71,8 +73,8 @@ trait SettingsHandler
      */
     protected function searchForTable(array $tables, string $name): ?array
     {
-        $tableName = tableNaming($name);
-        $modelName = modelNaming($name);
+        $tableName = CubetaTable::getTableName($name);
+        $modelName = CubetaTable::getModelName($name);
 
         foreach ($tables as $table) {
             if (isset($table["model_name"])) {
@@ -108,8 +110,8 @@ trait SettingsHandler
         list($columns, $relations) = $this->extractColumnsAndRelations($attributes, $nullables, $uniques, $related);
 
         $newTable = [
-            "model_name" => modelNaming($modelName),
-            "table_name" => tableNaming($modelName),
+            "model_name" => CubetaTable::getModelName($modelName),
+            "table_name" => CubetaTable::getTableName($modelName),
             "attributes" => array_merge($columns, $table["attributes"]),
             "relations" => array_merge($relations, $table["relations"])
         ];
@@ -134,7 +136,7 @@ trait SettingsHandler
 
             if ($type == ColumnTypeEnum::KEY->value) {
                 $type = ColumnTypeEnum::FOREIGN_KEY->value;
-                $parent = modelNaming(Str::singular(str_replace('_id', '', $colName)));
+                $parent = CubetaTable::getModelName(Str::singular(str_replace('_id', '', $colName)));
                 $relations[RelationsTypeEnum::BelongsTo->value][] = [
                     "key" => $colName,
                     "model_name" => $parent
@@ -152,11 +154,11 @@ trait SettingsHandler
         foreach ($related as $relation => $type) {
             if ($type == RelationsTypeEnum::ManyToMany->value) {
                 $relations[RelationsTypeEnum::ManyToMany->value][] = [
-                    "model_name" => modelNaming($relation)
+                    "model_name" => CubetaTable::getModelName($relation)
                 ];
             } else if ($type == RelationsTypeEnum::HasMany->value) {
                 $relations[RelationsTypeEnum::HasMany->value][] = [
-                    "model_name" => modelNaming($relation)
+                    "model_name" => CubetaTable::getModelName($relation)
                 ];
             }
         }
@@ -173,8 +175,8 @@ trait SettingsHandler
      */
     protected function replaceTable(array &$tables, string $name, array $newTable): void
     {
-        $tableName = tableNaming($name);
-        $modelName = modelNaming($name);
+        $tableName = CubetaTable::getTableName($name);
+        $modelName = CubetaTable::getModelName($name);
 
         foreach ($tables as &$table) {
             if (isset($table["model_name"])) {
@@ -206,8 +208,8 @@ trait SettingsHandler
         list($columns, $relations) = $this->extractColumnsAndRelations($attributes, $nullables, $uniques, $related);
 
         $tables[] = [
-            "model_name" => modelNaming($modelName),
-            "table_name" => tableNaming($modelName),
+            "model_name" => CubetaTable::getModelName($modelName),
+            "table_name" => CubetaTable::getTableName($modelName),
             "attributes" => $columns,
             "relations" => $relations
         ];
@@ -216,13 +218,13 @@ trait SettingsHandler
 
     public function getAllModelsName(): array
     {
-        $tables = getJsonSettings();
+        $tables = Settings::getJsonSettings();
         $all = [];
         foreach ($tables as $table) {
             if (isset($table['model_name'])) {
                 $all[] = $table['model_name'];
             } elseif (isset($table['table_name'])) {
-                $all[] = modelNaming($table['table_name']);
+                $all[] = CubetaTable::getModelName($table['table_name']);
             }
         }
         return $all;

@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\LogsMessages\CubeLog;
@@ -70,7 +71,7 @@ class ViewsGenerator extends WebControllerGenerator
             $existingColumns = trim($matches[1]);
             if (!empty($existingColumns)) {
                 if (preg_match('/}(\s|\n)*,(\s|\n)*\{/i', $existingColumns)) {
-                    $newColumns = prependLastMatch('/\s*}\s*,\s*\{/', "},{" . $newColumn, $existingColumns);
+                    $newColumns = FileUtils::prependLastMatch('/\s*}\s*,\s*\{/', "},{" . $newColumn, $existingColumns);
                 } else {
                     $newColumns = "$existingColumns , $newColumn";
                 }
@@ -203,7 +204,7 @@ class ViewsGenerator extends WebControllerGenerator
                     $value = str_replace('_id', '', $value);
                     $select2Route = $this->getRouteName($model, ContainerType::WEB, $this->actor) . '.allPaginatedJson';
                     if (!$model->getModelPath()->exist() || !$model->getWebControllerPath()->exist()) break;
-                    if (!isMethodDefined($model->getWebControllerPath()->fullPath, 'allPaginatedJson')) break;
+                    if (!ClassUtils::isMethodDefined($model->getWebControllerPath(), 'allPaginatedJson')) break;
                     $inputs .= "<x-select2 label=\"{$label}\" name=\"{$attribute}\" api=\"{{route('{$select2Route}')}}\" option-value=\"id\" option-inner-text=\"{$relatedTable->titleable()->name}\" {$value} {$isRequired}/> \n";
                     break;
                 }

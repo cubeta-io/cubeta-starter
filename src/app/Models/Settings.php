@@ -35,7 +35,7 @@ class Settings
      * get the package (cubeta-starter)  json file settings as an array
      * @return array
      */
-    private static function getJsonSettings(): array
+    public static function getJsonSettings(): array
     {
         $filePath = base_path('/cubeta-starter.config.json');
 
@@ -147,7 +147,7 @@ class Settings
      * @param array $data
      * @return void
      */
-    private static function storeJsonSettings(array $data): void
+    public static function storeJsonSettings(array $data): void
     {
         file_put_contents(
             base_path('/cubeta-starter.config.json'),

@@ -44,7 +44,7 @@ class ServiceGenerator extends AbstractGenerator
 
         $this->generateFileFromStub($stubProperties, $serviceInterfacePath->fullPath, otherStubsPath: $this->serviceInterfaceStubs());
 
-        $this->formatFile($serviceInterfacePath);
+        $serviceInterfacePath->format();
     }
 
     protected function stubsPath(): string

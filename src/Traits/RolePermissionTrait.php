@@ -2,10 +2,14 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Illuminate\Support\Str;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\LogsMessages\CubeLog;
+use Cubeta\CubetaStarter\LogsMessages\Errors\AlreadyExist;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 
 trait RolePermissionTrait
 {
@@ -13,43 +17,18 @@ trait RolePermissionTrait
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function createPermissionSeeder(): void
-    {
-        $directory = base_path(config('cubeta-starter.seeder_path') . '/PermissionSeeder.php');
-
-        if (file_exists($directory)) {
-            $this->warn('PermissionSeeder is Already Exists');
-            return;
-        }
-
-        $stubProperties = [
-            '{namespace}' => config('cubeta-starter.seeder_namespace'),
-        ];
-
-        generateFileFromStub(
-            $stubProperties,
-            $directory,
-            __DIR__ . '/../Commands/stubs/PermissionSeeder.stub'
-        );
-    }
-
-    /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
     public function createRoleSeeder(): void
     {
-        $directory = base_path(config('cubeta-starter.seeder_path') . '/RoleSeeder.php');
+        $seederPath = CubePath::make(config('cubeta-starter.seeder_path') . '/RoleSeeder.php');
 
-        if (file_exists($directory)) {
-            $this->warn('RoleSeeder is Already Exists');
-
+        if ($seederPath->exist()) {
+            CubeLog::add(new AlreadyExist($seederPath->fullPath, "Creating Role Seeder"));
             return;
         }
 
-        generateFileFromStub(
+        FileUtils::generateFileFromStub(
             ['{namespace}' => config('cubeta-starter.seeder_namespace')],
-            $directory,
+            $seederPath->fullPath,
             __DIR__ . '/../Commands/stubs/RoleSeeder.stub'
         );
     }
@@ -57,7 +36,7 @@ trait RolePermissionTrait
     public function createRolesEnum(string $role, array $permissions = null): void
     {
         $enum = file_get_contents(__DIR__ . '/../Commands/stubs/RolesPermissionEnum-entity.stub');
-        $roleEnum = roleNaming($role);
+        $roleEnum = $this->roleNaming($role);
         $roleEnumValue = Str::singular(Str::lower($role));
 
         if ($permissions) {
@@ -124,6 +103,16 @@ trait RolePermissionTrait
             );
             file_put_contents($enumDirectory . 'RolesPermissionEnum.php', $enumFile);
         }
-        $this->formatFile($enumDirectory . 'RolesPermissionEnum.php');
+        FileUtils::formatFile($enumDirectory . 'RolesPermissionEnum.php');
+    }
+
+    /**
+     * return the role enum for a given string
+     * @param string $name
+     * @return string
+     */
+    public function roleNaming(string $name): string
+    {
+        return Str::singular(Str::upper(Str::snake($name)));
     }
 }

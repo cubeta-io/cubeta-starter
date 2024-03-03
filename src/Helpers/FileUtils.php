@@ -130,4 +130,34 @@ class FileUtils
 
         return false;
     }
+
+    /**
+     * this function check for a php file syntax error by running php -l command on the file
+     * @param CubePath $path
+     * @return bool
+     */
+    public static function checkForSyntaxErrors(CubePath $path): bool
+    {
+        // PHP interpreter with the '-l' flag to check for syntax errors
+        $output = shell_exec("php -l {$path->fullPath}");
+
+        return str_contains($output, 'No syntax errors detected');
+    }
+
+    /**
+     * @param string $pattern
+     * @param string $replacement
+     * @param string $subject
+     * @return string
+     */
+    public static function prependLastMatch(string $pattern, string $replacement, string $subject): string
+    {
+        preg_match_all($pattern, $subject, $matches, PREG_OFFSET_CAPTURE);
+
+        // Get the offset of the last match
+        $lastMatchOffset = end($matches[0])[1];
+
+        // Replace the last match with the new content
+        return substr_replace($subject, $replacement, $lastMatchOffset, 0);
+    }
 }

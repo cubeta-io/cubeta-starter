@@ -40,7 +40,7 @@ class FactoryGenerator extends AbstractGenerator
 
         $this->generateFileFromStub($stubProperties, $factoryPath->fullPath);
 
-        CodeSniffer::make()->setModel($this->table->modelName)->checkForFactoryRelations();
+        CodeSniffer::make()->setModel($this->table)->checkForFactoryRelations();
 
         $factoryPath->format();
     }
