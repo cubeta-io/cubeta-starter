@@ -2,10 +2,13 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\app\Models\CubetaAttribute;
+use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
-use Error;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use JetBrains\PhpStorm\ArrayShape;
@@ -99,18 +102,16 @@ class ViewsGenerator extends WebControllerGenerator
      */
     public function run(): void
     {
-        $modelName = $this->modelName($this->fileName);
-        $routes = $this->getRoutesNames($modelName, $this->actor);
+        $routes = $this->getRoutesNames($this->table, $this->actor);
 
-        $this->generateCreateOrUpdateForm(modelName: $modelName, storeRoute: $routes['store']);
-        $this->generateCreateOrUpdateForm(modelName: $modelName, updateRoute: $routes['update']);
+        $this->generateCreateOrUpdateForm(storeRoute: $routes['store']);
+        $this->generateCreateOrUpdateForm(storeRoute: $routes['update'], updateRoute: $routes['update']);
 
         $this->generateShowView($routes['edit']);
         $this->generateIndexView($routes['create'], $routes['data']);
     }
 
     /**
-     * @param string $modelName
      * @param $storeRoute
      * @param $updateRoute
      * @return void
@@ -118,10 +119,10 @@ class ViewsGenerator extends WebControllerGenerator
      * @throws FileNotFoundException
      * @throws Throwable
      */
-    public function generateCreateOrUpdateForm(string $modelName, $storeRoute = null, $updateRoute = null): void
+    public function generateCreateOrUpdateForm($storeRoute = null, $updateRoute = null): void
     {
-        $viewsName = viewNaming($modelName);
-        $modelVariable = variableNaming($modelName);
+        $viewsName = $this->table->viewNaming();
+        $modelVariable = $this->table->variableNaming();
         $inputs = $storeRoute
             ? $this->generateInputs()
             : $this->generateInputs($modelVariable, true);
@@ -129,22 +130,24 @@ class ViewsGenerator extends WebControllerGenerator
         $createdForm = $storeRoute ? 'Create' : 'Edit';
 
         $stubProperties = [
-            '{title}' => "{$createdForm} {$modelName}",
+            '{title}' => "{$createdForm} {$this->table->modelName}",
             '{submitRoute}' => $storeRoute ?? $updateRoute,
             '{components}' => $inputs,
             '{method}' => $updateRoute ? 'PUT' : 'POST',
             '{updateParameter}' => $updateRoute ? ", \${$modelVariable}" . '->id' : '',
         ];
 
-        $formDirectory = base_path("resources/views/dashboard/{$viewsName}/" . strtolower($createdForm) . '.blade.php');
+        $formPath = CubePath::make("resources/views/dashboard/{$viewsName}/" . strtolower($createdForm) . '.blade.php');
 
-        $this->ensureDirectoryExists("resources/views/dashboard/{$viewsName}/");
+        if ($formPath->exist()) {
+            $formPath->logAlreadyExist("When Generating $createdForm Form For ({$this->table->modelName}) Model");
+        }
 
-        throw_if(file_exists($formDirectory), new Error("$formDirectory Already Exist"));
+        $formPath->ensureDirectoryExists();
 
-        $this->generateFileFromStub(
+        FileUtils::generateFileFromStub(
             $stubProperties,
-            $formDirectory,
+            $formPath->fullPath,
             self::FORM_STUB
         );
     }
@@ -162,59 +165,58 @@ class ViewsGenerator extends WebControllerGenerator
             $inputs .= "<x-language-selector/>\n";
         }
 
-        foreach ($this->attributes as $attribute => $type) {
-            $attribute = columnNaming($attribute);
-            $label = $this->getLabelName($attribute);
+        foreach ($this->table->attributes() as $attribute) {
+            $label = $this->getLabelName($attribute->name);
 
             $isRequired = 'required';
-            if (in_array($attribute, $this->nullables) || $updateInput) {
+            if ($attribute->nullable || $updateInput) {
                 $isRequired = '';
             }
 
             $value = $updateInput
-                ? ($type == 'translatable'
-                    ? ":value=\"\${$modelVariable}->getRawOriginal('{$attribute}')\""
-                    : ":value=\"\${$modelVariable}->{$attribute}\"")
+                ? ($attribute->type == ColumnTypeEnum::TRANSLATABLE->value
+                    ? ":value=\"\${$modelVariable}->getRawOriginal('{$attribute->name}')\""
+                    : ":value=\"\${$modelVariable}->{$attribute->name}\"")
                 : null;
 
             $checked = $updateInput
-                ? ":checked=\"\${$modelVariable}->{$attribute}\""
+                ? ":checked=\"\${$modelVariable}->{$attribute->name}\""
                 : 'checked';
 
-            switch ($type) {
+            switch ($attribute->type) {
                 case ColumnTypeEnum::KEY->value:
                 {
-                    $modelName = modelNaming(str_replace('_id', '', $attribute));
-                    $relatedTable = Settings::make()->getTable($modelName);
+                    $model = CubetaTable::create($attribute->modelNaming(str_replace('_id', '', $attribute->name)));
+                    $relatedTable = Settings::make()->getTable($model);
                     $value = str_replace('_id', '', $value);
-                    $select2Route = $this->getRouteName($modelName, ContainerType::WEB, $this->actor) . '.allPaginatedJson';
-                    if (!file_exists(getModelPath($modelName)) || !file_exists(getWebControllerPath($modelName))) break;
-                    if (!isMethodDefined(getWebControllerPath($modelName), 'allPaginatedJson')) break;
+                    $select2Route = $this->getRouteName($model, ContainerType::WEB, $this->actor) . '.allPaginatedJson';
+                    if (!$model->getModelPath()->exist() || !$model->getWebControllerPath()->exist()) break;
+                    if (!isMethodDefined($model->getWebControllerPath()->fullPath, 'allPaginatedJson')) break;
                     $inputs .= "<x-select2 label=\"{$label}\" name=\"{$attribute}\" api=\"{{route('{$select2Route}')}}\" option-value=\"id\" option-inner-text=\"{$relatedTable->titleable()->name}\" {$value} {$isRequired}/> \n";
                     break;
                 }
                 case ColumnTypeEnum::TRANSLATABLE->value:
                 {
-                    $inputs .= "<x-translatable-input label=\"{$label}\" name=\"{$attribute}\" type='text' {$value} {$isRequired}/> \n";
+                    $inputs .= "<x-translatable-input label=\"{$label}\" name=\"{$attribute->name}\" type='text' {$value} {$isRequired}/> \n";
                     break;
                 }
                 case ColumnTypeEnum::BOOLEAN->value:
                 {
                     $inputs .= "\n <x-form-check>
-                                    <x-form-check-radio name=\"{$attribute}\" value=\"{{0}}\" {$checked} {$isRequired}/>
-                                    <x-form-check-radio name=\"{$attribute}\" value=\"{{1}}\" {$checked} {$isRequired}/>
+                                    <x-form-check-radio name=\"{$attribute->name}\" value=\"{{0}}\" {$checked} {$isRequired}/>
+                                    <x-form-check-radio name=\"{$attribute->name}\" value=\"{{1}}\" {$checked} {$isRequired}/>
                                </x-form-check> \n";
                     break;
                 }
                 case ColumnTypeEnum::TEXT->value:
                 {
-                    $inputs .= "\n <x-text-editor label=\"{$label}\" name=\"{$attribute}\" {$value} {$isRequired}/> \n";
+                    $inputs .= "\n <x-text-editor label=\"{$label}\" name=\"{$attribute->name}\" {$value} {$isRequired}/> \n";
                     break;
                 }
                 default:
                 {
-                    $fieldType = $this->getInputTagType($attribute, $type);
-                    $inputs .= "\n <x-input label=\"{$label}\" name=\"{$attribute}\" type=\"{$fieldType}\" {$value} {$isRequired}/> \n";
+                    $fieldType = $this->getInputTagType($attribute);
+                    $inputs .= "\n <x-input label=\"{$label}\" name=\"{$attribute->name}\" type=\"{$fieldType}\" {$value} {$isRequired}/> \n";
                     break;
                 }
             }
@@ -232,23 +234,22 @@ class ViewsGenerator extends WebControllerGenerator
     }
 
     /**
-     * @param string $colName
-     * @param string $colType
+     * @param CubetaAttribute $attribute
      * @return string
      */
-    private function getInputTagType(string $colName, string $colType): string
+    private function getInputTagType(CubetaAttribute $attribute): string
     {
-        if (str_contains($colName, "email")) return "email";
-        elseif ($colName == "password") return "password";
-        elseif (in_array($colName, ['phone', 'phone_number', 'home_number', 'work_number', 'tel', 'telephone'])
-            || str_contains($colName, "phone")) return "tel";
-        elseif (str_contains($colName, "url")) return "url";
-        elseif (ColumnTypeEnum::isNumericType($colType)) return "number";
-        elseif (in_array($colType, [ColumnTypeEnum::JSON->value, ColumnTypeEnum::STRING->value])) return "text";
-        elseif (in_array($colType, [ColumnTypeEnum::DATETIME->value, ColumnTypeEnum::TIMESTAMP->value])) return "datetime-local";
-        elseif ($colType == ColumnTypeEnum::DATE->value) return "date";
-        elseif ($colType == ColumnTypeEnum::TIME->value) return "time";
-        elseif ($colType == ColumnTypeEnum::FILE->value) return "file";
+        if (str_contains($attribute->name, "email")) return "email";
+        elseif ($attribute->name == "password") return "password";
+        elseif (in_array($attribute->name, ['phone', 'phone_number', 'home_number', 'work_number', 'tel', 'telephone'])
+            || str_contains($attribute->name, "phone")) return "tel";
+        elseif (str_contains($attribute->name, "url")) return "url";
+        elseif (ColumnTypeEnum::isNumericType($attribute->type)) return "number";
+        elseif (in_array($attribute->type, [ColumnTypeEnum::JSON->value, ColumnTypeEnum::STRING->value])) return "text";
+        elseif (in_array($attribute->type, [ColumnTypeEnum::DATETIME->value, ColumnTypeEnum::TIMESTAMP->value])) return "datetime-local";
+        elseif ($attribute->type == ColumnTypeEnum::DATE->value) return "date";
+        elseif ($attribute->type == ColumnTypeEnum::TIME->value) return "time";
+        elseif ($attribute->type == ColumnTypeEnum::FILE->value) return "file";
         else return "text";
     }
 
@@ -261,50 +262,46 @@ class ViewsGenerator extends WebControllerGenerator
      */
     public function generateShowView(string $editRoute): void
     {
-        $modelName = modelNaming($this->fileName);
-        $viewsName = viewNaming($modelName);
-        $modelVariable = variableNaming($modelName);
-
+        $viewsName = $this->table->viewNaming();
         $stubProperties = [
-            '{modelName}' => $modelName,
+            '{modelName}' => $this->table->modelName,
             '{editRoute}' => $editRoute,
-            '{components}' => $this->generateShowViewComponents($modelVariable),
-            '{modelVariable}' => $modelVariable,
+            '{components}' => $this->generateShowViewComponents(),
+            '{modelVariable}' => $this->table->variableNaming(),
         ];
 
-        $showDirectory = base_path("resources/views/dashboard/{$viewsName}/show.blade.php");
+        $showPath = CubePath::make("resources/views/dashboard/{$viewsName}/show.blade.php");
 
-        if (!is_dir(base_path("resources/views/dashboard/{$viewsName}/"))) {
-            mkdir(base_path("resources/views/dashboard/{$viewsName}/"), 0777, true);
+        if ($showPath->exist()) {
+            $showPath->logAlreadyExist("When Generating Show Page For  ({$this->table->modelName}) Model");
         }
 
-        throw_if(file_exists($showDirectory), new Error("$showDirectory Already Exists"));
+        $showPath->ensureDirectoryExists();
 
-        $this->generateFileFromStub(
+        FileUtils::generateFileFromStub(
             $stubProperties,
-            $showDirectory,
+            $showPath,
             self::SHOW_STUB
         );
     }
 
     /**
-     * @param string $modelVariable
      * @return string
      */
-    private function generateShowViewComponents(string $modelVariable): string
+    private function generateShowViewComponents(): string
     {
+        $modelVariable = $this->table->variableNaming();
         $components = '';
-        foreach ($this->attributes as $attribute => $type) {
-            $attribute = columnNaming($attribute);
-            $label = $this->getLabelName($attribute);
-            if ($type == 'text') {
-                $components .= "<x-long-text-field :value=\"\${$modelVariable}->{$attribute}\" label=\"{$label}\"/> \n";
-            } elseif ($type == 'file') {
-                $components .= "<x-image-preview :imagePath=\"\${$modelVariable}->{$attribute}\"/> \n";
-            } elseif ($type == 'translatable') {
-                $components .= "<x-translatable-small-text-field :value=\"\${$modelVariable}->getRawOriginal('{$attribute}')\" label=\"{$label}\"/> \n";
+        foreach ($this->table->attributes as $attribute) {
+            $label = $this->getLabelName($attribute->name);
+            if ($attribute->type == ColumnTypeEnum::TEXT->value) {
+                $components .= "<x-long-text-field :value=\"\${$modelVariable}->{$attribute->name}\" label=\"{$label}\"/> \n";
+            } elseif ($attribute->type == ColumnTypeEnum::FILE->value) {
+                $components .= "<x-image-preview :imagePath=\"\${$modelVariable}->{$attribute->name}\"/> \n";
+            } elseif ($attribute->type == ColumnTypeEnum::TRANSLATABLE->value) {
+                $components .= "<x-translatable-small-text-field :value=\"\${$modelVariable}->getRawOriginal('{$attribute->name}')\" label=\"{$label}\"/> \n";
             } else {
-                $components .= "<x-small-text-field :value=\"\${$modelVariable}->{$attribute}\" label=\"{$label}\"/> \n";
+                $components .= "<x-small-text-field :value=\"\${$modelVariable}->{$attribute->name}\" label=\"{$label}\"/> \n";
             }
         }
 
@@ -321,29 +318,27 @@ class ViewsGenerator extends WebControllerGenerator
      */
     public function generateIndexView(string $creatRoute, string $dataRoute): void
     {
-        $modelName = $this->modelName($this->fileName);
-        $viewsName = viewNaming($modelName);
         $dataColumns = $this->generateDataTableColumns();
 
         $stubProperties = [
-            '{modelName}' => $modelName,
+            '{modelName}' => $this->table->modelName,
             '{createRouteName}' => $creatRoute,
             '{htmlColumns}' => $dataColumns['html'],
             '{dataTableColumns}' => $dataColumns['json'],
             '{dataTableDataRouteName}' => $dataRoute,
         ];
 
-        $indexDirectory = base_path("resources/views/dashboard/{$viewsName}/index.blade.php");
+        $indexPath = CubePath::make("resources/views/dashboard/{$this->table->viewNaming()}/index.blade.php");
 
-        if (!is_dir(base_path("resources/views/dashboard/{$viewsName}/"))) {
-            mkdir(base_path("resources/views/dashboard/{$viewsName}/"), 0777, true);
+        if ($indexPath->exist()) {
+            $indexPath->logAlreadyExist("Generating Index Page For ({$this->table->modelName}) Model");
         }
 
-        throw_if(file_exists($indexDirectory), new Error("$indexDirectory Already Exists"));
+        $indexPath->ensureDirectoryExists();
 
-        $this->generateFileFromStub(
+        FileUtils::generateFileFromStub(
             $stubProperties,
-            $indexDirectory,
+            $indexPath,
             self::INDEX_STUB
         );
     }
@@ -357,21 +352,20 @@ class ViewsGenerator extends WebControllerGenerator
         $html = '';
         $json = '';
 
-        foreach ($this->attributes as $attribute => $type) {
-            $attribute = columnNaming($attribute);
-            $label = $this->getLabelName($attribute);
+        foreach ($this->table->attributes as $attribute) {
+            $label = $this->getLabelName($attribute->name);
 
-            if ($type == 'text') {
+            if ($attribute->type == ColumnTypeEnum::TEXT->value) {
                 continue;
             }
 
-            if ($type == 'file') {
-                $json .= "{\n\t\"data\": '{$attribute}',render:function (data) {const filePath = \"{{asset(\"storage/\")}}/\" + data; return `<div class=\"gallery\"><a href=\"\${filePath}\"><img class=\"img-fluid\" src=\"\${filePath}\" alt=\"\"/></a>`;}}, \n";
+            if ($attribute->type == 'file') {
+                $json .= "{\n\t\"data\": '{$attribute->name}',render:function (data) {const filePath = \"{{asset(\"storage/\")}}/\" + data; return `<div class=\"gallery\"><a href=\"\${filePath}\"><img class=\"img-fluid\" src=\"\${filePath}\" alt=\"\"/></a>`;}}, \n";
                 $html .= "\n<th>{$label}</th>\n";
                 continue;
             }
 
-            $json .= "{\"data\": '{$attribute}', searchable: true, orderable: true}, \n";
+            $json .= "{\"data\": '{$attribute->name}', searchable: true, orderable: true}, \n";
 
             $html .= "\n<th>{$label}</th>\n";
         }

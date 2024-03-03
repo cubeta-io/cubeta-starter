@@ -130,36 +130,6 @@ function addToMethodReturnArray(string $classPath, string $className, string $me
     }
 }
 
-/**
- * @param string $filePath
- * @param string $functionName
- * @return bool
- */
-function isMethodDefined(string $filePath, string $functionName): bool
-{
-    if (!file_exists($filePath)) {
-        return false; // File doesn't exist
-    }
-
-    $tokens = token_get_all(file_get_contents($filePath));
-
-    $isFunction = false;
-    foreach ($tokens as $token) {
-        if (is_array($token) && $token[0] == T_FUNCTION) {
-            $isFunction = true;
-        } elseif ($isFunction && is_array($token) && $token[0] == T_STRING) {
-            // Found a function name
-            $currentFunctionName = $token[1];
-            if ($currentFunctionName == $functionName) {
-                return true; // Function is defined in the file
-            }
-            $isFunction = false; // Reset flag after checking this function
-        }
-    }
-
-    return false; // Function not found in the file
-}
-
 function getApiControllerPath(string $modelName): string
 {
     $controllerName = modelNaming($modelName) . "Controller.php";

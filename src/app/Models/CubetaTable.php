@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\app\Models;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\HasPathAndNamespace;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
 use Illuminate\Support\Collection;
@@ -121,14 +122,6 @@ class CubetaTable
     }
 
     /**
-     * @return Collection<CubetaRelation>
-     */
-    public function relations(): Collection
-    {
-        return collect($this->relations);
-    }
-
-    /**
      * @return Collection<CubetaAttribute>
      */
     public function nullables(): Collection
@@ -221,9 +214,19 @@ class CubetaTable
     /**
      * @return Collection<CubetaAttribute>
      */
-    public function attributes(): Collection
+    public function attributes(string|ColumnTypeEnum|null $type = null): Collection
     {
-        return collect($this->attributes);
+        if (!$type) {
+            return collect($this->attributes);
+        }
+        
+        return collect($this->attributes)
+            ->filter(function (CubetaAttribute $attr) use ($type) {
+                if ($type instanceof RelationsTypeEnum) {
+                    return $attr->type == $type->value;
+                }
+                return $attr->type == $type;
+            });
     }
 
     /**
@@ -233,5 +236,35 @@ class CubetaTable
     {
         return $this->attributes()
             ->filter(fn(CubetaAttribute $attr) => $attr->type == ColumnTypeEnum::TRANSLATABLE->value);
+    }
+
+    public function hasRelationOfType(string|RelationsTypeEnum $type): int
+    {
+        return $this->relations()
+            ->filter(function (CubetaRelation $rel) use ($type) {
+                if ($type instanceof RelationsTypeEnum) {
+                    return $rel->type == $type->value;
+                } else return $rel->type == $type;
+            })
+            ->count();
+    }
+
+    /**
+     * @return Collection<CubetaRelation>
+     */
+    public function relations(string|RelationsTypeEnum|null $type = null): Collection
+    {
+        if (!$type) {
+            return collect($this->relations);
+        }
+
+        return collect($this->relations)
+            ->filter(function (CubetaRelation $rel) use ($type) {
+                if ($type instanceof RelationsTypeEnum) {
+                    return $rel->type == $type->value;
+                }
+
+                return $rel->type == $type;
+            });
     }
 }

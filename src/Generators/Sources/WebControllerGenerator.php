@@ -5,11 +5,13 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 use Cubeta\CubetaStarter\app\Models\CubetaRelation;
 use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Cubeta\CubetaStarter\app\Models\Settings;
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Error;
 use Illuminate\Support\Facades\Route;
 use JetBrains\PhpStorm\ArrayShape;
 use Throwable;
@@ -33,24 +35,22 @@ class WebControllerGenerator extends AbstractGenerator
      */
     public function run(): void
     {
-        $modelName = $this->modelName($this->fileName);
-        $this->table = $this->addToJsonFile();
+        $modelNameCamelCase = $this->table->variableNaming();
+        $idVariable = $this->table->idVariable();
+        $controllerPath = $this->table->getWebControllerPath();
 
-        $modelNameCamelCase = variableNaming($modelName);
-        $idVariable = $modelNameCamelCase . 'Id';
-        $controllerName = $this->generatedFileName();
-        $controllerPath = $this->getGeneratingPath($this->fileName);
+        if ($controllerPath->exist()) {
+            $controllerPath->logAlreadyExist("Generating Web Controller For  ({$this->table->modelName}) Model");
+        }
 
-        throw_if(file_exists($controllerPath), new Error("{$controllerName} Already Exists"));
+        $tableName = $this->table->modelName;
+        $routesNames = $this->getRoutesNames($this->table, $this->actor);
+        $views = $this->getViewsNames($this->table, $this->actor);
 
-        $tableName = tableNaming($modelName);
-        $routesNames = $this->getRoutesNames($modelName, $this->actor);
-        $views = $this->getViewsNames($modelName, $this->actor);
-
-        $addColumns = $this->getKeyColumnsHyperlink($this->attributes, $this->actor);
+        $addColumns = $this->getKeyColumnsHyperlink();
 
         $stubProperties = [
-            '{modelName}' => $modelName,
+            '{modelName}' => $this->table->modelName,
             '{modelNameCamelCase}' => $modelNameCamelCase,
             '{idVariable}' => $idVariable,
             '{tableName}' => $tableName,
@@ -65,16 +65,16 @@ class WebControllerGenerator extends AbstractGenerator
             '{requestNamespace}' => config('cubeta-starter.request_namespace'),
             '{modelNamespace}' => config('cubeta-starter.model_namespace'),
             '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
-            '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns($this->attributes),
-            '{additionalMethods}' => $this->additionalControllerMethods($modelName, $this->relations),
+            '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns(),
+            '{additionalMethods}' => $this->additionalControllerMethods(),
             '{loadedRelations}' => $this->getLoadedRelations(),
             '{baseRouteName}' => $routesNames['base']
         ];
 
-        $this->generateFileFromStub($stubProperties, $controllerPath, $this->stubsPath());
+        $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
 
-        $this->addRoute($modelName, $this->actor);
-        $this->formatFile($controllerPath);
+        $this->addRoute($this->table, $this->actor);
+        $controllerPath->format();
 
         (new ViewsGenerator(
             fileName: $this->fileName,
@@ -86,18 +86,13 @@ class WebControllerGenerator extends AbstractGenerator
         $this->addSidebarItem($routesNames['index']);
     }
 
-    protected function generatedFileName(): string
-    {
-        return $this->modelName($this->fileName) . "Controller";
-    }
-
     /**
      * @return string[]
      */
     #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string'])]
-    protected function getRoutesNames(string $modelName, ?string $actor = null): array
+    protected function getRoutesNames(CubetaTable $model, ?string $actor = null): array
     {
-        $baseRouteName = $this->getRouteName($modelName, ContainerType::WEB, $actor);
+        $baseRouteName = $this->getRouteName($model, ContainerType::WEB, $actor);
 
         return [
             'index' => $baseRouteName . '.index',
@@ -117,9 +112,9 @@ class WebControllerGenerator extends AbstractGenerator
      * @return string[]
      */
     #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
-    private function getViewsNames(string $modelName, $actor = null): array
+    private function getViewsNames(CubetaTable $model, $actor = null): array
     {
-        $viewName = viewNaming($modelName);
+        $viewName = $model->viewNaming();
         if (!isset($actor) || $actor == '' || $actor = 'none') {
             return [
                 'index' => 'dashboard.' . $viewName . '.index',
@@ -137,35 +132,35 @@ class WebControllerGenerator extends AbstractGenerator
 
     }
 
-    private function getKeyColumnsHyperlink(array $attributes = [], ?string $actor = null): string
+    private function getKeyColumnsHyperlink(): string
     {
         $dataColumn = '';
-        foreach ($attributes as $column => $type) {
-            if ($type == 'key') {
-                $relatedModel = modelNaming(str_replace('_id', '', $column));
+        foreach ($this->table->attributes as $attribute) {
+            if ($attribute->type == ColumnTypeEnum::KEY->value) {
+                $relatedModel = CubetaTable::create(str_replace('_id', '', $attribute->name));
 
-                if (!file_exists(getWebControllerPath($relatedModel)) || !file_exists(getModelPath($relatedModel))) {
+                if (!$relatedModel->getWebControllerPath()->exist() || !$relatedModel->getModelPath()->exist()) {
                     continue;
                 }
 
-                if (isMethodDefined(getWebControllerPath($relatedModel), 'show')) {
+                if (FileUtils::isMethodDefined($relatedModel->getWebControllerPath(), 'show')) {
                     continue;
                 }
 
 
-                $showRouteName = $this->getRoutesNames($relatedModel, $actor)['show'];
+                $showRouteName = $this->getRoutesNames($relatedModel, $this->actor)['show'];
 
                 if (!Route::has($showRouteName)) {
                     continue;
                 }
 
                 $relatedTable = Settings::make()->getTable($relatedModel);
-                $columnName = relationFunctionNaming($relatedTable->modelName) . '.' . $relatedTable->titleable()->name;
-                $columnCalling = "\$row->" . relationFunctionNaming($relatedTable->modelName) . "->" . $relatedTable->titleable()->name;
+                $columnName = $relatedTable->relationFunctionNaming() . '.' . $relatedTable->titleable()->name;
+                $columnCalling = "\$row->" . $relatedTable->relationFunctionNaming() . "->" . $relatedTable->titleable()->name;
                 $dataColumn .= "
                     ->editColumn('{$columnName}', function (\$row) {
                     //TODO::check on the used show route of the related model key
-                        return \"<a href='\" . route('{$showRouteName}', \$row->{$column}) . \"'>{$columnCalling}</a>\";
+                        return \"<a href='\" . route('{$showRouteName}', \$row->{$attribute->name}) . \"'>{$columnCalling}</a>\";
                     })";
                 $this->rawColumns .= "'{$columnName}' ,";
             }
@@ -174,9 +169,9 @@ class WebControllerGenerator extends AbstractGenerator
         return $dataColumn;
     }
 
-    private function generateOrderingQueriesForTranslatableColumns(array $attributes = []): string
+    private function generateOrderingQueriesForTranslatableColumns(): string
     {
-        $translatableColumns = $this->getJQueryDataTablesTranslatableColumnsIndexes($attributes);
+        $translatableColumns = $this->getJQueryDataTablesTranslatableColumnsIndexes();
         $queries = '';
 
         if (count($translatableColumns) <= 0) {
@@ -193,16 +188,16 @@ class WebControllerGenerator extends AbstractGenerator
         return $queries;
     }
 
-    private function getJQueryDataTablesTranslatableColumnsIndexes(array $attributes = []): array
+    private function getJQueryDataTablesTranslatableColumnsIndexes(): array
     {
         $translatableIndex = 1;
         $translatableColumnsIndexes = [];
 
-        foreach ($attributes as $attribute => $type) {
-            if ($type == 'translatable') {
-                $translatableColumnsIndexes[$attribute] = $translatableIndex;
+        foreach ($this->table->attributes as $attribute) {
+            if ($attribute->type == ColumnTypeEnum::TRANSLATABLE->value) {
+                $translatableColumnsIndexes[$attribute->name] = $translatableIndex;
             }
-            if ($type == 'text') {
+            if ($attribute->type == ColumnTypeEnum::TEXT->value) {
                 continue;
             }
             $translatableIndex++;
@@ -211,12 +206,12 @@ class WebControllerGenerator extends AbstractGenerator
         return $translatableColumnsIndexes;
     }
 
-    private function additionalControllerMethods(string $modelName, array $relations = []): string
+    private function additionalControllerMethods(): string
     {
         $methods = '';
-        $variableName = variableNaming($modelName);
+        $variableName = $this->table->variableNaming();
 
-        if (in_array(RelationsTypeEnum::HasMany->value, $relations)) {
+        if ($this->table->hasRelationOfType(RelationsTypeEnum::HasMany)) {
             $methods .= "public function allPaginatedJson()
                         {
                             \${$variableName} = \$this->{$variableName}Service->indexWithPagination([], 7);
@@ -231,13 +226,13 @@ class WebControllerGenerator extends AbstractGenerator
     public function getLoadedRelations(): string
     {
         $loaded = $this->table->relations()->filter(function (CubetaRelation $rel) {
-            $relatedModelPath = getModelPath($rel->modelName);
-            $currentModelPath = getModelPath($this->table->modelName);
-            return file_exists($relatedModelPath)
+            $relatedModelPath = $rel->getModelPath();
+            $currentModelPath = $this->table->getModelPath();
+            return $relatedModelPath->exist()
                 and (
-                ($rel->isHasMany()) ?
-                    isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName, false)) :
-                    isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName))
+                ($rel->isHasMany())
+                    ? FileUtils::isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName, false))
+                    : FileUtils::isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName))
                 );
         })->map(fn(CubetaRelation $rel) => $rel->method())->toArray();
 
@@ -249,22 +244,22 @@ class WebControllerGenerator extends AbstractGenerator
         return $loadedString;
     }
 
-    protected function stubsPath(): string
-    {
-        return __DIR__ . '/stubs/controller.web.stub';
-    }
-
     private function addSidebarItem(string $routeName): void
     {
-        $sidebarPath = base_path('resources/views/includes/sidebar.blade.php');
-        if (!file_exists($sidebarPath)) {
+        $sidebarPath = CubePath::make("resources/views/includes/sidebar.blade.php");
+        if (!$sidebarPath->exist()) {
             return;
         }
 
         $sidebarItem = "\t\t<li class=\"nav-item\">\n\t\t\t<a class=\"nav-link collapsed @if(request()->fullUrl() == route('{$routeName}')) active @endif\" href=\"{{route('{$routeName}')}}\">\n\t\t\t\t<i class=\"bi bi-circle\"></i><span>{$this->table->modelNaming()}</span>\n\t\t\t</a>\n\t\t</li>\n</ul>";
 
-        $sidebar = file_get_contents($sidebarPath);
+        $sidebar = $sidebarPath->getContent();
         $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);
-        file_put_contents($sidebarPath, $sidebar);
+        $sidebarPath->putContent($sidebar);
+    }
+
+    protected function stubsPath(): string
+    {
+        return __DIR__ . '/stubs/controller.web.stub';
     }
 }
