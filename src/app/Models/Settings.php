@@ -4,7 +4,6 @@ namespace Cubeta\CubetaStarter\app\Models;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Illuminate\Support\Str;
 
 class Settings
 {
@@ -98,7 +97,7 @@ class Settings
 
             if ($type == ColumnTypeEnum::KEY->value) {
                 $type = ColumnTypeEnum::KEY->value;
-                $parent = Str::singular(str_replace('_id', '', $colName));
+                $parent = CubetaTable::getModelName(str_replace('_id', '', $colName));
                 $relationships[] = new CubetaRelation(RelationsTypeEnum::BelongsTo->value, $parent);
             }
 
