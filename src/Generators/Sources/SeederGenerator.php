@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Error;
 use Throwable;
 
 class SeederGenerator extends AbstractGenerator
@@ -15,26 +14,21 @@ class SeederGenerator extends AbstractGenerator
      */
     public function run(): void
     {
-        $modelName = $this->modelName($this->fileName);
-        $seederName = $this->generatedFileName();
 
-        $seederPath = $this->getGeneratingPath($seederName);
+        $seederPath = $this->table->getSeederPath();
 
-        throw_if(file_exists($seederPath), new Error("{$seederName} Already Exists"));
+        if ($seederPath->exist()) {
+            $seederPath->logAlreadyExist("Generating Seeder For ({$this->table->modelName}) Model");
+        }
 
         $stubProperties = [
-            '{modelName}' => $modelName,
+            '{modelName}' => $this->table->modelName,
             '{modelNamespace}' => config('cubeta-starter.model_namespace')
         ];
 
-        $this->generateFileFromStub($stubProperties, $seederPath);
+        $this->generateFileFromStub($stubProperties, $seederPath->fullPath);
 
-        $this->formatFile($seederPath);
-    }
-
-    public function generatedFileName(): string
-    {
-        return $this->modelName($this->fileName) . 'Seeder';
+        $seederPath->format();
     }
 
     protected function stubsPath(): string
