@@ -19,8 +19,6 @@ class FactoryGenerator extends AbstractGenerator
 
     public function run(): void
     {
-        $this->addToJsonFile();
-
         $factoryPath = $this->table->getFactoryPath();
 
         if ($factoryPath->exist()) {

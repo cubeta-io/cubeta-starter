@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\LogsMessages;
 
-abstract class CubeError
+class CubeError
 {
     protected string $message;
     protected ?string $affectedFilePath = null;

@@ -33,8 +33,6 @@ class MigrationGenerator extends AbstractGenerator
 
         $this->generateFileFromStub($stubProperties, $migrationPath->fullDirectory);
 
-        $this->addToJsonFile();
-
         $migrationPath->format();
     }
 

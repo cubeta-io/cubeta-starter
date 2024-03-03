@@ -107,32 +107,27 @@ class FileUtils
     }
 
     /**
+     * check if content exist in a file
      * @param CubePath $filePath
-     * @param string $functionName
+     * @param string $content
      * @return bool
      */
-    public static function isMethodDefined(CubePath $filePath, string $functionName): bool
+    public static function checkIfContentExistInFile(CubePath $filePath, string $content): bool
     {
-        if (!$filePath->exist()) {
-            return false; // File doesn't exist
+        $fileContent = $filePath->getContent();
+
+        if (!$fileContent) {
+            return false;
         }
 
-        $tokens = token_get_all(file_get_contents($filePath->fullPath));
+        $fileContent = preg_replace('/\s+/', '', $fileContent);
 
-        $isFunction = false;
-        foreach ($tokens as $token) {
-            if (is_array($token) && $token[0] == T_FUNCTION) {
-                $isFunction = true;
-            } elseif ($isFunction && is_array($token) && $token[0] == T_STRING) {
-                // Found a function name
-                $currentFunctionName = $token[1];
-                if ($currentFunctionName == $functionName) {
-                    return true; // Function is defined in the file
-                }
-                $isFunction = false; // Reset flag after checking this function
-            }
+        $content = preg_replace('/\s+/', '', $content);
+
+        if (str_contains(strtolower($fileContent), strtolower($content))) {
+            return true;
         }
 
-        return false; // Function not found in the file
+        return false;
     }
 }

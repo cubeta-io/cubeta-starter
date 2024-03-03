@@ -51,31 +51,6 @@ function storeJsonSettings(array $data): void
 }
 
 /**
- * check if content exist in a file
- * @param $filePath
- * @param $content
- * @return bool
- */
-function checkIfContentExistInFile($filePath, $content): bool
-{
-    $fileContent = file_get_contents($filePath);
-
-    if (!$fileContent) {
-        return false;
-    }
-
-    $fileContent = preg_replace('/\s+/', '', $fileContent);
-
-    $content = preg_replace('/\s+/', '', $content);
-
-    if (str_contains(strtolower($fileContent), strtolower($content))) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
  * @param string $pattern
  * @param string $replacement
  * @param string $subject

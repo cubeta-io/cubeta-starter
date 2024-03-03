@@ -9,6 +9,11 @@ use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\LogsMessages\CubeLog;
+use Cubeta\CubetaStarter\LogsMessages\CubeWarning;
+use Cubeta\CubetaStarter\LogsMessages\Errors\NotFound;
+use Cubeta\CubetaStarter\LogsMessages\Info\ContentAppended;
+use Cubeta\CubetaStarter\LogsMessages\Warnings\ContentAlreadyExist;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use JetBrains\PhpStorm\ArrayShape;
@@ -24,23 +29,24 @@ class ViewsGenerator extends WebControllerGenerator
     public static string $configPath = "cubeta-starter.web_controller_path";
 
     /**
-     * @param string $filePath
+     * @param CubePath $filePath
      * @param string $newColumn
      * @param string $htmlColName
      * @return bool
      */
-    public static function addColumnToDataTable(string $filePath, string $newColumn, string $htmlColName = ""): bool
+    public static function addColumnToDataTable(CubePath $filePath, string $newColumn, string $htmlColName = ""): bool
     {
-        if (!file_exists($filePath)) {
-            echo "$filePath Doesn't Exists \n";
+        if (!$filePath->exist()) {
+            CubeLog::add(new NotFound($filePath->fullPath, "Trying To Add $newColumn To The Datatable Columns in : [$filePath->fullPath]"));
             return false;
         }
 
-        if (checkIfContentExistInFile($filePath, $newColumn) || checkIfContentExistInFile($filePath, $htmlColName)) {
-            echo "The New Column Already Exists In [ $filePath ] \n";
+        if (FileUtils::checkIfContentExistInFile($filePath, $newColumn) || FileUtils::checkIfContentExistInFile($filePath, $htmlColName)) {
+            CubeLog::add(new ContentAlreadyExist($newColumn, $filePath->fullPath, "Trying To Add $newColumn To The Datatable Columns in : [$filePath->fullPath]"));
+            return false;
         }
 
-        $fileContent = file_get_contents($filePath);
+        $fileContent = $filePath->getContent();
 
         // adding html column
         if (str_contains($fileContent, "<th>Action</th>")) {
@@ -48,7 +54,10 @@ class ViewsGenerator extends WebControllerGenerator
         } else if (str_contains($fileContent, "</tr>")) {
             $fileContent = str_replace("</tr>", "<th>$htmlColName</th>\n</tr>\n", $fileContent);
         } else {
-            echo "We Couldn't find the Proper Place To Add New Column In The HTML Of $filePath \n";
+            CubeLog::add(new CubeWarning(
+                "We Couldn't find the Proper Place To Add New Column In The HTML Of [$filePath->fullPath]",
+                "Trying To Add $newColumn To The Datatable Columns in : [$filePath->fullPath]"
+            ));
             return false;
         }
 
@@ -70,8 +79,8 @@ class ViewsGenerator extends WebControllerGenerator
             }
             $updatedContent = str_replace($matches[1], $newColumns, $fileContent);
 
-            file_put_contents($filePath, $updatedContent);
-            echo "New Content Has Been Added To $filePath \n";
+            $filePath->putContent($updatedContent);
+            CubeLog::add(new ContentAppended($newColumn, $filePath->fullPath));
             return true;
         }
         // If the columns array is not found, try to find an empty array
@@ -84,13 +93,16 @@ class ViewsGenerator extends WebControllerGenerator
             $updatedContent = str_replace($emptyArrayMatches[0], 'columns: [' . $newColumn . ']', $fileContent);
 
             // Write the updated content back to the file
-            file_put_contents($filePath, $updatedContent);
+            $filePath->putContent($updatedContent);
 
-            echo "New Content Has Been Added To $filePath \n";
+            CubeLog::add(new ContentAppended($newColumn, $filePath->fullPath));
             return true;
         }
 
-        echo "We Couldn't find the Proper Place To Add New Column In The Script Tag Of $filePath \n";
+        CubeLog::add(new CubeWarning(
+            "We Couldn't find the Proper Place To Add New Column In The HTML Of [$filePath->fullPath]",
+            "Trying To Add $newColumn To The Datatable Columns in : [$filePath->fullPath]"
+        ));
         return false;
     }
 

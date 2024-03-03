@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Helpers;
 
 use Cubeta\CubetaStarter\LogsMessages\CubeLog;
 use Cubeta\CubetaStarter\LogsMessages\Errors\AlreadyExist;
+use Cubeta\CubetaStarter\LogsMessages\Info\SuccessMessage;
 
 class CubePath
 {
@@ -57,7 +58,7 @@ class CubePath
     public function format(): void
     {
         FileUtils::formatFile($this->fullPath);
-        CubeLog::add("The File : [{$this->fullPath}] \n Formatted Successfully");
+        CubeLog::add(new SuccessMessage("The File : [{$this->fullPath}] \n Formatted Successfully"));
     }
 
     public function getContent(): bool|string

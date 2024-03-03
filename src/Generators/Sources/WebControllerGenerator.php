@@ -5,11 +5,12 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 use Cubeta\CubetaStarter\app\Models\CubetaRelation;
 use Cubeta\CubetaStarter\app\Models\CubetaTable;
 use Cubeta\CubetaStarter\app\Models\Settings;
+use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Route;
@@ -84,6 +85,12 @@ class WebControllerGenerator extends AbstractGenerator
         ))->run();
 
         $this->addSidebarItem($routesNames['index']);
+
+        CodeSniffer::make()
+            ->setModel($this->table->modelName)
+            ->checkForWebRelations(
+                $this->getRouteName($this->table, ContainerType::WEB, $this->actor) . '.allPaginatedJson'
+            );
     }
 
     /**
@@ -143,7 +150,7 @@ class WebControllerGenerator extends AbstractGenerator
                     continue;
                 }
 
-                if (FileUtils::isMethodDefined($relatedModel->getWebControllerPath(), 'show')) {
+                if (ClassUtils::isMethodDefined($relatedModel->getWebControllerPath(), 'show')) {
                     continue;
                 }
 
@@ -231,8 +238,8 @@ class WebControllerGenerator extends AbstractGenerator
             return $relatedModelPath->exist()
                 and (
                 ($rel->isHasMany())
-                    ? FileUtils::isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName, false))
-                    : FileUtils::isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName))
+                    ? ClassUtils::isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName, false))
+                    : ClassUtils::isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName))
                 );
         })->map(fn(CubetaRelation $rel) => $rel->method())->toArray();
 

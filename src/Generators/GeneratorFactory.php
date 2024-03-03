@@ -2,13 +2,13 @@
 
 namespace Cubeta\CubetaStarter\Generators;
 
+use Cubeta\CubetaStarter\LogsMessages\CubeLog;
 use Error;
 use Mockery\Exception;
+use Throwable;
 
 class GeneratorFactory
 {
-    private static $instance;
-    public array $logs = [];
     private string $source;
 
     public function __construct(string $source)
@@ -16,18 +16,7 @@ class GeneratorFactory
         $this->source = $source;
     }
 
-    public static function make(string $source): GeneratorFactory
-    {
-        if (self::$instance == null) {
-            self::$instance = new self($source);
-        }
-
-        self::$instance->source = $source;
-        return self::$instance;
-    }
-
-
-    public function run(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null): void
+    public function make(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null): void
     {
         $generator = match ($this->source) {
             Sources\MigrationGenerator::$key => new Sources\MigrationGenerator(
@@ -82,8 +71,11 @@ class GeneratorFactory
         try {
             $generator->run();
         } catch (Exception $exception) {
-            $this->logs[] = $exception->getMessage();
+            CubeLog::add($exception);
+            return;
+        } catch (Throwable $e) {
+            CubeLog::add($e);
+            return;
         }
-        $this->logs = array_merge($this->logs, $generator->logs);
     }
 }

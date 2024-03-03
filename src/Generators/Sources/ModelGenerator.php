@@ -18,7 +18,6 @@ class ModelGenerator extends AbstractGenerator
     public function run(): void
     {
         $modelPath = $this->table->getModelPath();
-        $this->addToJsonFile();
 
         if ($modelPath->exist()) {
             $modelPath->logAlreadyExist("Generating {$this->table->modelName} Model");

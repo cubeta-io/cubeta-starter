@@ -40,13 +40,7 @@ abstract class AbstractGenerator
 
         $this->mergeRelations();
 
-        $this->table = CubetaTable::create(
-            $this->fileName,
-            $this->attributes,
-            $this->relations,
-            $this->uniques,
-            $this->nullables
-        );
+        $this->table = $this->addToJsonFile();
     }
 
     protected function mergeRelations(): void

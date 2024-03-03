@@ -18,7 +18,6 @@ class ResourceGenerator extends AbstractGenerator
     public function run(): void
     {
         $resourceName = $this->table->getResourceName();
-        $this->addToJsonFile();
 
         $stubProperties = [
             '{model}' => "\\" . $this->table->getModelClassString(),

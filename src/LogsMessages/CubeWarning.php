@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\LogsMessages;
 
-abstract class CubeWarning
+class CubeWarning
 {
     protected string $message;
     protected ?string $context;
