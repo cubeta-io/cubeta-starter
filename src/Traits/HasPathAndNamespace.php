@@ -2,15 +2,17 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Cubeta\CubetaStarter\app\Models\CubetaRelation;
-use Cubeta\CubetaStarter\app\Models\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\CubeRelation;
+use Cubeta\CubetaStarter\app\Models\CubeTable;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 
 /**
- * @mixin CubetaTable|CubetaRelation
+ * @mixin CubeTable|CubeRelation
  */
 trait HasPathAndNamespace
 {
+    public $cubetaPath = '';
+
     public function getModelPath(): CubePath
     {
         return CubePath::make(config('cubeta-starter.model_path') . "/{$this->modelName}.php");
@@ -123,7 +125,7 @@ trait HasPathAndNamespace
 
     public function getMigrationPath(): CubePath
     {
-        return CubePath::make(config('cubeta-starter.migration_path') . "{$this->getMigrationName()}.php");
+        return CubePath::make(config('cubeta-starter.migration_path') . "/{$this->getMigrationName()}.php");
     }
 
     public function getViewPath(string $type): CubePath

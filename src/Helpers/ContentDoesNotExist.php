@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Helpers;
 
-use Cubeta\CubetaStarter\LogsMessages\CubeError;
+use Cubeta\CubetaStarter\Logs\CubeError;
 
 class ContentDoesNotExist extends CubeError
 {

@@ -2,9 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Helpers;
 
-use Cubeta\CubetaStarter\LogsMessages\CubeLog;
-use Cubeta\CubetaStarter\LogsMessages\Errors\AlreadyExist;
-use Cubeta\CubetaStarter\LogsMessages\Info\SuccessMessage;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 
 class CubePath
 {
@@ -31,13 +30,7 @@ class CubePath
 
     public static function make(string $inProjectFilePath): CubePath
     {
-        if (!self::$instance) {
-            self::$instance = new self($inProjectFilePath);
-        } else {
-            self::$instance->inProjectPath = $inProjectFilePath;
-            self::$instance->initialize();
-        }
-        return self::$instance;
+        return new self($inProjectFilePath);
     }
 
     public function ensureDirectoryExists(): void
@@ -58,7 +51,6 @@ class CubePath
     public function format(): void
     {
         FileUtils::formatFile($this->fullPath);
-        CubeLog::add(new SuccessMessage("The File : [{$this->fullPath}] \n Formatted Successfully"));
     }
 
     public function getContent(): bool|string

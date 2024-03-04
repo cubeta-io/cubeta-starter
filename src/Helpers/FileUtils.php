@@ -3,8 +3,9 @@
 namespace Cubeta\CubetaStarter\Helpers;
 
 use Cubeta\CubetaStarter\CreateFile;
-use Cubeta\CubetaStarter\LogsMessages\CubeLog;
-use Cubeta\CubetaStarter\LogsMessages\Errors\WrongEnvironment;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Errors\WrongEnvironment;
+use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
@@ -51,8 +52,8 @@ class FileUtils
     public static function formatFile(string $filePath): void
     {
         $command = base_path() . "./vendor/bin/pint {$filePath}";
-        $output = self::executeCommandInTheBaseDirectory($command);
-        CubeLog::add($output);
+        self::executeCommandInTheBaseDirectory($command);
+        CubeLog::add(new SuccessMessage("The File : [{$filePath}] Formatted Successfully"));
     }
 
     /**
@@ -104,6 +105,8 @@ class FileUtils
 
         // Write the updated contents back to the file
         $filePath->putContent($contents);
+
+        $filePath->format();
     }
 
     /**
@@ -159,5 +162,10 @@ class FileUtils
 
         // Replace the last match with the new content
         return substr_replace($subject, $replacement, $lastMatchOffset, 0);
+    }
+
+    public static function extraTrim(string $string): string
+    {
+        return trim(preg_replace('/\s+/', '', $string));
     }
 }

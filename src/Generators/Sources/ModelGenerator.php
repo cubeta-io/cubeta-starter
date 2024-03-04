@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\app\Models\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\CubeTable;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
@@ -47,9 +47,9 @@ class ModelGenerator extends AbstractGenerator
 
         $this->generateFileFromStub($stubProperties, $modelPath->fullPath);
 
-        CodeSniffer::make()->setModel($this->table)->checkForModelsRelations();
-
         $modelPath->format();
+
+        CodeSniffer::make()->setModel($this->table)->checkForModelsRelations();
     }
 
     private function generateModelClassAttributes(): array
@@ -72,13 +72,13 @@ class ModelGenerator extends AbstractGenerator
                 $casts .= "'{$attribute->name}' => 'boolean' , \n";
             }
 
-            if ($attribute->type === ColumnTypeEnum::TRANSLATABLE->value) {
+            if ($attribute->isTranslatable()) {
                 $casts .= "'{$attribute->name}' => \\App\\Casts\\Translatable::class, \n";
             }
 
-            if ($attribute->type === ColumnTypeEnum::KEY->value) {
+            if ($attribute->isKey()) {
                 $relatedModelName = $attribute->modelNaming(str_replace('_id', '', $attribute->name));
-                $relatedModel = CubetaTable::create($relatedModelName);
+                $relatedModel = CubeTable::create($relatedModelName);
 
                 if ($relatedModel->getModelPath()->exist()) {
                     $relationsFunctions .= $this->belongsToFunction($relatedModel);
@@ -95,7 +95,7 @@ class ModelGenerator extends AbstractGenerator
                 $searchable .= "'{$attribute->name}' , \n";
                 $properties .= "* @property string {$attribute->name} \n";
 
-            } elseif ($attribute->type === ColumnTypeEnum::FILE->value) {
+            } elseif ($attribute->isFile()) {
                 $filesKeys .= "'{$attribute->name}' ,\n";
                 $properties .= "* @property integer {$attribute->name} \n";
                 $colName = $attribute->modelNaming();
@@ -169,6 +169,6 @@ class ModelGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/stubs/model.stub';
+        return __DIR__ . '/../../stubs/model.stub';
     }
 }

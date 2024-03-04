@@ -49,11 +49,11 @@ class ServiceGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/stubs/service.stub';
+        return __DIR__ . '/../../stubs/service.stub';
     }
 
     protected function serviceInterfaceStubs(): string
     {
-        return __DIR__ . '/stubs/service-interface.stub';
+        return __DIR__ . '/../../stubs/service-interface.stub';
     }
 }

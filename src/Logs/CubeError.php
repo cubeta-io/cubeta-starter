@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\LogsMessages;
+namespace Cubeta\CubetaStarter\Logs;
 
 class CubeError
 {

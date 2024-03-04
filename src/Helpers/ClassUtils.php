@@ -2,13 +2,13 @@
 
 namespace Cubeta\CubetaStarter\Helpers;
 
-use Cubeta\CubetaStarter\app\Models\CubetaTable;
-use Cubeta\CubetaStarter\LogsMessages\CubeError;
-use Cubeta\CubetaStarter\LogsMessages\CubeLog;
-use Cubeta\CubetaStarter\LogsMessages\Errors\NotFound;
-use Cubeta\CubetaStarter\LogsMessages\Info\ContentAppended;
-use Cubeta\CubetaStarter\LogsMessages\Warnings\ContentAlreadyExist;
-use Cubeta\CubetaStarter\LogsMessages\Warnings\ContentNotFound;
+use Cubeta\CubetaStarter\app\Models\CubeTable;
+use Cubeta\CubetaStarter\Logs\CubeError;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Errors\NotFound;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 
 class ClassUtils
 {
@@ -88,6 +88,8 @@ class ClassUtils
             $classPath->putContent($updatedContent);
 
             CubeLog::add(new ContentAppended($content, $classPath->fullPath));
+
+            $classPath->format();
         } else {
             CubeLog::add(new ContentNotFound(
                 "Closing curly brace",
@@ -151,6 +153,8 @@ class ClassUtils
             $classPath->putContent($updatedContent);
 
             CubeLog::add(new ContentAppended($content, $classPath->fullPath));
+            $classPath->format();
+
             return true;
         } else {
             CubeLog::add(new CubeError(
@@ -161,7 +165,7 @@ class ClassUtils
         }
     }
 
-    public static function addNewRelationsToWithMethod(CubetaTable $table, CubePath $filePath, array $additionalRelations): bool
+    public static function addNewRelationsToWithMethod(CubeTable $table, CubePath $filePath, array $additionalRelations): bool
     {
         if (!$filePath->exist()) {
             CubeLog::add(new NotFound($filePath->fullPath, "Trying To Add [ " . implode(" , ", $additionalRelations) . " ] To The With Method"));
@@ -205,6 +209,9 @@ class ClassUtils
 
         $filePath->putContent($updated);
         CubeLog::add(new ContentAppended(implode(" , ", $additionalRelations), $filePath->fullPath));
+
+        $filePath->format();
+
         return true;
     }
 }

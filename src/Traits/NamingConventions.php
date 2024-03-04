@@ -3,13 +3,14 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Carbon\Carbon;
-use Cubeta\CubetaStarter\app\Models\CubetaAttribute;
-use Cubeta\CubetaStarter\app\Models\CubetaRelation;
-use Cubeta\CubetaStarter\app\Models\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\CubeAttribute;
+use Cubeta\CubetaStarter\app\Models\CubeRelation;
+use Cubeta\CubetaStarter\app\Models\CubeTable;
+use Cubeta\CubetaStarter\Helpers\Naming;
 use Illuminate\Support\Str;
 
 /**
- * @mixin CubetaTable|CubetaRelation|CubetaAttribute
+ * @mixin CubeTable|CubeRelation|CubeAttribute
  */
 trait NamingConventions
 {
@@ -17,33 +18,6 @@ trait NamingConventions
      * @var string
      */
     public string $usedString;
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    public static function getModelName(string $name): string
-    {
-        return ucfirst(Str::singular(Str::studly($name)));
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    public static function getTableName(string $name): string
-    {
-        return strtolower(Str::plural(Str::snake($name)));
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    public static function columnNaming(string $name): string
-    {
-        return strtolower(Str::snake($name));
-    }
 
     /**
      * @param string|null $name
@@ -154,9 +128,7 @@ trait NamingConventions
      */
     public function modelNaming(?string $name = null): string
     {
-        return $name
-            ? ucfirst(Str::singular(Str::studly($name)))
-            : ucfirst(Str::singular(Str::studly($this->usedString)));
+        return Naming::model($name ?? $this->usedString);
     }
 
     /**
@@ -185,9 +157,7 @@ trait NamingConventions
      */
     public function tableNaming(?string $name = null): string
     {
-        return $name
-            ? strtolower(Str::plural(Str::snake($name)))
-            : strtolower(Str::plural(Str::snake($this->usedString)));
+        return Naming::table($name ?? $this->usedString);
     }
 
     /**
@@ -252,5 +222,10 @@ trait NamingConventions
     public function keyName(): string
     {
         return strtolower(Str::singular($this->usedString)) . "_id";
+    }
+
+    public function columnNaming(string $name = null): string
+    {
+        return Naming::column($name ?? $this->usedString);
     }
 }

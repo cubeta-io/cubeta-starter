@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\app\Models\CubetaRelation;
-use Cubeta\CubetaStarter\app\Models\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\CubeRelation;
+use Cubeta\CubetaStarter\app\Models\CubeTable;
 use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
@@ -11,7 +11,6 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Route;
 use JetBrains\PhpStorm\ArrayShape;
@@ -19,16 +18,16 @@ use Throwable;
 
 class WebControllerGenerator extends AbstractGenerator
 {
-    use AssistCommand, RouteBinding;
+    use RouteBinding;
 
-    public static string $key = 'web_controller';
+    public static string $key = 'web-controller';
     public static string $configPath = 'cubeta-starter.web_controller_path';
 
     protected string $rawColumns = "";
 
     protected array $additionalRoutes = [];
 
-    protected CubetaTable $table;
+    protected CubeTable $table;
 
 
     /**
@@ -44,7 +43,6 @@ class WebControllerGenerator extends AbstractGenerator
             $controllerPath->logAlreadyExist("Generating Web Controller For  ({$this->table->modelName}) Model");
         }
 
-        $tableName = $this->table->modelName;
         $routesNames = $this->getRoutesNames($this->table, $this->actor);
         $views = $this->getViewsNames($this->table, $this->actor);
 
@@ -54,7 +52,7 @@ class WebControllerGenerator extends AbstractGenerator
             '{modelName}' => $this->table->modelName,
             '{modelNameCamelCase}' => $modelNameCamelCase,
             '{idVariable}' => $idVariable,
-            '{tableName}' => $tableName,
+            '{tableName}' => $this->table->tableName,
             '{addColumns}' => $addColumns,
             '{rawColumns}' => $this->rawColumns ?? '',
             '{indexRoute}' => $routesNames['index'],
@@ -74,7 +72,7 @@ class WebControllerGenerator extends AbstractGenerator
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
 
-        $this->addRoute($this->table, $this->actor);
+        $this->addRoute($this->table, $this->actor, ContainerType::WEB, $this->additionalRoutes);
         $controllerPath->format();
 
         (new ViewsGenerator(
@@ -97,7 +95,7 @@ class WebControllerGenerator extends AbstractGenerator
      * @return string[]
      */
     #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string'])]
-    protected function getRoutesNames(CubetaTable $model, ?string $actor = null): array
+    protected function getRoutesNames(CubeTable $model, ?string $actor = null): array
     {
         $baseRouteName = $this->getRouteName($model, ContainerType::WEB, $actor);
 
@@ -119,7 +117,7 @@ class WebControllerGenerator extends AbstractGenerator
      * @return string[]
      */
     #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
-    private function getViewsNames(CubetaTable $model, $actor = null): array
+    private function getViewsNames(CubeTable $model, $actor = null): array
     {
         $viewName = $model->viewNaming();
         if (!isset($actor) || $actor == '' || $actor = 'none') {
@@ -143,8 +141,8 @@ class WebControllerGenerator extends AbstractGenerator
     {
         $dataColumn = '';
         foreach ($this->table->attributes as $attribute) {
-            if ($attribute->type == ColumnTypeEnum::KEY->value) {
-                $relatedModel = CubetaTable::create(str_replace('_id', '', $attribute->name));
+            if ($attribute->isKey()) {
+                $relatedModel = CubeTable::create(str_replace('_id', '', $attribute->name));
 
                 if (!$relatedModel->getWebControllerPath()->exist() || !$relatedModel->getModelPath()->exist()) {
                     continue;
@@ -201,7 +199,7 @@ class WebControllerGenerator extends AbstractGenerator
         $translatableColumnsIndexes = [];
 
         foreach ($this->table->attributes as $attribute) {
-            if ($attribute->type == ColumnTypeEnum::TRANSLATABLE->value) {
+            if ($attribute->isTranslatable()) {
                 $translatableColumnsIndexes[$attribute->name] = $translatableIndex;
             }
             if ($attribute->type == ColumnTypeEnum::TEXT->value) {
@@ -219,11 +217,7 @@ class WebControllerGenerator extends AbstractGenerator
         $variableName = $this->table->variableNaming();
 
         if ($this->table->hasRelationOfType(RelationsTypeEnum::HasMany)) {
-            $methods .= "public function allPaginatedJson()
-                        {
-                            \${$variableName} = \$this->{$variableName}Service->indexWithPagination([], 7);
-                            return response()->json(\${$variableName} , 200);
-                        }";
+            $methods .= "public function allPaginatedJson()\n{\n\t\${$variableName} = \$this->{$variableName}Service->indexWithPagination([], 7);\n\treturn response()->json(\${$variableName} , 200);\n}";
             $this->additionalRoutes[] = 'allPaginatedJson';
         }
 
@@ -232,7 +226,7 @@ class WebControllerGenerator extends AbstractGenerator
 
     public function getLoadedRelations(): string
     {
-        $loaded = $this->table->relations()->filter(function (CubetaRelation $rel) {
+        $loaded = $this->table->relations()->filter(function (CubeRelation $rel) {
             $relatedModelPath = $rel->getModelPath();
             $currentModelPath = $this->table->getModelPath();
             return $relatedModelPath->exist()
@@ -241,7 +235,7 @@ class WebControllerGenerator extends AbstractGenerator
                     ? ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming(singular: false))
                     : ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming())
                 );
-        })->map(fn(CubetaRelation $rel) => $rel->method())->toArray();
+        })->map(fn(CubeRelation $rel) => $rel->method())->toArray();
 
         $loadedString = '';
         foreach ($loaded as $item) {
@@ -267,6 +261,6 @@ class WebControllerGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/stubs/controller.web.stub';
+        return __DIR__ . '/../../stubs/controller.web.stub';
     }
 }

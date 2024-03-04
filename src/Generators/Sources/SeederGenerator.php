@@ -33,6 +33,6 @@ class SeederGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/stubs/seeder.stub';
+        return __DIR__ . '/../../stubs/seeder.stub';
     }
 }

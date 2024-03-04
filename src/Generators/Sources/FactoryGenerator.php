@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\app\Models\CubetaAttribute;
-use Cubeta\CubetaStarter\app\Models\CubetaRelation;
-use Cubeta\CubetaStarter\app\Models\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\CubeAttribute;
+use Cubeta\CubetaStarter\app\Models\CubeRelation;
+use Cubeta\CubetaStarter\app\Models\CubeTable;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
@@ -40,9 +40,9 @@ class FactoryGenerator extends AbstractGenerator
 
         $this->generateFileFromStub($stubProperties, $factoryPath->fullPath);
 
-        CodeSniffer::make()->setModel($this->table)->checkForFactoryRelations();
-
         $factoryPath->format();
+
+        CodeSniffer::make()->setModel($this->table)->checkForFactoryRelations();
     }
 
     private function generateFields(): array
@@ -50,15 +50,15 @@ class FactoryGenerator extends AbstractGenerator
         $rows = '';
         $relatedFactories = '';
 
-        $this->table->attributes()->each(function (CubetaAttribute $attribute) use (&$rows) {
+        $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$rows) {
             $isUnique = $attribute->name ? "->unique()" : "";
             $name = $attribute->name;
             $type = $attribute->type;
 
-            if ($type == ColumnTypeEnum::KEY->value) {
-                $relatedModel = CubetaTable::create(str_replace('_id', '', $name));
-                $rows .= "\t\t\t'{$name}' => " . $relatedModel->getFactoryClassString() . "::factory() ,\n";
-            } elseif ($type == ColumnTypeEnum::TRANSLATABLE->value) {
+            if ($attribute->isKey()) {
+                $relatedModel = CubeTable::create(str_replace('_id', '', $name));
+                $rows .= "\t\t\t'{$name}' => " . $relatedModel->getModelClassString() . "::factory() ,\n";
+            } elseif ($attribute->isTranslatable()) {
                 $rows .= "\t\t\t'{$name}' => \$this->fakeTranslation('word'),\n";
             } elseif ($type == ColumnTypeEnum::STRING->value) {
                 $rows .= $this->handleStringType($name, $isUnique);
@@ -66,7 +66,7 @@ class FactoryGenerator extends AbstractGenerator
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->randomFloat(2, 0, 1000),\n";
             } elseif (Str::contains($name, 'description') && $type == ColumnTypeEnum::TEXT->value) {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->text(),\n";
-            } elseif ($type == ColumnTypeEnum::FILE->value) {
+            } elseif ($attribute->isFile()) {
                 $rows .= "\t\t\t'{$name}' => \$this->storeImageFromUrl(fake()->imageUrl)['name'],\n";
             } elseif (Str::contains($name, 'age') && $type == ColumnTypeEnum::INTEGER->value) {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->numberBetween(15,60),\n";
@@ -85,7 +85,7 @@ class FactoryGenerator extends AbstractGenerator
             }
         });
 
-        $this->table->relations()->each(function (CubetaRelation $rel) use (&$relatedFactories) {
+        $this->table->relations()->each(function (CubeRelation $rel) use (&$relatedFactories) {
             if ($rel->isHasMany() || $rel->isManyToMany()) {
                 if ($rel->getModelPath()->exist()) {
                     $relatedFactories .= $this->factoryRelationMethod($rel);
@@ -172,6 +172,6 @@ class FactoryGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/stubs/factory.stub';
+        return __DIR__ . '/../../stubs/factory.stub';
     }
 }

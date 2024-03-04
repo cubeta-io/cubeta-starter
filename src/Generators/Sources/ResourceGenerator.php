@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\app\Models\CubetaAttribute;
+use Cubeta\CubetaStarter\app\Models\CubeAttribute;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Throwable;
@@ -34,16 +34,16 @@ class ResourceGenerator extends AbstractGenerator
 
         $this->generateFileFromStub($stubProperties, $resourcePath->fullPath);
 
-        CodeSniffer::make()->setModel($this->table)->checkForResourceRelations();
-
         $resourcePath->format();
+
+        CodeSniffer::make()->setModel($this->table)->checkForResourceRelations();
     }
 
     private function generateFields(): string
     {
         $fields = "'id' => \$this->id, \n\t\t\t";
-        $this->table->attributes()->each(function (CubetaAttribute $attribute) use (&$fields) {
-            if ($attribute->type == ColumnTypeEnum::FILE->value) {
+        $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$fields) {
+            if ($attribute->isFile()) {
                 $fields .= "'{$attribute->name}' => \$this->get" . $attribute->modelNaming() . "Path(), \n\t\t\t";
             } else {
                 $fields .= "'{$attribute->name}' => \$this->{$attribute->name},\n\t\t\t";
@@ -85,6 +85,6 @@ class ResourceGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/stubs/resource.stub';
+        return __DIR__ . '/../../stubs/resource.stub';
     }
 }

@@ -3,14 +3,9 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
 
 class MakeController extends BaseCommand
 {
-    use AssistCommand;
-    use RouteBinding;
-
     protected $description = 'Create a new controller';
 
     protected $signature = 'create:controller
@@ -23,10 +18,10 @@ class MakeController extends BaseCommand
         $modelName = $this->argument('name') ?? null;
         $actor = $this->argument('actor') ?? null;
 
-        $gen = GeneratorFactory::make("api-controller");
+        $gen = new GeneratorFactory("api-controller");
 
-        $gen->run(fileName: $modelName, actor: $actor);
+        $gen->make(fileName: $modelName, actor: $actor);
 
-        $this->handleCommandLogsAndErrors($gen->logs);
+        $this->handleCommandLogsAndErrors();
     }
 }

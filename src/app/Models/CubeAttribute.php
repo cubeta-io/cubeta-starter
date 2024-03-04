@@ -2,12 +2,14 @@
 
 namespace Cubeta\CubetaStarter\app\Models;
 
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
 
 /**
  *
  */
-class CubetaAttribute
+class CubeAttribute
 {
     use NamingConventions;
 
@@ -39,7 +41,7 @@ class CubetaAttribute
      */
     public function __construct(string $name, string $type, bool $nullable, bool $unique)
     {
-        $this->name = self::columnNaming($name);
+        $this->name = Naming::column($name);
         $this->type = $type;
         $this->nullable = $nullable;
         $this->unique = $unique;
@@ -70,5 +72,20 @@ class CubetaAttribute
             "nullable" => $this->nullable,
             "unique" => $this->unique
         ];
+    }
+
+    public function isKey(): bool
+    {
+        return $this->type == ColumnTypeEnum::KEY->value;
+    }
+
+    public function isFile(): bool
+    {
+        return $this->type == ColumnTypeEnum::FILE->value;
+    }
+
+    public function isTranslatable(): bool
+    {
+        return $this->type == ColumnTypeEnum::TRANSLATABLE->value;
     }
 }

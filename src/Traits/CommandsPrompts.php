@@ -7,15 +7,13 @@ use Illuminate\Console\Command;
 
 trait CommandsPrompts
 {
-    use SettingsHandler;
-
     /**
      * get model relations from the user using the command line
      * @return array
      */
     public function getRelationsFromPrompts(): array
     {
-        $createdModels = $this->getAllModelsName();
+        $createdModels = [];
         $relations = [];
 
         $itHasMany = Command::confirm("Does this model related with another model by <fg=red>has many</fg=red> relation ?", false);

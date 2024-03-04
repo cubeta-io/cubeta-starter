@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\LogsMessages;
+namespace Cubeta\CubetaStarter\Logs;
 
 use Exception;
 
@@ -16,5 +16,10 @@ class CubeLog
     public static function logs(): array
     {
         return self::$logs;
+    }
+
+    public static function flush(): void
+    {
+        self::$logs = [];
     }
 }

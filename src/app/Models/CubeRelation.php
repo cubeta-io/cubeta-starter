@@ -3,14 +3,13 @@
 namespace Cubeta\CubetaStarter\app\Models;
 
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Helpers\ClassUtils;
+use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Traits\HasPathAndNamespace;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
 use Illuminate\Support\Str;
 
-/**
- *
- */
-class CubetaRelation
+class CubeRelation
 {
     use NamingConventions, HasPathAndNamespace;
 
@@ -30,13 +29,20 @@ class CubetaRelation
     public ?string $key = null;
 
     /**
+     * @var string
+     */
+    public string $relatedModel;
+
+    /**
      * @param string $type
      * @param string $modelName
+     * @param string $relatedModel
      */
-    public function __construct(string $type, string $modelName)
+    public function __construct(string $type, string $modelName, string $relatedModel)
     {
         $this->type = $type;
-        $this->modelName = self::getModelName($modelName);
+        $this->modelName = Naming::model($modelName);
+        $this->relatedModel = Naming::model($relatedModel);
 
         if ($this->type == RelationsTypeEnum::BelongsTo->value) {
             $this->key = Str::singular(strtolower($this->modelName)) . '_id';
@@ -81,20 +87,15 @@ class CubetaRelation
         ];
     }
 
-    /**
-     * @return bool
-     */
-    public function isBelongsTo(): bool
+    public function loadable(): bool
     {
-        return $this->type == RelationsTypeEnum::BelongsTo->value;
-    }
+        $related = CubeTable::create($this->relatedModel);
+        $relatedModelPath = $related->getModelPath();
 
-    /**
-     * @return bool
-     */
-    public function isHasOne(): bool
-    {
-        return $this->type == RelationsTypeEnum::HasOne->value;
+        return $relatedModelPath->exist()
+            && $this->getModelPath()->exist()
+            && ClassUtils::isMethodDefined($relatedModelPath, $this->method())
+            && ClassUtils::isMethodDefined($this->getModelPath(), $related->relationFunctionNaming(singular: $this->isHasMany() || $this->isHasOne()));
     }
 
     /**
@@ -121,5 +122,21 @@ class CubetaRelation
     public function isManyToMany(): bool
     {
         return $this->type == RelationsTypeEnum::ManyToMany->value;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBelongsTo(): bool
+    {
+        return $this->type == RelationsTypeEnum::BelongsTo->value;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHasOne(): bool
+    {
+        return $this->type == RelationsTypeEnum::HasOne->value;
     }
 }

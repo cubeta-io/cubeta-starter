@@ -1,15 +1,15 @@
 <?php
 
-namespace Cubeta\CubetaStarter\LogsMessages\Info;
+namespace Cubeta\CubetaStarter\Logs\Info;
 
-use Cubeta\CubetaStarter\LogsMessages\CubeInfo;
+use Cubeta\CubetaStarter\Logs\CubeInfo;
 
 class SuccessGenerating extends CubeInfo
 {
     public function __construct(string $fileName, string $filePath, ?string $context = null)
     {
         parent::__construct(
-            "$fileName Generated Successfully \n Path : [$filePath] \n"
+            "($fileName) Generated Successfully \nPath : [$filePath]\n"
             , $context
         );
     }

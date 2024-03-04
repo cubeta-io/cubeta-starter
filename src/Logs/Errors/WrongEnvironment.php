@@ -1,8 +1,8 @@
 <?php
 
-namespace Cubeta\CubetaStarter\LogsMessages\Errors;
+namespace Cubeta\CubetaStarter\Logs\Errors;
 
-use Cubeta\CubetaStarter\LogsMessages\CubeError;
+use Cubeta\CubetaStarter\Logs\CubeError;
 
 class WrongEnvironment extends CubeError
 {

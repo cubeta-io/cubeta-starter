@@ -1,8 +1,8 @@
 <?php
 
-namespace Cubeta\CubetaStarter\LogsMessages\Warnings;
+namespace Cubeta\CubetaStarter\Logs\Warnings;
 
-use Cubeta\CubetaStarter\LogsMessages\CubeWarning;
+use Cubeta\CubetaStarter\Logs\CubeWarning;
 
 class ContentNotFound extends CubeWarning
 {
@@ -13,6 +13,6 @@ class ContentNotFound extends CubeWarning
      */
     public function __construct(string $content, string $filePath, ?string $context = null)
     {
-        parent::__construct("Content : $content \n Couldn't Be Found In [$filePath]", $context);
+        parent::__construct("Content : $content\n Couldn't Be Found In [$filePath]", $context);
     }
 }

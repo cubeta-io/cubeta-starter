@@ -1,8 +1,8 @@
 <?php
 
-namespace Cubeta\CubetaStarter\LogsMessages\Info;
+namespace Cubeta\CubetaStarter\Logs\Info;
 
-use Cubeta\CubetaStarter\LogsMessages\CubeInfo;
+use Cubeta\CubetaStarter\Logs\CubeInfo;
 
 class SuccessMessage extends CubeInfo
 {

@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators;
 
-use Cubeta\CubetaStarter\LogsMessages\CubeLog;
+use Cubeta\CubetaStarter\Logs\CubeLog;
 use Error;
 use Mockery\Exception;
 use Throwable;
@@ -66,7 +66,15 @@ class GeneratorFactory
                 fileName: $fileName,
                 actor: $actor
             ),
-            default => throw new Error("Not supported generator"),
+            Sources\WebControllerGenerator::$key => new Sources\WebControllerGenerator(
+                fileName: $fileName,
+                attributes: $attributes,
+                relations: $relations,
+                nullables: $nullables,
+                uniques: $uniques,
+                actor: $actor
+            ),
+            default => throw new Error("Not supported generator {$this->source} "),
         };
         try {
             $generator->run();

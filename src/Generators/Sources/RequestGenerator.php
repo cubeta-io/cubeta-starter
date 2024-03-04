@@ -61,7 +61,7 @@ class RequestGenerator extends AbstractGenerator
                 continue;
             }
 
-            if ($attribute->type == ColumnTypeEnum::TRANSLATABLE->value) {
+            if ($attribute->isTranslatable()) {
                 $prepareForValidation .= "'{$attribute->name}' => json_encode(\$this->{$attribute->name}), \n";
             }
 
@@ -96,6 +96,6 @@ class RequestGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/stubs/request.stub';
+        return __DIR__ . '/../../stubs/request.stub';
     }
 }

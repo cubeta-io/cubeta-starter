@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\app\Models;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Helpers\Naming;
 
 class Settings
 {
@@ -56,27 +57,27 @@ class Settings
         return $data;
     }
 
-    public function getTable(string $modelName): ?CubetaTable
+    public function getTable(string $modelName): ?CubeTable
     {
-        $modelName = CubetaTable::getModelName($modelName);
+        $modelName = Naming::model($modelName);
 
         foreach (self::$tables as $table) {
-            if ($table["model_name"] == $modelName || $table['model_name'] == CubetaTable::getTableName($modelName)) {
+            if ($table["model_name"] == $modelName || $table['model_name'] == Naming::table($modelName)) {
                 $attributes = [];
 
                 foreach ($table['attributes'] as $attribute) {
-                    $attributes[] = new CubetaAttribute($attribute['name'], $attribute['type'], $attribute['nullable'], $attribute['unique']);
+                    $attributes[] = new CubeAttribute($attribute['name'], $attribute['type'], $attribute['nullable'], $attribute['unique']);
                 }
 
                 $relations = [];
 
                 foreach ($table['relations'] as $type => $relationships) {
                     foreach ($relationships as $relationship) {
-                        $relations[] = new CubetaRelation($type, $relationship['model_name']);
+                        $relations[] = new CubeRelation($type, $relationship['model_name'] , $table['model_name']);
                     }
                 }
 
-                return new CubetaTable(
+                return new CubeTable(
                     $table['model_name'],
                     $table['table_name'],
                     $attributes,
@@ -88,7 +89,7 @@ class Settings
         return null;
     }
 
-    public function serialize(string $modelName, array $attributes, array $relations = [], array $nullables = [], array $uniques = []): CubetaTable
+    public function serialize(string $modelName, array $attributes, array $relations = [], array $nullables = [], array $uniques = []): CubeTable
     {
         $columns = [];
         $relationships = [];
@@ -97,11 +98,11 @@ class Settings
 
             if ($type == ColumnTypeEnum::KEY->value) {
                 $type = ColumnTypeEnum::KEY->value;
-                $parent = CubetaTable::getModelName(str_replace('_id', '', $colName));
-                $relationships[] = new CubetaRelation(RelationsTypeEnum::BelongsTo->value, $parent);
+                $parent = Naming::model(str_replace('_id', '', $colName));
+                $relationships[] = new CubeRelation(RelationsTypeEnum::BelongsTo->value, $parent , $modelName);
             }
 
-            $columns[] = new CubetaAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques));
+            $columns[] = new CubeAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques));
         }
 
         foreach ($relations as $relation => $type) {
@@ -109,10 +110,10 @@ class Settings
                 continue;
             }
 
-            $relationships[] = new CubetaRelation($type, $relation);
+            $relationships[] = new CubeRelation($type, $relation , $modelName);
         }
 
-        $table = new CubetaTable(
+        $table = new CubeTable(
             $modelName,
             $modelName,
             $columns,
@@ -124,15 +125,19 @@ class Settings
         return $table;
     }
 
-    public function addTable(CubetaTable $table): static
+    public function addTable(CubeTable $table): static
     {
+        $exist = [];
         foreach (self::$tables as $key => $t) {
             if ($t["table_name"] == $table->tableName) {
+                $exist = self::$tables[$key];
                 unset(self::$tables[$key]);
             }
         }
 
-        self::$tables[] = $table->toArray();
+        $new = $table->collect()->merge(collect($exist))->unique();
+
+        self::$tables[] = $new->toArray();
         self::storeJsonSettings(["tables" => array_values(self::$tables)]);
         return $this;
     }

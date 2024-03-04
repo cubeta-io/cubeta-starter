@@ -1,8 +1,8 @@
 <?php
 
-namespace Cubeta\CubetaStarter\LogsMessages\Errors;
+namespace Cubeta\CubetaStarter\Logs\Errors;
 
-use Cubeta\CubetaStarter\LogsMessages\CubeError;
+use Cubeta\CubetaStarter\Logs\CubeError;
 
 class FailedAppendContent extends CubeError
 {
@@ -10,7 +10,7 @@ class FailedAppendContent extends CubeError
     {
         parent::__construct(
             message: "Failed To Append The Following Content : \n" .
-            "$content \n" .
+            "$content\n" .
             "To : [$filePath]",
             happenedWhen: $context
         );

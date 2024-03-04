@@ -32,6 +32,6 @@ class RepositoryGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/stubs/repository.stub';
+        return __DIR__ . '/../../stubs/repository.stub';
     }
 }

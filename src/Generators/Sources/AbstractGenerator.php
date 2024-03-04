@@ -2,13 +2,13 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\app\Models\CubetaTable;
+use Cubeta\CubetaStarter\app\Models\CubeTable;
 use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\LogsMessages\CubeLog;
+use Cubeta\CubetaStarter\Logs\CubeLog;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Mockery\Exception;
@@ -25,7 +25,7 @@ abstract class AbstractGenerator
     protected string $generatedFor;
     protected ?string $actor = null;
     protected string $fileName;
-    protected CubetaTable $table;
+    protected CubeTable $table;
 
     public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '')
     {
@@ -39,14 +39,14 @@ abstract class AbstractGenerator
 
         $this->mergeRelations();
 
-        $this->table = $this->addToJsonFile();
+        $this->table = Settings::make()->serialize($this->fileName, $this->attributes, $this->relations, $this->nullables, $this->uniques);
     }
 
     protected function mergeRelations(): void
     {
         $belongToRelations = [];
         foreach ($this->attributes as $attribute => $type) {
-            if ($type === ColumnTypeEnum::KEY->value) {
+            if ($type == ColumnTypeEnum::KEY->value) {
                 $belongToRelations["$attribute"] = RelationsTypeEnum::BelongsTo->value;
             }
         }
@@ -78,13 +78,5 @@ abstract class AbstractGenerator
     protected function stubsPath(): string
     {
         return "";
-    }
-
-    /**
-     * @return CubetaTable
-     */
-    protected function addToJsonFile(): CubetaTable
-    {
-        return Settings::make()->serialize($this->fileName, $this->attributes, $this->relations, $this->nullables, $this->uniques);
     }
 }
