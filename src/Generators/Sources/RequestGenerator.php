@@ -10,7 +10,7 @@ class RequestGenerator extends AbstractGenerator
     public static string $key = 'request';
     public static string $configPath = 'cubeta-starter.request_path';
 
-    public function run(): void
+    public function run(bool $override = false): void
     {
         $rules = $this->generateRules();
 

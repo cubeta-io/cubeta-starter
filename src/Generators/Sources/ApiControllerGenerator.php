@@ -13,7 +13,7 @@ class ApiControllerGenerator extends AbstractGenerator
     public static string $key = 'api-controller';
     public static string $configPath = 'cubeta-starter.api_controller_path';
 
-    public function run(): void
+    public function run(bool $override = false): void
     {
         $controllerPath = $this->table->getApiControllerPath();
 

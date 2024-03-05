@@ -15,7 +15,7 @@ class ModelGenerator extends AbstractGenerator
 
     use StringsGenerator;
 
-    public function run(): void
+    public function run(bool $override = false): void
     {
         $modelPath = $this->table->getModelPath();
 

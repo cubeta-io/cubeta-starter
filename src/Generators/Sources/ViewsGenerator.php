@@ -16,10 +16,7 @@ use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use JetBrains\PhpStorm\ArrayShape;
-use Throwable;
 
 class ViewsGenerator extends WebControllerGenerator
 {
@@ -108,32 +105,24 @@ class ViewsGenerator extends WebControllerGenerator
         return false;
     }
 
-    /**
-     * @return void
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     * @throws Throwable
-     */
-    public function run(): void
+    public function run(bool $override = false): void
     {
         $routes = $this->getRoutesNames($this->table, $this->actor);
 
-        $this->generateCreateOrUpdateForm(storeRoute: $routes['store']);
-        $this->generateCreateOrUpdateForm(updateRoute: $routes['update']);
+        $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
+        $this->generateCreateOrUpdateForm(updateRoute: $routes['update'] , override: $override);
 
-        $this->generateShowView($routes['edit']);
-        $this->generateIndexView($routes['create'], $routes['data']);
+        $this->generateShowView($routes['edit'],$override);
+        $this->generateIndexView($routes['create'], $routes['data'] , $override);
     }
 
     /**
-     * @param $storeRoute
-     * @param $updateRoute
+     * @param string|null $storeRoute
+     * @param string|null $updateRoute
+     * @param bool $override
      * @return void
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     * @throws Throwable
      */
-    public function generateCreateOrUpdateForm($storeRoute = null, $updateRoute = null): void
+    public function generateCreateOrUpdateForm(?string $storeRoute = null, ?string $updateRoute = null, bool $override = false): void
     {
         $viewsName = $this->table->viewNaming();
         $modelVariable = $this->table->variableNaming();
@@ -155,13 +144,15 @@ class ViewsGenerator extends WebControllerGenerator
 
         if ($formPath->exist()) {
             $formPath->logAlreadyExist("When Generating $createdForm Form For ({$this->table->modelName}) Model");
+            return;
         }
 
         $formPath->ensureDirectoryExists();
 
-        FileUtils::generateFileFromStub(
+        $this->generateFileFromStub(
             $stubProperties,
             $formPath->fullPath,
+            $override,
             self::FORM_STUB
         );
     }
@@ -265,12 +256,10 @@ class ViewsGenerator extends WebControllerGenerator
 
     /**
      * @param string $editRoute
+     * @param bool $override
      * @return void
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     * @throws Throwable
      */
-    public function generateShowView(string $editRoute): void
+    public function generateShowView(string $editRoute, bool $override = false): void
     {
         $viewsName = $this->table->viewNaming();
         $stubProperties = [
@@ -288,9 +277,9 @@ class ViewsGenerator extends WebControllerGenerator
 
         $showPath->ensureDirectoryExists();
 
-        FileUtils::generateFileFromStub(
-            $stubProperties,
+        $this->generateFileFromStub($stubProperties,
             $showPath->fullPath,
+            $override,
             self::SHOW_STUB
         );
     }
@@ -321,12 +310,10 @@ class ViewsGenerator extends WebControllerGenerator
     /**
      * @param string $creatRoute
      * @param string $dataRoute
+     * @param bool $override
      * @return void
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     * @throws Throwable
      */
-    public function generateIndexView(string $creatRoute, string $dataRoute): void
+    public function generateIndexView(string $creatRoute, string $dataRoute, bool $override = false): void
     {
         $dataColumns = $this->generateDataTableColumns();
 
@@ -346,9 +333,10 @@ class ViewsGenerator extends WebControllerGenerator
 
         $indexPath->ensureDirectoryExists();
 
-        FileUtils::generateFileFromStub(
+        $this->generateFileFromStub(
             $stubProperties,
             $indexPath->fullPath,
+            $override,
             self::INDEX_STUB
         );
     }
@@ -375,8 +363,13 @@ class ViewsGenerator extends WebControllerGenerator
                 continue;
             }
 
-            if ($attribute->isKey()){
-
+            if ($attribute->isKey()) {
+                $relatedModelName = str_replace('_id', "", $attribute->name);
+                $relatedTable = Settings::make()->getTable($relatedModelName);
+                $usedName = $relatedTable
+                    ? $relatedTable->relationFunctionNaming() . "." . $relatedTable->titleable()
+                    : $relatedModelName . ".id";
+                $json .= "{\"data\": '{$usedName}', searchable: true, orderable: true}, \n";
             }
 
             $json .= "{\"data\": '{$attribute->name}', searchable: true, orderable: true}, \n";

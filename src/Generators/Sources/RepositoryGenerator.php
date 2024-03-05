@@ -7,7 +7,7 @@ class RepositoryGenerator extends AbstractGenerator
     public static string $key = 'repository';
     public static string $configPath = 'cubeta-starter.repository_path';
 
-    public function run(): void
+    public function run(bool $override = false): void
     {
         $repositoryPath = $this->table->getRepositoryPath();
 

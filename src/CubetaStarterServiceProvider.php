@@ -2,8 +2,7 @@
 
 namespace Cubeta\CubetaStarter;
 
-use Cubeta\CubetaStarter\Commands\CreatePivotTable;
-use Cubeta\CubetaStarter\Commands\InitAuth;
+use Cubeta\CubetaStarter\Commands\InstallAuth;
 use Cubeta\CubetaStarter\Commands\InitialProject;
 use Cubeta\CubetaStarter\Commands\InstallWebPackages;
 use Cubeta\CubetaStarter\Commands\MakeController;
@@ -165,7 +164,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $package
             ->name('cubeta-starter')
             ->hasConfigFile()
-            ->hasCommand(CreatePivotTable::class)
             ->hasCommand(MakeController::class)
             ->hasCommand(MakeResource::class)
             ->hasCommand(MakeModel::class)
@@ -180,7 +178,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(InitialProject::class)
             ->hasCommand(MakeWebController::class)
             ->hasCommand(InstallWebPackages::class)
-            ->hasCommand(InitAuth::class)
+            ->hasCommand(InstallAuth::class)
             ->hasCommand(PublishAllAssetsCommand::class)
             ->hasCommand(MakeExample::class);
     }

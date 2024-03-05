@@ -9,6 +9,7 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Mockery\Exception;
@@ -53,7 +54,7 @@ abstract class AbstractGenerator
         $this->relations = array_merge($this->relations, $belongToRelations);
     }
 
-    public function run(): void
+    public function run(bool $override = false): void
     {
 
     }
@@ -69,6 +70,7 @@ abstract class AbstractGenerator
     {
         try {
             FileUtils::generateFileFromStub($stubProperties, $path, $otherStubsPath ?? $this->stubsPath(), $override);
+            CubeLog::add(new SuccessGenerating(pathinfo($path, PATHINFO_BASENAME), $path));
         } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
             CubeLog::add($e);
             return;

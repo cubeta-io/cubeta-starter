@@ -2,17 +2,13 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Throwable;
 
 class SeederGenerator extends AbstractGenerator
 {
     public static string $key = 'seeder';
     public static string $configPath = 'cubeta-starter.seeder_path';
 
-    /**
-     * @throws Throwable
-     */
-    public function run(): void
+    public function run(bool $override = false): void
     {
 
         $seederPath = $this->table->getSeederPath();

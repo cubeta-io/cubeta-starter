@@ -4,18 +4,13 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\app\Models\CubeAttribute;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
-use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
-use Throwable;
 
 class ResourceGenerator extends AbstractGenerator
 {
     public static string $key = 'resource';
     public static string $configPath = 'cubeta-starter.resource_path';
 
-    /**
-     * @throws Throwable
-     */
-    public function run(): void
+    public function run(bool $override = false): void
     {
         $resourceName = $this->table->getResourceName();
 

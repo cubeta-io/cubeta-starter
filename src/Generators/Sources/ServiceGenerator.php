@@ -2,17 +2,12 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Throwable;
-
 class ServiceGenerator extends AbstractGenerator
 {
     public static string $key = 'service';
     public static string $configPath = 'cubeta-starter.service_path';
 
-    /**
-     * @throws Throwable
-     */
-    public function run(): void
+    public function run(bool $override = false): void
     {
         $servicePath = $this->table->getServicePath();
 
