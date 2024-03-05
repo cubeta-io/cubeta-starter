@@ -41,8 +41,9 @@ class MigrationGenerator extends AbstractGenerator
 
         $this->generateFileFromStub($stubProperties, $migrationPath->fullPath);
 
-        $this->table->relations(RelationsTypeEnum::ManyToMany)
-            ->each(fn(CubeRelation $relation) => $this->createPivotTable($this->table->tableName, $relation->tableNaming()));
+        foreach ($this->table->relations(RelationsTypeEnum::ManyToMany) as $relation) {
+            $this->createPivotTable($this->table->tableName, $relation->tableNaming());
+        }
 
         $migrationPath->format();
     }
@@ -137,7 +138,7 @@ class MigrationGenerator extends AbstractGenerator
             FileUtils::generateFileFromStub(
                 $stubProperties,
                 $migrationPath->fullPath,
-                __DIR__ . '/stubs/pivot-migration.stub'
+                __DIR__ . '/../../stubs/pivot-migration.stub'
             );
         } catch (Exception|BindingResolutionException|FileNotFoundException $exception) {
             CubeLog::add($exception);

@@ -7,10 +7,10 @@ use Cubeta\CubetaStarter\app\Models\CubeTable;
 use Cubeta\CubetaStarter\app\Models\Settings;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
-use Cubeta\CubetaStarter\Helpers\ContentDoesNotExist;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Illuminate\Support\Str;
 
@@ -128,7 +128,7 @@ class CodeSniffer
                     $content = "'$relationName' => new $currentResourceClass(\$this->whenLoaded('$relationName')) , \n";
                     ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
                 } else {
-                    CubeLog::add(new ContentDoesNotExist(
+                    CubeLog::add(new ContentNotFound(
                         "$relationName method",
                         $relatedModelPath->fullPath,
                         "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->modelName} Resource"
@@ -143,7 +143,7 @@ class CodeSniffer
                     $content = "'$relationName' => $currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
                     ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
                 } else {
-                    CubeLog::add(new ContentDoesNotExist(
+                    CubeLog::add(new ContentNotFound(
                         "$relationName method",
                         $relatedModelPath->fullPath,
                         "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->modelName} Resource"
@@ -158,7 +158,7 @@ class CodeSniffer
                 if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
                     ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
                 } else {
-                    CubeLog::add(new ContentDoesNotExist(
+                    CubeLog::add(new ContentNotFound(
                         "$relationName method",
                         $relatedModelPath->fullPath,
                         "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->modelName} Resource"

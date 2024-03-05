@@ -10,7 +10,7 @@ class FailedAppendContent extends CubeError
     {
         parent::__construct(
             message: "Failed To Append The Following Content : \n" .
-            "$content\n" .
+            "```\n{$content}\n```\n" .
             "To : [$filePath]",
             happenedWhen: $context
         );

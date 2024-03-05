@@ -127,15 +127,15 @@ class ClassUtils
         if (preg_match($pattern, $fileContent, $matches)) {
 
             /************* checking if the content want to add exists in the return array *************/
-            $existingElementsNormalized = preg_replace('/\s+/', ' ', $matches[1]);
-            $contentNormalized = preg_replace('/\s+/', ' ', $content);
+            $existingElementsNormalized = str_replace(',', '',FileUtils::extraTrim($matches[1]));
+            $contentNormalized = str_replace(',', '',FileUtils::extraTrim($content));
 
             // Check for duplicated content, ignoring whitespace differences
-            if (str_contains(trim(str_replace(',', '', $existingElementsNormalized)), trim(str_replace(',', '', $contentNormalized)))) {
+            if (str_contains($existingElementsNormalized, $contentNormalized)) {
                 CubeLog::add(new ContentAlreadyExist(
                     $content,
                     $classPath->fullPath,
-                    "Adding The Following Content \n $content \n To The Returned Array Of The Method : [$methodName]"
+                    "Adding The Following Content\n$content\nTo The Returned Array Of The Method : [$methodName]"
                 ));
                 return false;
             }
