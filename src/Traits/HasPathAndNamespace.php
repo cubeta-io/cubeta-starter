@@ -45,12 +45,12 @@ trait HasPathAndNamespace
 
     public function getRequestPath(): CubePath
     {
-        return CubePath::make(config('cubeta-starter.request_path') . "/{$this->getRequestName()}.php");
+        return CubePath::make(config('cubeta-starter.request_path') . "/{$this->modelName}/{$this->getRequestName()}.php");
     }
 
     public function getRequestClassString(): string
     {
-        return "\\" . config('cubeta-starter.request_namespace') . "\\{$this->getRequestName()}";
+        return "\\" . config('cubeta-starter.request_namespace') . "\\{$this->modelName}\\{$this->getRequestName()}";
     }
 
     public function getResourcePath(): CubePath

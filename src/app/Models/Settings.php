@@ -57,6 +57,11 @@ class Settings
         return $data;
     }
 
+    public function getAllModels(): array
+    {
+        return array_map(fn($table) => $table['model_name'] , self::$tables);
+    }
+
     public function getTable(string $modelName): ?CubeTable
     {
         $modelName = Naming::model($modelName);

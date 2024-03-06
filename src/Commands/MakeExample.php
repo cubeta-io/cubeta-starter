@@ -30,7 +30,7 @@ class MakeExample extends Command
                             'products' => RelationsTypeEnum::HasMany->value,
                         ],
                         "container" => "both",
-                        "gui" => true,
+                        'actor' => 'none',
                         'nullables' => [
                             "description"
                         ],
@@ -55,7 +55,7 @@ class MakeExample extends Command
                             "brands" => RelationsTypeEnum::ManyToMany->value
                         ],
                         "container" => "both",
-                        "gui" => true
+                        'actor' => 'none',
                     ]);
                     $output = Artisan::output();
 
@@ -72,7 +72,7 @@ class MakeExample extends Command
                             "products" => RelationsTypeEnum::ManyToMany->value
                         ],
                         "container" => "both",
-                        "gui" => true
+                        'actor' => 'none',
                     ]);
                     $output = Artisan::output();
 

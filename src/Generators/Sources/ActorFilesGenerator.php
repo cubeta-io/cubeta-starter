@@ -223,7 +223,7 @@ class ActorFilesGenerator extends AbstractGenerator
         if ($collectionPath->exist()) {
             $collection = $collectionPath->getContent();
 
-            if (FileUtils::checkIfContentExistInFile($collectionPath, "\"name\":\"{$this->role} auth\",")) {
+            if (FileUtils::contentExistInFile($collectionPath, "\"name\":\"{$this->role} auth\",")) {
                 CubeLog::add(new ContentAlreadyExist("Postman Collection For ({$this->role}) Auth Routes", "Adding Api Auth Routes To The Postman Collection"));
                 return;
             }

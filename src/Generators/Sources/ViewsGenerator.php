@@ -40,7 +40,7 @@ class ViewsGenerator extends WebControllerGenerator
             return false;
         }
 
-        if (FileUtils::checkIfContentExistInFile($filePath, $newColumn) || FileUtils::checkIfContentExistInFile($filePath, $htmlColName)) {
+        if (FileUtils::contentExistInFile($filePath, $newColumn) || FileUtils::contentExistInFile($filePath, $htmlColName)) {
             CubeLog::add(new ContentAlreadyExist($newColumn, $filePath->fullPath, "Trying To Add $newColumn To The Datatable Columns in : [$filePath->fullPath]"));
             return false;
         }
@@ -367,7 +367,7 @@ class ViewsGenerator extends WebControllerGenerator
                 $relatedModelName = str_replace('_id', "", $attribute->name);
                 $relatedTable = Settings::make()->getTable($relatedModelName);
                 $usedName = $relatedTable
-                    ? $relatedTable->relationFunctionNaming() . "." . $relatedTable->titleable()
+                    ? $relatedTable->relationFunctionNaming() . "." . $relatedTable->titleable()->name
                     : $relatedModelName . ".id";
                 $json .= "{\"data\": '{$usedName}', searchable: true, orderable: true}, \n";
             }

@@ -88,4 +88,9 @@ class CubeAttribute
     {
         return $this->type == ColumnTypeEnum::TRANSLATABLE->value;
     }
+
+    public function isDateTime(): bool
+    {
+        return $this->type == ColumnTypeEnum::DATETIME->value;
+    }
 }

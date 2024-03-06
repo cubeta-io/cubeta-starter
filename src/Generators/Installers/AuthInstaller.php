@@ -249,17 +249,18 @@ class AuthInstaller extends AbstractGenerator
         $protectedRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-protected.stub');
         $publicRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-public.stub');
 
-        $publicRouteFile = CubePath::make("v1/web/public.php");
-        $protectedRouteFile = CubePath::make("v1/web/protected.php");
+        $publicRouteFile = CubePath::make("routes/v1/web/public.php");
+        $protectedRouteFile = CubePath::make("routes/v1/web/protected.php");
 
         $publicRouteFile->ensureDirectoryExists();
         $protectedRouteFile->ensureDirectoryExists();
 
+        $importStatement = "use " . config('cubeta-starter.web_controller_namespace') . ";";
+
         if (!$publicRouteFile->exist()) {
             $this->generateFileFromStub(["{route}" => $publicRoutes], $publicRouteFile->fullPath, true, __DIR__ . '/../../stubs/api.stub');
-            FileUtils::addImportStatement("use " . config('cubeta-starter.web_controller_namespace') . ";" , $publicRouteFile);
-            $this->addRouteFileToServiceProvider($publicRouteFile , ContainerType::WEB);
-            $publicRouteFile->format();
+            $this->addRouteFileToServiceProvider($publicRouteFile, ContainerType::WEB);
+            FileUtils::addImportStatement($importStatement, $publicRouteFile);
             CubeLog::add(new SuccessMessage("Auth Web Public Routes Has Been Added Successfully To : [{$publicRouteFile->fullPath}]"));
         } else {
             $publicRoutes = explode(";", $publicRoutes);
@@ -267,9 +268,8 @@ class AuthInstaller extends AbstractGenerator
 
         if (!$protectedRouteFile->exist()) {
             $this->generateFileFromStub(["{route}" => $protectedRoutes], $protectedRouteFile->fullPath, true, __DIR__ . '/../../stubs/api.stub');
-            FileUtils::addImportStatement("use " . config('cubeta-starter.web_controller_namespace') . ";" , $protectedRouteFile);
-            $this->addRouteFileToServiceProvider($protectedRouteFile , ContainerType::WEB);
-            $protectedRouteFile->format();
+            $this->addRouteFileToServiceProvider($protectedRouteFile, ContainerType::WEB);
+            FileUtils::addImportStatement($importStatement, $protectedRouteFile);
             CubeLog::add(new SuccessMessage("Auth Web Protected Routes Has Been Added Successfully To : [{$protectedRouteFile->fullPath}]"));
         } else {
             $protectedRoutes = explode(";", $protectedRoutes);
@@ -277,8 +277,9 @@ class AuthInstaller extends AbstractGenerator
 
         if (is_array($protectedRoutes)) {
             foreach ($protectedRoutes as $protectedRoute) {
-                if (!FileUtils::checkIfContentExistInFile($protectedRouteFile, $protectedRoute)) {
+                if (!FileUtils::contentExistInFile($protectedRouteFile, $protectedRoute)) {
                     $protectedRouteFile->putContent("$protectedRoute;", FILE_APPEND);
+                    FileUtils::addImportStatement($importStatement, $protectedRouteFile);
                     CubeLog::add(new ContentAppended($protectedRoute, $protectedRouteFile->fullPath));
                 }
             }
@@ -286,8 +287,9 @@ class AuthInstaller extends AbstractGenerator
 
         if (is_array($publicRoutes)) {
             foreach ($publicRoutes as $publicRoute) {
-                if (!FileUtils::checkIfContentExistInFile($publicRouteFile, $publicRoute)) {
+                if (!FileUtils::contentExistInFile($publicRouteFile, $publicRoute)) {
                     $publicRouteFile->putContent("$publicRoute;", FILE_APPEND);
+                    FileUtils::addImportStatement($importStatement, $publicRouteFile);
                     CubeLog::add(new ContentAppended($publicRoute, $publicRouteFile->fullPath));
                 }
             }

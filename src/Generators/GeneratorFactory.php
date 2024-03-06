@@ -16,7 +16,16 @@ class GeneratorFactory
         $this->source = $source;
     }
 
-    public function make(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = "" , bool $override = false): void
+    public function make(
+        string  $fileName = "",
+        array   $attributes = [],
+        array   $relations = [],
+        array   $nullables = [],
+        array   $uniques = [],
+        ?string $actor = null,
+        string  $generatedFor = "",
+        bool    $override = false
+    ): void
     {
         $generator = match ($this->source) {
             Sources\MigrationGenerator::$key => new Sources\MigrationGenerator(
@@ -109,15 +118,17 @@ class GeneratorFactory
                 actor: $actor,
                 generatedFor: $generatedFor
             ),
-            Installers\AuthInstaller::$key => new Installers\AuthInstaller(
+            Sources\TestGenerator::$key => new Sources\TestGenerator(
                 fileName: $fileName,
                 attributes: $attributes,
-                relations: $relations,
-                nullables: $nullables,
-                uniques: $uniques,
-                actor: $actor,
+                actor: $actor
+            ),
+            Installers\AuthInstaller::$key => new Installers\AuthInstaller(
                 generatedFor: $generatedFor
             ),
+            Installers\ApiInstaller::$key => new Installers\ApiInstaller(),
+            Installers\WebInstaller::$key => new Installers\WebInstaller(),
+            Installers\WebPackagesInstallers::$key => new Installers\WebPackagesInstallers(),
             default => throw new Error("Not supported generator {$this->source} "),
         };
         try {

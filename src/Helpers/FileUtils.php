@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\WrongEnvironment;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
@@ -83,6 +84,11 @@ class FileUtils
     {
         $contents = $filePath->getContent();
 
+        if (self::contentExistInFile($filePath , $importStatement)){
+            CubeLog::add(new ContentAlreadyExist($importStatement , $filePath->fullPath , "Adding Import Statement"));
+            return;
+        }
+
         $namespacePattern = '/namespace\s+([A-Za-z0-9]+(\\\\*[A-Za-z0-9]+)+);/';
         // Check if the namespace declaration exists
         if (preg_match($namespacePattern, $contents, $matches)) {
@@ -103,7 +109,7 @@ class FileUtils
      * @param string $content
      * @return bool
      */
-    public static function checkIfContentExistInFile(CubePath $filePath, string $content): bool
+    public static function contentExistInFile(CubePath $filePath, string $content): bool
     {
         $fileContent = $filePath->getContent();
 

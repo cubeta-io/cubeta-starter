@@ -2,23 +2,23 @@
 
 namespace Cubeta\CubetaStarter;
 
-use Cubeta\CubetaStarter\Commands\InstallAuth;
-use Cubeta\CubetaStarter\Commands\AddActor;
-use Cubeta\CubetaStarter\Commands\InstallWebPackages;
-use Cubeta\CubetaStarter\Commands\MakeController;
+use Cubeta\CubetaStarter\Commands\Generators\AddActor;
+use Cubeta\CubetaStarter\Commands\Generators\MakeController;
+use Cubeta\CubetaStarter\Commands\Generators\MakeFactory;
+use Cubeta\CubetaStarter\Commands\Generators\MakeMigration;
+use Cubeta\CubetaStarter\Commands\Generators\MakeModel;
+use Cubeta\CubetaStarter\Commands\Generators\MakeRepository;
+use Cubeta\CubetaStarter\Commands\Generators\MakeRequest;
+use Cubeta\CubetaStarter\Commands\Generators\MakeResource;
+use Cubeta\CubetaStarter\Commands\Generators\MakeSeeder;
+use Cubeta\CubetaStarter\Commands\Generators\MakeService;
+use Cubeta\CubetaStarter\Commands\Generators\MakeTest;
+use Cubeta\CubetaStarter\Commands\Generators\MakeWebController;
+use Cubeta\CubetaStarter\Commands\Installers\InstallApi;
+use Cubeta\CubetaStarter\Commands\Installers\InstallAuth;
+use Cubeta\CubetaStarter\Commands\Installers\InstallWeb;
+use Cubeta\CubetaStarter\Commands\Installers\InstallWebPackages;
 use Cubeta\CubetaStarter\Commands\MakeExample;
-use Cubeta\CubetaStarter\Commands\MakeFactory;
-use Cubeta\CubetaStarter\Commands\MakeMigration;
-use Cubeta\CubetaStarter\Commands\MakeModel;
-use Cubeta\CubetaStarter\Commands\MakePostmanCollection;
-use Cubeta\CubetaStarter\Commands\MakeRepository;
-use Cubeta\CubetaStarter\Commands\MakeRequest;
-use Cubeta\CubetaStarter\Commands\MakeResource;
-use Cubeta\CubetaStarter\Commands\MakeSeeder;
-use Cubeta\CubetaStarter\Commands\MakeService;
-use Cubeta\CubetaStarter\Commands\MakeTest;
-use Cubeta\CubetaStarter\Commands\MakeWebController;
-use Cubeta\CubetaStarter\Commands\PublishAllAssetsCommand;
 use Illuminate\Support\Facades\View;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
@@ -174,12 +174,12 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeRepository::class)
             ->hasCommand(MakeService::class)
             ->hasCommand(MakeTest::class)
-            ->hasCommand(MakePostmanCollection::class)
             ->hasCommand(AddActor::class)
             ->hasCommand(MakeWebController::class)
             ->hasCommand(InstallWebPackages::class)
             ->hasCommand(InstallAuth::class)
-            ->hasCommand(PublishAllAssetsCommand::class)
+            ->hasCommand(InstallApi::class)
+            ->hasCommand(InstallWeb::class)
             ->hasCommand(MakeExample::class);
     }
 }

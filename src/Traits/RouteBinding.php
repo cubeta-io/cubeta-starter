@@ -139,7 +139,7 @@ trait RouteBinding
         $fileContent = $routeServiceProvider->getContent();
 
         // Check if the line to add already exists in the file
-        if (!FileUtils::checkIfContentExistInFile($routeServiceProvider, $lineToAdd)) {
+        if (!FileUtils::contentExistInFile($routeServiceProvider, $lineToAdd)) {
             // If the line does not exist, add it to the boot() method
             $pattern = '/\$this->routes\(function\s*\(\)\s*{\s*/';
             $replacement = "$0{$lineToAdd}";
@@ -219,7 +219,6 @@ trait RouteBinding
 
         $controllerPath = CubePath::make('app/Http/Controllers/SetLocaleController.php');
         if ($controllerPath->exist()) {
-
             if ($middlewarePath->exist()) {
                 $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->withoutMiddleware([App\Http\Middleware\AcceptedLanguagesMiddleware::class])->name('set-locale');";
             } else {
@@ -249,7 +248,7 @@ trait RouteBinding
 
         $routePath = CubePath::make("routes/web.php");
 
-        if ($routePath->exist()) {
+        if ($routePath->exist() && !FileUtils::contentExistInFile($routePath , $route)) {
             $routePath->putContent($route, FILE_APPEND);
         }
     }

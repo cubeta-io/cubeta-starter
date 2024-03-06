@@ -5,7 +5,6 @@ namespace Cubeta\CubetaStarter\app\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\ErrorTypeEnum;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Exception;
 use Illuminate\Http\Request;
@@ -15,7 +14,7 @@ use Illuminate\Support\Str;
 
 class CallAppropriateCommand extends Controller
 {
-    use  AssistCommand, RouteBinding;
+    use  RouteBinding;
 
     public Request $request;
     private mixed $actor;
