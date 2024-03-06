@@ -34,7 +34,7 @@ trait RouteBinding
         $routePath = $this->getRouteFilePath($container, $actor);
 
         if (!$routePath->exist()) {
-            $this->addRouteFile($actor ?? $container, $container);
+            $this->addRouteFile($actor, $container);
         }
 
         $routeName = $this->getRouteName($table, $container, $actor);
@@ -88,17 +88,16 @@ trait RouteBinding
             return CubePath::make("routes/v1/{$container}/{$actor}.php");
         }
         return CubePath::make("routes/v1/{$container}/public.php");
-
     }
 
     /**
      * @param string|null $actor
-     * @param                             $container
+     * @param string $container
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
-    public function addRouteFile(?string $actor = null, $container = null): void
+    public function addRouteFile(?string $actor = null, string $container = ContainerType::API): void
     {
         $actor = Str::singular(Str::lower($actor));
 
@@ -127,21 +126,18 @@ trait RouteBinding
         $lineToAdd = '';
 
         if ($container == ContainerType::API) {
-            $lineToAdd = "\t\t Route::middleware('api')\n" .
-                "\t\t\t->prefix('api')\n" .
-                "\t\t\t->group(base_path('{$routeFilePath->inProjectDirectory}'));\n";
+            $lineToAdd = "Route::middleware('api')\n->prefix('api')\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
         }
 
         if ($container == ContainerType::WEB) {
-            $lineToAdd = "\t\t Route::middleware('web')\n" .
-                "\t\t\t->group(base_path('{$routeFilePath->inProjectDirectory}'));\n";
+            $lineToAdd = "Route::middleware('web')\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
         }
 
         // Read the contents of the file
         $fileContent = $routeServiceProvider->getContent();
 
         // Check if the line to add already exists in the file
-        if (!str_contains($fileContent, $lineToAdd)) {
+        if (!FileUtils::checkIfContentExistInFile($routeServiceProvider, $lineToAdd)) {
             // If the line does not exist, add it to the boot() method
             $pattern = '/\$this->routes\(function\s*\(\)\s*{\s*/';
             $replacement = "$0{$lineToAdd}";
@@ -161,12 +157,12 @@ trait RouteBinding
      * @param string|null $actor
      * @return string
      */
-    public function getRouteName(CubeTable $table, string $container = 'api', ?string $actor = null): string
+    public function getRouteName(CubeTable $table, string $container = ContainerType::API, ?string $actor = null): string
     {
         $modelLowerPluralName = $table->routeNameNaming();
 
         if (!isset($actor) || $actor == '' || $actor == 'none') {
-            return $container . '.' . $modelLowerPluralName;
+            return "{$container}.public.{$modelLowerPluralName}";
         }
 
         return "{$container}.{$actor}.{$modelLowerPluralName}";

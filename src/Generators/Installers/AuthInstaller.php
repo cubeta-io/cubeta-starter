@@ -6,6 +6,9 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\Sources\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 
 class AuthInstaller extends AbstractGenerator
@@ -30,33 +33,14 @@ class AuthInstaller extends AbstractGenerator
         $this->generateUserFactory($override);
 
         if ($this->generatedFor == ContainerType::API || $this->generatedFor == ContainerType::BOTH) {
-            $this->generateUserResource();
-            $this->generateBaseAuthController();
+            $this->generateUserResource($override);
+            $this->generateBaseAuthController($override);
         }
 
         if ($this->generatedFor == ContainerType::WEB || $this->generatedFor == ContainerType::BOTH) {
             $this->generateBaseAuthWebController($override);
-            $this->generateWebAuthRouteFile($override);
+            $this->generateWebAuthRoutes();
         }
-    }
-
-    /**
-     * @param bool $override
-     * @return void
-     */
-    private function generateWebAuthRouteFile(bool $override = false): void
-    {
-        $routeFilePath = CubePath::make("v1/web/dashboard-auth.php");
-        $routeFilePath->ensureDirectoryExists();
-
-        $this->generateFileFromStub(
-            ['{controllerNamespace}' => config('cubeta-starter.web_controller_namespace')],
-            $routeFilePath->fullPath,
-            $override,
-            __DIR__ . '/../../stubs/Auth/auth-web-routes.stub'
-        );
-
-        $this->addRouteFileToServiceProvider($routeFilePath, ContainerType::WEB);
     }
 
     /**
@@ -96,69 +80,13 @@ class AuthInstaller extends AbstractGenerator
      * @param bool $override
      * @return void
      */
-    private function generateUserResource(bool $override = false): void
-    {
-        $stubProperties = [
-            '{namespace}' => config('cubeta-starter.resource_namespace'),
-        ];
-
-        $resourcePath = CubePath::make(config('cubeta-starter.resource_path') . "/UserResource.php");
-
-        $resourcePath->ensureDirectoryExists();
-
-        $this->generateFileFromStub($stubProperties, $resourcePath->fullPath, $override, __DIR__ . '/../../stubs/Auth/UserResource.stub');
-    }
-
-    /**
-     * @param bool $override
-     * @return void
-     */
-    private function generateBaseAuthController(bool $override = false): void
-    {
-        $stubProperties = [
-            '{namespace}' => config('cubeta-starter.api_controller_namespace'),
-            '{requestsNamespace}' => config('cubeta-starter.request_namespace'),
-            '{ServiceNameSpace}' => config('cubeta-starter.service_namespace'),
-            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
-        ];
-
-        $controllerPath = CubePath::make(config('cubeta-starter.api_controller_path') . "/BaseAuthController.php");
-
-        $controllerPath->ensureDirectoryExists();
-
-        $this->generateFileFromStub($stubProperties, $controllerPath->fullPath, $override, __DIR__ . '/../../stubs/Auth/BaseAuthController.stub');
-    }
-
-    /**
-     * @param bool $override
-     * @return void
-     */
-    private function generateBaseAuthWebController(bool $override = false): void
-    {
-        $stubProperties = [
-            '{namespace}' => config('cubeta-starter.web_controller_namespace'),
-            '{requestsNamespace}' => config('cubeta-starter.request_namespace'),
-            '{ServiceNameSpace}' => config('cubeta-starter.service_namespace')
-        ];
-
-        $controllerPath = CubePath::make(config('cubeta-starter.web_controller_path') . "/BaseAuthController.php");
-
-        $controllerPath->ensureDirectoryExists();
-
-        $this->generateFileFromStub($stubProperties, $controllerPath->fullPath, $override, __DIR__ . '/../../stubs/Auth/BaseAuthWebController.stub');
-    }
-
-    /**
-     * @param bool $override
-     * @return void
-     */
     private function generateUserService(bool $override = false): void
     {
         // user service
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.service_namespace'),
-            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
-            '{repositoryNamespace}' => config('cubeta-starter.repository_namespace'),
+            '{{namespace}}' => config('cubeta-starter.service_namespace'),
+            '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
+            '{{repositoryNamespace}}' => config('cubeta-starter.repository_namespace'),
         ];
 
 
@@ -254,6 +182,115 @@ class AuthInstaller extends AbstractGenerator
         $factoryPath = CubePath::make(config('cubeta-starter.factory_path') . "/UserFactory.php");
         $factoryPath->ensureDirectoryExists();
 
-        $this->generateFileFromStub([], $factoryPath->fullPath,$override, __DIR__ . '/../../stubs/Auth/user-factory.stub');
+        $this->generateFileFromStub([], $factoryPath->fullPath, $override, __DIR__ . '/../../stubs/Auth/user-factory.stub');
+    }
+
+    /**
+     * @param bool $override
+     * @return void
+     */
+    private function generateUserResource(bool $override = false): void
+    {
+        $stubProperties = [
+            '{namespace}' => config('cubeta-starter.resource_namespace'),
+        ];
+
+        $resourcePath = CubePath::make(config('cubeta-starter.resource_path') . "/UserResource.php");
+
+        $resourcePath->ensureDirectoryExists();
+
+        $this->generateFileFromStub($stubProperties, $resourcePath->fullPath, $override, __DIR__ . '/../../stubs/Auth/UserResource.stub');
+    }
+
+    /**
+     * @param bool $override
+     * @return void
+     */
+    private function generateBaseAuthController(bool $override = false): void
+    {
+        $stubProperties = [
+            '{namespace}' => config('cubeta-starter.api_controller_namespace'),
+            '{requestsNamespace}' => config('cubeta-starter.request_namespace'),
+            '{ServiceNameSpace}' => config('cubeta-starter.service_namespace'),
+            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
+        ];
+
+        $controllerPath = CubePath::make(config('cubeta-starter.api_controller_path') . "/BaseAuthController.php");
+
+        $controllerPath->ensureDirectoryExists();
+
+        $this->generateFileFromStub($stubProperties, $controllerPath->fullPath, $override, __DIR__ . '/../../stubs/Auth/BaseAuthController.stub');
+    }
+
+    /**
+     * @param bool $override
+     * @return void
+     */
+    private function generateBaseAuthWebController(bool $override = false): void
+    {
+        $stubProperties = [
+            '{namespace}' => config('cubeta-starter.web_controller_namespace'),
+            '{requestsNamespace}' => config('cubeta-starter.request_namespace'),
+            '{ServiceNameSpace}' => config('cubeta-starter.service_namespace')
+        ];
+
+        $controllerPath = CubePath::make(config('cubeta-starter.web_controller_path') . "/BaseAuthController.php");
+
+        $controllerPath->ensureDirectoryExists();
+
+        $this->generateFileFromStub($stubProperties, $controllerPath->fullPath, $override, __DIR__ . '/../../stubs/Auth/BaseAuthWebController.stub');
+    }
+
+    /**
+     * @return void
+     */
+    private function generateWebAuthRoutes(): void
+    {
+        $protectedRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-protected.stub');
+        $publicRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-public.stub');
+
+        $publicRouteFile = CubePath::make("v1/web/public.php");
+        $protectedRouteFile = CubePath::make("v1/web/protected.php");
+
+        $publicRouteFile->ensureDirectoryExists();
+        $protectedRouteFile->ensureDirectoryExists();
+
+        if (!$publicRouteFile->exist()) {
+            $this->generateFileFromStub(["{route}" => $publicRoutes], $publicRouteFile->fullPath, true, __DIR__ . '/../../stubs/api.stub');
+            FileUtils::addImportStatement("use " . config('cubeta-starter.web_controller_namespace') . ";" , $publicRouteFile);
+            $this->addRouteFileToServiceProvider($publicRouteFile , ContainerType::WEB);
+            $publicRouteFile->format();
+            CubeLog::add(new SuccessMessage("Auth Web Public Routes Has Been Added Successfully To : [{$publicRouteFile->fullPath}]"));
+        } else {
+            $publicRoutes = explode(";", $publicRoutes);
+        }
+
+        if (!$protectedRouteFile->exist()) {
+            $this->generateFileFromStub(["{route}" => $protectedRoutes], $protectedRouteFile->fullPath, true, __DIR__ . '/../../stubs/api.stub');
+            FileUtils::addImportStatement("use " . config('cubeta-starter.web_controller_namespace') . ";" , $protectedRouteFile);
+            $this->addRouteFileToServiceProvider($protectedRouteFile , ContainerType::WEB);
+            $protectedRouteFile->format();
+            CubeLog::add(new SuccessMessage("Auth Web Protected Routes Has Been Added Successfully To : [{$protectedRouteFile->fullPath}]"));
+        } else {
+            $protectedRoutes = explode(";", $protectedRoutes);
+        }
+
+        if (is_array($protectedRoutes)) {
+            foreach ($protectedRoutes as $protectedRoute) {
+                if (!FileUtils::checkIfContentExistInFile($protectedRouteFile, $protectedRoute)) {
+                    $protectedRouteFile->putContent("$protectedRoute;", FILE_APPEND);
+                    CubeLog::add(new ContentAppended($protectedRoute, $protectedRouteFile->fullPath));
+                }
+            }
+        }
+
+        if (is_array($publicRoutes)) {
+            foreach ($publicRoutes as $publicRoute) {
+                if (!FileUtils::checkIfContentExistInFile($publicRouteFile, $publicRoute)) {
+                    $publicRouteFile->putContent("$publicRoute;", FILE_APPEND);
+                    CubeLog::add(new ContentAppended($publicRoute, $publicRouteFile->fullPath));
+                }
+            }
+        }
     }
 }

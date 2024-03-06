@@ -9,6 +9,7 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -68,6 +69,10 @@ abstract class AbstractGenerator
      */
     protected function generateFileFromStub(array $stubProperties, string $path, bool $override = false, string $otherStubsPath = null): void
     {
+        if (file_exists($path) and !$override) {
+            CubeLog::add(new AlreadyExist($path, "Trying To Generate : [" . pathinfo($path , PATHINFO_BASENAME) . "]"));
+            return;
+        }
         try {
             FileUtils::generateFileFromStub($stubProperties, $path, $otherStubsPath ?? $this->stubsPath(), $override);
             CubeLog::add(new SuccessGenerating(pathinfo($path, PATHINFO_BASENAME), $path));

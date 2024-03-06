@@ -48,7 +48,7 @@
                                 <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
 
                                     <!-- Profile Edit Form -->
-                                    <form action="{{route('dashboard.update-user-data')}}" method="POST">
+                                    <form action="{{route('web.protected.update-user-data')}}" method="POST">
                                         @method('PUT')
                                         @csrf
                                         <div class="row mb-3">

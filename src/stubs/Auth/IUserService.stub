@@ -9,6 +9,8 @@ use {namespace}\Contracts\IBaseService;
  */
 interface IUserService extends IBaseService
 {
+    public function setGuard(string $guard = "api"): void;
+
     public function login(array $data, string $role, array $additionalData = []);
 
     public function logout();

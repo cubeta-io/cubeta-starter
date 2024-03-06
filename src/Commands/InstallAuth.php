@@ -12,12 +12,14 @@ class InstallAuth extends BaseCommand
 
     protected $description = 'initialize authentication tools';
 
-    protected $signature = 'auth:install';
+    protected $signature = 'install:cubeta-auth';
 
     public function handle(): void
     {
+        $container = $this->askForContainer();
+        $override = $this->askForOverride();
         $gen = new GeneratorFactory("install-auth");
-        $gen->make(generatedFor: ContainerType::BOTH, override: true);
+        $gen->make(generatedFor: $container, override: $override);
         $this->handleCommandLogsAndErrors();
     }
 }

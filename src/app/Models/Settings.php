@@ -129,7 +129,7 @@ class Settings
     {
         $exist = [];
         foreach (self::$tables as $key => $t) {
-            if ($t["table_name"] == $table->tableName) {
+            if (isset($t["table_name"]) and $t["table_name"] == $table->tableName) {
                 $exist = self::$tables[$key];
                 unset(self::$tables[$key]);
             }

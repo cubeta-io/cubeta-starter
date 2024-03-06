@@ -23,7 +23,7 @@
                                     <p class="text-center small">You Will Find The Reset Code In Your Email Inbox</p>
                                 </div>
 
-                                <form class="row g-3 needs-validation" action="{{route('dashboard.change-password')}}"
+                                <form class="row g-3 needs-validation" action="{{route('web.public.change-password')}}"
                                       method="POST" novalidate>
                                     @csrf
                                     <div class="col-12">

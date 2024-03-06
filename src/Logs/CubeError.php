@@ -4,9 +4,9 @@ namespace Cubeta\CubetaStarter\Logs;
 
 class CubeError
 {
-    protected string $message;
-    protected ?string $affectedFilePath = null;
-    protected ?string $happenedWhen = null;
+    public string $message;
+    public ?string $affectedFilePath = null;
+    public ?string $happenedWhen = null;
 
     /**
      * @param string $message

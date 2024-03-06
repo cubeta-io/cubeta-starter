@@ -9,7 +9,6 @@ use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
 class FileUtils
 {
@@ -84,30 +83,19 @@ class FileUtils
     {
         $contents = $filePath->getContent();
 
-        if (Str::contains($contents, $importStatement)) {
-            return;
+        $namespacePattern = '/namespace\s+([A-Za-z0-9]+(\\\\*[A-Za-z0-9]+)+);/';
+        // Check if the namespace declaration exists
+        if (preg_match($namespacePattern, $contents, $matches)) {
+            $contents = str_replace($matches[0], "{$matches[0]} \n$importStatement\n", $contents);
+        } else {
+            // No namespace declaration found, add the import statement after the opening PHP tag
+            $contents = str_replace("<?php", "<?php\n$importStatement\n", $contents);
         }
-
-        // Check if import statement already exists
-        $fileLines = File::lines($filePath->fullPath);
-
-        foreach ($fileLines as $line) {
-            $cleanLine = trim($line);
-            if (Str::contains($cleanLine, $importStatement)) {
-                return;
-            }
-        }
-
-        // Find the last "use" statement and insert the new import statement after it
-        $lastUseIndex = strrpos($contents, 'use ');
-        $insertIndex = $lastUseIndex !== false ? $lastUseIndex - 1 : 0;
-        $contents = substr_replace($contents, "\n" . $importStatement . "\n", $insertIndex, 0);
 
         // Write the updated contents back to the file
         $filePath->putContent($contents);
-
-        $filePath->format();
     }
+
 
     /**
      * check if content exist in a file
@@ -123,15 +111,31 @@ class FileUtils
             return false;
         }
 
-        $fileContent = preg_replace('/\s+/', '', $fileContent);
+        $fileContent = self::extraTrim($fileContent);
 
-        $content = preg_replace('/\s+/', '', $content);
+        $content = self::extraTrim($content);
 
         if (str_contains(strtolower($fileContent), strtolower($content))) {
             return true;
         }
 
         return false;
+    }
+
+    public static function extraTrim(string $string): string
+    {
+        return trim(preg_replace('/\s+/', '', $string));
+    }
+
+    /**
+     * @param string $subject
+     * @param string $contentToAdd
+     * @param string $pattern
+     * @return array|string|null
+     */
+    public static function appendToFirstMatch(string $subject, string $contentToAdd, string $pattern): array|string|null
+    {
+        return preg_replace($pattern, '$0' . $contentToAdd, $subject);
     }
 
     /**
@@ -162,10 +166,5 @@ class FileUtils
 
         // Replace the last match with the new content
         return substr_replace($subject, $replacement, $lastMatchOffset, 0);
-    }
-
-    public static function extraTrim(string $string): string
-    {
-        return trim(preg_replace('/\s+/', '', $string));
     }
 }
