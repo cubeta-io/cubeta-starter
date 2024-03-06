@@ -2,7 +2,16 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Cubeta\CubetaStarter\app\Models\CubeTable;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
@@ -10,118 +19,207 @@ use Illuminate\Support\Str;
 
 trait RouteBinding
 {
-    use RouteFileTrait;
-
     /**
-     * @param string $modelName
+     * @param CubeTable $table
      * @param string|null $actor
      * @param string $container
      * @param array $additionalRoutes
      * @return void
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
      */
-    public function addRoute(string $modelName, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = []): void
+    public function addRoute(CubeTable $table, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = []): void
     {
-        $pluralLowerModelName = routeUrlNaming($modelName);
+        $pluralLowerModelName = $table->routeUrlNaming();
 
-        $routePath = routeFilePath($container, $actor);
+        $routePath = $this->getRouteFilePath($container, $actor);
 
-        if (!file_exists($routePath)) {
-            $this->addRouteFile($actor ?? $container, $container);
+        if (!$routePath->exist()) {
+            $this->addRouteFile($actor, $container);
         }
 
-        $routeName = $this->getRouteName($modelName, $container, $actor);
+        $routeName = $this->getRouteName($table, $container, $actor);
 
-        if ($container == 'web') {
-            $route = $this->addAdditionalRoutesForAdditionalControllerMethods($modelName, $routeName, $additionalRoutes);
+        if ($container == ContainerType::WEB) {
+            $routes = $this->addAdditionalRoutesForAdditionalControllerMethods($table, $routeName, $additionalRoutes);
+            $routes [] = "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$table->modelNaming()}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\");";
+            $routes [] = 'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;';
 
-            $route .= "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$modelName}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\"); \n" .
-                'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
+            foreach ($routes as $key => $route) {
+                if ($this->routeExist($routePath, $route)) {
+                    CubeLog::add(new ContentAlreadyExist($route, $routePath->fullPath, "Adding New Route To : [$routePath->fullPath]"));
+                    unset($routes[$key]);
+                }
+            }
 
+            if (!count($routes)) {
+                return;
+            }
+
+            $route = implode("\n", $routes);
             $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . ';';
         } else {
-            $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $modelName . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
+            $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
             $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . ';';
         }
 
-        addImportStatement($importStatement, $routePath);
+        FileUtils::addImportStatement($importStatement, $routePath);
 
-        if (!($this->checkIfRouteExist($routePath, $route))) {
+        if ($this->routeExist($routePath, $route)) {
+            CubeLog::add(new ContentAlreadyExist($route, $routePath->fullPath, "Adding New Route To : [$routePath->fullPath]"));
             return;
         }
 
-        if (file_put_contents($routePath, $route, FILE_APPEND)) {
-            $this->info('Controller Route Appended Successfully');
-            $this->formatFile($routePath);
+        if ($routePath->putContent($route, FILE_APPEND)) {
+            CubeLog::add(new ContentAppended($route, $routePath->fullPath));
+            $routePath->format();
         } else {
-            $this->error('Failed to Append a Route For This Controller');
+            CubeLog::add(new FailedAppendContent($route, $routePath->fullPath));
         }
     }
 
     /**
-     * @param string $modelName
+     * @param string $container
+     * @param string|null $actor
+     * @return CubePath
+     */
+    public function getRouteFilePath(string $container, ?string $actor = null): CubePath
+    {
+        if ($actor && $actor != "none") {
+            return CubePath::make("routes/v1/{$container}/{$actor}.php");
+        }
+        return CubePath::make("routes/v1/{$container}/public.php");
+    }
+
+    /**
+     * @param string|null $actor
+     * @param string $container
+     * @return void
+     */
+    public function addRouteFile(?string $actor = null, string $container = ContainerType::API): void
+    {
+        $actor = Str::singular(Str::lower($actor));
+
+        $filePath = $this->getRouteFilePath($container, $actor);
+
+        $filePath->ensureDirectoryExists();
+
+        try {
+            FileUtils::generateFileFromStub(
+                ['{route}' => '//add-your-routes-here'],
+                $filePath->fullPath,
+                __DIR__ . '/../Commands/stubs/api.stub'
+            );
+        } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
+            CubeLog::add($e);
+            return;
+        }
+
+        $this->addRouteFileToServiceProvider($filePath, $container);
+    }
+
+    /**
+     * @param CubePath $routeFilePath
+     * @param string $container
+     * @return void
+     */
+    public function addRouteFileToServiceProvider(CubePath $routeFilePath, string $container = ContainerType::API): void
+    {
+        $routeServiceProvider = CubePath::make('app/Providers/RouteServiceProvider.php');
+
+        $lineToAdd = '';
+
+        if ($container == ContainerType::API) {
+            $lineToAdd = "Route::middleware('api')\n->prefix('api')\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
+        }
+
+        if ($container == ContainerType::WEB) {
+            $lineToAdd = "Route::middleware('web')\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
+        }
+
+        // Read the contents of the file
+        $fileContent = $routeServiceProvider->getContent();
+
+        // Check if the line to add already exists in the file
+        if (!FileUtils::contentExistInFile($routeServiceProvider, $lineToAdd)) {
+            // If the line does not exist, add it to the boot() method
+            $pattern = '/\$this->routes\(function\s*\(\)\s*{\s*/';
+            $replacement = "$0{$lineToAdd}";
+
+            $fileContent = preg_replace($pattern, $replacement, $fileContent, 1);
+            // Write the modified contents back to the file
+            $routeServiceProvider->putContent($fileContent);
+        }
+
+        $routeServiceProvider->format();
+        CubeLog::add(new SuccessGenerating($routeFilePath->fileName, $routeFilePath->fullPath));
+    }
+
+    /**
+     * @param CubeTable $table
      * @param string $container
      * @param string|null $actor
      * @return string
      */
-    public function getRouteName(string $modelName, string $container = 'api', ?string $actor = null): string
+    public function getRouteName(CubeTable $table, string $container = ContainerType::API, ?string $actor = null): string
     {
-        $modelLowerPluralName = routeNameNaming($modelName);
+        $modelLowerPluralName = $table->routeNameNaming();
 
         if (!isset($actor) || $actor == '' || $actor == 'none') {
-            return $container . '.' . $modelLowerPluralName;
+            return "{$container}.public.{$modelLowerPluralName}";
         }
 
-        return "$container.$actor.$modelLowerPluralName";
+        return "{$container}.{$actor}.{$modelLowerPluralName}";
     }
 
-    public function addAdditionalRoutesForAdditionalControllerMethods(string $modelName, string $routeName, array $additionalRoutes = []): string
+    /**
+     * @param CubeTable $table
+     * @param string $routeName
+     * @param array $additionalRoutes
+     * @return array
+     */
+    public function addAdditionalRoutesForAdditionalControllerMethods(CubeTable $table, string $routeName, array $additionalRoutes = []): array
     {
-        $pluralLowerModelName = routeUrlNaming($modelName);
-        $routes = "\n";
+        $pluralLowerModelName = $table->routeUrlNaming();
+        $routes = [];
 
         if (in_array('allPaginatedJson', $additionalRoutes)) {
-            $routes .= "Route::get(\"dashboard/{$pluralLowerModelName}/all-paginated-json\", [v1\\{$modelName}" . "Controller::class, \"allPaginatedJson\"])->name(\"{$routeName}.allPaginatedJson\"); \n";
+            $routes [] = "Route::get(\"dashboard/{$pluralLowerModelName}/all-paginated-json\", [v1\\{$table->modelNaming()}" . "Controller::class, \"allPaginatedJson\"])->name(\"{$routeName}.allPaginatedJson\");";
         }
 
         return $routes;
     }
 
     /**
-     * @param string $routePath
+     * @param CubePath $routePath
      * @param string $route
      * @return bool
      */
-    public function checkIfRouteExist(string $routePath, string $route): bool
+    public function routeExist(CubePath $routePath, string $route): bool
     {
-        $file = file_get_contents($routePath);
+        $file = $routePath->getContent();
         if (Str::contains($file, $route)) {
-            return false;
+            return true;
         }
 
-        $fileLines = File::lines($routePath);
+        $fileLines = File::lines($routePath->fullPath);
         foreach ($fileLines as $line) {
-            $cleanLine = trim($line);
-            if (Str::contains($cleanLine, $route)) {
-                return false;
+            if (Str::contains(FileUtils::extraTrim($line), FileUtils::extraTrim($route))) {
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
+    /**
+     * @return void
+     */
     public function addSetLocalRoute(): void
     {
-        if (file_exists(base_path('/app/Http/Middleware/AcceptedLanguagesMiddleware.php'))) {
-            $middlewareExist = true;
-        } else {
-            $middlewareExist = false;
-        }
+        $middlewarePath = CubePath::make("/app/Http/Middleware/AcceptedLanguagesMiddleware.php");
 
-        if (file_exists(base_path('app/Http/Controllers/SetLocaleController.php'))) {
-
-            if ($middlewareExist) {
+        $controllerPath = CubePath::make('app/Http/Controllers/SetLocaleController.php');
+        if ($controllerPath->exist()) {
+            if ($middlewarePath->exist()) {
                 $route = "Route::post('/locale', [\App\Http\Controllers\SetLocaleController::class, 'setLanguage'])->middleware('web')->withoutMiddleware([App\Http\Middleware\AcceptedLanguagesMiddleware::class])->name('set-locale');";
             } else {
                 $route = "
@@ -131,7 +229,7 @@ trait RouteBinding
                     ";
             }
         } else {
-            if ($middlewareExist) {
+            if ($middlewarePath->exist()) {
                 $route = "
                     // TODO:: this is the route that will handle the selected locale of your app but the package didn't detect the controller for it due to some error or you've deleted it ,
                     // so please define a controller for it or define the functionality of this rout within it
@@ -148,10 +246,10 @@ trait RouteBinding
             }
         }
 
-        $routePath = base_path("routes/web.php");
+        $routePath = CubePath::make("routes/web.php");
 
-        if (file_exists($routePath)) {
-            file_put_contents($routePath, $route, FILE_APPEND);
+        if ($routePath->exist() && !FileUtils::contentExistInFile($routePath , $route)) {
+            $routePath->putContent($route, FILE_APPEND);
         }
     }
 }

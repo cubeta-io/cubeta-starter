@@ -19,11 +19,6 @@
         "laravel/pint": "^1.7"
     },
     "autoload": {
-        "files": [
-            "src/Helpers/NamingHelpers.php",
-            "src/Helpers/FilesHelper.php",
-            "src/Helpers/ClassesHelper.php"
-        ],
         "psr-4": {
             "Cubeta\\CubetaStarter\\": "src/"
         }

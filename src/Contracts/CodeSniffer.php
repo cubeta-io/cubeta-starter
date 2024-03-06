@@ -3,27 +3,24 @@
 namespace Cubeta\CubetaStarter\Contracts;
 
 use Cubeta\CubetaStarter\App\Models\CubeRelation;
+use Cubeta\CubetaStarter\App\Models\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings;
-use Cubeta\CubetaStarter\Traits\AssistCommand;
-use Cubeta\CubetaStarter\Traits\SettingsHandler;
+use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerator;
+use Cubeta\CubetaStarter\Helpers\ClassUtils;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
-use Cubeta\CubetaStarter\Traits\ViewGenerating;
 use Illuminate\Support\Str;
 
 class CodeSniffer
 {
-    use SettingsHandler;
     use StringsGenerator;
-    use AssistCommand;
-    use ViewGenerating;
 
     private static $instance;
 
-    private string $currentModel;
-
-    private string $currentModelClassName;
-
-    private string $currentModelPath;
+    private ?CubeTable $table = null;
 
     private function __construct()
     {
@@ -35,56 +32,227 @@ class CodeSniffer
         self::$instance = null;
     }
 
-    public function setModel(string $modelName): static
+    public function setModel(CubeTable $table): static
     {
-        $this->currentModel = modelNaming($modelName);
-        $this->currentModelClassName = config("cubeta-starter.model_namespace", "App\Models") . "\\{$this->currentModel}";
-        $this->currentModelPath = config("cubeta-starter.model_path", "app/Models") . "/{$this->currentModel}.php";
+        $this->table = $table;
         return $this;
     }
 
     public function checkForModelsRelations(): static
     {
-        $currentTable = Settings::make()->getTable($this->currentModel);
-
-        if (!$currentTable) {
+        if (!$this->table) {
             return $this;
         }
 
-        $currentTable->relations()->each(function (CubeRelation $relation) {
-            $relatedClassName = getModelClassName($relation->modelName);
-            $relatedPath = getModelPath($relation->modelName);
-            if (file_exists($relatedPath)) {
+        $this->table->relations()->each(function (CubeRelation $relation) {
+            $relatedPath = $relation->getModelPath();
 
-                if ($relation->isHasMany()) {
+            if (!$relatedPath->exist()) {
+                return true;
+            }
 
-                    addMethodToClass(
-                        relationFunctionNaming($this->currentModel),
-                        $relatedClassName,
-                        $relatedPath,
-                        $this->belongsToFunction($this->currentModel)
-                    );
+            if ($relation->isHasMany()) {
+                ClassUtils::addMethodToClass(
+                    $this->table->relationFunctionNaming(),
+                    $relatedPath,
+                    $this->belongsToFunction($this->table)
+                );
+            }
 
-                }
+            if ($relation->isManyToMany()) {
+                ClassUtils::addMethodToClass(
+                    $this->table->relationFunctionNaming(singular: false),
+                    $relatedPath,
+                    $this->manyToManyFunction($this->table)
+                );
+            }
 
-                if ($relation->isManyToMany()) {
-                    addMethodToClass(
-                        relationFunctionNaming($this->currentModel, false),
-                        $relatedClassName,
-                        $relatedPath,
-                        $this->manyToManyFunction($this->currentModel)
-                    );
-                }
+            if ($relation->isBelongsTo() || $relation->isHasOne()) {
+                ClassUtils::addMethodToClass(
+                    $this->table->relationFunctionNaming(singular: false),
+                    $relatedPath,
+                    $this->hasManyFunction($this->table)
+                );
+            }
+        });
 
-                if ($relation->isBelongsTo() || $relation->isHasOne()) {
-                    addMethodToClass(
-                        relationFunctionNaming($this->currentModel, false),
-                        $relatedClassName,
-                        $relatedPath,
-                        $this->hasManyFunction($this->currentModel)
-                    );
+        return $this;
+    }
+
+    public function checkForFactoryRelations(): static
+    {
+        if (!$this->table) {
+            return $this;
+        }
+
+        $this->table->relations()->each(function (CubeRelation $relation) {
+            $relatedPath = $relation->getFactoryPath();
+
+            if (!$relation->loadable() or !$relatedPath->exist()) {
+                return true;
+            }
+
+            if ($relation->isBelongsTo() || $relation->isHasOne() || $relation->isManyToMany()) {
+                $methodName = "with" . Str::plural($this->table->modelName);
+                ClassUtils::addMethodToClass(
+                    $methodName,
+                    $relatedPath,
+                    $this->factoryRelationMethod($this->table)
+                );
+            }
+        });
+
+        return $this;
+    }
+
+    public function checkForResourceRelations(): static
+    {
+        if (!$this->table) {
+            return $this;
+        }
+
+        $this->table->relations()->each(function (CubeRelation $relation) {
+            $relatedClassName = $relation->getResourceClassString();
+            $relatedResourcePath = $relation->getResourcePath();
+            $currentResourceClass = $this->table->getResourceClassString();
+            $relatedModelPath = $relation->getModelPath();
+
+            if (!$relatedResourcePath->exist() or !$relation->loadable()) {
+                return true;
+            }
+
+            if ($relation->isHasMany()) {
+                $relationName = $this->table->relationFunctionNaming();
+
+                if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
+                    $content = "'$relationName' => new $currentResourceClass(\$this->whenLoaded('$relationName')) , \n";
+                    ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
+                } else {
+                    CubeLog::add(new ContentNotFound(
+                        "$relationName method",
+                        $relatedModelPath->fullPath,
+                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->modelName} Resource"
+                    ));
                 }
             }
+
+            if ($relation->isManyToMany()) {
+                $relationName = $this->table->relationFunctionNaming(singular: false);
+
+                if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
+                    $content = "'$relationName' => $currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
+                    ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
+                } else {
+                    CubeLog::add(new ContentNotFound(
+                        "$relationName method",
+                        $relatedModelPath->fullPath,
+                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->modelName} Resource"
+                    ));
+                }
+            }
+
+            if ($relation->isBelongsTo() || $relation->isHasOne()) {
+                $relationName = $this->table->relationFunctionNaming(singular: false);
+                $content = "'$relationName' => $currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
+
+                if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
+                    ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
+                } else {
+                    CubeLog::add(new ContentNotFound(
+                        "$relationName method",
+                        $relatedModelPath->fullPath,
+                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->modelName} Resource"
+                    ));
+                }
+            }
+        });
+
+        return $this;
+    }
+
+    public function checkForWebRelations(string $select2RouteName): static
+    {
+        if (!$this->table) {
+            return $this;
+        }
+
+        $this->table->relations()->each(function (CubeRelation $relation) use ($select2RouteName) {
+            $relatedControllerPath = $relation->getWebControllerPath();
+            $relatedTable = Settings::make()->getTable($relation->modelName);
+
+            if (!$relatedTable) {
+                return true;
+            }
+
+            $relatedCreateView = $relation->getViewPath("create");
+            $relatedUpdateView = $relation->getViewPath("update");
+            $relatedIndexView = $relation->getViewPath("index");
+            $relatedShowView = $relation->getViewPath("show");
+
+            if ($relation->isHasMany()) {
+
+                if (!$relation->loadable() and !$relatedControllerPath->exist()) {
+                    return true;
+                }
+
+                $keyName = $this->table->keyName();
+                $keyAttribute = $relatedTable->getAttribute($keyName);
+
+                if (!$keyAttribute) {
+                    return true;
+                }
+
+                if ($relatedCreateView->exist() and ClassUtils::isMethodDefined($relatedControllerPath, 'allPaginatedJson')) {
+                    if ($keyAttribute->nullable) {
+                        $required = "required";
+                    } else $required = "";
+
+                    $this->addSelect2ToForm($keyName, $select2RouteName, $required, $relatedCreateView);
+                }
+
+                if ($relatedUpdateView->exist() and ClassUtils::isMethodDefined($relatedControllerPath, 'allPaginatedJson')) {
+                    $value = ":value=\"\$" . $relation->variableNaming() . "->$keyName\"";
+                    $this->addSelect2ToForm($keyName, $select2RouteName, $value, $relatedUpdateView);
+                }
+
+                if ($relatedIndexView->exist() and ClassUtils::isMethodDefined($relatedControllerPath, 'data')) {
+                    $titleable = $this->table->titleable()->name;
+                    $attributeName = $this->table->relationFunctionNaming() . "." . $titleable;
+                    $oldColName = strtolower(Str::singular($this->table->modelName)) . "_id";
+                    $relatedIndexViewContent = $relatedIndexView->getContent();
+
+                    // checking that if the user remove the key column from the view : like if he removed category_id
+                    // if he didn't remove it then we can replace it with the relation column
+                    if (str_contains($relatedIndexViewContent, $oldColName)) {
+                        $relatedIndexViewContent = str_replace($oldColName, $attributeName, $relatedIndexViewContent);
+                        $relatedIndexViewContent = preg_replace('/<th>\s*' . preg_quote($this->table->modelName, '/') . '\s*id\s*<\/th>/', "<th>{$this->table->modelName}</th>", $relatedIndexViewContent);
+                        $relatedIndexView->putContent($relatedIndexViewContent);
+                    } else { // or add new column to the view
+                        $content = "\n\"data\":'$attributeName' , searchable:true , orderable:true";
+                        ViewsGenerator::addColumnToDataTable($relatedIndexView, $content, $this->table->modelName);
+                    }
+                }
+
+                if ($relatedShowView->exist() and ClassUtils::isMethodDefined($relatedControllerPath, "show")) {
+                    $relationName = $this->table->relationFunctionNaming();
+                    $showViewContent = $relatedShowView->getContent();
+                    $value = "\${$relatedTable->variableNaming()}->{$relationName}->{$this->table->titleable()->name}";
+
+                    if (str_contains($showViewContent, "\${$relatedTable->variableNaming()}->{$this->table->keyName()}")) {
+                        $showViewContent = str_replace("\${$relatedTable->variableNaming()}->{$this->table->keyName()}", $value, $showViewContent);
+                        $oldLabel = ucfirst(str_replace("_", ' ', $this->table->keyName()));
+                        $showViewContent = str_replace($oldLabel, $this->table->modelName, $showViewContent);
+                    } else {
+                        $item = "\t\t<x-small-text-field :value=\"$value\" label=\"{$this->table->modelName}\" />\n\t</x-show-layout>";
+                        $showViewContent = str_replace("</x-show-layout>", $item, $showViewContent);
+                    }
+
+                    $relatedShowView->putContent($showViewContent);
+                }
+
+                ClassUtils::addNewRelationsToWithMethod($relatedTable, $relatedControllerPath, [$this->table->relationFunctionNaming()]);
+            }
+
         });
 
         return $this;
@@ -99,185 +267,24 @@ class CodeSniffer
         return self::$instance;
     }
 
-    public function checkForFactoryRelations(): static
+    /**
+     * @param string $keyName
+     * @param string $select2RouteName
+     * @param string $tagAttributes
+     * @param CubePath $relatedFormView
+     * @return void
+     */
+    function addSelect2ToForm(string $keyName, string $select2RouteName, string $tagAttributes, CubePath $relatedFormView): void
     {
-        $currentTable = Settings::make()->getTable($this->currentModel);
+        $inputField = "<x-select2 label=\"{$this->table->modelName}\" name=\"{$keyName}\" api=\"{{route('{$select2RouteName}')}}\" option-value=\"id\" option-inner-text=\"{$this->table->titleable()->name}\" $tagAttributes/> \n";
 
-        if (!$currentTable) {
-            return $this;
-        }
+        $createView = $relatedFormView->getContent();
 
-        $currentTable->relations()->each(function (CubeRelation $relation) {
-            $relatedClassName = getFactoryClassName($relation->modelName);
-            $relatedPath = getFactoryPath($relation->modelName);
+        $createView = str_replace("</x-form>", "\n \t $inputField\n</x-form>", $createView);
 
-            if (file_exists($relatedPath)) {
-                if ($relation->isBelongsTo() || $relation->isHasOne() || $relation->isManyToMany()) {
-                    $methodName = "with" . Str::plural($this->currentModel);
-                    addMethodToClass(
-                        $methodName,
-                        $relatedClassName,
-                        $relatedPath,
-                        $this->factoryRelationMethod($this->currentModel)
-                    );
-                }
-            }
-        });
+        $relatedFormView->putContent($createView);
 
-        return $this;
-    }
-
-    public function checkForResourceRelations(): static
-    {
-        $currentTable = Settings::make()->getTable($this->currentModel);
-
-        if (!$currentTable) {
-            return $this;
-        }
-
-        $currentTable->relations()->each(function (CubeRelation $relation) {
-            $relatedClassName = getResourceClassName($relation->modelName);
-            $relatedResourcePath = getResourcePath($relation->modelName);
-            $currentResourceClass = getResourceClassName($this->currentModel);
-
-            if (
-                file_exists($relatedResourcePath)
-                and
-                file_exists(getModelPath($relation->modelName))
-            ) {
-                if ($relation->isHasMany()) {
-                    $relationName = relationFunctionNaming($this->currentModel);
-
-                    if (file_exists(getModelPath($relation->modelName)) and isMethodDefined(getModelPath($relation->modelName), $relationName)) {
-                        $content = "'$relationName' => new \\$currentResourceClass(\$this->whenLoaded('$relationName')) , \n";
-                        addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
-                    } else {
-                        echo "Relation : $relationName does not exist in : " . getModelClassName($relation->modelName) . " \n";
-                    }
-
-                }
-
-                if ($relation->isManyToMany()) {
-                    $relationName = relationFunctionNaming($this->currentModel, false);
-
-                    if (file_exists(getModelPath($relation->modelName)) and isMethodDefined(getModelPath($relation->modelName), $relationName)) {
-                        $content = "'$relationName' => \\$currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
-                        addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
-                    } else {
-                        echo "Relation : $relationName does not exist in : " . getModelClassName($relation->modelName) . " \n";
-                    }
-
-                }
-
-                if ($relation->isBelongsTo() || $relation->isHasOne()) {
-                    $relationName = relationFunctionNaming($this->currentModel, false);
-                    $content = "'$relationName' => \\$currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
-
-                    if (file_exists(getModelPath($relation->modelName)) and isMethodDefined(getModelPath($relation->modelName), $relationName)) {
-                        addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
-                    } else {
-                        echo "Relation : $relationName does not exist in : " . getModelClassName($relation->modelName) . " \n";
-                    }
-
-                }
-            }
-        });
-
-        return $this;
-    }
-
-    public function checkForWebRelations(string $select2RouteName): static
-    {
-        $currentTable = Settings::make()->getTable($this->currentModel);
-
-        if (!$currentTable) {
-            return $this;
-        }
-
-        $currentTable->relations()->each(function (CubeRelation $relation) use ($currentTable, $select2RouteName) {
-            if ($relation->isHasMany()) {
-
-                $relatedControllerPath = getWebControllerPath($relation->modelName);
-
-                if (file_exists($relation->modelPath()) and file_exists($relatedControllerPath)) {
-                    $attribute = strtolower($this->currentModel) . '_id';
-                    $relatedTable = Settings::make()->getTable($relation->modelName);
-                    $relatedModelControllerPath = getWebControllerPath($relation->modelName);
-                    $relatedCreateView = getViewPath($relation->modelName, "create");
-                    $relatedUpdateView = getViewPath($relation->modelName, "update");
-                    $relatedIndexView = getViewPath($relation->modelName, 'index');
-                    $relatedShowView = getViewPath($relation->modelName, 'show');
-
-                    if ($relatedTable->getAttribute($attribute)->nullable) {
-                        $required = "required";
-                    } else $required = "";
-
-                    if (file_exists($relatedCreateView) and isMethodDefined($relatedModelControllerPath, 'allPaginatedJson')) {
-                        $inputField = "<x-select2 label=\"{$this->currentModel}\" name=\"{$attribute}\" api=\"{{route('{$select2RouteName}')}}\" option-value=\"id\" option-inner-text=\"{$currentTable->titleable()->name}\" $required/> \n";;
-
-                        $createView = file_get_contents($relatedCreateView);
-
-                        $createView = str_replace("</x-form>", "\n \t $inputField\n</x-form>", $createView);
-
-                        file_put_contents($relatedCreateView, $createView);
-
-                        echo "New Content Has Been Added To $relatedCreateView \n";
-                    }
-
-                    if (file_exists($relatedUpdateView) and isMethodDefined($relatedModelControllerPath, 'allPaginatedJson')) {
-                        $value = ":value=\"\$" . variableNaming($relation->modelName) . "->$attribute\"";
-                        $inputField = "<x-select2 label=\"{$this->currentModel}\" name=\"{$attribute}\" api=\"{{route('{$select2RouteName}')}}\" option-value=\"id\" option-inner-text=\"{$currentTable->titleable()->name}\" $value/> \n";;
-
-                        $createView = file_get_contents($relatedUpdateView);
-
-                        $createView = str_replace("</x-form>", "\n \t $inputField\n</x-form>", $createView);
-
-                        file_put_contents($relatedUpdateView, $createView);
-
-                        echo "New Content Has Been Added To $relatedUpdateView \n";
-                    }
-
-                    if (file_exists($relatedIndexView) and isMethodDefined($relatedModelControllerPath, 'data')) {
-                        $titleable = $currentTable->titleable()->name;
-                        $attributeName = relationFunctionNaming($currentTable->modelName) . "." . $titleable;
-                        $oldColName = strtolower(Str::singular($currentTable->modelName)) . "_id";
-                        $relatedIndexViewContent = file_get_contents($relatedIndexView);
-
-                        // checking that if the user remove the key column from the view : like if he removed category_id
-                        // if he didn't remove it then we can replace it with the relation column
-                        if (str_contains($relatedIndexViewContent, $oldColName)) {
-                            $relatedIndexViewContent = str_replace($oldColName, $attributeName, $relatedIndexViewContent);
-                            $relatedIndexViewContent = preg_replace('/<th>\s*' . preg_quote($currentTable->modelName, '/') . '\s*id\s*<\/th>/', "<th>{$currentTable->modelName}</th>", $relatedIndexViewContent);
-                            file_put_contents($relatedIndexView, $relatedIndexViewContent);
-                        } else { // or add new column to the view
-                            $content = "\n\"data\":'$attributeName' , searchable:true , orderable:true";
-                            $this->addColumnToDataTable($relatedIndexView, $content, $currentTable->modelName);
-                        }
-                    }
-
-
-                    if (file_exists($relatedShowView) and isMethodDefined($relatedModelControllerPath, "show")) {
-                        $relationName = relationFunctionNaming($currentTable->modelName);
-                        $showViewContent = file_get_contents($relatedShowView);
-                        $value = "\${$relatedTable->variableName()}->{$relationName}->{$currentTable->titleable()->name}";
-                        if (str_contains($showViewContent, "\${$relatedTable->variableName()}->{$currentTable->keyName()}")) {
-                            $showViewContent = str_replace("\${$relatedTable->variableName()}->{$currentTable->keyName()}", $value, $showViewContent);
-                            $oldLabel = ucfirst(str_replace("_", ' ', $currentTable->keyName()));
-                            $showViewContent = str_replace($oldLabel, $currentTable->modelName, $showViewContent);
-                        } else {
-                            $item = "\t\t<x-small-text-field :value=\"$value\" label=\"{$currentTable->modelName}\" />\n\t</x-show-layout>";
-                            $showViewContent = str_replace("</x-show-layout>", $item, $showViewContent);
-                        }
-
-                        file_put_contents($relatedShowView, $showViewContent);
-                    }
-
-                    addNewRelationsToWithMethod($relation->modelName, $relatedControllerPath, [relationFunctionNaming($this->currentModel)]);
-                }
-            }
-        });
-
-        return $this;
+        CubeLog::add(new ContentAppended($inputField, $relatedFormView->fullPath));
     }
 }
 

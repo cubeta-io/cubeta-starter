@@ -1,0 +1,9 @@
+Route::post('dashboard/login', [v1\BaseAuthController::class, 'login'])->name('web.public.login');
+Route::post('dashboard/register', [v1\BaseAuthController::class, 'register'])->name('web.public.register');
+Route::post('dashboard/request-reset-password-code', [v1\BaseAuthController::class, 'requestResetPasswordCode'])->name('web.public.request-reset-password-code');
+Route::post('dashboard/validate-reset-password-code', [v1\BaseAuthController::class, 'validateResetPasswordCode'])->name('web.public.validate-reset-password-code');
+Route::post('dashboard/change-password', [v1\BaseAuthController::class, 'changePassword'])->name('web.public.change-password');
+Route::view('dashboard/request-reset-password-code-page', 'reset-password-request')->name('web.public.request-reset-password-code-page');
+Route::view('dashboard/reset-page', 'reset-password')->name('web.public.reset-password-page');
+Route::view('dashboard/login-page', 'login')->name('web.public.login-page');
+Route::view('dashboard/register-page', 'register')->name('web.public.register-page');

@@ -24,7 +24,7 @@
                                 </div>
 
                                 <form class="row g-3 needs-validation"
-                                      action="{{route('dashboard.request-reset-password-code')}}" method="POST"
+                                      action="{{route('web.public.request-reset-password-code')}}" method="POST"
                                       novalidate>
                                     @csrf
                                     <div class="col-12">

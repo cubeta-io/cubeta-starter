@@ -15,4 +15,14 @@ final class ContainerType
         self::WEB,
         self::BOTH,
     ];
+
+    public static function isApi(string $container): bool
+    {
+        return $container == self::API || $container == self::BOTH;
+    }
+
+    public static function isWeb(string $container): bool
+    {
+        return $container == self::WEB || $container == self::BOTH;
+    }
 }

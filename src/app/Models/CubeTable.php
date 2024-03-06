@@ -2,13 +2,26 @@
 
 namespace Cubeta\CubetaStarter\App\Models;
 
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Traits\HasPathAndNamespace;
+use Cubeta\CubetaStarter\Traits\NamingConventions;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class CubeTable
 {
+    use NamingConventions, HasPathAndNamespace;
+
+    /**
+     * @var string
+     */
     public string $modelName;
 
+    /**
+     * @var string
+     */
     public string $tableName;
 
     /**
@@ -29,34 +42,39 @@ class CubeTable
      */
     public function __construct(string $modelName, string $tableName, array $attributes, array $relations)
     {
-        $this->modelName = modelNaming($modelName);
-        $this->tableName = tableNaming($tableName);
+        $this->modelName = Naming::model($modelName);
+        $this->tableName = Naming::table($tableName);
         $this->attributes = $attributes;
         $this->relations = $relations;
+        $this->usedString = $this->modelName;
     }
 
-    public function toJson(): bool|string
+    /**
+     * @param string $modelName
+     * @param array $attributes
+     * @param array $relations
+     * @param array $uniques
+     * @param array $nullables
+     * @return CubeTable
+     */
+    public static function create(string $modelName, array $attributes = [], array $relations = [], array $uniques = [], array $nullables = []): CubeTable
     {
-        $attributes = [];
-        foreach ($this->attributes as $attribute) {
-            $attributes[] = $attribute->toArray();
-        }
-
-        $relations = [];
-        foreach ($this->relations as $relation) {
-            $relations[] = $relation->toArray();
-        }
-
-        $relations = collect($relations)->groupBy("type")->toArray();
-
-        return json_encode([
-            "model_name" => $this->modelName,
-            "table_name" => $this->tableName,
-            "attributes" => $attributes,
-            "relations" => $relations
-        ]);
+        return new self(
+            Naming::model($modelName),
+            Naming::table($modelName),
+            collect($attributes)->map(fn($type, $name) => new CubeAttribute($name, $type, in_array($name, $nullables), in_array($name, $uniques)))->toArray(),
+            collect($relations)->map(fn($type, $rel) => new CubeRelation($type, Naming::model($rel) , Naming::model($modelName)))->toArray(),
+        );
     }
 
+    /**
+     * @return array{
+     *     model_name:string,
+     *     table_name:string,
+     *     attributes:array{array{name:string , type:string , nullable:boolean , unique:boolean}},
+     *     relations:array{array{type:string , model_name:string , key:null|string}}
+     *     }
+     */
     public function toArray(): array
     {
         $attributes = [];
@@ -80,25 +98,53 @@ class CubeTable
     }
 
     /**
-     * @return Collection<CubeRelation>
+     * @return bool|string
      */
-    public function relations(): Collection
+    public function toJson(): bool|string
     {
-        return collect($this->relations);
+        $attributes = [];
+        foreach ($this->attributes as $attribute) {
+            $attributes[] = $attribute->toArray();
+        }
+
+        $relations = [];
+        foreach ($this->relations as $relation) {
+            $relations[] = $relation->toArray();
+        }
+
+        $relations = collect($relations)->groupBy("type")->toArray();
+
+        return json_encode([
+            "model_name" => $this->modelName,
+            "table_name" => $this->tableName,
+            "attributes" => $attributes,
+            "relations" => $relations
+        ]);
     }
 
+    /**
+     * @return Collection<CubeAttribute>
+     */
     public function nullables(): Collection
     {
         return collect($this->attributes)
             ->filter(fn(CubeAttribute $attr) => $attr->nullable == true);
     }
 
+    /**
+     * @return Collection<CubeAttribute>
+     */
     public function uniques(): Collection
     {
         return collect($this->attributes)
             ->filter(fn(CubeAttribute $attr) => $attr->unique == true);
     }
 
+    /**
+     * @param string $name
+     * @param string|null $type
+     * @return bool
+     */
     public function hasAttribute(string $name, ?string $type): bool
     {
         return (bool)collect($this->attributes)
@@ -112,9 +158,14 @@ class CubeTable
             ->count();
     }
 
+    /**
+     * @param string $modelName
+     * @param string|null $type
+     * @return bool
+     */
     public function hasRelation(string $modelName, ?string $type = null): bool
     {
-        $modelName = modelNaming($modelName);
+        $modelName = Naming::model($modelName);
         return (bool)collect($this->relations)
             ->filter(function (CubeRelation $rel) use ($type, $modelName) {
                 if ($type) {
@@ -126,12 +177,18 @@ class CubeTable
             ->count();
     }
 
+    /**
+     * @return $this
+     */
     public function save(): static
     {
         Settings::make()->addTable($this);
         return $this;
     }
 
+    /**
+     * @return CubeAttribute
+     */
     public function titleable(): CubeAttribute
     {
         foreach ($this->attributes as $attribute) {
@@ -158,18 +215,62 @@ class CubeTable
     /**
      * @return Collection<CubeAttribute>
      */
-    public function attributes(): Collection
+    public function attributes(string|ColumnTypeEnum|null $type = null): Collection
     {
-        return collect($this->attributes);
+        if (!$type) {
+            return collect($this->attributes);
+        }
+
+        return collect($this->attributes)
+            ->filter(function (CubeAttribute $attr) use ($type) {
+                if ($type instanceof RelationsTypeEnum) {
+                    return $attr->type == $type->value;
+                }
+                return $attr->type == $type;
+            });
     }
 
-    public function variableName(): string
+    /**
+     * @return Collection<CubeAttribute>
+     */
+    public function translatables(): Collection
     {
-        return variableNaming($this->modelName);
+        return $this->attributes()
+            ->filter(fn(CubeAttribute $attr) => $attr->isTranslatable());
     }
 
-    public function keyName(): string
+    public function hasRelationOfType(string|RelationsTypeEnum $type): int
     {
-        return strtolower(Str::singular($this->modelName)) . "_id";
+        return $this->relations()
+            ->filter(function (CubeRelation $rel) use ($type) {
+                if ($type instanceof RelationsTypeEnum) {
+                    return $rel->type == $type->value;
+                } else return $rel->type == $type;
+            })
+            ->count();
+    }
+
+    /**
+     * @return Collection<CubeRelation>
+     */
+    public function relations(string|RelationsTypeEnum|null $type = null): Collection
+    {
+        if (!$type) {
+            return collect($this->relations);
+        }
+
+        return collect($this->relations)
+            ->filter(function (CubeRelation $rel) use ($type) {
+                if ($type instanceof RelationsTypeEnum) {
+                    return $rel->type == $type->value;
+                }
+
+                return $rel->type == $type;
+            });
+    }
+
+    public function collect(): Collection
+    {
+        return collect($this->toArray());
     }
 }

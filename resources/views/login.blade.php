@@ -23,7 +23,7 @@
                                     <p class="text-center small">Enter your email & password to login</p>
                                 </div>
 
-                                <form class="row g-3 needs-validation" action="{{route('dashboard.login')}}"
+                                <form class="row g-3 needs-validation" action="{{route('web.public.login')}}"
                                       method="POST" novalidate>
                                     @csrf
                                     <div class="col-12">
@@ -62,10 +62,10 @@
                                     </div>
                                     <div class="col-12">
                                         <p class="small mb-1">Don't have account? <a
-                                                href="{{route('dashboard.register-page')}}">Create
+                                                href="{{route('web.public.register-page')}}">Create
                                                 an account</a></p>
                                         <p class="small mb-1">Forgot Your Password ? <a
-                                                href="{{route('dashboard.request-reset-password-code-page')}}">Reset
+                                                href="{{route('web.public.request-reset-password-code-page')}}">Reset
                                                 Your Password</a>
                                         </p>
                                     </div>

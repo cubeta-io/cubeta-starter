@@ -1,10 +1,10 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models;
+namespace Cubeta\CubetaStarter\app\Models;
 
-use Cubeta\CubetaStarter\Enums\ColumnType;
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Illuminate\Support\Str;
+use Cubeta\CubetaStarter\Helpers\Naming;
 
 class Settings
 {
@@ -36,7 +36,7 @@ class Settings
      * get the package (cubeta-starter)  json file settings as an array
      * @return array
      */
-    private static function getJsonSettings(): array
+    public static function getJsonSettings(): array
     {
         $filePath = base_path('/cubeta-starter.config.json');
 
@@ -57,11 +57,17 @@ class Settings
         return $data;
     }
 
+    public function getAllModels(): array
+    {
+        return array_map(fn($table) => $table['model_name'] , self::$tables);
+    }
+
     public function getTable(string $modelName): ?CubeTable
     {
-        $modelName = modelNaming($modelName);
+        $modelName = Naming::model($modelName);
+
         foreach (self::$tables as $table) {
-            if ($table["model_name"] == $modelName || $table['model_name'] == tableNaming($modelName)) {
+            if ($table["model_name"] == $modelName || $table['model_name'] == Naming::table($modelName)) {
                 $attributes = [];
 
                 foreach ($table['attributes'] as $attribute) {
@@ -72,7 +78,7 @@ class Settings
 
                 foreach ($table['relations'] as $type => $relationships) {
                     foreach ($relationships as $relationship) {
-                        $relations[] = new CubeRelation($type, $relationship['model_name'], $relationship['key'] ?? null);
+                        $relations[] = new CubeRelation($type, $relationship['model_name'] , $table['model_name']);
                     }
                 }
 
@@ -95,10 +101,10 @@ class Settings
 
         foreach ($attributes as $colName => $type) {
 
-            if ($type == ColumnType::KEY) {
-                $type = ColumnType::FOREIGN_KEY;
-                $parent = modelNaming(Str::singular(str_replace('_id', '', $colName)));
-                $relationships[] = new CubeRelation(RelationsTypeEnum::BelongsTo, $parent, $colName);
+            if ($type == ColumnTypeEnum::KEY->value) {
+                $type = ColumnTypeEnum::KEY->value;
+                $parent = Naming::model(str_replace('_id', '', $colName));
+                $relationships[] = new CubeRelation(RelationsTypeEnum::BelongsTo->value, $parent , $modelName);
             }
 
             $columns[] = new CubeAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques));
@@ -109,12 +115,12 @@ class Settings
                 continue;
             }
 
-            $relationships[] = new CubeRelation($type, modelNaming($relation));
+            $relationships[] = new CubeRelation($type, $relation , $modelName);
         }
 
         $table = new CubeTable(
-            modelNaming($modelName),
-            tableNaming($modelName),
+            $modelName,
+            $modelName,
             $columns,
             $relationships
         );
@@ -126,13 +132,17 @@ class Settings
 
     public function addTable(CubeTable $table): static
     {
+        $exist = [];
         foreach (self::$tables as $key => $t) {
-            if ($t["table_name"] == $table->tableName) {
+            if (isset($t["table_name"]) and $t["table_name"] == $table->tableName) {
+                $exist = self::$tables[$key];
                 unset(self::$tables[$key]);
             }
         }
 
-        self::$tables[] = $table->toArray();
+        $new = $table->collect()->merge(collect($exist))->unique();
+
+        self::$tables[] = $new->toArray();
         self::storeJsonSettings(["tables" => array_values(self::$tables)]);
         return $this;
     }
@@ -147,7 +157,7 @@ class Settings
      * @param array $data
      * @return void
      */
-    private static function storeJsonSettings(array $data): void
+    public static function storeJsonSettings(array $data): void
     {
         file_put_contents(
             base_path('/cubeta-starter.config.json'),

@@ -2,6 +2,23 @@
 
 namespace Cubeta\CubetaStarter;
 
+use Cubeta\CubetaStarter\Commands\Generators\AddActor;
+use Cubeta\CubetaStarter\Commands\Generators\MakeController;
+use Cubeta\CubetaStarter\Commands\Generators\MakeFactory;
+use Cubeta\CubetaStarter\Commands\Generators\MakeMigration;
+use Cubeta\CubetaStarter\Commands\Generators\MakeModel;
+use Cubeta\CubetaStarter\Commands\Generators\MakeRepository;
+use Cubeta\CubetaStarter\Commands\Generators\MakeRequest;
+use Cubeta\CubetaStarter\Commands\Generators\MakeResource;
+use Cubeta\CubetaStarter\Commands\Generators\MakeSeeder;
+use Cubeta\CubetaStarter\Commands\Generators\MakeService;
+use Cubeta\CubetaStarter\Commands\Generators\MakeTest;
+use Cubeta\CubetaStarter\Commands\Generators\MakeWebController;
+use Cubeta\CubetaStarter\Commands\Installers\InstallApi;
+use Cubeta\CubetaStarter\Commands\Installers\InstallAuth;
+use Cubeta\CubetaStarter\Commands\Installers\InstallWeb;
+use Cubeta\CubetaStarter\Commands\Installers\InstallWebPackages;
+use Cubeta\CubetaStarter\Commands\MakeExample;
 use Illuminate\Support\Facades\View;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
 use Spatie\LaravelPackageTools\Package;
@@ -78,7 +95,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
             __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
             __DIR__ . "/../src/Casts/Translatable.php" => app_path('Casts/Translatable.php'),
-            __DIR__ . '/Commands/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
+            __DIR__ . '/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
             __DIR__ . '/app/Exceptions/handler.php' => base_path('/app/Exceptions/Handler.php'),
             __DIR__ . "/../src/Contracts/Repositories/BaseRepository.php" => app_path("Repositories/Contracts/BaseRepository.php"),
             __DIR__ . "/../src/Contracts/Repositories/IBaseRepository.php" => app_path("Repositories/Contracts/IBaseRepository.php"),
@@ -102,7 +119,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
             __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
             __DIR__ . "/../src/Casts/Translatable.php" => app_path('Casts/Translatable.php'),
-            __DIR__ . '/Commands/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
+            __DIR__ . '/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
             __DIR__ . '/../src/Contracts/Tests/MainTestCase.php' => base_path("/tests/Contracts/MainTestCase.php"),
             __DIR__ . '/../src/Traits/TestHelpers.php' => app_path('/Traits/TestHelpers.php'),
             __DIR__ . "/../src/Contracts/Repositories/BaseRepository.php" => app_path("Repositories/Contracts/BaseRepository.php"),
@@ -147,24 +164,22 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $package
             ->name('cubeta-starter')
             ->hasConfigFile()
-            ->hasCommand(Commands\CreatePivotTable::class)
-            ->hasCommand(Commands\MakeController::class)
-            ->hasCommand(Commands\MakeResource::class)
-            ->hasCommand(Commands\MakeModel::class)
-            ->hasCommand(Commands\MakeMigration::class)
-            ->hasCommand(Commands\MakeFactory::class)
-            ->hasCommand(Commands\MakeSeeder::class)
-            ->hasCommand(Commands\MakeRequest::class)
-            ->hasCommand(Commands\MakeRepository::class)
-            ->hasCommand(Commands\MakeService::class)
-            ->hasCommand(Commands\MakeTest::class)
-            ->hasCommand(Commands\MakePostmanCollection::class)
-            ->hasCommand(Commands\InitialProject::class)
-            ->hasCommand(Commands\MakeWebController::class)
-            ->hasCommand(Commands\InstallWebPackages::class)
-            ->hasCommand(Commands\InitAuth::class)
-            ->hasCommand(Commands\PublishAllAssetsCommand::class)
-            ->hasCommand(Commands\MakeExample::class)
-            ->hasCommand(Commands\InstallPermissions::class);
+            ->hasCommand(MakeController::class)
+            ->hasCommand(MakeResource::class)
+            ->hasCommand(MakeModel::class)
+            ->hasCommand(MakeMigration::class)
+            ->hasCommand(MakeFactory::class)
+            ->hasCommand(MakeSeeder::class)
+            ->hasCommand(MakeRequest::class)
+            ->hasCommand(MakeRepository::class)
+            ->hasCommand(MakeService::class)
+            ->hasCommand(MakeTest::class)
+            ->hasCommand(AddActor::class)
+            ->hasCommand(MakeWebController::class)
+            ->hasCommand(InstallWebPackages::class)
+            ->hasCommand(InstallAuth::class)
+            ->hasCommand(InstallApi::class)
+            ->hasCommand(InstallWeb::class)
+            ->hasCommand(MakeExample::class);
     }
 }

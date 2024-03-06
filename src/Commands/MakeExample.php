@@ -14,7 +14,8 @@ class MakeExample extends Command
     public function handle(): void
     {
         $choice = $this->choice("Which One To Create : ", ["Category", "Product", "Brand"]);
-        $this->withProgressBar(1, function () use ($choice) {
+        $output = null;
+        $this->withProgressBar(1, function () use ($choice, &$output) {
             switch ($choice) {
                 case "Category" :
                     Artisan::call('create:model', [
@@ -22,14 +23,14 @@ class MakeExample extends Command
                         'attributes' => [
                             'name' => 'translatable',
                             'title' => 'translatable',
-                            'description' => 'text' ,
-                            "image" => "file" ,
+                            'description' => 'text',
+                            "image" => "file",
                         ],
                         'relations' => [
-                            'products' => RelationsTypeEnum::HasMany,
+                            'products' => RelationsTypeEnum::HasMany->value,
                         ],
                         "container" => "both",
-                        "gui" => true,
+                        'actor' => 'none',
                         'nullables' => [
                             "description"
                         ],
@@ -38,6 +39,8 @@ class MakeExample extends Command
                         ]
                     ]);
 
+                    $output = Artisan::output();
+
                     break;
                 case "Product" :
                     Artisan::call('create:model', [
@@ -45,15 +48,17 @@ class MakeExample extends Command
                         "attributes" => [
                             "name" => "translatable",
                             'title' => 'translatable',
-                            "category_id" => "key" ,
-                            "image" => "file" ,
+                            "category_id" => "key",
+                            "image" => "file",
                         ],
                         "relations" => [
-                            "brands" => RelationsTypeEnum::ManyToMany
+                            "brands" => RelationsTypeEnum::ManyToMany->value
                         ],
                         "container" => "both",
-                        "gui" => true
+                        'actor' => 'none',
                     ]);
+                    $output = Artisan::output();
+
                     break;
                 case "Brand" :
                     Artisan::call("create:model", [
@@ -61,19 +66,22 @@ class MakeExample extends Command
                         "attributes" => [
                             "name" => "translatable",
                             'group' => 'translatable',
-                            "image" => "file" ,
+                            "image" => "file",
                         ],
                         "relations" => [
-                            "products" => RelationsTypeEnum::ManyToMany
+                            "products" => RelationsTypeEnum::ManyToMany->value
                         ],
                         "container" => "both",
-                        "gui" => true
+                        'actor' => 'none',
                     ]);
+                    $output = Artisan::output();
+
                     break;
                 default:
                     $this->info("Undefined Value");
             }
         });
 
+        $this->info("\n $output \n");
     }
 }
