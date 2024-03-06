@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
-use Cubeta\CubetaStarter\App\Models\Table\CubetaRelation;
-use Cubeta\CubetaStarter\App\Models\Table\CubetaTable;
-use Cubeta\CubetaStarter\App\Models\Table\Settings;
+use Cubeta\CubetaStarter\App\Models\CubeRelation;
+use Cubeta\CubetaStarter\App\Models\CubeTable;
+use Cubeta\CubetaStarter\App\Models\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
@@ -23,7 +23,7 @@ class MakeWebController extends Command
     use RouteBinding;
     use ViewGenerating;
 
-    protected CubetaTable $tableObject;
+    protected CubeTable $tableObject;
 
     protected $description = 'Create a new web controller';
 
@@ -239,7 +239,7 @@ class MakeWebController extends Command
 
     public function getLoadedRelations(): string
     {
-        $loaded = $this->tableObject->relations()->filter(function (CubetaRelation $rel) {
+        $loaded = $this->tableObject->relations()->filter(function (CubeRelation $rel) {
             $relatedModelPath = getModelPath($rel->modelName);
             $currentModelPath = getModelPath($this->tableObject->modelName);
             return file_exists($relatedModelPath)
@@ -248,7 +248,7 @@ class MakeWebController extends Command
                     isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName, false)) :
                     isMethodDefined($currentModelPath, relationFunctionNaming($rel->modelName))
                 );
-        })->map(fn(CubetaRelation $rel) => $rel->method())->toArray();
+        })->map(fn(CubeRelation $rel) => $rel->method())->toArray();
 
         $loadedString = '';
         foreach ($loaded as $item) {

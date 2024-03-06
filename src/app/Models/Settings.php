@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Table;
+namespace Cubeta\CubetaStarter\App\Models;
 
 use Cubeta\CubetaStarter\Enums\ColumnType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
@@ -53,10 +53,11 @@ class Settings
 
         if (!$data) {
             return [];
-        }  return $data;
+        }
+        return $data;
     }
 
-    public function getTable(string $modelName): ?CubetaTable
+    public function getTable(string $modelName): ?CubeTable
     {
         $modelName = modelNaming($modelName);
         foreach (self::$tables as $table) {
@@ -64,18 +65,18 @@ class Settings
                 $attributes = [];
 
                 foreach ($table['attributes'] as $attribute) {
-                    $attributes[] = new CubetaAttribute($attribute['name'], $attribute['type'], $attribute['nullable'], $attribute['unique']);
+                    $attributes[] = new CubeAttribute($attribute['name'], $attribute['type'], $attribute['nullable'], $attribute['unique']);
                 }
 
                 $relations = [];
 
                 foreach ($table['relations'] as $type => $relationships) {
                     foreach ($relationships as $relationship) {
-                        $relations[] = new CubetaRelation($type, $relationship['model_name'], $relationship['key'] ?? null);
+                        $relations[] = new CubeRelation($type, $relationship['model_name'], $relationship['key'] ?? null);
                     }
                 }
 
-                return new CubetaTable(
+                return new CubeTable(
                     $table['model_name'],
                     $table['table_name'],
                     $attributes,
@@ -87,7 +88,7 @@ class Settings
         return null;
     }
 
-    public function serialize(string $modelName, array $attributes, array $relations = [], array $nullables = [], array $uniques = []): CubetaTable
+    public function serialize(string $modelName, array $attributes, array $relations = [], array $nullables = [], array $uniques = []): CubeTable
     {
         $columns = [];
         $relationships = [];
@@ -97,10 +98,10 @@ class Settings
             if ($type == ColumnType::KEY) {
                 $type = ColumnType::FOREIGN_KEY;
                 $parent = modelNaming(Str::singular(str_replace('_id', '', $colName)));
-                $relationships[] = new CubetaRelation(RelationsTypeEnum::BelongsTo, $parent, $colName);
+                $relationships[] = new CubeRelation(RelationsTypeEnum::BelongsTo, $parent, $colName);
             }
 
-            $columns[] = new CubetaAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques));
+            $columns[] = new CubeAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques));
         }
 
         foreach ($relations as $relation => $type) {
@@ -108,10 +109,10 @@ class Settings
                 continue;
             }
 
-            $relationships[] = new CubetaRelation($type, modelNaming($relation));
+            $relationships[] = new CubeRelation($type, modelNaming($relation));
         }
 
-        $table = new CubetaTable(
+        $table = new CubeTable(
             modelNaming($modelName),
             tableNaming($modelName),
             $columns,
@@ -123,7 +124,7 @@ class Settings
         return $table;
     }
 
-    public function addTable(CubetaTable $table): static
+    public function addTable(CubeTable $table): static
     {
         foreach (self::$tables as $key => $t) {
             if ($t["table_name"] == $table->tableName) {
@@ -143,7 +144,7 @@ class Settings
 
     /**
      * store the provided array in the package (cubeta-starter) json file settings as an array
-     * @param  array $data
+     * @param array $data
      * @return void
      */
     private static function storeJsonSettings(array $data): void

@@ -1,8 +1,8 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Table;
+namespace Cubeta\CubetaStarter\App\Models;
 
-class CubetaAttribute
+class CubeAttribute
 {
     public string $name;
 

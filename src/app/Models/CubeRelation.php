@@ -1,10 +1,10 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Table;
+namespace Cubeta\CubetaStarter\App\Models;
 
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 
-class CubetaRelation
+class CubeRelation
 {
     public string $type;
 

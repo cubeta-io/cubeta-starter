@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Contracts;
 
-use Cubeta\CubetaStarter\App\Models\Table\CubetaRelation;
-use Cubeta\CubetaStarter\App\Models\Table\Settings;
+use Cubeta\CubetaStarter\App\Models\CubeRelation;
+use Cubeta\CubetaStarter\App\Models\Settings;
 use Cubeta\CubetaStarter\Traits\AssistCommand;
 use Cubeta\CubetaStarter\Traits\SettingsHandler;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
@@ -51,7 +51,7 @@ class CodeSniffer
             return $this;
         }
 
-        $currentTable->relations()->each(function (CubetaRelation $relation) {
+        $currentTable->relations()->each(function (CubeRelation $relation) {
             $relatedClassName = getModelClassName($relation->modelName);
             $relatedPath = getModelPath($relation->modelName);
             if (file_exists($relatedPath)) {
@@ -107,7 +107,7 @@ class CodeSniffer
             return $this;
         }
 
-        $currentTable->relations()->each(function (CubetaRelation $relation) {
+        $currentTable->relations()->each(function (CubeRelation $relation) {
             $relatedClassName = getFactoryClassName($relation->modelName);
             $relatedPath = getFactoryPath($relation->modelName);
 
@@ -135,7 +135,7 @@ class CodeSniffer
             return $this;
         }
 
-        $currentTable->relations()->each(function (CubetaRelation $relation) {
+        $currentTable->relations()->each(function (CubeRelation $relation) {
             $relatedClassName = getResourceClassName($relation->modelName);
             $relatedResourcePath = getResourcePath($relation->modelName);
             $currentResourceClass = getResourceClassName($this->currentModel);
@@ -194,7 +194,7 @@ class CodeSniffer
             return $this;
         }
 
-        $currentTable->relations()->each(function (CubetaRelation $relation) use ($currentTable, $select2RouteName) {
+        $currentTable->relations()->each(function (CubeRelation $relation) use ($currentTable, $select2RouteName) {
             if ($relation->isHasMany()) {
 
                 $relatedControllerPath = getWebControllerPath($relation->modelName);

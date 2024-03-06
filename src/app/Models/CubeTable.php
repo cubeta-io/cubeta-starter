@@ -1,31 +1,31 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Table;
+namespace Cubeta\CubetaStarter\App\Models;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class CubetaTable
+class CubeTable
 {
     public string $modelName;
 
     public string $tableName;
 
     /**
-     * @var CubetaAttribute[]
+     * @var CubeAttribute[]
      */
     public array $attributes;
 
     /**
-     * @var CubetaRelation[]
+     * @var CubeRelation[]
      */
     public array $relations = [];
 
     /**
      * @param string $modelName
      * @param string $tableName
-     * @param CubetaAttribute[] $attributes
-     * @param CubetaRelation[] $relations
+     * @param CubeAttribute[] $attributes
+     * @param CubeRelation[] $relations
      */
     public function __construct(string $modelName, string $tableName, array $attributes, array $relations)
     {
@@ -80,7 +80,7 @@ class CubetaTable
     }
 
     /**
-     * @return Collection<CubetaRelation>
+     * @return Collection<CubeRelation>
      */
     public function relations(): Collection
     {
@@ -90,19 +90,19 @@ class CubetaTable
     public function nullables(): Collection
     {
         return collect($this->attributes)
-            ->filter(fn(CubetaAttribute $attr) => $attr->nullable == true);
+            ->filter(fn(CubeAttribute $attr) => $attr->nullable == true);
     }
 
     public function uniques(): Collection
     {
         return collect($this->attributes)
-            ->filter(fn(CubetaAttribute $attr) => $attr->unique == true);
+            ->filter(fn(CubeAttribute $attr) => $attr->unique == true);
     }
 
     public function hasAttribute(string $name, ?string $type): bool
     {
         return (bool)collect($this->attributes)
-            ->filter(function (CubetaAttribute $attr) use ($type, $name) {
+            ->filter(function (CubeAttribute $attr) use ($type, $name) {
                 if ($type) {
                     return ($attr->name == $name && $attr->type == $type);
                 }
@@ -116,7 +116,7 @@ class CubetaTable
     {
         $modelName = modelNaming($modelName);
         return (bool)collect($this->relations)
-            ->filter(function (CubetaRelation $rel) use ($type, $modelName) {
+            ->filter(function (CubeRelation $rel) use ($type, $modelName) {
                 if ($type) {
                     return ($rel->modelName == $modelName && $rel->type == $type);
                 }
@@ -132,7 +132,7 @@ class CubetaTable
         return $this;
     }
 
-    public function titleable(): CubetaAttribute
+    public function titleable(): CubeAttribute
     {
         foreach ($this->attributes as $attribute) {
             if (Str::contains($attribute->name, ['name', 'title'], true)
@@ -146,17 +146,17 @@ class CubetaTable
 
     /**
      * @param string $name
-     * @return CubetaAttribute|null
+     * @return CubeAttribute|null
      */
-    public function getAttribute(string $name): ?CubetaAttribute
+    public function getAttribute(string $name): ?CubeAttribute
     {
         return $this->attributes()
-            ->filter(fn(CubetaAttribute $attr) => ($attr->name == $name))
+            ->filter(fn(CubeAttribute $attr) => ($attr->name == $name))
             ->first() ?? null;
     }
 
     /**
-     * @return Collection<CubetaAttribute>
+     * @return Collection<CubeAttribute>
      */
     public function attributes(): Collection
     {
