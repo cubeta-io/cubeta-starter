@@ -3,6 +3,8 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+
 class SeederGenerator extends AbstractGenerator
 {
     public static string $key = 'seeder';

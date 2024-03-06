@@ -2,6 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+
 class ServiceGenerator extends AbstractGenerator
 {
     public static string $key = 'service';

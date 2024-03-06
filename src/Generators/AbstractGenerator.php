@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Generators\Sources;
+namespace Cubeta\CubetaStarter\Generators;
 
 use Cubeta\CubetaStarter\app\Models\CubeTable;
 use Cubeta\CubetaStarter\app\Models\Settings;
@@ -73,6 +73,7 @@ abstract class AbstractGenerator
             CubeLog::add(new AlreadyExist($path, "Trying To Generate : [" . pathinfo($path , PATHINFO_BASENAME) . "]"));
             return;
         }
+
         try {
             FileUtils::generateFileFromStub($stubProperties, $path, $otherStubsPath ?? $this->stubsPath(), $override);
             CubeLog::add(new SuccessGenerating(pathinfo($path, PATHINFO_BASENAME), $path));

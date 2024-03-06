@@ -2,6 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+
 class RepositoryGenerator extends AbstractGenerator
 {
     public static string $key = 'repository';

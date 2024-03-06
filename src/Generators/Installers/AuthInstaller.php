@@ -3,7 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
 use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Generators\Sources\AbstractGenerator;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;

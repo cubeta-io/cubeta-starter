@@ -11,6 +11,7 @@ use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
@@ -24,8 +25,6 @@ trait RouteBinding
      * @param string $container
      * @param array $additionalRoutes
      * @return void
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
      */
     public function addRoute(CubeTable $table, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = []): void
     {
@@ -94,8 +93,6 @@ trait RouteBinding
      * @param string|null $actor
      * @param string $container
      * @return void
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
      */
     public function addRouteFile(?string $actor = null, string $container = ContainerType::API): void
     {
@@ -105,11 +102,16 @@ trait RouteBinding
 
         $filePath->ensureDirectoryExists();
 
-        FileUtils::generateFileFromStub(
-            ['{route}' => '//add-your-routes-here'],
-            $filePath->fullPath,
-            __DIR__ . '/../Commands/stubs/api.stub'
-        );
+        try {
+            FileUtils::generateFileFromStub(
+                ['{route}' => '//add-your-routes-here'],
+                $filePath->fullPath,
+                __DIR__ . '/../Commands/stubs/api.stub'
+            );
+        } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
+            CubeLog::add($e);
+            return;
+        }
 
         $this->addRouteFileToServiceProvider($filePath, $container);
     }

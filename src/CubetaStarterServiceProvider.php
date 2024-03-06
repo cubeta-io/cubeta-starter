@@ -3,7 +3,7 @@
 namespace Cubeta\CubetaStarter;
 
 use Cubeta\CubetaStarter\Commands\InstallAuth;
-use Cubeta\CubetaStarter\Commands\InitialProject;
+use Cubeta\CubetaStarter\Commands\AddActor;
 use Cubeta\CubetaStarter\Commands\InstallWebPackages;
 use Cubeta\CubetaStarter\Commands\MakeController;
 use Cubeta\CubetaStarter\Commands\MakeExample;
@@ -175,7 +175,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeService::class)
             ->hasCommand(MakeTest::class)
             ->hasCommand(MakePostmanCollection::class)
-            ->hasCommand(InitialProject::class)
+            ->hasCommand(AddActor::class)
             ->hasCommand(MakeWebController::class)
             ->hasCommand(InstallWebPackages::class)
             ->hasCommand(InstallAuth::class)

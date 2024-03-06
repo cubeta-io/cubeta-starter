@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\app\Models\CubeRelation;
 use Cubeta\CubetaStarter\app\Models\CubeTable;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Illuminate\Support\Str;
 

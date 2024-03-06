@@ -48,4 +48,35 @@ class BaseCommand extends Command
     {
         return $this->confirm("Do You Want The Generated Files To Override Any Files Of The Same Name ?", true);
     }
+
+    public function askForActorsAndPermissions(): array
+    {
+        $actor = $this->askWithoutEmptyAnswer("What Is The Actor Name ? i.e:admin , customer , ... ");
+        $hasPermissions = $this->confirm("Does This Actor Has A Specific Permissions You Want o Specify ? ({$actor})", false);
+        if ($hasPermissions) {
+            $permissions = $this->askWithoutEmptyAnswer("What Are ($actor) Permissions ? \nWrite As Many Permissions You Want Just Keep Between Every Permissions And The Another A Comma i.e : can-read,can-index,can-edit");
+            $permissions = explode(",", $permissions);
+        }
+
+        return [
+            "actor" => $actor,
+            "permissions" => $permissions ?? null
+        ];
+    }
+
+    protected function askWithoutEmptyAnswer(string $question, ?string $default = null): string
+    {
+        $answer = '';
+        do {
+            $answer = $this->ask($question, $default);
+            $answer = trim($answer);
+
+            if ($answer == '') {
+                $this->error("Invalid Input Try Again");
+            }
+
+        } while ($answer == '');
+
+        return $answer;
+    }
 }

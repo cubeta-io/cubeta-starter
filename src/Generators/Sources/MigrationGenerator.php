@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Cubeta\CubetaStarter\app\Models\CubeAttribute;
 use Cubeta\CubetaStarter\app\Models\CubeRelation;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;

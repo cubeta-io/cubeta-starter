@@ -9,13 +9,10 @@ use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Route;
 use JetBrains\PhpStorm\ArrayShape;
 
@@ -70,12 +67,7 @@ class WebControllerGenerator extends AbstractGenerator
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
-
-        try {
-            $this->addRoute($this->table, $this->actor, ContainerType::WEB, $this->additionalRoutes);
-        } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
-            CubeLog::add($e);
-        }
+        $this->addRoute($this->table, $this->actor, ContainerType::WEB, $this->additionalRoutes);
         $controllerPath->format();
 
         (new ViewsGenerator(
