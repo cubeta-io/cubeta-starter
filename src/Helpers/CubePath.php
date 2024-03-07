@@ -16,7 +16,7 @@ class CubePath
 
     public function __construct(string $inProjectFilePath)
     {
-        $this->inProjectPath = $inProjectFilePath;
+        $this->inProjectPath = str_replace('//', '/', $inProjectFilePath);
         $this->initialize();
     }
 

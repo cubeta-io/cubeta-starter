@@ -106,7 +106,7 @@ trait RouteBinding
             FileUtils::generateFileFromStub(
                 ['{route}' => '//add-your-routes-here'],
                 $filePath->fullPath,
-                __DIR__ . '/../Commands/stubs/api.stub'
+                __DIR__ . '/../stubs/api.stub'
             );
         } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
             CubeLog::add($e);
@@ -248,7 +248,7 @@ trait RouteBinding
 
         $routePath = CubePath::make("routes/web.php");
 
-        if ($routePath->exist() && !FileUtils::contentExistInFile($routePath , $route)) {
+        if ($routePath->exist() && !FileUtils::contentExistInFile($routePath, $route)) {
             $routePath->putContent($route, FILE_APPEND);
         }
     }

@@ -13,12 +13,16 @@
             </div>
             <div class="card-body">
                 <div class="d-flex flex-column justify-content-between gap-3">
+                    @if(isset($error))
+                        {!! $error !!}
+                    @endif
                     @foreach($exceptions as $exception)
                         {!! $exception !!}
                     @endforeach
                     @foreach($logs as $log)
                         @if(is_string($log))
-                            <div class="border p-3 rounded-3 border-primary">
+                            <div class="border border-5 p-2 rounded-3 border-primary w-100"
+                                 style="text-wrap: nowrap; overflow-x: scroll;white-space: pre;">
                                 {{$log}}
                             </div>
                         @else

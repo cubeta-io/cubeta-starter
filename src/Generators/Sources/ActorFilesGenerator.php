@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\App\Models\Postman\Postman;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -10,8 +11,10 @@ use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Exception;
 use Illuminate\Support\Str;
 
 class ActorFilesGenerator extends AbstractGenerator
@@ -123,6 +126,7 @@ class ActorFilesGenerator extends AbstractGenerator
                 ],
                 $enumStub
             );
+            $enumPath->ensureDirectoryExists();
             $enumPath->putContent($enumStub);
         }
         $enumPath->format();
@@ -205,8 +209,12 @@ class ActorFilesGenerator extends AbstractGenerator
 
         $apiRouteFile->putContent($routes, FILE_APPEND);
         FileUtils::addImportStatement($importStatement, $apiRouteFile);
-
-        $this->addPostmanAuthCollection();
+        try {
+            Postman::make()->getCollection()->newAuthApi($this->role)->save();
+            CubeLog::add(new SuccessMessage("Postman Collection Now Has Folder For The Generated {$this->role} Auth Controller [{$this->table->getControllerName()}] \nRe-Import It In Postman"));
+        } catch (Exception $e) {
+            CubeLog::add($e);
+        }
     }
 
     private function addPostmanAuthCollection(): void

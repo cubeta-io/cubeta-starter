@@ -2,15 +2,39 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Postman;
 
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Throwable;
 
 class Postman
 {
-    public static string $path;
+    public static ?CubePath $path;
     public static ?string $name;
     public static ?string $content = null;
     private static $instance;
+
+    public function getCollection(): PostmanCollection
+    {
+        $data = json_decode(self::getContent(), true);
+        return PostmanCollection::serialize($data ?? []);
+    }
+
+    public static function getContent(): bool|string
+    {
+        self::$name = config('cubeta-starter.project_name') . '.postman_collection.json';
+        self::$path = CubePath::make(config('cubeta-starter.postman_collection_path') . self::$name);
+        self::$path->ensureDirectoryExists();
+
+        if (!self::$path->exist()) {
+            self::initialize();
+        }
+
+        return self::$path->getContent();
+    }
 
     public static function make(): Postman
     {
@@ -20,47 +44,20 @@ class Postman
         return self::$instance;
     }
 
-    /**
-     * @throws FileNotFoundException
-     * @throws BindingResolutionException
-     */
-    public function getCollection(): PostmanCollection
-    {
-        $data = json_decode(self::getContent(), true);
-        return PostmanCollection::serialize($data ?? []);
-    }
-
-    /**
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
-     */
-    public static function getContent(): bool|string
-    {
-        self::$name = config('cubeta-starter.project_name') . '.postman_collection.json';
-        self::$path = base_path(config('cubeta-starter.postman_collection_path') . self::$name);
-        ensureDirectoryExists(base_path(config('cubeta-starter.postman_collection_path')));
-
-        if (!file_exists(self::$path)) {
-            self::initialize();
-        }
-
-        return file_get_contents(self::$path);
-    }
-
-    /**
-     * @throws FileNotFoundException
-     * @throws BindingResolutionException
-     */
     public static function initialize(): void
     {
-        generateFileFromStub(
-            [
-                "{projectName}" => config('cubeta-starter.project_name'),
-                "{project-url}" => self::getProjectUrl()
-            ],
-            self::$path,
-            __DIR__ . "/../../../Commands/stubs/postman-collection.stub"
-        );
+        try {
+            FileUtils::generateFileFromStub(
+                [
+                    "{projectName}" => config('cubeta-starter.project_name'),
+                    "{project-url}" => self::getProjectUrl()
+                ],
+                self::$path->fullPath,
+                __DIR__ . "/../../../stubs/postman-collection.stub"
+            );
+        } catch (BindingResolutionException|FileNotFoundException|Throwable|Exception $e) {
+            CubeLog::add($e);
+        }
     }
 
     private static function getProjectUrl()

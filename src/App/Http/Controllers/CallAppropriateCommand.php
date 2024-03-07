@@ -4,19 +4,31 @@ namespace Cubeta\CubetaStarter\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Generators\GeneratorFactory;
+use Cubeta\CubetaStarter\Generators\Installers\ApiInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\AuthInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\WebInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\WebPackagesInstallers;
 use Cubeta\CubetaStarter\Generators\Sources\ActorFilesGenerator;
-use Cubeta\CubetaStarter\Logs\CubeError;
+use Cubeta\CubetaStarter\Generators\Sources\ApiControllerGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\FactoryGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\ModelGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\RepositoryGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\RequestGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\ResourceGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\SeederGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\ServiceGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\TestGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\WebControllerGenerator;
+use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 
 class CallAppropriateCommand extends Controller
 {
-    use  RouteBinding;
-
     public Request $request;
     private mixed $actor;
     private mixed $columns;
@@ -47,7 +59,7 @@ class CallAppropriateCommand extends Controller
         return collect($array)->mapWithKeys(fn($item) => [$item['name'] => $item['type']])->toArray();
     }
 
-    public function callAddActorCommand(Request $request)
+    public function generateActors(Request $request)
     {
         $roles = $request->roles ?? [];
         $authenticated = $request->authenticated ?? [];
@@ -103,38 +115,30 @@ class CallAppropriateCommand extends Controller
 
         Cache::put('exceptions', $exceptions);
 
-        foreach ($logs as $log) {
-            if (count($exceptions)) {
-                return redirect()->route($redirectRouteName, ['error' => "Check The Logs There Was An Error While Generating"]);
-            }
-            if ($log instanceof CubeError || $log instanceof CubeLog) {
-                $msg = $log instanceof CubeError
-                    ? $log->error()
-                    : $log->warning();
-                return redirect()->route($redirectRouteName, ['warning' => $msg]);
-            }
+        if (count($exceptions)) {
+            return redirect()->route($redirectRouteName, ['error' => "Check Logs For Errors"]);
         }
 
         return redirect()->route($redirectRouteName, ['success' => $successMessage]);
     }
 
-    public function callCreateApiControllerCommand()
+    public function generateApiController()
     {
-        $command = [
-            'name' => 'create:controller',
+        $factoryData = [
+            'key' => ApiControllerGenerator::$key,
             'route' => 'cubeta-starter.generate-api-controller.page'
         ];
 
-        return $this->callCommand($command);
+        return $this->runFactory($factoryData, "Api Controller Created Successfully");
     }
 
-    public function callCommand($command)
+    public function runFactory(array $factoryData, string $successMessage)
     {
         set_time_limit(0);
         try {
 
             if (empty(trim($this->modelName))) {
-                return redirect()->route($command['route'], ['error' => "Invalid Model Name"]);
+                return redirect()->route($factoryData['route'], ['error' => "Invalid Model Name"]);
             }
 
             $arguments['name'] = $this->modelName;
@@ -143,9 +147,9 @@ class CallAppropriateCommand extends Controller
             if (isset($this->columns) && count($this->columns) > 0) {
                 foreach ($this->columns as $col => $type) {
                     if (empty(trim($col))) {
-                        return redirect()->route($command['route'], ['error' => "Invalid Column Name"]);
+                        return redirect()->route($factoryData['route'], ['error' => "Invalid Column Name"]);
                     }
-                    $tempColsArray[columnNaming($col)] = $type;
+                    $tempColsArray[Naming::column($col)] = $type;
                 }
                 $arguments['attributes'] = $tempColsArray;
             }
@@ -153,276 +157,198 @@ class CallAppropriateCommand extends Controller
             if (isset($this->relations) && count($this->relations) > 0) {
                 foreach ($this->relations as $relation => $type) {
                     if (empty(trim($relation))) {
-                        return redirect()->route($command['route'], ['error' => "Invalid Relation Name"]);
+                        return redirect()->route($factoryData['route'], ['error' => "Invalid Relation Name"]);
                     }
                 }
                 $arguments['relations'] = $this->relations;
             }
 
             if (isset($this->nullables) && count($this->nullables) > 0) {
-                foreach ($this->nullables as &$value) {
-                    $value = columnNaming($value);
-                }
-                $arguments['nullables'] = $this->nullables;
+                $arguments['nullables'] = array_map(fn($nullable) => Naming::column($nullable), $this->nullables);
             }
 
             if (isset($this->uniques) && count($this->uniques) > 0) {
-                foreach ($this->uniques as &$value) {
-                    $value = columnNaming($value);
-                }
-                $arguments['uniques'] = $this->uniques;
+                $arguments['uniques'] = array_map(fn($unique) => Naming::column($unique), $this->uniques);
             }
 
             if (isset($this->actor)) {
                 $arguments['actor'] = $this->actor;
             }
 
-            if ($command['name'] == 'create:model') {
-                $arguments['gui'] = true;
-                $arguments['container'] = $this->container;
+            if (isset($this->container) && !in_array($this->container, ContainerType::ALL)) {
+                return redirect()->route($factoryData['route'], ['error' => "Invalid container name"]);
             }
 
-            if (isset($this->container) && !in_array($this->container, ['api', 'web', 'both'])) {
-                return redirect()->route($command['route'], ['error' => "Invalid container name"]);
+            $generator = new GeneratorFactory();
+            if ($factoryData['key'] == "all") {
+                foreach (GeneratorFactory::getAllGeneratorsKeys() as $key) {
+                    $generator->setSource($key)->make(
+                        $arguments['name'],
+                        $arguments['attributes'] ?? [],
+                        $arguments['relations'] ?? [],
+                        $arguments['nullables'] ?? [],
+                        $arguments['uniques'] ?? [],
+                        $arguments['actor'] ?? null,
+                        $arguments['container'] ?? ContainerType::API,
+                    );
+                }
+            } else {
+                $generator->setSource($factoryData['key'])->make(
+                    $arguments['name'],
+                    $arguments['attributes'] ?? [],
+                    $arguments['relations'] ?? [],
+                    $arguments['nullables'] ?? [],
+                    $arguments['uniques'] ?? [],
+                    $arguments['actor'] ?? null,
+                    $arguments['container'] ?? ContainerType::API,
+                );
             }
 
-            Artisan::call($command['name'], $arguments);
-
-            $output = Artisan::output();
-
-            return $this->handleLogs($output, $command['route'], $command['name'] . ' successfully');
+            return $this->handleLogs($factoryData['route'], $successMessage);
 
         } catch (Exception $exception) {
-            $error = $exception->getMessage();
-            if (strlen($error) <= 30) {
-                return redirect()->route($command['route'], ['error' => $error]);
-            }
+            $error = CubeLog::exceptionToHtml($exception);
             return view('CubetaStarter::command-output', compact('error'));
-
         }
     }
 
-    public function callCreateFactoryCommand()
+    public function generateFactory()
     {
-        $command = [
-            'name' => 'create:factory',
+        $factoryData = [
+            'key' => FactoryGenerator::$key,
             'route' => 'cubeta-starter.generate-factory.page'
         ];
 
-        return $this->callCommand($command);
+        return $this->runFactory($factoryData, "New Factory Generated Successfully");
     }
 
-    public function callCreateMigrationCommand()
+    public function generateMigration()
     {
-        $command = [
-            'name' => 'create:migration',
+        $factoryData = [
+            'key' => MigrationGenerator::$key,
             'route' => 'cubeta-starter.generate-migration.page'
         ];
 
-        return $this->callCommand($command);
+        return $this->runFactory($factoryData, "New Migration Generated Successfully");
     }
 
-    public function callCreateModelCommand()
+    public function generateModel()
     {
-        $command = [
-            'name' => 'create:model',
+        $factoryData = [
+            'key' => ModelGenerator::$key,
             'route' => 'cubeta-starter.generate-full.page'
         ];
 
-        return $this->callCommand($command);
+        return $this->runFactory($factoryData, "New Model generated Successfully");
     }
 
-    public function callCreatePolicyCommand()
+    public function generateRepository()
     {
-        $command = [
-            'name' => 'create:policy',
-            'route' => 'cubeta-starter.generate-policy.page'
-        ];
-
-        return $this->callCommand($command);
-    }
-
-    public function callCreatePostmanCollectionCommand()
-    {
-        $command = [
-            'name' => 'create:postman-collection',
-            'route' => 'cubeta-starter.generate-postman-collection.page'
-        ];
-
-        return $this->callCommand($command);
-    }
-
-    public function callCreateRepositoryCommand()
-    {
-        $command = [
-            'name' => 'create:repository',
+        $factoryData = [
+            'key' => RepositoryGenerator::$key,
             'route' => 'cubeta-starter.generate-repository.page'
         ];
 
-        return $this->callCommand($command);
+        return $this->runFactory($factoryData, "New Repository Class Generated Successfully");
     }
 
-    public function callCreateRequestCommand()
+    public function generateRequest()
     {
-        $command = [
-            'name' => 'create:request',
+        $factoryData = [
+            'key' => RequestGenerator::$key,
             'route' => 'cubeta-starter.generate-request.page'
         ];
 
-        return $this->callCommand($command);
+        return $this->runFactory($factoryData, "New Form Request Generated Successfully");
     }
 
-    public function callCreateResourceCommand()
+    public function generateResource()
     {
-        $command = [
-            'name' => 'create:resource',
+        $factoryData = [
+            'key' => ResourceGenerator::$key,
             'route' => 'cubeta-starter.generate-resource.page'
         ];
 
-        return $this->callCommand($command);
+        return $this->runFactory($factoryData, "New Resource Generated Successfully");
     }
 
-    public function callCreateSeederCommand()
+    public function generateSeeder()
     {
-        $command = [
-            'name' => 'create:seeder',
+        $factoryData = [
+            'key' => SeederGenerator::$key,
             'route' => 'cubeta-starter.generate-seeder.page'
         ];
 
-        return $this->callCommand($command);
+        return $this->runFactory($factoryData, "New Seeder Generated Successfully");
     }
 
-    public function callCreateServiceCommand()
+    public function generateService()
     {
-        $command = [
-            'name' => 'create:service',
+        $factoryData = [
+            'key' => ServiceGenerator::$key,
             'route' => 'cubeta-starter.generate-service.page'
         ];
 
-        return $this->callCommand($command);
+        return $this->runFactory($factoryData, "New Service Class And Its Interface Generated Successfully");
     }
 
-    public function callCreateTestCommand()
+    public function generateTest()
     {
-        $command = [
-            'name' => 'create:test',
+        $factoryData = [
+            'key' => TestGenerator::$key,
             'route' => 'cubeta-starter.generate-test.page'
         ];
 
-        return $this->callCommand($command);
+        return $this->runFactory($factoryData, "New Test For Api Controller Generated Successfully");
     }
 
-    public function callCreateWebControllerCommand()
+    public function generateWebController()
     {
-        $command = [
-            'name' => 'create:web-controller',
+        $factoryData = [
+            'key' => WebControllerGenerator::$key,
             'route' => 'cubeta-starter.generate-web-controller.page'
         ];
 
-        return $this->callCommand($command);
+        return $this->runFactory($factoryData, "New Web Controller With Related Views Generated Successfully");
     }
 
-    public function installingWebPackages()
+    public function installWebPackages()
     {
-        set_time_limit(0);
-        try {
-            Artisan::call('init-web-packages');
-            $output = Artisan::output();
-            return $this->handleLogs($output, 'cubeta-starter.complete-installation', 'The Packages Have Been Installed Successfully');
-
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
+        (new GeneratorFactory(WebPackagesInstallers::$key))->make();
+        return $this->handleLogs("cubeta-starter.complete-installation", "Web Packages Installed Successfully");
     }
 
-    public function initAuth($container = null)
+    public function installAuth(string $container = ContainerType::BOTH)
     {
-        try {
-            Artisan::call('init-auth', [
-                'container' => $container
-            ]);
-
-            $output = Artisan::output();
-            return $this->handleLogs($output, 'cubeta-starter.generate-add-actor.page', 'Authentication Tools Prepared Successfully');
-
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
+        (new GeneratorFactory(AuthInstaller::$key))->make(generatedFor: $container);
+        return $this->handleLogs("cubeta-starter.generate-add-actor.page", "Authentication Tools Prepared Successfully");
     }
 
-    public function callPublishApi()
+    public function installApi()
     {
-        try {
-            Artisan::call('vendor:publish', [
-                '--tag' => 'cubeta-starter-api',
-            ]);
-
-            $this->addSetLocalRoute();
-            $this->addRouteFile('public', ContainerType::API);
-            $this->addRouteFile('protected', ContainerType::API);
-
-            $output = Artisan::output();
-            return $this->handleLogs($output, 'cubeta-starter.complete-installation', 'Published Successfully');
-
-        } catch (Exception $exception) {
-            $error = $exception->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
+        (new GeneratorFactory(ApiInstaller::$key))->make();
+        return $this->handleLogs("cubeta-starter.complete-installation", "Api Based Usage Tools Generated Successfully");
     }
 
-    public function callPublishWeb()
+    public function installWeb()
     {
-        try {
-            Artisan::call('vendor:publish', [
-                '--tag' => 'cubeta-starter-web',
-            ]);
-
-            $this->addSetLocalRoute();
-            $this->addRouteFile('public', ContainerType::WEB);
-            $this->addRouteFile('protected', ContainerType::WEB);
-
-            $output = Artisan::output();
-            return $this->handleLogs($output, 'cubeta-starter.complete-installation', 'Published Successfully');
-
-        } catch (Exception $exception) {
-            $error = $exception->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
+        (new GeneratorFactory(WebInstaller::$key))->make();
+        return $this->handleLogs('cubeta-starter.complete-installation', "Web Based Usage Tools Generated Successfully");
     }
 
-    public function publishAll()
+    public function installAll()
     {
-        try {
-            Artisan::call('cubeta-publish');
+        (new GeneratorFactory(ApiInstaller::$key))->make();
+        (new GeneratorFactory(WebInstaller::$key))->make();
 
-            $this->addRouteFile('public', ContainerType::API);
-            $this->addRouteFile('protected', ContainerType::API);
-            $this->addRouteFile('public', ContainerType::WEB);
-            $this->addRouteFile('protected', ContainerType::WEB);
-
-            $output = Artisan::output();
-            return $this->handleLogs($output, 'cubeta-starter.complete-installation', 'Published Successfully');
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
+        return $this->handleLogs("cubeta-starter.complete-installation", "Web And Api Based Usage Tools Has Been Generated");
     }
 
-    private function callPublishCommand(string $tag)
+    public function fullGeneration()
     {
-        try {
-            Artisan::call('vendor:publish', [
-                '--tag' => $tag,
-            ]);
-
-            $output = Artisan::output();
-            return $this->handleLogs($output, 'cubeta-starter.complete-installation', 'Published Successfully');
-
-        } catch (Exception $exception) {
-            $error = $exception->getMessage();
-            return view('CubetaStarter::command-output', compact('error'));
-        }
+        return $this->runFactory([
+            "key" => "all",
+            "route" => 'cubeta-starter.generate-full.page'
+        ], "A Full CRUD Operation Has Been Created");
     }
 }

@@ -40,7 +40,7 @@ class PostmanItem implements PostmanObject
             );
         } else if (isset($data['request'])) {
             return new self($data['name'], [PostmanRequest::serialize($data)]);
-        };
+        }
     }
 
     public function toJson(): string

@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Illuminate\Support\Str;
 
 class RenderAppropriateViewController extends Controller
@@ -46,7 +47,7 @@ class RenderAppropriateViewController extends Controller
     public function addActor()
     {
         $roles = $this->roles;
-        $types = $this->types;
+        $types = ColumnTypeEnum::getAllValues();
         $this->arguments['title'] = 'Add New Actor';
         $this->arguments['textUnderTitle'] = 'Here You Can Add Actors (Roles) To Your Project';
         $this->arguments['action'] = route('cubeta-starter.call-add-actor-command');
@@ -70,7 +71,7 @@ class RenderAppropriateViewController extends Controller
         $types = $this->types;
         $this->arguments['title'] = 'Generate The CRUDs';
         $this->arguments['textUnderTitle'] = 'Here We Will Create Your Model And All The Others Needs To Have A Complete CRUD API';
-        $this->arguments['action'] = route('cubeta-starter.call-create-model-command');
+        $this->arguments['action'] = route('cubeta-starter.call-full-generate');
         $this->arguments['attributesField'] = true;
         $this->arguments['nullables'] = true;
         $this->arguments['uniques'] = true;
@@ -87,6 +88,26 @@ class RenderAppropriateViewController extends Controller
                                         ';
 
         return view('CubetaStarter::main-generate-page', compact('roles', 'types'))->with($this->arguments);
+    }
+
+    public function generateModel()
+    {
+        $types = $this->types;
+        $this->arguments['title'] = 'Generate Model';
+        $this->arguments['textUnderTitle'] = 'Here We Will Create Your Model';
+        $this->arguments['action'] = route('cubeta-starter.call-generate-model');
+        $this->arguments['attributesField'] = true;
+        $this->arguments['relationsField'] = true;
+        $this->arguments['modalBody'] = "Generating The Model";
+        $this->arguments['notes'] = '   <li class="notes">This GUI will work just when the app environment is local</li>
+                                        <li class="notes">If a model with the same name is exist nothing will be generated</li>
+                                        <li class="notes">the generated files directories will be based on the package config file</li>
+                                        <li class="notes">read about the key and translatable columns type in the <a href="https://gitlab.com/cubetaio/backend/cubeta-starter/-/blob/api-version-with-ui/readme.md" target="_blank">documentation</a></li>
+                                        <li class="notes">each created file will be formatted with Laravel Pint based on the published pint configuration file</li>
+                                        <li class="notes">entered model and columns names will be refactored based on Laravel naming convention, but it is better you follow it</li>
+                                        ';
+
+        return view('CubetaStarter::main-generate-page', compact('types'))->with($this->arguments);
     }
 
     public function generateController()
@@ -135,15 +156,6 @@ class RenderAppropriateViewController extends Controller
                                         <li class="notes">it is always better to check on the created migration</li>';
 
         return view('CubetaStarter::main-generate-page', compact('types'))->with($this->arguments);
-    }
-
-    public function generatePolicy()
-    {
-        $this->arguments['title'] = 'Policy';
-        $this->arguments['textUnderTitle'] = 'Here We Will Generate The Policy Class For Your Model';
-        $this->arguments['action'] = route('cubeta-starter.call-create-policy-command');
-        $this->arguments['modalBody'] = "Generating Policy";
-        return view('CubetaStarter::main-generate-page')->with($this->arguments);
     }
 
     public function generatePostmanCollection()

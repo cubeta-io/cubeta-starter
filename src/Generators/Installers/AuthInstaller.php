@@ -21,7 +21,7 @@ class AuthInstaller extends AbstractGenerator
      * @param bool $override
      * @return void
      */
-    public function run(bool $override = false): void
+    public function run(bool $override = true): void
     {
         $this->generateUserMigration($override);
         $this->generateUserModel($override);
@@ -101,7 +101,8 @@ class AuthInstaller extends AbstractGenerator
         $interfacePath->ensureDirectoryExists();
 
         $this->generateFileFromStub([
-            '{namespace}' => config('cubeta-starter.service_namespace')
+            '{{namespace}}' => config('cubeta-starter.service_namespace'),
+            "{{modelNamespace}}" => config('cubeta-starter.model_namespace'),
         ], $interfacePath->fullPath, $override, __DIR__ . '/../../stubs/Auth/IUserService.stub');
     }
 
@@ -209,10 +210,10 @@ class AuthInstaller extends AbstractGenerator
     private function generateBaseAuthController(bool $override = false): void
     {
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.api_controller_namespace'),
-            '{requestsNamespace}' => config('cubeta-starter.request_namespace'),
-            '{ServiceNameSpace}' => config('cubeta-starter.service_namespace'),
-            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
+            '{{namespace}}' => config('cubeta-starter.api_controller_namespace'),
+            '{{requestNamespace}}' => config('cubeta-starter.request_namespace'),
+            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace'),
+            '{{resourceNamespace}}' => config('cubeta-starter.resource_namespace'),
         ];
 
         $controllerPath = CubePath::make(config('cubeta-starter.api_controller_path') . "/BaseAuthController.php");
@@ -229,9 +230,9 @@ class AuthInstaller extends AbstractGenerator
     private function generateBaseAuthWebController(bool $override = false): void
     {
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.web_controller_namespace'),
-            '{requestsNamespace}' => config('cubeta-starter.request_namespace'),
-            '{ServiceNameSpace}' => config('cubeta-starter.service_namespace')
+            '{{namespace}}' => config('cubeta-starter.web_controller_namespace'),
+            '{{requestNamespace}}' => config('cubeta-starter.request_namespace'),
+            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace')
         ];
 
         $controllerPath = CubePath::make(config('cubeta-starter.web_controller_path') . "/BaseAuthController.php");

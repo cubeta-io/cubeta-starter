@@ -15,7 +15,7 @@ class ApiInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
-        Artisan::call("vendor:publish --tag=cubeta-starter-api", ['--force' => $override]);
+        Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-api"]);
         CubeLog::add(Artisan::output());
 
         $this->addRouteFile('public');

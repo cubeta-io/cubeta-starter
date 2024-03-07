@@ -16,7 +16,7 @@ class ResourceGenerator extends AbstractGenerator
         $resourceName = $this->table->getResourceName();
 
         $stubProperties = [
-            '{model}' => "\\" . $this->table->getModelClassString(),
+            '{model}' => $this->table->getModelClassString(),
             '{namespace}' => config('cubeta-starter.resource_namespace'),
             '{class}' => $resourceName,
             '{resource_fields}' => $this->generateFields(),

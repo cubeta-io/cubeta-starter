@@ -9,11 +9,34 @@ use Throwable;
 
 class GeneratorFactory
 {
-    private string $source;
+    private ?string $source = null;
 
-    public function __construct(string $source)
+    public function __construct(?string $source = null)
     {
         $this->source = $source;
+    }
+
+    public static function getAllGeneratorsKeys(): array
+    {
+        return [
+            Sources\MigrationGenerator::$key,
+            Sources\ModelGenerator::$key,
+            Sources\RequestGenerator::$key,
+            Sources\ResourceGenerator::$key,
+            Sources\FactoryGenerator::$key,
+            Sources\SeederGenerator::$key,
+            Sources\RepositoryGenerator::$key,
+            Sources\ServiceGenerator::$key,
+            Sources\ApiControllerGenerator::$key,
+            Sources\WebControllerGenerator::$key,
+            Sources\TestGenerator::$key,
+        ];
+    }
+
+    public function setSource(string $source): static
+    {
+        $this->source = $source;
+        return $this;
     }
 
     public function make(
@@ -24,9 +47,12 @@ class GeneratorFactory
         array   $uniques = [],
         ?string $actor = null,
         string  $generatedFor = "",
-        bool    $override = false
+        bool    $override = true
     ): void
     {
+        if (!$this->source){
+            throw new Exception("Undefined Generator Factory Key Please Provide One");
+        }
         $generator = match ($this->source) {
             Sources\MigrationGenerator::$key => new Sources\MigrationGenerator(
                 fileName: $fileName,

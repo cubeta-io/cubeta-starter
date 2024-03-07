@@ -27,6 +27,12 @@
                             Full Generation Operation
                         </a>
                     </li>
+                    <li class="nav-item @if(request()->fullUrl() == route('cubeta-starter.generate-generate-model')) my-nav-active @endif">
+                        <a href="{{route('cubeta-starter.generate-generate-model')}}" class="nav-link text-white"
+                           aria-current="page">
+                            Create Model
+                        </a>
+                    </li>
                     <li class="nav-item @if(request()->fullUrl() == route('cubeta-starter.generate-migration.page')) my-nav-active @endif">
                         <a href="{{route('cubeta-starter.generate-migration.page')}}" class="nav-link text-white">
                             Create Migration

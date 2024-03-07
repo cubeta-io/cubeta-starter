@@ -8,8 +8,11 @@ use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestAuth;
 use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestBody;
 use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestHeader;
 use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestUrl;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Exception;
 use Illuminate\Support\Collection;
-use Mockery\Exception;
 
 class PostmanCollection implements PostmanObject
 {
@@ -55,16 +58,16 @@ class PostmanCollection implements PostmanObject
         ];
     }
 
-    public function newCrud(string $modelName, string $route, array $columns = []): static
+    public function newCrud(CubeTable $table): static
     {
-        if ($this->checkIfCollectionExist($modelName)) {
+        if ($this->checkIfCollectionExist($table->modelName)) {
             return $this;
         }
 
         $index = new PostmanRequest(
             name: "index",
             method: PostmanRequest::GET,
-            url: RequestUrl::getUrlFromRoute($route),
+            url: RequestUrl::getUrlFromRoute($table->routeUrlNaming()),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer(),
         );
@@ -72,7 +75,7 @@ class PostmanCollection implements PostmanObject
         $show = new PostmanRequest(
             name: "show",
             method: PostmanRequest::GET,
-            url: RequestUrl::getUrlFromRoute("$route/1"),
+            url: RequestUrl::getUrlFromRoute("{$table->routeUrlNaming()}/1"),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer()
         );
@@ -80,30 +83,30 @@ class PostmanCollection implements PostmanObject
         $store = new PostmanRequest(
             name: "store",
             method: PostmanRequest::POST,
-            url: RequestUrl::getUrlFromRoute("$route"),
+            url: RequestUrl::getUrlFromRoute("{$table->routeUrlNaming()}"),
             header: [RequestHeader::setAcceptJson()],
-            body: new RequestBody('formdata', $this->getBodyData($columns)),
+            body: new RequestBody('formdata', $this->getBodyData($table->attributes())),
             auth: RequestAuth::bearer(),
         );
 
         $update = new PostmanRequest(
             name: "update",
             method: PostmanRequest::PUT,
-            url: RequestUrl::getUrlFromRoute("$route/1"),
+            url: RequestUrl::getUrlFromRoute("{$table->routeUrlNaming()}/1"),
             header: [RequestHeader::setAcceptJson()],
-            body: new RequestBody('formdata', $this->getBodyData($columns)),
+            body: new RequestBody('formdata', $this->getBodyData($table->attributes())),
             auth: RequestAuth::bearer(),
         );
 
         $delete = new PostmanRequest(
             name: "delete",
             method: PostmanRequest::DELETE,
-            url: RequestUrl::getUrlFromRoute("$route/1"),
+            url: RequestUrl::getUrlFromRoute("{$table->routeUrlNaming()}/1"),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer(),
         );
 
-        $this->items[] = new PostmanItem($modelName, [$index, $show, $store, $update, $delete]);
+        $this->items[] = new PostmanItem($table->modelName, [$index, $show, $store, $update, $delete]);
 
         return $this;
     }
@@ -120,24 +123,29 @@ class PostmanCollection implements PostmanObject
     }
 
     /**
-     * @param array $columns
+     * @param Collection<CubeAttribute>|array<CubeAttribute> $columns
      * @return FormDataField[]
      */
-    private function getBodyData(array $columns): array
+    private function getBodyData(Collection|array $columns): array
     {
         $data = [];
-        foreach ($columns as $column => $type) {
-            $data[] = match ($type) {
-                "boolean" => new FormDataField($column, (string)fake()->boolean),
-                "date" => new FormDataField($column, now()->format('Y-m-d')),
-                "datetime" => new FormDataField($column, now()->format('Y-m-d H:i:s')),
-                'time' => new FormDataField($column, now()->format('H:i:s')),
-                'integer' | 'bigInteger' | 'unsignedBigInteger' | 'unsignedDouble' | 'double' | 'float' => new FormDataField($column, (string)fake()->numberBetween(1, 10)),
-                'json' => new FormDataField($column, (string)json_encode([fake()->word => fake()->word])),
-                'translatable' => new FormDataField($column, (string)json_encode(["ar" => fake()->word, "en" => fake()->word])),
-                'text' => new FormDataField($column, fake()->text),
-                'key' => new FormDataField($column, "1"),
-                default => new FormDataField($column, fake()->word),
+        foreach ($columns as $column) {
+
+            if (ColumnTypeEnum::isNumericType($column->type)){
+                $data[] = new FormDataField($column->name, (string)fake()->numberBetween(1, 10));
+                continue;
+            }
+
+            $data[] = match ($column->type) {
+                ColumnTypeEnum::BOOLEAN->value => new FormDataField($column->name, (string)fake()->boolean),
+                ColumnTypeEnum::DATE->value => new FormDataField($column->name, now()->format('Y-m-d')),
+                ColumnTypeEnum::DATETIME->value => new FormDataField($column->name, now()->format('Y-m-d H:i:s')),
+                ColumnTypeEnum::TIME->value => new FormDataField($column->name, now()->format('H:i:s')),
+                ColumnTypeEnum::JSON->value => new FormDataField($column->name, (string)json_encode([fake()->word => fake()->word])),
+                ColumnTypeEnum::TRANSLATABLE->value => new FormDataField($column->name, (string)json_encode(["ar" => fake()->word, "en" => fake()->word])),
+                ColumnTypeEnum::TEXT->value => new FormDataField($column->name, fake()->text),
+                ColumnTypeEnum::KEY->value => new FormDataField($column->name, "1"),
+                default => new FormDataField($column->name, fake()->word),
             };
         }
 
@@ -150,7 +158,7 @@ class PostmanCollection implements PostmanObject
             return $this;
         }
 
-        $apiStub = file_get_contents(__DIR__ . '/../../../Commands/stubs/Auth/auth-postman-entity.stub');
+        $apiStub = file_get_contents(__DIR__ . '/../../../stubs/Auth/auth-postman-entity.stub');
         $api = str_replace("{role}", $role, $apiStub);
         $this->items[] = PostmanItem::serialize(json_decode($api, true));
         return $this;
@@ -173,11 +181,12 @@ class PostmanCollection implements PostmanObject
     /**
      * save the collection
      * @return $this
+     * @throws Exception
      */
     public function save(): static
     {
         if (!Postman::$path) throw new Exception("Collection Path isn't specified");
-        file_put_contents(Postman::$path, json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        Postman::$path->putContent(json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         return $this;
     }
 

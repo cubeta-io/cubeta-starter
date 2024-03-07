@@ -21,7 +21,8 @@ class ServiceGenerator extends AbstractGenerator
             '{modelName}' => $this->table->modelName,
             '{repositoryName}' => $this->table->getRepositoryName(),
             '{namespace}' => config('cubeta-starter.service_namespace') . "\\{$this->table->modelName}",
-            '{repositoryNamespace}' => config('cubeta-starter.repository_namespace')
+            '{repositoryNamespace}' => config('cubeta-starter.repository_namespace'),
+            "{modelNamespace}" => config('cubeta-starter.model_namespace')
         ];
 
         $servicePath->ensureDirectoryExists();
@@ -39,6 +40,7 @@ class ServiceGenerator extends AbstractGenerator
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.service_namespace') . "\\{$this->table->modelName}",
             '{modelName}' => $this->table->modelName,
+            '{modelNamespace}' => config('cubeta-starter.model_namespace')
         ];
 
         $serviceInterfacePath->ensureDirectoryExists();

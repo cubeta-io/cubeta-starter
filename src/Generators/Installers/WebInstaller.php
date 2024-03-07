@@ -16,7 +16,7 @@ class WebInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
-        Artisan::call("vendor:publish --tag=cubeta-starter-web", ['--force' => $override]);
+        Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-web"]);
         CubeLog::add(Artisan::output());
 
         $this->addRouteFile('public', ContainerType::WEB);
