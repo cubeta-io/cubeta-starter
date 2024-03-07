@@ -4,7 +4,7 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\App\Models\Settings;
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
