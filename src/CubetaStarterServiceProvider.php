@@ -16,6 +16,7 @@ use Cubeta\CubetaStarter\Commands\Generators\MakeTest;
 use Cubeta\CubetaStarter\Commands\Generators\MakeWebController;
 use Cubeta\CubetaStarter\Commands\Installers\InstallApi;
 use Cubeta\CubetaStarter\Commands\Installers\InstallAuth;
+use Cubeta\CubetaStarter\Commands\Installers\InstallPermissions;
 use Cubeta\CubetaStarter\Commands\Installers\InstallWeb;
 use Cubeta\CubetaStarter\Commands\Installers\InstallWebPackages;
 use Cubeta\CubetaStarter\Commands\MakeExample;
@@ -180,6 +181,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(InstallAuth::class)
             ->hasCommand(InstallApi::class)
             ->hasCommand(InstallWeb::class)
+            ->hasCommand(InstallPermissions::class)
             ->hasCommand(MakeExample::class);
     }
 }

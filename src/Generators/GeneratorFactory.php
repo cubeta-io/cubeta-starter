@@ -129,6 +129,7 @@ class GeneratorFactory
             Installers\ApiInstaller::$key => new Installers\ApiInstaller(),
             Installers\WebInstaller::$key => new Installers\WebInstaller(),
             Installers\WebPackagesInstallers::$key => new Installers\WebPackagesInstallers(),
+            Installers\PermissionsInstaller::$key => new Installers\PermissionsInstaller(),
             default => throw new Error("Not supported generator {$this->source} "),
         };
         try {

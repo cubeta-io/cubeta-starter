@@ -3,7 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\App\Models\Settings;
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
@@ -70,7 +70,7 @@ abstract class AbstractGenerator
     protected function generateFileFromStub(array $stubProperties, string $path, bool $override = false, string $otherStubsPath = null): void
     {
         if (file_exists($path) and !$override) {
-            CubeLog::add(new AlreadyExist($path, "Trying To Generate : [" . pathinfo($path , PATHINFO_BASENAME) . "]"));
+            CubeLog::add(new AlreadyExist($path, "Trying To Generate : [" . pathinfo($path, PATHINFO_BASENAME) . "]"));
             return;
         }
 

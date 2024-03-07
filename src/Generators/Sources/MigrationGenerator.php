@@ -28,7 +28,7 @@ class MigrationGenerator extends AbstractGenerator
     {
         $migrationPath = $this->table->getMigrationPath();
 
-        if ($this->checkIfMigrationExists($this->table->tableName)) {
+        if (self::checkIfMigrationExists($this->table->tableName)) {
             $migrationPath->logAlreadyExist("Generating A migration For ({$this->table->modelName}) Model");
             return;
         }
@@ -49,7 +49,7 @@ class MigrationGenerator extends AbstractGenerator
         $migrationPath->format();
     }
 
-    private function checkIfMigrationExists(string $tableName): ?string
+    public static function checkIfMigrationExists(string $tableName): ?string
     {
         $migrationsPath = base_path(config('cubeta-starter.migration_path'));
 

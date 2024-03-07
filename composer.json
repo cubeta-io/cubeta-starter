@@ -25,7 +25,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Cubeta\\CubetaStarter\\tests\\": "tests/",
+            "Cubeta\\CubetaStarter\\tests\\": "tests/"
         }
     },
     "extra": {
