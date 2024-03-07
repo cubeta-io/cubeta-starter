@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\app\Models;
+namespace Cubeta\CubetaStarter\App\Models\Settings;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
@@ -59,7 +59,7 @@ class Settings
 
     public function getAllModels(): array
     {
-        return array_map(fn($table) => $table['model_name'] , self::$tables);
+        return array_map(fn($table) => $table['model_name'], self::$tables);
     }
 
     public function getTable(string $modelName): ?CubeTable
@@ -78,7 +78,7 @@ class Settings
 
                 foreach ($table['relations'] as $type => $relationships) {
                     foreach ($relationships as $relationship) {
-                        $relations[] = new CubeRelation($type, $relationship['model_name'] , $table['model_name']);
+                        $relations[] = new CubeRelation($type, $relationship['model_name'], $table['model_name']);
                     }
                 }
 
@@ -104,7 +104,7 @@ class Settings
             if ($type == ColumnTypeEnum::KEY->value) {
                 $type = ColumnTypeEnum::KEY->value;
                 $parent = Naming::model(str_replace('_id', '', $colName));
-                $relationships[] = new CubeRelation(RelationsTypeEnum::BelongsTo->value, $parent , $modelName);
+                $relationships[] = new CubeRelation(RelationsTypeEnum::BelongsTo->value, $parent, $modelName);
             }
 
             $columns[] = new CubeAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques));
@@ -115,7 +115,7 @@ class Settings
                 continue;
             }
 
-            $relationships[] = new CubeRelation($type, $relation , $modelName);
+            $relationships[] = new CubeRelation($type, $relation, $modelName);
         }
 
         $table = new CubeTable(

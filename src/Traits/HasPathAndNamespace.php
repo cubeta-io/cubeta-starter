@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Cubeta\CubetaStarter\app\Models\CubeRelation;
-use Cubeta\CubetaStarter\app\Models\CubeTable;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 
 /**

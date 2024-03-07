@@ -3,8 +3,8 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Carbon\Carbon;
-use Cubeta\CubetaStarter\app\Models\CubeAttribute;
-use Cubeta\CubetaStarter\app\Models\CubeRelation;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;

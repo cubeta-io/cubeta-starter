@@ -3,9 +3,9 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Carbon\Carbon;
-use Cubeta\CubetaStarter\app\Models\CubeAttribute;
-use Cubeta\CubetaStarter\app\Models\CubeRelation;
-use Cubeta\CubetaStarter\app\Models\CubeTable;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Illuminate\Support\Str;
 
