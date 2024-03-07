@@ -4,13 +4,14 @@ namespace Cubeta\CubetaStarter\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Enums\ErrorTypeEnum;
+use Cubeta\CubetaStarter\Generators\Sources\ActorFilesGenerator;
+use Cubeta\CubetaStarter\Logs\CubeError;
+use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 class CallAppropriateCommand extends Controller
 {
@@ -51,7 +52,8 @@ class CallAppropriateCommand extends Controller
         $roles = $request->roles ?? [];
         $authenticated = $request->authenticated ?? [];
 
-        $result = $this->convertRolesPermissionArrayToCommandAcceptableFormat($roles);
+        $result = $this->convertRolesPermissionsToArray($roles);
+
         if (!$result) {
             return redirect()->route('cubeta-starter.generate-add-actor.page', ['error' => 'Invalid Role Name']);
         }
@@ -59,24 +61,25 @@ class CallAppropriateCommand extends Controller
         $rolesPermissions = $result['rolesPermissions'];
         $roleContainer = $result['roleContainer'];
 
-        Artisan::call('cubeta-init', [
-            'useGui' => true,
-            'rolesPermissionsArray' => $rolesPermissions,
-            'roleContainer' => $roleContainer,
-            'authenticated' => $authenticated,
-        ]);
+        foreach ($rolesPermissions as $role => $permissions) {
+            (new ActorFilesGenerator(
+                $role,
+                $permissions,
+                in_array($role, $authenticated),
+                $roleContainer[$role]
+            ))->run();
+        }
 
-        $output = Artisan::output();
-        return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.generate-add-actor.page', "New Roles Added");
+        return $this->handleLogs('cubeta-starter.generate-add-actor.page', "New Roles Added");
     }
 
-    private function convertRolesPermissionArrayToCommandAcceptableFormat(array $rolesPermissionArray = [])
+    private function convertRolesPermissionsToArray(array $rolesPermissionArray = [])
     {
         $rolesPermissions = [];
         $roleContainer = [];
 
         foreach ($rolesPermissionArray as $array) {
-            $rolesPermissions[$array['name']] = $this->convertInputStringToArray($array['permissions']);
+            $rolesPermissions[$array['name']] = explode(",", $array['permissions']);
             $roleContainer[$array['name']] = $array['container'];
         }
 
@@ -89,15 +92,29 @@ class CallAppropriateCommand extends Controller
         return ['rolesPermissions' => $rolesPermissions, 'roleContainer' => $roleContainer];
     }
 
-    private function handleWarningAndLogsBeforeRedirecting($output, $redirectRouteName, $successMessage)
+    private function handleLogs($redirectRouteName, $successMessage)
     {
-        foreach (ErrorTypeEnum::ALL_ERRORS as $error) {
-            if (Str::contains($output, $error, true)) {
-                Cache::put('logs', $output);
-                return redirect()->route($redirectRouteName, ['warning' => $error]);
+        [$logs, $exceptions] = CubeLog::splitExceptions();
+        Cache::put('logs', $logs);
+
+        foreach ($exceptions as &$exception) {
+            $exception = CubeLog::exceptionToHtml($exception);
+        }
+
+        Cache::put('exceptions', $exceptions);
+
+        foreach ($logs as $log) {
+            if (count($exceptions)) {
+                return redirect()->route($redirectRouteName, ['error' => "Check The Logs There Was An Error While Generating"]);
+            }
+            if ($log instanceof CubeError || $log instanceof CubeLog) {
+                $msg = $log instanceof CubeError
+                    ? $log->error()
+                    : $log->warning();
+                return redirect()->route($redirectRouteName, ['warning' => $msg]);
             }
         }
-        Cache::put('logs', $output);
+
         return redirect()->route($redirectRouteName, ['success' => $successMessage]);
     }
 
@@ -173,7 +190,7 @@ class CallAppropriateCommand extends Controller
 
             $output = Artisan::output();
 
-            return $this->handleWarningAndLogsBeforeRedirecting($output, $command['route'], $command['name'] . ' successfully');
+            return $this->handleLogs($output, $command['route'], $command['name'] . ' successfully');
 
         } catch (Exception $exception) {
             $error = $exception->getMessage();
@@ -311,7 +328,7 @@ class CallAppropriateCommand extends Controller
         try {
             Artisan::call('init-web-packages');
             $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'The Packages Have Been Installed Successfully');
+            return $this->handleLogs($output, 'cubeta-starter.complete-installation', 'The Packages Have Been Installed Successfully');
 
         } catch (Exception $e) {
             $error = $e->getMessage();
@@ -327,7 +344,7 @@ class CallAppropriateCommand extends Controller
             ]);
 
             $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.generate-add-actor.page', 'Authentication Tools Prepared Successfully');
+            return $this->handleLogs($output, 'cubeta-starter.generate-add-actor.page', 'Authentication Tools Prepared Successfully');
 
         } catch (Exception $e) {
             $error = $e->getMessage();
@@ -347,7 +364,7 @@ class CallAppropriateCommand extends Controller
             $this->addRouteFile('protected', ContainerType::API);
 
             $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
+            return $this->handleLogs($output, 'cubeta-starter.complete-installation', 'Published Successfully');
 
         } catch (Exception $exception) {
             $error = $exception->getMessage();
@@ -367,7 +384,7 @@ class CallAppropriateCommand extends Controller
             $this->addRouteFile('protected', ContainerType::WEB);
 
             $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
+            return $this->handleLogs($output, 'cubeta-starter.complete-installation', 'Published Successfully');
 
         } catch (Exception $exception) {
             $error = $exception->getMessage();
@@ -386,7 +403,7 @@ class CallAppropriateCommand extends Controller
             $this->addRouteFile('protected', ContainerType::WEB);
 
             $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
+            return $this->handleLogs($output, 'cubeta-starter.complete-installation', 'Published Successfully');
         } catch (Exception $e) {
             $error = $e->getMessage();
             return view('CubetaStarter::command-output', compact('error'));
@@ -401,7 +418,7 @@ class CallAppropriateCommand extends Controller
             ]);
 
             $output = Artisan::output();
-            return $this->handleWarningAndLogsBeforeRedirecting($output, 'cubeta-starter.complete-installation', 'Published Successfully');
+            return $this->handleLogs($output, 'cubeta-starter.complete-installation', 'Published Successfully');
 
         } catch (Exception $exception) {
             $error = $exception->getMessage();
