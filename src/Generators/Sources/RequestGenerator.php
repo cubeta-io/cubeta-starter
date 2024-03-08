@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 
@@ -19,7 +20,8 @@ class RequestGenerator extends AbstractGenerator
             '{namespace}' => config('cubeta-starter.request_namespace') . "\\{$this->table->modelName}",
             '{class}' => $this->table->modelName,
             '{rules}' => $rules['rules'],
-            '{prepareForValidation}' => $rules['prepare_for_validation']
+            '{prepareForValidation}' => $rules['prepare_for_validation'],
+            "{updateRules}" => $rules["updateRules"],
         ];
 
         $requestPath = $this->table->getRequestPath();
@@ -52,7 +54,7 @@ class RequestGenerator extends AbstractGenerator
             $isNullable = $attribute->nullable ? "nullable" : "required";
             $isUnique = $attribute->unique ? "unique:" . $this->table->tableNaming() . "," . $attribute->name : '';
 
-            if ($attribute->type == ColumnTypeEnum::STRING->value && in_array($attribute->name, ['name', 'first_name', 'last_name', 'email', 'password', 'phone', 'phone_number', 'number',])) {
+            if ($attribute->type == ColumnTypeEnum::STRING->value && in_array($attribute->name, ['name', 'first_name', 'last_name', 'email', 'password', 'phone', 'phone_number', 'number'])) {
                 $rules .= match ($attribute->name) {
                     'name', 'first_name', 'last_name' => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|string|min:3|max:255',\n",
                     'email' => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|string|max:255|email',\n",
@@ -62,7 +64,7 @@ class RequestGenerator extends AbstractGenerator
                 continue;
             }
 
-            if ($attribute->isTranslatable()) {
+            if ($attribute->isTranslatable() && ContainerType::isWeb($this->generatedFor)) {
                 $prepareForValidation .= "'{$attribute->name}' => json_encode(\$this->{$attribute->name}), \n";
             }
 
@@ -92,6 +94,7 @@ class RequestGenerator extends AbstractGenerator
         return [
             'rules' => $rules,
             'prepare_for_validation' => $prepareForValidation,
+            'updateRules' => str_replace('required' , 'nullable' , $rules)
         ];
     }
 

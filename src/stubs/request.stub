@@ -23,8 +23,12 @@ class StoreUpdate{class}Request extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        if (request()->method() == 'POST') {
             {rules}
+        }
+
+        return [
+            {updateRules}
         ];
     }
 

@@ -52,7 +52,7 @@ class RequestAuth implements PostmanObject
     {
         return [
             "type" => $this->type,
-            "{$this->type}" => [$this->bearer]
+            "{$this->type}" => $this->bearer
         ];
     }
 

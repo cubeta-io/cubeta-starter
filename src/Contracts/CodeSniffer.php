@@ -8,7 +8,9 @@ use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
@@ -205,7 +207,9 @@ class CodeSniffer
                 if ($relatedCreateView->exist() and ClassUtils::isMethodDefined($relatedControllerPath, 'allPaginatedJson')) {
                     if ($keyAttribute->nullable) {
                         $required = "required";
-                    } else $required = "";
+                    } else {
+                        $required = "";
+                    }
 
                     $this->addSelect2ToForm($keyName, $select2RouteName, $required, $relatedCreateView);
                 }
@@ -286,5 +290,34 @@ class CodeSniffer
 
         CubeLog::add(new ContentAppended($inputField, $relatedFormView->fullPath));
     }
-}
 
+    public function checkForRequestWebTranslations() : static
+    {
+        $translatables = $this->table->translatables();
+        $prepareForValidation = null;
+
+        if ($translatables->count()) {
+            $prepareForValidation = "protected function prepareForValidation()\n{\nif (request()->acceptsHtml()){\$this->merge([\n";
+            foreach ($translatables as $tr) {
+                $prepareForValidation .= "'{$tr->name}' => json_encode(\$this->{$tr->name}), \n";
+            }
+            $prepareForValidation .= "]);\n}\n}";
+        }
+
+        $requestPath = $this->table->getRequestPath();
+
+        if ($requestPath->exist() && $prepareForValidation) {
+            if (
+                ClassUtils::isMethodDefined($requestPath, 'prepareForValidation')
+                && !FileUtils::contentExistInFile($requestPath, $prepareForValidation)
+            ) {
+                CubeLog::add(new CubeWarning("You Should Add The Translatables Attributes To The PrepareForValidation Method Using json_encode (this mean that the translatable values should be json encoded before validation)"));
+                return $this;
+            }
+            ClassUtils::addMethodToClass("prepareForValidation", $requestPath, $prepareForValidation);
+            return $this;
+        }
+
+        return $this;
+    }
+}
