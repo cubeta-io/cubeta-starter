@@ -14,7 +14,7 @@ class RequestUrl implements PostmanObject
 
     public static function getUrlFromRoute(string $route): RequestUrl
     {
-        return new self("{{local}}v1/$route");
+        return new self("{{local}}$route");
     }
 
     /**
