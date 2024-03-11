@@ -56,10 +56,10 @@ class RequestGenerator extends AbstractGenerator
 
             if ($attribute->type == ColumnTypeEnum::STRING->value && in_array($attribute->name, ['name', 'first_name', 'last_name', 'email', 'password', 'phone', 'phone_number', 'number'])) {
                 $rules .= match ($attribute->name) {
-                    'name', 'first_name', 'last_name' => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|string|min:3|max:255',\n",
-                    'email' => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|string|max:255|email',\n",
-                    'password' => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|string|max:255|min:6|confirmed',\n",
-                    'phone', 'phone_number', 'number' => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|string|max:255|min:6',\n",
+                    'name', 'first_name', 'last_name' => "\t\t\t'{$attribute->name}'=>['{$isNullable}','string','min:3','max:255','{$isUnique}'],\n",
+                    'email' => "\t\t\t'{$attribute->name}'=>'['{$isNullable}','string','max:255','email' , '{$isUnique}'],\n",
+                    'password' => "\t\t\t'{$attribute->name}'=>['{$isNullable}','string','max:255','min:6','confirmed' , '{$isUnique}'],\n",
+                    'phone', 'phone_number', 'number' => "\t\t\t'{$attribute->name}'=>['{$isNullable}','string','max:255','min:6' , '{$isUnique}'],\n",
                 };
                 continue;
             }
@@ -69,23 +69,23 @@ class RequestGenerator extends AbstractGenerator
             }
 
             $rules .= match ($attribute->type) {
-                ColumnTypeEnum::TRANSLATABLE->value => "\t\t\t'{$attribute->name}'=>['{$isUnique}' , '{$isNullable}', 'json', new LanguageShape] , \n",
-                ColumnTypeEnum::STRING->value => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|string|min:3|max:255',\n",
+                ColumnTypeEnum::TRANSLATABLE->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}', 'json', new LanguageShape , '{$isUnique}'] , \n",
+                ColumnTypeEnum::STRING->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','string','min:3','max:255' , {$isUnique}],\n",
                 ColumnTypeEnum::DATE->value,
                 ColumnTypeEnum::DATETIME->value,
-                ColumnTypeEnum::TIMESTAMP->value => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|date',\n",
-                ColumnTypeEnum::TIME->value => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|date_format:H:i',\n",
-                ColumnTypeEnum::BOOLEAN->value => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|boolean',\n",
-                ColumnTypeEnum::KEY->value => "\t\t\t'{$attribute->name}'=>'{$isNullable}|numeric|exists:{$attribute->tableNaming(str_replace('_id', '', $attribute->name))},id',\n",
-                ColumnTypeEnum::FILE->value => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|image|mimes:jpeg,png,jpg|max:2048',\n",
-                ColumnTypeEnum::TEXT->value => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|string',\n",
+                ColumnTypeEnum::TIMESTAMP->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','date' , '{$isUnique}'],\n",
+                ColumnTypeEnum::TIME->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','date_format:H:i' , '{$isUnique}'],\n",
+                ColumnTypeEnum::BOOLEAN->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','boolean' , '{$isUnique}'],\n",
+                ColumnTypeEnum::KEY->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','numeric','exists:{$attribute->tableNaming(str_replace('_id', '', $attribute->name))},id' , '{$isUnique}'],\n",
+                ColumnTypeEnum::FILE->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','image','mimes:jpeg,png,jpg','max:2048' , '{$isUnique}'],\n",
+                ColumnTypeEnum::TEXT->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','string' , '{$isUnique}'],\n",
                 ColumnTypeEnum::INTEGER->value,
                 ColumnTypeEnum::BIG_INTEGER->value,
                 ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
                 ColumnTypeEnum::UNSIGNED_DOUBLE->value,
                 ColumnTypeEnum::DOUBLE->value,
-                ColumnTypeEnum::FLOAT->value => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|numeric',\n",
-                default => "\t\t\t'{$attribute->name}'=>'{$isUnique}|{$isNullable}|{$attribute->type}',\n",
+                ColumnTypeEnum::FLOAT->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','numeric' , '{$isUnique}'],\n",
+                default => "\t\t\t'{$attribute->name}'=>['{$isNullable}','{$attribute->type}' , '{$isUnique}'],\n",
             };
         }
 
@@ -94,7 +94,7 @@ class RequestGenerator extends AbstractGenerator
         return [
             'rules' => $rules,
             'prepare_for_validation' => $prepareForValidation,
-            'updateRules' => str_replace('required' , 'nullable' , $rules)
+            'updateRules' => str_replace('required', 'nullable', $rules),
         ];
     }
 

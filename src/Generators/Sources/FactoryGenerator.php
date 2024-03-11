@@ -131,6 +131,7 @@ class FactoryGenerator extends AbstractGenerator
             'country' => "country()",
             'postcode' => "postcode()",
             'gender' => "randomElement(['male' , 'female'])",
+            default => "word()"
         };
 
         return "\t\t\t'{$originalName}' => fake(){$isUnique}->{$fakerMethod},\n";
