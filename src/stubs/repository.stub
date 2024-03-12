@@ -8,7 +8,6 @@ use App\Repositories\Contracts\IBaseRepository;
 
 /**
  * @extends  BaseRepository<{modelName}>
- * @implements IBaseRepository<{modelName}>
  */
 class {modelName}Repository extends BaseRepository
 {
