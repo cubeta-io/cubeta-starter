@@ -63,7 +63,7 @@ class CubeTable
             Naming::model($modelName),
             Naming::table($modelName),
             collect($attributes)->map(fn($type, $name) => new CubeAttribute($name, $type, in_array($name, $nullables), in_array($name, $uniques)))->toArray(),
-            collect($relations)->map(fn($type, $rel) => new CubeRelation($type, Naming::model($rel) , Naming::model($modelName)))->toArray(),
+            collect($relations)->map(fn($type, $rel) => new CubeRelation($type, Naming::model($rel), Naming::model($modelName)))->toArray(),
         );
     }
 
@@ -93,14 +93,14 @@ class CubeTable
             "model_name" => $this->modelName,
             "table_name" => $this->tableName,
             "attributes" => $attributes,
-            "relations" => $relations
+            "relations" => $relations,
         ];
     }
 
     /**
      * @return bool|string
      */
-    public function toJson(): bool|string
+    public function toJson(): bool | string
     {
         $attributes = [];
         foreach ($this->attributes as $attribute) {
@@ -118,7 +118,7 @@ class CubeTable
             "model_name" => $this->modelName,
             "table_name" => $this->tableName,
             "attributes" => $attributes,
-            "relations" => $relations
+            "relations" => $relations,
         ]);
     }
 
@@ -147,7 +147,7 @@ class CubeTable
      */
     public function hasAttribute(string $name, ?string $type): bool
     {
-        return (bool)collect($this->attributes)
+        return (bool) collect($this->attributes)
             ->filter(function (CubeAttribute $attr) use ($type, $name) {
                 if ($type) {
                     return ($attr->name == $name && $attr->type == $type);
@@ -166,7 +166,7 @@ class CubeTable
     public function hasRelation(string $modelName, ?string $type = null): bool
     {
         $modelName = Naming::model($modelName);
-        return (bool)collect($this->relations)
+        return (bool) collect($this->relations)
             ->filter(function (CubeRelation $rel) use ($type, $modelName) {
                 if ($type) {
                     return ($rel->modelName == $modelName && $rel->type == $type);
@@ -215,7 +215,7 @@ class CubeTable
     /**
      * @return Collection<CubeAttribute>
      */
-    public function attributes(string|ColumnTypeEnum|null $type = null): Collection
+    public function attributes(string | ColumnTypeEnum | null $type = null): Collection
     {
         if (!$type) {
             return collect($this->attributes);
@@ -239,13 +239,16 @@ class CubeTable
             ->filter(fn(CubeAttribute $attr) => $attr->isTranslatable());
     }
 
-    public function hasRelationOfType(string|RelationsTypeEnum $type): int
+    public function hasRelationOfType(string | RelationsTypeEnum $type): int
     {
         return $this->relations()
             ->filter(function (CubeRelation $rel) use ($type) {
                 if ($type instanceof RelationsTypeEnum) {
                     return $rel->type == $type->value;
-                } else return $rel->type == $type;
+                } else {
+                    return $rel->type == $type;
+                }
+
             })
             ->count();
     }
@@ -253,7 +256,7 @@ class CubeTable
     /**
      * @return Collection<CubeRelation>
      */
-    public function relations(string|RelationsTypeEnum|null $type = null): Collection
+    public function relations(string | RelationsTypeEnum | null $type = null): Collection
     {
         if (!$type) {
             return collect($this->relations);
@@ -272,5 +275,15 @@ class CubeTable
     public function collect(): Collection
     {
         return collect($this->toArray());
+    }
+
+    public function columnsAsString()
+    {
+        $cols = $this->attributes()
+            ->filter(fn(CubeAttribute $attr) => $attr->isString())
+            ->map(fn(CubeAttribute $attr) => $attr->name)
+            ->implode("','");
+
+        return "'$cols'";
     }
 }

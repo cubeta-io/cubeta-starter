@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
@@ -86,12 +87,7 @@ class ModelGenerator extends AbstractGenerator
                 }
             }
 
-            if (in_array($attribute->type, [
-                ColumnTypeEnum::STRING->value,
-                ColumnTypeEnum::TEXT->value,
-                ColumnTypeEnum::JSON->value,
-                ColumnTypeEnum::TRANSLATABLE->value
-            ])) {
+            if ($attribute->isString()) {
 
                 $searchable .= "'{$attribute->name}' , \n";
                 $properties .= "* @property string {$attribute->name} \n";
@@ -139,10 +135,16 @@ class ModelGenerator extends AbstractGenerator
                 $properties .= "* @property {$relation->modelName} {$relation->method()}\n";
             }
 
-            $relationsSearchable .=
-                "'{$relation->method()}' => [
-                    //add your {$relation->method()} desired column to be search within
-                  ] , \n";
+            if ($relation->loadable()) {
+                $relatedTable = Settings::make()->getTable($relation->modelName);
+                if ($relatedTable) {
+                    $relationsSearchable .=
+                        "'{$relation->method()}' => [\n{$relatedTable->columnsAsString()}\n//add your {$relation->method()} desired column to be search within\n] , \n";
+                } else {
+                    $relationsSearchable .=
+                        "'{$relation->method()}' => [\n//add your {$relation->method()} desired column to be search within\n] , \n";
+                }
+            }
         }
 
         $properties .= "*/ \n";
@@ -164,8 +166,8 @@ class ModelGenerator extends AbstractGenerator
     {
         //TODO::when merging with dev there will be a config option for traits so make the use traits use the config option for traits namespace
         return $this->table->translatables()->count()
-            ? "use HasFactory; \n use \App\Traits\Translations;\n"
-            : "use HasFactory;";
+        ? "use HasFactory; \n use \App\Traits\Translations;\n"
+        : "use HasFactory;";
     }
 
     protected function stubsPath(): string

@@ -51,13 +51,13 @@ class CubeAttribute
     /**
      * @return bool|string
      */
-    public function toJson(): bool|string
+    public function toJson(): bool | string
     {
         return json_encode([
             "name" => $this->name,
             "type" => $this->type,
             "nullable" => $this->nullable,
-            "unique" => $this->unique
+            "unique" => $this->unique,
         ], JSON_PRETTY_PRINT);
     }
 
@@ -70,7 +70,7 @@ class CubeAttribute
             "name" => $this->name,
             "type" => $this->type,
             "nullable" => $this->nullable,
-            "unique" => $this->unique
+            "unique" => $this->unique,
         ];
     }
 
@@ -92,5 +92,15 @@ class CubeAttribute
     public function isDateTime(): bool
     {
         return $this->type == ColumnTypeEnum::DATETIME->value;
+    }
+
+    public function isString(): bool
+    {
+        return in_array($this->type, [
+            ColumnTypeEnum::STRING->value,
+            ColumnTypeEnum::TEXT->value,
+            ColumnTypeEnum::JSON->value,
+            ColumnTypeEnum::TRANSLATABLE->value,
+        ]);
     }
 }
