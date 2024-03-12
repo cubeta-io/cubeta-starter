@@ -58,7 +58,7 @@ trait RouteBinding
             $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . ';';
         } else {
             $sub = $actor ? "$actor/" : '';
-            $route = 'Route::apiResource("/' . $sub . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
+            $route = "Route::apiResource('/{$sub}{$pluralLowerModelName}' , v1\\{$table->getControllerName()}::class)->names('$routeName') ;\n";
             $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . ';';
         }
 
