@@ -139,7 +139,7 @@ class ModelGenerator extends AbstractGenerator
                 $relatedTable = Settings::make()->getTable($relation->modelName);
                 if ($relatedTable) {
                     $relationsSearchable .=
-                        "'{$relation->method()}' => [\n{$relatedTable->columnsAsString()}\n//add your {$relation->method()} desired column to be search within\n] , \n";
+                        "'{$relation->method()}' => [\n{$relatedTable->searchableColsAsString()}\n//add your {$relation->method()} desired column to be search within\n] , \n";
                 } else {
                     $relationsSearchable .=
                         "'{$relation->method()}' => [\n//add your {$relation->method()} desired column to be search within\n] , \n";

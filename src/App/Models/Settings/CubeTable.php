@@ -277,7 +277,7 @@ class CubeTable
         return collect($this->toArray());
     }
 
-    public function columnsAsString()
+    public function searchableColsAsString(): string
     {
         $cols = $this->attributes()
             ->filter(fn(CubeAttribute $attr) => $attr->isString())

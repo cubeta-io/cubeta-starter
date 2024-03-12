@@ -76,6 +76,9 @@ class CodeSniffer
                     $this->hasManyFunction($this->table)
                 );
             }
+
+            $relationSearchableArray = "'{$this->table->relationFunctionNaming(singular:$relation->isHasMany())}' => [\n{$this->table->searchableColsAsString()}\n]\n,";
+            ClassUtils::addToMethodReturnArray($relatedPath , $relation->getModelClassString() , 'relationsSearchableArray' , $relationSearchableArray);
         });
 
         return $this;
