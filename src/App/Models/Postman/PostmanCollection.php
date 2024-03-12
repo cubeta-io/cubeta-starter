@@ -58,16 +58,20 @@ class PostmanCollection implements PostmanObject
         ];
     }
 
-    public function newCrud(CubeTable $table): static
+    public function newCrud(CubeTable $table, ?string $actor = null): static
     {
         if ($this->checkIfCollectionExist($table->modelName)) {
             return $this;
         }
 
+        if($actor){
+            $baseUrl = "$actor/{$table->routeUrlNaming()}";
+        } else $baseUrl = $table->routeUrlNaming();
+
         $index = new PostmanRequest(
             name: "index",
             method: PostmanRequest::GET,
-            url: RequestUrl::getUrlFromRoute($table->routeUrlNaming()),
+            url: RequestUrl::getUrlFromRoute($baseUrl),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer(),
         );
@@ -75,7 +79,7 @@ class PostmanCollection implements PostmanObject
         $show = new PostmanRequest(
             name: "show",
             method: PostmanRequest::GET,
-            url: RequestUrl::getUrlFromRoute("{$table->routeUrlNaming()}/1"),
+            url: RequestUrl::getUrlFromRoute("{$baseUrl}/1"),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer()
         );
@@ -83,7 +87,7 @@ class PostmanCollection implements PostmanObject
         $store = new PostmanRequest(
             name: "store",
             method: PostmanRequest::POST,
-            url: RequestUrl::getUrlFromRoute("{$table->routeUrlNaming()}"),
+            url: RequestUrl::getUrlFromRoute("{$baseUrl}"),
             header: [RequestHeader::setAcceptJson()],
             body: new RequestBody('formdata', $this->getBodyData($table->attributes())),
             auth: RequestAuth::bearer(),
@@ -92,7 +96,7 @@ class PostmanCollection implements PostmanObject
         $update = new PostmanRequest(
             name: "update",
             method: PostmanRequest::PUT,
-            url: RequestUrl::getUrlFromRoute("{$table->routeUrlNaming()}/1"),
+            url: RequestUrl::getUrlFromRoute("{$baseUrl}/1"),
             header: [RequestHeader::setAcceptJson()],
             body: new RequestBody('formdata', $this->getBodyData($table->attributes())),
             auth: RequestAuth::bearer(),
@@ -101,7 +105,7 @@ class PostmanCollection implements PostmanObject
         $delete = new PostmanRequest(
             name: "delete",
             method: PostmanRequest::DELETE,
-            url: RequestUrl::getUrlFromRoute("{$table->routeUrlNaming()}/1"),
+            url: RequestUrl::getUrlFromRoute("{$baseUrl}/1"),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer(),
         );
@@ -126,23 +130,23 @@ class PostmanCollection implements PostmanObject
      * @param Collection<CubeAttribute>|array<CubeAttribute> $columns
      * @return FormDataField[]
      */
-    private function getBodyData(Collection|array $columns): array
+    private function getBodyData(Collection | array $columns): array
     {
         $data = [];
         foreach ($columns as $column) {
 
-            if (ColumnTypeEnum::isNumericType($column->type)){
-                $data[] = new FormDataField($column->name, (string)fake()->numberBetween(1, 10));
+            if (ColumnTypeEnum::isNumericType($column->type)) {
+                $data[] = new FormDataField($column->name, (string) fake()->numberBetween(1, 10));
                 continue;
             }
 
             $data[] = match ($column->type) {
-                ColumnTypeEnum::BOOLEAN->value => new FormDataField($column->name, (string)fake()->boolean),
+                ColumnTypeEnum::BOOLEAN->value => new FormDataField($column->name, (string) fake()->boolean),
                 ColumnTypeEnum::DATE->value => new FormDataField($column->name, now()->format('Y-m-d')),
                 ColumnTypeEnum::DATETIME->value => new FormDataField($column->name, now()->format('Y-m-d H:i:s')),
                 ColumnTypeEnum::TIME->value => new FormDataField($column->name, now()->format('H:i:s')),
-                ColumnTypeEnum::JSON->value => new FormDataField($column->name, (string)json_encode([fake()->word => fake()->word])),
-                ColumnTypeEnum::TRANSLATABLE->value => new FormDataField($column->name, (string)json_encode(["ar" => fake()->word, "en" => fake()->word])),
+                ColumnTypeEnum::JSON->value => new FormDataField($column->name, (string) json_encode([fake()->word => fake()->word])),
+                ColumnTypeEnum::TRANSLATABLE->value => new FormDataField($column->name, (string) json_encode(["ar" => fake()->word, "en" => fake()->word])),
                 ColumnTypeEnum::TEXT->value => new FormDataField($column->name, fake()->text),
                 ColumnTypeEnum::KEY->value => new FormDataField($column->name, "1"),
                 default => new FormDataField($column->name, fake()->word),
@@ -185,7 +189,10 @@ class PostmanCollection implements PostmanObject
      */
     public function save(): static
     {
-        if (!Postman::$path) throw new Exception("Collection Path isn't specified");
+        if (!Postman::$path) {
+            throw new Exception("Collection Path isn't specified");
+        }
+
         Postman::$path->putContent(json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         return $this;
     }

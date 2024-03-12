@@ -38,10 +38,10 @@ trait RouteBinding
 
         $routeName = $this->getRouteName($table, $container, $actor);
 
-        if ($container == ContainerType::WEB) {
+        if (ContainerType::isWeb($container)) {
             $routes = $this->addAdditionalRoutesForAdditionalControllerMethods($table, $routeName, $additionalRoutes);
-            $routes [] = "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$table->modelNaming()}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\");";
-            $routes [] = 'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;';
+            $routes[] = "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$table->modelNaming()}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\");";
+            $routes[] = 'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;';
 
             foreach ($routes as $key => $route) {
                 if ($this->routeExist($routePath, $route)) {
@@ -57,7 +57,7 @@ trait RouteBinding
             $route = implode("\n", $routes);
             $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . ';';
         } else {
-            $route = 'Route::apiResource("/' . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
+            $route = 'Route::apiResource("/' . $actor ? "$actor/" : '' . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
             $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . ';';
         }
 
@@ -108,7 +108,7 @@ trait RouteBinding
                 $filePath->fullPath,
                 __DIR__ . '/../stubs/api.stub'
             );
-        } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
+        } catch (Exception | BindingResolutionException | FileNotFoundException $e) {
             CubeLog::add($e);
             return;
         }
@@ -182,7 +182,7 @@ trait RouteBinding
         $routes = [];
 
         if (in_array('allPaginatedJson', $additionalRoutes)) {
-            $routes [] = "Route::get(\"dashboard/{$pluralLowerModelName}/all-paginated-json\", [v1\\{$table->modelNaming()}" . "Controller::class, \"allPaginatedJson\"])->name(\"{$routeName}.allPaginatedJson\");";
+            $routes[] = "Route::get(\"dashboard/{$pluralLowerModelName}/all-paginated-json\", [v1\\{$table->modelNaming()}" . "Controller::class, \"allPaginatedJson\"])->name(\"{$routeName}.allPaginatedJson\");";
         }
 
         return $routes;

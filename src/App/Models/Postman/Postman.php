@@ -62,6 +62,6 @@ class Postman
 
     private static function getProjectUrl()
     {
-        return config('cubeta-starter.project_url') ?? "http://localhost/" . config('cubeta-starter.project_name') . "/public/";
+        return config('cubeta-starter.project_url') ?? "http://localhost/" . config('cubeta-starter.project_name') . "/public/api/";
     }
 }
