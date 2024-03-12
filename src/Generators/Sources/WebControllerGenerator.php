@@ -27,8 +27,6 @@ class WebControllerGenerator extends AbstractGenerator
 
     protected array $additionalRoutes = [];
 
-    protected CubeTable $table;
-
     public function run(bool $override = false): void
     {
         $modelNameCamelCase = $this->table->variableNaming();
@@ -37,7 +35,10 @@ class WebControllerGenerator extends AbstractGenerator
 
         if ($controllerPath->exist()) {
             $controllerPath->logAlreadyExist("Generating Web Controller For  ({$this->table->modelName}) Model");
+            return;
         }
+
+        $controllerPath->ensureDirectoryExists();
 
         $routesNames = $this->getRoutesNames($this->table, $this->actor);
         $views = $this->getViewsNames($this->table, $this->actor);
@@ -63,7 +64,7 @@ class WebControllerGenerator extends AbstractGenerator
             '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns(),
             '{additionalMethods}' => $this->additionalControllerMethods(),
             '{loadedRelations}' => $this->getLoadedRelations(),
-            '{baseRouteName}' => $routesNames['base']
+            '{baseRouteName}' => $routesNames['base'],
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
@@ -103,7 +104,7 @@ class WebControllerGenerator extends AbstractGenerator
             'create' => $baseRouteName . '.create',
             'data' => $baseRouteName . '.data',
             'update' => $baseRouteName . '.update',
-            'base' => $baseRouteName
+            'base' => $baseRouteName,
         ];
     }
 
@@ -147,14 +148,13 @@ class WebControllerGenerator extends AbstractGenerator
                     continue;
                 }
 
-
                 $showRouteName = $this->getRoutesNames($relatedModel, $this->actor)['show'];
 
                 if (!Route::has($showRouteName)) {
                     continue;
                 }
 
-                $relatedTable = Settings::make()->getTable($relatedModel);
+                $relatedTable = Settings::make()->getTable($relatedModel->modelName);
                 $columnName = $relatedTable->relationFunctionNaming() . '.' . $relatedTable->titleable()->name;
                 $columnCalling = "\$row->" . $relatedTable->relationFunctionNaming() . "->" . $relatedTable->titleable()->name;
                 $dataColumn .= "
@@ -227,9 +227,9 @@ class WebControllerGenerator extends AbstractGenerator
             return $relatedModelPath->exist()
                 and (
                 ($rel->isHasMany())
-                    ? ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming(singular: false))
-                    : ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming())
-                );
+                ? ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming(singular : false))
+                : ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming())
+            );
         })->map(fn(CubeRelation $rel) => $rel->method())->toArray();
 
         $loadedString = '';
