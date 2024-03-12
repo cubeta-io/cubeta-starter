@@ -35,7 +35,7 @@ class ApiControllerGenerator extends AbstractGenerator
             '{requestNamespace}' => config('cubeta-starter.request_namespace'),
             '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
             '{idVariable}' => $this->table->idVariable(),
-            "{modelNamespace}" => config('cubeta-starter.model_namespace')
+            "{modelNamespace}" => config('cubeta-starter.model_namespace'),
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
@@ -43,7 +43,7 @@ class ApiControllerGenerator extends AbstractGenerator
         $controllerPath->format();
 
         try {
-            Postman::make()->getCollection()->newCrud($this->table)->save();
+            Postman::make()->getCollection()->newCrud($this->table, $this->actor)->save();
             CubeLog::add(new SuccessMessage("Postman Collection Now Has Folder For The Generated Controller [{$this->table->getControllerName()}] \nRe-Import It In Postman"));
         } catch (Exception $e) {
             CubeLog::add($e);
