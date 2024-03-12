@@ -57,7 +57,8 @@ trait RouteBinding
             $route = implode("\n", $routes);
             $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . ';';
         } else {
-            $route = 'Route::apiResource("/' . $actor ? "$actor/" : '' . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
+            $sub = $actor ? "$actor/" : '';
+            $route = 'Route::apiResource("/' . $sub . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;' . "\n";
             $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . ';';
         }
 
