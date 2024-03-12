@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class CubetaStarterServiceProvider extends ServiceProvider
 {
@@ -40,10 +41,10 @@ class CubetaStarterServiceProvider extends ServiceProvider
                 $repositoryFileName = $repositoryFile->getBasename();
                 $repository = str_replace('.php', '', $repositoryFileName);
                 $model = str_replace('Repository', '', $repository);
-                $path = str_replace('/', '\\', app_path() . '/Models/' . $model . '.php');
+                $path = str_replace('/', DIRECTORY_SEPARATOR, app_path() . '/Models/' . $model . '.php');
                 if (file_exists($path)) {
                     $this->app->bind('App\Repositories\\' . $repository, function ($app) use ($repository, $model) {
-                        return new ('\App\Repositories\\' . $repository)(
+                        return new ('App\Repositories\\' . $repository)(
                             $app->make('\App\Models\\' . $model)
                         );
                     });
@@ -56,11 +57,16 @@ class CubetaStarterServiceProvider extends ServiceProvider
             $services = [];
             foreach ($serviceFiles as $serviceFile) {
                 $serviceFileName = $serviceFile->getBasename();
+
+                if (Str::startsWith($serviceFileName, "I")) {
+                    continue;
+                }
+
                 $service = str_replace('.php', '', $serviceFileName);
                 $iService = 'I' . $service;
                 $modelName = str_replace('Service', '', $service);
 
-                $path = str_replace('/', '\\', app_path() . '/Services/' . $modelName . '/' . $iService . '.php');
+                $path = str_replace('/', DIRECTORY_SEPARATOR, app_path() . '/Services/' . $modelName . '/' . $iService . '.php');
 
                 if (in_array($service, $services)) {
                     continue;
