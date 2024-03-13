@@ -126,7 +126,7 @@ class CallAppropriateCommand extends Controller
     {
         $factoryData = [
             'key' => ApiControllerGenerator::$key,
-            'route' => 'cubeta-starter.generate-api-controller.page'
+            'route' => 'cubeta-starter.generate-api-controller.page',
         ];
 
         return $this->runFactory($factoryData, "Api Controller Created Successfully");
@@ -183,24 +183,24 @@ class CallAppropriateCommand extends Controller
             if ($factoryData['key'] == "all") {
                 foreach (GeneratorFactory::getAllGeneratorsKeys() as $key) {
                     $generator->setSource($key)->make(
-                        $arguments['name'],
-                        $arguments['attributes'] ?? [],
-                        $arguments['relations'] ?? [],
-                        $arguments['nullables'] ?? [],
-                        $arguments['uniques'] ?? [],
-                        $arguments['actor'] ?? null,
-                        $arguments['container'] ?? ContainerType::API,
+                        fileName: $arguments['name'],
+                        attributes: $arguments['attributes'] ?? [],
+                        relations: $arguments['relations'] ?? [],
+                        nullables: $arguments['nullables'] ?? [],
+                        uniques: $arguments['uniques'] ?? [],
+                        actor: $arguments['actor'] ?? null,
+                        generatedFor: $this->container ?? ContainerType::API,
                     );
                 }
             } else {
                 $generator->setSource($factoryData['key'])->make(
-                    $arguments['name'],
-                    $arguments['attributes'] ?? [],
-                    $arguments['relations'] ?? [],
-                    $arguments['nullables'] ?? [],
-                    $arguments['uniques'] ?? [],
-                    $arguments['actor'] ?? null,
-                    $arguments['container'] ?? ContainerType::API,
+                    fileName: $arguments['name'],
+                    attributes: $arguments['attributes'] ?? [],
+                    relations: $arguments['relations'] ?? [],
+                    nullables: $arguments['nullables'] ?? [],
+                    uniques: $arguments['uniques'] ?? [],
+                    actor: $arguments['actor'] ?? null,
+                    generatedFor: $this->container ?? ContainerType::API,
                 );
             }
 
@@ -216,7 +216,7 @@ class CallAppropriateCommand extends Controller
     {
         $factoryData = [
             'key' => FactoryGenerator::$key,
-            'route' => 'cubeta-starter.generate-factory.page'
+            'route' => 'cubeta-starter.generate-factory.page',
         ];
 
         return $this->runFactory($factoryData, "New Factory Generated Successfully");
@@ -226,7 +226,7 @@ class CallAppropriateCommand extends Controller
     {
         $factoryData = [
             'key' => MigrationGenerator::$key,
-            'route' => 'cubeta-starter.generate-migration.page'
+            'route' => 'cubeta-starter.generate-migration.page',
         ];
 
         return $this->runFactory($factoryData, "New Migration Generated Successfully");
@@ -236,7 +236,7 @@ class CallAppropriateCommand extends Controller
     {
         $factoryData = [
             'key' => ModelGenerator::$key,
-            'route' => 'cubeta-starter.generate-full.page'
+            'route' => 'cubeta-starter.generate-full.page',
         ];
 
         return $this->runFactory($factoryData, "New Model generated Successfully");
@@ -246,7 +246,7 @@ class CallAppropriateCommand extends Controller
     {
         $factoryData = [
             'key' => RepositoryGenerator::$key,
-            'route' => 'cubeta-starter.generate-repository.page'
+            'route' => 'cubeta-starter.generate-repository.page',
         ];
 
         return $this->runFactory($factoryData, "New Repository Class Generated Successfully");
@@ -256,7 +256,7 @@ class CallAppropriateCommand extends Controller
     {
         $factoryData = [
             'key' => RequestGenerator::$key,
-            'route' => 'cubeta-starter.generate-request.page'
+            'route' => 'cubeta-starter.generate-request.page',
         ];
 
         return $this->runFactory($factoryData, "New Form Request Generated Successfully");
@@ -266,7 +266,7 @@ class CallAppropriateCommand extends Controller
     {
         $factoryData = [
             'key' => ResourceGenerator::$key,
-            'route' => 'cubeta-starter.generate-resource.page'
+            'route' => 'cubeta-starter.generate-resource.page',
         ];
 
         return $this->runFactory($factoryData, "New Resource Generated Successfully");
@@ -276,7 +276,7 @@ class CallAppropriateCommand extends Controller
     {
         $factoryData = [
             'key' => SeederGenerator::$key,
-            'route' => 'cubeta-starter.generate-seeder.page'
+            'route' => 'cubeta-starter.generate-seeder.page',
         ];
 
         return $this->runFactory($factoryData, "New Seeder Generated Successfully");
@@ -286,7 +286,7 @@ class CallAppropriateCommand extends Controller
     {
         $factoryData = [
             'key' => ServiceGenerator::$key,
-            'route' => 'cubeta-starter.generate-service.page'
+            'route' => 'cubeta-starter.generate-service.page',
         ];
 
         return $this->runFactory($factoryData, "New Service Class And Its Interface Generated Successfully");
@@ -296,7 +296,7 @@ class CallAppropriateCommand extends Controller
     {
         $factoryData = [
             'key' => TestGenerator::$key,
-            'route' => 'cubeta-starter.generate-test.page'
+            'route' => 'cubeta-starter.generate-test.page',
         ];
 
         return $this->runFactory($factoryData, "New Test For Api Controller Generated Successfully");
@@ -306,7 +306,7 @@ class CallAppropriateCommand extends Controller
     {
         $factoryData = [
             'key' => WebControllerGenerator::$key,
-            'route' => 'cubeta-starter.generate-web-controller.page'
+            'route' => 'cubeta-starter.generate-web-controller.page',
         ];
 
         return $this->runFactory($factoryData, "New Web Controller With Related Views Generated Successfully");
@@ -348,7 +348,7 @@ class CallAppropriateCommand extends Controller
     {
         return $this->runFactory([
             "key" => "all",
-            "route" => 'cubeta-starter.generate-full.page'
+            "route" => 'cubeta-starter.generate-full.page',
         ], "A Full CRUD Operation Has Been Created");
     }
 }
