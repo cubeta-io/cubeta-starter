@@ -34,7 +34,7 @@ trait Translations
             );
         }
 
-        $translationsArray = json_decode($this->getRawOriginal($translatableColumn), true);
+        $translationsArray = json_decode($this->getAttributes()[$translatableColumn], true);
         $translationsArray[$locale] = $value;
 
         $this->{"{$translatableColumn}"} = json_encode($translationsArray);
@@ -56,7 +56,7 @@ trait Translations
     public function getTranslation(string $translationColumn, string $locale = null): mixed
     {
         $locale ??= app()->getLocale();
-        $translationArray = json_decode($this->getRawOriginal($translationColumn), true);
+        $translationArray = json_decode($this->getAttributes()[$translationColumn], true);
 
         if ($locale) {
             return $translationArray[$locale] ?? null;
