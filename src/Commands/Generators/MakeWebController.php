@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Commands\Generators;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Commands\BaseCommand;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeWebController extends BaseCommand
@@ -29,7 +30,7 @@ class MakeWebController extends BaseCommand
         $attributes = $this->argument('attributes') ?? null;
 
         if (!$attributes) {
-            [$attributes, , $nullables] = $this->askForModelAttributes(false , true);
+            [$attributes, , $nullables] = $this->askForModelAttributes(false, true);
         }
 
         $relations = $this->argument('relations') ?? ($this->askForRelations($modelName) ?? []);
@@ -38,8 +39,8 @@ class MakeWebController extends BaseCommand
 
         $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors("Model"));
 
-        $generator = new GeneratorFactory("web-controller");
-        $generator->make(fileName: $modelName, attributes: $attributes, relations: $relations, nullables: $nulls, actor: $actor);
+        $generator = new GeneratorFactory("controller");
+        $generator->make(fileName: $modelName, attributes: $attributes, relations: $relations, nullables: $nulls, actor: $actor, generatedFor: ContainerType::WEB);
         $this->handleCommandLogsAndErrors();
     }
 }

@@ -27,8 +27,7 @@ class GeneratorFactory
             Sources\SeederGenerator::$key,
             Sources\RepositoryGenerator::$key,
             Sources\ServiceGenerator::$key,
-            Sources\ApiControllerGenerator::$key,
-            Sources\WebControllerGenerator::$key,
+            Sources\ControllerGenerator::$key,
             Sources\TestGenerator::$key,
         ];
     }
@@ -40,17 +39,16 @@ class GeneratorFactory
     }
 
     public function make(
-        string  $fileName = "",
-        array   $attributes = [],
-        array   $relations = [],
-        array   $nullables = [],
-        array   $uniques = [],
+        string $fileName = "",
+        array $attributes = [],
+        array $relations = [],
+        array $nullables = [],
+        array $uniques = [],
         ?string $actor = null,
-        string  $generatedFor = "",
-        bool    $override = true
-    ): void
-    {
-        if (!$this->source){
+        string $generatedFor = "",
+        bool $override = true
+    ): void {
+        if (!$this->source) {
             throw new Exception("Undefined Generator Factory Key Please Provide One");
         }
         $generator = match ($this->source) {
@@ -126,16 +124,7 @@ class GeneratorFactory
                 actor: $actor,
                 generatedFor: $generatedFor
             ),
-            Sources\ApiControllerGenerator::$key => new Sources\ApiControllerGenerator(
-                fileName: $fileName,
-                attributes: $attributes,
-                relations: $relations,
-                nullables: $nullables,
-                uniques: $uniques,
-                actor: $actor,
-                generatedFor: $generatedFor
-            ),
-            Sources\WebControllerGenerator::$key => new Sources\WebControllerGenerator(
+            Sources\ControllerGenerator::$key => new Sources\ControllerGenerator(
                 fileName: $fileName,
                 attributes: $attributes,
                 relations: $relations,

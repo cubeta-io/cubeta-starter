@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
 use Cubeta\CubetaStarter\Commands\BaseCommand;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeController extends BaseCommand
@@ -18,9 +19,9 @@ class MakeController extends BaseCommand
         $modelName = $this->argument("name") ?? $this->askForModelName("Controller");
         $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors("Controller") ?? null);
 
-        $gen = new GeneratorFactory("api-controller");
+        $gen = new GeneratorFactory("controller");
 
-        $gen->make(fileName: $modelName, actor: $actor);
+        $gen->make(fileName: $modelName, actor: $actor, generatedFor: ContainerType::API);
 
         $this->handleCommandLogsAndErrors();
     }
