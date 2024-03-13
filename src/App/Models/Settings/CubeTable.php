@@ -189,7 +189,7 @@ class CubeTable
     /**
      * @return CubeAttribute
      */
-    public function titleable(): CubeAttribute
+    public function titleable(): ?CubeAttribute
     {
         foreach ($this->attributes as $attribute) {
             if (Str::contains($attribute->name, ['name', 'title'], true)
@@ -198,7 +198,7 @@ class CubeTable
             }
         }
 
-        return $this->getAttribute("id");
+        return $this->getAttribute("id") ?? new CubeAttribute("id", "integer");
     }
 
     /**

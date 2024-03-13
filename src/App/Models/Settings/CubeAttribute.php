@@ -39,7 +39,7 @@ class CubeAttribute
      * @param bool $nullable
      * @param bool $unique
      */
-    public function __construct(string $name, string $type, bool $nullable, bool $unique)
+    public function __construct(string $name, string $type, bool $nullable = false, bool $unique= false)
     {
         $this->name = Naming::column($name);
         $this->type = $type;
