@@ -81,6 +81,7 @@ class ModelGenerator extends AbstractGenerator
             if ($attribute->isKey()) {
                 $relatedModelName = $attribute->modelNaming(str_replace('_id', '', $attribute->name));
                 $relatedModel = CubeTable::create($relatedModelName);
+                $properties .= "* @property integer {$attribute->name} \n";
 
                 if ($relatedModel->getModelPath()->exist()) {
                     $relationsFunctions .= $this->belongsToFunction($relatedModel);
