@@ -7,7 +7,7 @@ use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 
 class ControllerGenerator extends AbstractGenerator
 {
-    public static $key = "controller";
+    public static string $key = "controller";
 
     public function run(bool $override = false): void
     {

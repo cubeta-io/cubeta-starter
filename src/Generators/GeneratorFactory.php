@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators;
 
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Error;
 use Mockery\Exception;
@@ -45,7 +46,7 @@ class GeneratorFactory
         array $nullables = [],
         array $uniques = [],
         ?string $actor = null,
-        string $generatedFor = "",
+        string $generatedFor = ContainerType::API,
         bool $override = true
     ): void {
         if (!$this->source) {
