@@ -2,11 +2,11 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Model;
 use Exception;
 
 /**
- * @method getRawOriginal(string $translationColumn)
- * @method save()
+ * @extends Model
  */
 trait Translations
 {
