@@ -158,17 +158,6 @@ class RenderAppropriateViewController extends Controller
         return view('CubetaStarter::main-generate-page', compact('types'))->with($this->arguments);
     }
 
-    public function generatePostmanCollection()
-    {
-        $types = $this->types;
-        $this->arguments['title'] = 'Postman Collection';
-        $this->arguments['textUnderTitle'] = 'Here We Will Generate The Postman Collection Your Model Endpoints (CRUDs Only)';
-        $this->arguments['action'] = route('cubeta-starter.call-create-postman-collection-command');
-        $this->arguments['attributesField'] = true;
-        $this->arguments['modalBody'] = "generating postman collection";
-        return view('CubetaStarter::main-generate-page', compact('types'))->with($this->arguments);
-    }
-
     public function generateRepository()
     {
         $this->arguments['title'] = 'Repository';

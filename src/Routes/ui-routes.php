@@ -23,7 +23,6 @@ Route::prefix('/cubeta-starter')->name('cubeta-starter.')->group(function () {
             Route::get('/resource', 'generateResource')->name('resource.page');
             Route::get('/api-controller', 'generateController')->name('api-controller.page');
             Route::get('/test', 'generateTest')->name('test.page');
-            Route::get('/postman-collection', 'generatePostmanCollection')->name('postman-collection.page');
             Route::get('/add-actor', 'addActor')->name('add-actor.page');
             Route::get('/web-controller', 'generateWebController')->name('web-controller.page');
         });
