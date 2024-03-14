@@ -63,7 +63,7 @@
         <script type="module">
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
-                    confirmButton: 'btn btn-primary',
+                    confirmButton: 'btn btn-warning',
                     cancelButton: 'btn btn-secondary'
                 },
                 buttonsStyling: false
