@@ -1,11 +1,10 @@
 <!-- docs/_sidebar.md -->
 
-- [Introduction](README.md#introduction "introduction")
-- [Installation](README.md#installation)
-    - [Complete Installation](README.md#complete-installation)
-    - [Using Gui](README.md#use-gui)
-    - [Using Terminal Commands](README.md#use-terminal)
-      - [Available Publish Tags](README.md#publish-tags)
+- [Introduction](introduction.md#introduction "introduction")
+- [Installation](introduction.md#installation)
+    - [Complete Installation](introduction.md#complete-installation)
+    - [Using Gui](introduction.md#use-gui)
+    - [Using Terminal Commands](introduction.md#use-terminal)
 - [Usage](README.md#usage)
     - [Available Commands](README.md#available-commands)
     - [cubeta-init Command](README.md#cubeta-init-command)

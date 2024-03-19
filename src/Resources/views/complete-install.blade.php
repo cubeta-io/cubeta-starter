@@ -32,52 +32,55 @@
                     <div class="card-header text-center">
                         <div class="card-header text-center">
                             <h1>Complete the installation</h1>
-                            <p>publish the package assets and install the desired packages based on your use of our
-                                package</p>
+                            <p>publish the package assets and install the desired packages based on your use of it</p>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="row">
 
                             <div class="col-md-5 border border-2">
-                                <h4 class="form-label">Publish For API Usage</h4>
+                                <h4 class="form-label">Install For API Usage</h4>
                                 <br>
                                 <p class="description-font">
-                                    This will publish all the helper classes and traits for API development
+                                    This will install all the helper classes and traits for api based development within
+                                    your
+                                    project
                                 </p>
 
                                 <a id="publish-api"
                                    href="{{route('cubeta-starter.api.publish')}}"
                                    class="btn btn-primary w-auto">
-                                    Publish API
+                                    Install API
                                 </a>
                             </div>
 
                             <div class="col-md-5 border border-2">
-                                <h4 class="form-label m-auto">Publish For Web Usage</h4>
+                                <h4 class="form-label m-auto">Install For Web Usage</h4>
                                 <br>
                                 <p class="description-font">
-                                    This will publish all the helper classes , views , blade
-                                    components and traits for
-                                    Web development
+                                    This will install all the helper classes and traits for web based development within
+                                    your
+                                    project
                                 </p>
-                                <p class="description-font fw-bold text-danger">Don't forget to install the npm packages in the section below</p>
                                 <a id="publish-web"
                                    href="{{route('cubeta-starter.web.publish')}}"
                                    class="btn btn-primary w-auto">
-                                    Publish Web
+                                    Install Web
                                 </a>
                             </div>
 
 
                             <a href="{{route('cubeta-starter.publish-all')}}" class="my-3" id="publish-all">
-                                <button class="btn btn-primary w-100">Publish All</button>
+                                <button class="btn btn-primary w-100">Install Both</button>
                             </a>
                         </div>
 
                         <div class="col-md-12 border border-2">
-                            <h4 class="form-label m-auto">Installing web packages</h4>
+                            <h3 class="form-label m-auto">Install npm packages</h3>
                             <br>
+                            <p class="description-font fw-bold">
+                                Required when installing web based usage tools
+                            </p>
                             <p class="description-font">
                                 this will install the following :
                             </p>
@@ -106,7 +109,7 @@
                             <a id="install-web-packages"
                                href="{{route('cubeta-starter.install-web-packages')}}"
                                class="btn btn-primary w-auto">
-                                install web packages
+                                install npm packages
                             </a>
                         </div>
 
@@ -117,7 +120,8 @@
                                 <li class="notes">installing web packages require you to have npm installed on your
                                     machine and may take long time depends on your internet
                                 </li>
-                                <li class="notes">publishing the web package require you to install the web packages
+                                <li class="notes">Installing web usage tools requires you to install the provided npm
+                                    packages
                                 </li>
                             </ul>
                         </div>
@@ -145,16 +149,16 @@
                     modal.show();
                 })
                 $('#publish-api').click(function () {
-                    document.getElementById('modal-title').innerText = "Publishing Api Based Usage Tools"
+                    document.getElementById('modal-title').innerText = "Installing Api Based Usage Tools"
                     modal.show();
                 })
                 $('#publish-web').click(function () {
-                    document.getElementById('modal-title').innerText = "Publishing Web Based Usage Tools"
+                    document.getElementById('modal-title').innerText = "Installing Web Based Usage Tools"
                     modal.show();
                 })
 
                 $('#publish-all').click(function () {
-                    document.getElementById('modal-title').innerText = "Publishing Api And Web Tools"
+                    document.getElementById('modal-title').innerText = "Installing Api And Web Tools"
                     modal.show();
                 })
 
