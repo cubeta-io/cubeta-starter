@@ -3,25 +3,26 @@
 namespace App\Traits;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
 
 trait TestHelpers
 {
     use RefreshDatabase;
 
-    protected $model;
+    protected string $model;
 
-    protected $relations = [];
+    protected array $relations = [];
 
-    protected $requestPath;
+    protected string $requestPath;
 
-    protected $resource;
+    /** @var class-string */
+    protected string $resource;
 
-    protected $user;
+    protected User $user;
 
-    protected $userType;
+    protected string $userType;
 
     protected array $pagination = [
         'currentPage' => 1,
@@ -38,16 +39,15 @@ trait TestHelpers
         'paginate' => null,
     ];
 
-    /**
-     * @return void
-     */
+    protected array $headers = [
+        'Accept' => 'application/json',
+    ];
+
     public function setUp(): void
     {
         parent::setUp();
 
         if (isset($this->userType) && $this->userType != 'none') {
-            $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->registerPermissions();
-            Artisan::call('db:seed PermissionSeeder');
             Artisan::call('db:seed RoleSeeder');
         }
 
@@ -62,7 +62,7 @@ trait TestHelpers
         $tableName = (new $this->model())->getTable();
         $columns = Schema::getColumnListing($tableName);
 
-        return (bool)(in_array('deleted_at', $columns));
+        return (bool) (in_array('deleted_at', $columns));
     }
 
     /**
@@ -73,7 +73,7 @@ trait TestHelpers
      */
     public function convertResourceToArray(mixed $data, bool $multiple = false): array
     {
-        if (!$multiple) {
+        if (! $multiple) {
             return json_decode(
                 json_encode(new $this->resource($data)),
                 JSON_PRETTY_PRINT
@@ -118,8 +118,7 @@ trait TestHelpers
     }
 
     /**
-     * @param  string $routeName the route name
-     * @return void
+     * @param string $routeName the route name
      */
     public function requestPathHook(string $routeName = ''): void
     {
