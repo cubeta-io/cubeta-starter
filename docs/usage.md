@@ -126,43 +126,9 @@ Now as you see you are now ready to create your authentication endpoints powered
 > path and name as the generated files will be lost
 
 Looking at the generated files you should focus on two files the first is : `UserService.php`
-and `BaseAuthController.php` as you will notice that the **UserService** class handle the authentiation logic for both
+and `BaseAuthController.php` as you will notice that the **UserService** class handle the authentication logic for both
 use cases ( _api and web_ ) and the class **BaseAuthController** use the **UserService** in a way that allows you to
-extend it for every actor .
-let us say that we have two actors in our app (admin , customer) and for each one we need an authentication endpoints (login , register , refresh token , reset password ,....)
-all what we have to do is the following : 
-1. create new controller and call it AdminAuthController for example
-
-it should look like this : 
-```php
-namespace App\Http\Controllers;
-
-class AdminAuthController extends Controller
-{
-    
-}
-
-```
-
-2. now just edit it to extend the **BaseAuthController** class like this :
-
-```php
-<?php
-
-namespace App\Http\Controllers\API\v1;
-
-use App\Enums\RolesPermissionEnum;
-use App\Services\User\IUserService;
-
-class AdminAuthController extends BaseAuthController
-{
-    public function __construct(IUserService $userService)
-    {
-        parent::__construct($userService);
-        $this->roleHook(RolesPermissionEnum::ADMIN['role']);
-    }
-}
-```
+extend it for every actor you want.
 
 <h2 id="create-actor-command">Create Actor Command</h2>
 
@@ -233,18 +199,97 @@ Do You Want To Create Authentication Api Controller For This Actor ? (yes/no) [y
 
 in many cases you may mistake while generating so this question will allow you to override the generated files .
 
-Now you will notice that the there is multiple files generated :
+Now you will notice that the there is multiple files generated and some changes in your project files:
 
-1. RolesPermissionsEnum.php
+1. **RolesPermissionsEnum.php** (basically in `app/Enums` Directory )
 2. routes files named by your actor
-3.
-
-> [!note]
-> this generated actors
+3. **StudentAuthController.php**
+4. RoleSeeder
+5. **student.php** route file
+6. the **RouteServiceProvider.php** in `app/Providers` directory has been changed to add the student.php route file to
+   your app routes
+7. the `student.php` and `public.php` route files has the auth routes for the generated controller
 
 > [!warning]
 > when overriding any file with the same name and directory of the generated file will be lost
 > so be careful
+
+> [!note]
+> this command works with the generated files of these commands :  `cubeta:install-permissions` , `cubeta:install-auth`
+> so make sure that you follow their steps before start adding actors
+
+now if you opened the generated **StudentAuthController** you'll see the following
+
+```php
+<?php
+
+namespace App\Http\Controllers\API\v1;
+
+use App\Enums\RolesPermissionEnum;
+use App\Services\User\IUserService;
+
+class AdminAuthController extends BaseAuthController
+{
+    public function __construct(IUserService $userService)
+    {
+        parent::__construct($userService);
+        $this->roleHook(RolesPermissionEnum::ADMIN['role']);
+    }
+}
+```
+
+> [!note]
+> all the namespaces and the generating directories are based on the config you defined in
+> the `config/cubeta-starter.php` file
+
+as this class extend the **BaseAuthController** controller class then it will has all public and protected methods
+defined in it so if you opened the `routes/v1/api/public.php` route file you'll see that the generated routes are using
+the same methods exist in the **BaseAuthController** class
+
+now let us assume that you want to add a specific logic when you register a new student
+in the **BaseAuthController** class you'll see that this is the register method :
+
+```php
+public function register(AuthRegisterRequest $request)
+    {
+        [$user , $token, $refresh_token] = $this->userService->register($request->validated(), $this->role);
+
+        return $this->apiResponse([
+            'user' => new UserResource($user) ,
+            'token' => $token ,
+            'refresh_token' => $refresh_token
+        ], self::STATUS_OK, __('site.registered_successfully'));
+    }
+```
+
+so in your generated controller i.e : **StudentAuthController** all what you have to do is to add the following method
+to it :
+
+```php
+// or whatever namespace you defined in the package config file
+use App\Http\Requests\AuthRequests\AuthRegisterRequest;
+
+public function register(AuthRegisterRequest $request)
+{
+    // your specific logic
+}
+```
+
+or if you want to extend its logic and save the **BaseAuthController** register method logic
+
+```php
+public function register(AuthRegisterRequest $request)
+{
+    // add your specific logic here ...
+  
+    return parent::register($request);
+}
+```
+
+> [!note]
+> the base purpose of this package isn't to strict you with specific ways to handle your project but is to give you
+> classes and traits and tools in your project code so that you can edit them as you want so dig in and start scanning
+> the code
 
 <h2 id="generating-files">Generating Files</h2>
 
