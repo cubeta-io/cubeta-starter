@@ -5,7 +5,7 @@
     - [Available Publish Tags](#publish-tags)
 * [Usage](#usage)
     * [Available Commands](#available-commands)
-    * [cubeta-init Command](#cubeta-init-command)
+    * [cubeta-init Command](#create-actor-command)
     * [Generating Files](#generating-files)
 * [Created Classes And Files](#created-classes-and-files)
     * [Models](#models)

@@ -12,7 +12,7 @@ class AddActor extends BaseCommand
     use RouteBinding;
 
     protected $description = 'Add New Actor To The Project';
-    protected $signature = 'add:actor';
+    protected $signature = 'create:actor';
 
     public function handle(): void
     {

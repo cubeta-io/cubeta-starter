@@ -21,7 +21,7 @@ class MakeModel extends BaseCommand
         {--migration} {--request} {--resource}
         {--factory} {--seeder} {--repository}
         {--service} {--controller} {--web_controller}
-        {--test} {--postman_collection}';
+        {--test}';
 
     protected bool $useGui = false;
 

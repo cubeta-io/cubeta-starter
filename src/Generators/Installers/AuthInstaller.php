@@ -10,6 +10,7 @@ use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Illuminate\Support\Facades\Artisan;
 
 class AuthInstaller extends AbstractGenerator
 {
@@ -29,7 +30,7 @@ class AuthInstaller extends AbstractGenerator
         $this->generateUserRepository($override);
         $this->generateAuthRequests($override);
         $this->generateResetPasswordNotification($override);
-        $this->generateResetPasswordEmailView($override);
+        $this->generateAuthViews($override);
         $this->generateUserFactory($override);
 
         if ($this->generatedFor == ContainerType::API || $this->generatedFor == ContainerType::BOTH) {
@@ -167,11 +168,20 @@ class AuthInstaller extends AbstractGenerator
      * @param bool $override
      * @return void
      */
-    private function generateResetPasswordEmailView(bool $override = false): void
+    private function generateAuthViews(bool $override = false): void
     {
         $viewsPath = CubePath::make("resources/views/emails/reset-password-email.blade.php");
         $viewsPath->ensureDirectoryExists();
         $this->generateFileFromStub([], $viewsPath->fullPath, $override, __DIR__ . '/../../stubs/Auth/reset-password.stub');
+
+        if (ContainerType::isWeb($this->generatedFor)) {
+            Artisan::call('vendor:publish', [
+                '--tag' => 'cubeta-auth-views',
+                '--force' => $override
+            ]);
+
+            CubeLog::add(Artisan::output());
+        }
     }
 
     /**

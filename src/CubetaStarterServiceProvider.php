@@ -41,6 +41,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         // publishes
         $this->publishWeb();
         $this->publishApi();
+        $this->publishAuthViews();
     }
 
     /**
@@ -86,12 +87,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../public' => public_path(),
             __DIR__ . '/Traits/DataTablesTrait.php' => app_path("Traits/DataTablesTrait.php"),
             __DIR__ . '/../src/Providers' => app_path('/Providers'),
-            __DIR__ . '/../resources/views/login.blade.php' => resource_path('views/login.blade.php'),
-            __DIR__ . '/../resources/views/register.blade.php' => resource_path('views/register.blade.php'),
-            __DIR__ . '/../resources/views/user-details.blade.php' => resource_path('views/user-details.blade.php'),
-            __DIR__ . '/../resources/views/reset-password-request.blade.php' => resource_path('views/reset-password-request.blade.php'),
-            __DIR__ . '/../resources/views/check-reset-code.blade.php' => resource_path('views/check-reset-code.blade.php'),
-            __DIR__ . '/../resources/views/reset-password.blade.php' => resource_path('views/reset-password.blade.php'),
             __DIR__ . "/../src/Middleware/AcceptedLanguagesMiddleware.php" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
             __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
             __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
@@ -104,6 +99,18 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/Services/IBaseService.php" => app_path("Services/Contracts/IBaseService.php"),
             __DIR__ . '/../src/Traits/FileHandler.php' => app_path("Traits/FileHandler.php"),
         ], 'cubeta-starter-web');
+    }
+
+    public function publishAuthViews(): void
+    {
+        $this->publishes([
+            __DIR__ . '/../resources/views/login.blade.php' => resource_path('views/login.blade.php'),
+            __DIR__ . '/../resources/views/register.blade.php' => resource_path('views/register.blade.php'),
+            __DIR__ . '/../resources/views/user-details.blade.php' => resource_path('views/user-details.blade.php'),
+            __DIR__ . '/../resources/views/reset-password-request.blade.php' => resource_path('views/reset-password-request.blade.php'),
+            __DIR__ . '/../resources/views/check-reset-code.blade.php' => resource_path('views/check-reset-code.blade.php'),
+            __DIR__ . '/../resources/views/reset-password.blade.php' => resource_path('views/reset-password.blade.php'),
+        ] , 'cubeta-auth-views');
     }
 
     private function publishApi(): void

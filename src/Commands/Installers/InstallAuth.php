@@ -12,7 +12,7 @@ class InstallAuth extends BaseCommand
 
     protected $description = 'initialize authentication tools';
 
-    protected $signature = 'install:cubeta-auth';
+    protected $signature = 'cubeta:install-auth';
 
     public function handle(): void
     {

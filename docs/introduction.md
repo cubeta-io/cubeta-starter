@@ -45,7 +45,7 @@ in this page you'll find four options :
    _this option is required when you are using web tools_.
 
 **<h3 id="use-terminal">Using Terminal : </h3>**
-For the same installing steps your have two commands :
+For the same installing steps your have three commands :
 
 1. `php artisan cubeta:install-api`
 2. `php artisan cubeta:install-web`
