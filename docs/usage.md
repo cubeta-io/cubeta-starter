@@ -8,10 +8,10 @@ The most elements in the config array are for the generated files directories an
 2. `project_url` : here define your project public url, so we can add it to the postman collection
    if you let it **_null_** we will place it in the collection as like you're using xampp
    e.g :`http://localhost/example-project/public/` [read more about the generated postman
-   collection](#postman-collection)
+   collection](README.md#postman-collection)
 3. `available_locales` : the package provides a way to store your table columns with their
-   translations [(read more about it here)](#translations) so in this case this situation you'll need to
-   define your project available locales in here
+   translations [(read more about it here)](README.md#translations) so in this case this situation you'll need to
+   define your project available locales here
 4. `defaultLocale` : here define your default project locales.
 
 <h2 id="usag-gui">The Package GUI</h2>
@@ -136,7 +136,11 @@ This command will add the desired actor roles to your project like when you have
 project
 
 > [!note]
-> you can do this using the GUI Interface.
+> using this command require you to install the Permissions Feature by executing the
+> command `php artisan cubeta:install-permissions`
+
+> [!warning]
+> make sure that your user model uses the `HasRoles` trait
 
 #### **how to use it :**
 
@@ -217,6 +221,8 @@ Now you will notice that the there is multiple files generated and some changes 
 > [!note]
 > this command works with the generated files of these commands :  `cubeta:install-permissions` , `cubeta:install-auth`
 > so make sure that you follow their steps before start adding actors
+
+If you do a little check on `app/Enums/RolesPermissions.php` you'll find that your actor has been added to it .
 
 now if you opened the generated **StudentAuthController** you'll see the following
 
@@ -299,11 +305,16 @@ for you like this :
 
 1 - run this command : `php artisan create:model <YourMoodel>` then an output will show :
 
-`Enter your params like "name,started_at,...":`
+```shell
+Enter your params like "name,started_at,...":
+```
 
 2 - write your model properties that will correspond to its table columns like this :
 
-`name,email,password`
+```shell
+Enter your params like "name,started_at,...":
+> name,email,password
+```
 
 then an output for each property of your model will appear like this :
 
@@ -338,37 +349,56 @@ those are the column type you just enter the number of the type
 Of course there isn't a column type called translatable in Laravel . to make it easier for you to use the prepared
 things for the translation we called this column translatable in fact the generated column type is json but in this way
 we've marked this column as translatable so the generated code will make sure to use the `LanguageShape` validation rule
-on the validation and the  `Translation`   trait in your model.
+on the validation and cast this column to `Translatable::class` .
+
+the `Translatable::class` is a custom cast class you can check on it in `app/Casts` directory , and its job is to return
+the column value based on the current app locale .
 
 The `LanguageShape` validation rule will make sure that the received json is simple and hasn't any nesting objects e.g :
-`{
-"en" : "name" ,
-"fr" : "nom"
-}`
-and not like this for example `[
-"en" : "name" ,
-"fr" : "paris" :{
-"nom"
+
+```json
+{
+    "en": "name",
+    "fr": "nom"
 }
-]`
+```
+
+and not something like this for example
+
+```json
+[
+    {
+        "en": "name",
+        "fr": [
+            {
+                "ar": "اسم"
+            }
+        ]
+    }
+]
+```
 
 and in addition to that it's make sure that the entered translation is corresponding to one of the locales defined in
-the `cubeta-starter.php` config file if it is not it will return a validation error.
+the `config/cubeta-starter.php` config file if it is not it will return a validation error.
 
 3 - then the output will be :
 
-> Does this model related with another model by has many relation ? [No]:
-> [0] No
-> [1] Yes
+```shell
+Does this model related with another model by has many relation ? [No]:
+  [0] No
+  [1] Yes
+```
 
 if you hit yes it will ask you about the name of the related model so just type it
 then it will reask you if you have another has many related model just do the same
 
 4 - this output will come next :
 
-> Does this model related with another model by many to many relation ? [No]:
-> [0] No
-> [1] Yes
+```shell 
+Does this model related with another model by many to many relation ? [No]:
+  [0] No
+  [1] Yes
+```
 
 so just like before type the model name if you're willing to hit yes
 
@@ -388,6 +418,11 @@ so you will find a :
 10. test class for your model with a test for CRUD operations
 11. postman collection
 
+> [!warning]
+> after the first generation a `cubeta-starter.config.js` file will be created in the base directory of your project
+> for now this file is useless for you but helpful for us to make you generating experience better but in the coming
+> releases it will give you a lot of features .
+
 <h3 id="create-model-options">Create Model Command Options</h3>
 if you'd like you can generate the model with just a specific file you can just add the desired file as an option like
 if you execute this command :
@@ -397,8 +432,8 @@ if you execute this command :
 this command will generate the product model with a corresponding resource and controller .
 
 > [!note]
-> when not providing an option to the command it will generate the model and all its related files
-> this will be explained well in the coming examples
+> when not providing an option to the command it will generate the model and all its related files as we said before
+
 
 **the available options for these commands are :**
 

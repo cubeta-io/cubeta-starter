@@ -39,7 +39,7 @@ in this page you'll find four options :
 
 1. **Install Fore API Usage** : this will install all the needed classes , traits ,... for generating api based CRUDs .
 2. **Install For Web Usage** : this will install all the needed classes , traits ,... for generating web based CRUDs .
-3. **Install Both** : this will publish both api and web files .
+3. **Install Both** : this will install both api and web files .
 4. **install npm packages** : this option will install the npm packages that has been used in the blade pages (
    bootstrap , jQuery , select2 , .....) ,
    _this option is required when you are using web tools_.
