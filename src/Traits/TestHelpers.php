@@ -11,6 +11,7 @@ trait TestHelpers
 {
     use RefreshDatabase;
 
+    /** @var class-string */
     protected string $model;
 
     protected array $relations = [];

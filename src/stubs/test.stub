@@ -8,19 +8,21 @@ use Tests\Contracts\MainTestCase;
 
 class {modelName}Test extends MainTestCase
 {
-    protected $model = {modelName}::class;
+    /** @var class-string */
+    protected string $model = {modelName}::class;
 
-    protected $resource = {modelName}Resource::class;
+    /** @var class-string */
+    protected string $resource = {modelName}Resource::class;
 
     // define the actor
-    protected $userType = "{{actor}}";
+    protected string $userType = "{{actor}}";
 
     // the named route eg: 'user.products.'
     //!!! Note: the dot "." in the end of the baseUrl is important !!!
     protected string $baseUrl = '{baseRouteName}';
 
     // if your endpoints return the model with its relation put the relations in the array
-    protected $relations = [];
+    protected array $relations = [];
 
     public function test_user_can_index_{modelName}()
     {
