@@ -8,47 +8,33 @@
     <meta name="description" content="Description">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/_media/cubeta-logo.png">
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar.min.css"/>
+
+    <link rel="stylesheet" href="https://unpkg.com/docsify-themeable/dist/css/theme-simple.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar.min.css"/>
+
     <meta name="description"
           content="Cubeta-Starter: A developer's Swiss army knife for seamless CRUD operations. Choose between core integration or dev dependency. Enjoy a user-friendly GUI for code generation, enhancing your development workflow. Say goodbye to repetition, embrace productivity with Cubeta-Starter">
 </head>
 
 <body>
 <style>
-
-    .sidebar {
-        padding: 20px;
+    :root {
+        --base-font-size: 14px;
+        --theme-color: #165F96;
+        --cover-heading-color: #165F96;
     }
 
     .app-name {
         display: flex !important;
     }
 
-    .sidebar-toggle {
-        position: fixed !important;
-        top: 3% !important;
-        width: fit-content !important;
-        height: fit-content;
-        left: 18%;
-        cursor: pointer;
-        transition: left 0.3s ease;
-    }
-
-    .sidebar-toggle-button {
-        position: fixed !important;
-    }
-
-    .sidebar {
-        padding-top: 60px; /* Adjust this value based on the icon's height and spacing */
-    }
 </style>
 <div data-app id="main">Please wait...</div>
 <script>
     window.$docsify = {
-        repo: 'cubeta-io',
+        repo: 'cubeta-io/cubeta-starter',
         name: '<div style="display: flex; justify-content: center;align-items:center ">' +
-            '<img src="_media/cubeta-logo.png" width="20%" height="20%"/> <h1 style="font-size: 32px;margin-left: 5px;color: #165F96">Cubeta Starter</h1>' +
+            '<img src="_media/cubeta-logo.png" width="20%" height="20%"/> <h1 style="color: #165F96; font-size: 20px;">Cubeta Starter</h1>' +
             '</div>',
         el: '#main',
         loadSidebar: true,
@@ -89,43 +75,20 @@
             attention: {
                 label: "Attention"
             }
+        },
+        themeable: {
+            readyTransition: true, // default
+            responsiveTables: true // default,
         }
     }
-</script>
-<script type="module">
-    document.addEventListener('DOMContentLoaded', function () {
-        let sidebarToggleButton = document.querySelector('.sidebar-toggle-button');
-        let sidebarToggle = document.querySelector('.sidebar-toggle');
-        let isToggled = false;
-
-        function toggleStyles() {
-            if (isToggled) {
-                sidebarToggleButton.style.left = '18%';
-                sidebarToggle.style.left = '18%';
-                sidebarToggleButton.style.top = '3%';
-                sidebarToggle.style.top = '3%';
-            } else {
-                sidebarToggleButton.style.left = '3%';
-                sidebarToggleButton.style.top = '3%';
-                sidebarToggle.style.left = '3%';
-                sidebarToggle.style.top = '3%';
-            }
-
-            // Triggering reflow to apply the transition
-            void sidebarToggleButton.offsetWidth;
-
-            sidebarToggleButton.style.transition = 'left 0.3s ease, top 0.3s ease'; // Reapply transition
-            isToggled = !isToggled;
-        }
-
-        sidebarToggleButton.addEventListener('click', toggleStyles);
-    });
 </script>
 <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
 <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
 <script src="//unpkg.com/docsify-share/build/index.min.js"></script>
 <script src="https://unpkg.com/docsify-plugin-flexible-alerts"></script>
 <script src="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js"></script>
+
 </body>
 
 </html>
