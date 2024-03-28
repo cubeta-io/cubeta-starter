@@ -9,6 +9,8 @@ class WebPackagesInstallers extends AbstractGenerator
 {
     public static string $key = "install-web-packages";
 
+    public static string $type = 'installer';
+
     public function run(bool $override = false): void
     {
         FileUtils::executeCommandInTheBaseDirectory('composer require yajra/laravel-datatables');

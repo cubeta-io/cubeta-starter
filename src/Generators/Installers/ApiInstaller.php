@@ -13,6 +13,8 @@ class ApiInstaller extends AbstractGenerator
 
     public static string $key = "install-api";
 
+    public static string $type = 'installer';
+
     public function run(bool $override = false): void
     {
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-api"]);

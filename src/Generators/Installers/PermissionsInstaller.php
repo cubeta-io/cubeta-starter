@@ -12,6 +12,8 @@ class PermissionsInstaller extends AbstractGenerator
 {
     public static string $key = "install-permissions";
 
+    public static string $type = 'installer';
+
     public function run(bool $override = false): void
     {
         $this->generateMigrations($override);

@@ -3,6 +3,7 @@
 namespace App\Repositories\Contracts;
 
 use App\Traits\FileHandler;
+use App\Excel\BaseExporter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection as RegularCollection;
 use Illuminate\Support\Facades\Schema;
+use Maatwebsite\Excel\Facades\Excel;
 
 /**
  * @template T of Model
@@ -390,5 +392,24 @@ abstract class BaseRepository implements IBaseRepository
         }
 
         return $model;
+    }
+
+    /**
+     * @param array $ids
+     * @return string
+     */
+    public function export(array $ids = []): string
+    {
+        if (!count($ids)) {
+            $collection = $this->globalQuery()->get();
+        } else {
+            $collection = $this->globalQuery()->whereIn('id', $ids)->get();
+        }
+
+        $requestedColumns = request("columns") ?? null;
+        $fileName = "excel/" . $this->model->getTable() . '.xlsx';
+        Excel::store(new BaseExporter($collection, $this->model, $requestedColumns), "public/$fileName");
+
+        return asset("storage/$fileName");
     }
 }

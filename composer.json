@@ -12,7 +12,8 @@
         "intervention/image": "^2.7",
         "spatie/laravel-package-tools": "^1.11",
         "illuminate/support": "*",
-        "php-open-source-saver/jwt-auth": "^2.1"
+        "php-open-source-saver/jwt-auth": "^2.1",
+        "maatwebsite/excel": "^3.1"
     },
     "require-dev": {
         "orchestra/testbench": "^7.5",

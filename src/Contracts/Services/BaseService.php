@@ -87,4 +87,13 @@ abstract class BaseService implements IBaseService
     {
         return $this->repository->find($id, $relationships);
     }
+
+    /**\
+     * @param array $ids
+     * @return string
+     */
+    public function export(array $ids = []): string
+    {
+        return $this->repository->export($ids);
+    }
 }

@@ -17,6 +17,8 @@ class WebInstaller extends AbstractGenerator
 
     public static string $key = "install-web";
 
+    public static string $type = 'installer';
+
     public function run(bool $override = false): void
     {
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-web"]);

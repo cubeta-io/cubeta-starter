@@ -108,5 +108,13 @@ class {modelName}Controller extends Controller
         return redirect()->back()->with('error' , __('site.there_is_no_data'));
     }
 
+    public function export(Request $request)
+    {
+        $ids = $request->ids ?? [];
+        return response()->json([
+            "url" => $this->{modelNameCamelCase}Service->export($ids)
+        ]);
+    }
+
     {additionalMethods}
 }

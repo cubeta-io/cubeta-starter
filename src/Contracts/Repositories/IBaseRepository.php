@@ -58,4 +58,10 @@ interface IBaseRepository
      * @return T|null
      */
     public function update(array $data, $id, array $relationships = []): ?Model;
+
+    /**
+     * @param array $ids
+     * @return string
+     */
+    public function export(array $ids = []): string;
 }

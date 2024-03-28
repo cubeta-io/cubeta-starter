@@ -41,26 +41,30 @@ trait RouteBinding
         if (ContainerType::isWeb($container)) {
             $routes = $this->addAdditionalRoutesForAdditionalControllerMethods($table, $routeName, $additionalRoutes);
             $routes[] = "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$table->modelNaming()}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\");";
+            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export' , [v1\\" . $table->modelNaming() . "Controller::class , 'export'])->name('$routeName.export');";
             $routes[] = 'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;';
 
-            foreach ($routes as $key => $route) {
-                if ($this->routeExist($routePath, $route)) {
-                    CubeLog::add(new ContentAlreadyExist($route, $routePath->fullPath, "Adding New Route To : [$routePath->fullPath]"));
-                    unset($routes[$key]);
-                }
-            }
-
-            if (!count($routes)) {
-                return;
-            }
-
-            $route = implode("\n", $routes);
             $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . ';';
         } else {
             $sub = ($actor && $actor != 'none') ? "$actor/" : '';
-            $route = "Route::apiResource('/{$sub}{$pluralLowerModelName}' , v1\\{$table->getControllerName()}::class)->names('$routeName') ;\n";
+            $routes[] = "Route::apiResource('/{$sub}{$pluralLowerModelName}' , v1\\{$table->getControllerName()}::class)->names('$routeName') ;\n";
+            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/export', [v1\\" . $table->getControllerName() . "::class, 'export'])->name('$routeName.export');";
+
             $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . ';';
         }
+
+        foreach ($routes as $key => $route) {
+            if ($this->routeExist($routePath, $route)) {
+                CubeLog::add(new ContentAlreadyExist($route, $routePath->fullPath, "Adding New Route To : [$routePath->fullPath]"));
+                unset($routes[$key]);
+            }
+        }
+
+        if (!count($routes)) {
+            return;
+        }
+
+        $route = implode("\n", $routes);
 
         FileUtils::addImportStatement($importStatement, $routePath);
 
@@ -109,7 +113,7 @@ trait RouteBinding
                 $filePath->fullPath,
                 __DIR__ . '/../stubs/api.stub'
             );
-        } catch (Exception | BindingResolutionException | FileNotFoundException $e) {
+        } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
             CubeLog::add($e);
             return;
         }
