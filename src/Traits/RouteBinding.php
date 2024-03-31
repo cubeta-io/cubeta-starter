@@ -2,20 +2,20 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
-use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
-use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
-use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
-use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
+use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Logs\CubeLog;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Exception;
 
 trait RouteBinding
 {
