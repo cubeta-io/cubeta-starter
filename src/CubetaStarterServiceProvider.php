@@ -15,10 +15,6 @@ use Cubeta\CubetaStarter\Commands\Generators\MakeService;
 use Cubeta\CubetaStarter\Commands\Generators\MakeTest;
 use Cubeta\CubetaStarter\Commands\Generators\MakeWebController;
 use Cubeta\CubetaStarter\Commands\Installers\Installer;
-use Cubeta\CubetaStarter\Commands\Installers\InstallAuth;
-use Cubeta\CubetaStarter\Commands\Installers\InstallPermissions;
-use Cubeta\CubetaStarter\Commands\Installers\InstallWeb;
-use Cubeta\CubetaStarter\Commands\Installers\InstallWebPackages;
 use Cubeta\CubetaStarter\Commands\MakeExample;
 use Illuminate\Support\Facades\View;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
@@ -187,11 +183,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeTest::class)
             ->hasCommand(AddActor::class)
             ->hasCommand(MakeWebController::class)
-            ->hasCommand(InstallWebPackages::class)
-            ->hasCommand(InstallAuth::class)
             ->hasCommand(Installer::class)
-            ->hasCommand(InstallWeb::class)
-            ->hasCommand(InstallPermissions::class)
             ->hasCommand(MakeExample::class);
     }
 }
