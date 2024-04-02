@@ -90,7 +90,7 @@ class WebControllerGenerator extends AbstractGenerator
     /**
      * @return string[]
      */
-    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string'])]
+    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string', 'export' => 'string', 'import' => 'string', 'example' => 'example'])]
     protected function getRoutesNames(CubeTable $model, ?string $actor = null): array
     {
         $baseRouteName = $this->getRouteName($model, ContainerType::WEB, $actor);
@@ -104,6 +104,9 @@ class WebControllerGenerator extends AbstractGenerator
             'create' => $baseRouteName . '.create',
             'data' => $baseRouteName . '.data',
             'update' => $baseRouteName . '.update',
+            'export' => $baseRouteName . 'export',
+            'import' => $baseRouteName . 'import',
+            'example' => $baseRouteName . 'get.import.example',
             'base' => $baseRouteName,
         ];
     }
@@ -227,9 +230,9 @@ class WebControllerGenerator extends AbstractGenerator
             return $relatedModelPath->exist()
                 and (
                 ($rel->isHasMany())
-                ? ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming(singular : false))
-                : ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming())
-            );
+                    ? ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming(singular: false))
+                    : ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming())
+                );
         })->map(fn(CubeRelation $rel) => $rel->method())->toArray();
 
         $loadedString = '';

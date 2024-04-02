@@ -13,7 +13,7 @@ class ApiInstaller extends AbstractGenerator
 
     public static string $key = "install-api";
 
-    public static string $type = 'installer';
+    public string $type = 'installer';
 
     public function run(bool $override = false): void
     {

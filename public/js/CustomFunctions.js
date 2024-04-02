@@ -175,3 +175,23 @@ function changeLocale() {
     }
 }
 
+function downloadResponseFile(response, xhr) {
+    const blob = new Blob([response], {type: xhr.getResponseHeader('Content-Type')});
+
+    const blobUrl = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = blobUrl;
+
+    const disposition = xhr.getResponseHeader('Content-Disposition');
+    const fileNameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+    const matches = fileNameRegex.exec(disposition);
+    a.download = matches != null && matches[1] ? matches[1].replace(/['"]/g, '') : 'download';
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+}
+
+

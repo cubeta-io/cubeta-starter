@@ -110,10 +110,10 @@ class ViewsGenerator extends WebControllerGenerator
         $routes = $this->getRoutesNames($this->table, $this->actor);
 
         $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
-        $this->generateCreateOrUpdateForm(updateRoute: $routes['update'] , override: $override);
+        $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
 
-        $this->generateShowView($routes['edit'],$override);
-        $this->generateIndexView($routes['create'], $routes['data'] , $override);
+        $this->generateShowView($routes['edit'], $override);
+        $this->generateIndexView($routes['create'], $routes['data'], $override);
     }
 
     /**
@@ -262,11 +262,16 @@ class ViewsGenerator extends WebControllerGenerator
     public function generateShowView(string $editRoute, bool $override = false): void
     {
         $viewsName = $this->table->viewNaming();
+        $routes = $this->getRoutesNames($this->table);
         $stubProperties = [
             '{modelName}' => $this->table->modelName,
             '{editRoute}' => $editRoute,
             '{components}' => $this->generateShowViewComponents(),
             '{modelVariable}' => $this->table->variableNaming(),
+            '{exportRoute}' => $routes['export'],
+            '{importRoute}' => $routes['import'],
+            '{exampleRoute}' => $routes['example'],
+            '{modelClassName}' => $this->table->getModelClassString(),
         ];
 
         $showPath = CubePath::make("resources/views/dashboard/{$viewsName}/show.blade.php");

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection as RegularCollection;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * @template T of Model
@@ -61,7 +62,17 @@ interface IBaseRepository
 
     /**
      * @param array $ids
-     * @return string
+     * @return BinaryFileResponse
      */
-    public function export(array $ids = []): string;
+    public function export(array $ids = []): BinaryFileResponse;
+
+    /**
+     * @return BinaryFileResponse
+     */
+    public function getImportExample(): BinaryFileResponse;
+
+    /**
+     * @return void
+     */
+    public function import(): void;
 }

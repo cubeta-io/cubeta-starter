@@ -77,6 +77,21 @@ class {modelName}Controller extends ApiController{
     public function export(Request $request)
     {
         $ids = $request->ids ?? [];
-        return $this->apiResponse($this->{variableNaming}Service->export($ids), self::STATUS_OK , __('site.exported_successfully'));
+
+        return $this->{variableNaming}Service->export($ids);
+    }
+
+    public function getImportExample()
+    {
+        return $this->{variableNaming}Service->getImportExample();
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xls,xlsx',
+        ]);
+
+        $this->{variableNaming}Service->import();
     }
 }

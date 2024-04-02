@@ -19,7 +19,7 @@ abstract class AbstractGenerator
 {
     public static string $key = '';
     public static string $configPath = '';
-    public static string $type = '';
+    public string $type = '';
 
     public array $logs = [];
     protected array $attributes;
@@ -43,7 +43,7 @@ abstract class AbstractGenerator
 
         $this->mergeRelations();
 
-        if (self::$key != 'installer') {
+        if ($this->type != 'installer') {
             $this->table = Settings::make()->serialize($this->fileName, $this->attributes, $this->relations, $this->nullables, $this->uniques);
         }
     }

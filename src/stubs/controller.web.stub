@@ -111,9 +111,22 @@ class {modelName}Controller extends Controller
     public function export(Request $request)
     {
         $ids = $request->ids ?? [];
-        return response()->json([
-            "url" => $this->{modelNameCamelCase}Service->export($ids)
+
+        return $this->{variableNaming}Service->export($ids);
+    }
+
+    public function getImportExample()
+    {
+        return $this->{variableNaming}Service->getImportExample();
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xls,xlsx',
         ]);
+
+        $this->{variableNaming}Service->import();
     }
 
     {additionalMethods}

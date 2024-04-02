@@ -17,7 +17,7 @@ class WebInstaller extends AbstractGenerator
 
     public static string $key = "install-web";
 
-    public static string $type = 'installer';
+    public string $type = 'installer';
 
     public function run(bool $override = false): void
     {

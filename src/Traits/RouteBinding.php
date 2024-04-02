@@ -38,17 +38,24 @@ trait RouteBinding
 
         $routeName = $this->getRouteName($table, $container, $actor);
 
+        $controllerName = $table->getControllerName();
+
         if (ContainerType::isWeb($container)) {
             $routes = $this->addAdditionalRoutesForAdditionalControllerMethods($table, $routeName, $additionalRoutes);
-            $routes[] = "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$table->modelNaming()}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\");";
-            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export' , [v1\\" . $table->modelNaming() . "Controller::class , 'export'])->name('$routeName.export');";
-            $routes[] = 'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;';
+            $routes[] = "Route::get('dashboard/{$pluralLowerModelName}/data', [v1\\{$controllerName}::class, 'data'])->name('{$routeName}.data');";
+            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export' , [v1\\{$controllerName}::class , 'export'])->name('$routeName.export');";
+            $routes[] = "Route::get('dashboard/$pluralLowerModelName/get-import-example', [v1\\{$controllerName}::class, 'getImportExample'])->name('$routeName.get.example');";
+            $routes[] = "Route::post('dashboard/$pluralLowerModelName/import', [v1\\{$controllerName}::class, 'import'])->name('$routeName.import');";
+            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export', [v1\\{$controllerName}::class, 'export'])->name('$routeName.export');";
+            $routes[] = "Route::Resource('dashboard/{$pluralLowerModelName}' , v1\\{$controllerName}::class)->names('{$routeName}') ;";
 
             $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . ';';
         } else {
             $sub = ($actor && $actor != 'none') ? "$actor/" : '';
-            $routes[] = "Route::apiResource('/{$sub}{$pluralLowerModelName}' , v1\\{$table->getControllerName()}::class)->names('$routeName') ;\n";
-            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/export', [v1\\" . $table->getControllerName() . "::class, 'export'])->name('$routeName.export');";
+            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/export', [v1\\{$controllerName}::class, 'export'])->name('$routeName.export');";
+            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/import', [v1\\{$controllerName}::class, 'import'])->name('$routeName.import');";
+            $routes[] = "Route::get('/{$sub}{$pluralLowerModelName}/get-import-example', [v1\\{$controllerName}::class, 'getImportExample'])->name('$routeName.get.example');";
+            $routes[] = "Route::apiResource('/{$sub}{$pluralLowerModelName}' , v1\\{$controllerName}::class)->names('$routeName') ;\n";
 
             $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . ';';
         }

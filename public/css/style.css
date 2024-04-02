@@ -1285,6 +1285,7 @@ h6 {
     height: 64px;
     margin: 8px;
     border-radius: 50%;
+    border: 6px solid #0D6EFD;
     border-color: #0D6EFD transparent #0D6EFD transparent;
     animation: lds-dual-ring 1.2s linear infinite;
 }
