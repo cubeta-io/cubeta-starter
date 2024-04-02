@@ -262,16 +262,11 @@ class ViewsGenerator extends WebControllerGenerator
     public function generateShowView(string $editRoute, bool $override = false): void
     {
         $viewsName = $this->table->viewNaming();
-        $routes = $this->getRoutesNames($this->table);
         $stubProperties = [
             '{modelName}' => $this->table->modelName,
             '{editRoute}' => $editRoute,
             '{components}' => $this->generateShowViewComponents(),
             '{modelVariable}' => $this->table->variableNaming(),
-            '{exportRoute}' => $routes['export'],
-            '{importRoute}' => $routes['import'],
-            '{exampleRoute}' => $routes['example'],
-            '{modelClassName}' => $this->table->getModelClassString(),
         ];
 
         $showPath = CubePath::make("resources/views/dashboard/{$viewsName}/show.blade.php");
@@ -321,6 +316,7 @@ class ViewsGenerator extends WebControllerGenerator
     public function generateIndexView(string $creatRoute, string $dataRoute, bool $override = false): void
     {
         $dataColumns = $this->generateDataTableColumns();
+        $routes = $this->getRoutesNames($this->table);
 
         $stubProperties = [
             '{modelName}' => $this->table->modelName,
@@ -328,6 +324,10 @@ class ViewsGenerator extends WebControllerGenerator
             '{htmlColumns}' => $dataColumns['html'],
             '{dataTableColumns}' => $dataColumns['json'],
             '{dataTableDataRouteName}' => $dataRoute,
+            '{exportRoute}' => $routes['export'],
+            '{importRoute}' => $routes['import'],
+            '{exampleRoute}' => $routes['example'],
+            '{modelClassName}' => $this->table->getModelClassString(),
         ];
 
         $indexPath = CubePath::make("resources/views/dashboard/{$this->table->viewNaming()}/index.blade.php");
@@ -372,7 +372,7 @@ class ViewsGenerator extends WebControllerGenerator
                 $relatedModelName = str_replace('_id', "", $attribute->name);
                 $relatedTable = Settings::make()->getTable($relatedModelName);
                 $usedName = $relatedTable
-                    ? $relatedTable->relationFunctionNaming() . "." . $relatedTable->titleable()->name
+                    ? $relatedTable->relationMethodNaming() . "." . $relatedTable->titleable()->name
                     : $relatedModelName . ".id";
                 $json .= "{\"data\": '{$usedName}', searchable: true, orderable: true}, \n";
             }

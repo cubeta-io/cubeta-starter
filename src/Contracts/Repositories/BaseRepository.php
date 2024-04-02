@@ -422,7 +422,7 @@ abstract class BaseRepository implements IBaseRepository
     public function getImportExample(): BinaryFileResponse
     {
         return Excel::download(
-            new BaseExporter(collect(), $this->model, null),
+            new BaseExporter(collect(), $this->model, null, true),
             $this->model->getTable() . '-example.xlsx'
         );
     }

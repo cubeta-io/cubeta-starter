@@ -80,7 +80,7 @@ trait NamingConventions
      * @param bool $singular
      * @return string
      */
-    public function relationFunctionNaming(?string $name = null, bool $singular = true): string
+    public function relationMethodNaming(?string $name = null, bool $singular = true): string
     {
         if (!$name) {
             $name = $this->usedString;

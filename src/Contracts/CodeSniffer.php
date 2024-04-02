@@ -55,7 +55,7 @@ class CodeSniffer
 
             if ($relation->isHasMany()) {
                 ClassUtils::addMethodToClass(
-                    $this->table->relationFunctionNaming(),
+                    $this->table->relationMethodNaming(),
                     $relatedPath,
                     $this->belongsToFunction($this->table)
                 );
@@ -63,7 +63,7 @@ class CodeSniffer
 
             if ($relation->isManyToMany()) {
                 ClassUtils::addMethodToClass(
-                    $this->table->relationFunctionNaming(singular: false),
+                    $this->table->relationMethodNaming(singular: false),
                     $relatedPath,
                     $this->manyToManyFunction($this->table)
                 );
@@ -71,13 +71,13 @@ class CodeSniffer
 
             if ($relation->isBelongsTo() || $relation->isHasOne()) {
                 ClassUtils::addMethodToClass(
-                    $this->table->relationFunctionNaming(singular: false),
+                    $this->table->relationMethodNaming(singular: false),
                     $relatedPath,
                     $this->hasManyFunction($this->table)
                 );
             }
 
-            $relationSearchableArray = "'{$this->table->relationFunctionNaming(singular:$relation->isHasMany())}' => [\n{$this->table->searchableColsAsString()}\n]\n,";
+            $relationSearchableArray = "'{$this->table->relationMethodNaming(singular:$relation->isHasMany())}' => [\n{$this->table->searchableColsAsString()}\n]\n,";
             ClassUtils::addToMethodReturnArray($relatedPath , $relation->getModelClassString() , 'relationsSearchableArray' , $relationSearchableArray);
         });
 
@@ -127,7 +127,7 @@ class CodeSniffer
             }
 
             if ($relation->isHasMany()) {
-                $relationName = $this->table->relationFunctionNaming();
+                $relationName = $this->table->relationMethodNaming();
 
                 if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
                     $content = "'$relationName' => new $currentResourceClass(\$this->whenLoaded('$relationName')) , \n";
@@ -142,7 +142,7 @@ class CodeSniffer
             }
 
             if ($relation->isManyToMany()) {
-                $relationName = $this->table->relationFunctionNaming(singular: false);
+                $relationName = $this->table->relationMethodNaming(singular: false);
 
                 if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
                     $content = "'$relationName' => $currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
@@ -157,7 +157,7 @@ class CodeSniffer
             }
 
             if ($relation->isBelongsTo() || $relation->isHasOne()) {
-                $relationName = $this->table->relationFunctionNaming(singular: false);
+                $relationName = $this->table->relationMethodNaming(singular: false);
                 $content = "'$relationName' => $currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
 
                 if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
@@ -224,7 +224,7 @@ class CodeSniffer
 
                 if ($relatedIndexView->exist() and ClassUtils::isMethodDefined($relatedControllerPath, 'data')) {
                     $titleable = $this->table->titleable()->name;
-                    $attributeName = $this->table->relationFunctionNaming() . "." . $titleable;
+                    $attributeName = $this->table->relationMethodNaming() . "." . $titleable;
                     $oldColName = strtolower(Str::singular($this->table->modelName)) . "_id";
                     $relatedIndexViewContent = $relatedIndexView->getContent();
 
@@ -241,7 +241,7 @@ class CodeSniffer
                 }
 
                 if ($relatedShowView->exist() and ClassUtils::isMethodDefined($relatedControllerPath, "show")) {
-                    $relationName = $this->table->relationFunctionNaming();
+                    $relationName = $this->table->relationMethodNaming();
                     $showViewContent = $relatedShowView->getContent();
                     $value = "\${$relatedTable->variableNaming()}->{$relationName}->{$this->table->titleable()->name}";
 
@@ -257,7 +257,7 @@ class CodeSniffer
                     $relatedShowView->putContent($showViewContent);
                 }
 
-                ClassUtils::addNewRelationsToWithMethod($relatedTable, $relatedControllerPath, [$this->table->relationFunctionNaming()]);
+                ClassUtils::addNewRelationsToWithMethod($relatedTable, $relatedControllerPath, [$this->table->relationMethodNaming()]);
             }
 
         });

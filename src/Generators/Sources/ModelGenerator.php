@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
@@ -45,6 +45,7 @@ class ModelGenerator extends AbstractGenerator
             '{searchableRelations}' => $modelAttributes['relationSearchable'],
             'use HasFactory;' => $traits,
             '{casts}' => $modelAttributes['casts'],
+            '{exportables}' => $modelAttributes['exportables']
         ];
 
         $this->generateFileFromStub($stubProperties, $modelPath->fullPath);
@@ -57,6 +58,7 @@ class ModelGenerator extends AbstractGenerator
     private function generateModelClassAttributes(): array
     {
         $fillable = '';
+        $exportables = '';
         $filesKeys = '';
         $searchable = '';
         $relationsSearchable = '';
@@ -66,19 +68,29 @@ class ModelGenerator extends AbstractGenerator
         $casts = '';
         $relationsFunctions = '';
 
-        foreach ($this->table->attributes as $attribute) {
+        $this->table->attributes()->each(function ($attribute) use (
+            &$fileFunctions,
+            &$filesKeys,
+            &$searchable,
+            &$relationsFunctions,
+            &$properties,
+            &$casts,
+            &$booleanValueScope,
+            &$exportables,
+            &$fillable
+        ) {
             $fillable .= "'{$attribute->name}' ,\n";
+
+            if (!$attribute->isKey()) {
+                $exportables .= "'{$attribute->name}' ,\n";
+            }
 
             if ($attribute->type === ColumnTypeEnum::BOOLEAN->value) {
                 $booleanValueScope .= "\tpublic function scope" . ucfirst(Str::studly($attribute->name)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute->name . "' , 1);\n\t}\n";
                 $casts .= "'{$attribute->name}' => 'boolean' , \n";
-            }
-
-            if ($attribute->isTranslatable()) {
+            } elseif ($attribute->isTranslatable()) {
                 $casts .= "'{$attribute->name}' => \\App\\Casts\\Translatable::class, \n";
-            }
-
-            if ($attribute->isKey()) {
+            } elseif ($attribute->isKey()) {
                 $relatedModelName = $attribute->modelNaming(str_replace('_id', '', $attribute->name));
                 $relatedModel = CubeTable::create($relatedModelName);
                 $properties .= "* @property integer {$attribute->name} \n";
@@ -86,16 +98,13 @@ class ModelGenerator extends AbstractGenerator
                 if ($relatedModel->getModelPath()->exist()) {
                     $relationsFunctions .= $this->belongsToFunction($relatedModel);
                 }
-            }
-
-            if ($attribute->isString()) {
-
+            } elseif ($attribute->isString()) {
                 $searchable .= "'{$attribute->name}' , \n";
                 $properties .= "* @property string {$attribute->name} \n";
 
             } elseif ($attribute->isFile()) {
                 $filesKeys .= "'{$attribute->name}' ,\n";
-                $properties .= "* @property integer {$attribute->name} \n";
+                $properties .= "* @property string {$attribute->name} \n";
                 $colName = $attribute->modelNaming();
                 $fileFunctions .= '/**
                               * return the full path of the stored ' . $colName . '
@@ -108,19 +117,18 @@ class ModelGenerator extends AbstractGenerator
                 FileUtils::ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->table->modelName) . '/' . Str::plural($colName)));
 
             } elseif (ColumnTypeEnum::isDateTimeType($attribute->type)) {
-                $properties .= "* @property \DateTime {$attribute->name} \n";
-            } elseif (in_array($attribute->type, [
-                ColumnTypeEnum::BIG_INTEGER->value,
-                ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
-                ColumnTypeEnum::UNSIGNED_DOUBLE->value,
-            ])) {
+                $properties .= "* @property \Carbon {$attribute->name} \n";
+                $casts .= "'{$attribute->name}' => 'datetime', \n";
+            } elseif (ColumnTypeEnum::isNumericType($attribute->type)) {
                 $properties .= "* @property numeric {$attribute->name} \n";
             } else {
                 $properties .= "* @property {$attribute->type} {$attribute->name} \n";
             }
-        }
+        });
 
-        foreach ($this->table->relations as $relation) {
+        $this->table->relations()->each(function (CubeRelation $relation) use (&$relationsFunctions, &$relationsSearchable, &$exportables, &$properties) {
+
+            $relatedTable = $relation->getTable();
 
             if ($relation->getModelPath()->exist()) {
                 if ($relation->isHasMany()) {
@@ -134,19 +142,28 @@ class ModelGenerator extends AbstractGenerator
 
             if ($relation->isBelongsTo()) {
                 $properties .= "* @property {$relation->modelName} {$relation->method()}\n";
+
+                if ($relatedTable && $relation->exists()) {
+                    $relationName = $relation->relationMethodNaming();
+                    $col = $relatedTable->titleable()->name;
+                    $exportedCol = "$relationName.$col";
+                } else {
+                    $exportedCol = $relation->key;
+                }
+
+                $exportables .= "'$exportedCol' , \n";
             }
 
             if ($relation->loadable()) {
-                $relatedTable = Settings::make()->getTable($relation->modelName);
                 if ($relatedTable) {
                     $relationsSearchable .=
-                        "'{$relation->method()}' => [\n{$relatedTable->searchableColsAsString()}\n//add your {$relation->method()} desired column to be search within\n] , \n";
+                        "'{$relation->method()}' => [\n{{$relatedTable->searchableColsAsString()}}\n//add your {$relation->method()} desired column to be search within\n] , \n";
                 } else {
                     $relationsSearchable .=
                         "'{$relation->method()}' => [\n//add your {$relation->method()} desired column to be search within\n] , \n";
                 }
             }
-        }
+        });
 
         $properties .= "*/ \n";
 
@@ -160,6 +177,7 @@ class ModelGenerator extends AbstractGenerator
             'booleanValueScopes' => $booleanValueScope,
             'casts' => $casts,
             'relationsCode' => $relationsFunctions,
+            'exportables' => $exportables
         ];
     }
 
@@ -167,8 +185,8 @@ class ModelGenerator extends AbstractGenerator
     {
         //TODO::when merging with dev there will be a config option for traits so make the use traits use the config option for traits namespace
         return $this->table->translatables()->count()
-        ? "use HasFactory; \n use \App\Traits\Translations;\n"
-        : "use HasFactory;";
+            ? "use HasFactory; \n use \App\Traits\Translations;\n"
+            : "use HasFactory;";
     }
 
     protected function stubsPath(): string

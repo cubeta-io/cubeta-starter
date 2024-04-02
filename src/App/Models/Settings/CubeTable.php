@@ -100,7 +100,7 @@ class CubeTable
     /**
      * @return bool|string
      */
-    public function toJson(): bool | string
+    public function toJson(): bool|string
     {
         $attributes = [];
         foreach ($this->attributes as $attribute) {
@@ -147,7 +147,7 @@ class CubeTable
      */
     public function hasAttribute(string $name, ?string $type): bool
     {
-        return (bool) collect($this->attributes)
+        return (bool)collect($this->attributes)
             ->filter(function (CubeAttribute $attr) use ($type, $name) {
                 if ($type) {
                     return ($attr->name == $name && $attr->type == $type);
@@ -166,7 +166,7 @@ class CubeTable
     public function hasRelation(string $modelName, ?string $type = null): bool
     {
         $modelName = Naming::model($modelName);
-        return (bool) collect($this->relations)
+        return (bool)collect($this->relations)
             ->filter(function (CubeRelation $rel) use ($type, $modelName) {
                 if ($type) {
                     return ($rel->modelName == $modelName && $rel->type == $type);
@@ -189,10 +189,10 @@ class CubeTable
     /**
      * @return CubeAttribute
      */
-    public function titleable(): ?CubeAttribute
+    public function titleable(): CubeAttribute
     {
         foreach ($this->attributes as $attribute) {
-            if (Str::contains($attribute->name, ['name', 'title'], true)
+            if (Str::contains($attribute->name, ['name', 'title', 'header'], true)
                 and in_array($attribute->type, ['string', 'text', 'json', 'translatable'])) {
                 return $attribute;
             }
@@ -215,7 +215,7 @@ class CubeTable
     /**
      * @return Collection<CubeAttribute>
      */
-    public function attributes(string | ColumnTypeEnum | null $type = null): Collection
+    public function attributes(string|ColumnTypeEnum|null $type = null): Collection
     {
         if (!$type) {
             return collect($this->attributes);
@@ -239,7 +239,7 @@ class CubeTable
             ->filter(fn(CubeAttribute $attr) => $attr->isTranslatable());
     }
 
-    public function hasRelationOfType(string | RelationsTypeEnum $type): int
+    public function hasRelationOfType(string|RelationsTypeEnum $type): int
     {
         return $this->relations()
             ->filter(function (CubeRelation $rel) use ($type) {
@@ -256,7 +256,7 @@ class CubeTable
     /**
      * @return Collection<CubeRelation>
      */
-    public function relations(string | RelationsTypeEnum | null $type = null): Collection
+    public function relations(string|RelationsTypeEnum|null $type = null): Collection
     {
         if (!$type) {
             return collect($this->relations);

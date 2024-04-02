@@ -17,15 +17,22 @@ class BaseExporter implements FromCollection, WithMapping, WithHeadings
 
     public ?array $requestCols = null;
 
-    public function __construct(Collection|array $collection, Model $model, ?array $requestCols)
+    public bool $isExample = false;
+
+    public function __construct(Collection|array $collection, Model $model, ?array $requestCols, bool $isExample = false)
     {
         $this->collection = $collection;
         $this->model = $model;
         $this->requestCols = $requestCols;
+        $this->isExample = $isExample;
     }
 
     public function collection()
     {
+        if ($this->isExample) {
+            return collect();
+        }
+
         return $this->collection;
     }
 
@@ -33,7 +40,7 @@ class BaseExporter implements FromCollection, WithMapping, WithHeadings
     {
         $map = [];
 
-        if (method_exists($this->model, 'exportable')) {
+        if (method_exists($this->model, 'exportable') && !$this->isExample) {
             $columns = $this->model->exportable();
         } else $columns = $this->model->getFillable();
 

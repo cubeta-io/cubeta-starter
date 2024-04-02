@@ -45,6 +45,11 @@ class WebControllerGenerator extends AbstractGenerator
 
         $addColumns = $this->getKeyColumnsHyperlink();
 
+        $loadedRelations = $this->table->relations()
+            ->filter(fn(CubeRelation $rel) => $rel->exists())
+            ->map(fn(CubeRelation $rel) => $rel->method())
+            ->toJson();
+
         $stubProperties = [
             '{modelName}' => $this->table->modelName,
             '{modelNameCamelCase}' => $modelNameCamelCase,
@@ -63,7 +68,7 @@ class WebControllerGenerator extends AbstractGenerator
             '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
             '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns(),
             '{additionalMethods}' => $this->additionalControllerMethods(),
-            '{loadedRelations}' => $this->getLoadedRelations(),
+            '{loadedRelations}' => $loadedRelations,
             '{baseRouteName}' => $routesNames['base'],
         ];
 
@@ -104,9 +109,9 @@ class WebControllerGenerator extends AbstractGenerator
             'create' => $baseRouteName . '.create',
             'data' => $baseRouteName . '.data',
             'update' => $baseRouteName . '.update',
-            'export' => $baseRouteName . 'export',
-            'import' => $baseRouteName . 'import',
-            'example' => $baseRouteName . 'get.import.example',
+            'export' => $baseRouteName . '.export',
+            'import' => $baseRouteName . '.import',
+            'example' => $baseRouteName . '.get.example',
             'base' => $baseRouteName,
         ];
     }
@@ -158,8 +163,8 @@ class WebControllerGenerator extends AbstractGenerator
                 }
 
                 $relatedTable = Settings::make()->getTable($relatedModel->modelName);
-                $columnName = $relatedTable->relationFunctionNaming() . '.' . $relatedTable->titleable()->name;
-                $columnCalling = "\$row->" . $relatedTable->relationFunctionNaming() . "->" . $relatedTable->titleable()->name;
+                $columnName = $relatedTable->relationMethodNaming() . '.' . $relatedTable->titleable()->name;
+                $columnCalling = "\$row->" . $relatedTable->relationMethodNaming() . "->" . $relatedTable->titleable()->name;
                 $dataColumn .= "
                     ->editColumn('{$columnName}', function (\$row) {
                     //TODO::check on the used show route of the related model key
@@ -220,27 +225,6 @@ class WebControllerGenerator extends AbstractGenerator
         }
 
         return $methods;
-    }
-
-    public function getLoadedRelations(): string
-    {
-        $loaded = $this->table->relations()->filter(function (CubeRelation $rel) {
-            $relatedModelPath = $rel->getModelPath();
-            $currentModelPath = $this->table->getModelPath();
-            return $relatedModelPath->exist()
-                and (
-                ($rel->isHasMany())
-                    ? ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming(singular: false))
-                    : ClassUtils::isMethodDefined($currentModelPath, $rel->relationFunctionNaming())
-                );
-        })->map(fn(CubeRelation $rel) => $rel->method())->toArray();
-
-        $loadedString = '';
-        foreach ($loaded as $item) {
-            $loadedString .= "'$item' , ";
-        }
-
-        return $loadedString;
     }
 
     private function addSidebarItem(string $routeName): void

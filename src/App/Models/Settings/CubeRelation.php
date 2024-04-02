@@ -87,6 +87,21 @@ class CubeRelation
         ];
     }
 
+    /**
+     * the relation is existing if its model class is defined
+     * @return bool
+     */
+    public function exists(): bool
+    {
+        return $this->getModelPath()->exist();
+    }
+
+    /**
+     * a relation is loadable when the current table model exists,
+     * and it has the relation method and the related model exists
+     * and has the current table method
+     * @return bool
+     */
     public function loadable(): bool
     {
         $related = CubeTable::create($this->relatedModel);
@@ -95,7 +110,7 @@ class CubeRelation
         return $relatedModelPath->exist()
             && $this->getModelPath()->exist()
             && ClassUtils::isMethodDefined($relatedModelPath, $this->method())
-            && ClassUtils::isMethodDefined($this->getModelPath(), $related->relationFunctionNaming(singular: $this->isHasMany() || $this->isHasOne()));
+            && ClassUtils::isMethodDefined($this->getModelPath(), $related->relationMethodNaming(singular: $this->isHasMany() || $this->isHasOne()));
     }
 
     /**
@@ -104,8 +119,8 @@ class CubeRelation
     public function method(): string
     {
         if ($this->isHasMany() || $this->isManyToMany()) {
-            return $this->relationFunctionNaming(singular: false);
-        } else return $this->relationFunctionNaming();
+            return $this->relationMethodNaming(singular: false);
+        } else return $this->relationMethodNaming();
     }
 
     /**
@@ -138,5 +153,13 @@ class CubeRelation
     public function isHasOne(): bool
     {
         return $this->type == RelationsTypeEnum::HasOne->value;
+    }
+
+    /**
+     * @return CubeTable|null
+     */
+    public function getTable(): ?CubeTable
+    {
+        return Settings::make()->getTable($this->modelName);
     }
 }
