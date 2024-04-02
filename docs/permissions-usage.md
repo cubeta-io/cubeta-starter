@@ -2,7 +2,7 @@
 
 In this section we will talk about the roles permissions tools usage .
 
-after installing the tools using `php artisan cubeta:install-permissions`run your migration by this
+after installing the tools using `php artisan cubeta:install permissions`run your migration by this
 command `php artisan migrate`
 
 #### Roles :

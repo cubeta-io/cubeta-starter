@@ -47,9 +47,9 @@ in this page you'll find four options :
 **<h3 id="use-terminal">Using Terminal : </h3>**
 For the same installing steps your have three commands :
 
-1. `php artisan cubeta:install-api`
-2. `php artisan cubeta:install-web`
-3. `php artisan cubeta:install-web-packages`
+1. `php artisan cubeta:install api`
+2. `php artisan cubeta:install web`
+3. `php artisan cubeta:install web-packages`
 
 > [!note]
 > when publishing there is two route files will be generated ( `protected` , `public` ) based on the usage (web or api)
