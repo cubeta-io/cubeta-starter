@@ -7,5 +7,5 @@
     <link href="{{asset('images/cubeta-logo.png')}}" rel="icon">
     <link href="{{asset('images/cubeta-logo.png')}}" rel="apple-touch-icon">
     <link href="{{asset('css/style.css')}}" rel="stylesheet">
-    @vite(['resources/js/cubeta-starter.js' , 'resources/sass/cubeta-starter.scss'])
+    @vite(['resources/js/cubeta-starter.js' , 'resources/css/cubeta-starter.css'])
 </head>
