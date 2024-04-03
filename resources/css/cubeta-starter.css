@@ -74,7 +74,6 @@ h6 {
     font-size: 24px;
     margin-bottom: 0;
     font-weight: 600;
-    color: #012970;
 }
 
 /*--------------------------------------------------------------
@@ -99,7 +98,6 @@ h6 {
 }
 
 .dropdown-menu .dropdown-divider {
-    color: #a5c5fe;
     margin: 0;
 }
 
@@ -162,7 +160,6 @@ h6 {
 .card-header,
 .card-footer {
     border-color: #a1a6b1;
-    color: #798eb3;
     padding: 15px;
 }
 
@@ -202,7 +199,6 @@ h6 {
     background-color: #fff;
     padding-left: 20px;
     /* Toggle Sidebar Button */
-    /* Search Bar */
 }
 
 .header {
@@ -224,7 +220,7 @@ h6 {
     list-style: none;
 }
 
-.header-nav>ul {
+.header-nav > ul {
     margin: 0;
     padding: 0;
 }
