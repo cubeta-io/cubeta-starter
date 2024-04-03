@@ -4,14 +4,14 @@
 @endphp
 @foreach (config('cubeta-starter.available_locales') as $lang)
     <div class="row">
-        <div {{ $attributes->merge(['class' => 'col-lg-3 col-md-4 label ' . $classes]) }}
+        <label {{ $attributes->merge(['class' => 'col-lg-3 col-md-4 label ' . $classes]) }}
              id="{{ $lang }}-{{ $label }}-label">
             {{ $label }} : {{ strtoupper($lang) }}
-        </div>
+        </label>
 
-        <div {{ $attributes->merge(['class' => 'col-lg-9 col-md-8 label ' . $classes]) }}
+        <p {{ $attributes->merge(['class' => 'col-lg-9 col-md-8 label ' . $classes]) }}
              id="{{ $lang }}-{{ $label }}">
             {{ $value[$lang] ?? '' }}
-        </div>
+        </p>
     </div>
 @endforeach

@@ -29,7 +29,7 @@
                             </ul>
                             <div class="tab-content pt-2">
 
-                                <div class="tab-pane fade show active profile-overview" id="profile-overview">
+                                <div class="tab-pane fade show active profile-overview p-3" id="profile-overview">
 
                                     <h5 class="card-title">Profile Details</h5>
 

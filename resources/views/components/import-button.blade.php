@@ -42,7 +42,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="importSpinnerLabel">Exporting ...</h1>
+                    <h1 class="modal-title fs-5" id="importSpinnerLabel">Please Wait ...</h1>
                 </div>
                 <div class="modal-body">
                     <div class="text-center">

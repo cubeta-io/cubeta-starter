@@ -1,11 +1,10 @@
 @extends('layout')
 @section('content')
     <main id="main" class="main">
-        <section class="section profile">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center card-header">
-                        <div class="card-title">Manage {modelName}</div>
+                        <h1 class="page-title">Manage {modelName}</h1>
                         <div class="d-flex gap-3">
                             <x-export-button route="{{route('{exportRoute}')}}"
                                              :cols="{modelClassName}::getModel()->exportable()"
@@ -106,6 +105,5 @@
                     });
                 });
             </script>
-        </section>
     </main>
 @endsection
