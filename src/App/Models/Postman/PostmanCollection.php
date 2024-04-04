@@ -127,8 +127,8 @@ class PostmanCollection implements PostmanObject
         );
 
         $exampleImport = new PostmanRequest(
-            name: "export",
-            method: PostmanRequest::POST,
+            name: "import-example",
+            method: PostmanRequest::GET,
             url: RequestUrl::getUrlFromRoute("{$baseUrl}/get-import-example"),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer(),
