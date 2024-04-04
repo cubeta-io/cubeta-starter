@@ -33,15 +33,17 @@ class BaseImporter implements ToModel, WithHeadingRow
      */
     public function model(array $row): Model|array|null
     {
-        $import = [];
+        if (!method_exists($this->model, 'import')) {
+            $import = [];
 
-        foreach ($this->mapping() as $col) {
-            $import[$col] = $this->processRow($col, $row[$col]);
-        }
+            foreach ($this->mapping() as $col) {
+                $import[$col] = $this->processRow($col, $row[$col]);
+            }
 
-        $modelClass = get_class($this->model);
+            $modelClass = get_class($this->model);
 
-        return new $modelClass($import);
+            return new $modelClass($import);
+        } else return $this->model->import($row);
     }
 
     /**

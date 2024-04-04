@@ -29,11 +29,17 @@ class BaseExporter implements FromCollection, WithMapping, WithHeadings
 
     public function collection()
     {
-        if ($this->isExample) {
-            return collect();
-        }
+        if (!method_exists($this->model, 'export')) {
+            if ($this->isExample) {
+                if (!method_exists($this->model, 'importExample')) {
+                    return collect();
+                } else return $this->model->importExample();
+            }
 
-        return $this->collection;
+            return $this->collection;
+        } else {
+            return $this->model->export();
+        }
     }
 
     public function map($row): array
