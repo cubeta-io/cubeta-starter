@@ -2,7 +2,9 @@
 
 namespace App\Repositories\Contracts;
 
+use App\Excel\BaseImporter;
 use App\Traits\FileHandler;
+use App\Excel\BaseExporter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +12,8 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection as RegularCollection;
 use Illuminate\Support\Facades\Schema;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * @template T of Model
@@ -390,5 +394,44 @@ abstract class BaseRepository implements IBaseRepository
         }
 
         return $model;
+    }
+
+
+    /**
+     * @param array $ids
+     * @return BinaryFileResponse
+     */
+    public function export(array $ids = []): BinaryFileResponse
+    {
+        if (!count($ids)) {
+            $collection = $this->globalQuery()->get();
+        } else {
+            $collection = $this->globalQuery()->whereIn('id', $ids)->get();
+        }
+
+        $requestedColumns = request("columns") ?? null;
+        return Excel::download(
+            new BaseExporter($collection, $this->model, $requestedColumns),
+            $this->model->getTable() . ".xlsx",
+        );
+    }
+
+    /**
+     * @return BinaryFileResponse
+     */
+    public function getImportExample(): BinaryFileResponse
+    {
+        return Excel::download(
+            new BaseExporter(collect(), $this->model, null, true),
+            $this->model->getTable() . '-example.xlsx'
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function import(): void
+    {
+        Excel::import(new BaseImporter($this->model), request()->file('excel_file'));
     }
 }

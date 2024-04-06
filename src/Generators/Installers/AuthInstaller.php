@@ -18,6 +18,8 @@ class AuthInstaller extends AbstractGenerator
 
     public static string $key = "install-auth";
 
+    public string $type = 'installer';
+
     /**
      * @param bool $override
      * @return void

@@ -30,11 +30,11 @@ with the benefit of getting a full generated CRUD support code from them .
 
 the commands :
 
-1. `php artisan cubeta:install-api`
-2. `php artisan cubeta:install-web`
-3. `php artisan cubeta:install-auth`
-4. `php artisan cubeta:install-web-packages`
-5. `php artisan cubeta:install-permissions`
+1. `php artisan cubeta:install api`
+2. `php artisan cubeta:install web`
+3. `php artisan cubeta:install auth`
+4. `php artisan cubeta:install web-packages`
+5. `php artisan cubeta:install permissions`
 6. `php artisan create:actor`
 7. `php artisan create:model`
 8. `php artisan create:migration`
@@ -78,7 +78,7 @@ The `actor` parameter will define the actor on the created endpoints, and it is 
 
 In previous versions we used `spatie/laravel-permission` which is a great package but to lightweight your project and
 make it optional to you use it or not or to edit the way it works we have powered you with the
-command `php artisan cubeta:install-permissions` which will generate the following files for you :
+command `php artisan cubeta:install permissions` which will generate the following files for you :
 
 1. RoleDoesNotExistException ( _exception class_ )
 2. ActionsMustBeAuthorized ( _interface for models_ )
@@ -96,7 +96,7 @@ check the usage manual [here](permissions-usage.md#cubeta-permissions-usage) .
 <h2 id="install-auth-command">Install Auth Command</h2>
 
 To prepare your project to handle authentication and authorization we've provided the seamless way for this by executing
-the command : `php artisan cubeta:install-auth`
+the command : `php artisan cubeta:install auth`
 this command will initialize your project with the following :
 
 1. BaseAuthController ( _Controller_ )
@@ -137,7 +137,7 @@ project
 
 > [!note]
 > using this command require you to install the Permissions Feature by executing the
-> command `php artisan cubeta:install-permissions`
+> command `php artisan cubeta:install permissions`
 
 > [!warning]
 > make sure that your user model uses the `HasRoles` trait
@@ -219,7 +219,7 @@ Now you will notice that the there is multiple files generated and some changes 
 > so be careful
 
 > [!note]
-> this command works with the generated files of these commands :  `cubeta:install-permissions` , `cubeta:install-auth`
+> this command works with the generated files of these commands :  `cubeta:install permissions` , `cubeta:install auth`
 > so make sure that you follow their steps before start adding actors
 
 If you do a little check on `app/Enums/RolesPermissions.php` you'll find that your actor has been added to it .

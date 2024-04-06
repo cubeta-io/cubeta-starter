@@ -6,6 +6,7 @@ use App\Repositories\Contracts\IBaseRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection as RegularCollection;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * @template T of Model
@@ -86,5 +87,30 @@ abstract class BaseService implements IBaseService
     public function view($id, array $relationships = []): ?Model
     {
         return $this->repository->find($id, $relationships);
+    }
+
+    /**
+     * @param array $ids
+     * @return BinaryFileResponse
+     */
+    public function export(array $ids = []): BinaryFileResponse
+    {
+        return $this->repository->export($ids);
+    }
+
+    /**
+     * @return BinaryFileResponse
+     */
+    public function getImportExample(): BinaryFileResponse
+    {
+        return $this->repository->getImportExample();
+    }
+
+    /**
+     * @return void
+     */
+    public function import(): void
+    {
+        $this->repository->import();
     }
 }

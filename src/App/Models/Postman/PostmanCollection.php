@@ -64,7 +64,7 @@ class PostmanCollection implements PostmanObject
             return $this;
         }
 
-        if($actor){
+        if ($actor) {
             $baseUrl = "$actor/{$table->routeUrlNaming()}";
         } else $baseUrl = $table->routeUrlNaming();
 
@@ -110,7 +110,31 @@ class PostmanCollection implements PostmanObject
             auth: RequestAuth::bearer(),
         );
 
-        $this->items[] = new PostmanItem($table->modelName, [$index, $show, $store, $update, $delete]);
+        $export = new PostmanRequest(
+            name: "export",
+            method: PostmanRequest::POST,
+            url: RequestUrl::getUrlFromRoute("{$baseUrl}/export"),
+            header: [RequestHeader::setAcceptJson()],
+            auth: RequestAuth::bearer(),
+        );
+
+        $import = new PostmanRequest(
+            name: "import",
+            method: PostmanRequest::POST,
+            url: RequestUrl::getUrlFromRoute("{$baseUrl}/import"),
+            header: [RequestHeader::setAcceptJson()],
+            auth: RequestAuth::bearer(),
+        );
+
+        $exampleImport = new PostmanRequest(
+            name: "import-example",
+            method: PostmanRequest::GET,
+            url: RequestUrl::getUrlFromRoute("{$baseUrl}/get-import-example"),
+            header: [RequestHeader::setAcceptJson()],
+            auth: RequestAuth::bearer(),
+        );
+
+        $this->items[] = new PostmanItem($table->modelName, [$index, $show, $store, $update, $delete, $export, $import, $exampleImport]);
 
         return $this;
     }
@@ -130,23 +154,23 @@ class PostmanCollection implements PostmanObject
      * @param Collection<CubeAttribute>|array<CubeAttribute> $columns
      * @return FormDataField[]
      */
-    private function getBodyData(Collection | array $columns): array
+    private function getBodyData(Collection|array $columns): array
     {
         $data = [];
         foreach ($columns as $column) {
 
             if (ColumnTypeEnum::isNumericType($column->type)) {
-                $data[] = new FormDataField($column->name, (string) fake()->numberBetween(1, 10));
+                $data[] = new FormDataField($column->name, (string)fake()->numberBetween(1, 10));
                 continue;
             }
 
             $data[] = match ($column->type) {
-                ColumnTypeEnum::BOOLEAN->value => new FormDataField($column->name, (string) fake()->boolean),
+                ColumnTypeEnum::BOOLEAN->value => new FormDataField($column->name, (string)fake()->boolean),
                 ColumnTypeEnum::DATE->value => new FormDataField($column->name, now()->format('Y-m-d')),
                 ColumnTypeEnum::DATETIME->value => new FormDataField($column->name, now()->format('Y-m-d H:i:s')),
                 ColumnTypeEnum::TIME->value => new FormDataField($column->name, now()->format('H:i:s')),
-                ColumnTypeEnum::JSON->value => new FormDataField($column->name, (string) json_encode([fake()->word => fake()->word])),
-                ColumnTypeEnum::TRANSLATABLE->value => new FormDataField($column->name, (string) json_encode(["ar" => fake()->word, "en" => fake()->word])),
+                ColumnTypeEnum::JSON->value => new FormDataField($column->name, (string)json_encode([fake()->word => fake()->word])),
+                ColumnTypeEnum::TRANSLATABLE->value => new FormDataField($column->name, (string)json_encode(["ar" => fake()->word, "en" => fake()->word])),
                 ColumnTypeEnum::TEXT->value => new FormDataField($column->name, fake()->text),
                 ColumnTypeEnum::KEY->value => new FormDataField($column->name, "1"),
                 default => new FormDataField($column->name, fake()->word),

@@ -10,19 +10,19 @@ trait StringsGenerator
 {
     public function hasManyFunction(CubeTable|CubeRelation $model): string
     {
-        $relationName = $model->relationFunctionNaming(singular: false);
+        $relationName = $model->relationMethodNaming(singular: false);
         return "public function $relationName()\n{\n\t return \$this->hasMany(" . $model->modelName . "::class);\n}\n\n";
     }
 
     public function manyToManyFunction(CubeTable|CubeRelation $model): string
     {
-        $relationName = $model->relationFunctionNaming(singular: false);
+        $relationName = $model->relationMethodNaming(singular: false);
         return "public function $relationName()\n{\n\t return \$this->belongsToMany(" . $model->modelName . "::class);\n}\n\n";
     }
 
     public function belongsToFunction(CubeTable|CubeRelation $model): string
     {
-        $relationName = $model->relationFunctionNaming();
+        $relationName = $model->relationMethodNaming();
         return "public function $relationName()\n{\n\t return \$this->belongsTo(" . $model->modelName . "::class); \n}\n\n";
     }
 

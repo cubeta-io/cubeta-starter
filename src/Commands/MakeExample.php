@@ -34,9 +34,6 @@ class MakeExample extends Command
                         'nullables' => [
                             "description"
                         ],
-                        'uniques' => [
-                            'name'
-                        ]
                     ]);
 
                     $output = Artisan::output();

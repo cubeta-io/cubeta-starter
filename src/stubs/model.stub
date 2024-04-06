@@ -24,6 +24,12 @@ class {modelName} extends Model
         {casts}
     ];
 
+    public function exportable(): array {
+        return [
+            {exportables}
+        ];
+    }
+
 
 {fileGetter}
 

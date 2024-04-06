@@ -14,11 +14,7 @@ use Cubeta\CubetaStarter\Commands\Generators\MakeSeeder;
 use Cubeta\CubetaStarter\Commands\Generators\MakeService;
 use Cubeta\CubetaStarter\Commands\Generators\MakeTest;
 use Cubeta\CubetaStarter\Commands\Generators\MakeWebController;
-use Cubeta\CubetaStarter\Commands\Installers\InstallApi;
-use Cubeta\CubetaStarter\Commands\Installers\InstallAuth;
-use Cubeta\CubetaStarter\Commands\Installers\InstallPermissions;
-use Cubeta\CubetaStarter\Commands\Installers\InstallWeb;
-use Cubeta\CubetaStarter\Commands\Installers\InstallWebPackages;
+use Cubeta\CubetaStarter\Commands\Installers\Installer;
 use Cubeta\CubetaStarter\Commands\MakeExample;
 use Illuminate\Support\Facades\View;
 use Spatie\LaravelPackageTools\Exceptions\InvalidPackage;
@@ -83,7 +79,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
             __DIR__ . '/../resources/views' => resource_path('views'),
             __DIR__ . '/../resources/js' => resource_path('js'),
-            __DIR__ . '/../resources/sass' => resource_path('sass'),
+            __DIR__ . '/../resources/css' => resource_path('css'),
             __DIR__ . '/../public' => public_path(),
             __DIR__ . '/Traits/DataTablesTrait.php' => app_path("Traits/DataTablesTrait.php"),
             __DIR__ . '/../src/Providers' => app_path('/Providers'),
@@ -96,7 +92,8 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/Repositories/BaseRepository.php" => app_path("Repositories/Contracts/BaseRepository.php"),
             __DIR__ . "/../src/Contracts/Repositories/IBaseRepository.php" => app_path("Repositories/Contracts/IBaseRepository.php"),
             __DIR__ . "/../src/Contracts/Services/BaseService.php" => app_path("Services/Contracts/BaseService.php"),
-            __DIR__ . "/../src/Contracts/Services/IBaseService.php" => app_path("Services/Contracts/IBaseService.php"),
+            __DIR__ . "/../src/Contracts/Excel/BaseExporter.php" => app_path("Excel/BaseExporter.php"),
+            __DIR__ . '/../src/Contracts/Excel/BaseImporter.php' => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/Traits/FileHandler.php' => app_path("Traits/FileHandler.php"),
         ], 'cubeta-starter-web');
     }
@@ -110,7 +107,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../resources/views/reset-password-request.blade.php' => resource_path('views/reset-password-request.blade.php'),
             __DIR__ . '/../resources/views/check-reset-code.blade.php' => resource_path('views/check-reset-code.blade.php'),
             __DIR__ . '/../resources/views/reset-password.blade.php' => resource_path('views/reset-password.blade.php'),
-        ] , 'cubeta-auth-views');
+        ], 'cubeta-auth-views');
     }
 
     private function publishApi(): void
@@ -134,6 +131,8 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/Repositories/IBaseRepository.php" => app_path("Repositories/Contracts/IBaseRepository.php"),
             __DIR__ . "/../src/Contracts/Services/BaseService.php" => app_path("Services/Contracts/BaseService.php"),
             __DIR__ . "/../src/Contracts/Services/IBaseService.php" => app_path("Services/Contracts/IBaseService.php"),
+            __DIR__ . "/../src/Contracts/Excel/BaseExporter.php" => app_path("Excel/BaseExporter.php"),
+            __DIR__ . '/../src/Contracts/Excel/BaseImporter.php' => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/Traits/FileHandler.php' => app_path("Traits/FileHandler.php"),
             __DIR__ . '/../src/app/Http/Resources/BaseResource.php' => app_path('Http/Resources/BaseResource.php')
         ], 'cubeta-starter-api');
@@ -184,11 +183,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeTest::class)
             ->hasCommand(AddActor::class)
             ->hasCommand(MakeWebController::class)
-            ->hasCommand(InstallWebPackages::class)
-            ->hasCommand(InstallAuth::class)
-            ->hasCommand(InstallApi::class)
-            ->hasCommand(InstallWeb::class)
-            ->hasCommand(InstallPermissions::class)
+            ->hasCommand(Installer::class)
             ->hasCommand(MakeExample::class);
     }
 }

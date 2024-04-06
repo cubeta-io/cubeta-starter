@@ -31,7 +31,7 @@ class {modelName}Controller extends Controller
      */
     public function data()
     {
-        $data = {modelName}::query()->with([{loadedRelations}])->select('{tableName}.*');
+        $data = {modelName}::query()->with({loadedRelations})->select('{tableName}.*');
 
         $query = DataTables::eloquent($data)
             {addColumns}
@@ -106,6 +106,27 @@ class {modelName}Controller extends Controller
         }
 
         return redirect()->back()->with('error' , __('site.there_is_no_data'));
+    }
+
+    public function export(Request $request)
+    {
+        $ids = $request->ids ?? [];
+
+        return $this->{modelNameCamelCase}Service->export($ids);
+    }
+
+    public function getImportExample()
+    {
+        return $this->{modelNameCamelCase}Service->getImportExample();
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xls,xlsx',
+        ]);
+
+        $this->{modelNameCamelCase}Service->import();
     }
 
     {additionalMethods}

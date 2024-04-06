@@ -2,11 +2,12 @@
 
 namespace {namespace};
 
-use App\Http\Controllers\ApiController;
 use {requestNamespace}\{modelName}\StoreUpdate{modelName}Request;
-use {resourceNamespace}\{modelName}Resource;
 use {serviceNamespace}\{modelName}\I{modelName}Service;
+use {resourceNamespace}\{modelName}Resource;
+use App\Http\Controllers\ApiController;
 use {modelNamespace}\{modelName};
+use Illuminate\Http\Request;
 
 class {modelName}Controller extends ApiController{
 
@@ -71,5 +72,26 @@ class {modelName}Controller extends ApiController{
         }
 
         return $this->noData(false);
+    }
+
+    public function export(Request $request)
+    {
+        $ids = $request->ids ?? [];
+
+        return $this->{variableNaming}Service->export($ids);
+    }
+
+    public function getImportExample()
+    {
+        return $this->{variableNaming}Service->getImportExample();
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xls,xlsx',
+        ]);
+
+        $this->{variableNaming}Service->import();
     }
 }

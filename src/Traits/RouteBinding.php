@@ -2,20 +2,20 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
-use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
-use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
-use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
-use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
+use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Logs\CubeLog;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Exception;
 
 trait RouteBinding
 {
@@ -38,29 +38,40 @@ trait RouteBinding
 
         $routeName = $this->getRouteName($table, $container, $actor);
 
+        $controllerName = $table->getControllerName();
+
         if (ContainerType::isWeb($container)) {
             $routes = $this->addAdditionalRoutesForAdditionalControllerMethods($table, $routeName, $additionalRoutes);
-            $routes[] = "Route::get(\"dashboard/{$pluralLowerModelName}/data\", [v1\\{$table->modelNaming()}" . "Controller::class, \"data\"])->name(\"{$routeName}.data\");";
-            $routes[] = 'Route::Resource("dashboard/' . $pluralLowerModelName . '" , v1\\' . $table->modelNaming() . 'Controller::class)->names("' . $routeName . '") ;';
+            $routes[] = "Route::get('dashboard/{$pluralLowerModelName}/data', [v1\\{$controllerName}::class, 'data'])->name('{$routeName}.data');";
+            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export' , [v1\\{$controllerName}::class , 'export'])->name('$routeName.export');";
+            $routes[] = "Route::get('dashboard/$pluralLowerModelName/get-import-example', [v1\\{$controllerName}::class, 'getImportExample'])->name('$routeName.get.example');";
+            $routes[] = "Route::post('dashboard/$pluralLowerModelName/import', [v1\\{$controllerName}::class, 'import'])->name('$routeName.import');";
+            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export', [v1\\{$controllerName}::class, 'export'])->name('$routeName.export');";
+            $routes[] = "Route::Resource('dashboard/{$pluralLowerModelName}' , v1\\{$controllerName}::class)->names('{$routeName}') ;";
 
-            foreach ($routes as $key => $route) {
-                if ($this->routeExist($routePath, $route)) {
-                    CubeLog::add(new ContentAlreadyExist($route, $routePath->fullPath, "Adding New Route To : [$routePath->fullPath]"));
-                    unset($routes[$key]);
-                }
-            }
-
-            if (!count($routes)) {
-                return;
-            }
-
-            $route = implode("\n", $routes);
             $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . ';';
         } else {
             $sub = ($actor && $actor != 'none') ? "$actor/" : '';
-            $route = "Route::apiResource('/{$sub}{$pluralLowerModelName}' , v1\\{$table->getControllerName()}::class)->names('$routeName') ;\n";
+            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/export', [v1\\{$controllerName}::class, 'export'])->name('$routeName.export');";
+            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/import', [v1\\{$controllerName}::class, 'import'])->name('$routeName.import');";
+            $routes[] = "Route::get('/{$sub}{$pluralLowerModelName}/get-import-example', [v1\\{$controllerName}::class, 'getImportExample'])->name('$routeName.get.example');";
+            $routes[] = "Route::apiResource('/{$sub}{$pluralLowerModelName}' , v1\\{$controllerName}::class)->names('$routeName') ;\n";
+
             $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . ';';
         }
+
+        foreach ($routes as $key => $route) {
+            if ($this->routeExist($routePath, $route)) {
+                CubeLog::add(new ContentAlreadyExist($route, $routePath->fullPath, "Adding New Route To : [$routePath->fullPath]"));
+                unset($routes[$key]);
+            }
+        }
+
+        if (!count($routes)) {
+            return;
+        }
+
+        $route = implode("\n", $routes);
 
         FileUtils::addImportStatement($importStatement, $routePath);
 
@@ -109,7 +120,7 @@ trait RouteBinding
                 $filePath->fullPath,
                 __DIR__ . '/../stubs/api.stub'
             );
-        } catch (Exception | BindingResolutionException | FileNotFoundException $e) {
+        } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
             CubeLog::add($e);
             return;
         }
