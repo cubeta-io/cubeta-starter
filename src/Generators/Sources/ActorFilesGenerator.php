@@ -23,7 +23,7 @@ class ActorFilesGenerator extends AbstractGenerator
 
     public static string $key = "add-actor";
 
-    public static string $type = 'installer';
+    public string $type = 'installer';
 
     private string $role;
     private ?array $permissions;
