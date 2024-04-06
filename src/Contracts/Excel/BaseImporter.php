@@ -22,10 +22,9 @@ class BaseImporter implements ToModel, WithHeadingRow
 
     private function mapping()
     {
-        if (method_exists($this->model, 'importable')) {
-            $imp = $this->model->importable();
-        } else $imp = $this->model->getFillable();
-        return $imp;
+        return method_exists($this->model, 'importable')
+            ? $this->model->importable()
+            : $this->model->getFillable();
     }
 
     /**
@@ -39,11 +38,10 @@ class BaseImporter implements ToModel, WithHeadingRow
             foreach ($this->mapping() as $col) {
                 $import[$col] = $this->processRow($col, $row[$col]);
             }
-
             $modelClass = get_class($this->model);
-
             return new $modelClass($import);
-        } else return $this->model->import($row);
+        }
+        return $this->model->import($row);
     }
 
     /**
@@ -53,15 +51,11 @@ class BaseImporter implements ToModel, WithHeadingRow
      */
     private function processRow(string $colName, $row): mixed
     {
-        $fillable = $this->model->getCasts();
-        if (in_array($colName, array_keys($fillable))) {
-            if ($fillable[$colName] == Translatable::class) {
-                if (json_encode($row)) {
-                    return json_encode([
-                        app()->getLocale() => $row
-                    ]);
-                }
-            }
+        $casts = $this->model->getCasts();
+        if (in_array($colName, array_keys($casts)) && $casts[$colName] == Translatable::class && json_encode($row)) {
+            return json_encode([
+                app()->getLocale() => $row
+            ]);
         }
 
         return $row;

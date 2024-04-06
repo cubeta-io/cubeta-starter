@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithCustomChunkSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class BaseExporter implements FromCollection, WithMapping, WithHeadings
+class BaseExporter implements FromCollection, WithMapping, WithHeadings, WithCustomChunkSize
 {
     public array|Collection|null $collection = null;
 
@@ -31,24 +32,23 @@ class BaseExporter implements FromCollection, WithMapping, WithHeadings
     {
         if (!method_exists($this->model, 'export')) {
             if ($this->isExample) {
-                if (!method_exists($this->model, 'importExample')) {
-                    return collect();
-                } else return $this->model->importExample();
+                return !method_exists($this->model, 'importExample')
+                    ? collect($this->model->getFillable())
+                    : $this->model->importExample();
             }
-
             return $this->collection;
-        } else {
-            return $this->model->export();
         }
+        
+        return $this->model->export();
     }
 
     public function map($row): array
     {
         $map = [];
 
-        if (method_exists($this->model, 'exportable') && !$this->isExample) {
-            $columns = $this->model->exportable();
-        } else $columns = $this->model->getFillable();
+        $columns = method_exists($this->model, 'exportable') && !$this->isExample
+            ? $this->model->exportable()
+            : $this->model->getFillable();
 
         foreach ($columns as $col) {
 
@@ -75,9 +75,9 @@ class BaseExporter implements FromCollection, WithMapping, WithHeadings
 
     public function headings(): array
     {
-        if (method_exists($this->model, 'exportable')) {
-            $heads = $this->model->exportable();
-        } else $heads = $this->model->getFillable();
+        $heads = method_exists($this->model, 'exportable')
+            ? $this->model->exportable()
+            : $this->model->getFillable();
 
         if ($this->requestCols) {
             $heads = collect($this->requestCols)->intersect($heads)->toArray();
@@ -88,5 +88,10 @@ class BaseExporter implements FromCollection, WithMapping, WithHeadings
         }
 
         return $heads;
+    }
+
+    public function chunkSize(): int
+    {
+        return 500;
     }
 }
