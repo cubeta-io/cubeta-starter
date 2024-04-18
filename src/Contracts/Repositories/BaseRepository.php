@@ -233,6 +233,9 @@ abstract class BaseRepository implements IBaseRepository
             'to' => $paginated_arr['to'],
             'total' => $paginated_arr['total'],
             'per_page' => $paginated_arr['per_page'],
+            'total_pages' => ceil($paginated_arr['total'] / $paginated_arr['per_page']),
+            'is_first' => $paginated_arr['current_page'] == 1,
+            'is_last' => $paginated_arr['current_page'] == ceil($paginated_arr['total'] / $paginated_arr['per_page']),
         ];
     }
 
