@@ -15,18 +15,21 @@ class ResourceGenerator extends AbstractGenerator
     {
         $resourceName = $this->table->getResourceName();
 
+        $resourcePath = $this->table->getResourcePath();
+
+        if ($resourcePath->exist()) {
+            $resourcePath->logAlreadyExist("Generating Resource For {$this->table->modelName} Model");
+            return;
+        }
+
+        $resourcePath->ensureDirectoryExists();
+
         $stubProperties = [
             '{model}' => $this->table->getModelClassString(),
             '{namespace}' => config('cubeta-starter.resource_namespace'),
             '{class}' => $resourceName,
             '{resource_fields}' => $this->generateFields(),
         ];
-
-        $resourcePath = $this->table->getResourcePath();
-
-        if ($resourcePath->exist()) {
-            $resourcePath->logAlreadyExist("Generating Resource For {$this->table->modelName} Model");
-        }
 
         $this->generateFileFromStub($stubProperties, $resourcePath->fullPath);
 

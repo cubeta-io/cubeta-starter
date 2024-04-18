@@ -15,7 +15,10 @@ class ServiceGenerator extends AbstractGenerator
 
         if ($servicePath->exist()) {
             $servicePath->logAlreadyExist("Generating Service Class For : ({$this->table->modelName}) Model");
+            return;
         }
+
+        $servicePath->ensureDirectoryExists();
 
         $stubProperties = [
             '{modelName}' => $this->table->modelName,
@@ -24,8 +27,6 @@ class ServiceGenerator extends AbstractGenerator
             '{repositoryNamespace}' => config('cubeta-starter.repository_namespace'),
             "{modelNamespace}" => config('cubeta-starter.model_namespace')
         ];
-
-        $servicePath->ensureDirectoryExists();
 
         $this->generateFileFromStub($stubProperties, $servicePath->fullPath);
 

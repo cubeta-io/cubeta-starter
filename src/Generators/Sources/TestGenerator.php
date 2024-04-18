@@ -20,22 +20,24 @@ class TestGenerator extends AbstractGenerator
     {
         $baseRouteName = $this->getRouteName($this->table, ContainerType::API, $this->actor) . '.';
 
-        $stubProperties = [
-            '{namespace}' => config('cubeta-starter.test_namespace'),
-            '{modelName}' => $this->table->modelName,
-            '{{actor}}' => $this->actor,
-            '{baseRouteName}' => $baseRouteName,
-            '{modelNamespace}' => config('cubeta-starter.model_namespace'),
-            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
-            '{additionalFactoryData}' => $this->getAdditionalFactoryData()
-        ];
-
         $testPath = $this->table->getTestPath();
 
         if ($testPath->exist()) {
             CubeLog::add(new AlreadyExist($testPath->fullPath, "Generating Test For ({$this->table->modelName}) Model"));
             return;
         }
+
+        $testPath->ensureDirectoryExists();
+
+        $stubProperties = [
+            '{namespace}' => config('cubeta-starter.test_namespace'),
+            '{modelName}' => $this->table->modelName,
+            '{{ actor }}' => $this->actor,
+            '{baseRouteName}' => $baseRouteName,
+            '{modelNamespace}' => config('cubeta-starter.model_namespace'),
+            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
+            '{additionalFactoryData}' => $this->getAdditionalFactoryData()
+        ];
 
         $this->generateFileFromStub(
             $stubProperties,

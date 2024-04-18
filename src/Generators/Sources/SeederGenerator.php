@@ -17,7 +17,10 @@ class SeederGenerator extends AbstractGenerator
 
         if ($seederPath->exist()) {
             $seederPath->logAlreadyExist("Generating Seeder For ({$this->table->modelName}) Model");
+            return;
         }
+
+        $seederPath->ensureDirectoryExists();
 
         $stubProperties = [
             '{modelName}' => $this->table->modelName,
