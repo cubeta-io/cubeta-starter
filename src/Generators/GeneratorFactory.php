@@ -40,15 +40,17 @@ class GeneratorFactory
     }
 
     public function make(
-        string $fileName = "",
-        array $attributes = [],
-        array $relations = [],
-        array $nullables = [],
-        array $uniques = [],
+        string  $fileName = "",
+        array   $attributes = [],
+        array   $relations = [],
+        array   $nullables = [],
+        array   $uniques = [],
         ?string $actor = null,
-        string $generatedFor = ContainerType::API,
-        bool $override = true
-    ): void {
+        string  $generatedFor = ContainerType::API,
+        bool    $override = true,
+        string  $version = 'v1'
+    ): void
+    {
         if (!$this->source) {
             throw new Exception("Undefined Generator Factory Key Please Provide One");
         }
@@ -78,7 +80,8 @@ class GeneratorFactory
                 nullables: $nullables,
                 uniques: $uniques,
                 actor: $actor,
-                generatedFor: $generatedFor
+                generatedFor: $generatedFor,
+                version: $version
             ),
             Sources\ResourceGenerator::$key => new Sources\ResourceGenerator(
                 fileName: $fileName,
@@ -87,7 +90,8 @@ class GeneratorFactory
                 nullables: $nullables,
                 uniques: $uniques,
                 actor: $actor,
-                generatedFor: $generatedFor
+                generatedFor: $generatedFor,
+                version: $version
             ),
             Sources\FactoryGenerator::$key => new Sources\FactoryGenerator(
                 fileName: $fileName,
@@ -123,7 +127,8 @@ class GeneratorFactory
                 nullables: $nullables,
                 uniques: $uniques,
                 actor: $actor,
-                generatedFor: $generatedFor
+                generatedFor: $generatedFor,
+                version: $version
             ),
             Sources\ControllerGenerator::$key => new Sources\ControllerGenerator(
                 fileName: $fileName,
@@ -132,12 +137,14 @@ class GeneratorFactory
                 nullables: $nullables,
                 uniques: $uniques,
                 actor: $actor,
-                generatedFor: $generatedFor
+                generatedFor: $generatedFor,
+                version: $version
             ),
             Sources\TestGenerator::$key => new Sources\TestGenerator(
                 fileName: $fileName,
                 attributes: $attributes,
-                actor: $actor
+                actor: $actor,
+                version: $version
             ),
             Installers\AuthInstaller::$key => new Installers\AuthInstaller(
                 generatedFor: $generatedFor

@@ -10,6 +10,7 @@ class Settings
 {
     private static $instance;
     private static array $tables;
+    private static string $version;
 
     private function __construct()
     {
@@ -21,8 +22,10 @@ class Settings
         self::$tables = self::getJsonSettings();
         if (isset(self::$tables["tables"])) {
             self::$tables = self::$tables["tables"];
+            self::$version = self::$tables["version"];
         } else {
             self::$tables = [];
+            self::$version = 'v1';
         }
 
         if (self::$instance == null) {
@@ -78,7 +81,7 @@ class Settings
 
                 foreach ($table['relations'] as $type => $relationships) {
                     foreach ($relationships as $relationship) {
-                        $relations[] = new CubeRelation($type, $relationship['model_name'], $table['model_name']);
+                        $relations[] = new CubeRelation($type, $relationship['model_name'], $table['model_name'], self::$version);
                     }
                 }
 
@@ -86,7 +89,8 @@ class Settings
                     $table['model_name'],
                     $table['table_name'],
                     $attributes,
-                    $relations
+                    $relations,
+                    self::$version
                 );
             }
         }
@@ -94,7 +98,7 @@ class Settings
         return null;
     }
 
-    public function serialize(string $modelName, array $attributes, array $relations = [], array $nullables = [], array $uniques = []): CubeTable
+    public function serialize(string $modelName, array $attributes, array $relations = [], array $nullables = [], array $uniques = [], string $version = 'v1'): CubeTable
     {
         $columns = [];
         $relationships = [];
@@ -104,7 +108,7 @@ class Settings
             if ($type == ColumnTypeEnum::KEY->value) {
                 $type = ColumnTypeEnum::KEY->value;
                 $parent = Naming::model(str_replace('_id', '', $colName));
-                $relationships[] = new CubeRelation(RelationsTypeEnum::BelongsTo->value, $parent, $modelName);
+                $relationships[] = new CubeRelation(RelationsTypeEnum::BelongsTo->value, $parent, $modelName, self::$version);
             }
 
             $columns[] = new CubeAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques));
@@ -115,14 +119,15 @@ class Settings
                 continue;
             }
 
-            $relationships[] = new CubeRelation($type, $relation, $modelName);
+            $relationships[] = new CubeRelation($type, $relation, $modelName, self::$version);
         }
 
         $table = new CubeTable(
             $modelName,
             $modelName,
             $columns,
-            $relationships
+            $relationships,
+            $version
         );
 
         $this->addTable($table);
@@ -143,7 +148,7 @@ class Settings
         $new = $table->collect()->merge(collect($exist))->unique();
 
         self::$tables[] = $new->toArray();
-        self::storeJsonSettings(["tables" => array_values(self::$tables)]);
+        self::storeJsonSettings([self::$version => ["tables" => array_values(self::$tables)]]);
         return $this;
     }
 

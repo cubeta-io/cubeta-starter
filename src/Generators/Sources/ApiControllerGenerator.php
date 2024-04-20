@@ -14,7 +14,6 @@ class ApiControllerGenerator extends AbstractGenerator
     use RouteBinding;
 
     public static string $key = 'api-controller';
-    public static string $configPath = 'cubeta-starter.api_controller_path';
 
     public function run(bool $override = false): void
     {
@@ -28,14 +27,14 @@ class ApiControllerGenerator extends AbstractGenerator
         $controllerPath->ensureDirectoryExists();
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.api_controller_namespace'),
+            '{namespace}' => $this->table->getApiControllerNameSpace(false),
             '{modelName}' => $this->table->modelName,
             '{variableNaming}' => $this->table->variableNaming(),
-            '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
-            '{requestNamespace}' => config('cubeta-starter.request_namespace'),
-            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
+            '{serviceNamespace}' => $this->table->getServiceNamespace(false, true),
+            '{requestNamespace}' => $this->table->getRequestNameSpace(false, true),
+            '{resourceNamespace}' => $this->table->getResourceNameSpace(false, true),
             '{idVariable}' => $this->table->idVariable(),
-            "{modelNamespace}" => config('cubeta-starter.model_namespace'),
+            "{modelNamespace}" => $this->table->getModelNameSpace(),
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
@@ -43,7 +42,7 @@ class ApiControllerGenerator extends AbstractGenerator
         $controllerPath->format();
 
         try {
-            Postman::make()->getCollection()->newCrud($this->table, $this->actor)->save();
+            Postman::make()->getCollection()->newCrud($this->table, $this->version, $this->actor)->save();
             CubeLog::add(new SuccessMessage("Postman Collection Now Has Folder For The Generated Controller [{$this->table->getControllerName()}] \nRe-Import It In Postman"));
         } catch (Exception $e) {
             CubeLog::add($e);

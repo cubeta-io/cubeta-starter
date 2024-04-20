@@ -21,7 +21,6 @@ class WebControllerGenerator extends AbstractGenerator
     use RouteBinding;
 
     public static string $key = 'web-controller';
-    public static string $configPath = 'cubeta-starter.web_controller_path';
 
     protected string $rawColumns = "";
 
@@ -62,10 +61,10 @@ class WebControllerGenerator extends AbstractGenerator
             '{indexView}' => $views['index'],
             '{showView}' => $views['show'],
             '{editForm}' => $views['edit'],
-            '{namespace}' => config('cubeta-starter.web_controller_namespace'),
-            '{requestNamespace}' => config('cubeta-starter.request_namespace'),
-            '{modelNamespace}' => config('cubeta-starter.model_namespace'),
-            '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
+            '{namespace}' => $this->table->getWebControllerNameSpace(),
+            '{requestNamespace}' => $this->table->getRequestNameSpace(false, true),
+            '{modelNamespace}' => $this->table->getModelNameSpace(),
+            '{serviceNamespace}' => $this->table->getServiceNamespace(false, true),
             '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns(),
             '{additionalMethods}' => $this->additionalControllerMethods(),
             '{loadedRelations}' => $loadedRelations,

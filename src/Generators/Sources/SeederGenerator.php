@@ -8,7 +8,6 @@ use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 class SeederGenerator extends AbstractGenerator
 {
     public static string $key = 'seeder';
-    public static string $configPath = 'cubeta-starter.seeder_path';
 
     public function run(bool $override = false): void
     {

@@ -159,8 +159,8 @@ class ActorFilesGenerator extends AbstractGenerator
 
         $this->generateFileFromStub(
             [
-                '{seederNamespace}' => config('cubeta-starter.seeder_namespace'),
-                "{modelNamespace}" => config('cubeta-starter.model_namespace'),
+                '{seederNamespace}' => $this->table->getSeederNameSpace(),
+                "{modelNamespace}" => $this->table->getModelNameSpace(),
             ],
             $seederPath->fullPath,
             $override,

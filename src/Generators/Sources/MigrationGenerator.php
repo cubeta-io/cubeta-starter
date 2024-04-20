@@ -22,7 +22,6 @@ use Mockery\Exception;
 class MigrationGenerator extends AbstractGenerator
 {
     public static string $key = 'migration';
-    public static string $configPath = 'cubeta-starter.migration_path';
 
     public function run(bool $override = false): void
     {

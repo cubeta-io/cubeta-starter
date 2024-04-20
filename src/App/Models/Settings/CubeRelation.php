@@ -31,14 +31,20 @@ class CubeRelation
     /**
      * @var string
      */
+    public string $version = 'v1';
+
+    /**
+     * @var string
+     */
     public string $relatedModel;
 
     /**
      * @param string $type
      * @param string $modelName
      * @param string $relatedModel
+     * @param string $version
      */
-    public function __construct(string $type, string $modelName, string $relatedModel)
+    public function __construct(string $type, string $modelName, string $relatedModel, string $version = 'v1')
     {
         $this->type = $type;
         $this->modelName = Naming::model($modelName);
@@ -49,6 +55,7 @@ class CubeRelation
         }
 
         $this->usedString = $this->modelName;
+        $this->version = $version;
     }
 
     /**

@@ -7,7 +7,6 @@ use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 class ServiceGenerator extends AbstractGenerator
 {
     public static string $key = 'service';
-    public static string $configPath = 'cubeta-starter.service_path';
 
     public function run(bool $override = false): void
     {
@@ -23,9 +22,9 @@ class ServiceGenerator extends AbstractGenerator
         $stubProperties = [
             '{modelName}' => $this->table->modelName,
             '{repositoryName}' => $this->table->getRepositoryName(),
-            '{namespace}' => config('cubeta-starter.service_namespace') . "\\{$this->table->modelName}",
-            '{repositoryNamespace}' => config('cubeta-starter.repository_namespace'),
-            "{modelNamespace}" => config('cubeta-starter.model_namespace')
+            '{namespace}' => $this->table->getServiceNamespace(false),
+            '{repositoryNamespace}' => $this->table->getRepositoryNameSpace(),
+            "{modelNamespace}" => $this->table->getModelNameSpace()
         ];
 
         $this->generateFileFromStub($stubProperties, $servicePath->fullPath);
@@ -39,9 +38,9 @@ class ServiceGenerator extends AbstractGenerator
         }
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.service_namespace') . "\\{$this->table->modelName}",
+            '{namespace}' => $this->table->getServiceNamespace(false),
             '{modelName}' => $this->table->modelName,
-            '{modelNamespace}' => config('cubeta-starter.model_namespace')
+            '{modelNamespace}' => $this->table->getModelNameSpace()
         ];
 
         $serviceInterfacePath->ensureDirectoryExists();

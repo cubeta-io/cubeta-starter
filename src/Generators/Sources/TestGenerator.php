@@ -14,7 +14,6 @@ class TestGenerator extends AbstractGenerator
     use RouteBinding;
 
     public static string $key = "test";
-    public static string $configPath = 'cubeta-starter.test_path';
 
     public function run(bool $override = false): void
     {

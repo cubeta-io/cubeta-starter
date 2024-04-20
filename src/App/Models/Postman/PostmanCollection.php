@@ -58,7 +58,8 @@ class PostmanCollection implements PostmanObject
         ];
     }
 
-    public function newCrud(CubeTable $table, ?string $actor = null): static
+    //TODO:: add version here
+    public function newCrud(CubeTable $table, string $version, ?string $actor = null): static
     {
         if ($this->checkIfCollectionExist($table->modelName)) {
             return $this;

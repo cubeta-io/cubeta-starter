@@ -16,7 +16,6 @@ class FactoryGenerator extends AbstractGenerator
     use StringsGenerator;
 
     public static string $key = 'factory';
-    public static string $configPath = 'cubeta-starter.factory_path';
 
     public function run(bool $override = false): void
     {

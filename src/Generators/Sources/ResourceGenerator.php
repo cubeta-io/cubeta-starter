@@ -9,7 +9,6 @@ use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 class ResourceGenerator extends AbstractGenerator
 {
     public static string $key = 'resource';
-    public static string $configPath = 'cubeta-starter.resource_path';
 
     public function run(bool $override = false): void
     {
@@ -26,7 +25,7 @@ class ResourceGenerator extends AbstractGenerator
 
         $stubProperties = [
             '{model}' => $this->table->getModelClassString(),
-            '{namespace}' => config('cubeta-starter.resource_namespace'),
+            '{namespace}' => $this->table->getResourceNameSpace(false),
             '{class}' => $resourceName,
             '{resource_fields}' => $this->generateFields(),
         ];

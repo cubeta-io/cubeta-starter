@@ -35,18 +35,25 @@ class CubeTable
     public array $relations = [];
 
     /**
+     * @var string
+     */
+    public string $version;
+
+    /**
      * @param string $modelName
      * @param string $tableName
      * @param CubeAttribute[] $attributes
      * @param CubeRelation[] $relations
+     * @param string $version
      */
-    public function __construct(string $modelName, string $tableName, array $attributes, array $relations)
+    public function __construct(string $modelName, string $tableName, array $attributes, array $relations, string $version)
     {
         $this->modelName = Naming::model($modelName);
         $this->tableName = Naming::table($tableName);
         $this->attributes = $attributes;
         $this->relations = $relations;
         $this->usedString = $this->modelName;
+        $this->version = $version;
     }
 
     /**
@@ -55,15 +62,17 @@ class CubeTable
      * @param array $relations
      * @param array $uniques
      * @param array $nullables
+     * @param string $version
      * @return CubeTable
      */
-    public static function create(string $modelName, array $attributes = [], array $relations = [], array $uniques = [], array $nullables = []): CubeTable
+    public static function create(string $modelName, array $attributes = [], array $relations = [], array $uniques = [], array $nullables = [], string $version = "v1"): CubeTable
     {
         return new self(
             Naming::model($modelName),
             Naming::table($modelName),
             collect($attributes)->map(fn($type, $name) => new CubeAttribute($name, $type, in_array($name, $nullables), in_array($name, $uniques)))->toArray(),
-            collect($relations)->map(fn($type, $rel) => new CubeRelation($type, Naming::model($rel), Naming::model($modelName)))->toArray(),
+            collect($relations)->map(fn($type, $rel) => new CubeRelation($type, Naming::model($rel), Naming::model($modelName), $version))->toArray(),
+            $version
         );
     }
 
@@ -72,7 +81,8 @@ class CubeTable
      *     model_name:string,
      *     table_name:string,
      *     attributes:array{array{name:string , type:string , nullable:boolean , unique:boolean}},
-     *     relations:array{array{type:string , model_name:string , key:null|string}}
+     *     relations:array{array{type:string , model_name:string , key:null|string}},
+     *     version:string
      *     }
      */
     public function toArray(): array
@@ -94,6 +104,7 @@ class CubeTable
             "table_name" => $this->tableName,
             "attributes" => $attributes,
             "relations" => $relations,
+            "version" => $this->version,
         ];
     }
 

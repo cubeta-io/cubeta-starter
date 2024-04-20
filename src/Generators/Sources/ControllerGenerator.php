@@ -19,7 +19,8 @@ class ControllerGenerator extends AbstractGenerator
                 nullables: $this->nullables,
                 uniques: $this->uniques,
                 actor: $this->actor,
-                generatedFor: $this->generatedFor
+                generatedFor: $this->generatedFor,
+                version: $this->version
             );
 
             $gen->run($override);
@@ -33,7 +34,8 @@ class ControllerGenerator extends AbstractGenerator
                 nullables: $this->nullables,
                 uniques: $this->uniques,
                 actor: $this->actor,
-                generatedFor: $this->generatedFor
+                generatedFor: $this->generatedFor,
+                version: $this->version
             );
 
             $gen->run();

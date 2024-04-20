@@ -10,14 +10,13 @@ use Cubeta\CubetaStarter\Helpers\FileUtils;
 class RequestGenerator extends AbstractGenerator
 {
     public static string $key = 'request';
-    public static string $configPath = 'cubeta-starter.request_path';
 
     public function run(bool $override = false): void
     {
         $rules = $this->generateRules();
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.request_namespace') . "\\{$this->table->modelName}",
+            '{namespace}' => $this->table->getRequestNameSpace(false),
             '{class}' => $this->table->modelName,
             '{rules}' => $rules['rules'],
             '{prepareForValidation}' => $rules['prepare_for_validation'],

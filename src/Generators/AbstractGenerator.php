@@ -18,7 +18,6 @@ use Mockery\Exception;
 abstract class AbstractGenerator
 {
     public static string $key = '';
-    public static string $configPath = '';
     public string $type = '';
 
     public array $logs = [];
@@ -29,9 +28,10 @@ abstract class AbstractGenerator
     protected string $generatedFor;
     protected ?string $actor = null;
     protected string $fileName;
+    protected string $version;
     protected CubeTable $table;
 
-    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '')
+    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '', string $version = 'v1')
     {
         $this->fileName = trim($fileName);
         $this->attributes = $attributes;
@@ -40,11 +40,12 @@ abstract class AbstractGenerator
         $this->uniques = $uniques;
         $this->actor = $actor;
         $this->generatedFor = $generatedFor === '' ? ContainerType::BOTH : $generatedFor;
+        $this->version = $version;
 
         $this->mergeRelations();
 
         if ($this->type != 'installer') {
-            $this->table = Settings::make()->serialize($this->fileName, $this->attributes, $this->relations, $this->nullables, $this->uniques);
+            $this->table = Settings::make()->serialize($this->fileName, $this->attributes, $this->relations, $this->nullables, $this->uniques, $this->version);
         }
     }
 

@@ -25,7 +25,6 @@ class ViewsGenerator extends WebControllerGenerator
     const INDEX_STUB = __DIR__ . '/../../stubs/views/index.stub';
 
     public static string $key = "views";
-    public static string $configPath = "cubeta-starter.web_controller_path";
 
     /**
      * @param CubePath $filePath

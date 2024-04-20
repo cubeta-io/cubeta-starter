@@ -7,7 +7,6 @@ use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 class RepositoryGenerator extends AbstractGenerator
 {
     public static string $key = 'repository';
-    public static string $configPath = 'cubeta-starter.repository_path';
 
     public function run(bool $override = false): void
     {
@@ -21,10 +20,10 @@ class RepositoryGenerator extends AbstractGenerator
         $repositoryPath->ensureDirectoryExists();
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.repository_namespace'),
+            '{namespace}' => $this->table->getRepositoryNameSpace(),
             '{modelName}' => $this->table->modelName,
             '{modelVar}' => $this->table->variableNaming(),
-            '{modelNamespace}' => config('cubeta-starter.model_namespace')
+            '{modelNamespace}' => $this->table->getModelNameSpace()
         ];
 
         $this->generateFileFromStub($stubProperties, $repositoryPath->fullPath);
