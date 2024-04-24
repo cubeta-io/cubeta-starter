@@ -40,15 +40,16 @@ class GeneratorFactory
     }
 
     public function make(
-        string $fileName = "",
-        array $attributes = [],
-        array $relations = [],
-        array $nullables = [],
-        array $uniques = [],
+        string  $fileName = "",
+        array   $attributes = [],
+        array   $relations = [],
+        array   $nullables = [],
+        array   $uniques = [],
         ?string $actor = null,
-        string $generatedFor = ContainerType::API,
-        bool $override = true
-    ): void {
+        string  $generatedFor = ContainerType::API,
+        bool    $override = true
+    ): void
+    {
         if (!$this->source) {
             throw new Exception("Undefined Generator Factory Key Please Provide One");
         }
@@ -146,6 +147,7 @@ class GeneratorFactory
             Installers\WebInstaller::$key => new Installers\WebInstaller(),
             Installers\WebPackagesInstallers::$key => new Installers\WebPackagesInstallers(),
             Installers\PermissionsInstaller::$key => new Installers\PermissionsInstaller(),
+            Installers\ReactInertiaInstaller::$key => new Installers\ReactInertiaInstaller(),
             default => throw new Error("Not supported generator {$this->source} "),
         };
         try {

@@ -37,6 +37,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         // publishes
         $this->publishWeb();
         $this->publishApi();
+        $this->publishInertiaReact();
         $this->publishAuthViews();
     }
 
@@ -185,5 +186,17 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeWebController::class)
             ->hasCommand(Installer::class)
             ->hasCommand(MakeExample::class);
+    }
+
+    public function publishInertiaReact(): void
+    {
+        $this->publishes([
+            __DIR__ . '/stubs/Inertia/configurations/postcss.config.stub' => base_path('/postcss.config.js'),
+            __DIR__ . '/stubs/Inertia/configurations/tailwind.config.stub' => base_path('/tailwind.config.js'),
+            __DIR__ . '/stubs/Inertia/configurations/tsconfig.stub' => base_path('/tsconfig.json'),
+            __DIR__ . '/stubs/Inertia/configurations/vite.config.stub' => base_path('/vite.config.js'),
+            __DIR__ . '/../resources/js/inertia' => resource_path('/js'),
+            __DIR__ . '/../resources/css/inertia' => resource_path('/css'),
+        ], 'inertia-react');
     }
 }

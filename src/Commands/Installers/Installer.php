@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 use Cubeta\CubetaStarter\Generators\Installers\ApiInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\AuthInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\PermissionsInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\ReactInertiaInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\WebInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\WebPackagesInstallers;
 
@@ -20,7 +21,7 @@ class Installer extends BaseCommand
     public function handle(): void
     {
         $plugin = $this->argument('name');
-        $plugins = ['api', 'web', 'web-packages', 'auth', 'permissions'];
+        $plugins = ['api', 'web', 'web-packages', 'auth', 'permissions', 'react'];
 
         if (!in_array($plugin, $plugins)) {
             $this->error("Invalid Input");
@@ -47,6 +48,12 @@ class Installer extends BaseCommand
                 $container = $this->askForContainer();
                 $override = $this->askForOverride();
                 $gen = new GeneratorFactory(AuthInstaller::$key);
+                break;
+            case "react" :
+                $container = ContainerType::WEB;
+                //TODO::don't forget to configure it
+                $override = false;
+                $gen = new GeneratorFactory(ReactInertiaInstaller::$key);
                 break;
             default :
                 $this->error("Invalid Installer Factory Key");
