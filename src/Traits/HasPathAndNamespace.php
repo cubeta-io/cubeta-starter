@@ -122,7 +122,7 @@ trait HasPathAndNamespace
         return CubePath::make(config('cubeta-starter.repository_path') . "/{$this->getRepositoryName()}.php");
     }
 
-    public function getRepositoryNameSpace(): CubePath
+    public function getRepositoryNameSpace(): string
     {
         return config('cubeta-starter.repository_namespace');
     }
