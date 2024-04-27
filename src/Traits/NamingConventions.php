@@ -187,14 +187,6 @@ trait NamingConventions
     /**
      * @return string
      */
-    public function getServiceInterfaceName(): string
-    {
-        return "I" . $this->getServiceName();
-    }
-
-    /**
-     * @return string
-     */
     public function getServiceName(): string
     {
         return $this->modelNaming() . "Service";

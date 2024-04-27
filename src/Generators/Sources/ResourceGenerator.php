@@ -25,7 +25,7 @@ class ResourceGenerator extends AbstractGenerator
 
         $stubProperties = [
             '{model}' => $this->table->getModelClassString(),
-            '{namespace}' => $this->table->getResourceNameSpace(false),
+            '{namespace}' => $this->table->getResourceNameSpace(false, true),
             '{class}' => $resourceName,
             '{resource_fields}' => $this->generateFields(),
         ];

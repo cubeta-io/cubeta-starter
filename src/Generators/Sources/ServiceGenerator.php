@@ -30,33 +30,10 @@ class ServiceGenerator extends AbstractGenerator
         $this->generateFileFromStub($stubProperties, $servicePath->fullPath);
 
         $servicePath->format();
-
-        $serviceInterfacePath = $this->table->getServiceInterfacePath();
-
-        if ($serviceInterfacePath->exist()) {
-            $serviceInterfacePath->logAlreadyExist("Generating Service Interface For ({$this->table->modelName}) Model");
-        }
-
-        $stubProperties = [
-            '{namespace}' => $this->table->getServiceNamespace(false),
-            '{modelName}' => $this->table->modelName,
-            '{modelNamespace}' => $this->table->getModelNameSpace()
-        ];
-
-        $serviceInterfacePath->ensureDirectoryExists();
-
-        $this->generateFileFromStub($stubProperties, $serviceInterfacePath->fullPath, otherStubsPath: $this->serviceInterfaceStubs());
-
-        $serviceInterfacePath->format();
     }
 
     protected function stubsPath(): string
     {
         return __DIR__ . '/../../stubs/service.stub';
-    }
-
-    protected function serviceInterfaceStubs(): string
-    {
-        return __DIR__ . '/../../stubs/service-interface.stub';
     }
 }

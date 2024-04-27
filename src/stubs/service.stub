@@ -10,7 +10,7 @@ use {repositoryNamespace}\{repositoryName};
  * @implements I{modelName}Service<{modelName}>
  * Class UserService
  */
-class {modelName}Service extends BaseService implements I{modelName}Service
+class {modelName}Service extends BaseService
 {
     /**
      * {modelName}Service constructor.

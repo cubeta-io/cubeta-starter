@@ -3,7 +3,7 @@
 namespace {namespace};
 
 use {requestNamespace}\{modelName}\StoreUpdate{modelName}Request;
-use {serviceNamespace}\{modelName}\I{modelName}Service;
+use {serviceNamespace}\{modelName}\{modelName}Service;
 use {resourceNamespace}\{modelName}Resource;
 use App\Http\Controllers\ApiController;
 use {modelNamespace}\{modelName};
@@ -13,7 +13,7 @@ class {modelName}Controller extends ApiController{
 
     private ${variableNaming}Service;
 
-    public function __construct(I{modelName}Service ${variableNaming}Service) {
+    public function __construct({modelName}Service ${variableNaming}Service) {
 
         $this->{variableNaming}Service = ${variableNaming}Service;
 

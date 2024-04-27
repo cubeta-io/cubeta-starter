@@ -144,16 +144,6 @@ trait HasPathAndNamespace
             : ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelName}";
     }
 
-    public function getServiceInterfaceClassString(): string
-    {
-        return "\\" . config('cubeta-starter.service_namespace') . "\\{$this->modelName}\\{$this->getServiceInterfaceName()}";
-    }
-
-    public function getServiceInterfacePath(): CubePath
-    {
-        return CubePath::make(config('cubeta-starter.service_path') . ("/{$this->version}/{$this->modelName}/{$this->getServiceInterfaceName()}.php"));
-    }
-
     public function getTestPath(): CubePath
     {
         return CubePath::make(config('cubeta-starter.test_path') . "/{$this->getTestName()}.php");
