@@ -3,7 +3,10 @@
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Illuminate\Support\Facades\Artisan;
 
 class ReactInertiaInstaller extends AbstractGenerator
@@ -13,6 +16,7 @@ class ReactInertiaInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        $this->preparePackageJson();
         $this->installInertia();
     }
 
@@ -21,7 +25,7 @@ class ReactInertiaInstaller extends AbstractGenerator
         // install inertia
         FileUtils::executeCommandInTheBaseDirectory("composer require inertiajs/inertia-laravel");
         //install js packages
-        FileUtils::executeCommandInTheBaseDirectory('npm install @inertiajs/react tailwindcss @tailwindcss/forms @types/node @types/react @types/react-dom @vitejs/plugin-react postcss react react-dom typescript @tinymce/tinymce-react @vitejs/plugin-react-refresh');
+        FileUtils::executeCommandInTheBaseDirectory('npm install @inertiajs/react tailwindcss @tailwindcss/forms @types/node @types/react @types/react-dom @vitejs/plugin-react postcss react react-dom typescript @tinymce/tinymce-react @vitejs/plugin-react-refresh autoprefixer');
 
         // adding the app layout blade file
         $this->generateFileFromStub(
@@ -41,5 +45,19 @@ class ReactInertiaInstaller extends AbstractGenerator
             '--tag' => 'inertia-react',
             '--force' => true
         ]);
+    }
+
+    public function preparePackageJson(): void
+    {
+        $packageJsonPath = CubePath::make('/package.json');
+        $jsonArray = json_decode($packageJsonPath->getContent(), true);
+
+        if (isset($jsonArray['type']) && $jsonArray['type'] == "module") {
+            return;
+        } else {
+            $jsonArray['type'] = "module";
+            $packageJsonPath->putContent(json_encode($jsonArray, JSON_PRETTY_PRINT + JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE));
+            CubeLog::add(new ContentAppended('"type":"module"', $packageJsonPath->fullPath));
+        }
     }
 }
