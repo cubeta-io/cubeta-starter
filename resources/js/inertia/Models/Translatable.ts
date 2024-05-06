@@ -14,7 +14,7 @@ export function translate(
     val: string | undefined | null,
     returnObject: true,
 ): Translatable;
-
+ 
 export function translate(
     val: string | undefined | null,
     returnObject = false,
