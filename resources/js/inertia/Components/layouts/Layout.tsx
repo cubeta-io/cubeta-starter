@@ -13,11 +13,11 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
         <>
             <div className={`flex max-h-screen overflow-y-scroll`}>
                 <div
-                    className={`bg-white h-full ${isOpen ? "slide-sidebar-right" : "slide-sidebar-left w-1/3"}`}
+                    className={`bg-white h-screen ${isOpen ? "slide-sidebar-right" : "slide-sidebar-left w-1/3"}`}
                 >
                     <Sidebar toggleSidebar={toggleSidebar} />
                 </div>
-                <div className={`w-full max-h-full overflow-y-scroll`}>
+                <div className={`w-full h-screen overflow-y-scroll`}>
                     <Navbar
                         isSidebarOpen={isOpen}
                         toggleSidebar={toggleSidebar}
