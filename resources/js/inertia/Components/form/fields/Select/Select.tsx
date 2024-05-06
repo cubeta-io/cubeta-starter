@@ -1,7 +1,7 @@
 import ChevronDown from "@/Components/icons/ChevronDown";
 import XMark from "@/Components/icons/XMark";
-import { getNestedPropertyValue } from "@/helper";
-import React, { useEffect, useRef, useState } from "react";
+import {getNestedPropertyValue} from "@/helper";
+import React, {useEffect, useRef, useState} from "react";
 import {
     include,
     ISelectProps,
@@ -9,27 +9,27 @@ import {
     isOption,
     Option,
 } from "@/Components/form/fields/Select/SelectUtils";
-import { usePage } from "@inertiajs/react";
+import {usePage} from "@inertiajs/react";
 
 function Select<TData>({
-    label,
-    data = [],
-    clearable = true,
-    styles = undefined,
-    name = undefined,
-    isMultiple = false,
-    closeOnSelect = true,
-    optionLabel = undefined,
-    optionValue = undefined,
-    getOptionLabel = undefined,
-    getOptionValue = undefined,
-    onSelect = undefined,
-    placeHolder = "Select An Item",
-    defaultValues = undefined,
-    onChange = undefined,
-    inputProps = {},
-    error = undefined,
-}: ISelectProps<TData>) {
+                           label,
+                           data = [],
+                           clearable = true,
+                           styles = undefined,
+                           name = undefined,
+                           isMultiple = false,
+                           closeOnSelect = true,
+                           optionLabel = undefined,
+                           optionValue = undefined,
+                           getOptionLabel = undefined,
+                           getOptionValue = undefined,
+                           onSelect = undefined,
+                           placeHolder = "Select An Item",
+                           defaultValues = undefined,
+                           onChange = undefined,
+                           inputProps = {},
+                           error = undefined,
+                       }: ISelectProps<TData>) {
     const errors = usePage().props.errors;
     error = name && errors[name] ? errors[name] : undefined;
 
@@ -125,7 +125,7 @@ function Select<TData>({
     };
 
     useEffect(() => {
-        inputRef?.current?.dispatchEvent(new Event("input", { bubbles: true }));
+        inputRef?.current?.dispatchEvent(new Event("input", {bubbles: true}));
         if (isOpen) {
             document.addEventListener("mousedown", handleClickOutside);
         }
@@ -152,7 +152,7 @@ function Select<TData>({
                     className={`hidden`}
                     onInput={(e) => {
                         if (onChange) {
-                            onChange(e);
+                            onChange(e as React.ChangeEvent<HTMLInputElement>);
                         }
                     }}
                     {...inputProps}
@@ -196,7 +196,7 @@ function Select<TData>({
                         ) : (
                             ""
                         )}
-                        <ChevronDown />
+                        <ChevronDown/>
                     </div>
                 </div>
                 <div

@@ -49,7 +49,7 @@ export interface IApiSelectProps<TResponse, TData> {
         dropDownItemsContainerClasses?: string;
         dropDownContainerMaxHeight?: number;
     };
-    onChange?: (e: React.FormEvent<HTMLInputElement>) => void;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     inputProps?: SelectInputProps;
     revalidateOnOpen?: boolean;
     getNextPage?: (
@@ -90,7 +90,7 @@ export interface ISelectProps<TData> {
         dropDownItemsContainer?: string;
         dropDownContainerMaxHeight?: number;
     };
-    onChange?: (e: React.FormEvent<HTMLInputElement>) => void;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     inputProps?: SelectInputProps;
     error?: string;
 }

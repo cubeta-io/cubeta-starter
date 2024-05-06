@@ -1,40 +1,40 @@
 import ChevronDown from "@/Components/icons/ChevronDown";
 import LoadingSpinner from "@/Components/icons/LoadingSpinner";
 import XMark from "@/Components/icons/XMark";
-import { getNestedPropertyValue } from "@/helper";
-import React, { useEffect, useRef, useState } from "react";
+import {getNestedPropertyValue} from "@/helper";
+import React, {ChangeEvent, useEffect, useRef, useState} from "react";
 import {
     IApiSelectProps,
     isEqual,
     isOption,
     Option,
 } from "@/Components/form/fields/Select/SelectUtils";
-import { usePage } from "@inertiajs/react";
+import {usePage} from "@inertiajs/react";
 
 function ApiSelect<TResponse, TData>({
-    api,
-    getIsLast,
-    getTotalPages,
-    getDataArray,
-    label,
-    clearable = true,
-    styles = undefined,
-    name = undefined,
-    isMultiple = false,
-    closeOnSelect = true,
-    optionLabel = undefined,
-    optionValue = undefined,
-    getOptionLabel = undefined,
-    getOptionValue = undefined,
-    onSelect = undefined,
-    placeHolder = "Select An Item",
-    defaultValues = undefined,
-    onChange = undefined,
-    revalidateOnOpen = false,
-    inputProps = {},
-    getNextPage = undefined,
-    error = undefined,
-}: IApiSelectProps<TResponse, TData>) {
+                                         api,
+                                         getIsLast,
+                                         getTotalPages,
+                                         getDataArray,
+                                         label,
+                                         clearable = true,
+                                         styles = undefined,
+                                         name = undefined,
+                                         isMultiple = false,
+                                         closeOnSelect = true,
+                                         optionLabel = undefined,
+                                         optionValue = undefined,
+                                         getOptionLabel = undefined,
+                                         getOptionValue = undefined,
+                                         onSelect = undefined,
+                                         placeHolder = "Select An Item",
+                                         defaultValues = undefined,
+                                         onChange = undefined,
+                                         revalidateOnOpen = false,
+                                         inputProps = {},
+                                         getNextPage = undefined,
+                                         error = undefined,
+                                     }: IApiSelectProps<TResponse, TData>) {
     const errors = usePage().props.errors;
     error = name && errors[name] ? errors[name] : undefined;
 
@@ -164,7 +164,7 @@ function ApiSelect<TResponse, TData>({
     };
 
     const handleDataScrolling = (e: any) => {
-        const { scrollTop, clientHeight, scrollHeight } = e.target;
+        const {scrollTop, clientHeight, scrollHeight} = e.target;
         if (scrollHeight - scrollTop === clientHeight) {
             if (getNextPage) {
                 setPage((oldPage) => getNextPage(oldPage, isLast, totalPages));
@@ -189,7 +189,7 @@ function ApiSelect<TResponse, TData>({
     }, [page, search]);
 
     useEffect(() => {
-        inputRef?.current?.dispatchEvent(new Event("input", { bubbles: true }));
+        inputRef?.current?.dispatchEvent(new Event("input", {bubbles: true}));
     }, [selected]);
 
     const getInputValue = () => {
@@ -213,7 +213,7 @@ function ApiSelect<TResponse, TData>({
                     className={`hidden`}
                     onInput={(e) => {
                         if (onChange) {
-                            onChange(e);
+                            onChange(e as ChangeEvent<HTMLInputElement>);
                         }
                     }}
                     {...inputProps}
@@ -252,7 +252,7 @@ function ApiSelect<TResponse, TData>({
                                 {styles?.loadingIcon ? (
                                     styles.loadingIcon()
                                 ) : (
-                                    <LoadingSpinner className="w-full h-full text-primary" />
+                                    <LoadingSpinner className="w-full h-full text-primary"/>
                                 )}
                             </div>
                         )}
@@ -266,7 +266,7 @@ function ApiSelect<TResponse, TData>({
                         ) : (
                             ""
                         )}
-                        <ChevronDown />
+                        <ChevronDown/>
                     </div>
                 </div>
                 <div
