@@ -16,8 +16,8 @@ class ReactInertiaInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
-        $this->preparePackageJson();
         $this->installInertia();
+        $this->preparePackageJson();
     }
 
     private function installInertia(): void
