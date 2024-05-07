@@ -11,7 +11,8 @@ export interface InputProps extends HTMLProps<HTMLInputElement> {
   defaultValue?: any;
   className?: string;
   error?: string;
-  onInput: (e: ChangeEvent<HTMLInputElement>) => void;
+  onInput?: (e: ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const Input: React.FC<InputProps> = ({
