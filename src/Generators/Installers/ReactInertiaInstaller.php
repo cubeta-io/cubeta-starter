@@ -24,6 +24,10 @@ class ReactInertiaInstaller extends AbstractGenerator
     {
         // install inertia
         FileUtils::executeCommandInTheBaseDirectory("composer require inertiajs/inertia-laravel");
+        //install ziggy route handler
+        FileUtils::executeCommandInTheBaseDirectory("composer require tightenco/ziggy");
+        //generate route handler typesystem
+        FileUtils::executeCommandInTheBaseDirectory("php artisan ziggy:generate --types");
         //install js packages
         FileUtils::executeCommandInTheBaseDirectory('npm install @inertiajs/react tailwindcss @tailwindcss/forms @types/node @types/react @types/react-dom @vitejs/plugin-react postcss react react-dom typescript @tinymce/tinymce-react @vitejs/plugin-react-refresh autoprefixer');
 
