@@ -10,7 +10,6 @@ export interface InputProps extends HTMLProps<HTMLInputElement> {
   placeholder?: string;
   defaultValue?: any;
   className?: string;
-  error?: string;
   onInput?: (e: ChangeEvent<HTMLInputElement>) => void;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 }
@@ -22,12 +21,12 @@ const Input: React.FC<InputProps> = ({
   defaultValue,
   className,
   placeholder = "",
-  error = undefined,
   ...props
 }) => {
   const [show, setShow] = useState(false);
 
   const errors = usePage().props.errors;
+  
   return (
     <div className={`flex flex-col w-full`}>
       <label

@@ -16,6 +16,7 @@ const Radio: React.FC<IRadioProps> = ({
 }) => {
   const errors = usePage().props.errors;
   const error = name && errors[name] ? errors[name] : undefined;
+  
   return (
     <label className={"flex justify-between flex-col items-start"}>
       Status :

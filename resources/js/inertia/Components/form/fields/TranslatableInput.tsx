@@ -9,7 +9,6 @@ interface ITranslatableInputProps {
   defaultValue?: string | Translatable;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   onInput?: (e: ChangeEvent<HTMLInputElement>) => void;
-  error?: string;
 }
 
 const TranslatableInput: React.FC<
@@ -24,12 +23,14 @@ const TranslatableInput: React.FC<
   placeholder = "",
   onChange = undefined,
   onInput = undefined,
-  error = undefined,
   ...props
 }) => {
   const locale = useContext(LocaleContext);
   const availableLocales = usePage<PageProps>().props.availableLocales;
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const errors = usePage().props.errors;
+  const error = name && errors[name] ? errors[name] : undefined;
 
   if (typeof defaultValue == "string") {
     defaultValue = translate(defaultValue, true);
