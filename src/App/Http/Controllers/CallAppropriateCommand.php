@@ -20,7 +20,7 @@ use Cubeta\CubetaStarter\Generators\Sources\ResourceGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\SeederGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ServiceGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\TestGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\WebControllerGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Exception;
@@ -305,7 +305,7 @@ class CallAppropriateCommand extends Controller
     public function generateWebController()
     {
         $factoryData = [
-            'key' => WebControllerGenerator::$key,
+            'key' => BladeControllerGenerator::$key,
             'route' => 'cubeta-starter.generate-web-controller.page',
         ];
 

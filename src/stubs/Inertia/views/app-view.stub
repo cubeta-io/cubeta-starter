@@ -10,6 +10,7 @@
     @viteReactRefresh
     @vite(['resources/js/cubeta-starter.tsx'])
     @inertiaHead
+    @routes
 </head>
 <body class="font-sans antialiased bg-gray-50">
     @inertia

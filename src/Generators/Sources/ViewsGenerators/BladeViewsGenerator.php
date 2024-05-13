@@ -1,12 +1,13 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Generators\Sources;
+namespace Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
@@ -16,13 +17,16 @@ use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 use JetBrains\PhpStorm\ArrayShape;
 
-class ViewsGenerator extends WebControllerGenerator
+class BladeViewsGenerator extends BladeControllerGenerator
 {
-    const FORM_STUB = __DIR__ . '/../../stubs/views/form.stub';
-    const SHOW_STUB = __DIR__ . '/../../stubs/views/show.stub';
-    const INDEX_STUB = __DIR__ . '/../../stubs/views/index.stub';
+    use WebGeneratorHelper;
+
+    const FORM_STUB = __DIR__ . '/../../../stubs/views/form.stub';
+    const SHOW_STUB = __DIR__ . '/../../../stubs/views/show.stub';
+    const INDEX_STUB = __DIR__ . '/../../../stubs/views/index.stub';
 
     public static string $key = "views";
     public static string $configPath = "cubeta-starter.web_controller_path";
@@ -232,26 +236,6 @@ class ViewsGenerator extends WebControllerGenerator
     private function getLabelName(string $attribute): array|string
     {
         return str_replace('_id', ' ', ucfirst($attribute));
-    }
-
-    /**
-     * @param CubeAttribute $attribute
-     * @return string
-     */
-    private function getInputTagType(CubeAttribute $attribute): string
-    {
-        if (str_contains($attribute->name, "email")) return "email";
-        elseif ($attribute->name == "password") return "password";
-        elseif (in_array($attribute->name, ['phone', 'phone_number', 'home_number', 'work_number', 'tel', 'telephone'])
-            || str_contains($attribute->name, "phone")) return "tel";
-        elseif (str_contains($attribute->name, "url")) return "url";
-        elseif (ColumnTypeEnum::isNumericType($attribute->type)) return "number";
-        elseif (in_array($attribute->type, [ColumnTypeEnum::JSON->value, ColumnTypeEnum::STRING->value])) return "text";
-        elseif (in_array($attribute->type, [ColumnTypeEnum::DATETIME->value, ColumnTypeEnum::TIMESTAMP->value])) return "datetime-local";
-        elseif ($attribute->type == ColumnTypeEnum::DATE->value) return "date";
-        elseif ($attribute->type == ColumnTypeEnum::TIME->value) return "time";
-        elseif ($attribute->isFile()) return "file";
-        else return "text";
     }
 
     /**

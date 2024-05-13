@@ -5,7 +5,7 @@ namespace Cubeta\CubetaStarter\Contracts;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
-use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\BladeViewsGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
@@ -236,7 +236,7 @@ class CodeSniffer
                         $relatedIndexView->putContent($relatedIndexViewContent);
                     } else { // or add new column to the view
                         $content = "\n\"data\":'$attributeName' , searchable:true , orderable:true";
-                        ViewsGenerator::addColumnToDataTable($relatedIndexView, $content, $this->table->modelName);
+                        BladeViewsGenerator::addColumnToDataTable($relatedIndexView, $content, $this->table->modelName);
                     }
                 }
 

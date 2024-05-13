@@ -25,8 +25,6 @@ const Button: React.FunctionComponent<IButtonProps> = ({
   color = "primary",
   ...props
 }) => {
-  console.log(color);
-
   return (
     <button
       className={

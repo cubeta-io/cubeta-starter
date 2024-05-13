@@ -228,4 +228,21 @@ trait NamingConventions
     {
         return Naming::column($name ?? $this->usedString);
     }
+
+    /**
+     * @return array{true:string , false:string}
+     */
+    public function booleanLabels(): array
+    {
+        if (Str::contains($this->name, 'is_')) {
+            $base = Str::replace('is_', '', $this->name);
+            return [
+                'true' => Str::title($base),
+                'false' => 'Not' . Str::title($base)
+            ];
+        } else return [
+            'true' => Str::title($this->name),
+            'false' => 'Not' . Str::title($this->name)
+        ];
+    }
 }

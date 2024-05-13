@@ -47,13 +47,13 @@ const TextEditor: React.FC<TextEditorProps> = ({
           name={name ?? ""}
         />
         <Editor
-          apiKey="y4iv5cecmr9d6dcukpwqpuiedu0mohczn48fm1pdzxm7kyi1"
-          init={{
-            plugins:
-              "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
-            toolbar:
-              "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
-          }}
+            apiKey="lk5i4b6fbja20ugtpiziehibs8p7p9qrcfsgjr186ah73u63"
+            init={{
+                plugins:
+                    "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount linkchecker",
+                toolbar:
+                    "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
+            }}
           initialValue={defaultValue}
           onEditorChange={(e) => {
             if (onEditorChange) {

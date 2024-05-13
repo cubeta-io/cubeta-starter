@@ -57,7 +57,6 @@ export interface IApiSelectProps<TResponse, TData> {
     isLast: boolean,
     totalPages: number
   ) => number;
-  error?: string;
 }
 
 export interface ISelectProps<TData> {
@@ -92,7 +91,6 @@ export interface ISelectProps<TData> {
   };
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   inputProps?: SelectInputProps;
-  error?: string;
 }
 
 export const isEqual = (option1: Option, option2: Option): boolean =>

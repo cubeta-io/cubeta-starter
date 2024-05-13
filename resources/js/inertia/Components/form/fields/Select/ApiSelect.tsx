@@ -33,10 +33,9 @@ function ApiSelect<TResponse, TData>({
   revalidateOnOpen = false,
   inputProps = {},
   getNextPage = undefined,
-  error = undefined,
 }: IApiSelectProps<TResponse, TData>) {
   const errors = usePage().props.errors;
-  error = name && errors[name] ? errors[name] : undefined;
+  const error = name && errors[name] ? errors[name] : undefined;
 
   const getOption = (item: TData): Option => ({
     label: getOptionLabel

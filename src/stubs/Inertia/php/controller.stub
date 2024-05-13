@@ -1,0 +1,30 @@
+<?php
+namespace {namespace};
+
+use {requestNamespace}\{modelName}\StoreUpdate{modelName}Request;
+use {modelNamespace}\{modelName};
+use {serviceNamespace}\{modelName}\I{modelName}Service;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class {modelName}Controller extends Controller
+{
+
+    private ${modelNameCamelCase}Service;
+
+    // place the relations you want to return them within the response
+    private array $relations = [];
+
+    public function __construct(I{modelName}Service ${modelNameCamelCase}Service)
+    {
+        $this->{modelNameCamelCase}Service = ${modelNameCamelCase}Service;
+    }
+
+
+    public function create()
+    {
+        return Inertia::render('{createForm}');
+    }
+
+}

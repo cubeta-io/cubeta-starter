@@ -1,0 +1,46 @@
+import { useForm } from "@inertiajs/react";
+import { FormEvent } from "react";
+import Button from "@/Components/ui/Button";
+{{imports}}
+
+const Create = () => {
+    const { post, setData, errors, processing } = useForm<{
+        {{formFieldsInterface}}
+    }>();
+
+    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        {{setPut}}
+        {{action}};
+    };
+
+    return (
+        <div className={"p-4 bg-white shadow-lg rounded-md w-full"}>
+            <div
+                className={`rounded-md text-xl font-bold p-4 bg-gray-100 mb-5`}
+            >
+                <h2>Create Form</h2>
+            </div>
+
+            <div className={`w-full`}>
+                {{translatableContext}}
+                    <form onSubmit={onSubmit}>
+                        <div className={`grid grid-cols-1 md:grid-cols-2 gap-5`} >
+                            {{smallFields}}
+                        </div>
+
+                        {{bigFields}}
+
+                        <div className={"flex items-center justify-center my-4"} >
+                            <Button type="submit" disabled={processing}>
+                                Submit
+                            </Button>
+                        </div>
+                    </form>
+                {{closeTranslatableContext}}
+            </div>
+        </div>
+    );
+};
+
+export default Create;

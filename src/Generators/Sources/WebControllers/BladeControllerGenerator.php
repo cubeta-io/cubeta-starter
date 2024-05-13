@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Generators\Sources;
+namespace Cubeta\CubetaStarter\Generators\Sources\WebControllers;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
@@ -10,15 +10,17 @@ use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\BladeViewsGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 use Illuminate\Support\Facades\Route;
 use JetBrains\PhpStorm\ArrayShape;
 
-class WebControllerGenerator extends AbstractGenerator
+class BladeControllerGenerator extends AbstractGenerator
 {
-    use RouteBinding;
+    use RouteBinding, WebGeneratorHelper;
 
     public static string $key = 'web-controller';
     public static string $configPath = 'cubeta-starter.web_controller_path';
@@ -76,7 +78,7 @@ class WebControllerGenerator extends AbstractGenerator
         $this->addRoute($this->table, $this->actor, ContainerType::WEB, $this->additionalRoutes);
         $controllerPath->format();
 
-        (new ViewsGenerator(
+        (new BladeViewsGenerator(
             fileName: $this->fileName,
             attributes: $this->attributes,
             nullables: $this->nullables,
@@ -90,55 +92,6 @@ class WebControllerGenerator extends AbstractGenerator
             ->checkForWebRelations(
                 $this->getRouteName($this->table, ContainerType::WEB, $this->actor) . '.allPaginatedJson'
             );
-    }
-
-    /**
-     * @return string[]
-     */
-    #[ArrayShape(['index' => 'string', 'show' => 'string', 'edit' => 'string', 'destroy' => 'string', 'store' => 'string', 'create' => 'string', 'data' => 'string', 'update' => 'string', 'base' => 'string', 'export' => 'string', 'import' => 'string', 'example' => 'example'])]
-    protected function getRoutesNames(CubeTable $model, ?string $actor = null): array
-    {
-        $baseRouteName = $this->getRouteName($model, ContainerType::WEB, $actor);
-
-        return [
-            'index' => $baseRouteName . '.index',
-            'show' => $baseRouteName . '.show',
-            'edit' => $baseRouteName . '.edit',
-            'destroy' => $baseRouteName . '.destroy',
-            'store' => $baseRouteName . '.store',
-            'create' => $baseRouteName . '.create',
-            'data' => $baseRouteName . '.data',
-            'update' => $baseRouteName . '.update',
-            'export' => $baseRouteName . '.export',
-            'import' => $baseRouteName . '.import',
-            'example' => $baseRouteName . '.get.example',
-            'base' => $baseRouteName,
-        ];
-    }
-
-    /**
-     * @param null $actor
-     * @return string[]
-     */
-    #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
-    private function getViewsNames(CubeTable $model, $actor = null): array
-    {
-        $viewName = $model->viewNaming();
-        if (!isset($actor) || $actor == '' || $actor = 'none') {
-            return [
-                'index' => 'dashboard.' . $viewName . '.index',
-                'edit' => 'dashboard.' . $viewName . '.edit',
-                'create' => 'dashboard.' . $viewName . '.create',
-                'show' => 'dashboard.' . $viewName . '.show',
-            ];
-        }
-        return [
-            'index' => 'dashboard.' . $actor . '.' . $viewName . '.index',
-            'edit' => 'dashboard.' . $actor . '.' . $viewName . '.edit',
-            'create' => 'dashboard.' . $actor . '.' . $viewName . '.create',
-            'show' => 'dashboard.' . $actor . '.' . $viewName . '.show',
-        ];
-
     }
 
     private function getKeyColumnsHyperlink(): string
@@ -239,6 +192,31 @@ class WebControllerGenerator extends AbstractGenerator
         $sidebar = $sidebarPath->getContent();
         $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);
         $sidebarPath->putContent($sidebar);
+    }
+
+    /**
+     * @param null $actor
+     * @return string[]
+     */
+    #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
+    private function getViewsNames(CubeTable $model, $actor = null): array
+    {
+        $viewName = $model->viewNaming();
+        if (!isset($actor) || $actor == '' || $actor = 'none') {
+            return [
+                'index' => 'dashboard.' . $viewName . '.index',
+                'edit' => 'dashboard.' . $viewName . '.edit',
+                'create' => 'dashboard.' . $viewName . '.create',
+                'show' => 'dashboard.' . $viewName . '.show',
+            ];
+        }
+        return [
+            'index' => 'dashboard.' . $actor . '.' . $viewName . '.index',
+            'edit' => 'dashboard.' . $actor . '.' . $viewName . '.edit',
+            'create' => 'dashboard.' . $actor . '.' . $viewName . '.create',
+            'show' => 'dashboard.' . $actor . '.' . $viewName . '.show',
+        ];
+
     }
 
     protected function stubsPath(): string

@@ -36,10 +36,10 @@ class CubeAttribute
     /**
      * @param string $name
      * @param string $type
-     * @param bool $nullable
-     * @param bool $unique
+     * @param bool   $nullable
+     * @param bool   $unique
      */
-    public function __construct(string $name, string $type, bool $nullable = false, bool $unique= false)
+    public function __construct(string $name, string $type, bool $nullable = false, bool $unique = false)
     {
         $this->name = Naming::column($name);
         $this->type = $type;
@@ -51,7 +51,7 @@ class CubeAttribute
     /**
      * @return bool|string
      */
-    public function toJson(): bool | string
+    public function toJson(): bool|string
     {
         return json_encode([
             "name" => $this->name,
@@ -74,26 +74,42 @@ class CubeAttribute
         ];
     }
 
+    /**
+     * @return bool
+     */
     public function isKey(): bool
     {
-        return $this->type == ColumnTypeEnum::KEY->value;
+        return $this->type == ColumnTypeEnum::KEY->value
+            || $this->type == ColumnTypeEnum::FOREIGN_KEY->value;
     }
 
+    /**
+     * @return bool
+     */
     public function isFile(): bool
     {
         return $this->type == ColumnTypeEnum::FILE->value;
     }
 
+    /**
+     * @return bool
+     */
     public function isTranslatable(): bool
     {
         return $this->type == ColumnTypeEnum::TRANSLATABLE->value;
     }
 
+    /**
+     * @return bool
+     */
     public function isDateTime(): bool
     {
         return $this->type == ColumnTypeEnum::DATETIME->value;
     }
 
+    /**
+     * @return bool
+     */
     public function isString(): bool
     {
         return in_array($this->type, [
@@ -102,5 +118,44 @@ class CubeAttribute
             ColumnTypeEnum::JSON->value,
             ColumnTypeEnum::TRANSLATABLE->value,
         ]);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isNumeric(): bool
+    {
+        return in_array($this->type, [
+            ColumnTypeEnum::INTEGER->value,
+            ColumnTypeEnum::BIG_INTEGER->value,
+            ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
+            ColumnTypeEnum::DOUBLE->value,
+            ColumnTypeEnum::UNSIGNED_DOUBLE->value,
+            ColumnTypeEnum::FLOAT->value,
+        ]);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBoolean(): bool
+    {
+        return $this->type == ColumnTypeEnum::BOOLEAN->value;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isText(): bool
+    {
+        return $this->type == ColumnTypeEnum::TEXT->value;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTextable(): bool
+    {
+        return in_array($this->name, ['desc', 'description', 'summary', 'post', 'note', 'message', 'body']);
     }
 }

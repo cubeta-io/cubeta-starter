@@ -1,4 +1,4 @@
-import { LocaleContext } from "@/Contexts/TrannslatableInputsContext";
+import { LocaleContext } from "@/Contexts/TranslatableInputsContext";
 import { usePage } from "@inertiajs/react";
 import React, { ChangeEvent, useContext, useRef, useState } from "react";
 import Input, { InputProps } from "./Input";

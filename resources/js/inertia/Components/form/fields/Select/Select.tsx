@@ -28,10 +28,9 @@ function Select<TData>({
   defaultValues = undefined,
   onChange = undefined,
   inputProps = {},
-  error = undefined,
 }: ISelectProps<TData>) {
   const errors = usePage().props.errors;
-  error = name && errors[name] ? errors[name] : undefined;
+  const error = name && errors[name] ? errors[name] : undefined;
 
   const getOption = (item: TData): Option => ({
     label: getOptionLabel
