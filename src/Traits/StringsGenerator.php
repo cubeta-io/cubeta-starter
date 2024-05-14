@@ -33,18 +33,22 @@ trait StringsGenerator
         return "public function {$functionName}(\$count = 1)\n{\n\t return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$model->modelName}::factory(\$count));\n} \n";
     }
 
+    /***********************Inertia - React - Typescript*************************/
+
     /**
      * @param CubeAttribute $attribute
      * @return string
      */
     public function inertiaTranslatableInputComponent(CubeAttribute $attribute): string
     {
+        $required = $attribute->nullable ? "false" : "true";
         return "\n<TranslatableInput
                     name={'{$attribute->name}'}
                     label={'{$attribute->titleNaming()}'}
                     onChange={(e) =>
                         setData('name', e.target.value)
                     }
+                    required={{$required}}
                   />\n";
     }
 
@@ -55,6 +59,7 @@ trait StringsGenerator
      */
     public function inertiaRadioButtonComponent(CubeAttribute $attribute, array $labels): string
     {
+        $required = $attribute->nullable ? "false" : "true";
         return "\n<Radio
                         name=\"{$attribute->name}\"
                         items={[
@@ -68,6 +73,7 @@ trait StringsGenerator
                                 e.target.value == \"true\"
                             )
                         }
+                        required={{$required}}
                     />\n";
     }
 
@@ -79,6 +85,7 @@ trait StringsGenerator
      */
     public function inertiaApiSelectComponent(?CubeTable $relatedModel, string $select2Route, CubeAttribute $attribute): string
     {
+        $required = $attribute->nullable ? "false" : "true";
         return "\n<ApiSelect
                         api={(
                             page,
@@ -111,6 +118,7 @@ trait StringsGenerator
                         }
                         optionLabel={\"{$relatedModel->titleable()->name}\"}
                         optionValue={\"id\"}
+                        required={{$required}}
                     />\n";
     }
 
@@ -120,6 +128,7 @@ trait StringsGenerator
      */
     public function inertiaFileInputComponent(CubeAttribute $attribute): string
     {
+        $required = $attribute->nullable ? "false" : "true";
         return "\n<Input
                         name={\"{$attribute->name}\"}
                         label={\"{$attribute->titleNaming()}\"}
@@ -127,6 +136,7 @@ trait StringsGenerator
                             setData(\"{$attribute->name}\", e.target.files?.[0])
                         }
                         type={\"file\"}
+                        required={{$required}}
                     />\n";
     }
 
@@ -134,14 +144,16 @@ trait StringsGenerator
      * @param CubeAttribute $attribute
      * @return string
      */
-    public function inertiaTextEditroComponent(CubeAttribute $attribute): string
+    public function inertiaTextEditorComponent(CubeAttribute $attribute): string
     {
+        $required = $attribute->nullable ? "false" : "true";
         return "\n<TextEditor
                         name={\"{$attribute->name}\"}
                         label=\"{$attribute->titleNaming()}\"
                         onChange={(e) =>
                             setData(\"{$attribute->name}\", e.target.value)
                         }
+                        required={{$required}}
                     />\n";
     }
 
@@ -151,6 +163,7 @@ trait StringsGenerator
      */
     public function inertiaInputComponent(CubeAttribute $attribute): string
     {
+        $required = $attribute->nullable ? "false" : "true";
         return "\n<Input
                         name={\"{$attribute->name}\"}
                         label={\"{$attribute->titleNaming()}\"}
@@ -158,6 +171,7 @@ trait StringsGenerator
                             setData(\"{$attribute->name}\", e.target.value)
                         }
                         type={\"{$this->getInputTagType($attribute)}\"}
+                        required={{$required}}
                     />\n";
     }
 
@@ -167,12 +181,14 @@ trait StringsGenerator
      */
     public function inertiaTranslatableTextEditor(CubeAttribute $attribute): string
     {
+        $required = $attribute->nullable ? "false" : "true";
         return "\n<TranslatableTextEditor
                             name={\"{$attribute->name}\"}
                             label=\"{$attribute->titleNaming()}\"
                             onChange={(e) =>
                                 setData(\"{$attribute->name}\", e.target.value)
                             }
+                            required={{$required}}
                         />\n";
     }
 }

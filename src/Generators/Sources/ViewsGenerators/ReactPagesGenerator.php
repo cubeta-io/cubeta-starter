@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSController;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
@@ -43,16 +44,16 @@ class ReactPagesGenerator extends InertiaReactTSController
 
         $pageName = $this->table->viewNaming();
 
-        [$formInterface, $translatableContext, $smallFields] = $this->getFieldsProperties();
+        [$formInterface, $translatableContext, $smallFields, $bigFields] = $this->getFieldsProperties();
 
         $stubProperties = [
             '{{imports}}' => $this->imports,
             '{{formFieldsInterface}}' => $formInterface,
-            '{{setPut}}' => $currentForm == "store" ? "" : "setData(\"_method\" , 'PUT');",
+            '{{setPut}}' => $createdForm == "Create" ? "" : "setData(\"_method\" , 'PUT');",
             '{{action}}' => "post(route(\"{$this->getRoutesNames($this->table , $this->actor)['store']}\"));",
             '{{translatableContext}}' => $translatableContext['open'] ?? "",
             '{{closeTranslatableContext}}' => $translatableContext['close'] ?? "",
-            '{{bigFields}}' => "",
+            '{{bigFields}}' => $bigFields,
             '{{smallFields}}' => $smallFields
         ];
 
@@ -87,10 +88,15 @@ class ReactPagesGenerator extends InertiaReactTSController
         }
 
         $smallFields = "";
+        $bigFields = "";
 
-        $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$smallFields, &$formInterface) {
+        $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$bigFields, &$smallFields, &$formInterface) {
             $formInterface .= $this->getAttributeInterfaceProperty($attribute);
-            $smallFields .= $this->getInputField($attribute);
+            if ($attribute->isTextable() || $attribute->isText()) {
+                $bigFields .= $this->getInputField($attribute);
+            } else {
+                $smallFields .= $this->getInputField($attribute);
+            }
         });
 
         $formInterface .= "\"_method\"?:\"PUT\"|\"POST\"\n";
@@ -99,12 +105,13 @@ class ReactPagesGenerator extends InertiaReactTSController
             $formInterface,
             $translatableContext,
             $smallFields,
+            $bigFields
         ];
     }
 
     public function getAttributeInterfaceProperty(CubeAttribute $attribute): string
     {
-        if ($attribute->isString() || $attribute->isDateTime()) {
+        if ($attribute->isString() || $attribute->isDateable()) {
             return "$attribute->name?:string;\n";
         } elseif ($attribute->isNumeric() || $attribute->isKey()) {
             return "{$attribute->name}?:number;\n";
@@ -121,14 +128,14 @@ class ReactPagesGenerator extends InertiaReactTSController
     {
         if ($attribute->isTranslatable()) {
             if ($attribute->isTextable()) {
-                $this->imports .= "import TranslatableTextEditor from \"@/Components/form/fields/TranslatableEditor\";\n";
+                $this->addImport("import TranslatableTextEditor from \"@/Components/form/fields/TranslatableEditor\";");
                 return $this->inertiaTranslatableTextEditor($attribute);
             } else {
-                $this->imports .= "\nimport TranslatableInput from \"@/Components/form/fields/TranslatableInput\";\n";
+                $this->addImport("import TranslatableInput from \"@/Components/form/fields/TranslatableInput\";");
                 return $this->inertiaTranslatableInputComponent($attribute);
             }
         } elseif ($attribute->isBoolean()) {
-            $this->imports .= "\nimport Radio from \"@/Components/form/fields/Radio\";\n";
+            $this->addImport("import Radio from \"@/Components/form/fields/Radio\";");
             $labels = $attribute->booleanLabels();
             return $this->inertiaRadioButtonComponent($attribute, $labels);
         } elseif ($attribute->isKey()) {
@@ -142,18 +149,25 @@ class ReactPagesGenerator extends InertiaReactTSController
                 return "";
             }
 
-            $this->imports .= "\nimport { PaginatedResponse } from \"@/Models/Response\";\n";
-            $this->imports .= "import { {$relatedModel->modelName} } from \"@/Models/{$relatedModel->modelName}";
-            $this->imports .= "\nimport ApiSelect from \"@/Components/form/fields/Select/ApiSelect\";\n";
+            $relatedTSModelPath = CubePath::make("/resources/js/models/{$relatedModel->modelName}.ts");
+
+            if (!$relatedTSModelPath->exist()) {
+                return "";
+            }
+
+            $this->addImport("import { PaginatedResponse } from \"@/Models/Response\";");
+            $this->addImport("import ApiSelect from \"@/Components/form/fields/Select/ApiSelect\";");
+            $this->addImport("import { {$relatedModel->modelName} } from \"@/Models/{$relatedModel->modelName}");
 
             return $this->inertiaApiSelectComponent($relatedModel, $select2Route, $attribute);
         } elseif ($attribute->isFile()) {
+            $this->addImport("import Input from \"@/Components/form/fields/Input\";");
             return $this->inertiaFileInputComponent($attribute);
         } elseif ($attribute->isText()) {
-            $this->imports .= "import TextEditor from \"@/Components/form/fields/TextEditor\";\n";
-            return $this->inertiaTextEditroComponent($attribute);
+            $this->addImport("import TextEditor from \"@/Components/form/fields/TextEditor\";");
+            return $this->inertiaTextEditorComponent($attribute);
         } else {
-            $this->imports .= "import Input from \"@/Components/form/fields/Input\";";
+            $this->addImport("import Input from \"@/Components/form/fields/Input\";");
             return $this->inertiaInputComponent($attribute);
         }
     }
@@ -185,5 +199,17 @@ class ReactPagesGenerator extends InertiaReactTSController
             override: $override,
             otherStubsPath: self::MODEL_INTERFACE_STUB
         );
+    }
+
+    public function addImport($import): void
+    {
+        $all = FileUtils::extraTrim($this->imports);
+        $trimmed = FileUtils::extraTrim($import);
+
+        if (str_contains($all, $trimmed)) {
+            return;
+        }
+
+        $this->imports .= "\n$import\n";
     }
 }

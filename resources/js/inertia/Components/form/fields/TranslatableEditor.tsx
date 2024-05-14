@@ -1,4 +1,4 @@
-import {Editor} from "@tinymce/tinymce-react";
+import { Editor } from "@tinymce/tinymce-react";
 import React, {
     ChangeEvent,
     HTMLProps,
@@ -6,10 +6,10 @@ import React, {
     useRef,
     useState,
 } from "react";
-import {Translatable, translate} from "@/Models/Translatable";
-import {usePage} from "@inertiajs/react";
-import {PageProps} from "@/types";
-import {LocaleContext} from "@/Contexts/TranslatableInputsContext";
+import { Translatable, translate } from "@/Models/Translatable";
+import { usePage } from "@inertiajs/react";
+import { PageProps } from "@/types";
+import { LocaleContext } from "@/Contexts/TranslatableInputsContext";
 
 interface ITranslatableEditorProps {
     name: string;
@@ -19,6 +19,7 @@ interface ITranslatableEditorProps {
     onEditorChange?: (name: string, value: any) => void;
     onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
     onInput?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    required?: boolean;
 }
 
 const TranslatableTextEditor: React.FC<
@@ -35,6 +36,7 @@ const TranslatableTextEditor: React.FC<
          onChange = undefined,
          onInput = undefined,
          name,
+         required = false,
          ...props
      }) => {
     const errors = usePage().props.errors;
@@ -49,29 +51,34 @@ const TranslatableTextEditor: React.FC<
     const [value, setValue] = useState<object | undefined>(defaultValue ?? {});
 
     const locale = useContext(LocaleContext);
-    const {availableLocales} = usePage<PageProps>().props;
+    const { availableLocales } = usePage<PageProps>().props;
 
     return (
         <div className={className ?? ""}>
-      <textarea
-          ref={textRef}
-          name={name}
-          value={JSON.stringify(value ?? "{}")}
-          onInput={(e) => {
-              if (onChange) {
-                  onChange(e as ChangeEvent<HTMLTextAreaElement>);
-              } else if (onInput) {
-                  onInput(e as ChangeEvent<HTMLTextAreaElement>);
-              }
-          }}
-          className={"hidden"}
-          hidden={true}
-          readOnly={true}
-          {...props}
-      />
+            <textarea
+                ref={textRef}
+                name={name}
+                value={JSON.stringify(value ?? "{}")}
+                onInput={(e) => {
+                    if (onChange) {
+                        onChange(e as ChangeEvent<HTMLTextAreaElement>);
+                    } else if (onInput) {
+                        onInput(e as ChangeEvent<HTMLTextAreaElement>);
+                    }
+                }}
+                className={"hidden"}
+                hidden={true}
+                readOnly={true}
+                {...props}
+            />
             {availableLocales.map((lang, index) => (
                 <label key={index} className={lang != locale ? "hidden" : ""}>
                     {label && `${label} - ${lang.toUpperCase()}`}
+                    {required ? (
+                        <span className="text-red-500 text-sm">*</span>
+                    ) : (
+                        ""
+                    )}
                     <Editor
                         textareaName={`${name}[${lang}]`}
                         tagName={`${name}[${lang}]`}
