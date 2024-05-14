@@ -45,25 +45,38 @@ class ReactPagesGenerator extends InertiaReactTSController
 
         $pageName = $this->table->viewNaming();
 
-        [$formInterface, $translatableContext, $smallFields, $bigFields] = $this->getFormProperties();
+        [$formInterface, $translatableContext, $smallFields, $bigFields, $defaultValues] = $this->getFormProperties();
 
         if ($this->currentForm == "Edit") {
             $this->addImport("import { {$this->table->modelName} } from \"@/Models/{$this->table->modelName}\";");
         }
 
+        $routes = $this->getRoutesNames($this->table, $this->actor);
+
+        if ($this->currentForm == "Edit") {
+            $action = "post(route(\"{$routes['update']}\" , {$this->table->variableNaming()}.id));";
+        } else {
+            $action = "post(route(\"{$routes['store']}\"));";
+        }
+
+        if ($this->currentForm == "Create") {
+            $defaultValues = "";
+        }
+
         $stubProperties = [
-            '{{ imports }}' => $this->imports,
-            '{{ formFieldsInterface }}' => $formInterface,
-            '{{ setPut }}' => $this->currentForm == "Create" ? "" : "setData(\"_method\" , 'PUT');",
-            '{{ action }}' => "post(route(\"{$this->getRoutesNames($this->table , $this->actor)['store']}\"));",
-            '{{ translatableContext }}' => $translatableContext['open'] ?? "",
-            '{{ closeTranslatableContext }}' => $translatableContext['close'] ?? "",
-            '{{ bigFields }}' => $bigFields,
-            '{{ smallFields }}' => $smallFields,
-            "{{ formType }}" => $this->currentForm,
-            "{{ modelName }}" => $this->table->modelName , 
-            "{{ componentName }}" => $this->currentForm , 
-            "{{ componentProps }}" => $this->currentForm == "Edit" ? "{{ $this->table->variableNaming() }}:{{ $this->table->variableNaming()}:{$this->table->modelName }}":"",
+            '{{imports}}' => $this->imports,
+            '{{formFieldsInterface}}' => $formInterface,
+            '{{setPut}}' => $this->currentForm == "Create" ? "" : "setData(\"_method\" , 'PUT');",
+            '{{action}}' => $action,
+            '{{translatableContext}}' => $translatableContext['open'] ?? "",
+            '{{closeTranslatableContext}}' => $translatableContext['close'] ?? "",
+            '{{bigFields}}' => $bigFields,
+            '{{smallFields}}' => $smallFields,
+            "{{formType}}" => $this->currentForm,
+            "{{modelName}}" => $this->table->modelName,
+            "{{componentName}}" => $this->currentForm,
+            "{{componentProps}}" => $this->currentForm == "Edit" ? "{{$this->table->variableNaming()}}:{{$this->table->variableNaming()}:{$this->table->modelName}}" : "",
+            "{{defaultValues}}" => $defaultValues,
         ];
 
         $formPath = CubePath::make("resources/js/Pages/dashboard/$pageName/" . $this->currentForm . '.tsx');
@@ -91,16 +104,22 @@ class ReactPagesGenerator extends InertiaReactTSController
         if ($this->table->translatables()->count()) {
             $translatableContext = [
                 'open' => '<TranslatableInputsContext>',
-                'close' => '</TranslatableInputsContext>'
+                'close' => '</TranslatableInputsContext>',
             ];
             $this->imports .= "\n import TranslatableInputsContext from \"@/Contexts/TranslatableInputsContext\";\n";
         }
 
         $smallFields = "";
         $bigFields = "";
+        $defaultValues = "{";
 
-        $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$bigFields, &$smallFields, &$formInterface) {
+        $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$bigFields, &$smallFields, &$formInterface, &$defaultValues) {
             $formInterface .= $this->getAttributeInterfaceProperty($attribute);
+
+            if (!$attribute->isFile()) {
+                $defaultValues .= "{$attribute->name} : {$this->table->variableNaming()}.{$attribute->name},";
+            }
+
             if ($attribute->isTextable() || $attribute->isText()) {
                 $bigFields .= $this->getInputField($attribute);
             } else {
@@ -109,12 +128,14 @@ class ReactPagesGenerator extends InertiaReactTSController
         });
 
         $formInterface .= "\"_method\"?:\"PUT\"|\"POST\"\n";
+        $defaultValues .= "}";
 
         return [
             $formInterface,
             $translatableContext,
             $smallFields,
-            $bigFields
+            $bigFields,
+            $defaultValues,
         ];
     }
 
@@ -151,7 +172,8 @@ class ReactPagesGenerator extends InertiaReactTSController
             $relatedModel = Settings::make()->getTable(Naming::model(str_replace('_id', '', $attribute->name)));
             $select2Route = $this->getRouteName($relatedModel, ContainerType::WEB, $this->actor) . '.allPaginatedJson';
 
-            if (!$relatedModel?->getModelPath()->exist()
+            if (
+                !$relatedModel?->getModelPath()->exist()
                 || !$relatedModel?->getWebControllerPath()->exist()
                 || !ClassUtils::isMethodDefined($relatedModel?->getWebControllerPath(), 'allPaginatedJson')
                 || !$relatedModel->getTSModelPath()->exist()
@@ -184,8 +206,8 @@ class ReactPagesGenerator extends InertiaReactTSController
         });
 
         $stubProperties = [
-            '{{ modelName }}' => $this->table->modelName,
-            '{{ properties }}' => $properties
+            '{{modelName}}' => $this->table->modelName,
+            '{{properties}}' => $properties,
         ];
 
         $interfacePath = $this->table->getTSModelPath();

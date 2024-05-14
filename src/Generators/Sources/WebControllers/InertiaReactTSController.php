@@ -15,7 +15,7 @@ class InertiaReactTSController extends AbstractGenerator
     public function run(bool $override = false): void
     {
         $modelNameCamelCase = $this->table->variableNaming();
-        $idVariable = $this->table->idVariable();
+        $routesNames = $this->getRoutesNames($this->table, $this->actor);
         $controllerPath = $this->table->getWebControllerPath();
 
         if ($controllerPath->exist()) {
@@ -35,6 +35,7 @@ class InertiaReactTSController extends AbstractGenerator
             '{{modelNameCamelCase}}' => $modelNameCamelCase,
             '{{createForm}}' => $pagesPaths['create'],
             '{{updateForm}}' => $pagesPaths['edit'],
+            '{{indexRoute}}' => $routesNames['index'] , 
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);

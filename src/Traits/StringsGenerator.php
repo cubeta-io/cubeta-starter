@@ -16,7 +16,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function hasManyFunction(CubeTable|CubeRelation $model): string
+    public function hasManyFunction(CubeTable | CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming(singular: false);
         return "public function $relationName()\n{\n\t return \$this->hasMany(" . $model->modelName . "::class);\n}\n\n";
@@ -26,7 +26,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function manyToManyFunction(CubeTable|CubeRelation $model): string
+    public function manyToManyFunction(CubeTable | CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming(singular: false);
         return "public function $relationName()\n{\n\t return \$this->belongsToMany(" . $model->modelName . "::class);\n}\n\n";
@@ -36,7 +36,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function belongsToFunction(CubeTable|CubeRelation $model): string
+    public function belongsToFunction(CubeTable | CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming();
         return "public function $relationName()\n{\n\t return \$this->belongsTo(" . $model->modelName . "::class); \n}\n\n";
@@ -46,7 +46,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function factoryRelationMethod(CubeTable|CubeRelation $model): string
+    public function factoryRelationMethod(CubeTable | CubeRelation $model): string
     {
         $functionName = 'with' . ucfirst(Str::plural(Str::studly($model->modelName)));
         return "public function {$functionName}(\$count = 1)\n{\n\t return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$model->modelName}::factory(\$count));\n} \n";
@@ -56,20 +56,20 @@ trait StringsGenerator
 
     /**
      * @param CubeAttribute $attribute
-     * @param bool          $defaultValue
+     * @param bool          $isUpdate
      * @return string
      */
-    public function inertiaTranslatableInputComponent(CubeAttribute $attribute, bool $defaultValue = false): string
+    public function inertiaTranslatableInputComponent(CubeAttribute $attribute, bool $isUpdate = false): string
     {
-        $required = $attribute->nullable ? "false" : "true";
+        $required = $attribute->nullable && !$isUpdate ? "false" : "true";
 
-        $value = $this->getDefaultValue($defaultValue, $attribute);
+        $value = $this->getDefaultValue($isUpdate, $attribute);
 
         return "\n<TranslatableInput
                     name={'{$attribute->name}'}
                     label={'{$attribute->titleNaming()}'}
                     onChange={(e) =>
-                        setData('name', e.target.value)
+                        setData('{$attribute->name}', e.target.value)
                     }
                     required={{$required}}
                     $value
@@ -79,12 +79,12 @@ trait StringsGenerator
     /**
      * @param CubeAttribute $attribute
      * @param array         $labels
-     * @param bool          $defaultValue
+     * @param bool          $isUpdate
      * @return string
      */
-    public function inertiaRadioButtonComponent(CubeAttribute $attribute, array $labels, bool $defaultValue = false): string
+    public function inertiaRadioButtonComponent(CubeAttribute $attribute, array $labels, bool $isUpdate = false): string
     {
-        $value = $this->getDefaultValue($defaultValue, $attribute);
+        $value = $this->getDefaultValue($isUpdate, $attribute);
 
         return "\n<Radio
                         name=\"{$attribute->name}\"
@@ -106,13 +106,13 @@ trait StringsGenerator
      * @param CubeTable|null $relatedModel
      * @param string         $select2Route
      * @param CubeAttribute  $attribute
-     * @param bool           $defaultValue
+     * @param bool           $isUpdate
      * @return string
      */
-    public function inertiaApiSelectComponent(?CubeTable $relatedModel, string $select2Route, CubeAttribute $attribute, bool $defaultValue = false): string
+    public function inertiaApiSelectComponent(?CubeTable $relatedModel, string $select2Route, CubeAttribute $attribute, bool $isUpdate = false): string
     {
-        $required = $attribute->nullable ? "false" : "true";
-        $value = $this->getDefaultValue($defaultValue, $attribute, $relatedModel);
+        $required = $attribute->nullable && !$isUpdate ? "false" : "true";
+        $value = $this->getDefaultValue($isUpdate, $attribute, $relatedModel);
 
         return "\n<ApiSelect
                         api={(
@@ -165,19 +165,18 @@ trait StringsGenerator
                             setData(\"{$attribute->name}\", e.target.files?.[0])
                         }
                         type={\"file\"}
-                        required={{$required}}
                     />\n";
     }
 
     /**
      * @param CubeAttribute $attribute
-     * @param bool          $defaultValue
+     * @param bool          $isUpdate
      * @return string
      */
-    public function inertiaTextEditorComponent(CubeAttribute $attribute, bool $defaultValue = false): string
+    public function inertiaTextEditorComponent(CubeAttribute $attribute, bool $isUpdate = false): string
     {
-        $required = $attribute->nullable ? "false" : "true";
-        $value = $this->getDefaultValue($defaultValue, $attribute);
+        $required = $attribute->nullable && !$isUpdate ? "false" : "true";
+        $value = $this->getDefaultValue($isUpdate, $attribute);
 
         return "\n<TextEditor
                         name={\"{$attribute->name}\"}
@@ -192,14 +191,14 @@ trait StringsGenerator
 
     /**
      * @param CubeAttribute $attribute
-     * @param bool          $defaultValue
+     * @param bool          $isUpdate
      * @return string
      */
-    public function inertiaInputComponent(CubeAttribute $attribute, bool $defaultValue = false): string
+    public function inertiaInputComponent(CubeAttribute $attribute, bool $isUpdate = false): string
     {
-        $required = $attribute->nullable ? "false" : "true";
+        $required = $attribute->nullable && !$isUpdate ? "false" : "true";
 
-        $value = $this->getDefaultValue($defaultValue, $attribute);
+        $value = $this->getDefaultValue($isUpdate, $attribute);
 
         if ($attribute->isNumeric()) {
             $event = "e.target.valueAsNumber";
@@ -221,14 +220,14 @@ trait StringsGenerator
 
     /**
      * @param CubeAttribute $attribute
-     * @param bool          $defaultValue
+     * @param bool          $isUpdate
      * @return string
      */
-    public function inertiaTranslatableTextEditor(CubeAttribute $attribute, bool $defaultValue = false): string
+    public function inertiaTranslatableTextEditor(CubeAttribute $attribute, bool $isUpdate = false): string
     {
-        $required = $attribute->nullable ? "false" : "true";
+        $required = $attribute->nullable && !$isUpdate ? "false" : "true";
 
-        $value = $this->getDefaultValue($defaultValue, $attribute);
+        $value = $this->getDefaultValue($isUpdate, $attribute);
 
         return "\n<TranslatableTextEditor
                             name={\"{$attribute->name}\"}
@@ -241,9 +240,9 @@ trait StringsGenerator
                         />\n";
     }
 
-    private function getDefaultValue(bool $defaultValue, CubeAttribute $attribute, ?CubeTable $relatedModel = null): string
+    private function getDefaultValue(bool $isUpdate, CubeAttribute $attribute, ?CubeTable $relatedModel = null): string
     {
-        if (!$defaultValue) {
+        if (!$isUpdate) {
             if ($attribute->isBoolean()) {
                 return "checked={(val: any) => val}";
             }

@@ -6,7 +6,7 @@ import Button from "@/Components/ui/Button";
 const {{componentName}} = ({{componentProps}}) => {
     const { post, setData, errors, processing } = useForm<{
         {{formFieldsInterface}}
-    }>();
+    }>({{defaultValues}});
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -45,4 +45,4 @@ const {{componentName}} = ({{componentProps}}) => {
     );
 };
 
-export default Create;
+export default {{componentName}};

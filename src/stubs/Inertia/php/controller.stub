@@ -21,10 +21,19 @@ class {{modelName}}Controller extends Controller
         $this->{{modelNameCamelCase}}Service = ${{modelNameCamelCase}}Service;
     }
 
-
     public function create()
     {
         return Inertia::render('{{createForm}}');
+    }
+
+    public function store(StoreUpdate{{modelName}}Request $request)
+    {
+        /** @var {{modelName}}|null $item */
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Service->store($request->validated(), $this->relations);
+        if (${{modelNameCamelCase}}) {
+            return redirect()->route('{{indexRoute}}', ${{modelNameCamelCase}}->id)->with('message' , __('site.stored_successfully'));
+        }
+        return redirect()->back()->with('error' , __('site.something_went_wrong'));
     }
 
     public function edit(${{modelNameCamelCase}}Id)
@@ -38,4 +47,15 @@ class {{modelName}}Controller extends Controller
             '{{modelNameCamelCase}}' => ${{modelNameCamelCase}}
         ]);
     }
+
+    public function update(StoreUpdate{{modelName}}Request $request, ${{modelNameCamelCase}}Id)
+    {
+        /** @var {{modelName}}|null $item */
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Service->update($request->validated(), ${{modelNameCamelCase}}Id, $this->relations);
+        if (${{modelNameCamelCase}}) {
+            return redirect()->route('{{indexRoute}}', ${{modelNameCamelCase}}Id)->with('message' , __('site.update_successfully'));
+        }
+        else return redirect()->back()->with('error' , __('site.there_is_no_data'));
+    }
+
 }
