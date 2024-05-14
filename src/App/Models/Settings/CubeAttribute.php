@@ -13,6 +13,8 @@ class CubeAttribute
 {
     use NamingConventions;
 
+    public ?string $parentTableName;
+
     /**
      * @var string
      */
@@ -34,18 +36,20 @@ class CubeAttribute
     public bool $unique;
 
     /**
-     * @param string $name
-     * @param string $type
-     * @param bool   $nullable
-     * @param bool   $unique
+     * @param string      $name
+     * @param string      $type
+     * @param bool        $nullable
+     * @param bool        $unique
+     * @param string|null $parentTableName
      */
-    public function __construct(string $name, string $type, bool $nullable = false, bool $unique = false)
+    public function __construct(string $name, string $type, bool $nullable = false, bool $unique = false, ?string $parentTableName = null)
     {
         $this->name = Naming::column($name);
         $this->type = $type;
         $this->nullable = $nullable;
         $this->unique = $unique;
         $this->usedString = $this->name;
+        $this->parentTableName = $parentTableName;
     }
 
     /**
@@ -162,5 +166,13 @@ class CubeAttribute
     public function isTextable(): bool
     {
         return in_array($this->name, ['desc', 'description', 'summary', 'post', 'note', 'message', 'body']);
+    }
+
+    /**
+     * @return CubeTable|null
+     */
+    public function getOwnerTable(): ?CubeTable
+    {
+        return Settings::make()->getTable($this->parentTableName);
     }
 }

@@ -1,30 +1,41 @@
 <?php
-namespace {namespace};
+namespace {{namespace}};
 
-use {requestNamespace}\{modelName}\StoreUpdate{modelName}Request;
-use {modelNamespace}\{modelName};
-use {serviceNamespace}\{modelName}\I{modelName}Service;
+use {{requestNamespace}}\{{modelName}}\StoreUpdate{{modelName}}Request;
+use {{modelNamespace}}\{{modelName}};
+use {{serviceNamespace}}\{{modelName}}\I{{modelName}}Service;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class {modelName}Controller extends Controller
+class {{modelName}}Controller extends Controller
 {
 
-    private ${modelNameCamelCase}Service;
+    private ${{modelNameCamelCase}}Service;
 
     // place the relations you want to return them within the response
     private array $relations = [];
 
-    public function __construct(I{modelName}Service ${modelNameCamelCase}Service)
+    public function __construct(I{{modelName}}Service ${{modelNameCamelCase}}Service)
     {
-        $this->{modelNameCamelCase}Service = ${modelNameCamelCase}Service;
+        $this->{{modelNameCamelCase}}Service = ${{modelNameCamelCase}}Service;
     }
 
 
     public function create()
     {
-        return Inertia::render('{createForm}');
+        return Inertia::render('{{createForm}}');
     }
 
+    public function edit(${{modelNameCamelCase}}Id)
+    {
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Service->view(${{modelNameCamelCase}}Id , $this->relations);
+
+        if (!${{modelNameCamelCase}}) {
+            abort(404);
+        }
+        return Inertia::render('{{updateForm}}' , [
+            '{{modelNameCamelCase}}' => ${{modelNameCamelCase}}
+        ]);
+    }
 }

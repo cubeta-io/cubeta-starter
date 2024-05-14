@@ -3,7 +3,7 @@ import { FormEvent } from "react";
 import Button from "@/Components/ui/Button";
 {{imports}}
 
-const Create = () => {
+const {{componentName}} = ({{componentProps}}) => {
     const { post, setData, errors, processing } = useForm<{
         {{formFieldsInterface}}
     }>();
@@ -19,7 +19,7 @@ const Create = () => {
             <div
                 className={`rounded-md text-xl font-bold p-4 bg-gray-100 mb-5`}
             >
-                <h2>Create Form</h2>
+                <h2>{{formType}} {{modelName}}</h2>
             </div>
 
             <div className={`w-full`}>
@@ -29,9 +29,11 @@ const Create = () => {
                             {{smallFields}}
                         </div>
 
-                        {{bigFields}}
+                        <div className="my-2">
+                            {{bigFields}}
+                        </div>
 
-                        <div className={"flex items-center justify-center my-4"} >
+                        <div className={"flex items-center justify-center my-2"} >
                             <Button type="submit" disabled={processing}>
                                 Submit
                             </Button>

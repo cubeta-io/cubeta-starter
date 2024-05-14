@@ -26,6 +26,7 @@ class MakeExample extends Command
                             'title' => 'translatable',
                             'description' => 'text',
                             "image" => "file",
+                            'is_active' => ColumnTypeEnum::BOOLEAN->value
                         ],
                         'relations' => [
                             'products' => RelationsTypeEnum::HasMany->value,
@@ -52,6 +53,7 @@ class MakeExample extends Command
                             'expire_at' => ColumnTypeEnum::DATETIME->value,
                             'manufacture_date' => ColumnTypeEnum::DATE->value,
                             'description' => ColumnTypeEnum::TRANSLATABLE->value,
+                            'is_active' => ColumnTypeEnum::BOOLEAN->value
                         ],
                         "relations" => [
                             "brands" => RelationsTypeEnum::ManyToMany->value

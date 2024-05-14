@@ -7,26 +7,45 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Illuminate\Support\Str;
 
+/**
+ *
+ */
 trait StringsGenerator
 {
+    /**
+     * @param CubeTable|CubeRelation $model
+     * @return string
+     */
     public function hasManyFunction(CubeTable|CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming(singular: false);
         return "public function $relationName()\n{\n\t return \$this->hasMany(" . $model->modelName . "::class);\n}\n\n";
     }
 
+    /**
+     * @param CubeTable|CubeRelation $model
+     * @return string
+     */
     public function manyToManyFunction(CubeTable|CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming(singular: false);
         return "public function $relationName()\n{\n\t return \$this->belongsToMany(" . $model->modelName . "::class);\n}\n\n";
     }
 
+    /**
+     * @param CubeTable|CubeRelation $model
+     * @return string
+     */
     public function belongsToFunction(CubeTable|CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming();
         return "public function $relationName()\n{\n\t return \$this->belongsTo(" . $model->modelName . "::class); \n}\n\n";
     }
 
+    /**
+     * @param CubeTable|CubeRelation $model
+     * @return string
+     */
     public function factoryRelationMethod(CubeTable|CubeRelation $model): string
     {
         $functionName = 'with' . ucfirst(Str::plural(Str::studly($model->modelName)));
@@ -37,11 +56,15 @@ trait StringsGenerator
 
     /**
      * @param CubeAttribute $attribute
+     * @param bool          $defaultValue
      * @return string
      */
-    public function inertiaTranslatableInputComponent(CubeAttribute $attribute): string
+    public function inertiaTranslatableInputComponent(CubeAttribute $attribute, bool $defaultValue = false): string
     {
         $required = $attribute->nullable ? "false" : "true";
+
+        $value = $this->getDefaultValue($defaultValue, $attribute);
+
         return "\n<TranslatableInput
                     name={'{$attribute->name}'}
                     label={'{$attribute->titleNaming()}'}
@@ -49,31 +72,33 @@ trait StringsGenerator
                         setData('name', e.target.value)
                     }
                     required={{$required}}
+                    $value
                   />\n";
     }
 
     /**
      * @param CubeAttribute $attribute
      * @param array         $labels
+     * @param bool          $defaultValue
      * @return string
      */
-    public function inertiaRadioButtonComponent(CubeAttribute $attribute, array $labels): string
+    public function inertiaRadioButtonComponent(CubeAttribute $attribute, array $labels, bool $defaultValue = false): string
     {
-        $required = $attribute->nullable ? "false" : "true";
+        $value = $this->getDefaultValue($defaultValue, $attribute);
+
         return "\n<Radio
                         name=\"{$attribute->name}\"
                         items={[
                             { label: \"{$labels['true']}\", value: true },
                             { label: \"{$labels['false']}\", value: false },
                         ]}
-                        checked={(val: any) => val == true}
                         onChange={(e) =>
                             setData(
                                 \"{$attribute->name}\",
                                 e.target.value == \"true\"
                             )
                         }
-                        required={{$required}}
+                        $value
                     />\n";
     }
 
@@ -81,11 +106,14 @@ trait StringsGenerator
      * @param CubeTable|null $relatedModel
      * @param string         $select2Route
      * @param CubeAttribute  $attribute
+     * @param bool           $defaultValue
      * @return string
      */
-    public function inertiaApiSelectComponent(?CubeTable $relatedModel, string $select2Route, CubeAttribute $attribute): string
+    public function inertiaApiSelectComponent(?CubeTable $relatedModel, string $select2Route, CubeAttribute $attribute, bool $defaultValue = false): string
     {
         $required = $attribute->nullable ? "false" : "true";
+        $value = $this->getDefaultValue($defaultValue, $attribute, $relatedModel);
+
         return "\n<ApiSelect
                         api={(
                             page,
@@ -119,6 +147,7 @@ trait StringsGenerator
                         optionLabel={\"{$relatedModel->titleable()->name}\"}
                         optionValue={\"id\"}
                         required={{$required}}
+                        $value
                     />\n";
     }
 
@@ -142,11 +171,14 @@ trait StringsGenerator
 
     /**
      * @param CubeAttribute $attribute
+     * @param bool          $defaultValue
      * @return string
      */
-    public function inertiaTextEditorComponent(CubeAttribute $attribute): string
+    public function inertiaTextEditorComponent(CubeAttribute $attribute, bool $defaultValue = false): string
     {
         $required = $attribute->nullable ? "false" : "true";
+        $value = $this->getDefaultValue($defaultValue, $attribute);
+
         return "\n<TextEditor
                         name={\"{$attribute->name}\"}
                         label=\"{$attribute->titleNaming()}\"
@@ -154,16 +186,20 @@ trait StringsGenerator
                             setData(\"{$attribute->name}\", e.target.value)
                         }
                         required={{$required}}
+                        $value
                     />\n";
     }
 
     /**
      * @param CubeAttribute $attribute
+     * @param bool          $defaultValue
      * @return string
      */
-    public function inertiaInputComponent(CubeAttribute $attribute): string
+    public function inertiaInputComponent(CubeAttribute $attribute, bool $defaultValue = false): string
     {
         $required = $attribute->nullable ? "false" : "true";
+
+        $value = $this->getDefaultValue($defaultValue, $attribute);
 
         if ($attribute->isNumeric()) {
             $event = "e.target.valueAsNumber";
@@ -179,16 +215,21 @@ trait StringsGenerator
                         }
                         type={\"{$this->getInputTagType($attribute)}\"}
                         required={{$required}}
+                        $value
                     />\n";
     }
 
     /**
      * @param CubeAttribute $attribute
+     * @param bool          $defaultValue
      * @return string
      */
-    public function inertiaTranslatableTextEditor(CubeAttribute $attribute): string
+    public function inertiaTranslatableTextEditor(CubeAttribute $attribute, bool $defaultValue = false): string
     {
         $required = $attribute->nullable ? "false" : "true";
+
+        $value = $this->getDefaultValue($defaultValue, $attribute);
+
         return "\n<TranslatableTextEditor
                             name={\"{$attribute->name}\"}
                             label=\"{$attribute->titleNaming()}\"
@@ -196,6 +237,25 @@ trait StringsGenerator
                                 setData(\"{$attribute->name}\", e.target.value)
                             }
                             required={{$required}}
+                            $value
                         />\n";
+    }
+
+    private function getDefaultValue(bool $defaultValue, CubeAttribute $attribute, ?CubeTable $relatedModel = null): string
+    {
+        if (!$defaultValue) {
+            if ($attribute->isBoolean()) {
+                return "checked={(val: any) => val}";
+            }
+            return "";
+        }
+
+        if ($attribute->isBoolean()) {
+            return "checked={(val: any) => val == {$attribute->getOwnerTable()->variableNaming()}.{$attribute->name}}";
+        } elseif ($attribute->isKey()) {
+            return "defaultValue={{$attribute->getOwnerTable()->variableNaming()}?.{$relatedModel->relationMethodNaming()} ? [{$attribute->getOwnerTable()->variableNaming()}.{$relatedModel->relationMethodNaming()}] : []}";
+        } else {
+            return "defaultValue={{$attribute->getOwnerTable()->variableNaming()}.{$attribute->name}}";
+        }
     }
 }

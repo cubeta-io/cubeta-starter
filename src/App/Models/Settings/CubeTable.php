@@ -35,10 +35,10 @@ class CubeTable
     public array $relations = [];
 
     /**
-     * @param string $modelName
-     * @param string $tableName
+     * @param string          $modelName
+     * @param string          $tableName
      * @param CubeAttribute[] $attributes
-     * @param CubeRelation[] $relations
+     * @param CubeRelation[]  $relations
      */
     public function __construct(string $modelName, string $tableName, array $attributes, array $relations)
     {
@@ -51,18 +51,19 @@ class CubeTable
 
     /**
      * @param string $modelName
-     * @param array $attributes
-     * @param array $relations
-     * @param array $uniques
-     * @param array $nullables
+     * @param array  $attributes
+     * @param array  $relations
+     * @param array  $uniques
+     * @param array  $nullables
      * @return CubeTable
      */
     public static function create(string $modelName, array $attributes = [], array $relations = [], array $uniques = [], array $nullables = []): CubeTable
     {
+        $tableName = Naming::table($modelName);
         return new self(
             Naming::model($modelName),
-            Naming::table($modelName),
-            collect($attributes)->map(fn($type, $name) => new CubeAttribute($name, $type, in_array($name, $nullables), in_array($name, $uniques)))->toArray(),
+            $tableName,
+            collect($attributes)->map(fn($type, $name) => new CubeAttribute($name, $type, in_array($name, $nullables), in_array($name, $uniques), $tableName))->toArray(),
             collect($relations)->map(fn($type, $rel) => new CubeRelation($type, Naming::model($rel), Naming::model($modelName)))->toArray(),
         );
     }
@@ -141,7 +142,7 @@ class CubeTable
     }
 
     /**
-     * @param string $name
+     * @param string      $name
      * @param string|null $type
      * @return bool
      */
@@ -159,7 +160,7 @@ class CubeTable
     }
 
     /**
-     * @param string $modelName
+     * @param string      $modelName
      * @param string|null $type
      * @return bool
      */
@@ -198,7 +199,7 @@ class CubeTable
             }
         }
 
-        return $this->getAttribute("id") ?? new CubeAttribute("id", "integer");
+        return $this->getAttribute("id") ?? new CubeAttribute("id", "integer", false, false, $this->tableName);
     }
 
     /**

@@ -55,24 +55,24 @@ class CodeSniffer
 
             if ($relation->isHasMany()) {
                 ClassUtils::addMethodToClass(
-                    $this->table->relationMethodNaming(),
                     $relatedPath,
+                    $this->table->relationMethodNaming(),
                     $this->belongsToFunction($this->table)
                 );
             }
 
             if ($relation->isManyToMany()) {
                 ClassUtils::addMethodToClass(
-                    $this->table->relationMethodNaming(singular: false),
                     $relatedPath,
+                    $this->table->relationMethodNaming(singular: false),
                     $this->manyToManyFunction($this->table)
                 );
             }
 
             if ($relation->isBelongsTo() || $relation->isHasOne()) {
                 ClassUtils::addMethodToClass(
-                    $this->table->relationMethodNaming(singular: false),
                     $relatedPath,
+                    $this->table->relationMethodNaming(singular: false),
                     $this->hasManyFunction($this->table)
                 );
             }
@@ -100,8 +100,8 @@ class CodeSniffer
             if ($relation->isBelongsTo() || $relation->isHasOne() || $relation->isManyToMany()) {
                 $methodName = "with" . Str::plural($this->table->modelName);
                 ClassUtils::addMethodToClass(
-                    $methodName,
                     $relatedPath,
+                    $methodName,
                     $this->factoryRelationMethod($this->table)
                 );
             }
@@ -257,7 +257,7 @@ class CodeSniffer
                     $relatedShowView->putContent($showViewContent);
                 }
 
-                ClassUtils::addNewRelationsToWithMethod($relatedTable, $relatedControllerPath, [$this->table->relationMethodNaming()]);
+                ClassUtils::addNewRelationsToWithMethod($relatedControllerPath, $relatedTable, [$this->table->relationMethodNaming()]);
             }
 
         });
@@ -317,7 +317,7 @@ class CodeSniffer
                 CubeLog::add(new CubeWarning("You Should Add The Translatables Attributes To The PrepareForValidation Method Using json_encode (this mean that the translatable values should be json encoded before validation)"));
                 return $this;
             }
-            ClassUtils::addMethodToClass("prepareForValidation", $requestPath, $prepareForValidation);
+            ClassUtils::addMethodToClass($requestPath, "prepareForValidation", $prepareForValidation);
             return $this;
         }
 

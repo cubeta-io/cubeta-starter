@@ -21,13 +21,15 @@ class ReactPagesGenerator extends InertiaReactTSController
     const FORM_STUB = __DIR__ . '/../../../stubs/Inertia/pages/form.stub';
 
     private string $imports = "";
+    private string $currentForm = "Create";
 
     public function run(bool $override = false): void
     {
         $routes = $this->getRoutesNames($this->table, $this->actor);
 
         $this->generateTypeScriptInterface($override);
-        $this->generateCreateOrUpdateForm(storeRoute: $routes['create'], override: $override);
+        $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
+        $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
     }
 
     /**
@@ -39,28 +41,35 @@ class ReactPagesGenerator extends InertiaReactTSController
     public function generateCreateOrUpdateForm(?string $storeRoute = null, ?string $updateRoute = null, bool $override = false): void
     {
         $this->imports = '';
-        $currentForm = $storeRoute ? "post" : "put";
-        $createdForm = $storeRoute ? 'Create' : 'Edit';
+        $this->currentForm = $storeRoute ? 'Create' : 'Edit';
 
         $pageName = $this->table->viewNaming();
 
-        [$formInterface, $translatableContext, $smallFields, $bigFields] = $this->getFieldsProperties();
+        [$formInterface, $translatableContext, $smallFields, $bigFields] = $this->getFormProperties();
+
+        if ($this->currentForm == "Edit") {
+            $this->addImport("import { {$this->table->modelName} } from \"@/Models/{$this->table->modelName}\";");
+        }
 
         $stubProperties = [
-            '{{imports}}' => $this->imports,
-            '{{formFieldsInterface}}' => $formInterface,
-            '{{setPut}}' => $createdForm == "Create" ? "" : "setData(\"_method\" , 'PUT');",
-            '{{action}}' => "post(route(\"{$this->getRoutesNames($this->table , $this->actor)['store']}\"));",
-            '{{translatableContext}}' => $translatableContext['open'] ?? "",
-            '{{closeTranslatableContext}}' => $translatableContext['close'] ?? "",
-            '{{bigFields}}' => $bigFields,
-            '{{smallFields}}' => $smallFields
+            '{{ imports }}' => $this->imports,
+            '{{ formFieldsInterface }}' => $formInterface,
+            '{{ setPut }}' => $this->currentForm == "Create" ? "" : "setData(\"_method\" , 'PUT');",
+            '{{ action }}' => "post(route(\"{$this->getRoutesNames($this->table , $this->actor)['store']}\"));",
+            '{{ translatableContext }}' => $translatableContext['open'] ?? "",
+            '{{ closeTranslatableContext }}' => $translatableContext['close'] ?? "",
+            '{{ bigFields }}' => $bigFields,
+            '{{ smallFields }}' => $smallFields,
+            "{{ formType }}" => $this->currentForm,
+            "{{ modelName }}" => $this->table->modelName , 
+            "{{ componentName }}" => $this->currentForm , 
+            "{{ componentProps }}" => $this->currentForm == "Edit" ? "{{ $this->table->variableNaming() }}:{{ $this->table->variableNaming()}:{$this->table->modelName }}":"",
         ];
 
-        $formPath = CubePath::make("resources/js/Pages/dashboard/$pageName/" . $createdForm . '.tsx');
+        $formPath = CubePath::make("resources/js/Pages/dashboard/$pageName/" . $this->currentForm . '.tsx');
 
         if ($formPath->exist()) {
-            $formPath->logAlreadyExist("When Generating $createdForm Form For ({$this->table->modelName}) Model");
+            $formPath->logAlreadyExist("When Generating {$this->currentForm} Form For ({$this->table->modelName}) Model");
             return;
         }
 
@@ -74,7 +83,7 @@ class ReactPagesGenerator extends InertiaReactTSController
         );
     }
 
-    private function getFieldsProperties(): array
+    private function getFormProperties(): array
     {
         $formInterface = "";
         $translatableContext = [];
@@ -129,29 +138,24 @@ class ReactPagesGenerator extends InertiaReactTSController
         if ($attribute->isTranslatable()) {
             if ($attribute->isTextable()) {
                 $this->addImport("import TranslatableTextEditor from \"@/Components/form/fields/TranslatableEditor\";");
-                return $this->inertiaTranslatableTextEditor($attribute);
+                return $this->inertiaTranslatableTextEditor($attribute, $this->currentForm == "Edit");
             } else {
                 $this->addImport("import TranslatableInput from \"@/Components/form/fields/TranslatableInput\";");
-                return $this->inertiaTranslatableInputComponent($attribute);
+                return $this->inertiaTranslatableInputComponent($attribute, $this->currentForm == "Edit");
             }
         } elseif ($attribute->isBoolean()) {
             $this->addImport("import Radio from \"@/Components/form/fields/Radio\";");
             $labels = $attribute->booleanLabels();
-            return $this->inertiaRadioButtonComponent($attribute, $labels);
+            return $this->inertiaRadioButtonComponent($attribute, $labels, $this->currentForm == "Edit");
         } elseif ($attribute->isKey()) {
             $relatedModel = Settings::make()->getTable(Naming::model(str_replace('_id', '', $attribute->name)));
             $select2Route = $this->getRouteName($relatedModel, ContainerType::WEB, $this->actor) . '.allPaginatedJson';
 
-            if (!$relatedModel?->getModelPath()->exist() || !$relatedModel?->getWebControllerPath()->exist()) {
-                return "";
-            }
-            if (!ClassUtils::isMethodDefined($relatedModel?->getWebControllerPath(), 'allPaginatedJson')) {
-                return "";
-            }
-
-            $relatedTSModelPath = CubePath::make("/resources/js/models/{$relatedModel->modelName}.ts");
-
-            if (!$relatedTSModelPath->exist()) {
+            if (!$relatedModel?->getModelPath()->exist()
+                || !$relatedModel?->getWebControllerPath()->exist()
+                || !ClassUtils::isMethodDefined($relatedModel?->getWebControllerPath(), 'allPaginatedJson')
+                || !$relatedModel->getTSModelPath()->exist()
+            ) {
                 return "";
             }
 
@@ -159,16 +163,16 @@ class ReactPagesGenerator extends InertiaReactTSController
             $this->addImport("import ApiSelect from \"@/Components/form/fields/Select/ApiSelect\";");
             $this->addImport("import { {$relatedModel->modelName} } from \"@/Models/{$relatedModel->modelName}");
 
-            return $this->inertiaApiSelectComponent($relatedModel, $select2Route, $attribute);
+            return $this->inertiaApiSelectComponent($relatedModel, $select2Route, $attribute, $this->currentForm == "Edit");
         } elseif ($attribute->isFile()) {
             $this->addImport("import Input from \"@/Components/form/fields/Input\";");
             return $this->inertiaFileInputComponent($attribute);
         } elseif ($attribute->isText()) {
             $this->addImport("import TextEditor from \"@/Components/form/fields/TextEditor\";");
-            return $this->inertiaTextEditorComponent($attribute);
+            return $this->inertiaTextEditorComponent($attribute, $this->currentForm == "Edit");
         } else {
             $this->addImport("import Input from \"@/Components/form/fields/Input\";");
-            return $this->inertiaInputComponent($attribute);
+            return $this->inertiaInputComponent($attribute, $this->currentForm == "Edit");
         }
     }
 
@@ -180,11 +184,11 @@ class ReactPagesGenerator extends InertiaReactTSController
         });
 
         $stubProperties = [
-            '{{modelName}}' => $this->table->modelName,
-            '{{properties}}' => $properties
+            '{{ modelName }}' => $this->table->modelName,
+            '{{ properties }}' => $properties
         ];
 
-        $interfacePath = CubePath::make("resources/js/Models/{$this->table->modelName}.ts");
+        $interfacePath = $this->table->getTSModelPath();
 
         if ($interfacePath->exist()) {
             $interfacePath->logAlreadyExist("When Generating {$this->table->modelName} Typescript Interface");

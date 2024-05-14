@@ -65,13 +65,14 @@ class Settings
     public function getTable(string $modelName): ?CubeTable
     {
         $modelName = Naming::model($modelName);
+        $tableName = Naming::table($modelName);
 
         foreach (self::$tables as $table) {
-            if ($table["model_name"] == $modelName || $table['model_name'] == Naming::table($modelName)) {
+            if ($table["model_name"] == $modelName || $table['model_name'] == $tableName) {
                 $attributes = [];
 
                 foreach ($table['attributes'] as $attribute) {
-                    $attributes[] = new CubeAttribute($attribute['name'], $attribute['type'], $attribute['nullable'], $attribute['unique']);
+                    $attributes[] = new CubeAttribute($attribute['name'], $attribute['type'], $attribute['nullable'], $attribute['unique'], $tableName);
                 }
 
                 $relations = [];
@@ -107,7 +108,7 @@ class Settings
                 $relationships[] = new CubeRelation(RelationsTypeEnum::BelongsTo->value, $parent, $modelName);
             }
 
-            $columns[] = new CubeAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques));
+            $columns[] = new CubeAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques), Naming::table($modelName));
         }
 
         foreach ($relations as $relation => $type) {

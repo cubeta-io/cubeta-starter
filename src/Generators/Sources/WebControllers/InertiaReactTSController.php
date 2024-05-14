@@ -27,13 +27,14 @@ class InertiaReactTSController extends AbstractGenerator
         $pagesPaths = $this->getTsxPagesPath();
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.web_controller_namespace'),
-            '{requestNamespace}' => config('cubeta-starter.request_namespace'),
-            '{modelName}' => $this->table->modelName,
-            '{modelNamespace}' => config('cubeta-starter.model_namespace'),
-            '{serviceNamespace}' => config('cubeta-starter.service_namespace'),
-            '{modelNameCamelCase}' => $modelNameCamelCase,
-            '{createForm}' => $pagesPaths['create'],
+            '{{namespace}}' => config('cubeta-starter.web_controller_namespace'),
+            '{{requestNamespace}}' => config('cubeta-starter.request_namespace'),
+            '{{modelName}}' => $this->table->modelName,
+            '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
+            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace'),
+            '{{modelNameCamelCase}}' => $modelNameCamelCase,
+            '{{createForm}}' => $pagesPaths['create'],
+            '{{updateForm}}' => $pagesPaths['edit'],
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);

@@ -58,6 +58,7 @@ const Input: React.FC<InputProps> = ({
                     placeholder={placeholder}
                     name={name}
                     required={required ?? false}
+                    defaultValue={defaultValue}
                     {...props}
                 />
 

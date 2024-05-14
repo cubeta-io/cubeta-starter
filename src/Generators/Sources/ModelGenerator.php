@@ -117,8 +117,7 @@ class ModelGenerator extends AbstractGenerator
                 FileUtils::ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->table->modelName) . '/' . Str::plural($colName)));
 
             } elseif (ColumnTypeEnum::isDateTimeType($attribute->type)) {
-                $properties .= "* @property \Carbon {$attribute->name} \n";
-                $casts .= "'{$attribute->name}' => 'datetime', \n";
+                $properties .= "* @property string {$attribute->name} \n";
             } elseif (ColumnTypeEnum::isNumericType($attribute->type)) {
                 $properties .= "* @property numeric {$attribute->name} \n";
             } else {
