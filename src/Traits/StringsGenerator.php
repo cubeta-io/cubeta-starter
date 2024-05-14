@@ -164,11 +164,18 @@ trait StringsGenerator
     public function inertiaInputComponent(CubeAttribute $attribute): string
     {
         $required = $attribute->nullable ? "false" : "true";
+
+        if ($attribute->isNumeric()) {
+            $event = "e.target.valueAsNumber";
+        } else {
+            $event = "e.target.value";
+        }
+
         return "\n<Input
                         name={\"{$attribute->name}\"}
                         label={\"{$attribute->titleNaming()}\"}
                         onChange={(e) =>
-                            setData(\"{$attribute->name}\", e.target.value)
+                            setData(\"{$attribute->name}\", {$event})
                         }
                         type={\"{$this->getInputTagType($attribute)}\"}
                         required={{$required}}
