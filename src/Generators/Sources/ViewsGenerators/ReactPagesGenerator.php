@@ -19,6 +19,7 @@ class ReactPagesGenerator extends InertiaReactTSController
 
     const MODEL_INTERFACE_STUB = __DIR__ . '/../../../stubs/Inertia/ts/interface.stub';
     const FORM_STUB = __DIR__ . '/../../../stubs/Inertia/pages/form.stub';
+    const SHOW_PAGE_STUB = __DIR__ . '/../../../stubs/Inertia/pages/show.stub';
 
     private string $imports = "";
     private string $currentForm = "Create";
@@ -30,6 +31,7 @@ class ReactPagesGenerator extends InertiaReactTSController
         $this->generateTypeScriptInterface($override);
         $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
         $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
+        $this->generateShowPage($override);
     }
 
     /**
@@ -44,6 +46,13 @@ class ReactPagesGenerator extends InertiaReactTSController
         $this->currentForm = $storeRoute ? 'Create' : 'Edit';
 
         $pageName = $this->table->viewNaming();
+
+        $formPath = CubePath::make("resources/js/Pages/dashboard/$pageName/" . $this->currentForm . '.tsx');
+
+        if ($formPath->exist()) {
+            $formPath->logAlreadyExist("When Generating {$this->currentForm} Form For ({$this->table->modelName}) Model");
+            return;
+        }
 
         [$formInterface, $translatableContext, $smallFields, $bigFields, $defaultValues] = $this->getFormProperties();
 
@@ -78,13 +87,6 @@ class ReactPagesGenerator extends InertiaReactTSController
             "{{componentProps}}" => $this->currentForm == "Edit" ? "{{$this->table->variableNaming()}}:{{$this->table->variableNaming()}:{$this->table->modelName}}" : "",
             "{{defaultValues}}" => $defaultValues,
         ];
-
-        $formPath = CubePath::make("resources/js/Pages/dashboard/$pageName/" . $this->currentForm . '.tsx');
-
-        if ($formPath->exist()) {
-            $formPath->logAlreadyExist("When Generating {$this->currentForm} Form For ({$this->table->modelName}) Model");
-            return;
-        }
 
         $formPath->ensureDirectoryExists();
 
@@ -237,5 +239,73 @@ class ReactPagesGenerator extends InertiaReactTSController
         }
 
         $this->imports .= "\n$import\n";
+    }
+
+    public function generateShowPage(bool $override = false)
+    {
+        $this->imports = "";
+
+        $modelVariable = $this->table->variableNaming();
+
+        $smallFields = "";
+        $bigFields = "";
+
+        $routes = $this->getRoutesNames($this->table, $this->actor);
+        $pageName = $this->table->viewNaming();
+
+        $showPagePath = CubePath::make("resources/js/Pages/dashboard/$pageName/Show.tsx");
+
+        if ($showPagePath->exist()) {
+            $showPagePath->logAlreadyExist("When Generating Show Page For ({$this->table->modelName}) Model");
+            return;
+        }
+
+        $this->table->attributes()->each(function (CubeAttribute $attr) use (&$smallFields, &$bigFields, $modelVariable) {
+            if ($attr->isText() || $attr->isTextable()) {
+                $this->addImport("import LongTextField from \"@/Components/Show/LongTextField\";");
+                if ($attr->isTranslatable()) {
+                    $this->addImport("import { translate } from \"@/Models/Translatable\";");
+                    $bigFields .= "\n<LongTextField label={\"{$attr->titleNaming()}\"} value={translate({$modelVariable}.{$attr->name})} />\n";
+                } else {
+                    $bigFields .= "\n<LongTextField label={\"{$attr->titleNaming()}\"} value={{$modelVariable}.{$attr->name}} />\n";
+                }
+            } elseif ($attr->isFile()) {
+                $this->addImport("import { asset } from \"@/helper\";");
+                $this->addImport("import Gallery from \"@/Components/Show/Gallery\";");
+                $bigFields .= "<div className=\"bg-gray-50 my-2 mb-5 p-4 rounded-md font-bold text-xl\">
+                                    <label className=\"font-semibold text-lg\">{$attr->titleNaming()} :</label>
+                                    <Gallery
+                                        sources={
+                                            category.image
+                                                ? [asset((\"storage/\" + {$modelVariable}.{$attr->name}) as string)]
+                                                : []
+                                        }
+                                    />
+                                </div>";
+            } elseif ($attr->isTranslatable()) {
+                $this->addImport("import { translate } from \"@/Models/Translatable\";");
+                $this->addImport("import SmallTextField from \"@/Components/Show/SmallTextField\";");
+                $smallFields .= "\n<SmallTextField label=\"{$attr->titleNaming()} \" value={translate({$modelVariable}.{$attr->name})} />\n";
+            } elseif ($attr->isBoolean()) {
+                $this->addImport("import SmallTextField from \"@/Components/Show/SmallTextField\";");
+                $smallFields .= "<SmallTextField label=\"{$attr->titleNaming()} ? \" value={{$modelVariable}.{$attr->name} ? 'Yes' : 'No'} />";
+            } else {
+                $this->addImport("import SmallTextField from \"@/Components/Show/SmallTextField\";");
+                $smallFields .= "<SmallTextField label=\"{$attr->titleNaming()} \" value={{$modelVariable}.{$attr->name}} />";
+            }
+        });
+
+        $stupProperties = [
+            '{{modelName}}' => $this->table->modelName,
+            "{{imports}}" => $this->imports,
+            "{{variableName}}" => $modelVariable,
+            "{{editRoute}}" => $routes['edit'],
+            "{{smallFields}}" => $smallFields,
+            "{{bigFields}}" => $bigFields,
+        ];
+
+        $showPagePath->ensureDirectoryExists();
+
+        $this->generateFileFromStub($stupProperties, $showPagePath->fullPath, $override, self::SHOW_PAGE_STUB);
     }
 }

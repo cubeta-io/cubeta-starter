@@ -21,6 +21,14 @@ class {{modelName}}Controller extends Controller
         $this->{{modelNameCamelCase}}Service = ${{modelNameCamelCase}}Service;
     }
 
+    public function show(${{modelNameCamelCase}}Id)
+    {
+        ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Service->view(${{modelNameCamelCase}}Id , $this->relations);
+        return Inertia::render('{{showPage}}', [
+            '{{modelNameCamelCase}}' => ${{modelNameCamelCase}},
+        ]);
+    }
+
     public function create()
     {
         return Inertia::render('{{createForm}}');
@@ -57,5 +65,4 @@ class {{modelName}}Controller extends Controller
         }
         else return redirect()->back()->with('error' , __('site.there_is_no_data'));
     }
-
 }

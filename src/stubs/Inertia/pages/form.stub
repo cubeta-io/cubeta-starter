@@ -1,6 +1,7 @@
 import { useForm } from "@inertiajs/react";
 import { FormEvent } from "react";
-import Button from "@/Components/ui/Button";
+import PageCard from "@/Components/ui/PageCard";
+import Form from "@/Components/form/Form";
 {{imports}}
 
 const {{componentName}} = ({{componentProps}}) => {
@@ -15,33 +16,19 @@ const {{componentName}} = ({{componentProps}}) => {
     };
 
     return (
-        <div className={"p-4 bg-white shadow-lg rounded-md w-full"}>
-            <div
-                className={`rounded-md text-xl font-bold p-4 bg-gray-100 mb-5`}
-            >
-                <h2>{{formType}} {{modelName}}</h2>
-            </div>
+        <PageCard title="{{formType}} {{modelName}}">
+            {{translatableContext}}
+                <Form onSubmit={onSubmit} processing={processing}>
+                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-5`} >
+                        {{smallFields}}
+                    </div>
 
-            <div className={`w-full`}>
-                {{translatableContext}}
-                    <form onSubmit={onSubmit}>
-                        <div className={`grid grid-cols-1 md:grid-cols-2 gap-5`} >
-                            {{smallFields}}
-                        </div>
-
-                        <div className="my-2">
-                            {{bigFields}}
-                        </div>
-
-                        <div className={"flex items-center justify-center my-2"} >
-                            <Button type="submit" disabled={processing}>
-                                Submit
-                            </Button>
-                        </div>
-                    </form>
-                {{closeTranslatableContext}}
-            </div>
-        </div>
+                    <div className="my-2">
+                        {{bigFields}}
+                    </div>
+                </Form>
+            {{closeTranslatableContext}}
+        </PageCard>
     );
 };
 

@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Serializers;
+
+use Exception;
+use JsonSerializable;
+
+class Translatable implements JsonSerializable
+{
+    private array $data = [];
+
+    public function __get(string $name)
+    {
+        if (!in_array($name, config('cubeta-starter.available_locales'))) {
+            throw new Exception("Undefined Property [$name]  , try to add it to the cubeta-starter config file in available_locals array");
+        }
+
+        return $this->data["$name"] ?? "";
+    }
+
+    public function __set(string $name, mixed $value)
+    {
+        if (!in_array($name, config('cubeta-starter.available_locales'))) {
+            throw new Exception("Undefined Property [$name]  , try to add it to the cubeta-starter config file in available_locals array");
+        }
+
+        if (!is_string($value)) {
+            throw new Exception("Only String Values Allowed To Be Stored As Translatable Property");
+        }
+
+        $this->data["$name"] = $value;
+    }
+
+    public function __construct(string | array $value)
+    {
+        if (is_string($value)) {
+            $this->data = json_decode($value, true);
+        } else {
+            $this->data = $value;
+        }
+    }
+
+    public function translate(?string $locale = null)
+    {
+        $locale = $locale ?? config('cubeta-starter.defaultLocale');
+        return $this->{$locale};
+    }
+
+    public function toArray()
+    {
+        return $this->data;
+    }
+
+    public function toJson()
+    {
+        return json_encode($this->data, JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE);
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return $this->toJson();
+    }
+}

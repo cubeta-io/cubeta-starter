@@ -125,6 +125,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
             __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
             __DIR__ . "/../src/Casts/Translatable.php" => app_path('Casts/Translatable.php'),
+            __DIR__ . "/../src/Serializers/Translatable.php" => app_path("Serializers/Translatable.php"),
             __DIR__ . '/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
             __DIR__ . '/../src/Contracts/Tests/MainTestCase.php' => base_path("/tests/Contracts/MainTestCase.php"),
             __DIR__ . '/../src/Traits/TestHelpers.php' => app_path('/Traits/TestHelpers.php'),
@@ -135,7 +136,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/Excel/BaseExporter.php" => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.php' => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/Traits/FileHandler.php' => app_path("Traits/FileHandler.php"),
-            __DIR__ . '/../src/app/Http/Resources/BaseResource.php' => app_path('Http/Resources/BaseResource.php')
+            __DIR__ . '/../src/app/Http/Resources/BaseResource.php' => app_path('Http/Resources/BaseResource.php'),
         ], 'cubeta-starter-api');
     }
 

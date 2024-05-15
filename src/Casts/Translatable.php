@@ -2,21 +2,19 @@
 
 namespace App\Casts;
 
-use App\Traits\Translations;
+use App\Serializers\Translatable as SerializersTranslatable;
+use Exception;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
-use Illuminate\Database\Eloquent\Model;
 
 class Translatable implements CastsAttributes
 {
-    use Translations;
-
     /**
      * Cast the given value.
      * @param array<string, mixed> $attributes
      */
-    public function get(Model $model, string $key, mixed $value, array $attributes): ?string
+    public function get($model, string $key, mixed $value, array $attributes): mixed
     {
-        return $this->translateValue($value);
+        return new SerializersTranslatable($value);
     }
 
     /**
@@ -24,10 +22,21 @@ class Translatable implements CastsAttributes
      *
      * @param array<string, mixed> $attributes
      */
-    public function set(Model $model, string $key, mixed $value, array $attributes): mixed
+    public function set($model, string $key, mixed $value, array $attributes): mixed
     {
+        if ($value instanceof SerializersTranslatable) {
+            return json_encode($value->toArray(), JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE);
+        }
+
         if (is_array($value)) {
-            return json_encode($value);
-        } else return $value;
+            return json_encode($value, JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE);
+        } else {
+            $arrVal = json_decode($value, true);
+            if ($arrVal) {
+            } else {
+                throw new Exception("Ivalid Translatable Data , it should be either : array , json string , Translatable Object");
+            }
+            return $value;
+        }
     }
 }

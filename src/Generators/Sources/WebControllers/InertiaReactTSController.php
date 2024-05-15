@@ -36,6 +36,7 @@ class InertiaReactTSController extends AbstractGenerator
             '{{createForm}}' => $pagesPaths['create'],
             '{{updateForm}}' => $pagesPaths['edit'],
             '{{indexRoute}}' => $routesNames['index'] , 
+            '{{showPage}}' => $pagesPaths['show'],
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
