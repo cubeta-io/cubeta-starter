@@ -61,8 +61,11 @@ trait StringsGenerator
      */
     public function inertiaTranslatableInputComponent(CubeAttribute $attribute, bool $isUpdate = false): string
     {
-        $required = $attribute->nullable && !$isUpdate ? "false" : "true";
-
+        if (!$isUpdate) {
+            $required = $attribute->nullable ? "false" : "true";
+        } else {
+            $required = "false";
+        }
         $value = $this->getDefaultValue($isUpdate, $attribute);
 
         return "\n<TranslatableInput
@@ -111,7 +114,12 @@ trait StringsGenerator
      */
     public function inertiaApiSelectComponent(?CubeTable $relatedModel, string $select2Route, CubeAttribute $attribute, bool $isUpdate = false): string
     {
-        $required = $attribute->nullable && !$isUpdate ? "false" : "true";
+        if (!$isUpdate) {
+            $required = $attribute->nullable ? "false" : "true";
+        } else {
+            $required = "false";
+        }
+
         $value = $this->getDefaultValue($isUpdate, $attribute, $relatedModel);
 
         return "\n<ApiSelect
@@ -155,9 +163,14 @@ trait StringsGenerator
      * @param CubeAttribute $attribute
      * @return string
      */
-    public function inertiaFileInputComponent(CubeAttribute $attribute): string
+    public function inertiaFileInputComponent(CubeAttribute $attribute, bool $isUpdate = false): string
     {
-        $required = $attribute->nullable ? "false" : "true";
+        if (!$isUpdate) {
+            $required = $attribute->nullable ? "false" : "true";
+        } else {
+            $required = "false";
+        }
+
         return "\n<Input
                         name={\"{$attribute->name}\"}
                         label={\"{$attribute->titleNaming()}\"}
@@ -165,6 +178,7 @@ trait StringsGenerator
                             setData(\"{$attribute->name}\", e.target.files?.[0])
                         }
                         type={\"file\"}
+                        required={{$required}}
                     />\n";
     }
 
@@ -175,7 +189,12 @@ trait StringsGenerator
      */
     public function inertiaTextEditorComponent(CubeAttribute $attribute, bool $isUpdate = false): string
     {
-        $required = $attribute->nullable && !$isUpdate ? "false" : "true";
+        if (!$isUpdate) {
+            $required = $attribute->nullable ? "false" : "true";
+        } else {
+            $required = "false";
+        }
+
         $value = $this->getDefaultValue($isUpdate, $attribute);
 
         return "\n<TextEditor

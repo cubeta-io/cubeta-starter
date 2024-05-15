@@ -117,7 +117,7 @@ class ReactPagesGenerator extends InertiaReactTSController
             $formInterface .= $this->getAttributeInterfaceProperty($attribute);
 
             if (!$attribute->isFile()) {
-                $defaultValues .= "{$attribute->name} : {$this->table->variableNaming()}.{$attribute->name},";
+                $defaultValues .= "{$attribute->name} : {$this->table->variableNaming()}.{$attribute->name},\n";
             }
 
             if ($attribute->isTextable() || $attribute->isText()) {
@@ -128,7 +128,7 @@ class ReactPagesGenerator extends InertiaReactTSController
         });
 
         $formInterface .= "\"_method\"?:\"PUT\"|\"POST\"\n";
-        $defaultValues .= "}";
+        $defaultValues .= " _method: \"PUT\",\n}";
 
         return [
             $formInterface,
@@ -142,7 +142,7 @@ class ReactPagesGenerator extends InertiaReactTSController
     public function getAttributeInterfaceProperty(CubeAttribute $attribute): string
     {
         if ($attribute->isString() || $attribute->isDateable()) {
-            return "$attribute->name?:string;\n";
+            return "{$attribute->name}?:string;\n";
         } elseif ($attribute->isNumeric() || $attribute->isKey()) {
             return "{$attribute->name}?:number;\n";
         } elseif ($attribute->isBoolean()) {
@@ -188,7 +188,7 @@ class ReactPagesGenerator extends InertiaReactTSController
             return $this->inertiaApiSelectComponent($relatedModel, $select2Route, $attribute, $this->currentForm == "Edit");
         } elseif ($attribute->isFile()) {
             $this->addImport("import Input from \"@/Components/form/fields/Input\";");
-            return $this->inertiaFileInputComponent($attribute);
+            return $this->inertiaFileInputComponent($attribute, $this->currentForm == "Edit");
         } elseif ($attribute->isText()) {
             $this->addImport("import TextEditor from \"@/Components/form/fields/TextEditor\";");
             return $this->inertiaTextEditorComponent($attribute, $this->currentForm == "Edit");
@@ -200,7 +200,7 @@ class ReactPagesGenerator extends InertiaReactTSController
 
     public function generateTypeScriptInterface(?bool $override = false): void
     {
-        $properties = "";
+        $properties = "id?:number,\n";
         $this->table->attributes()->each(function (CubeAttribute $attr) use (&$properties) {
             $properties .= $this->getAttributeInterfaceProperty($attr);
         });
