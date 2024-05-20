@@ -43,7 +43,8 @@ class HandleInertiaRequests extends Middleware
             'currentRoute' => Str::replace(env('APP_URL'), "", $request->fullUrl()),
             "tinymceApiKey" => env("TINYMCE_API_KEY"),
             'asset' => asset('/'),
-            'baseUrl' => (config('cubeta-starter.project_url') ?? config('app.url') )?? '/'
+            'baseUrl' => (config('cubeta-starter.project_url') ?? config('app.url') )?? '/',
+            'csrfToken' => csrf_token(),
         ]);
     }
 }

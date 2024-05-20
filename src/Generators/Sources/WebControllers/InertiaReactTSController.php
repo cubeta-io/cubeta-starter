@@ -35,8 +35,9 @@ class InertiaReactTSController extends AbstractGenerator
             '{{modelNameCamelCase}}' => $modelNameCamelCase,
             '{{createForm}}' => $pagesPaths['create'],
             '{{updateForm}}' => $pagesPaths['edit'],
-            '{{indexRoute}}' => $routesNames['index'] , 
+            '{{indexRoute}}' => $routesNames['index'],
             '{{showPage}}' => $pagesPaths['show'],
+            '{{indexPage}}' => $pagesPaths['index'],
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
@@ -44,9 +45,9 @@ class InertiaReactTSController extends AbstractGenerator
         $controllerPath->format();
 
         (new ReactPagesGenerator(
-            fileName: $this->fileName ,
-            attributes: $this->attributes ,
-            nullables: $this->nullables ,
+            fileName: $this->fileName,
+            attributes: $this->attributes,
+            nullables: $this->nullables,
             actor: $this->actor
         ))->run();
     }

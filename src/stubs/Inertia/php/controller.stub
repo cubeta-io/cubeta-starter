@@ -21,6 +21,25 @@ class {{modelName}}Controller extends Controller
         $this->{{modelNameCamelCase}}Service = ${{modelNameCamelCase}}Service;
     }
 
+    public function data()
+    {
+        $items = $this->{{modelNameCamelCase}}Service->indexWithPagination($this->relations);
+        return response()->json([
+            'data' => $items['data'],
+            'pagination_data' => $items['pagination_data'],
+        ], 200);
+
+        return response()->json([
+            'data' => [],
+            'pagination_data' => null,
+        ], 200);
+    }
+
+    public function index()
+    {
+        return Inertia::render('{{indexPage}}');
+    }
+
     public function show(${{modelNameCamelCase}}Id)
     {
         ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Service->view(${{modelNameCamelCase}}Id , $this->relations);
@@ -64,5 +83,16 @@ class {{modelName}}Controller extends Controller
             return redirect()->route('{{indexRoute}}', ${{modelNameCamelCase}}Id)->with('message' , __('site.update_successfully'));
         }
         else return redirect()->back()->with('error' , __('site.there_is_no_data'));
+    }
+
+    public function destroy(${{modelNameCamelCase}}Id)
+    {
+        $result = $this->{{modelNameCamelCase}}Service->delete(${{modelNameCamelCase}}Id);
+
+        if ($result) {
+            return response()->json(['message' => __("site.delete_successfully")], 200);
+        }
+
+        return response()->json(['message' => __('site.there_is_no_data')], 404);
     }
 }

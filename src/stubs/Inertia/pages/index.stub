@@ -1,0 +1,63 @@
+import ActionsButtons from "@/Components/Datatable/ActionsButtons";
+import DataTable from "@/Components/Datatable/DataTable";
+import { {{modelName}} } from "@/Models/{{modelName}}";
+import { PaginatedResponse } from "@/Models/Response";
+{{imports}}
+
+const Index = () => {
+    return (
+        <DataTable
+            title="{{modelName}} Table"
+            createUrl={route("{{createRoute}}")}
+            getDataArray={(res) => res.data}
+            getTotalPages={(res) => res?.pagination_data?.total_pages ?? 0}
+            getTotalRecords={(res) => res.pagination_data?.total ?? 0}
+            api={(
+                page?: number | undefined,
+                search?: string | undefined,
+                sortCol?: string | undefined,
+                sortDir?: string | undefined,
+                perPage?: number | undefined,
+                params?: object | undefined
+            ): Promise<PaginatedResponse<{{modelName}}>> =>
+                fetch(
+                    route("{{dataRoute}}", {
+                        page: page,
+                        search: search,
+                        sort_col: sortCol,
+                        sort_dir: sortDir,
+                        limit: perPage,
+                        ...params,
+                    }),
+                    {
+                        method: "GET",
+                        headers: {
+                            accept: "application/json",
+                        },
+                    }
+                ).then((res) => res.json())
+            }
+            schema={[
+                {
+                    name: "id",
+                    label: "ID",
+                    sortable: true,
+                },
+                {{columns}}
+                {
+                    label: "Options",
+                    render: (_data, {{modelVariable}}, setHidden, revalidate) => (
+                        <ActionsButtons
+                            buttons={["delete", "edit", "show"]}
+                            baseUrl={route("{{indexRoute}}")}
+                            id={{{modelVariable}}?.id ?? 0}
+                            setHidden={setHidden}
+                        />
+                    ),
+                },
+            ]}
+        />
+    );
+};
+
+export default Index;

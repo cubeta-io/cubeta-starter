@@ -16,11 +16,11 @@ class ReactInertiaInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
-        $this->installInertia();
+        $this->installInertia($override);
         $this->preparePackageJson();
     }
 
-    private function installInertia(): void
+    private function installInertia(bool $override = false): void
     {
         // install inertia
         FileUtils::executeCommandInTheBaseDirectory("composer require inertiajs/inertia-laravel");
@@ -29,25 +29,27 @@ class ReactInertiaInstaller extends AbstractGenerator
         //generate route handler typesystem
         FileUtils::executeCommandInTheBaseDirectory("php artisan ziggy:generate --types");
         //install js packages
-        FileUtils::executeCommandInTheBaseDirectory('npm install @inertiajs/react tailwindcss @tailwindcss/forms @types/node @types/react @types/react-dom @vitejs/plugin-react postcss react react-dom typescript @tinymce/tinymce-react @vitejs/plugin-react-refresh autoprefixer');
+        FileUtils::executeCommandInTheBaseDirectory('npm install @inertiajs/react tailwindcss @tailwindcss/forms @types/node @types/react @types/react-dom @vitejs/plugin-react postcss react react-dom typescript @tinymce/tinymce-react @vitejs/plugin-react-refresh autoprefixer sweetalert2 sweetalert2-react-content react-toastify');
 
         // adding the app layout blade file
         $this->generateFileFromStub(
             stubProperties: [],
             path: resource_path('/views/app.blade.php'),
-            otherStubsPath: __DIR__ . '/../../stubs/Inertia/views/app-view.stub'
+            otherStubsPath: __DIR__ . '/../../stubs/Inertia/views/app-view.stub',
+            override:$override
         );
 
         // adding inertia middleware
         $this->generateFileFromStub(
             stubProperties: [],
             path: app_path('/Http/Middleware/HandleInertiaRequests.php'),
-            otherStubsPath: __DIR__ . '/../../stubs/Inertia/HandleInertiaRequestsMiddleware.stub'
+            otherStubsPath: __DIR__ . '/../../stubs/Inertia/HandleInertiaRequestsMiddleware.stub',
+            override:$override
         );
 
         Artisan::call('vendor:publish', [
             '--tag' => 'inertia-react',
-            '--force' => true
+            '--force' => $override,
         ]);
     }
 

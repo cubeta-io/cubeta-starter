@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSController;
@@ -20,6 +21,7 @@ class ReactPagesGenerator extends InertiaReactTSController
     const MODEL_INTERFACE_STUB = __DIR__ . '/../../../stubs/Inertia/ts/interface.stub';
     const FORM_STUB = __DIR__ . '/../../../stubs/Inertia/pages/form.stub';
     const SHOW_PAGE_STUB = __DIR__ . '/../../../stubs/Inertia/pages/show.stub';
+    const INDEX_PAGE_STUB = __DIR__ . '/../../../stubs/Inertia/pages/index.stub';
 
     private string $imports = "";
     private string $currentForm = "Create";
@@ -32,6 +34,7 @@ class ReactPagesGenerator extends InertiaReactTSController
         $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
         $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
         $this->generateShowPage($override);
+        $this->generateIndexPage($override);
     }
 
     /**
@@ -307,5 +310,94 @@ class ReactPagesGenerator extends InertiaReactTSController
         $showPagePath->ensureDirectoryExists();
 
         $this->generateFileFromStub($stupProperties, $showPagePath->fullPath, $override, self::SHOW_PAGE_STUB);
+    }
+
+    public function generateIndexPage(bool $override = false)
+    {
+        $pageName = $this->table->viewNaming();
+
+        $indexPagePath = CubePath::make("resources/js/Pages/dashboard/$pageName/Index.tsx");
+
+        $this->imports = "";
+        $routes = $this->getRoutesNames($this->table, $this->actor);
+        $stubProperties = [
+            '{{modelName}}' => $this->table->modelName,
+            "{{imports}}" => $this->imports,
+            "{{createRoute}}" => $routes['create'],
+            "{{dataRoute}}" => $routes['data'],
+            "{{columns}}" => $this->getDataTableColumns(),
+            "{{modelVariable}}" => $this->table->variableNaming(),
+            "{{indexRoute}}" => $routes['index'],
+        ];
+
+        if ($indexPagePath->exist()) {
+            $indexPagePath->logAlreadyExist("When Generating Index Page For ({$this->table->modelName}) Model");
+            return;
+        }
+
+        $indexPagePath->ensureDirectoryExists();
+
+        $this->generateFileFromStub($stubProperties, $indexPagePath->fullPath, $override, self::INDEX_PAGE_STUB);
+    }
+
+    public function getDataTableColumns(): string
+    {
+        $columns = "";
+        $this->table->attributes()->each(function (CubeAttribute $attr) use (&$columns) {
+            if ($attr->isText() || $attr->isTextable() || $attr->isFile()) {
+                return true;
+            }
+            if ($attr->isTranslatable()) {
+                $columns .= "{
+                    label: \"{$attr->titleNaming()}\",
+                    name: \"{$attr->name}\",
+                    translatable: true,
+                    sortable: true,
+                },";
+            } elseif ($attr->isBoolean()) {
+                $columns .= "{
+                    label: \"{$attr->titleNaming()} ?\",
+                    name: \"{$attr->name}\",
+                    sortable: true,
+                    render: ({$attr->name}) =>
+                    {$attr->name} ? <span>Yes</span> : <span>No</span>,
+                },";
+            } elseif ($attr->isKey()) {
+                return true;
+            } else {
+                $columns .= "{
+                    label: \"{$attr->titleNaming()} ?\",
+                    name: \"{$attr->name}\",
+                    sortable: true,
+                },";
+            }
+        });
+
+        $this->table->relations()->each(function (CubeRelation $rel) use (&$columns) {
+            if (!$rel->isBelongsTo()) {
+                return true;
+            }
+
+            $relatedModel = $rel->getTable() ?? Settings::make()->serialize($rel->modelName, []);
+
+            if (!$rel->getModelPath()->exist()
+                || !ClassUtils::isMethodDefined($rel->getModelPath(), $this->table->relationMethodNaming(singular: false))) {
+                return true;
+            }
+
+            if (!$this->table->getModelPath()->exist()
+                || !ClassUtils::isMethodDefined($this->table->getModelPath(), $rel->relationMethodNaming())) {
+                return true;
+            }
+
+            $columns .= "
+            {
+                label: \"{$relatedModel->titleable()->titleNaming()}\",
+                name: \"{$rel->relationMethodNaming()}.{$relatedModel->titleable()->name}\",
+                sortable: true,
+            },";
+        });
+
+        return $columns;
     }
 }

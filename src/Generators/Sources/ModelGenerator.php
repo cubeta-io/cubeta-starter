@@ -89,6 +89,7 @@ class ModelGenerator extends AbstractGenerator
                 $booleanValueScope .= "\tpublic function scope" . ucfirst(Str::studly($attribute->name)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute->name . "' , 1);\n\t}\n";
                 $casts .= "'{$attribute->name}' => 'boolean' , \n";
             } elseif ($attribute->isTranslatable()) {
+                $searchable .= "'{$attribute->name}' , \n";
                 $casts .= "'{$attribute->name}' => \\App\\Casts\\Translatable::class, \n";
             } elseif ($attribute->isKey()) {
                 $relatedModelName = $attribute->modelNaming(str_replace('_id', '', $attribute->name));

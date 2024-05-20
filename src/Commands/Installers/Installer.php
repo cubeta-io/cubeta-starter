@@ -52,7 +52,7 @@ class Installer extends BaseCommand
             case "react" :
                 $container = ContainerType::WEB;
                 //TODO::don't forget to configure it
-                $override = false;
+                $override = $this->askForOverride();
                 $gen = new GeneratorFactory(ReactInertiaInstaller::$key);
                 break;
             default :

@@ -1,6 +1,6 @@
 export interface PaginatedResponse<T> {
   data: T[];
-  pagination_date?: {
+  pagination_data?: {
     currentPage: number;
     from: number;
     to: number;

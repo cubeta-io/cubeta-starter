@@ -2,9 +2,9 @@
 
 namespace App\Repositories\Contracts;
 
+use App\Excel\BaseExporter;
 use App\Excel\BaseImporter;
 use App\Traits\FileHandler;
-use App\Excel\BaseExporter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -82,7 +82,7 @@ abstract class BaseRepository implements IBaseRepository
      * @param array $relationships
      * @return Collection<T>|RegularCollection<T>|array
      */
-    public function all(array $relationships = []): Collection|array|RegularCollection
+    public function all(array $relationships = []): Collection | array | RegularCollection
     {
         return $this->globalQuery($relationships)->get();
     }
@@ -173,7 +173,10 @@ abstract class BaseRepository implements IBaseRepository
                     $query = $query->whereBetween($field, $value);
                 } elseif ($operator == 'like') {
                     $query = $query->{$method}($field, $operator, "%" . $value . "%");
-                } else $query = $query->{$method}($field, $operator, $value);
+                } else {
+                    $query = $query->{$method}($field, $operator, $value);
+                }
+
             }
         }
 
@@ -211,10 +214,11 @@ abstract class BaseRepository implements IBaseRepository
      */
     public function all_with_pagination(array $relationships = [], int $per_page = 10): ?array
     {
+        $per_page = request("limit") ?? $per_page;
         $all = $this->globalQuery($relationships)->paginate($per_page);
         if (count($all) > 0) {
             $pagination_data = $this->formatPaginateData($all);
-            return ['data' => $all, 'pagination_data' => $pagination_data];
+            return ['data' => $all->items(), 'pagination_data' => $pagination_data];
         }
         return null;
     }
@@ -398,7 +402,6 @@ abstract class BaseRepository implements IBaseRepository
 
         return $model;
     }
-
 
     /**
      * @param array $ids
