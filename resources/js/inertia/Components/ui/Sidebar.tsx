@@ -1,7 +1,13 @@
 import React from "react";
-import { usePage } from "@inertiajs/react";
 import { asset } from "@/helper";
 import Menu from "../icons/Menu";
+
+const sidebarItems = [
+    {
+        href: "/",
+        title: "Dashboard",
+    }
+];
 
 export const Sidebar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
     return (
@@ -30,24 +36,30 @@ export const Sidebar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
                 </button>
             </div>
 
-            <div className={"bg-white w-full mt-6 gap-1 px-4"}>
-                <div className="">
-                    <SidebarItem href={"/dashboard"} title={"Home"} />
-                </div>
+            <div
+                id="sidebar-list"
+                className={"bg-white w-full mt-6 gap-1 px-4"}
+            >
+                {sidebarItems.map((item, index) => (
+                    <SidebarItem
+                        key={index}
+                        href={item.href}
+                        title={item.title}
+                    />
+                ))}
             </div>
         </div>
     );
 };
 
 export const SidebarItem = ({
-    href,
-    title,
-}: {
+                                href,
+                                title,
+                            }: {
     href: string;
     title: string;
 }) => {
-    const { currentRoute } = usePage().props;
-    const selected = currentRoute === href;
+    const selected = route(`${route().current()}`) === href;
 
     return (
         <div className="mb-3">
@@ -64,9 +76,9 @@ export const SidebarItem = ({
 };
 
 export const CompactSidebarItem = ({
-    title,
-    children,
-}: {
+                                       title,
+                                       children,
+                                   }: {
     title: string;
     children?: React.ReactNode;
 }) => {

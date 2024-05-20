@@ -392,10 +392,12 @@ class ReactPagesGenerator extends InertiaReactTSController
 
             $columns .= "
             {
-                label: \"{$relatedModel->titleable()->titleNaming()}\",
+                label: \"{$relatedModel->modelName} {$relatedModel->titleable()->titleNaming()}\",
                 name: \"{$rel->relationMethodNaming()}.{$relatedModel->titleable()->name}\",
                 sortable: true,
             },";
+
+            return true;
         });
 
         return $columns;

@@ -5,6 +5,11 @@ namespace Cubeta\CubetaStarter\Generators\Sources\WebControllers;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\ReactPagesGenerator;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\Logs\Errors\NotFound;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 
@@ -44,6 +49,8 @@ class InertiaReactTSController extends AbstractGenerator
         $this->addRoute($this->table, $this->actor, ContainerType::WEB);
         $controllerPath->format();
 
+        $this->addSidebarItem($routesNames['index'], $this->table->modelName);
+
         (new ReactPagesGenerator(
             fileName: $this->fileName,
             attributes: $this->attributes,
@@ -69,5 +76,40 @@ class InertiaReactTSController extends AbstractGenerator
     public function stubsPath(): string
     {
         return __DIR__ . '/../../../stubs/Inertia/php/controller.stub';
+    }
+
+    public function addSidebarItem(string $indexRoute, string $title): void
+    {
+        $sidebarPath = CubePath::make("/resources/js/components/ui/Sidebar.tsx");
+
+        if (!$sidebarPath->exist()) {
+            CubeLog::add(new NotFound("$sidebarPath->fullPath", "Adding $title To Sidebar items when generating web controller"));
+            return;
+        }
+
+        $fileContent = $sidebarPath->getContent();
+
+        $newSidebarItem = sprintf(
+            "    {\n        href: route(\"%s\"),\n        title: \"%s\",\n    },\n",
+            $indexRoute,
+            $title
+        );
+
+        // Regex pattern to match the sidebarItems array
+        $pattern = '/(const\s+sidebarItems\s*=\s*\[\s*)(.*?)(\s*];)/si';
+
+        if (!preg_match($pattern, $fileContent)) {
+            CubeLog::add(new FailedAppendContent($newSidebarItem, $sidebarPath->fullPath, "adding the route : {$indexRoute} to the sidebar page"));
+            return;
+        }
+
+        $callback = function ($matches) use ($newSidebarItem) {
+            return $matches[1] . $matches[2] . "\n                " . $newSidebarItem . "\n            " . $matches[3];
+        };
+
+        $updatedContent = preg_replace_callback($pattern, $callback, $fileContent);
+
+        $sidebarPath->putContent($updatedContent);
+        CubeLog::add(new ContentAppended($newSidebarItem, $sidebarPath->fullPath));
     }
 }
