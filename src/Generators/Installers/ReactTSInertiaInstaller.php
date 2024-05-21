@@ -3,10 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
-use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Illuminate\Support\Facades\Artisan;
 
 class ReactTSInertiaInstaller extends AbstractGenerator
@@ -21,6 +18,13 @@ class ReactTSInertiaInstaller extends AbstractGenerator
 
     private function installInertia(bool $override = false): void
     {
+        Artisan::call('vendor:publish', [
+            '--tag' => 'react-ts',
+            '--force' => $override,
+        ]);
+
+        CubeLog::add(Artisan::output());
+
         // adding the app layout blade file
         $this->generateFileFromStub(
             stubProperties: [],
@@ -36,10 +40,5 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             override: $override,
             otherStubsPath: __DIR__ . '/../../stubs/Inertia/HandleInertiaRequestsMiddleware.stub'
         );
-
-        Artisan::call('vendor:publish', [
-            '--tag' => 'react-ts',
-            '--force' => $override,
-        ]);
     }
 }
