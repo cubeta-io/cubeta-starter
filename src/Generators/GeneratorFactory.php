@@ -47,7 +47,7 @@ class GeneratorFactory
         array   $uniques = [],
         ?string $actor = null,
         string  $generatedFor = ContainerType::API,
-        bool    $override = true
+        bool    $override = false
     ): void
     {
         if (!$this->source) {
@@ -145,9 +145,10 @@ class GeneratorFactory
             ),
             Installers\ApiInstaller::$key => new Installers\ApiInstaller(),
             Installers\WebInstaller::$key => new Installers\WebInstaller(),
-            Installers\WebPackagesInstallers::$key => new Installers\WebPackagesInstallers(),
+            Installers\BladePackagesInstaller::$key => new Installers\BladePackagesInstaller(),
             Installers\PermissionsInstaller::$key => new Installers\PermissionsInstaller(),
-            Installers\ReactInertiaInstaller::$key => new Installers\ReactInertiaInstaller(),
+            Installers\ReactTSInertiaInstaller::$key => new Installers\ReactTSInertiaInstaller(),
+            Installers\ReactTsPackagesInstaller::$key => new Installers\ReactTsPackagesInstaller(),
             default => throw new Error("Not supported generator {$this->source} "),
         };
         try {

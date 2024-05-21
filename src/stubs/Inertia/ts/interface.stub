@@ -1,3 +1,5 @@
+{{imports}}
 export interface {{modelName}} {
     {{properties}}
+    {{relations}}
 }

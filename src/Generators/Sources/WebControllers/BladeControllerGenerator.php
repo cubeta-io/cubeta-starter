@@ -221,6 +221,6 @@ class BladeControllerGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/../../stubs/controller.web.stub';
+        return __DIR__ . '/../../../stubs/controller.web.stub';
     }
 }

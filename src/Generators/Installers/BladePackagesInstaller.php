@@ -8,9 +8,9 @@ use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 
-class WebPackagesInstallers extends AbstractGenerator
+class BladePackagesInstaller extends AbstractGenerator
 {
-    public static string $key = "install-web-packages";
+    public static string $key = "install-blade-packages";
 
     public string $type = 'installer';
 

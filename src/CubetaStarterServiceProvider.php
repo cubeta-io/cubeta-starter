@@ -37,7 +37,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         // publishes
         $this->publishWeb();
         $this->publishApi();
-        $this->publishInertiaReact();
+        $this->publishInertiaReactTs();
         $this->publishAuthViews();
     }
 
@@ -188,7 +188,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeExample::class);
     }
 
-    public function publishInertiaReact(): void
+    public function publishInertiaReactTs(): void
     {
         $this->publishes([
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
@@ -213,6 +213,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/Excel/BaseExporter.php" => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.php' => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/Traits/FileHandler.php' => app_path("Traits/FileHandler.php"),
-        ], 'inertia-react');
+        ], 'react-ts');
     }
 }

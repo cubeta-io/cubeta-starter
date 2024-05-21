@@ -146,16 +146,17 @@ class ReactPagesGenerator extends InertiaReactTSController
 
     public function getAttributeInterfaceProperty(CubeAttribute $attribute): string
     {
+        $nullable = $attribute->nullable ? "?" : "";
         if ($attribute->isString() || $attribute->isDateable()) {
-            return "{$attribute->name}?:string;\n";
+            return "{$attribute->name}{$nullable}:string;\n";
         } elseif ($attribute->isNumeric() || $attribute->isKey()) {
-            return "{$attribute->name}?:number;\n";
+            return "{$attribute->name}{$nullable}:number;\n";
         } elseif ($attribute->isBoolean()) {
-            return "{$attribute->name}?:boolean;\n";
+            return "{$attribute->name}{$nullable}:boolean;\n";
         } elseif ($attribute->isFile()) {
-            return "{$attribute->name}?:File;\n";
+            return "{$attribute->name}{$nullable}:File|string;\n";
         } else {
-            return "{$attribute->name}?:any;\n";
+            return "{$attribute->name}{$nullable}:any;\n";
         }
     }
 
@@ -205,14 +206,37 @@ class ReactPagesGenerator extends InertiaReactTSController
 
     public function generateTypeScriptInterface(?bool $override = false): void
     {
+        $this->imports = "";
         $properties = "id?:number,\n";
         $this->table->attributes()->each(function (CubeAttribute $attr) use (&$properties) {
             $properties .= $this->getAttributeInterfaceProperty($attr);
         });
 
+        $relations = "";
+
+        $this->table->relations()->each(function (CubeRelation $rel) use (&$relations, &$imports) {
+            if (!$rel->getTSModelPath()->exist()) {
+                return true;
+            }
+
+            if ($rel->isHasOne() || $rel->isBelongsTo()) {
+                $relations .= "{$rel->variableNaming()}?:{$rel->modelName},\n";
+            }
+
+            if ($rel->isHasMany() || $rel->isManyToMany()) {
+                $relations .= "{$rel->variableNaming()}?:{$rel->modelName}[],\n";
+            }
+
+            $this->addImport("import { {$rel->modelName} } from \"./{$rel->modelName}\";");
+
+            return true;
+        });
+
         $stubProperties = [
             '{{modelName}}' => $this->table->modelName,
             '{{properties}}' => $properties,
+            "{{relations}}" => "",
+            "{{imports}}" => "",
         ];
 
         $interfacePath = $this->table->getTSModelPath();
@@ -244,7 +268,7 @@ class ReactPagesGenerator extends InertiaReactTSController
         $this->imports .= "\n$import\n";
     }
 
-    public function generateShowPage(bool $override = false)
+    public function generateShowPage(bool $override = false): void
     {
         $this->imports = "";
 

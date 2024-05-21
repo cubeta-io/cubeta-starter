@@ -3,13 +3,16 @@
 namespace Cubeta\CubetaStarter\App\Models\Settings;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
 
 class Settings
 {
     private static $instance;
+    private static array $json;
     private static array $tables;
+    private static ?FrontendTypeEnum $frontendStack;
 
     private function __construct()
     {
@@ -18,9 +21,14 @@ class Settings
 
     public static function make(): Settings
     {
-        self::$tables = self::getJsonSettings();
-        if (isset(self::$tables["tables"])) {
-            self::$tables = self::$tables["tables"];
+        self::$json = self::getJsonSettings();
+
+        if (isset(self::$json['frontend_type'])) {
+            self::$frontendStack = FrontendTypeEnum::tryFrom(self::$json['frontend_type']);
+        }
+
+        if (isset(self::$json["tables"])) {
+            self::$tables = self::$json["tables"];
         } else {
             self::$tables = [];
         }
@@ -144,7 +152,9 @@ class Settings
         $new = $table->collect()->merge(collect($exist))->unique();
 
         self::$tables[] = $new->toArray();
-        self::storeJsonSettings(["tables" => array_values(self::$tables)]);
+        $json = self::getJsonSettings();
+        $json['tables'] = collect(self::$tables)->values()->toArray();
+        self::storeJsonSettings($json);
         return $this;
     }
 
@@ -164,5 +174,23 @@ class Settings
             base_path('/cubeta-starter.config.json'),
             json_encode($data, JSON_PRETTY_PRINT)
         );
+    }
+
+    /**
+     * @param FrontendTypeEnum $type
+     * @return void
+     */
+    public function setFrontendType(FrontendTypeEnum $type): void
+    {
+        self::$tables["frontend_type"] = $type->value;
+        self::storeJsonSettings(self::$tables);
+    }
+
+    /**
+     * @return FrontendTypeEnum|null
+     */
+    public function getFrontendType(): ?FrontendTypeEnum
+    {
+        return self::$frontendStack;
     }
 }
