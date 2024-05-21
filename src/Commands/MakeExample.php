@@ -34,7 +34,8 @@ class MakeExample extends Command
                         "container" => "both",
                         'actor' => 'none',
                         'nullables' => [
-                            "description"
+                            "description",
+                            "image"
                         ],
                     ]);
 
@@ -60,6 +61,9 @@ class MakeExample extends Command
                         ],
                         "container" => "both",
                         'actor' => 'none',
+                        'nullables' => [
+                            "image"
+                        ]
                     ]);
                     $output = Artisan::output();
 
@@ -77,6 +81,9 @@ class MakeExample extends Command
                         ],
                         "container" => "both",
                         'actor' => 'none',
+                        'nullables' => [
+                            "image"
+                        ]
                     ]);
                     $output = Artisan::output();
 
