@@ -14,7 +14,7 @@ use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 
-class ReactPagesGenerator extends InertiaReactTSController
+class ReactTSPagesGenerator extends InertiaReactTSController
 {
     use WebGeneratorHelper, StringsGenerator;
 
@@ -235,8 +235,8 @@ class ReactPagesGenerator extends InertiaReactTSController
         $stubProperties = [
             '{{modelName}}' => $this->table->modelName,
             '{{properties}}' => $properties,
-            "{{relations}}" => "",
-            "{{imports}}" => "",
+            "{{relations}}" => $relations,
+            "{{imports}}" => $this->imports,
         ];
 
         $interfacePath = $this->table->getTSModelPath();
@@ -288,13 +288,14 @@ class ReactPagesGenerator extends InertiaReactTSController
         }
 
         $this->table->attributes()->each(function (CubeAttribute $attr) use (&$smallFields, &$bigFields, $modelVariable) {
+            $nullable = $attr->nullable ? "?" : "";
             if ($attr->isText() || $attr->isTextable()) {
                 $this->addImport("import LongTextField from \"@/Components/Show/LongTextField\";");
                 if ($attr->isTranslatable()) {
                     $this->addImport("import { translate } from \"@/Models/Translatable\";");
-                    $bigFields .= "\n<LongTextField label={\"{$attr->titleNaming()}\"} value={translate({$modelVariable}.{$attr->name})} />\n";
+                    $bigFields .= "\n<LongTextField label={\"{$attr->titleNaming()}\"} value={translate({$modelVariable}{$nullable}.{$attr->name})} />\n";
                 } else {
-                    $bigFields .= "\n<LongTextField label={\"{$attr->titleNaming()}\"} value={{$modelVariable}.{$attr->name}} />\n";
+                    $bigFields .= "\n<LongTextField label={\"{$attr->titleNaming()}\"} value={{$modelVariable}{$nullable}.{$attr->name}} />\n";
                 }
             } elseif ($attr->isFile()) {
                 $this->addImport("import { asset } from \"@/helper\";");
@@ -303,8 +304,8 @@ class ReactPagesGenerator extends InertiaReactTSController
                                     <label className=\"font-semibold text-lg\">{$attr->titleNaming()} :</label>
                                     <Gallery
                                         sources={
-                                            category.image
-                                                ? [asset((\"storage/\" + {$modelVariable}.{$attr->name}) as string)]
+                                            {$modelVariable}{$nullable}.image
+                                                ? [asset((\"storage/\" + {$modelVariable}{$nullable}.{$attr->name}) as string)]
                                                 : []
                                         }
                                     />
@@ -312,13 +313,13 @@ class ReactPagesGenerator extends InertiaReactTSController
             } elseif ($attr->isTranslatable()) {
                 $this->addImport("import { translate } from \"@/Models/Translatable\";");
                 $this->addImport("import SmallTextField from \"@/Components/Show/SmallTextField\";");
-                $smallFields .= "\n<SmallTextField label=\"{$attr->titleNaming()} \" value={translate({$modelVariable}.{$attr->name})} />\n";
+                $smallFields .= "\n<SmallTextField label=\"{$attr->titleNaming()} \" value={translate({$modelVariable}{$nullable}.{$attr->name})} />\n";
             } elseif ($attr->isBoolean()) {
                 $this->addImport("import SmallTextField from \"@/Components/Show/SmallTextField\";");
-                $smallFields .= "<SmallTextField label=\"{$attr->titleNaming()} ? \" value={{$modelVariable}.{$attr->name} ? 'Yes' : 'No'} />";
+                $smallFields .= "<SmallTextField label=\"{$attr->titleNaming()} ? \" value={{$modelVariable}{$nullable}.{$attr->name} ? 'Yes' : 'No'} />";
             } else {
                 $this->addImport("import SmallTextField from \"@/Components/Show/SmallTextField\";");
-                $smallFields .= "<SmallTextField label=\"{$attr->titleNaming()} \" value={{$modelVariable}.{$attr->name}} />";
+                $smallFields .= "<SmallTextField label=\"{$attr->titleNaming()} \" value={{$modelVariable}{$nullable}.{$attr->name}} />";
             }
         });
 

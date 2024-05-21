@@ -4,7 +4,7 @@ namespace Cubeta\CubetaStarter\Generators\Sources\WebControllers;
 
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\ReactPagesGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\ReactTSPagesGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
@@ -51,7 +51,7 @@ class InertiaReactTSController extends AbstractGenerator
 
         $this->addSidebarItem($routesNames['index'], $this->table->modelName);
 
-        (new ReactPagesGenerator(
+        (new ReactTSPagesGenerator(
             fileName: $this->fileName,
             attributes: $this->attributes,
             nullables: $this->nullables,
