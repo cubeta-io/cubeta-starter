@@ -51,7 +51,6 @@ class Installer extends BaseCommand
                 break;
             case "react" :
                 $container = ContainerType::WEB;
-                //TODO::don't forget to configure it
                 $override = $this->askForOverride();
                 $gen = new GeneratorFactory(ReactInertiaInstaller::$key);
                 break;

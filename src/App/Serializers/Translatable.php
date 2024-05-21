@@ -31,7 +31,7 @@ class Translatable implements JsonSerializable
         $this->data["$name"] = $value;
     }
 
-    public function __construct(string | array $value)
+    public function __construct(string|array $value)
     {
         if (is_string($value)) {
             $this->data = json_decode($value, true);
@@ -59,5 +59,20 @@ class Translatable implements JsonSerializable
     public function jsonSerialize(): mixed
     {
         return $this->toJson();
+    }
+
+
+    public static function fake($fakerType = "word"): bool|string
+    {
+        $result = [];
+        foreach (config('cubeta-starter.available_locales') as $locale) {
+            if ($locale == 'ar') {
+                $result["$locale"] = fake('ar_SA')->{"$fakerType"};
+            } else {
+                $result["$locale"] = fake()->{"$fakerType"};
+            }
+        }
+
+        return json_encode($result, JSON_PRETTY_PRINT);
     }
 }

@@ -26,7 +26,7 @@ class ReactInertiaInstaller extends AbstractGenerator
         FileUtils::executeCommandInTheBaseDirectory("composer require inertiajs/inertia-laravel");
         //install ziggy route handler
         FileUtils::executeCommandInTheBaseDirectory("composer require tightenco/ziggy");
-        //generate route handler typesystem
+        //generate route handler type system
         FileUtils::executeCommandInTheBaseDirectory("php artisan ziggy:generate --types");
         //install js packages
         FileUtils::executeCommandInTheBaseDirectory('npm install @inertiajs/react tailwindcss @tailwindcss/forms @types/node @types/react @types/react-dom @vitejs/plugin-react postcss react react-dom typescript @tinymce/tinymce-react @vitejs/plugin-react-refresh autoprefixer sweetalert2 sweetalert2-react-content react-toastify');
@@ -35,16 +35,16 @@ class ReactInertiaInstaller extends AbstractGenerator
         $this->generateFileFromStub(
             stubProperties: [],
             path: resource_path('/views/app.blade.php'),
-            otherStubsPath: __DIR__ . '/../../stubs/Inertia/views/app-view.stub',
-            override:$override
+            override: $override,
+            otherStubsPath: __DIR__ . '/../../stubs/Inertia/views/app-view.stub'
         );
 
         // adding inertia middleware
         $this->generateFileFromStub(
             stubProperties: [],
             path: app_path('/Http/Middleware/HandleInertiaRequests.php'),
-            otherStubsPath: __DIR__ . '/../../stubs/Inertia/HandleInertiaRequestsMiddleware.stub',
-            override:$override
+            override: $override,
+            otherStubsPath: __DIR__ . '/../../stubs/Inertia/HandleInertiaRequestsMiddleware.stub'
         );
 
         Artisan::call('vendor:publish', [

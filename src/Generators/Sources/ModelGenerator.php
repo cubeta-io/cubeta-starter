@@ -30,8 +30,6 @@ class ModelGenerator extends AbstractGenerator
 
         $modelAttributes = $this->generateModelClassAttributes();
 
-        $traits = $this->generateUsedTraits();
-
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.model_namespace'),
             '{modelName}' => $this->table->modelName,
@@ -43,7 +41,6 @@ class ModelGenerator extends AbstractGenerator
             '{scopes}' => $modelAttributes['booleanValueScopes'],
             '{searchableKeys}' => $modelAttributes['searchable'],
             '{searchableRelations}' => $modelAttributes['relationSearchable'],
-            'use HasFactory;' => $traits,
             '{casts}' => $modelAttributes['casts'],
             '{exportables}' => $modelAttributes['exportables']
         ];
@@ -179,14 +176,6 @@ class ModelGenerator extends AbstractGenerator
             'relationsCode' => $relationsFunctions,
             'exportables' => $exportables
         ];
-    }
-
-    private function generateUsedTraits(): string
-    {
-        //TODO::when merging with dev there will be a config option for traits so make the use traits use the config option for traits namespace
-        return $this->table->translatables()->count()
-            ? "use HasFactory; \n use \App\Traits\Translations;\n"
-            : "use HasFactory;";
     }
 
     protected function stubsPath(): string

@@ -60,7 +60,7 @@ class FactoryGenerator extends AbstractGenerator
                 $relatedModel = CubeTable::create(str_replace('_id', '', $name));
                 $rows .= "\t\t\t'{$name}' => " . $relatedModel->getModelClassString() . "::factory() ,\n";
             } elseif ($attribute->isTranslatable()) {
-                $rows .= "\t\t\t'{$name}' => \$this->fakeTranslation('word'),\n";
+                $rows .= "\t\t\t'{$name}' => \\App\\Serializers\\Translatable::fake(),\n";
             } elseif ($type == ColumnTypeEnum::STRING->value) {
                 $rows .= $this->handleStringType($name, $isUnique);
             } elseif ((in_array($name, ['cost', 'price', 'value', 'expense']) || Str::contains($name, ['price', 'cost'])) && ColumnTypeEnum::isNumericType($type)) {
@@ -163,10 +163,6 @@ class FactoryGenerator extends AbstractGenerator
         //TODO::when merging with dev there will be a config option for traits so make the use traits use the config option for traits namespace
         if (in_array('file', $this->attributes)) {
             $usedTraits .= "use \App\Traits\FileHandler; \n";
-        }
-
-        if (in_array('translatable', $this->attributes)) {
-            $usedTraits .= "use \App\Traits\Translations; \n";
         }
 
         return $usedTraits;

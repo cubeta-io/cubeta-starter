@@ -298,7 +298,7 @@ class ReactPagesGenerator extends InertiaReactTSController
             }
         });
 
-        $stupProperties = [
+        $stubProperties = [
             '{{modelName}}' => $this->table->modelName,
             "{{imports}}" => $this->imports,
             "{{variableName}}" => $modelVariable,
@@ -309,10 +309,10 @@ class ReactPagesGenerator extends InertiaReactTSController
 
         $showPagePath->ensureDirectoryExists();
 
-        $this->generateFileFromStub($stupProperties, $showPagePath->fullPath, $override, self::SHOW_PAGE_STUB);
+        $this->generateFileFromStub($stubProperties, $showPagePath->fullPath, $override, self::SHOW_PAGE_STUB);
     }
 
-    public function generateIndexPage(bool $override = false)
+    public function generateIndexPage(bool $override = false): void
     {
         $pageName = $this->table->viewNaming();
 
@@ -371,6 +371,8 @@ class ReactPagesGenerator extends InertiaReactTSController
                     sortable: true,
                 },";
             }
+
+            return true;
         });
 
         $this->table->relations()->each(function (CubeRelation $rel) use (&$columns) {

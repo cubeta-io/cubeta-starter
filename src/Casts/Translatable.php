@@ -19,8 +19,8 @@ class Translatable implements CastsAttributes
 
     /**
      * Prepare the given value for storage.
-     *
      * @param array<string, mixed> $attributes
+     * @throws Exception
      */
     public function set($model, string $key, mixed $value, array $attributes): mixed
     {
@@ -34,7 +34,7 @@ class Translatable implements CastsAttributes
             $arrVal = json_decode($value, true);
             if ($arrVal) {
             } else {
-                throw new Exception("Ivalid Translatable Data , it should be either : array , json string , Translatable Object");
+                throw new Exception("Invalid Translatable Data , it should be either : array , json string , Translatable Object");
             }
             return $value;
         }
