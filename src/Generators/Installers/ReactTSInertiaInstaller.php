@@ -2,8 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Illuminate\Support\Facades\Artisan;
 
 class ReactTSInertiaInstaller extends AbstractGenerator
@@ -40,5 +43,8 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             override: $override,
             otherStubsPath: __DIR__ . '/../../stubs/Inertia/HandleInertiaRequestsMiddleware.stub'
         );
+
+        Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
+        CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::REACT_TS->value));
     }
 }

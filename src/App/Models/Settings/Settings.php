@@ -158,11 +158,6 @@ class Settings
         return $this;
     }
 
-    public function toArray(): array
-    {
-        return self::$tables;
-    }
-
     /**
      * store the provided array in the package (cubeta-starter) json file settings as an array
      * @param array $data
@@ -182,8 +177,8 @@ class Settings
      */
     public function setFrontendType(FrontendTypeEnum $type): void
     {
-        self::$tables["frontend_type"] = $type->value;
-        self::storeJsonSettings(self::$tables);
+        self::$json["frontend_type"] = $type->value;
+        self::storeJsonSettings(self::$json);
     }
 
     /**
