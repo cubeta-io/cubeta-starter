@@ -178,8 +178,8 @@ class ActorFilesGenerator extends AbstractGenerator
         $controllerPath = CubePath::make(config('cubeta-starter.api_controller_path') . "/$this->version/" . ucfirst(Str::studly($this->role)) . "AuthController.php");
 
         $stubProperties = [
-            '{namespace}' => $apiControllerNamespace,
-            '{serviceNamespace}' => $apiServiceNamespace,
+            '{namespace}' => "$apiControllerNamespace\\$this->version",
+            '{serviceNamespace}' => "$apiServiceNamespace\\$this->version",
             '{role}' => ucfirst(Str::studly($this->role)),
             '{roleEnumName}' => $this->roleEnumNaming($this->role)
         ];

@@ -3,6 +3,7 @@
 namespace {namespace};
 
 use App\Enums\RolesPermissionEnum;
+use {{serviceNamespace}}\User\UserService;
 
 class {role}AuthController extends BaseAuthController
 {
