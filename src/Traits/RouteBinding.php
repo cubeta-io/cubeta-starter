@@ -49,7 +49,7 @@ trait RouteBinding
             $routes[] = "Route::post('dashboard/$pluralLowerModelName/export', [{$version}\\{$controllerName}::class, 'export'])->name('$routeName.export');";
             $routes[] = "Route::Resource('dashboard/{$pluralLowerModelName}' , {$version}\\{$controllerName}::class)->names('{$routeName}') ;";
 
-            $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . ';';
+            $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . "\\$version" . ';';
         } else {
             $sub = ($actor && $actor != 'none') ? "$actor/" : '';
             $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/export', [{$version}\\{$controllerName}::class, 'export'])->name('$routeName.export');";

@@ -210,7 +210,7 @@ class ActorFilesGenerator extends AbstractGenerator
         $routes = str_replace('{role}', $this->role, $routes);
         $routes = str_replace("{controllerName}", ucfirst(Str::studly($this->role)), $routes);
         $routes = str_replace("{version}", $this->version, $routes);
-        $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . "\{$this->version};";
+        $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . "\\$this->version;";
 
         $apiRouteFile->putContent($routes, FILE_APPEND);
         FileUtils::addImportStatement($importStatement, $apiRouteFile);
