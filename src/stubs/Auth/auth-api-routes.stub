@@ -1,9 +1,9 @@
-Route::post('/{role}/register', [v1\{controllerName}AuthController::class, 'register'])->name("{role}.register");
-Route::post('/{role}/login', [v1\{controllerName}AuthController::class, 'login'])->name("{role}.login");
-Route::post('/{role}/refresh', [v1\{controllerName}AuthController::class, 'refresh'])->middleware('auth:api')->name("{role}.refresh-token");
-Route::post('/{role}/password-reset-request', [v1\{controllerName}AuthController::class, 'passwordResetRequest'])->name("{role}.reset-password-request");
-Route::post('/{role}/check-reset-password-code', [v1\{controllerName}AuthController::class, 'checkPasswordResetCode'])->name("{role}.check-reset-password-code");
-Route::post('/{role}/reset-password', [v1\{controllerName}AuthController::class, 'passwordReset'])->name("{role}.password-reset");
-Route::post('/{role}/logout', [v1\{controllerName}AuthController::class, 'logout'])->middleware('auth:api')->name("{role}.logout");
-Route::post('/{role}/update-user-data' , [v1\{controllerName}AuthController::class, 'updateUserDetails'])->name('update-user-data');
+Route::post('/{role}/register', [{version}\{controllerName}AuthController::class, 'register'])->name("{role}.register");
+Route::post('/{role}/login', [{version}\{controllerName}AuthController::class, 'login'])->name("{role}.login");
+Route::post('/{role}/refresh', [{version}\{controllerName}AuthController::class, 'refresh'])->middleware('auth:api')->name("{role}.refresh-token");
+Route::post('/{role}/password-reset-request', [{version}\{controllerName}AuthController::class, 'passwordResetRequest'])->name("{role}.reset-password-request");
+Route::post('/{role}/check-reset-password-code', [{version}\{controllerName}AuthController::class, 'checkPasswordResetCode'])->name("{role}.check-reset-password-code");
+Route::post('/{role}/reset-password', [{version}\{controllerName}AuthController::class, 'passwordReset'])->name("{role}.password-reset");
+Route::post('/{role}/logout', [{version}\{controllerName}AuthController::class, 'logout'])->middleware('auth:api')->name("{role}.logout");
+Route::post('/{role}/update-user-data' , [{version}\{controllerName}AuthController::class, 'updateUserDetails'])->name('update-user-data');
 

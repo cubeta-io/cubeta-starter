@@ -8,6 +8,11 @@ return [
     'project_name' => 'CubetaStarter',
 
     /**
+     * version of generated structure
+     */
+    'version' => 'v1',
+
+    /**
      * here define your project public url, so we can add it to the postman collection
      * if you let it null we will place it in the collection as below :
      * e.g : http://localhost/project-name-from-this-config/public/

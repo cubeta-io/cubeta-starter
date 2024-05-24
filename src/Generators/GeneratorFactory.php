@@ -147,10 +147,11 @@ class GeneratorFactory
                 version: $version
             ),
             Installers\AuthInstaller::$key => new Installers\AuthInstaller(
-                generatedFor: $generatedFor
+                generatedFor: $generatedFor,
+                version: $version
             ),
-            Installers\ApiInstaller::$key => new Installers\ApiInstaller(),
-            Installers\WebInstaller::$key => new Installers\WebInstaller(),
+            Installers\ApiInstaller::$key => new Installers\ApiInstaller(version: $version),
+            Installers\WebInstaller::$key => new Installers\WebInstaller(version: $version),
             Installers\WebPackagesInstallers::$key => new Installers\WebPackagesInstallers(),
             Installers\PermissionsInstaller::$key => new Installers\PermissionsInstaller(),
             default => throw new Error("Not supported generator {$this->source} "),

@@ -24,8 +24,8 @@ class WebInstaller extends AbstractGenerator
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-web"]);
         CubeLog::add(Artisan::output());
 
-        $this->addRouteFile('public', ContainerType::WEB);
-        $this->addRouteFile('protected', ContainerType::WEB);
+        $this->addRouteFile('public', ContainerType::WEB, $this->version);
+        $this->addRouteFile('protected', ContainerType::WEB, $this->version);
         $this->addSetLocalRoute();
     }
 
@@ -63,11 +63,11 @@ class WebInstaller extends AbstractGenerator
         }
 
 
-        $routePath = CubePath::make("routes/v1/web/public.php");
+        $routePath = CubePath::make("routes/{$this->version}/web/public.php");
         $routePath->ensureDirectoryExists();
 
         if (!$routePath->exist()) {
-            $this->addRouteFile("none", ContainerType::WEB);
+            $this->addRouteFile("none", ContainerType::WEB, $this->version);
             CubeLog::add(new SuccessGenerating($routePath->fileName, $routePath->fullPath, "Adding The Set Local Route"));
         }
 

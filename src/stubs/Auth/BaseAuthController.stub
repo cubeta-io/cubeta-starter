@@ -8,7 +8,7 @@ use {{requestNamespace}}\AuthRequests\ResetPasswordRequest;
 use {{requestNamespace}}\AuthRequests\AuthRegisterRequest;
 use {{requestNamespace}}\AuthRequests\UpdateUserRequest;
 use {{requestNamespace}}\AuthRequests\AuthLoginRequest;
-use {{serviceNamespace}}\User\IUserService;
+use {{serviceNamespace}}\User\UserService;
 use App\Http\Controllers\ApiController;
 use {{resourceNamespace}}\UserResource;
 use Illuminate\Http\Request;
@@ -16,13 +16,13 @@ use Exception;
 
 class BaseAuthController extends ApiController
 {
-    private IUserService $userService;
+    private UserService $userService;
     private ?string $role = null;
 
    /**
     * @throws Exception
     */
-    public function __construct(IUserService $userService)
+    public function __construct(UserService $userService)
     {
         $this->userService = $userService;
         $this->userService->setGuard();

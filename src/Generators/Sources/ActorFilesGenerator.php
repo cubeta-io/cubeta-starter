@@ -29,12 +29,14 @@ class ActorFilesGenerator extends AbstractGenerator
     private ?array $permissions;
     private bool $authenticated = false;
 
-    public function __construct(string $role, ?array $permissions = null, bool $authenticated = false, string $generatedFor = ContainerType::API)
+    //TODO::CHECK HERE
+    public function __construct(string $role, ?array $permissions = null, bool $authenticated = false, string $generatedFor = ContainerType::API, string $version = 'v1')
     {
         parent::__construct(generatedFor: $generatedFor);
         $this->role = strtolower(Str::singular($role));
         $this->permissions = $permissions;
         $this->authenticated = $authenticated;
+        $this->version = $version;
     }
 
     public function run(bool $override = false): void
@@ -42,16 +44,16 @@ class ActorFilesGenerator extends AbstractGenerator
         $this->createRolesEnum();
 
         if (ContainerType::isWeb($this->generatedFor)) {
-            $routeFile = CubePath::make("routes/v1/web/{$this->role}.php");
+            $routeFile = CubePath::make("routes/{$this->version}/web/{$this->role}.php");
             if (!$routeFile->exist()) {
-                $this->addRouteFile($this->role, ContainerType::WEB);
+                $this->addRouteFile($this->role, ContainerType::WEB, $this->version);
             }
         }
 
         if (ContainerType::isApi($this->generatedFor)) {
-            $routeFile = CubePath::make("routes/v1/api/{$this->role}.php");
+            $routeFile = CubePath::make("routes/{$this->version}/api/{$this->role}.php");
             if (!$routeFile->exist()) {
-                $this->addRouteFile($this->role);
+                $this->addRouteFile($this->role, ContainerType::API, $this->version);
             }
         }
 
@@ -159,8 +161,8 @@ class ActorFilesGenerator extends AbstractGenerator
 
         $this->generateFileFromStub(
             [
-                '{seederNamespace}' => $this->table->getSeederNameSpace(),
-                "{modelNamespace}" => $this->table->getModelNameSpace(),
+                '{seederNamespace}' => config('cubeta-starter.seeder_namespace'),
+                "{modelNamespace}" => config('cubeta-starter.model_namespace'),
             ],
             $seederPath->fullPath,
             $override,
@@ -207,6 +209,7 @@ class ActorFilesGenerator extends AbstractGenerator
 
         $routes = str_replace('{role}', $this->role, $routes);
         $routes = str_replace("{controllerName}", ucfirst($this->role), $routes);
+        $routes = str_replace("{version}", $this->version, $routes);
         $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . ";";
 
         $apiRouteFile->putContent($routes, FILE_APPEND);

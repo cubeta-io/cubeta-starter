@@ -87,26 +87,17 @@ class AuthInstaller extends AbstractGenerator
     {
         // user service
         $stubProperties = [
-            '{{namespace}}' => config('cubeta-starter.service_namespace'),
+            '{{namespace}}' => config('cubeta-starter.service_namespace') . "\\$this->version",
             '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
             '{{repositoryNamespace}}' => config('cubeta-starter.repository_namespace'),
         ];
 
 
-        $servicePath = CubePath::make(config('cubeta-starter.service_path') . '/User' . "/UserService.php");
+        $servicePath = CubePath::make(config('cubeta-starter.service_path') . "/{$this->version}/User/UserService.php");
 
         $servicePath->ensureDirectoryExists();
 
         $this->generateFileFromStub($stubProperties, $servicePath->fullPath, $override, __DIR__ . '/../../stubs/Auth/UserService.stub');
-
-        // service interface
-        $interfacePath = CubePath::make(config('cubeta-starter.service_path') . "/User/IUserService.php");
-        $interfacePath->ensureDirectoryExists();
-
-        $this->generateFileFromStub([
-            '{{namespace}}' => config('cubeta-starter.service_namespace'),
-            "{{modelNamespace}}" => config('cubeta-starter.model_namespace'),
-        ], $interfacePath->fullPath, $override, __DIR__ . '/../../stubs/Auth/IUserService.stub');
     }
 
     /**
@@ -139,10 +130,10 @@ class AuthInstaller extends AbstractGenerator
     private function generateAuthRequests(bool $override = false): void
     {
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.request_namespace'),
+            '{namespace}' => config('cubeta-starter.request_namespace') . "\\$this->version",
         ];
 
-        $requestDirectory = base_path(config('cubeta-starter.request_path') . '/AuthRequests');
+        $requestDirectory = base_path(config('cubeta-starter.request_path') . "/$this->version/AuthRequests");
 
         FileUtils::ensureDirectoryExists($requestDirectory);
 
@@ -205,10 +196,10 @@ class AuthInstaller extends AbstractGenerator
     private function generateUserResource(bool $override = false): void
     {
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.resource_namespace'),
+            '{namespace}' => config('cubeta-starter.resource_namespace') . "\\$this->version",
         ];
 
-        $resourcePath = CubePath::make(config('cubeta-starter.resource_path') . "/UserResource.php");
+        $resourcePath = CubePath::make(config('cubeta-starter.resource_path') . "/$this->version/UserResource.php");
 
         $resourcePath->ensureDirectoryExists();
 
@@ -222,13 +213,13 @@ class AuthInstaller extends AbstractGenerator
     private function generateBaseAuthController(bool $override = false): void
     {
         $stubProperties = [
-            '{{namespace}}' => config('cubeta-starter.api_controller_namespace'),
-            '{{requestNamespace}}' => config('cubeta-starter.request_namespace'),
-            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace'),
-            '{{resourceNamespace}}' => config('cubeta-starter.resource_namespace'),
+            '{{namespace}}' => config('cubeta-starter.api_controller_namespace') . "\\$this->version",
+            '{{requestNamespace}}' => config('cubeta-starter.request_namespace') . "\\$this->version",
+            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace') . "\\$this->version",
+            '{{resourceNamespace}}' => config('cubeta-starter.resource_namespace') . "\\$this->version",
         ];
 
-        $controllerPath = CubePath::make(config('cubeta-starter.api_controller_path') . "/BaseAuthController.php");
+        $controllerPath = CubePath::make(config('cubeta-starter.api_controller_path') . "/$this->version/BaseAuthController.php");
 
         $controllerPath->ensureDirectoryExists();
 
@@ -242,12 +233,12 @@ class AuthInstaller extends AbstractGenerator
     private function generateBaseAuthWebController(bool $override = false): void
     {
         $stubProperties = [
-            '{{namespace}}' => config('cubeta-starter.web_controller_namespace'),
-            '{{requestNamespace}}' => config('cubeta-starter.request_namespace'),
-            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace')
+            '{{namespace}}' => config('cubeta-starter.web_controller_namespace') . "\\$this->version",
+            '{{requestNamespace}}' => config('cubeta-starter.request_namespace') . "\\$this->version",
+            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace') . "\\$this->version"
         ];
 
-        $controllerPath = CubePath::make(config('cubeta-starter.web_controller_path') . "/BaseAuthController.php");
+        $controllerPath = CubePath::make(config('cubeta-starter.web_controller_path') . "/$this->version/BaseAuthController.php");
 
         $controllerPath->ensureDirectoryExists();
 
@@ -262,16 +253,16 @@ class AuthInstaller extends AbstractGenerator
         $protectedRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-protected.stub');
         $publicRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-public.stub');
 
-        $publicRouteFile = CubePath::make("routes/v1/web/public.php");
-        $protectedRouteFile = CubePath::make("routes/v1/web/protected.php");
+        $publicRouteFile = CubePath::make("routes/{$this->version}/web/public.php");
+        $protectedRouteFile = CubePath::make("routes/{$this->version}/web/protected.php");
 
         $publicRouteFile->ensureDirectoryExists();
         $protectedRouteFile->ensureDirectoryExists();
 
-        $importStatement = "use " . config('cubeta-starter.web_controller_namespace') . ";";
+        $importStatement = "use " . config('cubeta-starter.web_controller_namespace') . "\\$this->version;";
 
         if (!$publicRouteFile->exist()) {
-            $this->generateFileFromStub(["{route}" => $publicRoutes], $publicRouteFile->fullPath, true, __DIR__ . '/../../stubs/api.stub');
+            $this->generateFileFromStub(["{route}" => $publicRoutes, '{version}' => $this->version], $publicRouteFile->fullPath, true, __DIR__ . '/../../stubs/api.stub');
             $this->addRouteFileToServiceProvider($publicRouteFile, ContainerType::WEB);
             FileUtils::addImportStatement($importStatement, $publicRouteFile);
             CubeLog::add(new SuccessMessage("Auth Web Public Routes Has Been Added Successfully To : [{$publicRouteFile->fullPath}]"));
@@ -280,7 +271,7 @@ class AuthInstaller extends AbstractGenerator
         }
 
         if (!$protectedRouteFile->exist()) {
-            $this->generateFileFromStub(["{route}" => $protectedRoutes], $protectedRouteFile->fullPath, true, __DIR__ . '/../../stubs/api.stub');
+            $this->generateFileFromStub(["{route}" => $protectedRoutes, '{version}' => $this->version], $protectedRouteFile->fullPath, true, __DIR__ . '/../../stubs/api.stub');
             $this->addRouteFileToServiceProvider($protectedRouteFile, ContainerType::WEB);
             FileUtils::addImportStatement($importStatement, $protectedRouteFile);
             CubeLog::add(new SuccessMessage("Auth Web Protected Routes Has Been Added Successfully To : [{$protectedRouteFile->fullPath}]"));

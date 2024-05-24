@@ -5,7 +5,7 @@ namespace {{namespace}};
 use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
-use {{serviceNamespace}}\User\IUserService;
+use {{serviceNamespace}}\User\UserService;
 use {{requestNamespace}}\AuthRequests\AuthLoginRequest;
 use {{requestNamespace}}\AuthRequests\UpdateUserRequest;
 use {{requestNamespace}}\AuthRequests\AuthRegisterRequest;
@@ -15,13 +15,13 @@ use {{requestNamespace}}\AuthRequests\RequestResetPasswordRequest;
 
 class BaseAuthController extends Controller
 {
-    private IUserService $userService;
+    private UserService $userService;
     private ?string $role = null;
 
    /**
     * @throws Exception
     */
-    public function __construct(IUserService $userService)
+    public function __construct(UserService $userService)
     {
         $this->userService = $userService;
         $this->userService->setGuard("web");

@@ -3,11 +3,10 @@
 namespace {namespace};
 
 use App\Enums\RolesPermissionEnum;
-use {serviceNamespace}\User\IUserService;
 
 class {role}AuthController extends BaseAuthController
 {
-    public function __construct(IUserService $userService)
+    public function __construct(UserService $userService)
     {
         parent::__construct($userService);
 

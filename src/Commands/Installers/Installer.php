@@ -15,11 +15,12 @@ class Installer extends BaseCommand
 {
     protected $description = 'Add Package Files For Api Based Usage';
 
-    protected $signature = 'cubeta:install {name : plugin name [api , web , web-packages , auth , permissions]} {--force}';
+    protected $signature = 'cubeta:install {name : plugin name [api , web , web-packages , auth , permissions]} {version=v1} {--force}';
 
     public function handle(): void
     {
         $plugin = $this->argument('name');
+        $version = $this->argument('version');
         $plugins = ['api', 'web', 'web-packages', 'auth', 'permissions'];
 
         if (!in_array($plugin, $plugins)) {
@@ -55,7 +56,8 @@ class Installer extends BaseCommand
 
         $gen->make(
             generatedFor: $container ?? ContainerType::API,
-            override: $override
+            override: $override,
+            version: $version
         );
 
         $this->handleCommandLogsAndErrors();

@@ -26,14 +26,14 @@ trait RouteBinding
      * @param array $additionalRoutes
      * @return void
      */
-    public function addRoute(CubeTable $table, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = []): void
+    public function addRoute(CubeTable $table, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = [], string $version = 'v1'): void
     {
         $pluralLowerModelName = $table->routeUrlNaming();
 
-        $routePath = $this->getRouteFilePath($container, $actor);
+        $routePath = $this->getRouteFilePath($container, $actor, $version);
 
         if (!$routePath->exist()) {
-            $this->addRouteFile($actor, $container);
+            $this->addRouteFile($actor, $container, $version);
         }
 
         $routeName = $this->getRouteName($table, $container, $actor);
@@ -41,23 +41,23 @@ trait RouteBinding
         $controllerName = $table->getControllerName();
 
         if (ContainerType::isWeb($container)) {
-            $routes = $this->addAdditionalRoutesForAdditionalControllerMethods($table, $routeName, $additionalRoutes);
-            $routes[] = "Route::get('dashboard/{$pluralLowerModelName}/data', [v1\\{$controllerName}::class, 'data'])->name('{$routeName}.data');";
-            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export' , [v1\\{$controllerName}::class , 'export'])->name('$routeName.export');";
-            $routes[] = "Route::get('dashboard/$pluralLowerModelName/get-import-example', [v1\\{$controllerName}::class, 'getImportExample'])->name('$routeName.get.example');";
-            $routes[] = "Route::post('dashboard/$pluralLowerModelName/import', [v1\\{$controllerName}::class, 'import'])->name('$routeName.import');";
-            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export', [v1\\{$controllerName}::class, 'export'])->name('$routeName.export');";
-            $routes[] = "Route::Resource('dashboard/{$pluralLowerModelName}' , v1\\{$controllerName}::class)->names('{$routeName}') ;";
+            $routes = $this->addAdditionalRoutesForAdditionalControllerMethods($table, $routeName, $additionalRoutes, $version);
+            $routes[] = "Route::get('dashboard/{$pluralLowerModelName}/data', [{$version}\\{$controllerName}::class, 'data'])->name('{$routeName}.data');";
+            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export' , [{$version}\\{$controllerName}::class , 'export'])->name('$routeName.export');";
+            $routes[] = "Route::get('dashboard/$pluralLowerModelName/get-import-example', [{$version}\\{$controllerName}::class, 'getImportExample'])->name('$routeName.get.example');";
+            $routes[] = "Route::post('dashboard/$pluralLowerModelName/import', [{$version}\\{$controllerName}::class, 'import'])->name('$routeName.import');";
+            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export', [{$version}\\{$controllerName}::class, 'export'])->name('$routeName.export');";
+            $routes[] = "Route::Resource('dashboard/{$pluralLowerModelName}' , {$version}\\{$controllerName}::class)->names('{$routeName}') ;";
 
             $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . ';';
         } else {
             $sub = ($actor && $actor != 'none') ? "$actor/" : '';
-            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/export', [v1\\{$controllerName}::class, 'export'])->name('$routeName.export');";
-            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/import', [v1\\{$controllerName}::class, 'import'])->name('$routeName.import');";
-            $routes[] = "Route::get('/{$sub}{$pluralLowerModelName}/get-import-example', [v1\\{$controllerName}::class, 'getImportExample'])->name('$routeName.get.example');";
-            $routes[] = "Route::apiResource('/{$sub}{$pluralLowerModelName}' , v1\\{$controllerName}::class)->names('$routeName') ;\n";
+            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/export', [{$version}\\{$controllerName}::class, 'export'])->name('$routeName.export');";
+            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/import', [{$version}\\{$controllerName}::class, 'import'])->name('$routeName.import');";
+            $routes[] = "Route::get('/{$sub}{$pluralLowerModelName}/get-import-example', [{$version}\\{$controllerName}::class, 'getImportExample'])->name('$routeName.get.example');";
+            $routes[] = "Route::apiResource('/{$sub}{$pluralLowerModelName}' , {$version}\\{$controllerName}::class)->names('$routeName') ;\n";
 
-            $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . ';';
+            $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . "\\$version" . ';';
         }
 
         foreach ($routes as $key => $route) {
@@ -91,14 +91,15 @@ trait RouteBinding
     /**
      * @param string $container
      * @param string|null $actor
+     * @param string $version
      * @return CubePath
      */
-    public function getRouteFilePath(string $container, ?string $actor = null): CubePath
+    public function getRouteFilePath(string $container, ?string $actor = null, string $version = 'v1'): CubePath
     {
         if ($actor && $actor != "none") {
-            return CubePath::make("routes/v1/{$container}/{$actor}.php");
+            return CubePath::make("routes/{$version}/{$container}/{$actor}.php");
         }
-        return CubePath::make("routes/v1/{$container}/public.php");
+        return CubePath::make("routes/{$version}/{$container}/public.php");
     }
 
     /**
@@ -106,11 +107,11 @@ trait RouteBinding
      * @param string $container
      * @return void
      */
-    public function addRouteFile(?string $actor = null, string $container = ContainerType::API): void
+    public function addRouteFile(?string $actor = null, string $container = ContainerType::API, string $version = 'v1'): void
     {
         $actor = Str::singular(Str::lower($actor));
 
-        $filePath = $this->getRouteFilePath($container, $actor);
+        $filePath = $this->getRouteFilePath($container, $actor, $version);
 
         $filePath->ensureDirectoryExists();
 
@@ -188,13 +189,13 @@ trait RouteBinding
      * @param array $additionalRoutes
      * @return array
      */
-    public function addAdditionalRoutesForAdditionalControllerMethods(CubeTable $table, string $routeName, array $additionalRoutes = []): array
+    public function addAdditionalRoutesForAdditionalControllerMethods(CubeTable $table, string $routeName, array $additionalRoutes = [], string $version = 'v1'): array
     {
         $pluralLowerModelName = $table->routeUrlNaming();
         $routes = [];
 
         if (in_array('allPaginatedJson', $additionalRoutes)) {
-            $routes[] = "Route::get(\"dashboard/{$pluralLowerModelName}/all-paginated-json\", [v1\\{$table->modelNaming()}" . "Controller::class, \"allPaginatedJson\"])->name(\"{$routeName}.allPaginatedJson\");";
+            $routes[] = "Route::get(\"dashboard/{$pluralLowerModelName}/all-paginated-json\", [{$version}\\{$table->modelNaming()}" . "Controller::class, \"allPaginatedJson\"])->name(\"{$routeName}.allPaginatedJson\");";
         }
 
         return $routes;

@@ -48,6 +48,7 @@ class CallAppropriateCommand extends Controller
         $this->container = $request->containerType;
         $this->nullables = $request->nullables;
         $this->uniques = $request->uniques;
+        $this->version = $request->version ?? 'v1';
     }
 
     private function configureRequestArray($array = null)
@@ -78,7 +79,8 @@ class CallAppropriateCommand extends Controller
                 $role,
                 $permissions,
                 in_array($role, $authenticated),
-                $roleContainer[$role]
+                $roleContainer[$role],
+                $this->version
             ))->run();
         }
 

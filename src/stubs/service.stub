@@ -2,13 +2,11 @@
 
 namespace {namespace};
 
-use {modelNamespace}\{modelName};
 use App\Services\Contracts\BaseService;
 use {repositoryNamespace}\{repositoryName};
 
 /**
- * @implements I{modelName}Service<{modelName}>
- * Class UserService
+ * Class {modelName}Service
  */
 class {modelName}Service extends BaseService
 {

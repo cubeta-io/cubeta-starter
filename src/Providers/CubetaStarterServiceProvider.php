@@ -5,7 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
+use App\Services\Contracts\BaseService;
+use App\Services\Contracts\IBaseService;
 
 class CubetaStarterServiceProvider extends ServiceProvider
 {
@@ -43,7 +44,7 @@ class CubetaStarterServiceProvider extends ServiceProvider
                 $model = str_replace('Repository', '', $repository);
                 $path = str_replace('/', DIRECTORY_SEPARATOR, app_path() . '/Models/' . $model . '.php');
                 if (file_exists($path)) {
-                    $this->app->bind('App\Repositories\\' . $repository, function ($app) use ($repository, $model) {
+                    $this->app->singleton('App\Repositories\\' . $repository, function ($app) use ($repository, $model) {
                         return new ('App\Repositories\\' . $repository)(
                             $app->make('\App\Models\\' . $model)
                         );
@@ -52,35 +53,11 @@ class CubetaStarterServiceProvider extends ServiceProvider
             }
         }
 
-        if (file_exists(app_path() . '/Services')) {
-            $serviceFiles = File::allFiles(app_path() . '/Services');
-            $services = [];
-            foreach ($serviceFiles as $serviceFile) {
-                $serviceFileName = $serviceFile->getBasename();
-
-                if (Str::startsWith($serviceFileName, "I")) {
-                    continue;
-                }
-
-                $service = str_replace('.php', '', $serviceFileName);
-                $iService = 'I' . $service;
-                $modelName = str_replace('Service', '', $service);
-
-                $path = str_replace('/', DIRECTORY_SEPARATOR, app_path() . '/Services/' . $modelName . '/' . $iService . '.php');
-
-                if (in_array($service, $services)) {
-                    continue;
-                }
-
-                if (file_exists($path)) {
-                    $this->app->bind(
-                        'App\Services\\' . $modelName . '\\' . $iService,
-                        'App\Services\\' . $modelName . '\\' . $service
-                    );
-
-                    $services[] = $service;
-                }
-            }
+        if (file_exists(app_path() . '/Services/Contracts')) {
+            $this->app->bind(
+                IBaseService::class,
+                BaseService::class
+            );
         }
     }
 }

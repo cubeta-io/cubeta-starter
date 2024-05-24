@@ -20,7 +20,7 @@ class ApiInstaller extends AbstractGenerator
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-api"]);
         CubeLog::add(Artisan::output());
 
-        $this->addRouteFile('public');
-        $this->addRouteFile('protected');
+        $this->addRouteFile('public', $this->version);
+        $this->addRouteFile('protected', $this->version);
     }
 }

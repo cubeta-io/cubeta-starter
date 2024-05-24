@@ -11,9 +11,8 @@ use Exception;
 
 /**
  * Class UserService
- * @implements IUserService<User>
  */
-class UserService extends BaseService implements IUserService
+class UserService extends BaseService
 {
     private string $guard = 'web';
 
