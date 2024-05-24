@@ -198,7 +198,7 @@ class ActorFilesGenerator extends AbstractGenerator
             __DIR__ . '/../../stubs/Auth/auth-controller.stub'
         );
 
-        $apiRouteFile = CubePath::make("routes/v1/api/{$this->role}.php");
+        $apiRouteFile = CubePath::make("routes/{$this->version}/api/{$this->role}.php");
 
         if (!$apiRouteFile->exist()) {
             CubeLog::add(new CubeWarning("An Api File For ({$this->role}) Doesn't Exist\nRoutes For The Generated Controller Will Not Be Generated", "Generating Auth Controller For ({$this->role})"));
@@ -208,9 +208,9 @@ class ActorFilesGenerator extends AbstractGenerator
         $routes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-api-routes.stub');
 
         $routes = str_replace('{role}', $this->role, $routes);
-        $routes = str_replace("{controllerName}", ucfirst($this->role), $routes);
+        $routes = str_replace("{controllerName}", ucfirst(Str::studly($this->role)), $routes);
         $routes = str_replace("{version}", $this->version, $routes);
-        $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . ";";
+        $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . "\{$this->version};";
 
         $apiRouteFile->putContent($routes, FILE_APPEND);
         FileUtils::addImportStatement($importStatement, $apiRouteFile);
