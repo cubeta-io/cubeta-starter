@@ -251,7 +251,9 @@ class AuthInstaller extends AbstractGenerator
     private function generateWebAuthRoutes(): void
     {
         $protectedRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-protected.stub');
+        $protectedRoutes = str_replace("{version}", $this->version, $protectedRoutes);
         $publicRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-public.stub');
+        $publicRoutes = str_replace("{version}", $this->version, $publicRoutes);
 
         $publicRouteFile = CubePath::make("routes/{$this->version}/web/public.php");
         $protectedRouteFile = CubePath::make("routes/{$this->version}/web/protected.php");
