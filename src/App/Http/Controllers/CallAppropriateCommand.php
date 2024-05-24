@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 use Cubeta\CubetaStarter\Generators\Installers\ApiInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\AuthInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\PermissionsInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\WebInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\WebPackagesInstallers;
 use Cubeta\CubetaStarter\Generators\Sources\ActorFilesGenerator;
@@ -73,6 +74,9 @@ class CallAppropriateCommand extends Controller
 
         $rolesPermissions = $result['rolesPermissions'];
         $roleContainer = $result['roleContainer'];
+
+        //TODO::CHECK HERE
+        (new GeneratorFactory(PermissionsInstaller::$key))->make();
 
         foreach ($rolesPermissions as $role => $permissions) {
             (new ActorFilesGenerator(
