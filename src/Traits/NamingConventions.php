@@ -57,12 +57,12 @@ trait NamingConventions
     /**
      * return the name based on name convention for routes for a given string if provided or to the model name if not provided
      */
-    public function routeUrlNaming(?string $name = null, string $version = "v1"): string
+    public function routeUrlNaming(?string $name = null, string $version = "v1", bool $withVersion = false): string
     {
         $url = $name
             ? $this->lowerPluralKebabNaming($name)
             : $this->lowerPluralKebabNaming($this->usedString);
-        return "$version/$url";
+        return $withVersion ? "$version/$url" : $url;
     }
 
     /**

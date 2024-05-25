@@ -59,5 +59,22 @@ class CubetaStarterServiceProvider extends ServiceProvider
                 BaseService::class
             );
         }
+
+        if (file_exists(app_path() . '/Services')) {
+            $services = File::allFiles(app_path() . '/Services');
+            foreach ($services as $serviceFile) {
+                $serviceFileName = $serviceFile->getBasename();
+                $service = str_replace('.php', '', $serviceFileName);
+                $model = str_replace('Service', '', $service);
+                $path = str_replace('/', DIRECTORY_SEPARATOR, app_path() . '/Models/' . $model . '.php');
+                if (file_exists($path)) {
+                    $this->app->singleton("App\Services\\$model\\" . $service, function ($app) use ($service, $model) {
+                        return new ("App\Services\\$model\\" . $service)(
+                            $app->make('App\Repositories\\' . $model . "Repository")
+                        );
+                    });
+                }
+            }
+        }
     }
 }

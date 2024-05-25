@@ -28,7 +28,8 @@ trait RouteBinding
      */
     public function addRoute(CubeTable $table, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = [], string $version = 'v1'): void
     {
-        $pluralLowerModelName = $table->routeUrlNaming();
+        $isWeb = ContainerType::isWeb($container);
+        $pluralLowerModelName = $table->routeUrlNaming(withVersion: !$isWeb);
 
         $routePath = $this->getRouteFilePath($container, $actor, $version);
 
@@ -40,7 +41,7 @@ trait RouteBinding
 
         $controllerName = $table->getControllerName();
 
-        if (ContainerType::isWeb($container)) {
+        if ($isWeb) {
             $routes = $this->addAdditionalRoutesForAdditionalControllerMethods($table, $routeName, $additionalRoutes, $version);
             $routes[] = "Route::get('dashboard/{$pluralLowerModelName}/data', [{$version}\\{$controllerName}::class, 'data'])->name('{$routeName}.data');";
             $routes[] = "Route::post('dashboard/$pluralLowerModelName/export' , [{$version}\\{$controllerName}::class , 'export'])->name('$routeName.export');";
@@ -191,7 +192,7 @@ trait RouteBinding
      */
     public function addAdditionalRoutesForAdditionalControllerMethods(CubeTable $table, string $routeName, array $additionalRoutes = [], string $version = 'v1'): array
     {
-        $pluralLowerModelName = $table->routeUrlNaming();
+        $pluralLowerModelName = $table->routeUrlNaming(withVersion: false);
         $routes = [];
 
         if (in_array('allPaginatedJson', $additionalRoutes)) {

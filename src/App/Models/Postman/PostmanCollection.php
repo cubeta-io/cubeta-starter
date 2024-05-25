@@ -65,8 +65,8 @@ class PostmanCollection implements PostmanObject
         }
 
         if ($actor) {
-            $baseUrl = "$version/$actor/{$table->routeUrlNaming()}";
-        } else $baseUrl = $table->routeUrlNaming();
+            $baseUrl = "$version/$actor/{$table->routeUrlNaming(withVersion: true)}";
+        } else $baseUrl = $table->routeUrlNaming(withVersion: true);
 
         $index = new PostmanRequest(
             name: "index",
