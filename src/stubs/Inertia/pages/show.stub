@@ -1,0 +1,29 @@
+import Button from "@/Components/ui/Button";
+import PageCard from "@/Components/ui/PageCard";
+import { {{modelName}} } from "@/Models/{{modelName}}";
+import { Link } from "@inertiajs/react";
+{{imports}}
+
+const Show = ({ {{variableName}} }: { {{variableName}}: {{modelName}} }) => {
+    return (
+        <PageCard
+            title="{{modelName}} Details"
+            actions={
+                <div className="flex justify-between items-center">
+                    <Link href={route("{{editRoute}}" , {{variableName}}.id)}>
+                        <Button>Edit</Button>
+                    </Link>
+                </div>
+            }
+        >
+            <div className="gap-5 grid grid-cols-1 md:grid-cols-2">
+                {{smallFields}}
+            </div>
+
+            {{bigFields}}
+
+        </PageCard>
+    );
+};
+
+export default Show;

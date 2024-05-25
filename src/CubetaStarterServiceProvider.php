@@ -37,6 +37,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         // publishes
         $this->publishWeb();
         $this->publishApi();
+        $this->publishInertiaReactTs();
         $this->publishAuthViews();
     }
 
@@ -77,16 +78,16 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
             __DIR__ . '/../pint.json' => base_path('pint.json'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
-            __DIR__ . '/../resources/views' => resource_path('views'),
-            __DIR__ . '/../resources/js' => resource_path('js'),
-            __DIR__ . '/../resources/css' => resource_path('css'),
+            __DIR__ . '/../resources/blade/views' => resource_path('views'),
+            __DIR__ . '/../resources/blade/js' => resource_path('js'),
+            __DIR__ . '/../resources/blade/css' => resource_path('css'),
             __DIR__ . '/../public' => public_path(),
             __DIR__ . '/Traits/DataTablesTrait.php' => app_path("Traits/DataTablesTrait.php"),
             __DIR__ . '/../src/Providers' => app_path('/Providers'),
             __DIR__ . "/../src/Middleware/AcceptedLanguagesMiddleware.php" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
             __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
-            __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
             __DIR__ . "/../src/Casts/Translatable.php" => app_path('Casts/Translatable.php'),
+            __DIR__ . "/../src/App/Serializers/Translatable.php" => app_path("Serializers/Translatable.php"),
             __DIR__ . '/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
             __DIR__ . '/app/Exceptions/handler.php' => base_path('/app/Exceptions/Handler.php'),
             __DIR__ . "/../src/Contracts/Repositories/BaseRepository.php" => app_path("Repositories/Contracts/BaseRepository.php"),
@@ -101,12 +102,12 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     public function publishAuthViews(): void
     {
         $this->publishes([
-            __DIR__ . '/../resources/views/login.blade.php' => resource_path('views/login.blade.php'),
-            __DIR__ . '/../resources/views/register.blade.php' => resource_path('views/register.blade.php'),
-            __DIR__ . '/../resources/views/user-details.blade.php' => resource_path('views/user-details.blade.php'),
-            __DIR__ . '/../resources/views/reset-password-request.blade.php' => resource_path('views/reset-password-request.blade.php'),
-            __DIR__ . '/../resources/views/check-reset-code.blade.php' => resource_path('views/check-reset-code.blade.php'),
-            __DIR__ . '/../resources/views/reset-password.blade.php' => resource_path('views/reset-password.blade.php'),
+            __DIR__ . '/../resources/views/blade/login.blade.php' => resource_path('views/login.blade.php'),
+            __DIR__ . '/../resources/views/blade/register.blade.php' => resource_path('views/register.blade.php'),
+            __DIR__ . '/../resources/views/blade/user-details.blade.php' => resource_path('views/user-details.blade.php'),
+            __DIR__ . '/../resources/views/blade/reset-password-request.blade.php' => resource_path('views/reset-password-request.blade.php'),
+            __DIR__ . '/../resources/views/blade/check-reset-code.blade.php' => resource_path('views/check-reset-code.blade.php'),
+            __DIR__ . '/../resources/views/blade/reset-password.blade.php' => resource_path('views/reset-password.blade.php'),
         ], 'cubeta-auth-views');
     }
 
@@ -122,8 +123,8 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../src/Providers' => app_path('/Providers'),
             __DIR__ . "/../src/Middleware/AcceptedLanguagesMiddleware.php" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
             __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
-            __DIR__ . '/../src/Traits/Translations.php' => app_path('Traits/Translations.php'),
             __DIR__ . "/../src/Casts/Translatable.php" => app_path('Casts/Translatable.php'),
+            __DIR__ . "/../src/App/Serializers/Translatable.php" => app_path("Serializers/Translatable.php"),
             __DIR__ . '/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
             __DIR__ . '/../src/Contracts/Tests/MainTestCase.php' => base_path("/tests/Contracts/MainTestCase.php"),
             __DIR__ . '/../src/Traits/TestHelpers.php' => app_path('/Traits/TestHelpers.php'),
@@ -134,7 +135,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/Excel/BaseExporter.php" => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.php' => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/Traits/FileHandler.php' => app_path("Traits/FileHandler.php"),
-            __DIR__ . '/../src/app/Http/Resources/BaseResource.php' => app_path('Http/Resources/BaseResource.php')
+            __DIR__ . '/../src/app/Http/Resources/BaseResource.php' => app_path('Http/Resources/BaseResource.php'),
         ], 'cubeta-starter-api');
     }
 
@@ -185,5 +186,33 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeWebController::class)
             ->hasCommand(Installer::class)
             ->hasCommand(MakeExample::class);
+    }
+
+    public function publishInertiaReactTs(): void
+    {
+        $this->publishes([
+            __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
+            __DIR__ . '/../pint.json' => base_path('pint.json'),
+            __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
+            __DIR__ . '/stubs/Inertia/configurations/postcss.config.stub' => base_path('/postcss.config.js'),
+            __DIR__ . '/stubs/Inertia/configurations/tailwind.config.stub' => base_path('/tailwind.config.js'),
+            __DIR__ . '/stubs/Inertia/configurations/tsconfig.stub' => base_path('/tsconfig.json'),
+            __DIR__ . '/stubs/Inertia/configurations/vite.config.stub' => base_path('/vite.config.js'),
+            __DIR__ . '/../resources/js/inertia' => resource_path('/js'),
+            __DIR__ . '/../resources/css/inertia' => resource_path('/css'),
+            __DIR__ . '/../public/images' => public_path('/images'),
+            __DIR__ . '/../src/Providers' => app_path('/Providers'),
+            __DIR__ . "/../src/Middleware/AcceptedLanguagesMiddleware.php" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
+            __DIR__ . "/../src/Rules/LanguageShape.php" => app_path("Rules/LanguageShape.php"),
+            __DIR__ . "/../src/Casts/Translatable.php" => app_path('Casts/Translatable.php'),
+            __DIR__ . "/../src/App/Serializers/Translatable.php" => app_path("Serializers/Translatable.php"),
+            __DIR__ . '/app/Exceptions/handler.php' => base_path('/app/Exceptions/Handler.php'),
+            __DIR__ . "/../src/Contracts/Repositories/BaseRepository.php" => app_path("Repositories/Contracts/BaseRepository.php"),
+            __DIR__ . "/../src/Contracts/Repositories/IBaseRepository.php" => app_path("Repositories/Contracts/IBaseRepository.php"),
+            __DIR__ . "/../src/Contracts/Services/BaseService.php" => app_path("Services/Contracts/BaseService.php"),
+            __DIR__ . "/../src/Contracts/Excel/BaseExporter.php" => app_path("Excel/BaseExporter.php"),
+            __DIR__ . '/../src/Contracts/Excel/BaseImporter.php' => app_path("Excel/BaseImporter.php"),
+            __DIR__ . '/../src/Traits/FileHandler.php' => app_path("Traits/FileHandler.php"),
+        ], 'react-ts');
     }
 }

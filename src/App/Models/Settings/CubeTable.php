@@ -40,11 +40,11 @@ class CubeTable
     public string $version;
 
     /**
-     * @param string $modelName
-     * @param string $tableName
+     * @param string          $modelName
+     * @param string          $tableName
      * @param CubeAttribute[] $attributes
-     * @param CubeRelation[] $relations
-     * @param string $version
+     * @param CubeRelation[]  $relations
+     *  @param string         $version
      */
     public function __construct(string $modelName, string $tableName, array $attributes, array $relations, string $version)
     {
@@ -67,6 +67,7 @@ class CubeTable
      */
     public static function create(string $modelName, array $attributes = [], array $relations = [], array $uniques = [], array $nullables = [], string $version = "v1"): CubeTable
     {
+        $tableName = Naming::table($modelName);
         return new self(
             Naming::model($modelName),
             Naming::table($modelName),
@@ -152,7 +153,7 @@ class CubeTable
     }
 
     /**
-     * @param string $name
+     * @param string      $name
      * @param string|null $type
      * @return bool
      */
@@ -170,7 +171,7 @@ class CubeTable
     }
 
     /**
-     * @param string $modelName
+     * @param string      $modelName
      * @param string|null $type
      * @return bool
      */
@@ -209,7 +210,7 @@ class CubeTable
             }
         }
 
-        return $this->getAttribute("id") ?? new CubeAttribute("id", "integer");
+        return $this->getAttribute("id") ?? new CubeAttribute("id", "integer", false, false, $this->tableName);
     }
 
     /**

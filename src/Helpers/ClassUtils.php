@@ -12,7 +12,7 @@ use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 
 class ClassUtils
 {
-    public static function addMethodToClass(string $methodName, CubePath $classPath, string $methodDeclaration): void
+    public static function addMethodToClass(CubePath $classPath, string $methodName, string $methodDeclaration): void
     {
         if (!$classPath->exist()) {
             CubeLog::add(new NotFound($classPath->fullPath, "Trying To Add The Method : ($methodName) To $classPath->fileName"));
@@ -165,7 +165,7 @@ class ClassUtils
         }
     }
 
-    public static function addNewRelationsToWithMethod(CubeTable $table, CubePath $filePath, array $additionalRelations): bool
+    public static function addNewRelationsToWithMethod(CubePath $filePath, CubeTable $table, array $additionalRelations): bool
     {
         if (!$filePath->exist()) {
             CubeLog::add(new NotFound($filePath->fullPath, "Trying To Add [ " . implode(" , ", $additionalRelations) . " ] To The With Method"));

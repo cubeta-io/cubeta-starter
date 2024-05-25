@@ -5,10 +5,12 @@ namespace Cubeta\CubetaStarter\Generators\Installers;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 
-class WebPackagesInstallers extends AbstractGenerator
+class BladePackagesInstaller extends AbstractGenerator
 {
-    public static string $key = "install-web-packages";
+    public static string $key = "install-blade-packages";
 
     public string $type = 'installer';
 
@@ -58,7 +60,7 @@ class WebPackagesInstallers extends AbstractGenerator
 
             $pkgJson->putContent(json_encode($jsonContent, JSON_PRETTY_PRINT));
         } else {
-
+            CubeLog::add(new NotFound("package.json", "Installing Web Packages"));
             $this->generateFileFromStub([], $pkgJson->fullPath);
         }
 

@@ -3,13 +3,17 @@
 namespace Cubeta\CubetaStarter\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 use Cubeta\CubetaStarter\Generators\Installers\ApiInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\AuthInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\BladePackagesInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\ReactTSInertiaInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\ReactTsPackagesInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\PermissionsInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\WebInstaller;
-use Cubeta\CubetaStarter\Generators\Installers\WebPackagesInstallers;
 use Cubeta\CubetaStarter\Generators\Sources\ActorFilesGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ApiControllerGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\FactoryGenerator;
@@ -21,7 +25,7 @@ use Cubeta\CubetaStarter\Generators\Sources\ResourceGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\SeederGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ServiceGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\TestGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\WebControllerGenerator;
+use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Exception;
@@ -50,6 +54,7 @@ class CallAppropriateCommand extends Controller
         $this->nullables = $request->nullables;
         $this->uniques = $request->uniques;
         $this->version = $request->version ?? 'v1';
+        ini_set('max_execution_time', 0);
     }
 
     private function configureRequestArray($array = null)
@@ -126,6 +131,14 @@ class CallAppropriateCommand extends Controller
         }
 
         return redirect()->route($redirectRouteName, ['success' => $successMessage]);
+    }
+
+    public function fullGeneration()
+    {
+        return $this->runFactory([
+            "key" => "all",
+            "route" => 'cubeta-starter.generate-full.page',
+        ], "A Full CRUD Operation Has Been Created");
     }
 
     public function generateApiController()
@@ -311,7 +324,7 @@ class CallAppropriateCommand extends Controller
     public function generateWebController()
     {
         $factoryData = [
-            'key' => WebControllerGenerator::$key,
+            'key' => BladeControllerGenerator::$key,
             'route' => 'cubeta-starter.generate-web-controller.page',
         ];
 
@@ -320,7 +333,7 @@ class CallAppropriateCommand extends Controller
 
     public function installWebPackages()
     {
-        (new GeneratorFactory(WebPackagesInstallers::$key))->make();
+        (new GeneratorFactory(BladePackagesInstaller::$key))->make();
         return $this->handleLogs("cubeta-starter.complete-installation", "Web Packages Installed Successfully");
     }
 
@@ -342,19 +355,27 @@ class CallAppropriateCommand extends Controller
         return $this->handleLogs('cubeta-starter.complete-installation', "Web Based Usage Tools Generated Successfully");
     }
 
-    public function installAll()
+    public function installReactTs()
     {
-        (new GeneratorFactory(ApiInstaller::$key))->make();
-        (new GeneratorFactory(WebInstaller::$key))->make();
-
-        return $this->handleLogs("cubeta-starter.complete-installation", "Web And Api Based Usage Tools Has Been Generated");
+        (new GeneratorFactory(ReactTSInertiaInstaller::$key))->make();
+        return $this->handleLogs("cubeta-starter.complete-installation", "React Frontend Stack Tools Has Been Installed");
     }
 
-    public function fullGeneration()
+    public function installReactTsPackages()
     {
-        return $this->runFactory([
-            "key" => "all",
-            "route" => 'cubeta-starter.generate-full.page',
-        ], "A Full CRUD Operation Has Been Created");
+        (new GeneratorFactory(ReactTsPackagesInstaller::$key))->make();
+        return $this->handleLogs("cubeta-starter.complete-installation", "React , Typescript Packages Has Been Installed");
+    }
+
+    public function choseFrontendStack(Request $request)
+    {
+        $stack = FrontendTypeEnum::tryFrom($request->input('stack'));
+
+        if (!$stack) {
+            return redirect()->back();
+        }
+
+        Settings::make()->setFrontendType($stack);
+        return redirect()->back();
     }
 }

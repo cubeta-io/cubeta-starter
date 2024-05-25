@@ -7,7 +7,6 @@ use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 
 class CubePath
 {
-    private static ?CubePath $instance = null;
     public string $inProjectPath;
     public ?string $fullPath = null;
     public ?string $fullDirectory = null;

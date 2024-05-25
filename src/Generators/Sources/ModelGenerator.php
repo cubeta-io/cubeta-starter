@@ -30,8 +30,6 @@ class ModelGenerator extends AbstractGenerator
 
         $modelAttributes = $this->generateModelClassAttributes();
 
-        $traits = $this->generateUsedTraits();
-
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.model_namespace'),
             '{modelName}' => $this->table->modelName,
@@ -43,7 +41,6 @@ class ModelGenerator extends AbstractGenerator
             '{scopes}' => $modelAttributes['booleanValueScopes'],
             '{searchableKeys}' => $modelAttributes['searchable'],
             '{searchableRelations}' => $modelAttributes['relationSearchable'],
-            'use HasFactory;' => $traits,
             '{casts}' => $modelAttributes['casts'],
             '{exportables}' => $modelAttributes['exportables']
         ];
@@ -89,6 +86,7 @@ class ModelGenerator extends AbstractGenerator
                 $booleanValueScope .= "\tpublic function scope" . ucfirst(Str::studly($attribute->name)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute->name . "' , 1);\n\t}\n";
                 $casts .= "'{$attribute->name}' => 'boolean' , \n";
             } elseif ($attribute->isTranslatable()) {
+                $searchable .= "'{$attribute->name}' , \n";
                 $casts .= "'{$attribute->name}' => \\App\\Casts\\Translatable::class, \n";
             } elseif ($attribute->isKey()) {
                 $relatedModelName = $attribute->modelNaming(str_replace('_id', '', $attribute->name));
@@ -117,8 +115,7 @@ class ModelGenerator extends AbstractGenerator
                 FileUtils::ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->table->modelName) . '/' . Str::plural($colName)));
 
             } elseif (ColumnTypeEnum::isDateTimeType($attribute->type)) {
-                $properties .= "* @property \Carbon {$attribute->name} \n";
-                $casts .= "'{$attribute->name}' => 'datetime', \n";
+                $properties .= "* @property string {$attribute->name} \n";
             } elseif (ColumnTypeEnum::isNumericType($attribute->type)) {
                 $properties .= "* @property numeric {$attribute->name} \n";
             } else {
@@ -179,14 +176,6 @@ class ModelGenerator extends AbstractGenerator
             'relationsCode' => $relationsFunctions,
             'exportables' => $exportables
         ];
-    }
-
-    private function generateUsedTraits(): string
-    {
-        //TODO::when merging with dev there will be a config option for traits so make the use traits use the config option for traits namespace
-        return $this->table->translatables()->count()
-            ? "use HasFactory; \n use \App\Traits\Translations;\n"
-            : "use HasFactory;";
     }
 
     protected function stubsPath(): string

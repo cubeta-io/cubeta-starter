@@ -1,0 +1,35 @@
+import { useForm } from "@inertiajs/react";
+import { FormEvent } from "react";
+import PageCard from "@/Components/ui/PageCard";
+import Form from "@/Components/form/Form";
+{{imports}}
+
+const {{componentName}} = ({{componentProps}}) => {
+    const { post, setData, errors, processing } = useForm<{
+        {{formFieldsInterface}}
+    }>({{defaultValues}});
+
+    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        {{setPut}}
+        {{action}};
+    };
+
+    return (
+        <PageCard title="{{formType}} {{modelName}}">
+            {{translatableContext}}
+                <Form onSubmit={onSubmit} processing={processing}>
+                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-5`} >
+                        {{smallFields}}
+                    </div>
+
+                    <div className="my-2">
+                        {{bigFields}}
+                    </div>
+                </Form>
+            {{closeTranslatableContext}}
+        </PageCard>
+    );
+};
+
+export default {{componentName}};

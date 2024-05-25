@@ -3,13 +3,16 @@
 namespace Cubeta\CubetaStarter\App\Models\Settings;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
 
 class Settings
 {
     private static $instance;
+    private static array $json;
     private static array $tables;
+    private static ?FrontendTypeEnum $frontendStack;
     private static string $version;
 
     private function __construct()
@@ -19,10 +22,15 @@ class Settings
 
     public static function make(): Settings
     {
-        self::$tables = self::getJsonSettings();
-        if (isset(self::$tables["tables"])) {
-            self::$tables = self::$tables["tables"];
-            self::$version = self::$tables["version"];
+        self::$json = self::getJsonSettings();
+
+        if (isset(self::$json['frontend_type'])) {
+            self::$frontendStack = FrontendTypeEnum::tryFrom(self::$json['frontend_type']);
+        }
+
+        if (isset(self::$json["tables"])) {
+            self::$tables = self::$json["tables"];
+            self::$version = self::$tables["version"] ?? "v1";
         } else {
             self::$tables = [];
             self::$version = 'v1';
@@ -68,13 +76,14 @@ class Settings
     public function getTable(string $modelName): ?CubeTable
     {
         $modelName = Naming::model($modelName);
+        $tableName = Naming::table($modelName);
 
         foreach (self::$tables as $table) {
-            if ($table["model_name"] == $modelName || $table['model_name'] == Naming::table($modelName)) {
+            if ($table["model_name"] == $modelName || $table['model_name'] == $tableName) {
                 $attributes = [];
 
                 foreach ($table['attributes'] as $attribute) {
-                    $attributes[] = new CubeAttribute($attribute['name'], $attribute['type'], $attribute['nullable'], $attribute['unique']);
+                    $attributes[] = new CubeAttribute($attribute['name'], $attribute['type'], $attribute['nullable'], $attribute['unique'], $tableName);
                 }
 
                 $relations = [];
@@ -111,7 +120,7 @@ class Settings
                 $relationships[] = new CubeRelation(RelationsTypeEnum::BelongsTo->value, $parent, $modelName, self::$version);
             }
 
-            $columns[] = new CubeAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques));
+            $columns[] = new CubeAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques), Naming::table($modelName));
         }
 
         foreach ($relations as $relation => $type) {
@@ -148,13 +157,10 @@ class Settings
         $new = $table->collect()->merge(collect($exist))->unique();
 
         self::$tables[] = $new->toArray();
-        self::storeJsonSettings([self::$version => ["tables" => array_values(self::$tables)]]);
+        $json = self::getJsonSettings();
+        $json[self::$version] = ["tables" => array_values(self::$tables)];
+        self::storeJsonSettings($json);
         return $this;
-    }
-
-    public function toArray(): array
-    {
-        return self::$tables;
     }
 
     /**
@@ -168,5 +174,23 @@ class Settings
             base_path('/cubeta-starter.config.json'),
             json_encode($data, JSON_PRETTY_PRINT)
         );
+    }
+
+    /**
+     * @param FrontendTypeEnum $type
+     * @return void
+     */
+    public function setFrontendType(FrontendTypeEnum $type): void
+    {
+        self::$json["frontend_type"] = $type->value;
+        self::storeJsonSettings(self::$json);
+    }
+
+    /**
+     * @return FrontendTypeEnum|null
+     */
+    public function getFrontendType(): ?FrontendTypeEnum
+    {
+        return self::$frontendStack;
     }
 }

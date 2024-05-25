@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Commands;
 
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -25,6 +26,7 @@ class MakeExample extends Command
                             'title' => 'translatable',
                             'description' => 'text',
                             "image" => "file",
+                            'is_active' => ColumnTypeEnum::BOOLEAN->value
                         ],
                         'relations' => [
                             'products' => RelationsTypeEnum::HasMany->value,
@@ -32,7 +34,8 @@ class MakeExample extends Command
                         "container" => "both",
                         'actor' => 'none',
                         'nullables' => [
-                            "description"
+                            "description",
+                            "image"
                         ],
                     ]);
 
@@ -44,15 +47,23 @@ class MakeExample extends Command
                         'name' => "Product",
                         "attributes" => [
                             "name" => "translatable",
-                            'title' => 'translatable',
                             "category_id" => "key",
                             "image" => "file",
+                            'slug' => 'string',
+                            'price' => ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
+                            'expire_at' => ColumnTypeEnum::DATETIME->value,
+                            'manufacture_date' => ColumnTypeEnum::DATE->value,
+                            'description' => ColumnTypeEnum::TRANSLATABLE->value,
+                            'is_active' => ColumnTypeEnum::BOOLEAN->value
                         ],
                         "relations" => [
                             "brands" => RelationsTypeEnum::ManyToMany->value
                         ],
                         "container" => "both",
                         'actor' => 'none',
+                        'nullables' => [
+                            "image"
+                        ]
                     ]);
                     $output = Artisan::output();
 
@@ -70,6 +81,9 @@ class MakeExample extends Command
                         ],
                         "container" => "both",
                         'actor' => 'none',
+                        'nullables' => [
+                            "image"
+                        ]
                     ]);
                     $output = Artisan::output();
 
