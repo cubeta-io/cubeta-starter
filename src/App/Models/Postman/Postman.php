@@ -14,6 +14,7 @@ class Postman
 {
     public static ?CubePath $path;
     public static ?string $name;
+    public static string $version = "v1";
     public static ?string $content = null;
     private static $instance;
 

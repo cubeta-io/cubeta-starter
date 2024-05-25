@@ -58,15 +58,14 @@ class PostmanCollection implements PostmanObject
         ];
     }
 
-    //TODO:: add version here
-    public function newCrud(CubeTable $table, string $version, ?string $actor = null): static
+    public function newCrud(CubeTable $table, string $version = "v1", ?string $actor = null): static
     {
         if ($this->checkIfCollectionExist($table->modelName)) {
             return $this;
         }
 
         if ($actor) {
-            $baseUrl = "$actor/{$table->routeUrlNaming()}";
+            $baseUrl = "$version/$actor/{$table->routeUrlNaming()}";
         } else $baseUrl = $table->routeUrlNaming();
 
         $index = new PostmanRequest(
