@@ -148,7 +148,7 @@ class Settings
         $new = $table->collect()->merge(collect($exist))->unique();
 
         self::$tables[] = $new->toArray();
-        self::storeJsonSettings([self::$version => ["tables" => array_values(self::$tables)]]);
+        self::storeJsonSettings(["tables" => array_values(self::$tables)]);
         return $this;
     }
 
