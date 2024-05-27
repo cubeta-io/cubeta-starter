@@ -46,8 +46,7 @@ class RequestGenerator extends AbstractGenerator
     {
         $rules = '';
 
-        $translatableAttributeCount = $this->table->translatables()->count();
-        $prepareForValidation = $translatableAttributeCount > 0 ? "protected function prepareForValidation()\n{\nif (request()->acceptsHtml()){\$this->merge([\n" : '';
+        $prepareForValidation = "protected function prepareForValidation()\n{\nif (request()->acceptsHtml()){\$this->merge([\n";
 
         foreach ($this->table->attributes as $attribute) {
 
@@ -89,7 +88,7 @@ class RequestGenerator extends AbstractGenerator
             };
         }
 
-        $prepareForValidation .= $translatableAttributeCount > 0 ? "]);\n}\n}" : '';
+        $prepareForValidation .= "]);\n}\n}";
 
         return [
             'rules' => $rules,

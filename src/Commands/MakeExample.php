@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Commands;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -59,7 +60,7 @@ class MakeExample extends Command
                         "relations" => [
                             "brands" => RelationsTypeEnum::ManyToMany->value
                         ],
-                        "container" => "both",
+                        "container" => ContainerType::BOTH,
                         'actor' => 'none',
                         'nullables' => [
                             "image"

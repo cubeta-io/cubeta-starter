@@ -25,6 +25,8 @@ class Settings
 
         if (isset(self::$json['frontend_type'])) {
             self::$frontendStack = FrontendTypeEnum::tryFrom(self::$json['frontend_type']);
+        } else {
+            self::$frontendStack = FrontendTypeEnum::NONE;
         }
 
         if (isset(self::$json["tables"])) {

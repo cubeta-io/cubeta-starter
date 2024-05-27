@@ -1,6 +1,6 @@
 @props(['formTitle', 'action', 'method' => 'POST', 'validationErrorsFromHere' => false])
 
-@extends('blade.layout')
+@extends('layout')
 @section('content')
     <main id="main" class="main">
         <div class="card">

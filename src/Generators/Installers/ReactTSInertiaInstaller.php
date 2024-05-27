@@ -21,6 +21,8 @@ class ReactTSInertiaInstaller extends AbstractGenerator
 
     private function installInertia(bool $override = false): void
     {
+        Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
+
         Artisan::call('vendor:publish', [
             '--tag' => 'react-ts',
             '--force' => $override,
@@ -44,7 +46,6 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             otherStubsPath: __DIR__ . '/../../stubs/Inertia/HandleInertiaRequestsMiddleware.stub'
         );
 
-        Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::REACT_TS->value));
     }
 }
