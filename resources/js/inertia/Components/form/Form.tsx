@@ -5,12 +5,12 @@ const Form = ({
                   onSubmit,
                   processing,
                   children,
-                  buttonText = "submit",
+                  buttonText = "Submit",
               }: {
     onSubmit: (e: FormEvent<HTMLFormElement>) => void;
-    buttonText?: string;
     processing?: boolean;
     children?: ReactNode;
+    buttonText?: string;
 }) => {
     return (
         <form onSubmit={onSubmit}>

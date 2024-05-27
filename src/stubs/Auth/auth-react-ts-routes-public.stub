@@ -1,0 +1,10 @@
+/** Auth Routes */
+Route::inertia("/dashboard/login", 'auth/Login')->name("web.public.login.page");Route::post('dashboard/login', [v1\BaseAuthController::class, 'login'])->name('web.public.login-page');
+Route::post('dashboard/login', [v1\BaseAuthController::class, 'login'])->name('web.public.login');
+Route::inertia('dashboard/request-reset-password-code-page', 'auth/ForgetPassword')->name('web.public.request-reset-password-code-page');
+Route::post('dashboard/request-reset-password-code', [v1\BaseAuthController::class, 'requestResetPasswordCode'])->name('web.public.request-reset-password-code');
+Route::post('dashboard/validate-reset-password-code', [v1\BaseAuthController::class, 'validateResetPasswordCode'])->name('web.public.validate-reset-password-code');
+Route::inertia('dashboard/reset-page', 'auth/ResetPassword')->name('web.public.reset-password-page');
+Route::post('dashboard/change-password', [v1\BaseAuthController::class, 'changePassword'])->name('web.public.change-password');
+Route::inertia('dashboard/register', 'auth/Register')->name('web.public.register-page');
+Route::post('dashboard/register', [v1\BaseAuthController::class, 'register'])->name('web.public.register');

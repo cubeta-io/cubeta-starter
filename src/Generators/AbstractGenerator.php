@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
@@ -20,6 +21,7 @@ abstract class AbstractGenerator
     public static string $key = '';
     public static string $configPath = '';
     public string $type = '';
+    public FrontendTypeEnum $frontType;
 
     public array $logs = [];
     protected array $attributes;
@@ -40,6 +42,7 @@ abstract class AbstractGenerator
         $this->uniques = $uniques;
         $this->actor = $actor;
         $this->generatedFor = $generatedFor === '' ? ContainerType::BOTH : $generatedFor;
+        $this->frontType = Settings::make()->getFrontendType();
 
         $this->mergeRelations();
 
@@ -65,9 +68,9 @@ abstract class AbstractGenerator
     }
 
     /**
-     * @param array $stubProperties
-     * @param string $path
-     * @param bool $override
+     * @param array       $stubProperties
+     * @param string      $path
+     * @param bool        $override
      * @param string|null $otherStubsPath
      * @return void
      */
