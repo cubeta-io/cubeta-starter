@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\BladeViewsGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
@@ -286,7 +287,7 @@ class CodeSniffer
      * @param CubePath $relatedFormView
      * @return void
      */
-    function addSelect2ToForm(string $keyName, string $select2RouteName, string $tagAttributes, CubePath $relatedFormView): void
+    public function addSelect2ToForm(string $keyName, string $select2RouteName, string $tagAttributes, CubePath $relatedFormView): void
     {
         $inputField = "<x-select2 label=\"{$this->table->modelName}\" name=\"{$keyName}\" api=\"{{route('{$select2RouteName}')}}\" option-value=\"id\" option-inner-text=\"{$this->table->titleable()->name}\" $tagAttributes/> \n";
 
@@ -297,5 +298,56 @@ class CodeSniffer
         $relatedFormView->putContent($createView);
 
         CubeLog::add(new ContentAppended($inputField, $relatedFormView->fullPath));
+    }
+
+    public function checkForTsInterfaces(): static
+    {
+        dump("Inside the Sniffer");
+        dump($this->table->relations(), $this->table->relations);
+        if (!$this->table) {
+            dump("Table Doesn't exists");
+            return $this;
+        }
+
+        $this->table->relations()->each(function (CubeRelation $relation) {
+            $relatedInterfacePath = $relation->getTSModelPath();
+            dump("$relation->modelName model Path : {$relatedInterfacePath->fullPath}");
+            dump("Does Exists : " . ($relatedInterfacePath->exist() ? "yes" : "no"));
+
+            if (!$relatedInterfacePath->exist()) {
+                dump("Relation Does not Exist {$relation->modelNaming()}");
+                return true;
+            }
+
+            $propertyType = null;
+            $propertyName = null;
+            if ($relation->isBelongsTo() || $relation->isManyToMany()) {
+                $propertyType = $this->table->modelNaming() . "[]";
+                $propertyName = Str::plural($this->table->variableNaming());
+            } else { // this means it is a has many relation
+                $propertyType = $this->table->modelNaming();
+                $propertyName = $this->table->variableNaming();
+            }
+
+            dump("property name : " . $propertyName);
+            dump("property type : " . $propertyType);
+
+            if ($propertyType) {
+                FileUtils::tsAddPropertyToInterface(
+                    $relatedInterfacePath,
+                    $relation->modelNaming(),
+                    $propertyName,
+                    $propertyType . "[]"
+                );
+                FileUtils::tsAddImportStatement(
+                    "import { Category } from \"./Category\";",
+                    $relatedInterfacePath
+                );
+            }
+
+            return true;
+        });
+
+        return $this;
     }
 }

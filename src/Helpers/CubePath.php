@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Helpers;
 
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
+use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 
 class CubePath
 {
@@ -56,6 +57,7 @@ class CubePath
         if ($this->getFileExtension() == "php") {
             FileUtils::formatPhpFile($this->fullPath);
         } else {
+            CubeLog::add(new SuccessMessage("Formatting JS File ..."));
             FileUtils::formatJsFile($this->fullPath);
         }
     }

@@ -4,7 +4,9 @@ namespace Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
+use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSController;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
@@ -31,6 +33,13 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $routes = $this->getRoutesNames($this->table, $this->actor);
 
         $this->generateTypeScriptInterface($override);
+
+        dump("Start Running Sniffer");
+        CodeSniffer::make()
+            ->setModel($this->table)
+            ->checkForTsInterfaces();
+        dump("end of sniffer running");
+
         $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
         $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
         $this->generateShowPage($override);
@@ -99,6 +108,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $override,
             self::FORM_STUB
         );
+
+        $formPath->format();
     }
 
     private function getFormProperties(): array
@@ -175,7 +186,10 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $labels = $attribute->booleanLabels();
             return $this->inertiaRadioButtonComponent($attribute, $labels, $this->currentForm == "Edit");
         } elseif ($attribute->isKey()) {
-            $relatedModel = Settings::make()->getTable(Naming::model(str_replace('_id', '', $attribute->name)));
+            $relatedModel =
+                Settings::make()->getTable(Naming::model(str_replace('_id', '', $attribute->name)))
+                ?? CubeTable::create(Naming::model(str_replace('_id', '', $attribute->name)));
+
             $dataRoute = $this->getRouteName($relatedModel, ContainerType::WEB, $this->actor) . '.data';
 
             if (
@@ -254,6 +268,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             override: $override,
             otherStubsPath: self::MODEL_INTERFACE_STUB
         );
+
+        $interfacePath->format();
     }
 
     public function addImport($import): void
@@ -335,6 +351,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $showPagePath->ensureDirectoryExists();
 
         $this->generateFileFromStub($stubProperties, $showPagePath->fullPath, $override, self::SHOW_PAGE_STUB);
+
+        $showPagePath->format();
     }
 
     public function generateIndexPage(bool $override = false): void
@@ -363,6 +381,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $indexPagePath->ensureDirectoryExists();
 
         $this->generateFileFromStub($stubProperties, $indexPagePath->fullPath, $override, self::INDEX_PAGE_STUB);
+
+        $indexPagePath->format();
     }
 
     public function getDataTableColumns(): string

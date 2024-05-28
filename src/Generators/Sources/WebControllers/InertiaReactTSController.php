@@ -62,8 +62,11 @@ class InertiaReactTSController extends AbstractGenerator
         (new ReactTSPagesGenerator(
             fileName: $this->fileName,
             attributes: $this->attributes,
+            relations: $this->relations,
             nullables: $this->nullables,
-            actor: $this->actor
+            uniques: $this->uniques,
+            actor: $this->actor,
+            generatedFor: $this->generatedFor
         ))->run();
     }
 

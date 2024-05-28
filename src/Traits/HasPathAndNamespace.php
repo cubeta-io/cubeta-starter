@@ -221,6 +221,6 @@ trait HasPathAndNamespace
      */
     public function getTSModelPath(): CubePath
     {
-        return CubePath::make("resources/js/Models/{$this->modelName}.ts");
+        return CubePath::make("resources/js/Models/{$this->modelNaming()}.ts");
     }
 }
