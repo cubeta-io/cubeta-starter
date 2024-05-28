@@ -176,22 +176,22 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             return $this->inertiaRadioButtonComponent($attribute, $labels, $this->currentForm == "Edit");
         } elseif ($attribute->isKey()) {
             $relatedModel = Settings::make()->getTable(Naming::model(str_replace('_id', '', $attribute->name)));
-            $select2Route = $this->getRouteName($relatedModel, ContainerType::WEB, $this->actor) . '.allPaginatedJson';
+            $dataRoute = $this->getRouteName($relatedModel, ContainerType::WEB, $this->actor) . '.data';
 
             if (
-                !$relatedModel?->getModelPath()->exist()
-                || !$relatedModel?->getWebControllerPath()->exist()
-                || !ClassUtils::isMethodDefined($relatedModel?->getWebControllerPath(), 'allPaginatedJson')
-                || !$relatedModel->getTSModelPath()->exist()
+                !$relatedModel?->getModelPath()->exist() //Category Path
+                || !$relatedModel?->getWebControllerPath()->exist() // Category Controller
+                || !ClassUtils::isMethodDefined($relatedModel?->getWebControllerPath(), 'data') // exist
+                || !$relatedModel->getTSModelPath()->exist() // Category.ts
             ) {
                 return "";
             }
 
             $this->addImport("import { PaginatedResponse } from \"@/Models/Response\";");
             $this->addImport("import ApiSelect from \"@/Components/form/fields/Select/ApiSelect\";");
-            $this->addImport("import { {$relatedModel->modelName} } from \"@/Models/{$relatedModel->modelName}");
+            $this->addImport("import { {$relatedModel->modelName} } from \"@/Models/{$relatedModel->modelName}\"");
 
-            return $this->inertiaApiSelectComponent($relatedModel, $select2Route, $attribute, $this->currentForm == "Edit");
+            return $this->inertiaApiSelectComponent($relatedModel, $dataRoute, $attribute, $this->currentForm == "Edit");
         } elseif ($attribute->isFile()) {
             $this->addImport("import Input from \"@/Components/form/fields/Input\";");
             return $this->inertiaFileInputComponent($attribute, $this->currentForm == "Edit");

@@ -14,7 +14,7 @@ class {{modelName}}Controller extends Controller
     private ${{modelNameCamelCase}}Service;
 
     // place the relations you want to return them within the response
-    private array $relations = [];
+    private array $relations = [{{relations}}];
 
     public function __construct(I{{modelName}}Service ${{modelNameCamelCase}}Service)
     {
