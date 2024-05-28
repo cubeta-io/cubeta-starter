@@ -10,7 +10,10 @@ use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Illuminate\Support\Str;
@@ -302,25 +305,16 @@ class CodeSniffer
 
     public function checkForTsInterfaces(): static
     {
-        dump("Inside the Sniffer");
-        dump($this->table->relations(), $this->table->relations);
         if (!$this->table) {
-            dump("Table Doesn't exists");
             return $this;
         }
 
         $this->table->relations()->each(function (CubeRelation $relation) {
             $relatedInterfacePath = $relation->getTSModelPath();
-            dump("$relation->modelName model Path : {$relatedInterfacePath->fullPath}");
-            dump("Does Exists : " . ($relatedInterfacePath->exist() ? "yes" : "no"));
-
             if (!$relatedInterfacePath->exist()) {
-                dump("Relation Does not Exist {$relation->modelNaming()}");
                 return true;
             }
 
-            $propertyType = null;
-            $propertyName = null;
             if ($relation->isBelongsTo() || $relation->isManyToMany()) {
                 $propertyType = $this->table->modelNaming() . "[]";
                 $propertyName = Str::plural($this->table->variableNaming());
@@ -329,20 +323,139 @@ class CodeSniffer
                 $propertyName = $this->table->variableNaming();
             }
 
-            dump("property name : " . $propertyName);
-            dump("property type : " . $propertyType);
-
             if ($propertyType) {
-                FileUtils::tsAddPropertyToInterface(
+                $this->addPropertyToTsInterface(
                     $relatedInterfacePath,
                     $relation->modelNaming(),
                     $propertyName,
                     $propertyType . "[]"
                 );
                 FileUtils::tsAddImportStatement(
-                    "import { Category } from \"./Category\";",
+                    "import { {$this->table->modelName} } from \"./{$this->table->modelName}\";",
                     $relatedInterfacePath
                 );
+            }
+
+            return true;
+        });
+
+        return $this;
+    }
+
+    private function addPropertyToTsInterface(
+        CubePath $filePath,
+        string   $interfaceName,
+        string   $propertyName,
+        string   $propertyType,
+        bool     $isOptional = true
+    ): void
+    {
+        if (!$filePath->exist()) {
+            CubeLog::add(new NotFound($filePath->fullPath, "Trying to add new property [$propertyName] to [$interfaceName] TS interface"));
+            return;
+        }
+
+        $fileContent = $filePath->getContent();
+
+        // Regular expression to match the specific interface block
+        $pattern = '/(export\s+interface\s+' . preg_quote($interfaceName, '/') . '\s*{)([^}]*)}/s';
+
+        $newProperty = $propertyName . ($isOptional ? '?: ' : ': ') . $propertyType;
+
+        if (preg_match($pattern, $fileContent, $matches)) {
+            $interfaceBody = $matches[2];
+
+            // Check if the property already exists
+            if (Str::contains(FileUtils::extraTrim($interfaceBody), FileUtils::extraTrim($newProperty))) {
+                CubeLog::add(new ContentAlreadyExist(
+                    $newProperty,
+                    $filePath->fullPath,
+                    "Trying to add new property [$propertyName] to [$interfaceName] TS interface"
+                ));
+                return;
+            }
+
+            // Insert the new property before the closing brace
+            $modifiedInterfaceBody = $interfaceBody . "\n    " . $newProperty . ";";
+            $modifiedInterfaceCode = $matches[1] . $modifiedInterfaceBody . "\n}";
+            $modifiedFileContent = str_replace($matches[0], $modifiedInterfaceCode, $fileContent);
+            $filePath->putContent($modifiedFileContent);
+            $filePath->format();
+        } else {
+            CubeLog::add(new FailedAppendContent($newProperty, $filePath->fullPath, "Trying to add new property [$propertyName] to [$interfaceName] TS interface"));
+        }
+    }
+
+    public function addColumnToReactTSDataTable(CubePath $filePath, string $newColumnString): void
+    {
+        if (!$filePath->exist()) {
+            CubeLog::add(new NotFound($filePath->fullPath, "Adding new column to the data table inside the file"));
+        }
+
+        $fileContent = $filePath->getContent();
+
+        $pattern = '/schema\s*=\s*\{\s*\[(.*?)\s*]\s*}/s';
+
+        if (preg_match($pattern, $fileContent, $matches)) {
+            $schemaContent = $matches[1];
+
+            if (FileUtils::contentExistInFile($filePath, $newColumnString)) {
+                CubeLog::add(new ContentAlreadyExist(
+                    $newColumnString,
+                    $filePath->fullPath,
+                    "Adding new column to the data table inside the file"
+                ));
+            }
+
+            $pattern = '/\s*}\s*,\s*\{\s*/';
+            $modifiedSchemaContent = preg_replace($pattern, "},$newColumnString,{", $schemaContent, 1);
+            $modifiedSchemaArray = "schema = {[" . $modifiedSchemaContent . "]}";
+            $modifiedFileContent = str_replace($matches[0], $modifiedSchemaArray, $fileContent);
+
+            $filePath->putContent($modifiedFileContent);
+            CubeLog::add(new ContentAppended($newColumnString, $filePath->fullPath));
+            $filePath->format();
+        } else {
+            $pattern = '/schema\s*=\s*\{\s*\[\s*/';
+            if (preg_match($pattern, $fileContent)) {
+                $fileContent = preg_replace($pattern, "schema={[$newColumnString,", $fileContent, 1);
+                $filePath->putContent($fileContent);
+                $filePath->format();
+                CubeLog::add(new ContentAppended($newColumnString, $filePath->fullPath));
+            } else {
+                CubeLog::add(new FailedAppendContent($newColumnString,
+                    $filePath->fullPath,
+                    "Adding new column to the data table inside the file"));
+            }
+        }
+    }
+
+    public function checkForReactTSPagesRelations(): static
+    {
+        if (!$this->table) {
+            return $this;
+        }
+
+        $this->table->relations()->each(function (CubeRelation $rel) {
+            if (!$rel->getTSModelPath()->exist()) {
+                return true;
+            }
+
+            $relatedModelPath = $rel->getModelPath();
+            $relatedViewNaming = $rel->viewNaming();
+            $relatedIndexPagePath = CubePath::make("resources/js/Pages/dashboard/$relatedViewNaming/Index.tsx");
+
+            if (!$relatedIndexPagePath->exist()) {
+                return true;
+            }
+
+            if ($rel->isHasMany()) {
+                if (!ClassUtils::isMethodDefined($relatedModelPath, $this->table->relationMethodNaming())) {
+                    return true;
+                }
+                $calledAttribute = $this->table->variableNaming() . "." . $this->table->titleable()->name;
+                $columnLabel = $this->table->modelName . " " . $this->table->titleable()->titleNaming();
+                $this->addColumnToReactTSDataTable($relatedIndexPagePath, "{name:\"$calledAttribute\" , sortable:true , label:\"$columnLabel\"}");
             }
 
             return true;

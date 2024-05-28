@@ -34,16 +34,15 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $this->generateTypeScriptInterface($override);
 
-        dump("Start Running Sniffer");
-        CodeSniffer::make()
-            ->setModel($this->table)
-            ->checkForTsInterfaces();
-        dump("end of sniffer running");
-
         $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
         $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
         $this->generateShowPage($override);
         $this->generateIndexPage($override);
+
+        CodeSniffer::make()
+            ->setModel($this->table)
+            ->checkForTsInterfaces()
+            ->checkForReactTSPagesRelations();
     }
 
     /**
@@ -411,7 +410,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 return true;
             } else {
                 $columns .= "{
-                    label: \"{$attr->titleNaming()} ?\",
+                    label: \"{$attr->titleNaming()}\",
                     name: \"{$attr->name}\",
                     sortable: true,
                 },";

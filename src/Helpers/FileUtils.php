@@ -12,7 +12,6 @@ use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
 class FileUtils
 {
@@ -201,46 +200,29 @@ class FileUtils
         return substr_replace($subject, $replacement, $lastMatchOffset, 0);
     }
 
-    public static function tsAddPropertyToInterface(
-        CubePath $filePath,
-        string   $interfaceName,
-        string   $propertyName,
-        string   $propertyType,
-        bool     $isOptional = true
-    ): void
+    /**
+     * @param CubePath $controllerPath
+     * @param string[] $relations
+     * @return void
+     */
+    public static function addRelationsToReactTSController(CubePath $controllerPath, array $relations = []): void
     {
-        if (!$filePath->exist()) {
-            CubeLog::add(new NotFound($filePath->fullPath, "Trying to add new property [$propertyName] to [$interfaceName] TS interface"));
+        if (!$controllerPath->exist()) {
+            CubeLog::add(new NotFound($controllerPath->fullPath, "Adding new relations to the loaded relation in the controller"));
             return;
         }
 
-        $fileContent = $filePath->getContent();
+        $fileContent = $controllerPath->getContent();
 
-        // Regular expression to match the specific interface block
-        $pattern = '/(export\s+interface\s+' . preg_quote($interfaceName, '/') . '\s*{)([^}]*)}/s';
-
-        $newProperty = $propertyName . ($isOptional ? '?: ' : ': ') . $propertyType;
-
+        $pattern = '/relations\s*=\s*\[(.*?)]/s';
         if (preg_match($pattern, $fileContent, $matches)) {
-            $interfaceBody = $matches[2];
-
-            // Check if the property already exists
-            if (Str::contains(self::extraTrim($interfaceBody), self::extraTrim($newProperty))) {
-                CubeLog::add(new ContentAlreadyExist(
-                    $newProperty,
-                    $filePath->fullPath,
-                    "Trying to add new property [$propertyName] to [$interfaceName] TS interface"
-                ));
-                return;
-            }
-
-            // Insert the new property before the closing brace
-            $modifiedInterfaceBody = $interfaceBody . "\n    " . $newProperty . ";";
-            $modifiedInterfaceCode = $matches[1] . $modifiedInterfaceBody . "\n}";
-            $modifiedFileContent = str_replace($matches[0], $modifiedInterfaceCode, $fileContent);
-            $filePath->putContent($modifiedFileContent);
+            dd($matches[1]);
         } else {
-            CubeLog::add(new FailedAppendContent($newProperty, $filePath->fullPath, "Trying to add new property [$propertyName] to [$interfaceName] TS interface"));
+            CubeLog::add(new FailedAppendContent(
+                "[]",
+                $controllerPath->fullPath,
+                "Adding new relations to the loaded relation in the controller"
+            ));
         }
     }
 }

@@ -57,7 +57,6 @@ class CubePath
         if ($this->getFileExtension() == "php") {
             FileUtils::formatPhpFile($this->fullPath);
         } else {
-            CubeLog::add(new SuccessMessage("Formatting JS File ..."));
             FileUtils::formatJsFile($this->fullPath);
         }
     }
