@@ -26,9 +26,12 @@ class ReactTsPackagesInstaller extends AbstractGenerator
 
         //generate route handler type system
         FileUtils::executeCommandInTheBaseDirectory("php artisan ziggy:generate --types");
-        
+
         //install js packages
         FileUtils::executeCommandInTheBaseDirectory('npm install @inertiajs/react tailwindcss @tailwindcss/forms @types/node @types/react @types/react-dom @vitejs/plugin-react postcss react react-dom typescript @tinymce/tinymce-react @vitejs/plugin-react-refresh autoprefixer sweetalert2 sweetalert2-react-content react-toastify');
+
+        // install prettier
+        FileUtils::executeCommandInTheBaseDirectory("npm install --save-dev --save-exact prettier");
     }
 
     public function preparePackageJson(): void

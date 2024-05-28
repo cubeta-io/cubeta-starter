@@ -26,10 +26,10 @@ class FileUtils
     }
 
     /**
-     * @param array $stubProperties
+     * @param array  $stubProperties
      * @param string $path
      * @param string $stubPath
-     * @param bool $override
+     * @param bool   $override
      * @return void
      * @throws BindingResolutionException
      * @throws FileNotFoundException
@@ -44,14 +44,25 @@ class FileUtils
     }
 
     /**
-     * format the file on the given path
-     *
+     * format the php file on the given path
      * @param $filePath string the project path of the file eg:app/Models/MyModel.php
      * @return void
      */
-    public static function formatFile(string $filePath): void
+    public static function formatPhpFile(string $filePath): void
     {
         $command = base_path() . "./vendor/bin/pint {$filePath}";
+        self::executeCommandInTheBaseDirectory($command);
+        CubeLog::add(new SuccessMessage("The File : [{$filePath}] Formatted Successfully"));
+    }
+
+    /**
+     * format the js|ts|jsx|... file on the given path
+     * @param $filePath string the project path of the file eg:resources/js/Pages/page.tsx
+     * @return void
+     */
+    public static function formatJsFile(string $filePath): void
+    {
+        $command = base_path() . "npx prettier {$filePath}";
         self::executeCommandInTheBaseDirectory($command);
         CubeLog::add(new SuccessMessage("The File : [{$filePath}] Formatted Successfully"));
     }
@@ -76,7 +87,7 @@ class FileUtils
 
     /**
      * add the use statement to the top of the desired file
-     * @param string $importStatement
+     * @param string   $importStatement
      * @param CubePath $filePath
      * @return void
      */
@@ -84,8 +95,8 @@ class FileUtils
     {
         $contents = $filePath->getContent();
 
-        if (self::contentExistInFile($filePath , $importStatement)){
-            CubeLog::add(new ContentAlreadyExist($importStatement , $filePath->fullPath , "Adding Import Statement"));
+        if (self::contentExistInFile($filePath, $importStatement)) {
+            CubeLog::add(new ContentAlreadyExist($importStatement, $filePath->fullPath, "Adding Import Statement"));
             return;
         }
 
@@ -106,7 +117,7 @@ class FileUtils
     /**
      * check if content exist in a file
      * @param CubePath $filePath
-     * @param string $content
+     * @param string   $content
      * @return bool
      */
     public static function contentExistInFile(CubePath $filePath, string $content): bool
