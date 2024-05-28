@@ -13,6 +13,10 @@ class CubePath
     public ?string $inProjectDirectory = null;
     public ?string $fileName = null;
 
+    /**
+     * the file directory inside your project starting from the root directory
+     * @param string $inProjectFilePath
+     */
     public function __construct(string $inProjectFilePath)
     {
         $this->inProjectPath = str_replace('//', '/', $inProjectFilePath);
@@ -49,7 +53,11 @@ class CubePath
 
     public function format(): void
     {
-        FileUtils::formatFile($this->fullPath);
+        if ($this->getFileExtension() == "php") {
+            FileUtils::formatPhpFile($this->fullPath);
+        } else {
+            FileUtils::formatJsFile($this->fullPath);
+        }
     }
 
     public function getContent(): bool|string
@@ -60,5 +68,10 @@ class CubePath
     public function putContent($data, int $flags = 0): bool|int
     {
         return file_put_contents($this->fullPath, $data, $flags);
+    }
+
+    public function getFileExtension(): ?string
+    {
+        return pathinfo($this->fullPath, PATHINFO_EXTENSION) ?: null;
     }
 }
