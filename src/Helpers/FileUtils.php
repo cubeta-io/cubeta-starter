@@ -7,11 +7,13 @@ use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Errors\WrongEnvironment;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class FileUtils
 {
@@ -183,6 +185,14 @@ class FileUtils
         return str_contains($output, 'No syntax errors detected');
     }
 
+    public static function isInPhpArrayString(string $arrayString, string $needle): bool
+    {
+        return Str::contains($arrayString, "\"$needle\"")
+            || Str::contains($arrayString, "'$needle'")
+            || preg_match('/\'\s*' . $needle . '\s*\'/', $arrayString)
+            || preg_match('/\"\s*' . $needle . '\s*\"/', $arrayString);
+    }
+
     /**
      * @param string $pattern
      * @param string $replacement
@@ -200,11 +210,6 @@ class FileUtils
         return substr_replace($subject, $replacement, $lastMatchOffset, 0);
     }
 
-    /**
-     * @param CubePath $controllerPath
-     * @param string[] $relations
-     * @return void
-     */
     public static function addRelationsToReactTSController(CubePath $controllerPath, array $relations = []): void
     {
         if (!$controllerPath->exist()) {
@@ -216,7 +221,20 @@ class FileUtils
 
         $pattern = '/relations\s*=\s*\[(.*?)]/s';
         if (preg_match($pattern, $fileContent, $matches)) {
-            dd($matches[1]);
+            $loadedRelations = $matches[1];
+            foreach ($relations as $relation) {
+                if (!FileUtils::isInPhpArrayString($loadedRelations, $relation)) {
+                    $loadedRelations .= ",\"$relation\",";
+                }
+            }
+            $loadedRelations = preg_replace('/\s*,\s*,\s*/', ',', $loadedRelations);
+            if (Str::startsWith($loadedRelations, ',')) {
+                $loadedRelations = FileUtils::replaceFirstMatch($loadedRelations, ',', '');
+            }
+            $newContent = preg_replace($pattern, 'relations = [' . $loadedRelations . ']', $fileContent);
+            $controllerPath->putContent($newContent);
+            CubeLog::add(new ContentAppended(implode(",", $relations), $controllerPath->fullPath));
+            $controllerPath->format();
         } else {
             CubeLog::add(new FailedAppendContent(
                 "[]",
@@ -225,4 +243,14 @@ class FileUtils
             ));
         }
     }
+
+    public static function replaceFirstMatch($haystack, $needle, $replace)
+    {
+        $pos = strpos($haystack, $needle);
+        if ($pos !== false) {
+            return substr_replace($haystack, $replace, $pos, strlen($needle));
+        }
+        return $haystack;
+    }
+
 }

@@ -456,11 +456,53 @@ class CodeSniffer
                 $calledAttribute = $this->table->variableNaming() . "." . $this->table->titleable()->name;
                 $columnLabel = $this->table->modelName . " " . $this->table->titleable()->titleNaming();
                 $this->addColumnToReactTSDataTable($relatedIndexPagePath, "{name:\"$calledAttribute\" , sortable:true , label:\"$columnLabel\"}");
+                $this->addRelationsToReactTSController($rel->getWebControllerPath(), [$this->table->relationMethodNaming()]);
+            } elseif ($rel->isManyToMany() || $rel->isBelongsTo()) {
+                $this->addRelationsToReactTSController($rel->getWebControllerPath(), [$this->table->relationMethodNaming(singular: false)]);
             }
 
             return true;
         });
 
         return $this;
+    }
+
+    /**
+     * @param CubePath $controllerPath
+     * @param string[] $relations
+     * @return void
+     */
+    private function addRelationsToReactTSController(CubePath $controllerPath, array $relations = []): void
+    {
+        if (!$controllerPath->exist()) {
+            CubeLog::add(new NotFound($controllerPath->fullPath, "Adding new relations to the loaded relation in the controller"));
+            return;
+        }
+
+        $fileContent = $controllerPath->getContent();
+
+        $pattern = '/relations\s*=\s*\[(.*?)]/s';
+        if (preg_match($pattern, $fileContent, $matches)) {
+            $loadedRelations = $matches[1];
+            foreach ($relations as $relation) {
+                if (!FileUtils::isInPhpArrayString($loadedRelations, $relation)) {
+                    $loadedRelations .= ",\"$relation\",";
+                }
+            }
+            $loadedRelations = preg_replace('/\s*,\s*,\s*/', ',', $loadedRelations);
+            if (Str::startsWith($loadedRelations, ',')) {
+                $loadedRelations = FileUtils::replaceFirstMatch($loadedRelations, ',', '');
+            }
+            $newContent = preg_replace($pattern, 'relations = [' . $loadedRelations . ']', $fileContent);
+            $controllerPath->putContent($newContent);
+            CubeLog::add(new ContentAppended(implode(",", $relations), $controllerPath->fullPath));
+            $controllerPath->format();
+        } else {
+            CubeLog::add(new FailedAppendContent(
+                "[]",
+                $controllerPath->fullPath,
+                "Adding new relations to the loaded relation in the controller"
+            ));
+        }
     }
 }

@@ -24,10 +24,12 @@ class {{modelName}}Controller extends Controller
     public function data()
     {
         $items = $this->{{modelNameCamelCase}}Service->indexWithPagination($this->relations);
-        return response()->json([
-            'data' => $items['data'],
-            'pagination_data' => $items['pagination_data'],
-        ], 200);
+        if($items){
+            return response()->json([
+                'data' => $items['data'],
+                'pagination_data' => $items['pagination_data'],
+            ], 200);
+        }
 
         return response()->json([
             'data' => [],
