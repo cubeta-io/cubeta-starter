@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
@@ -65,7 +66,7 @@ class ModelGenerator extends AbstractGenerator
         $casts = '';
         $relationsFunctions = '';
 
-        $this->table->attributes()->each(function ($attribute) use (
+        $this->table->attributes()->each(function (CubeAttribute $attribute) use (
             &$fileFunctions,
             &$filesKeys,
             &$searchable,
@@ -77,6 +78,8 @@ class ModelGenerator extends AbstractGenerator
             &$fillable
         ) {
             $fillable .= "'{$attribute->name}' ,\n";
+
+            $nullableProperty = $attribute->nullable ? "?" : "";
 
             if (!$attribute->isKey()) {
                 $exportables .= "'{$attribute->name}' ,\n";
@@ -91,18 +94,18 @@ class ModelGenerator extends AbstractGenerator
             } elseif ($attribute->isKey()) {
                 $relatedModelName = $attribute->modelNaming(str_replace('_id', '', $attribute->name));
                 $relatedModel = CubeTable::create($relatedModelName);
-                $properties .= "* @property integer {$attribute->name} \n";
+                $properties .= "* @property {$nullableProperty}integer {$attribute->name} \n";
 
                 if ($relatedModel->getModelPath()->exist()) {
                     $relationsFunctions .= $this->belongsToFunction($relatedModel);
                 }
             } elseif ($attribute->isString()) {
                 $searchable .= "'{$attribute->name}' , \n";
-                $properties .= "* @property string {$attribute->name} \n";
+                $properties .= "* @property {$nullableProperty}string {$attribute->name} \n";
 
             } elseif ($attribute->isFile()) {
                 $filesKeys .= "'{$attribute->name}' ,\n";
-                $properties .= "* @property string {$attribute->name} \n";
+                $properties .= "* @property {$nullableProperty}string {$attribute->name} \n";
                 $colName = $attribute->modelNaming();
                 $fileFunctions .= '/**
                               * return the full path of the stored ' . $colName . '
@@ -115,11 +118,11 @@ class ModelGenerator extends AbstractGenerator
                 FileUtils::ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->table->modelName) . '/' . Str::plural($colName)));
 
             } elseif (ColumnTypeEnum::isDateTimeType($attribute->type)) {
-                $properties .= "* @property string {$attribute->name} \n";
+                $properties .= "* @property {$nullableProperty}string {$attribute->name} \n";
             } elseif (ColumnTypeEnum::isNumericType($attribute->type)) {
-                $properties .= "* @property numeric {$attribute->name} \n";
+                $properties .= "* @property {$nullableProperty}numeric {$attribute->name} \n";
             } else {
-                $properties .= "* @property {$attribute->type} {$attribute->name} \n";
+                $properties .= "* @property {$nullableProperty}{$attribute->type} {$attribute->name} \n";
             }
         });
 

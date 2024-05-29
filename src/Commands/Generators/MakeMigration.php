@@ -22,7 +22,7 @@ class MakeMigration extends BaseCommand
         $attributes = $this->argument('attributes') ?? null;
 
         if (!$attributes) {
-            [$attributes, $uniques , $nullables] = $this->askForModelAttributes(true , true);
+            [$attributes, $uniques, $nullables] = $this->askForModelAttributes(true, true);
         }
 
         $relations = $this->argument('relations') ?? ($this->askForRelations($modelName) ?? []);

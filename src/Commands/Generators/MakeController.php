@@ -17,11 +17,19 @@ class MakeController extends BaseCommand
     public function handle(): void
     {
         $modelName = $this->argument("name") ?? $this->askForModelName("Controller");
-        $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors("Controller") ?? null);
+
+        if (file_exists(base_path('app/Enums/RolesPermissionEnum.php')) && class_exists('\App\Enums\RolesPermissionEnum')) {
+            /** @noinspection PhpFullyQualifiedNameUsageInspection */
+            if ($this->argument('actor')) {
+                $actor = $this->argument('actor');
+            } else {
+                $actor = ($this->askForGeneratedFileActors("Controller") ?? null);
+            }
+        }
 
         $gen = new GeneratorFactory("controller");
 
-        $gen->make(fileName: $modelName, actor: $actor, generatedFor: ContainerType::API);
+        $gen->make(fileName: $modelName, actor: $actor ?? null, generatedFor: ContainerType::API);
 
         $this->handleCommandLogsAndErrors();
     }

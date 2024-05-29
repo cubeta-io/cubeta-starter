@@ -8,7 +8,7 @@ use {repositoryNamespace}\{repositoryName};
 
 /**
  * @implements I{modelName}Service<{modelName}>
- * Class UserService
+ * @extends BaseService<{modelName}>
  */
 class {modelName}Service extends BaseService implements I{modelName}Service
 {

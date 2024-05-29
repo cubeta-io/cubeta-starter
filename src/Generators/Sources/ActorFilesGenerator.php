@@ -213,7 +213,7 @@ class ActorFilesGenerator extends AbstractGenerator
         FileUtils::addImportStatement($importStatement, $apiRouteFile);
         try {
             Postman::make()->getCollection()->newAuthApi($this->role)->save();
-            CubeLog::add(new SuccessMessage("Postman Collection Now Has Folder For The Generated {$this->role} Auth Controller [{$this->table->getControllerName()}] \nRe-Import It In Postman"));
+            CubeLog::add(new SuccessMessage("Postman Collection Now Has Folder For The Generated {$this->role} Auth Controller \nRe-Import It In Postman"));
         } catch (Exception $e) {
             CubeLog::add($e);
         }

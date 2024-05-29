@@ -433,7 +433,7 @@ class CodeSniffer
         }
     }
 
-    public function checkForReactTSPagesAndControllerRelations(string $actor): static
+    public function checkForReactTSPagesAndControllerRelations(?string $actor = null): static
     {
         if (!$this->table) {
             return $this;
@@ -458,7 +458,7 @@ class CodeSniffer
                 }
                 $calledAttribute = $this->table->variableNaming() . "." . $this->table->titleable()->name;
                 $columnLabel = $this->table->modelName . " " . $this->table->titleable()->titleNaming();
-                $currentModelShowRoute = $this->getRouteName($this->table , ContainerType::WEB,  $actor) . ".show";
+                $currentModelShowRoute = $this->getRouteName($this->table, ContainerType::WEB, $actor) . ".show";
                 $translatable = $this->table->titleable()->isTranslatable() ? "translatable:true," : "";
                 $newColumn = "{
                                  name:\"$calledAttribute\" ,
@@ -473,7 +473,7 @@ class CodeSniffer
                                                 </Link>)}";
                 $this->addColumnToReactTSDataTable($relatedIndexPagePath, $newColumn);
 
-                FileUtils::tsAddImportStatement('import { Link } from "@inertiajs/react";' , $rel->getReactTSPagesPaths('index'));
+                FileUtils::tsAddImportStatement('import { Link } from "@inertiajs/react";', $rel->getReactTSPagesPaths('index'));
 
                 $this->addRelationsToReactTSController($rel->getWebControllerPath(), [$this->table->relationMethodNaming()]);
 

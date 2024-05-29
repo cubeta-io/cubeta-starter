@@ -91,12 +91,10 @@ class BaseCommand extends Command
 
     public function askForGeneratedFileActors(string $class): array|string|null
     {
-        $roleEnumPath = CubePath::make("/app/Enums/RolesPermissionEnum.php");
+        $roleEnumPath = CubePath::make("app/Enums/RolesPermissionEnum.php");
 
-        if ($roleEnumPath->exist() and class_exists("\App\Enums\RolesPermissionsEnum")){
-            $roles =  $this->choice("Who Is The Actor For This $class ?" , \App\Enums\RolesPermissionsEnum::ALLROLES);
-            $roles[] = 'none';
-            return $roles;
+        if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RolesPermissionEnum")) {
+            return $this->choice("Who Is The Actor For This $class ?", ['none', ...\App\Enums\RolesPermissionEnum::ALLROLES]);
         }
 
         return null;
@@ -166,15 +164,20 @@ class BaseCommand extends Command
                 6,
             );
             $attributes[$field] = $type;
+
             if ($getNullables) {
-                $this->confirm("Is This Column Nullable ?", false) ?: $nullables[] = $field;
+                if ($this->confirm("Is This Column Nullable ?")) {
+                    $nullables[] = $field;
+                }
             }
 
             if ($getUniques) {
-                $this->confirm("Is This Column Unique ?", false) ?: $uniques[] = $field;
+                if ($this->confirm("Is This Column Unique ?")) {
+                    $uniques[] = $field;
+                }
             }
         }
 
-        return [$attributes , $uniques , $nullables];
+        return [$attributes, $uniques, $nullables];
     }
 }
