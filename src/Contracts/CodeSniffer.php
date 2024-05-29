@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Contracts;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\BladeViewsGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -15,12 +16,14 @@ use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Illuminate\Support\Str;
 
 class CodeSniffer
 {
     use StringsGenerator;
+    use RouteBinding;
 
     private static $instance;
 
@@ -430,13 +433,13 @@ class CodeSniffer
         }
     }
 
-    public function checkForReactTSPagesRelations(): static
+    public function checkForReactTSPagesAndControllerRelations(string $actor): static
     {
         if (!$this->table) {
             return $this;
         }
 
-        $this->table->relations()->each(function (CubeRelation $rel) {
+        $this->table->relations()->each(function (CubeRelation $rel) use ($actor) {
             if (!$rel->getTSModelPath()->exist()) {
                 return true;
             }
@@ -457,6 +460,33 @@ class CodeSniffer
                 $columnLabel = $this->table->modelName . " " . $this->table->titleable()->titleNaming();
                 $this->addColumnToReactTSDataTable($relatedIndexPagePath, "{name:\"$calledAttribute\" , sortable:true , label:\"$columnLabel\"}");
                 $this->addRelationsToReactTSController($rel->getWebControllerPath(), [$this->table->relationMethodNaming()]);
+
+                $relatedKeyAttribute = $rel->getTable()->getAttribute($this->table->keyName());
+                if ($relatedKeyAttribute) {
+                    $apiSelectImport = "import ApiSelect from \"@/Components/form/fields/Select/ApiSelect\";";
+                    FileUtils::tsAddImportStatement($apiSelectImport, $rel->getReactTSPagesPaths('create'));
+                    $this->addNewInputToReactTSForm(
+                        $this->inertiaApiSelectComponent(
+                            $this->table,
+                            $this->getRouteName($this->table, ContainerType::WEB, $actor) . ".data",
+                            $relatedKeyAttribute
+                        ),
+                        $this->table->keyName() . ":" . "number;",
+                        $rel->getReactTSPagesPaths('create')
+                    );
+
+                    FileUtils::tsAddImportStatement($apiSelectImport, $rel->getReactTSPagesPaths('update'));
+                    $this->addNewInputToReactTSForm(
+                        $this->inertiaApiSelectComponent(
+                            $this->table,
+                            $this->getRouteName($this->table, ContainerType::WEB, $actor) . ".data",
+                            $relatedKeyAttribute,
+                            true
+                        ),
+                        $this->table->keyName() . "?:" . "number;",
+                        $rel->getReactTSPagesPaths('update')
+                    );
+                }
             } elseif ($rel->isManyToMany() || $rel->isBelongsTo()) {
                 $this->addRelationsToReactTSController($rel->getWebControllerPath(), [$this->table->relationMethodNaming(singular: false)]);
             }
@@ -504,5 +534,66 @@ class CodeSniffer
                 "Adding new relations to the loaded relation in the controller"
             ));
         }
+    }
+
+    public function addNewInputToReactTSForm(string $inputElement, string $formInterfaceProperty, CubePath $filePath): void
+    {
+        $operationContext = "Trying To Add New ApiSelect Component To The Form";
+        if (!$filePath->exist()) {
+            CubeLog::add(new NotFound(
+                $filePath->fullPath,
+                $operationContext
+            ));
+            return;
+        }
+
+        $fileContent = $filePath->getContent();
+
+        if (FileUtils::contentExistInFile($filePath, $inputElement)) {
+            CubeLog::add(new ContentAlreadyExist($inputElement, $filePath->fullPath, $operationContext));
+            return;
+        }
+
+        $firstPattern = '#<Form\s*(.*?)\s*>\s*<div\s*(.*?)\s*>\s*(.*?)\s*</div\>#s';
+        $secondPattern = '#<Form\s*(.*?)\s*>\s*(.*?)\s*</Form\>#s';
+
+        if (preg_match($firstPattern, $fileContent, $matches)) {
+            $formContent = $matches[3];
+            $substitute = $matches[3];
+        } elseif (preg_match($secondPattern, $fileContent, $matches)) {
+            $formContent = $matches[2];
+            $substitute = $matches[2];
+        } else {
+            CubeLog::add(new FailedAppendContent(
+                $inputElement,
+                $filePath->fullPath,
+                $operationContext
+            ));
+            return;
+        }
+
+        $formContent .= "\n$inputElement\n";
+        $fileContent = str_replace($substitute, $formContent, $fileContent);
+
+        // adding new interface property
+        $formInterfacePattern = '#useForm\s*<\s*\{\s*(.*?)\s*}\s*>#s';
+        if (preg_match($formInterfacePattern, $fileContent, $matches)
+            && !FileUtils::contentExistInFile($filePath, $formInterfaceProperty)
+        ) {
+            $interfaceProperties = $matches[1];
+            $interfaceProperties .= "\n$formInterfaceProperty\n";
+            $fileContent = str_replace($matches[1], $interfaceProperties, $fileContent);
+        } else {
+            CubeLog::add(new FailedAppendContent(
+                $formInterfaceProperty,
+                $filePath->fullPath,
+                $operationContext
+            ));
+        }
+
+
+        $filePath->putContent($fileContent);
+        CubeLog::add(new ContentAppended($inputElement, $filePath->fullPath));
+        $filePath->format();
     }
 }

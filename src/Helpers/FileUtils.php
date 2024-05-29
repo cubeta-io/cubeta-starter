@@ -210,40 +210,6 @@ class FileUtils
         return substr_replace($subject, $replacement, $lastMatchOffset, 0);
     }
 
-    public static function addRelationsToReactTSController(CubePath $controllerPath, array $relations = []): void
-    {
-        if (!$controllerPath->exist()) {
-            CubeLog::add(new NotFound($controllerPath->fullPath, "Adding new relations to the loaded relation in the controller"));
-            return;
-        }
-
-        $fileContent = $controllerPath->getContent();
-
-        $pattern = '/relations\s*=\s*\[(.*?)]/s';
-        if (preg_match($pattern, $fileContent, $matches)) {
-            $loadedRelations = $matches[1];
-            foreach ($relations as $relation) {
-                if (!FileUtils::isInPhpArrayString($loadedRelations, $relation)) {
-                    $loadedRelations .= ",\"$relation\",";
-                }
-            }
-            $loadedRelations = preg_replace('/\s*,\s*,\s*/', ',', $loadedRelations);
-            if (Str::startsWith($loadedRelations, ',')) {
-                $loadedRelations = FileUtils::replaceFirstMatch($loadedRelations, ',', '');
-            }
-            $newContent = preg_replace($pattern, 'relations = [' . $loadedRelations . ']', $fileContent);
-            $controllerPath->putContent($newContent);
-            CubeLog::add(new ContentAppended(implode(",", $relations), $controllerPath->fullPath));
-            $controllerPath->format();
-        } else {
-            CubeLog::add(new FailedAppendContent(
-                "[]",
-                $controllerPath->fullPath,
-                "Adding new relations to the loaded relation in the controller"
-            ));
-        }
-    }
-
     public static function replaceFirstMatch($haystack, $needle, $replace)
     {
         $pos = strpos($haystack, $needle);
@@ -253,4 +219,65 @@ class FileUtils
         return $haystack;
     }
 
+    public static function addReactTSApiSelectToForm(string $content, $formInterfaceProperty, CubePath $filePath)
+    {
+        $operationContext = "Trying To Add New ApiSelect Component To The Form";
+        if (!$filePath->exist()) {
+            CubeLog::add(new NotFound(
+                $filePath->fullPath,
+                $operationContext
+            ));
+            return;
+        }
+
+        $fileContent = $filePath->getContent();
+
+        if (FileUtils::contentExistInFile($filePath, $content)) {
+            CubeLog::add(new ContentAlreadyExist($content, $filePath->fullPath, $operationContext));
+            return;
+        }
+
+        $firstPattern = '#<Form\s*(.*?)\s*>\s*<div\s*(.*?)\s*>\s*(.*?)\s*</div\>#s';
+        $secondPattern = '#<Form\s*(.*?)\s*>\s*(.*?)\s*</Form\>#s';
+
+        if (preg_match($firstPattern, $fileContent, $matches)) {
+            $formContent = $matches[3];
+            $substitute = $matches[3];
+        } elseif (preg_match($secondPattern, $fileContent, $matches)) {
+            $formContent = $matches[2];
+            $substitute = $matches[2];
+        } else {
+            CubeLog::add(new FailedAppendContent(
+                $content,
+                $filePath->fullPath,
+                $operationContext
+            ));
+            return;
+        }
+
+        $formContent .= "\n$content\n";
+        $fileContent = str_replace($substitute, $formContent, $fileContent);
+
+        // adding new property
+        $formInterfacePattern = '#useForm\s*<\s*\{\s*(.*?)\s*}\s*>#s';
+        if (preg_match($formInterfacePattern, $fileContent, $matches)
+            && !FileUtils::contentExistInFile($filePath, $formInterfaceProperty)
+        ) {
+            $interfaceProperties = $matches[1];
+            $interfaceProperties .= "\n$formInterfaceProperty\n";
+            $fileContent = str_replace($matches[1], $interfaceProperties, $fileContent);
+        } else {
+            CubeLog::add(new FailedAppendContent(
+                $formInterfaceProperty,
+                $filePath->fullPath,
+                $operationContext
+            ));
+            return;
+        }
+
+
+        $filePath->putContent($fileContent);
+        CubeLog::add(new ContentAppended($content, $filePath->fullPath));
+        $filePath->format();
+    }
 }

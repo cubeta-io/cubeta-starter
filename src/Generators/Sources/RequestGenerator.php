@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 
@@ -63,7 +64,10 @@ class RequestGenerator extends AbstractGenerator
                 continue;
             }
 
-            if ($attribute->isTranslatable() && ContainerType::isWeb($this->generatedFor)) {
+            if ($attribute->isTranslatable()
+                && ContainerType::isWeb($this->generatedFor)
+                && $this->frontType == FrontendTypeEnum::BLADE
+            ) {
                 $prepareForValidation .= "'{$attribute->name}' => json_encode(\$this->{$attribute->name}), \n";
             }
 

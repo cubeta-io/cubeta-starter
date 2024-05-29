@@ -42,7 +42,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         CodeSniffer::make()
             ->setModel($this->table)
             ->checkForTsInterfaces()
-            ->checkForReactTSPagesRelations();
+            ->checkForReactTSPagesAndControllerRelations($this->actor);
     }
 
     /**
@@ -71,12 +71,10 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $this->addImport("import { {$this->table->modelName} } from \"@/Models/{$this->table->modelName}\";");
         }
 
-        $routes = $this->getRoutesNames($this->table, $this->actor);
-
-        if ($this->currentForm == "Edit") {
-            $action = "post(route(\"{$routes['update']}\" , {$this->table->variableNaming()}.id));";
+        if ($this->currentForm == "Edit" && $updateRoute) {
+            $action = "post(route(\"{$updateRoute}\" , {$this->table->variableNaming()}.id));";
         } else {
-            $action = "post(route(\"{$routes['store']}\"));";
+            $action = "post(route(\"{$storeRoute}\"));";
         }
 
         if ($this->currentForm == "Create") {
@@ -159,12 +157,19 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $nullable = $attribute->nullable ? "?" : "";
         if ($attribute->isString() || $attribute->isDateable()) {
             return "{$attribute->name}{$nullable}:string;\n";
-        } elseif ($attribute->isNumeric() || $attribute->isKey()) {
+        } elseif ($attribute->isNumeric()) {
             return "{$attribute->name}{$nullable}:number;\n";
         } elseif ($attribute->isBoolean()) {
             return "{$attribute->name}{$nullable}:boolean;\n";
         } elseif ($attribute->isFile()) {
             return "{$attribute->name}{$nullable}:File|string;\n";
+        } elseif ($attribute->isKey()) {
+            $relatedModelName = Naming::model(str_replace('_id', '', $attribute->name));
+            $relatedModelTable = CubeTable::create($relatedModelName);
+            if ($relatedModelTable->getModelPath()->exist()) {
+                return "{$attribute->name}{$nullable}:number;\n";
+            }
+            return "";
         } else {
             return "{$attribute->name}{$nullable}:any;\n";
         }
