@@ -458,7 +458,23 @@ class CodeSniffer
                 }
                 $calledAttribute = $this->table->variableNaming() . "." . $this->table->titleable()->name;
                 $columnLabel = $this->table->modelName . " " . $this->table->titleable()->titleNaming();
-                $this->addColumnToReactTSDataTable($relatedIndexPagePath, "{name:\"$calledAttribute\" , sortable:true , label:\"$columnLabel\"}");
+                $currentModelShowRoute = $this->getRouteName($this->table , ContainerType::WEB,  $actor) . ".show";
+                $translatable = $this->table->titleable()->isTranslatable() ? "translatable:true," : "";
+                $newColumn = "{
+                                 name:\"$calledAttribute\" ,
+                                 sortable:true ,
+                                 label:\"$columnLabel\" ,
+                                 {$translatable}
+                                 render:({$this->table->titleable()->name} , {$this->table->variableNaming()}) => (
+                                                <Link
+                                                    className=\"hover:text-primary underline\"
+                                                    href={route(\"$currentModelShowRoute\" , {$this->table->variableNaming()}.id)}>
+                                                    {{$this->table->titleable()->name}}
+                                                </Link>)}";
+                $this->addColumnToReactTSDataTable($relatedIndexPagePath, $newColumn);
+
+                FileUtils::tsAddImportStatement('import { Link } from "@inertiajs/react";' , $rel->getReactTSPagesPaths('index'));
+
                 $this->addRelationsToReactTSController($rel->getWebControllerPath(), [$this->table->relationMethodNaming()]);
 
                 $relatedKeyAttribute = $rel->getTable()->getAttribute($this->table->keyName());

@@ -441,11 +441,22 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 return true;
             }
 
+            $this->addImport('import { Link } from "@inertiajs/react";');
+            $relatedModelAttribute = $relatedModel->titleable();
+            $translatable = $relatedModelAttribute->isTranslatable() ? "translatable:true," : "";
+            $relatedModelShowRoute = $this->getRoutesNames($this->table, $this->actor)['show'];
             $columns .= "
             {
-                label: \"{$relatedModel->modelName} {$relatedModel->titleable()->titleNaming()}\",
-                name: \"{$rel->relationMethodNaming()}.{$relatedModel->titleable()->name}\",
+                label: \"{$relatedModel->modelName} {$relatedModelAttribute->titleNaming()}\",
+                name: \"{$rel->relationMethodNaming()}.{$relatedModelAttribute->name}\",
                 sortable: true,
+                {$translatable}
+                render:({$relatedModelAttribute->name} , {$rel->variableNaming()}) => (
+                            <Link
+                                className=\"hover:text-primary underline\"
+                                href={route(\"$relatedModelShowRoute\" , {$relatedModel->variableNaming()}.id)}>
+                                {{$relatedModelAttribute->name}}
+                            </Link>)
             },";
 
             return true;
