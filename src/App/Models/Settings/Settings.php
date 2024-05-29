@@ -12,7 +12,7 @@ class Settings
     private static $instance;
     private static array $json;
     private static array $tables;
-    private static ?FrontendTypeEnum $frontendStack;
+    private static ?FrontendTypeEnum $frontendStack = null;
 
     private function __construct()
     {
@@ -25,8 +25,6 @@ class Settings
 
         if (isset(self::$json['frontend_type'])) {
             self::$frontendStack = FrontendTypeEnum::tryFrom(self::$json['frontend_type']);
-        } else {
-            self::$frontendStack = FrontendTypeEnum::NONE;
         }
 
         if (isset(self::$json["tables"])) {

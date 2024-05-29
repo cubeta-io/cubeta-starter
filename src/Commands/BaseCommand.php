@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Commands;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\Naming;
@@ -86,6 +87,10 @@ class BaseCommand extends Command
 
     public function askForModelName(string $class): string
     {
+        if (!Settings::make()->getFrontendType()) {
+            $frontend = $this->choice("Chose Your Front-End Stack First", FrontendTypeEnum::getAllValues());
+            Settings::make()->setFrontendType(FrontendTypeEnum::tryFrom($frontend) ?? FrontendTypeEnum::NONE);
+        }
         return $this->askWithoutEmptyAnswer("What Is The Model Name For This {$class}");
     }
 

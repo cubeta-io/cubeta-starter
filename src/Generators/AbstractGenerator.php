@@ -42,7 +42,7 @@ abstract class AbstractGenerator
         $this->uniques = $uniques;
         $this->actor = $actor;
         $this->generatedFor = $generatedFor === '' ? ContainerType::BOTH : $generatedFor;
-        $this->frontType = Settings::make()->getFrontendType();
+        $this->frontType = Settings::make()->getFrontendType() ?? FrontendTypeEnum::NONE;
 
         $this->mergeRelations();
 
