@@ -3,6 +3,8 @@ import Button from "../ui/Button";
 import DocumentPlus from "../icons/DocumentPlus";
 import { TableActionsProps } from "./DataTableUtils";
 import Filter from "../icons/Filter";
+import ArrowDownTray from "../icons/ArrowDownTray";
+import TableCells from "../icons/TableCells";
 
 function TableActions({
     createUrl,
@@ -13,6 +15,10 @@ function TableActions({
     setSearch,
     search,
     filter,
+    setOpenImport,
+    setOpenExport,
+    exportable = false,
+    importable = false,
 }: TableActionsProps) {
     return (
         <div className={`w-full flex justify-between items-center my-2`}>
@@ -40,6 +46,16 @@ function TableActions({
                     </div>
                 ) : (
                     ""
+                )}
+                {importable && (
+                    <Button color="secondary" onClick={() => setOpenImport((prev) => !prev)}>
+                        <ArrowDownTray />
+                    </Button>
+                )}
+                {exportable && (
+                    <Button color="success" onClick={() => setOpenExport((prev) => !prev)}>
+                        <TableCells />
+                    </Button>
                 )}
             </div>
             <div className={"flex gap-2"}>

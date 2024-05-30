@@ -39,7 +39,10 @@ class {{modelName}}Controller extends Controller
 
     public function index()
     {
-        return Inertia::render('{{indexPage}}');
+        $exportables = {{modelName}}::getModel()->exportable();
+        return Inertia::render('{{indexPage}}' , [
+            "exportables" => $exportables
+        ]);
     }
 
     public function show(${{modelNameCamelCase}}Id)
@@ -96,5 +99,30 @@ class {{modelName}}Controller extends Controller
         }
 
         return response()->json(['message' => __('site.there_is_no_data')], 404);
+    }
+
+    public function export(Request $request)
+    {
+        $ids = $request->ids ?? [];
+
+        return $this->{{modelNameCamelCase}}Service->export($ids);
+    }
+
+    public function getImportExample()
+    {
+        return $this->{{modelNameCamelCase}}Service->getImportExample();
+    }
+
+    public function import(Request $request)
+    {
+        try{
+            $request->validate([
+                        'excel_file' => 'required|mimes:xls,xlsx',
+                    ]);
+            $this->{{modelNameCamelCase}}Service->import();
+            return redirect()->back()->with('message' , __('site.success'));
+        }catch (\Exception){
+            return redirect()->back()->with('message' , __('site.something_went_wrong'));
+        }
     }
 }

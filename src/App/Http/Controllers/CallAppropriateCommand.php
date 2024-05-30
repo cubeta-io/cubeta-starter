@@ -333,25 +333,25 @@ class CallAppropriateCommand extends Controller
 
     public function installAuth(string $container = ContainerType::BOTH)
     {
-        (new GeneratorFactory(AuthInstaller::$key))->make(generatedFor: $container);
+        (new GeneratorFactory(AuthInstaller::$key))->make(generatedFor: $container , override: true);
         return $this->handleLogs("cubeta-starter.generate-add-actor.page", "Authentication Tools Prepared Successfully");
     }
 
     public function installApi()
     {
-        (new GeneratorFactory(ApiInstaller::$key))->make();
+        (new GeneratorFactory(ApiInstaller::$key))->make(override: true);
         return $this->handleLogs("cubeta-starter.complete-installation", "Api Based Usage Tools Generated Successfully");
     }
 
     public function installWeb()
     {
-        (new GeneratorFactory(WebInstaller::$key))->make();
+        (new GeneratorFactory(WebInstaller::$key))->make(override: true);
         return $this->handleLogs('cubeta-starter.complete-installation', "Web Based Usage Tools Generated Successfully");
     }
 
     public function installReactTs()
     {
-        (new GeneratorFactory(ReactTSInertiaInstaller::$key))->make();
+        (new GeneratorFactory(ReactTSInertiaInstaller::$key))->make(override: true);
         return $this->handleLogs("cubeta-starter.complete-installation", "React Frontend Stack Tools Has Been Installed");
     }
 

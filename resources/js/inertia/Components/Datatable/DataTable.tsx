@@ -8,6 +8,8 @@ import { DataTableData } from "./DataTableUtils";
 import TableActions from "./TableActions";
 import TablePaginator from "./TablePaginator";
 import Modal from "../ui/Modal";
+import ImportModal from "./ImportModal";
+import ExportModal from "./ExportModal";
 
 function DataTable<ApiResponse, Data>({
     api,
@@ -22,6 +24,10 @@ function DataTable<ApiResponse, Data>({
     getTotalRecords = undefined,
     isFirst = undefined,
     isLast = undefined,
+    importExampleRoute = undefined,
+    importRoute = undefined,
+    exportRoute = undefined,
+    exportables = undefined,
 }: DataTableData<ApiResponse, Data>) {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
@@ -36,6 +42,8 @@ function DataTable<ApiResponse, Data>({
     const [items, setItems] = useState<Data[]>([]);
     const [isPending, setIsPending] = useState(false);
     const [response, setApiResponse] = useState<ApiResponse>();
+    const [openExport, setOpenExport] = useState(false);
+    const [openImport, setOpenImport] = useState(false);
 
     const revalidate = () => {
         setRefetch((prevState) => !prevState);
@@ -98,6 +106,24 @@ function DataTable<ApiResponse, Data>({
                         </button>
                     </div>
                 </Modal>
+                {importRoute && (
+                    <ImportModal
+                        openImport={openImport}
+                        setOpenImport={setOpenImport}
+                        revalidate={revalidate}
+                        importRoute={importRoute}
+                        importExampleRoute={importExampleRoute}
+                    />
+                )}
+                {exportRoute && (
+                    <ExportModal
+                        openExport={openExport}
+                        schema={schema}
+                        setOpenExport={setOpenExport}
+                        exportRoute={exportRoute}
+                        exportables={exportables}
+                    />
+                )}
                 <PageCard>
                     <div>
                         {title ? (
@@ -114,6 +140,10 @@ function DataTable<ApiResponse, Data>({
                             search={search}
                             filter={filter}
                             createUrl={createUrl}
+                            setOpenExport={setOpenExport}
+                            setOpenImport={setOpenImport}
+                            importable={importRoute != undefined}
+                            exportable={exportRoute != undefined}
                         />
                         <div className="border-gray-200 border rounded-lg">
                             <div className="rounded-t-lg overflow-x-auto">

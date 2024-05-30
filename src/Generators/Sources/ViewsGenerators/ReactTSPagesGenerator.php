@@ -375,6 +375,9 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             "{{columns}}" => $this->getDataTableColumns(),
             "{{modelVariable}}" => $this->table->variableNaming(),
             "{{indexRoute}}" => $routes['index'],
+            "{{importRoute}}" => $routes['import'],
+            "{{exportRoute}}" => $routes['export'],
+            '{{importExampleRoute}}' => $routes['example'],
         ];
 
         if ($indexPagePath->exist()) {

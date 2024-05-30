@@ -4,11 +4,15 @@ import { {{modelName}} } from "@/Models/{{modelName}}";
 import { PaginatedResponse } from "@/Models/Response";
 {{imports}}
 
-const Index = () => {
+const Index = ({exportables}:{exportables:string[]}) => {
     return (
         <DataTable
             title="{{modelName}} Table"
             createUrl={route("{{createRoute}}")}
+            importRoute={route('{{importRoute}}')}
+            exportRoute={route('{{exportRoute}}')}
+            importExampleRoute={route('{{importExampleRoute}}')}
+            exportables={exportables}
             getDataArray={(res) => res.data}
             getTotalPages={(res) => res?.pagination_data?.total_pages ?? 0}
             getTotalRecords={(res) => res.pagination_data?.total ?? 0}

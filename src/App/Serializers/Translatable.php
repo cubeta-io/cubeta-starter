@@ -75,4 +75,9 @@ class Translatable implements JsonSerializable
 
         return json_encode($result, JSON_PRETTY_PRINT);
     }
+
+    public function __toString(): string
+    {
+        return $this->translate();
+    }
 }
