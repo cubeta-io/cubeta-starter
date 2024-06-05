@@ -2,14 +2,28 @@ import React, { useState } from "react";
 import Navbar from "@/Components/ui/Navbar";
 import "../../../css/app.css";
 import { Sidebar } from "@/Components/ui/Sidebar";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { usePage } from "@inertiajs/react";
+import { PageProps } from "@/types";
 
 const Layout = ({ children }: { children?: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(true);
   const toggleSidebar = () => {
     setIsOpen((prev) => !prev);
   };
+
+  if (usePage<PageProps>().props.message) {
+      toast.info(usePage<PageProps>().props.message);
+  }
+
+  if (usePage<PageProps>().props.success) {
+      toast.success(usePage<PageProps>().props.success);
+  }
+
+  if (usePage<PageProps>().props.error) {
+      toast.error(usePage<PageProps>().props.error);
+  }
 
   return (
     <>

@@ -45,6 +45,9 @@ class HandleInertiaRequests extends Middleware
             'asset' => asset('/'),
             'baseUrl' => (config('cubeta-starter.project_url') ?? config('app.url') )?? '/',
             'csrfToken' => csrf_token(),
+            'message' => session()->get('message') ?? null ,
+            'error' => session()->get('error') ?? null ,
+            'success' => session()->get('success') ?? null,
         ]);
     }
 }
