@@ -8,4 +8,4 @@ Cubeta-Starter is a developer-centric package
 <p style="font-size: 20px">
 designed to streamline CRUD operations effortlessly.</p>
 
-[Get Started](README.md)
+[Get Started](introduction.md#introduction)

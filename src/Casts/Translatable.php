@@ -25,7 +25,7 @@ class Translatable implements CastsAttributes
     public function set($model, string $key, mixed $value, array $attributes): mixed
     {
         if ($value instanceof SerializersTranslatable) {
-            return json_encode($value->toArray(), JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE);
+            return $value->toJson();
         }
 
         if (is_array($value)) {
@@ -33,10 +33,10 @@ class Translatable implements CastsAttributes
         } else {
             $arrVal = json_decode($value, true);
             if ($arrVal) {
+                return $arrVal;
             } else {
                 throw new Exception("Invalid Translatable Data , it should be either : array , json string , Translatable Object");
             }
-            return $value;
         }
     }
 }

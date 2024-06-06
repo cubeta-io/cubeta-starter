@@ -31,6 +31,9 @@ class Translatable implements JsonSerializable
         $this->data["$name"] = $value;
     }
 
+    /**
+     * @throws Exception
+     */
     public function __construct(string|array $value)
     {
         if (is_string($value)) {
@@ -38,6 +41,7 @@ class Translatable implements JsonSerializable
         } else {
             $this->data = $value;
         }
+        $this->validateLocaleKeys();
     }
 
     public function translate(?string $locale = null)
@@ -51,7 +55,7 @@ class Translatable implements JsonSerializable
         return $this->data;
     }
 
-    public function toJson()
+    public function toJson(): bool|string
     {
         return json_encode($this->data, JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE);
     }
@@ -79,5 +83,17 @@ class Translatable implements JsonSerializable
     public function __toString(): string
     {
         return $this->translate();
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function validateLocaleKeys(): void
+    {
+        foreach ($this->data as $locale => $value) {
+            if (!in_array($locale, config('cubeta-starter.available_locales'))) {
+                throw new Exception("Undefined locale [$locale]  , try to add it to the cubeta-starter config file in available_locals array");
+            }
+        }
     }
 }
