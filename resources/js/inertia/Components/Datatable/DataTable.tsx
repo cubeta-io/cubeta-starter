@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "../icons/LoadingSpinner";
 import TableHead from "./TableHead";
@@ -12,23 +11,23 @@ import ImportModal from "./ImportModal";
 import ExportModal from "./ExportModal";
 
 function DataTable<ApiResponse, Data>({
-    api,
-    schema,
-    createUrl,
-    filter,
-    title,
-    getDataArray,
-    getTotalPages,
-    getNextPage = undefined,
-    getPreviousPage = undefined,
-    getTotalRecords = undefined,
-    isFirst = undefined,
-    isLast = undefined,
-    importExampleRoute = undefined,
-    importRoute = undefined,
-    exportRoute = undefined,
-    exportables = undefined,
-}: DataTableData<ApiResponse, Data>) {
+                                          api,
+                                          schema,
+                                          createUrl,
+                                          filter,
+                                          title,
+                                          getDataArray,
+                                          getTotalPages,
+                                          getNextPage = undefined,
+                                          getPreviousPage = undefined,
+                                          getTotalRecords = undefined,
+                                          isFirst = undefined,
+                                          isLast = undefined,
+                                          importExampleRoute = undefined,
+                                          importRoute = undefined,
+                                          exportRoute = undefined,
+                                          exportables = undefined,
+                                      }: DataTableData<ApiResponse, Data>) {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const [hideCols, setHideCols] = useState<number[]>([]);
@@ -71,7 +70,7 @@ function DataTable<ApiResponse, Data>({
             <div className={`relative`}>
                 {isPending ? (
                     <div className="top-1/2 left-1/2 z-10 absolute flex justify-center items-center bg-transparent/5 opacity-70 m-auto w-full h-full text-center transform -translate-x-1/2 -translate-y-1/2">
-                        <LoadingSpinner className="w-8 h-8" />
+                        <LoadingSpinner className="w-8 h-8 dark:text-white" />
                     </div>
                 ) : null}
                 <Modal
@@ -84,7 +83,7 @@ function DataTable<ApiResponse, Data>({
                     <div className="flex justify-between items-center mt-4">
                         <button
                             type="button"
-                            className="inline-flex justify-center bg-blue-100 hover:bg-blue-200 px-4 py-2 border border-transparent rounded-md font-medium text-blue-900 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                            className="inline-flex justify-center bg-info hover:bg-blue-200 px-4 py-2 rounded-md font-medium text-blue-900 text-sm focus:outline-none"
                             onClick={() => {
                                 setParams(tempParams);
                                 setOpenFilter(false);
@@ -95,7 +94,7 @@ function DataTable<ApiResponse, Data>({
 
                         <button
                             type="button"
-                            className="inline-flex justify-center bg-danger hover:bg-red-700 px-4 py-2 border border-transparent rounded-md font-medium text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                            className="inline-flex justify-center bg-danger hover:bg-red-700 px-4 py-2 rounded-md font-medium text-sm text-white focus:outline-none"
                             onClick={() => {
                                 setTempParams({});
                                 setParams({});
@@ -127,7 +126,7 @@ function DataTable<ApiResponse, Data>({
                 <PageCard>
                     <div>
                         {title ? (
-                            <h1 className="font-bold text-xl">{title}</h1>
+                            <h1 className="font-bold text-xl dark:text-white">{title}</h1>
                         ) : (
                             ""
                         )}
@@ -145,9 +144,9 @@ function DataTable<ApiResponse, Data>({
                             importable={importRoute != undefined}
                             exportable={exportRoute != undefined}
                         />
-                        <div className="border-gray-200 border rounded-lg">
+                        <div className="rounded-lg">
                             <div className="rounded-t-lg overflow-x-auto">
-                                <table className="relative bg-white scroll-my-0 divide-y-2 divide-gray-200 min-w-full text-sm overflow-y-hidden">
+                                <table className="relative bg-white-secondary dark:bg-dark-secondary scroll-my-0 min-w-full text-sm dark:text-white overflow-y-hidden">
                                     <TableHead
                                         schema={schema}
                                         setSortDir={setSortDir}

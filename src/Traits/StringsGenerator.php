@@ -150,7 +150,7 @@ trait StringsGenerator
                         name={\"category_id\"}
                         label={\"Category\"}
                         onChange={(e) =>
-                            setData(\"{$attribute->name}\", e.target.valueAsNumber)
+                            setData(\"{$attribute->name}\", e.target.value)
                         }
                         optionLabel={\"{$relatedModel->titleable()->name}\"}
                         optionValue={\"id\"}

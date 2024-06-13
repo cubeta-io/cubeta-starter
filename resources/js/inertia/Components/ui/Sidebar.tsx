@@ -1,21 +1,22 @@
 import React from "react";
 import {asset} from "@/helper";
 import Menu from "../icons/Menu";
-import { Link } from "@inertiajs/react";
+import {Link} from "@inertiajs/react";
 
 const sidebarItems = [
     {
         href: "/",
         title: "Dashboard",
-    },
+    }
 ];
 
 export const Sidebar = ({toggleSidebar}: { toggleSidebar: () => void }) => {
     return (
-        <div className="sticky flex flex-col justify-between bg-white max-h-screen overflow-y-scroll">
+        <div
+            className="sticky flex flex-col justify-between bg-white-secondary dark:bg-dark-secondary max-h-screen overflow-y-scroll">
             <div
                 className={
-                    "flex justify-between items-center sticky top-0 bg-white p-[17px] max-h-20 shadow-sm"
+                    "flex justify-between items-center sticky top-0 bg-white-secondary dark:bg-dark-secondary p-[17px] max-h-20 shadow-sm"
                 }
             >
                 <div className={`flex items-center gap-1`}>
@@ -26,20 +27,20 @@ export const Sidebar = ({toggleSidebar}: { toggleSidebar: () => void }) => {
                     />
                     <a
                         href="#"
-                        className="px-2 w-full text-2xl text-brand hover:underline"
+                        className="px-2 w-full text-2xl text-brand dark:text-white hover:underline"
                     >
                         Cubeta Starter
                     </a>
                 </div>
 
                 <button type={"button"} onClick={() => toggleSidebar()}>
-                    <Menu className="w-8 h-8 text-brand"/>
+                    <Menu className="w-8 h-8 text-brand dark:text-white"/>
                 </button>
             </div>
 
             <div
                 id="sidebar-list"
-                className={"bg-white w-full mt-6 gap-1 px-4"}
+                className={"bg-white-secondary dark:bg-dark-secondary w-full mt-6 gap-1 px-4"}
             >
                 {sidebarItems.map((item, index) => (
                     <SidebarItem
@@ -66,7 +67,7 @@ export const SidebarItem = ({
         <div className="mb-3">
             <Link
                 className={`flex text-lg font-semibold gap-5 items-center px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 rounded-lg ${
-                    selected ? "bg-sky-100" : ""
+                    selected ? "bg-sky-100 dark:bg-white-secondary dark:text-black" : " dark:text-white"
                 }`}
                 href={href}
             >

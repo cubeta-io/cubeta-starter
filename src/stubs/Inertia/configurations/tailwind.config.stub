@@ -8,19 +8,22 @@ export default {
         './resources/views/**/*.blade.php',
         './resources/js/**/*.tsx',
     ],
-
+    darkMode: ['selector'],
     theme: {
         extend: {
             colors: {
-                brand: "#012970",
-                primary: "#0D6EFD",
-                secondary: "#6c757d",
-                success: "#198754",
-                info: "#0dcaf0",
-                warning: "#ffc107",
-                danger: "#dc3545",
-                light: "#f8f9fa",
-                dark: "#212529",
+                brand: 'var(--color-brand)',
+                primary: 'var(--color-primary)',
+                secondary: 'var(--color-secondary)',
+                success: 'var(--color-success)',
+                info: 'var(--color-info)',
+                warning: 'var(--color-warning)',
+                danger: 'var(--color-danger)',
+                white: 'var(--color-white)',
+                'white-secondary': 'var(--color-white-secondary)',
+                black: 'var(--color-black)',
+                dark: 'var(--color-dark)',
+                'dark-secondary': 'var(--color-dark-secondary)',
             },
         },
         fontFamily: {

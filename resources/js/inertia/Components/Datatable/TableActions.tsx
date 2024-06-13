@@ -1,5 +1,4 @@
 import { Link } from "@inertiajs/react";
-import Button from "../ui/Button";
 import DocumentPlus from "../icons/DocumentPlus";
 import { TableActionsProps } from "./DataTableUtils";
 import Filter from "../icons/Filter";
@@ -7,60 +6,67 @@ import ArrowDownTray from "../icons/ArrowDownTray";
 import TableCells from "../icons/TableCells";
 
 function TableActions({
-    createUrl,
-    setOpenFilter,
-    setPage,
-    perPage,
-    setPerPage,
-    setSearch,
-    search,
-    filter,
-    setOpenImport,
-    setOpenExport,
-    exportable = false,
-    importable = false,
-}: TableActionsProps) {
+                          createUrl,
+                          setOpenFilter,
+                          setPage,
+                          perPage,
+                          setPerPage,
+                          setSearch,
+                          search,
+                          filter,
+                          setOpenImport,
+                          setOpenExport,
+                          exportable = false,
+                          importable = false,
+                      }: TableActionsProps) {
     return (
         <div className={`w-full flex justify-between items-center my-2`}>
             <div className={"flex gap-1"}>
                 {createUrl ? (
                     <Link href={createUrl ?? "#"}>
-                        <Button>
-                            <DocumentPlus
-                                className={`h-6 w-6 hover:text-primary`}
-                            />
-                        </Button>
+                        <DocumentPlus
+                            className={`h-7 w-7 text-primary hover:text-black dark:hover:text-white`}
+                        />
                     </Link>
                 ) : (
-                    false
+                    ""
                 )}
                 {filter ? (
-                    <div>
-                        <Button
-                            onClick={() =>
-                                setOpenFilter((prevState) => !prevState)
+                    <button
+                        type={"button"}
+                        onClick={() => setOpenFilter((prevState) => !prevState)}
+                    >
+                        <Filter
+                            className={
+                                "h-7 w-7 text-info hover:text-black dark:hover:text-white"
                             }
-                        >
-                            <Filter />
-                        </Button>
-                    </div>
+                        />
+                    </button>
                 ) : (
                     ""
                 )}
                 {importable && (
-                    <Button color="secondary" onClick={() => setOpenImport((prev) => !prev)}>
-                        <ArrowDownTray />
-                    </Button>
+                    <button onClick={() => setOpenImport((prev) => !prev)}>
+                        <ArrowDownTray
+                            className={
+                                "h-7 w-7 text-secondary hover:text-black dark:hover:text-white "
+                            }
+                        />
+                    </button>
                 )}
                 {exportable && (
-                    <Button color="success" onClick={() => setOpenExport((prev) => !prev)}>
-                        <TableCells />
-                    </Button>
+                    <button onClick={() => setOpenExport((prev) => !prev)}>
+                        <TableCells
+                            className={
+                                "h-7 w-7 text-success hover:text-black dark:hover:text-white"
+                            }
+                        />
+                    </button>
                 )}
             </div>
             <div className={"flex gap-2"}>
                 <select
-                    className="border-gray-300 py-2 rounded-lg w-full text-gray-700 sm:text-sm"
+                    className="border-gray-300 py-2 rounded-lg w-full text-gray-700 sm:text-sm dark:bg-gray-800 dark:text-white"
                     onChange={(e) => {
                         setPage(1);
                         setSearch("");
@@ -79,7 +85,7 @@ function TableActions({
                     type="text"
                     id="Search"
                     placeholder="Search for..."
-                    className="border-gray-200 shadow-sm py-1 rounded-md w-full sm:text-sm"
+                    className="w-full rounded-md py-2.5 pe-10 shadow-sm sm:text-sm dark:bg-gray-800 dark:text-white"
                     value={search}
                     onChange={(e) => {
                         setSearch(e.target.value);

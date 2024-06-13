@@ -6,12 +6,12 @@ import Button from "../ui/Button";
 import DownloadFile from "@/Hooks/DownloadFile";
 
 const ImportModal = ({
-    openImport,
-    setOpenImport,
-    revalidate,
-    importRoute,
-    importExampleRoute,
-}: {
+                         openImport,
+                         setOpenImport,
+                         revalidate,
+                         importRoute,
+                         importExampleRoute,
+                     }: {
     openImport: boolean;
     setOpenImport: (value: boolean | ((prev: boolean) => boolean)) => void;
     revalidate: () => void;
@@ -46,12 +46,11 @@ const ImportModal = ({
             }}
         >
             <form onSubmit={onSubmit}>
-                <label>
+                <label className={"dark:text-white"}>
                     Excel File
                     <Input
                         name={"excel_file"}
                         type="file"
-                        label="excel file"
                         onChange={(e) => {
                             setData("excel_file", e.target.files?.[0]);
                         }}

@@ -15,7 +15,7 @@ const TranslatableInputsContext = ({ children }: { children: ReactNode }) => {
             <div className="flex justify-end items-center my-4 lang-btn-holder">
                 {availableLocales.map((lang, index) => (
                     <label
-                        className="flex justify-center items-center border-primary has-[:checked]:border-primar hover:border-gray-200 bg-white has-[:checked]:bg-primary px-3 py-2 border borderbg-primary rounded-md text-gray-900 has-[:checked]:text-white cursor-pointer lang-btn"
+                        className="flex justify-center items-center border-primary has-[:checked]:border-primar bg-white dark:bg-dark-secondary dark:text-white has-[:checked]:bg-primary px-3 py-2 border borderbg-primary rounded-md text-gray-900 has-[:checked]:text-white cursor-pointer lang-btn"
                         key={index}
                     >
                         <input

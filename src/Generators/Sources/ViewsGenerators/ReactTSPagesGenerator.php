@@ -82,19 +82,19 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         }
 
         $stubProperties = [
-            '{{imports}}' => $this->imports,
-            '{{formFieldsInterface}}' => $formInterface,
-            '{{setPut}}' => $this->currentForm == "Create" ? "" : "setData(\"_method\" , 'PUT');",
-            '{{action}}' => $action,
-            '{{translatableContext}}' => $translatableContext['open'] ?? "",
+            '{{imports}}'                  => $this->imports,
+            '{{formFieldsInterface}}'      => $formInterface,
+            '{{setPut}}'                   => $this->currentForm == "Create" ? "" : "setData(\"_method\" , 'PUT');",
+            '{{action}}'                   => $action,
+            '{{translatableContext}}'      => $translatableContext['open'] ?? "",
             '{{closeTranslatableContext}}' => $translatableContext['close'] ?? "",
-            '{{bigFields}}' => $bigFields,
-            '{{smallFields}}' => $smallFields,
-            "{{formType}}" => $this->currentForm,
-            "{{modelName}}" => $this->table->modelName,
-            "{{componentName}}" => $this->currentForm,
-            "{{componentProps}}" => $this->currentForm == "Edit" ? "{{$this->table->variableNaming()}}:{{$this->table->variableNaming()}:{$this->table->modelName}}" : "",
-            "{{defaultValues}}" => $defaultValues,
+            '{{bigFields}}'                => $bigFields,
+            '{{smallFields}}'              => $smallFields,
+            "{{formType}}"                 => $this->currentForm,
+            "{{modelName}}"                => $this->table->modelName,
+            "{{componentName}}"            => $this->currentForm,
+            "{{componentProps}}"           => $this->currentForm == "Edit" ? "{{$this->table->variableNaming()}}:{{$this->table->variableNaming()}:{$this->table->modelName}}" : "",
+            "{{defaultValues}}"            => $defaultValues,
         ];
 
         $formPath->ensureDirectoryExists();
@@ -116,7 +116,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         if ($this->table->translatables()->count()) {
             $translatableContext = [
-                'open' => '<TranslatableInputsContext>',
+                'open'  => '<TranslatableInputsContext>',
                 'close' => '</TranslatableInputsContext>',
             ];
             $this->imports .= "\n import TranslatableInputsContext from \"@/Contexts/TranslatableInputsContext\";\n";
@@ -251,10 +251,10 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         });
 
         $stubProperties = [
-            '{{modelName}}' => $this->table->modelName,
+            '{{modelName}}'  => $this->table->modelName,
             '{{properties}}' => $properties,
-            "{{relations}}" => $relations,
-            "{{imports}}" => $this->imports,
+            "{{relations}}"  => $relations,
+            "{{imports}}"    => $this->imports,
         ];
 
         $interfacePath = $this->table->getTSModelPath();
@@ -320,7 +320,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             } elseif ($attr->isFile()) {
                 $this->addImport("import { asset } from \"@/helper\";");
                 $this->addImport("import Gallery from \"@/Components/Show/Gallery\";");
-                $bigFields .= "<div className=\"bg-gray-50 my-2 mb-5 p-4 rounded-md font-bold text-xl\">
+                $bigFields .= "<div className=\"bg-gray-50 my-2 mb-5 p-4 rounded-md font-bold text-xl dark:bg-dark dark:text-white\">
                                     <label className=\"font-semibold text-lg\">{$attr->titleNaming()} :</label>
                                     <Gallery
                                         sources={
@@ -344,12 +344,12 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         });
 
         $stubProperties = [
-            '{{modelName}}' => $this->table->modelName,
-            "{{imports}}" => $this->imports,
+            '{{modelName}}'    => $this->table->modelName,
+            "{{imports}}"      => $this->imports,
             "{{variableName}}" => $modelVariable,
-            "{{editRoute}}" => $routes['edit'],
-            "{{smallFields}}" => $smallFields,
-            "{{bigFields}}" => $bigFields,
+            "{{editRoute}}"    => $routes['edit'],
+            "{{smallFields}}"  => $smallFields,
+            "{{bigFields}}"    => $bigFields,
         ];
 
         $showPagePath->ensureDirectoryExists();
@@ -368,15 +368,15 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $this->imports = "";
         $routes = $this->getRoutesNames($this->table, $this->actor);
         $stubProperties = [
-            '{{modelName}}' => $this->table->modelName,
-            "{{imports}}" => $this->imports,
-            "{{createRoute}}" => $routes['create'],
-            "{{dataRoute}}" => $routes['data'],
-            "{{columns}}" => $this->getDataTableColumns(),
-            "{{modelVariable}}" => $this->table->variableNaming(),
-            "{{indexRoute}}" => $routes['index'],
-            "{{importRoute}}" => $routes['import'],
-            "{{exportRoute}}" => $routes['export'],
+            '{{modelName}}'          => $this->table->modelName,
+            "{{columns}}"            => $this->getDataTableColumns(),
+            "{{imports}}"            => $this->imports,
+            "{{createRoute}}"        => $routes['create'],
+            "{{dataRoute}}"          => $routes['data'],
+            "{{modelVariable}}"      => $this->table->variableNaming(),
+            "{{indexRoute}}"         => $routes['index'],
+            "{{importRoute}}"        => $routes['import'],
+            "{{exportRoute}}"        => $routes['export'],
             '{{importExampleRoute}}' => $routes['example'],
         ];
 

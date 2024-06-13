@@ -1,12 +1,12 @@
-import { LocaleContext } from "@/Contexts/TranslatableInputsContext";
-import { usePage } from "@inertiajs/react";
-import React, { ChangeEvent, useContext, useRef, useState } from "react";
-import Input, { InputProps } from "./Input";
-import { PageProps } from "@/types";
-import { Translatable, translate } from "@/Models/Translatable";
+import {LocaleContext} from "@/Contexts/TranslatableInputsContext";
+import {usePage} from "@inertiajs/react";
+import React, {ChangeEvent, useContext, useRef, useState} from "react";
+import Input, {InputProps} from "./Input";
+import {PageProps} from "@/types";
+import {Translatable, translate} from "@/Models/Translatable";
 
 interface ITranslatableInputProps {
-    defaultValue?: string | Translatable;
+    defaultValue?: string | Translatable | object | undefined;
     onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
     onInput?: (e: ChangeEvent<HTMLInputElement>) => void;
     required?: boolean;
@@ -38,9 +38,24 @@ const TranslatableInput: React.FC<
         defaultValue = translate(defaultValue, true);
     }
 
-    const [value, setValue] = useState<object | undefined>(
-        defaultValue ?? undefined
+    const [value, setValue] = useState<object | undefined | Translatable>(
+        defaultValue ?? undefined,
     );
+
+    const handleChange = async (
+        e: ChangeEvent<HTMLInputElement>,
+        lang: string | keyof Translatable,
+    ) => {
+        await setValue((prev) =>
+            prev
+                ? {
+                    ...prev,
+                    [lang]: e.target.value,
+                }
+                : {[lang]: e.target.value},
+        );
+        inputRef?.current?.dispatchEvent(new Event("input", {bubbles: true}));
+    };
 
     return (
         <div className={"flex flex-col w-full"}>
@@ -71,19 +86,7 @@ const TranslatableInput: React.FC<
                             }
                             type={"text"}
                             placeholder={placeholder}
-                            onInput={(e) => {
-                                setValue((prev) =>
-                                    prev
-                                        ? {
-                                            ...prev,
-                                            [lang]: e.target.value,
-                                        }
-                                        : { [lang]: e.target.value }
-                                );
-                                inputRef?.current?.dispatchEvent(
-                                    new Event("input", { bubbles: true })
-                                );
-                            }}
+                            onInput={(e) => handleChange(e, lang)}
                             required={required}
                             {...props}
                         />

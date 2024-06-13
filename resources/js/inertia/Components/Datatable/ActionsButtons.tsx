@@ -21,16 +21,16 @@ export interface ActionsButtonsProps<Data> {
 }
 
 function ActionsButtons<Data>({
-    data,
-    id,
-    buttons,
-    baseUrl,
-    deleteUrl,
-    showUrl,
-    editUrl,
-    setHidden,
-    children,
-}: ActionsButtonsProps<Data>) {
+                                  data,
+                                  id,
+                                  buttons,
+                                  baseUrl,
+                                  deleteUrl,
+                                  showUrl,
+                                  editUrl,
+                                  setHidden,
+                                  children,
+                              }: ActionsButtonsProps<Data>) {
     const dataId = id ?? data?.id ?? undefined;
 
     const dUrl = deleteUrl ?? `${baseUrl}/${dataId ?? ""}`; // delete url
@@ -42,30 +42,24 @@ function ActionsButtons<Data>({
     return (
         <div className={`flex justify-between items-center`}>
             {buttons.includes("show") ? (
-                <Link
-                    href={sUrl}
-                    className="bg-gray-100 hover:bg-gray-200 p-1 rounded-md"
-                >
-                    <Eye className="w-6 h-6 text-info" />
+                <Link href={sUrl} className="hover:bg-white-secondary p-0.5 rounded-md">
+                    <Eye className="w-5 h-5 text-info" />
                 </Link>
             ) : (
                 ""
             )}
             {buttons.includes("edit") ? (
-                <Link
-                    href={eUrl}
-                    className="bg-gray-100 hover:bg-gray-200 p-1 rounded-md"
-                >
-                    <Pencil className="w-6 h-6 text-success" />
+                <Link href={eUrl} className="hover:bg-white-secondary p-0.5 rounded-md">
+                    <Pencil className="w-5 h-5 text-success" />
                 </Link>
             ) : (
                 ""
             )}
 
             {buttons.includes("delete") ? (
-                <button className="bg-gray-100 hover:bg-gray-200 p-1 rounded-md">
+                <button className="hover:bg-white-secondary p-0.5 rounded-md">
                     <Trash
-                        className="w-6 h-6 text-danger"
+                        className="w-5 h-5 text-danger"
                         onClick={() => {
                             swal.fire({
                                 title: "Do you want to Delete this item ?",
@@ -94,7 +88,7 @@ function ActionsButtons<Data>({
                                             })
                                             .catch(() => {
                                                 toast.error(
-                                                    "There Is Been An Error In Deleting"
+                                                    "There Is Been An Error In Deleting",
                                                 );
                                             });
                                     }

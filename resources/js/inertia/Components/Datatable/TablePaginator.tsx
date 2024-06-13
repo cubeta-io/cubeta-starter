@@ -3,16 +3,16 @@ import ChevronRight from "../icons/ChevronRight";
 import { TablePaginatorProps } from "./DataTableUtils";
 
 function TablePaginator<ApiResponse>({
-    response,
-    page,
-    setPage,
-    getTotalPages,
-    getNextPage,
-    getPreviousPage,
-    getTotalRecords = undefined,
-    isFirst = undefined,
-    isLast = undefined,
-}: TablePaginatorProps<ApiResponse>) {
+                                         response,
+                                         page,
+                                         setPage,
+                                         getTotalPages,
+                                         getNextPage,
+                                         getPreviousPage,
+                                         getTotalRecords = undefined,
+                                         isFirst = undefined,
+                                         isLast = undefined,
+                                     }: TablePaginatorProps<ApiResponse>) {
     const paginationArray = [...Array(getTotalPages(response) ?? 0)];
 
     const setNextPage = () => {
@@ -32,18 +32,18 @@ function TablePaginator<ApiResponse>({
     };
 
     return (
-        <div className="flex justify-between border-gray-200 px-4 py-2 border-t rounded-b-lg">
+        <div className="flex justify-between px-4 py-2">
             {getTotalRecords && (
-                <div className={"justify-start"}>
+                <div className={"justify-start dark:text-white"}>
                     Total Records : {getTotalRecords(response)}
                 </div>
             )}
             <ol className="flex justify-end items-center gap-1 font-medium text-xs">
-                <li>
+                <li className={`border-0`}>
                     <button
                         onClick={() => setPrevPage()}
                         disabled={isFirst ? isFirst(response) : page <= 1}
-                        className="inline-flex justify-center items-center border-gray-100 bg-white border rounded text-gray-900 size-8 rtl:rotate-180"
+                        className="cursor-pointer inline-flex justify-center items-center bg-secondary rounded-md border-0 outline-0 text-white size-8 rtl:rotate-180"
                     >
                         <span className="sr-only">Prev Page</span>
                         <ChevronLeft />
@@ -56,10 +56,10 @@ function TablePaginator<ApiResponse>({
                             <li key={`page-${index + 1}`}>
                                 <button
                                     onClick={() => setPage(index + 1)}
-                                    className={`block size-8 rounded border border-gray-100 text-center leading-8  ${
+                                    className={`size-8 rounded-md text-center leading-8  ${
                                         index + 1 == page
                                             ? "bg-primary text-white"
-                                            : "bg-white text-gray-900"
+                                            : "bg-white dark:bg-white text-primary"
                                     }`}
                                 >
                                     {index + 1}
@@ -81,10 +81,10 @@ function TablePaginator<ApiResponse>({
                             <li key={`page-${index + 1}`}>
                                 <button
                                     onClick={() => setPage(index + 1)}
-                                    className={`block size-8 rounded border border-gray-100 text-center leading-8 ${
+                                    className={`size-8 rounded-md text-center leading-8  ${
                                         index + 1 == page
                                             ? "bg-primary text-white"
-                                            : "bg-white text-gray-900"
+                                            : "bg-white dark:bg-white text-primary"
                                     }`}
                                 >
                                     {index + 1}
@@ -104,7 +104,7 @@ function TablePaginator<ApiResponse>({
                                 ? isLast(response)
                                 : getTotalPages(response) == page
                         }
-                        className="inline-flex justify-center items-center border-gray-100 bg-white border rounded text-gray-900 size-8 rtl:rotate-180"
+                        className="cursor-pointer inline-flex justify-center items-center bg-secondary rounded-md border-0 outline-0 text-white size-8 rtl:rotate-180"
                     >
                         <span className="sr-only">Next Page</span>
                         <ChevronRight />

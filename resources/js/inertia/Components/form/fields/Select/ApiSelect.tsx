@@ -80,7 +80,7 @@ function ApiSelect<TResponse, TData>({
                     setIsLoading(false);
                     setIsLast(getIsLast(data) ?? true);
                     setTotalPages(getTotalPages(data) ?? 1);
-                }
+                },
             );
         }
     };
@@ -96,7 +96,7 @@ function ApiSelect<TResponse, TData>({
 
     const handleChoseItem = (
         e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-        item: TData
+        item: TData,
     ) => {
         e.stopPropagation();
         if (onSelect) {
@@ -106,7 +106,7 @@ function ApiSelect<TResponse, TData>({
             if (isMultiple) {
                 if (include(option, selected)) {
                     setSelected((prev) =>
-                        prev.filter((sel) => !isEqual(sel, option))
+                        prev.filter((sel) => !isEqual(sel, option)),
                     );
                 } else {
                     setSelected((prev) => [option, ...prev]);
@@ -149,7 +149,7 @@ function ApiSelect<TResponse, TData>({
     };
 
     const handleClickingOnSearchInput = (
-        e: React.MouseEvent<HTMLInputElement, MouseEvent>
+        e: React.MouseEvent<HTMLInputElement, MouseEvent>,
     ) => {
         e.stopPropagation();
         setIsOpen(true);
@@ -157,7 +157,7 @@ function ApiSelect<TResponse, TData>({
 
     const handleRemoveFromSelected = (
         e: React.MouseEvent<HTMLSpanElement, MouseEvent>,
-        clickedItem: Option
+        clickedItem: Option,
     ) => {
         e.stopPropagation();
         setSelected((prev) => prev.filter((i) => !isEqual(i, clickedItem)));
@@ -205,7 +205,7 @@ function ApiSelect<TResponse, TData>({
             <label
                 className={`block ${
                     styles?.labelClasses ??
-                    "font-medium text-gray-900 text-sm select-text"
+                    "font-medium text-gray-900 dark:text-white text-sm select-text"
                 }`}
             >
                 {label ?? ""}
@@ -258,7 +258,7 @@ function ApiSelect<TResponse, TData>({
                             ))}
                         </div>
                     ) : (
-                        <p>{placeHolder}</p>
+                        <p className={"dark:text-white"}>{placeHolder}</p>
                     )}
                     <div className="flex items-center gap-2">
                         {isLoading && (
@@ -288,7 +288,7 @@ function ApiSelect<TResponse, TData>({
                         isOpen
                             ? `absolute left-0 z-50 ${
                                 styles?.dropDownItemsContainerClasses ??
-                                " px-3 pb-3 rounded-lg border border-gray-200 shadow-2xl bg-white w-full"
+                                " px-3 pb-3 rounded-lg border border-gray-200 shadow-2xl bg-white-secondary dark:bg-dark-secondary w-full"
                             }`
                             : "hidden"
                     }
@@ -307,7 +307,7 @@ function ApiSelect<TResponse, TData>({
                         <input
                             className={`${
                                 styles?.searchInputClasses ??
-                                "focus:border-primary p-1 my-2 focus:outline-primary rounded-md w-full"
+                                "focus:border-primary p-1 my-2 focus:outline-primary rounded-md w-full dark:bg-secondary placeholder-white dark:text-white"
                             }`}
                             onClick={(e) => handleClickingOnSearchInput(e)}
                             onChange={(e) => handleSearchChange(e)}
@@ -332,7 +332,7 @@ function ApiSelect<TResponse, TData>({
                             }
                             ${
                                 styles?.dropDownItemClasses ??
-                                "cursor-pointer hover:border-primary hover:bg-primary my-1 p-2 rounded-md w-full text-black"
+                                "cursor-pointer hover:border-primary hover:bg-primary my-1 p-2 rounded-md w-full text-black dark:text-white"
                             }`}
                             onClick={(e) => handleChoseItem(e, item)}
                         >
@@ -341,7 +341,7 @@ function ApiSelect<TResponse, TData>({
                     ))}
 
                     {isLoading && (
-                        <div className="flex justify-center items-center my-2 w-full">
+                        <div className="flex justify-center items-center my-2 w-full dark:text-white">
                             Loading ...
                         </div>
                     )}
