@@ -34,10 +34,10 @@ const Login = () => {
                         <div className="flex flex-col my-5">
                             <div className="flex justify-center items-center">
                                 <h1 className="font-semibold text-3xl text-brand">
-                                    Welcom Back
+                                    Welcome Back
                                 </h1>
                             </div>
-                            <div className="flex justify-center items-center">
+                            <div className="flex justify-center items-center dark:text-white">
                                 <p>Please Login To Your Account</p>
                             </div>
                         </div>
@@ -67,7 +67,7 @@ const Login = () => {
                                     type="password"
                                 />
                             </div>
-                            <p className="text-lg">
+                            <p className="text-lg dark:text-white">
                                 Forgot Your Password ?{" "}
                                 <span>
                                     <Link
@@ -80,7 +80,7 @@ const Login = () => {
                                     </Link>
                                 </span>
                             </p>
-                            <p className="text-lg">
+                            <p className="text-lg dark:text-white">
                                 New User ?{" "}
                                 <span>
                                     <Link

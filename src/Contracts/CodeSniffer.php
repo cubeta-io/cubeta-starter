@@ -481,6 +481,8 @@ class CodeSniffer
                 if ($relatedKeyAttribute) {
                     $apiSelectImport = "import ApiSelect from \"@/Components/form/fields/Select/ApiSelect\";";
                     FileUtils::tsAddImportStatement($apiSelectImport, $rel->getReactTSPagesPaths('create'));
+                    FileUtils::tsAddImportStatement("import { translate } from \"@/Models/Translatable\";", $rel->getReactTSPagesPaths('create'));
+
                     $this->addNewInputToReactTSForm(
                         $this->inertiaApiSelectComponent(
                             $this->table,
@@ -492,6 +494,8 @@ class CodeSniffer
                     );
 
                     FileUtils::tsAddImportStatement($apiSelectImport, $rel->getReactTSPagesPaths('update'));
+                    FileUtils::tsAddImportStatement("import { translate } from \"@/Models/Translatable\";", $rel->getReactTSPagesPaths('create'));
+
                     $this->addNewInputToReactTSForm(
                         $this->inertiaApiSelectComponent(
                             $this->table,

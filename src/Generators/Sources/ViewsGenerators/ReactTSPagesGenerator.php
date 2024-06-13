@@ -208,6 +208,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $this->addImport("import { PaginatedResponse } from \"@/Models/Response\";");
             $this->addImport("import ApiSelect from \"@/Components/form/fields/Select/ApiSelect\";");
             $this->addImport("import { {$relatedModel->modelName} } from \"@/Models/{$relatedModel->modelName}\"");
+            $this->addImport("import { translate } from \"@/Models/Translatable\";");
 
             return $this->inertiaApiSelectComponent($relatedModel, $dataRoute, $attribute, $this->currentForm == "Edit");
         } elseif ($attribute->isFile()) {

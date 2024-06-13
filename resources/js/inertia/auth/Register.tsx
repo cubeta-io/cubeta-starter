@@ -40,7 +40,7 @@ const Register = () => {
                                     Hello There !
                                 </h1>
                             </div>
-                            <div className="flex justify-center items-center">
+                            <div className="flex justify-center items-center dark:text-white">
                                 <p>Fill The Information Below To Continue</p>
                             </div>
                         </div>
@@ -106,7 +106,7 @@ const Register = () => {
                                     type="password"
                                 />
                             </div>
-                            <p className="text-lg">
+                            <p className="text-lg dark:text-white">
                                 Have An Account ? {" "}
                                 <span>
                                     <Link

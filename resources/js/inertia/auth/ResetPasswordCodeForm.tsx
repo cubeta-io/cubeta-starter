@@ -36,7 +36,7 @@ const ResetPasswordCodeForm = () => {
                                 </h1>
                             </div>
                             <div className="flex justify-center items-center">
-                                <p>
+                                <p className={"dark:text-white"}>
                                     Enter the reset code sent within the email
                                     below
                                 </p>

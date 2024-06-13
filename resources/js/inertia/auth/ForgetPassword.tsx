@@ -35,7 +35,7 @@ const ForgetPassword = () => {
                                 </h1>
                             </div>
                             <div className="flex justify-center items-center">
-                                <p className="text-center mt-1">
+                                <p className="text-center mt-1 dark:text-white">
                                     Enter Your Email So We Can Send You A Reset
                                     Password Code
                                 </p>

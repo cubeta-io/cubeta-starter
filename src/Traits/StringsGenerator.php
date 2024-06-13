@@ -16,7 +16,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function hasManyFunction(CubeTable | CubeRelation $model): string
+    public function hasManyFunction(CubeTable|CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming(singular: false);
         return "public function $relationName()\n{\n\t return \$this->hasMany(" . $model->modelName . "::class);\n}\n\n";
@@ -26,7 +26,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function manyToManyFunction(CubeTable | CubeRelation $model): string
+    public function manyToManyFunction(CubeTable|CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming(singular: false);
         return "public function $relationName()\n{\n\t return \$this->belongsToMany(" . $model->modelName . "::class);\n}\n\n";
@@ -36,7 +36,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function belongsToFunction(CubeTable | CubeRelation $model): string
+    public function belongsToFunction(CubeTable|CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming();
         return "public function $relationName()\n{\n\t return \$this->belongsTo(" . $model->modelName . "::class); \n}\n\n";
@@ -46,7 +46,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function factoryRelationMethod(CubeTable | CubeRelation $model): string
+    public function factoryRelationMethod(CubeTable|CubeRelation $model): string
     {
         $functionName = 'with' . ucfirst(Str::plural(Str::studly($model->modelName)));
         return "public function {$functionName}(\$count = 1)\n{\n\t return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$model->modelName}::factory(\$count));\n} \n";
@@ -122,6 +122,10 @@ trait StringsGenerator
 
         $value = $this->getDefaultValue($isUpdate, $attribute, $relatedModel);
 
+        $optionLabel = !$relatedModel->titleable()->isTranslatable()
+            ? "optionLabel={\"{$relatedModel->titleable()->name}\"}"
+            : "getOptionLabel={(data) => translate(data.{$relatedModel->titleable()->name})}";
+
         return "\n<ApiSelect
                         api={(
                             page,
@@ -152,7 +156,7 @@ trait StringsGenerator
                         onChange={(e) =>
                             setData(\"{$attribute->name}\", e.target.value)
                         }
-                        optionLabel={\"{$relatedModel->titleable()->name}\"}
+                        {$optionLabel}
                         optionValue={\"id\"}
                         required={{$required}}
                         $value

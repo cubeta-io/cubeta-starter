@@ -9,12 +9,12 @@ const DarkModeToggle = () => {
 
     useEffect(() => {
         if (dark) {
-            htmlTag.classList.add("dark");
-            htmlTag.classList.remove("light");
+            htmlTag?.classList.add("dark");
+            htmlTag?.classList.remove("light");
             window.localStorage.setItem("theme_mode", "dark");
         } else {
-            htmlTag.classList.add("light");
-            htmlTag.classList.remove("dark");
+            htmlTag?.classList.add("light");
+            htmlTag?.classList.remove("dark");
             window.localStorage.setItem("theme_mode", "light");
         }
     }, [dark]);

@@ -36,8 +36,8 @@ const ResetPassword = () => {
                                     You Have 1 Step Left
                                 </h1>
                             </div>
-                            <div className="flex justify-center items-center">
-                                <p>Please enter your new password</p>
+                            <div className="flex justify-center items-center dark:text-white">
+                                <p>Please enter your new password and your reset code</p>
                             </div>
                         </div>
                         <Form onSubmit={onSubmit} processing={processing}>

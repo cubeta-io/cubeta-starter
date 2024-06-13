@@ -9,10 +9,11 @@ import { Translatable, translate } from "@/Models/Translatable";
 import { usePage } from "@inertiajs/react";
 import { PageProps } from "@/types";
 import { LocaleContext } from "@/Contexts/TranslatableInputsContext";
+import {getNestedPropertyValue} from "@/helper";
 
 interface TranslatableProps
     extends Omit<HTMLProps<HTMLTextAreaElement>, "defaultValue"> {
-    defaultValue: string | object | Translatable | undefined;
+    defaultValue?: string | object | Translatable | undefined;
 }
 
 const TranslatableTextEditor: React.FC<TranslatableProps> = ({
@@ -97,7 +98,7 @@ const TranslatableTextEditor: React.FC<TranslatableProps> = ({
                         }
                         rows={4}
                         name={`${name}[${lang}]`}
-                        defaultValue={defaultValue ? defaultValue[lang] : ""}
+                        defaultValue={defaultValue ? getNestedPropertyValue(defaultValue , lang) : ""}
                         onChange={(e) => handleChange(lang, e)}
                         required={required}
                         {...props}

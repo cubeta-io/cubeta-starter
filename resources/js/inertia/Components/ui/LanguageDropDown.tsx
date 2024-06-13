@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { usePage } from "@inertiajs/react";
-import { PageProps } from "@/types";
+import {useState} from "react";
+import {usePage} from "@inertiajs/react";
+import {PageProps} from "@/types";
+import {AvailableLocales} from "@/Models/Translatable";
 
 const LanguageDropdown = () => {
-    const { currentLocale, availableLocales, csrfToken } =
+    const {currentLocale, availableLocales, csrfToken} =
         usePage<PageProps>().props;
     const [open, setOpen] = useState(false);
     const [selectedLocale, setSelectedLocale] = useState(currentLocale);
@@ -45,7 +46,7 @@ const LanguageDropdown = () => {
                             role="menuitem"
                             key={locale}
                             onClick={() => {
-                                fetch(route("web.public.change-locale"), {
+                                fetch(route("set-locale"), {
                                     body: JSON.stringify({
                                         lang: locale,
                                     }),
@@ -57,7 +58,7 @@ const LanguageDropdown = () => {
                                 }).then((r) => {
                                     location.reload();
                                 });
-                                setSelectedLocale(locale);
+                                setSelectedLocale(locale as AvailableLocales);
                                 setOpen(false);
                             }}
                         >

@@ -7,16 +7,20 @@ use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Artisan;
 
 class ReactTSInertiaInstaller extends AbstractGenerator
 {
+    use RouteBinding;
+
     public static string $key = "install-react";
     public string $type = "installer";
 
     public function run(bool $override = false): void
     {
         $this->installInertia($override);
+        $this->addSetLocalRoute();
     }
 
     private function installInertia(bool $override = false): void

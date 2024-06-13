@@ -39,3 +39,13 @@ createInertiaApp({
         color: "#4B5563",
     },
 });
+
+const dark = "dark" == window.localStorage.getItem("theme_mode") ?? "light";
+const htmlTag = document.querySelector("html");
+if (dark) {
+    htmlTag?.classList.add("dark");
+    htmlTag?.classList.remove("light");
+} else {
+    htmlTag?.classList.add("light");
+    htmlTag?.classList.remove("dark");
+}
