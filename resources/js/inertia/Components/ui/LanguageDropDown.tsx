@@ -1,15 +1,18 @@
-import { useState } from "react";
-import { usePage } from "@inertiajs/react";
+import {useState} from "react";
+import {usePage} from "@inertiajs/react";
+import {PageProps} from "@/types";
+import {AvailableLocales} from "@/Models/Translatable";
 
 const LanguageDropdown = () => {
-    const { currentLocale, availableLocales } = usePage().props;
+    const {currentLocale, availableLocales, csrfToken} =
+        usePage<PageProps>().props;
     const [open, setOpen] = useState(false);
     const [selectedLocale, setSelectedLocale] = useState(currentLocale);
 
     return (
         <div className="relative w-auto">
             <div
-                className="inline-flex items-center bg-white border rounded-md overflow-hidden"
+                className="inline-flex items-center bg-white-secondary dark:bg-dark-secondary rounded-md overflow-hidden"
                 onClick={() => setOpen((prevState) => !prevState)}
             >
                 <a
@@ -33,16 +36,31 @@ const LanguageDropdown = () => {
             </div>
 
             <div
-                className={`${open ? "absolute" : "hidden"} end-0 z-10 mt-2 w-20 rounded-md border border-gray-100 bg-white shadow-lg`}
+                className={`${open ? "absolute" : "hidden"} end-0 z-10 mt-2 w-20 rounded-md bg-white-secondary dark:bg-dark-secondary shadow-lg`}
                 role="menu"
             >
                 <div className="p-2">
                     {(availableLocales as string[]).map((locale) => (
                         <span
-                            className="block hover:bg-gray-50 px-4 py-2 rounded-lg text-gray-500 text-sm hover:text-gray-700 cursor-pointer"
+                            className="block hover:bg-gray-50 px-4 py-2 rounded-lg dark:text-white text-sm hover:text-gray-700 cursor-pointer"
                             role="menuitem"
                             key={locale}
-                            onClick={() => setSelectedLocale(locale)}
+                            onClick={() => {
+                                fetch(route("set-locale"), {
+                                    body: JSON.stringify({
+                                        lang: locale,
+                                    }),
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        "X-CSRF-TOKEN": csrfToken,
+                                    },
+                                    method: "POST",
+                                }).then((r) => {
+                                    location.reload();
+                                });
+                                setSelectedLocale(locale as AvailableLocales);
+                                setOpen(false);
+                            }}
                         >
                             {locale}
                         </span>

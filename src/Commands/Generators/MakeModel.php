@@ -69,8 +69,8 @@ class MakeModel extends BaseCommand
             foreach ($options as $key => $option) {
                 $result = match ($key) {
                     'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, 'uniques' => $uniques]),
-                    'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques]),
-                    'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations]),
+                    'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container]),
+                    'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'container' => $container]),
                     'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'uniques' => $uniques]),
                     'seeder' => $this->call('create:seeder', ['name' => $name]),
                     'repository' => $this->call('create:repository', ['name' => $name]),
@@ -86,12 +86,12 @@ class MakeModel extends BaseCommand
             $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, 'uniques' => $uniques]);
             $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'uniques' => $uniques]);
             $this->call('create:seeder', ['name' => $name]);
-            $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques]);
+            $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container]);
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
 
             if (ContainerType::isApi($container)) {
-                $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations]);
+                $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'container' => $container]);
                 $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
                 $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
             }

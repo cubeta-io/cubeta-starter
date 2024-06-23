@@ -12,7 +12,7 @@ class Settings
     private static $instance;
     private static array $json;
     private static array $tables;
-    private static ?FrontendTypeEnum $frontendStack;
+    private static ?FrontendTypeEnum $frontendStack = null;
     private static string $version;
 
     private function __construct()
@@ -158,7 +158,9 @@ class Settings
 
         self::$tables[] = $new->toArray();
         $json = self::getJsonSettings();
-        $json[self::$version] = ["tables" => array_values(self::$tables)];
+        //TODO:CHECK HERE
+//        $json[self::$version] = ["tables" => array_values(self::$tables)];
+        $json['tables'] = collect(self::$tables)->values()->toArray();
         self::storeJsonSettings($json);
         return $this;
     }

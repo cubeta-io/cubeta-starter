@@ -31,7 +31,7 @@ class ControllerGenerator extends AbstractGenerator
         }
 
         if (ContainerType::isWeb($this->generatedFor)) {
-            $gen = match (Settings::make()->getFrontendType()) {
+            $gen = match (Settings::make()->getFrontendType() ?? FrontendTypeEnum::NONE) {
                 FrontendTypeEnum::REACT_TS => new InertiaReactTSController(
                     fileName: $this->fileName,
                     attributes: $this->attributes,

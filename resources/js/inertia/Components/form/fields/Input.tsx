@@ -1,7 +1,7 @@
 import ClosedEye from "@/Components/icons/ClosedEye";
 import Eye from "@/Components/icons/Eye";
-import {usePage} from "@inertiajs/react";
-import React, {ChangeEvent, HTMLProps, useState} from "react";
+import { usePage } from "@inertiajs/react";
+import React, { ChangeEvent, HTMLProps, useState } from "react";
 
 export interface InputProps extends HTMLProps<HTMLInputElement> {
     name: string;
@@ -53,7 +53,7 @@ const Input: React.FC<InputProps> = ({
                         className ??
                         (type == "file"
                             ? "block w-full text-sm text-gray-900 border border-gray-300 p-1 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                            : "peer border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 w-full")
+                            : "peer border-none bg-transparent dark:text-white placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 w-full")
                     }
                     placeholder={placeholder}
                     name={name}
@@ -88,7 +88,7 @@ const Input: React.FC<InputProps> = ({
                             type={"button"}
                             onClick={() => setShow((prevState) => !prevState)}
                         >
-                            <Eye/>
+                            <Eye />
                         </button>
                     ) : (
                         <button
@@ -96,15 +96,14 @@ const Input: React.FC<InputProps> = ({
                             onClick={() => setShow((prevState) => !prevState)}
                             type={"button"}
                         >
-                            <ClosedEye/>
+                            <ClosedEye />
                         </button>
                     )
                 ) : (
                     ""
                 )}
 
-                <span
-                    className="top-0 peer-focus:top-0 peer-placeholder-shown:top-1/2 absolute bg-white p-0.5 text-gray-700 text-xs peer-placeholder-shown:text-sm peer-focus:text-xs transition-all -translate-y-1/2 pointer-events-none start-2.5">
+                <span className="top-0 peer-focus:top-0 peer-placeholder-shown:top-1/2 absolute bg-white-secondary dark:bg-dark-secondary p-0.5 text-gray-700 dark:text-white text-xs peer-placeholder-shown:text-sm peer-focus:text-xs transition-all -translate-y-1/2 pointer-events-none start-2.5">
                     {type == "file" ? "" : label}
                     {type != "file" && required ? (
                         <span className="text-red-500 text-sm">*</span>

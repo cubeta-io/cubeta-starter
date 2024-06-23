@@ -7,20 +7,26 @@ use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Artisan;
 
 class ReactTSInertiaInstaller extends AbstractGenerator
 {
+    use RouteBinding;
+
     public static string $key = "install-react";
     public string $type = "installer";
 
     public function run(bool $override = false): void
     {
         $this->installInertia($override);
+        $this->addSetLocalRoute();
     }
 
     private function installInertia(bool $override = false): void
     {
+        Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
+
         Artisan::call('vendor:publish', [
             '--tag' => 'react-ts',
             '--force' => $override,
@@ -44,7 +50,6 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             otherStubsPath: __DIR__ . '/../../stubs/Inertia/HandleInertiaRequestsMiddleware.stub'
         );
 
-        Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::REACT_TS->value));
     }
 }

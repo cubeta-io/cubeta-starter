@@ -12,7 +12,8 @@ class MakeResource extends BaseCommand
     public $signature = 'create:resource
         {name? : The name of the model }
         {attributes? : columns with data types}
-        {relations? : the model relations}';
+        {relations? : the model relations}
+        {container? : web or api}';
 
     public function handle(): void
     {

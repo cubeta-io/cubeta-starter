@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    :root {
+        --color-brand: #012970;
+        --color-primary: #0D6EFD;
+        --color-secondary: #6c757d;
+        --color-success: #198754;
+        --color-info: #0dcaf0;
+        --color-warning: #ffc107;
+        --color-danger: #dc3545;
+        --color-white: #ffffff;
+        --color-black: #000000;
+        --color-white-secondary: #EDF6FC;
+        --color-dark: #030B12;
+        --color-dark-secondary: #061523;
+    }
+
+    :root[class~="dark"] {
+        --color-brand: #89A9E0;
+        --color-primary: #176097;
+        --color-secondary: #495057;
+        --color-success: #1EC289;
+        --color-info: #21C5D4;
+        --color-warning: #E2D73C;
+        --color-danger: #E34F4F;
+        --color-white: #ffffff;
+        --color-white-secondary: #EDF6FC;
+        --color-black: #000000;
+        --color-dark: #030B12;
+        --color-dark-secondary: #061523;
+        --toastify-color-dark: #061523
+    }
+}
+
 body {
     font-family: "Segoe UI", serif !important;
 }
@@ -29,27 +62,19 @@ body {
 
 @-webkit-keyframes slide-sidebar-left {
     0% {
-        -webkit-transform: translateX(0);
-        transform: translateX(0);
-        width: 30%;
+        @apply w-1/4
     }
     100% {
-        -webkit-transform: translateX(-500px);
-        transform: translateX(-500px);
-        width: 0;
+        @apply w-0
     }
 }
 
 @keyframes slide-sidebar-left {
     0% {
-        -webkit-transform: translateX(0);
-        transform: translateX(0);
-        width: 30%;
+        @apply w-1/4
     }
     100% {
-        -webkit-transform: translateX(-500px);
-        transform: translateX(-500px);
-        width: 0;
+        @apply w-0
     }
 }
 
@@ -63,7 +88,7 @@ body {
         @apply w-0
     }
     100% {
-        @apply w-1/3
+        @apply w-1/4
     }
 }
 
@@ -72,6 +97,22 @@ body {
         @apply w-0
     }
     100% {
-        @apply w-1/3
+        @apply w-1/4
     }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+}
+
+.swal2-popup {
+    @apply dark:!bg-dark-secondary dark:text-white
 }

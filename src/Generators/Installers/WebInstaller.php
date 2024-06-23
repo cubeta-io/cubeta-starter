@@ -24,6 +24,8 @@ class WebInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        Settings::make()->setFrontendType(FrontendTypeEnum::BLADE);
+
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-web"]);
         CubeLog::add(Artisan::output());
 
@@ -31,7 +33,6 @@ class WebInstaller extends AbstractGenerator
         $this->addRouteFile('protected', ContainerType::WEB, $this->version);
         $this->addSetLocalRoute();
 
-        Settings::make()->setFrontendType(FrontendTypeEnum::BLADE);
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::BLADE->value));
     }
 

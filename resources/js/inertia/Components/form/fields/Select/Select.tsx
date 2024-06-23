@@ -218,7 +218,7 @@ function Select<TData>({
                         isOpen
                             ? `absolute left-0 z-50 ${
                                 styles?.dropDownItemsContainer ??
-                                " px-3 pb-3 rounded-lg border border-gray-200 shadow-2xl bg-white w-full"
+                                " px-3 pb-3 rounded-lg border border-gray-200 shadow-2xl bg-white dark:bg-dark w-full"
                             }`
                             : "hidden"
                     }

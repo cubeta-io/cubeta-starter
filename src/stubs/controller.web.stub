@@ -122,11 +122,15 @@ class {modelName}Controller extends Controller
 
     public function import(Request $request)
     {
-        $request->validate([
-            'excel_file' => 'required|mimes:xls,xlsx',
-        ]);
-
-        $this->{modelNameCamelCase}Service->import();
+        try{
+            $request->validate([
+                        'excel_file' => 'required|mimes:xls,xlsx',
+                    ]);
+            $this->{modelNameCamelCase}Service->import();
+            return redirect()->back()->with('message' , __('site.success'));
+        }catch (\Exception){
+            return redirect()->back()->with('message' , __('site.something_went_wrong'));
+        }
     }
 
     {additionalMethods}

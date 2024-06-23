@@ -248,6 +248,22 @@ trait HasPathAndNamespace
      */
     public function getTSModelPath(): CubePath
     {
-        return CubePath::make("resources/js/Models/{$this->modelName}.ts");
+        return CubePath::make("resources/js/Models/{$this->modelNaming()}.ts");
+    }
+
+    /**
+     * @param "show"|"index"|"create"|"update" $type
+     * @return CubePath
+     */
+    public function getReactTSPagesPaths(string $type): CubePath
+    {
+        $viewsPath = 'resources/js/Pages/dashboard/' . $this->viewNaming();
+
+        return match ($type) {
+            'show' => CubePath::make("$viewsPath/Show.tsx"),
+            "create" => CubePath::make("$viewsPath/Create.tsx"),
+            "update", "edit" => CubePath::make("$viewsPath/Edit.tsx"),
+            "index" => CubePath::make("$viewsPath/Index.tsx"),
+        };
     }
 }

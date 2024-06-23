@@ -29,7 +29,6 @@ class ActorFilesGenerator extends AbstractGenerator
     private ?array $permissions;
     private bool $authenticated = false;
 
-    //TODO::CHECK HERE
     public function __construct(string $role, ?array $permissions = null, bool $authenticated = false, string $generatedFor = ContainerType::API, string $version = 'v1')
     {
         parent::__construct(generatedFor: $generatedFor);

@@ -16,7 +16,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function hasManyFunction(CubeTable | CubeRelation $model): string
+    public function hasManyFunction(CubeTable|CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming(singular: false);
         return "public function $relationName()\n{\n\t return \$this->hasMany(" . $model->modelName . "::class);\n}\n\n";
@@ -26,7 +26,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function manyToManyFunction(CubeTable | CubeRelation $model): string
+    public function manyToManyFunction(CubeTable|CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming(singular: false);
         return "public function $relationName()\n{\n\t return \$this->belongsToMany(" . $model->modelName . "::class);\n}\n\n";
@@ -36,7 +36,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function belongsToFunction(CubeTable | CubeRelation $model): string
+    public function belongsToFunction(CubeTable|CubeRelation $model): string
     {
         $relationName = $model->relationMethodNaming();
         return "public function $relationName()\n{\n\t return \$this->belongsTo(" . $model->modelName . "::class); \n}\n\n";
@@ -46,7 +46,7 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function factoryRelationMethod(CubeTable | CubeRelation $model): string
+    public function factoryRelationMethod(CubeTable|CubeRelation $model): string
     {
         $functionName = 'with' . ucfirst(Str::plural(Str::studly($model->modelName)));
         return "public function {$functionName}(\$count = 1)\n{\n\t return \$this->has(\\" . config('cubeta-starter.model_namespace') . "\\{$model->modelName}::factory(\$count));\n} \n";
@@ -107,12 +107,12 @@ trait StringsGenerator
 
     /**
      * @param CubeTable|null $relatedModel
-     * @param string         $select2Route
+     * @param string         $dataRoute
      * @param CubeAttribute  $attribute
      * @param bool           $isUpdate
      * @return string
      */
-    public function inertiaApiSelectComponent(?CubeTable $relatedModel, string $select2Route, CubeAttribute $attribute, bool $isUpdate = false): string
+    public function inertiaApiSelectComponent(?CubeTable $relatedModel, string $dataRoute, CubeAttribute $attribute, bool $isUpdate = false): string
     {
         if (!$isUpdate) {
             $required = $attribute->nullable ? "false" : "true";
@@ -122,13 +122,17 @@ trait StringsGenerator
 
         $value = $this->getDefaultValue($isUpdate, $attribute, $relatedModel);
 
+        $optionLabel = !$relatedModel->titleable()->isTranslatable()
+            ? "optionLabel={\"{$relatedModel->titleable()->name}\"}"
+            : "getOptionLabel={(data) => translate(data.{$relatedModel->titleable()->name})}";
+
         return "\n<ApiSelect
                         api={(
                             page,
                             search
                         ): Promise<PaginatedResponse<{$relatedModel->modelName}>> =>
                             fetch(
-                                route(\"{$select2Route}\", {
+                                route(\"{$dataRoute}\", {
                                     page: page,
                                     search: search,
                                 }),
@@ -142,17 +146,17 @@ trait StringsGenerator
                         }
                         getDataArray={(response) => response.data ?? []}
                         getIsLast={(data) =>
-                            data.pagination_date?.is_last ?? false
+                            data.pagination_data?.is_last ?? false
                         }
                         getTotalPages={(data) =>
-                            data.pagination_date?.total_pages ?? 2
+                            data.pagination_data?.total_pages ?? 2
                         }
                         name={\"category_id\"}
                         label={\"Category\"}
                         onChange={(e) =>
                             setData(\"{$attribute->name}\", e.target.value)
                         }
-                        optionLabel={\"{$relatedModel->titleable()->name}\"}
+                        {$optionLabel}
                         optionValue={\"id\"}
                         required={{$required}}
                         $value
@@ -161,6 +165,7 @@ trait StringsGenerator
 
     /**
      * @param CubeAttribute $attribute
+     * @param bool          $isUpdate
      * @return string
      */
     public function inertiaFileInputComponent(CubeAttribute $attribute, bool $isUpdate = false): string
@@ -271,7 +276,7 @@ trait StringsGenerator
         if ($attribute->isBoolean()) {
             return "checked={(val: any) => val == {$attribute->getOwnerTable()->variableNaming()}.{$attribute->name}}";
         } elseif ($attribute->isKey()) {
-            return "defaultValue={{$attribute->getOwnerTable()->variableNaming()}?.{$relatedModel->relationMethodNaming()} ? [{$attribute->getOwnerTable()->variableNaming()}.{$relatedModel->relationMethodNaming()}] : []}";
+            return "defaultValues={{$attribute->getOwnerTable()->variableNaming()}?.{$relatedModel->relationMethodNaming()} ? [{$attribute->getOwnerTable()->variableNaming()}.{$relatedModel->relationMethodNaming()}] : []}";
         } else {
             return "defaultValue={{$attribute->getOwnerTable()->variableNaming()}.{$attribute->name}}";
         }

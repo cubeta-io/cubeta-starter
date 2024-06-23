@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 
@@ -45,8 +46,7 @@ class RequestGenerator extends AbstractGenerator
     {
         $rules = '';
 
-        $translatableAttributeCount = $this->table->translatables()->count();
-        $prepareForValidation = $translatableAttributeCount > 0 ? "protected function prepareForValidation()\n{\nif (request()->acceptsHtml()){\$this->merge([\n" : '';
+        $prepareForValidation = "protected function prepareForValidation()\n{\nif (request()->acceptsHtml()){\$this->merge([\n";
 
         foreach ($this->table->attributes as $attribute) {
 
@@ -63,7 +63,10 @@ class RequestGenerator extends AbstractGenerator
                 continue;
             }
 
-            if ($attribute->isTranslatable() && ContainerType::isWeb($this->generatedFor)) {
+            if ($attribute->isTranslatable()
+                && ContainerType::isWeb($this->generatedFor)
+                && $this->frontType == FrontendTypeEnum::BLADE
+            ) {
                 $prepareForValidation .= "'{$attribute->name}' => json_encode(\$this->{$attribute->name}), \n";
             }
 
@@ -88,7 +91,7 @@ class RequestGenerator extends AbstractGenerator
             };
         }
 
-        $prepareForValidation .= $translatableAttributeCount > 0 ? "]);\n}\n}" : '';
+        $prepareForValidation .= "]);\n}\n}";
 
         return [
             'rules' => $rules,

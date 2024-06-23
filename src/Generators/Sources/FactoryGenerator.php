@@ -51,7 +51,7 @@ class FactoryGenerator extends AbstractGenerator
         $relatedFactories = '';
 
         $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$rows) {
-            $isUnique = $attribute->name ? "->unique()" : "";
+            $isUnique = $attribute->unique ? "->unique()" : "";
             $name = $attribute->name;
             $type = $attribute->type;
 

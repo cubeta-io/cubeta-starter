@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Commands;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\Naming;
@@ -86,17 +87,19 @@ class BaseCommand extends Command
 
     public function askForModelName(string $class): string
     {
+        if (!Settings::make()->getFrontendType()) {
+            $frontend = $this->choice("Chose Your Front-End Stack First", FrontendTypeEnum::getAllValues());
+            Settings::make()->setFrontendType(FrontendTypeEnum::tryFrom($frontend) ?? FrontendTypeEnum::NONE);
+        }
         return $this->askWithoutEmptyAnswer("What Is The Model Name For This {$class}");
     }
 
     public function askForGeneratedFileActors(string $class): array|string|null
     {
-        $roleEnumPath = CubePath::make("/app/Enums/RolesPermissionEnum.php");
+        $roleEnumPath = CubePath::make("app/Enums/RolesPermissionEnum.php");
 
-        if ($roleEnumPath->exist() and class_exists("\App\Enums\RolesPermissionsEnum")){
-            $roles =  $this->choice("Who Is The Actor For This $class ?" , \App\Enums\RolesPermissionsEnum::ALLROLES);
-            $roles[] = 'none';
-            return $roles;
+        if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RolesPermissionEnum")) {
+            return $this->choice("Who Is The Actor For This $class ?", ['none', ...\App\Enums\RolesPermissionEnum::ALLROLES]);
         }
 
         return null;
@@ -166,15 +169,20 @@ class BaseCommand extends Command
                 6,
             );
             $attributes[$field] = $type;
+
             if ($getNullables) {
-                $this->confirm("Is This Column Nullable ?", false) ?: $nullables[] = $field;
+                if ($this->confirm("Is This Column Nullable ?")) {
+                    $nullables[] = $field;
+                }
             }
 
             if ($getUniques) {
-                $this->confirm("Is This Column Unique ?", false) ?: $uniques[] = $field;
+                if ($this->confirm("Is This Column Unique ?")) {
+                    $uniques[] = $field;
+                }
             }
         }
 
-        return [$attributes , $uniques , $nullables];
+        return [$attributes, $uniques, $nullables];
     }
 }

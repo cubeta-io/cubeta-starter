@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
@@ -32,8 +33,8 @@ class AuthInstaller extends AbstractGenerator
         $this->generateUserRepository($override);
         $this->generateAuthRequests($override);
         $this->generateResetPasswordNotification($override);
-        $this->generateAuthViews($override);
         $this->generateUserFactory($override);
+        $this->generateResetPasswordEmail($override);
 
         if ($this->generatedFor == ContainerType::API || $this->generatedFor == ContainerType::BOTH) {
             $this->generateUserResource($override);
@@ -43,6 +44,7 @@ class AuthInstaller extends AbstractGenerator
         if ($this->generatedFor == ContainerType::WEB || $this->generatedFor == ContainerType::BOTH) {
             $this->generateBaseAuthWebController($override);
             $this->generateWebAuthRoutes();
+            $this->generateAuthViews($override);
         }
     }
 
@@ -163,15 +165,18 @@ class AuthInstaller extends AbstractGenerator
      */
     private function generateAuthViews(bool $override = false): void
     {
-        $viewsPath = CubePath::make("resources/views/emails/reset-password-email.blade.php");
-        $viewsPath->ensureDirectoryExists();
-        $this->generateFileFromStub([], $viewsPath->fullPath, $override, __DIR__ . '/../../stubs/Auth/reset-password.stub');
-
         if (ContainerType::isWeb($this->generatedFor)) {
-            Artisan::call('vendor:publish', [
-                '--tag' => 'cubeta-auth-views',
-                '--force' => $override
-            ]);
+            if ($this->frontType == FrontendTypeEnum::REACT_TS) {
+                Artisan::call('vendor:publish', [
+                    '--tag' => 'react-ts-auth',
+                    '--force' => $override
+                ]);
+            } else {
+                Artisan::call('vendor:publish', [
+                    '--tag' => 'cubeta-auth-views',
+                    '--force' => $override
+                ]);
+            }
 
             CubeLog::add(Artisan::output());
         }
@@ -242,7 +247,13 @@ class AuthInstaller extends AbstractGenerator
 
         $controllerPath->ensureDirectoryExists();
 
-        $this->generateFileFromStub($stubProperties, $controllerPath->fullPath, $override, __DIR__ . '/../../stubs/Auth/BaseAuthWebController.stub');
+        if ($this->frontType == FrontendTypeEnum::REACT_TS) {
+            $stubPath = __DIR__ . '/../../stubs/Auth/BaseAuthReactTsController.stub';
+        } else {
+            $stubPath = __DIR__ . '/../../stubs/Auth/BaseAuthBladeController.stub';
+        }
+
+        $this->generateFileFromStub($stubProperties, $controllerPath->fullPath, $override, $stubPath);
     }
 
     /**
@@ -250,11 +261,15 @@ class AuthInstaller extends AbstractGenerator
      */
     private function generateWebAuthRoutes(): void
     {
-        $protectedRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-protected.stub');
-        $protectedRoutes = str_replace("{version}", $this->version, $protectedRoutes);
-        $publicRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-public.stub');
-        $publicRoutes = str_replace("{version}", $this->version, $publicRoutes);
-
+        if ($this->frontType == FrontendTypeEnum::REACT_TS) {
+            $protectedRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-react-ts-routes-protected.stub');
+            $publicRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-react-ts-routes-public.stub');
+        } else {
+            $protectedRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-protected.stub');
+            $protectedRoutes = str_replace("{version}", $this->version, $protectedRoutes);
+            $publicRoutes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-web-routes-public.stub');
+            $publicRoutes = str_replace("{version}", $this->version, $publicRoutes);
+        }
         $publicRouteFile = CubePath::make("routes/{$this->version}/web/public.php");
         $protectedRouteFile = CubePath::make("routes/{$this->version}/web/protected.php");
 
@@ -300,5 +315,16 @@ class AuthInstaller extends AbstractGenerator
                 }
             }
         }
+    }
+
+    /**
+     * @param bool $override
+     * @return void
+     */
+    public function generateResetPasswordEmail(bool $override): void
+    {
+        $viewsPath = CubePath::make("resources/views/emails/reset-password-email.blade.php");
+        $viewsPath->ensureDirectoryExists();
+        $this->generateFileFromStub([], $viewsPath->fullPath, $override, __DIR__ . '/../../stubs/Auth/reset-password-email.stub');
     }
 }

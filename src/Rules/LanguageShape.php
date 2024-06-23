@@ -28,9 +28,6 @@ class LanguageShape implements ValidationRule
 
             if (!is_array($value)) {
                 $translationArray = json_decode($value, true);
-                if (app()->environment(['testing'])) {
-                    $translationArray = json_decode($translationArray, true);
-                }
             } else {
                 $translationArray = $value;
             }
@@ -46,7 +43,7 @@ class LanguageShape implements ValidationRule
             $theDifferenceBetweenTheProvidedLanguages = array_diff($translationLanguages, $availableLanguages);
 
             if (!count($theDifferenceBetweenTheProvidedLanguages) == 0) {
-                $fail(implode(',', $theDifferenceBetweenTheProvidedLanguages) . " don't exist in your project languages");
+                $fail(implode(',', $theDifferenceBetweenTheProvidedLanguages) . " doesn't exist in your project locales");
             }
         } catch (Exception) {
             $fail("invalid {$attribute}");

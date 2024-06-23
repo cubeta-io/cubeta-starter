@@ -1,26 +1,51 @@
-import './bootstrap';
-import '../css/cubeta-starter.css';
-import {createRoot} from 'react-dom/client';
-import {createInertiaApp} from '@inertiajs/react';
+import "./bootstrap";
+import "../css/cubeta-starter.css";
+import { createRoot } from "react-dom/client";
+import { createInertiaApp } from "@inertiajs/react";
 import Layout from "@/Components/layouts/Layout";
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || "Laravel";
+
+const authPages = [
+    "Login",
+    "ForgetPassword",
+    "ResetPasswordCodeForm",
+    "ResetPassword",
+    "Register",
+];
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => {
-        const pages = import.meta.glob("./Pages/**/*.tsx", {eager: true});
+        const pages = import.meta.glob("./Pages/**/*.tsx", { eager: true });
         let page = pages[`./Pages/${name}.tsx`];
         // @ts-ignore
-        page.default.layout = page.default.layout || ((page) => <Layout children={page}/>);
+        page.default.layout =
+            // @ts-ignore
+            page.default.layout ||
+            // @ts-ignore
+            !authPages.includes(page?.default?.name ?? "undefined")
+                ? // @ts-ignore
+                (page) => <Layout children={page} />
+                : null;
         return page;
     },
-    setup({el, App, props}) {
+    setup({ el, App, props }) {
         const root = createRoot(el);
 
         root.render(<App {...props} />);
     },
     progress: {
-        color: '#4B5563',
+        color: "#4B5563",
     },
 });
+
+const dark = "dark" == window.localStorage.getItem("theme_mode") ?? "light";
+const htmlTag = document.querySelector("html");
+if (dark) {
+    htmlTag?.classList.add("dark");
+    htmlTag?.classList.remove("light");
+} else {
+    htmlTag?.classList.add("light");
+    htmlTag?.classList.remove("dark");
+}

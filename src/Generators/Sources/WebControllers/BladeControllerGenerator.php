@@ -44,7 +44,7 @@ class BladeControllerGenerator extends AbstractGenerator
         $routesNames = $this->getRoutesNames($this->table, $this->actor);
         $views = $this->getViewsNames($this->table, $this->actor);
 
-        $addColumns = $this->getKeyColumnsHyperlink();
+        $addColumns = $this->getAdditionalColumns();
 
         $loadedRelations = $this->table->relations()
             ->filter(fn(CubeRelation $rel) => $rel->exists())
@@ -93,7 +93,7 @@ class BladeControllerGenerator extends AbstractGenerator
             );
     }
 
-    private function getKeyColumnsHyperlink(): string
+    private function getAdditionalColumns(): string
     {
         $dataColumn = '';
         foreach ($this->table->attributes as $attribute) {
@@ -123,6 +123,8 @@ class BladeControllerGenerator extends AbstractGenerator
                         return \"<a href='\" . route('{$showRouteName}', \$row->{$attribute->name}) . \"'>{$columnCalling}</a>\";
                     })";
                 $this->rawColumns .= "'{$columnName}' ,";
+            } elseif ($attribute->isTranslatable()) {
+                $dataColumn .= "\n->editColumn(\"{$attribute->name}\" , fn(\$data) => \$data->{$attribute->name})\n";
             }
         }
 

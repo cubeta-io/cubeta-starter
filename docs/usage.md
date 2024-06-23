@@ -1,4 +1,4 @@
-**<h1 id="usage">Usage</h1>**
+# Usage
 
 First I need you to take a look on the `cubeta-starter.php` file in the `config` directory and see the options
 there .
@@ -8,13 +8,14 @@ The most elements in the config array are for the generated files directories an
 2. `project_url` : here define your project public url, so we can add it to the postman collection
    if you let it **_null_** we will place it in the collection as like you're using xampp
    e.g :`http://localhost/example-project/public/` [read more about the generated postman
-   collection](README.md#postman-collection)
+   collection](created-files#postman-collection)
 3. `available_locales` : the package provides a way to store your table columns with their
-   translations [(read more about it here)](README.md#translations) so in this case this situation you'll need to
+   translations [(read more about it here)](created-files#translations) so in this case this situation you'll need to
    define your project available locales here
 4. `defaultLocale` : here define your default project locales.
 
-<h2 id="usag-gui">The Package GUI</h2>
+## The Package GUI
+
 It is easy when you don't have to deal with the command line, so we've created an elegant interface to make your
 experience smoother .
 you can use it after installing the package by visiting the url :
@@ -23,7 +24,7 @@ you can use it after installing the package by visiting the url :
 
 This interface will work only on the local environment .
 
-**<h2 id="available-commands">Available Commands</h2>**
+## Available Commands
 
 The package provide commands similar to the laravel base commands with the same functionality
 with the benefit of getting a full generated CRUD support code from them .
@@ -33,26 +34,29 @@ the commands :
 1. `php artisan cubeta:install api`
 2. `php artisan cubeta:install web`
 3. `php artisan cubeta:install auth`
-4. `php artisan cubeta:install web-packages`
-5. `php artisan cubeta:install permissions`
-6. `php artisan create:actor`
-7. `php artisan create:model`
-8. `php artisan create:migration`
-9. `php artisan create:factory`
-10. `php artisan create:seeder`
-11. `php artisan create:request`
-12. `php artisan create:repository`
-13. `php artisan create:service`
-14. `php artisan create:resource`
-15. `php artisan create:controller`
-16. `php artisan create:web-controller`
-17. `php artisan create:test`
+4. `php artisan cubeta:install react-ts`
+5. `php artisan cubeta:install react-ts-packages`
+6. `php artisan cubeta:install web-packages`
+7. `php artisan cubeta:install permissions`
+8. `php artisan create:actor`
+9. `php artisan create:model`
+10. `php artisan create:migration`
+11. `php artisan create:factory`
+12. `php artisan create:seeder`
+13. `php artisan create:request`
+14. `php artisan create:repository`
+15. `php artisan create:service`
+16. `php artisan create:resource`
+17. `php artisan create:controller`
+18. `php artisan create:web-controller`
+19. `php artisan create:test`
 
-Now those commands depends on 7 parameters _(of course not the 7 parameters required for each command)_ but I can tell
+Now those commands depends on 7 parameters **_(of course not the 7 parameters required for each command)_** but I can
+tell
 you the most important one is the model name so for each command you have to provide the model name that the generated
 file will target .
 
-The seven parameters ara :
+The seven parameters are :
 
 | parameter                                       | type                                                |
 |-------------------------------------------------|-----------------------------------------------------|
@@ -69,12 +73,15 @@ the command and the command will ask you about just the required parameters.
 
 by default the package will handle the naming of your created files, so it will fit in the laravel naming convention
 principle (like if you put _**products**_ as a model name the package will automatically set it to _**Product**_ ),
-but it is always better to provide the right names for the commands instead on depending on them for not facing
+but it is always better to provide the right names to the commands instead on depending on them in case of facing an
 unexpected behaviour .
 
-The `actor` parameter will define the actor on the created endpoints, and it is important for route placing and naming .
+> [!info]
+> The `actor` parameter will define the actor on the created endpoints, and it is important for route placing and
+> naming , you'll be asked about it if you used our roles permission tool via the
+> command `php artisan cubeta:insall permissions`.
 
-<h2 id="install-permissions-command">Install Permissions Command</h2>
+## Install Permissions Command
 
 In previous versions we used `spatie/laravel-permission` which is a great package but to lightweight your project and
 make it optional to you use it or not or to edit the way it works we have powered you with the
@@ -89,13 +96,13 @@ command `php artisan cubeta:install permissions` which will generate the followi
 7. HasRoles ( _trait_ )
 8. migration files for the generated models
 
-no you can handle your actor roles and permissions easily and with an opinionated way
+now you can handle your actor roles and permissions easily and with an opinionated way
 
 check the usage manual [here](permissions-usage.md#cubeta-permissions-usage) .
 
-<h2 id="install-auth-command">Install Auth Command</h2>
+## Install Auth Command
 
-To prepare your project to handle authentication and authorization we've provided the seamless way for this by executing
+To prepare your project to handle authentication and authorization we've provided a seamless way for this by executing
 the command : `php artisan cubeta:install auth`
 this command will initialize your project with the following :
 
@@ -118,8 +125,9 @@ this command will initialize your project with the following :
 15. set of routes for the dashboard authentication ( _for web_ )
 16. reset-password-email.blade.php ( _view_ )
 17. set of views for the authentication process ( _for web_ )
+18. a set of pages to handle your authentication flow based on your frontend stack
 
-Now as you see you are now ready to create your authentication endpoints powered up those files and classes
+Now as you see you are now ready to create your authentication endpoints powered up by those files and classes
 
 > [!warning]
 > Notice that running this command will ask you about overriding existing files this mean that any file has the same
@@ -130,7 +138,7 @@ and `BaseAuthController.php` as you will notice that the **UserService** class h
 use cases ( _api and web_ ) and the class **BaseAuthController** use the **UserService** in a way that allows you to
 extend it for every actor you want.
 
-<h2 id="create-actor-command">Create Actor Command</h2>
+## Create Actor Command
 
 This command will add the desired actor roles to your project like when you have (admin , customer , ....) roles in your
 project
@@ -144,7 +152,7 @@ project
 
 #### **how to use it :**
 
-1- run this command : `php artisan cubeta-init` so an output will appear :
+1- run this command : `php artisan create:actor` so an output will appear :
 
 ```shell
 What Is The Actor Name ? i.e:admin , customer , ... :    
@@ -201,8 +209,6 @@ Do You Want To Create Authentication Api Controller For This Actor ? (yes/no) [y
  > yes
 ```
 
-in many cases you may mistake while generating so this question will allow you to override the generated files .
-
 Now you will notice that the there is multiple files generated and some changes in your project files:
 
 1. **RolesPermissionsEnum.php** (basically in `app/Enums` Directory )
@@ -227,25 +233,23 @@ If you do a little check on `app/Enums/RolesPermissions.php` you'll find that yo
 now if you opened the generated **StudentAuthController** you'll see the following
 
 ```php
-<?php
-
 namespace App\Http\Controllers\API\v1;
 
 use App\Enums\RolesPermissionEnum;
 use App\Services\User\IUserService;
 
-class AdminAuthController extends BaseAuthController
+class StudentAuthController extends BaseAuthController
 {
     public function __construct(IUserService $userService)
     {
         parent::__construct($userService);
-        $this->roleHook(RolesPermissionEnum::ADMIN['role']);
+        $this->roleHook(RolesPermissionEnum::STUDENT['role']);
     }
 }
 ```
 
 > [!note]
-> all the namespaces and the generating directories are based on the config you defined in
+> all the namespaces and the generated directories are based on the config you defined in
 > the `config/cubeta-starter.php` file
 
 as this class extend the **BaseAuthController** controller class then it will has all public and protected methods
@@ -297,17 +301,13 @@ public function register(AuthRegisterRequest $request)
 > classes and traits and tools in your project code so that you can edit them as you want so dig in and start scanning
 > the code
 
-<h2 id="generating-files">Generating Files</h2>
+## Generating Files
 
 As mentioned [before](usage.md#available-commands) you can run every command in the list of the available commands
-separately and for a full generated code leave the option empty so the `create:model` command will generate everything
-for you like this :
+separately and for a full generated CRUD run `create:model` command without any options
+like this :
 
 1 - run this command : `php artisan create:model <YourMoodel>` then an output will show :
-
-```shell
-Enter your params like "name,started_at,...":
-```
 
 2 - write your model properties that will correspond to its table columns like this :
 
@@ -345,14 +345,16 @@ those are the column type you just enter the number of the type
 > the `key` type is a foreignId so if your column name is something like this : `user_id` you need to
 > define it as a key type
 
-<h3 id="translatable-column-type">Translatable Column Type</h3>
+### Translatable Column Type
+
 Of course there isn't a column type called translatable in Laravel . to make it easier for you to use the prepared
 things for the translation we called this column translatable in fact the generated column type is json but in this way
 we've marked this column as translatable so the generated code will make sure to use the `LanguageShape` validation rule
 on the validation and cast this column to `Translatable::class` .
 
-the `Translatable::class` is a custom cast class you can check on it in `app/Casts` directory , and its job is to return
-the column value based on the current app locale .
+the `Translatable::class` is a custom cast class you can check on it in `app/Casts` directory , and its job is to cast
+the translated value (basically json string) to `\App\Serializers\Translatable` object which class that will make your
+localized data handling easier [check on it](translatable-serializer.md#translatable-serializer-class).
 
 The `LanguageShape` validation rule will make sure that the received json is simple and hasn't any nesting objects e.g :
 
@@ -423,7 +425,7 @@ so you will find a :
 > for now this file is useless for you but helpful for us to make you generating experience better but in the coming
 > releases it will give you a lot of features .
 
-<h3 id="create-model-options">Create Model Command Options</h3>
+### Create Model Command Options
 if you'd like you can generate the model with just a specific file you can just add the desired file as an option like
 if you execute this command :
 

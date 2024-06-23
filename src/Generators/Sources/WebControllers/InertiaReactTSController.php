@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources\WebControllers;
 
+use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\ReactTSPagesGenerator;
@@ -28,6 +29,12 @@ class InertiaReactTSController extends AbstractGenerator
             return;
         }
 
+        $loadedRelations = $this->table
+            ->relations()
+            ->filter(fn(CubeRelation $rel) => $rel->getModelPath()->exist())
+            ->map(fn(CubeRelation $rel) => "'{$rel->method()}'")
+            ->implode(',');
+
         $controllerPath->ensureDirectoryExists();
         $pagesPaths = $this->getTsxPagesPath();
 
@@ -43,6 +50,7 @@ class InertiaReactTSController extends AbstractGenerator
             '{{indexRoute}}' => $routesNames['index'],
             '{{showPage}}' => $pagesPaths['show'],
             '{{indexPage}}' => $pagesPaths['index'],
+            "{{relations}}" => $loadedRelations,
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
@@ -54,8 +62,11 @@ class InertiaReactTSController extends AbstractGenerator
         (new ReactTSPagesGenerator(
             fileName: $this->fileName,
             attributes: $this->attributes,
+            relations: $this->relations,
             nullables: $this->nullables,
-            actor: $this->actor
+            uniques: $this->uniques,
+            actor: $this->actor,
+            generatedFor: $this->generatedFor
         ))->run();
     }
 

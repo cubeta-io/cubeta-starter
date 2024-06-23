@@ -4,7 +4,9 @@ namespace Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
+use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSController;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
@@ -31,10 +33,16 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $routes = $this->getRoutesNames($this->table, $this->actor);
 
         $this->generateTypeScriptInterface($override);
+
         $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
         $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
         $this->generateShowPage($override);
         $this->generateIndexPage($override);
+
+        CodeSniffer::make()
+            ->setModel($this->table)
+            ->checkForTsInterfaces()
+            ->checkForReactTSPagesAndControllerRelations($this->actor);
     }
 
     /**
@@ -63,12 +71,10 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $this->addImport("import { {$this->table->modelName} } from \"@/Models/{$this->table->modelName}\";");
         }
 
-        $routes = $this->getRoutesNames($this->table, $this->actor);
-
-        if ($this->currentForm == "Edit") {
-            $action = "post(route(\"{$routes['update']}\" , {$this->table->variableNaming()}.id));";
+        if ($this->currentForm == "Edit" && $updateRoute) {
+            $action = "post(route(\"{$updateRoute}\" , {$this->table->variableNaming()}.id));";
         } else {
-            $action = "post(route(\"{$routes['store']}\"));";
+            $action = "post(route(\"{$storeRoute}\"));";
         }
 
         if ($this->currentForm == "Create") {
@@ -76,19 +82,19 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         }
 
         $stubProperties = [
-            '{{imports}}' => $this->imports,
-            '{{formFieldsInterface}}' => $formInterface,
-            '{{setPut}}' => $this->currentForm == "Create" ? "" : "setData(\"_method\" , 'PUT');",
-            '{{action}}' => $action,
-            '{{translatableContext}}' => $translatableContext['open'] ?? "",
+            '{{imports}}'                  => $this->imports,
+            '{{formFieldsInterface}}'      => $formInterface,
+            '{{setPut}}'                   => $this->currentForm == "Create" ? "" : "setData(\"_method\" , 'PUT');",
+            '{{action}}'                   => $action,
+            '{{translatableContext}}'      => $translatableContext['open'] ?? "",
             '{{closeTranslatableContext}}' => $translatableContext['close'] ?? "",
-            '{{bigFields}}' => $bigFields,
-            '{{smallFields}}' => $smallFields,
-            "{{formType}}" => $this->currentForm,
-            "{{modelName}}" => $this->table->modelName,
-            "{{componentName}}" => $this->currentForm,
-            "{{componentProps}}" => $this->currentForm == "Edit" ? "{{$this->table->variableNaming()}}:{{$this->table->variableNaming()}:{$this->table->modelName}}" : "",
-            "{{defaultValues}}" => $defaultValues,
+            '{{bigFields}}'                => $bigFields,
+            '{{smallFields}}'              => $smallFields,
+            "{{formType}}"                 => $this->currentForm,
+            "{{modelName}}"                => $this->table->modelName,
+            "{{componentName}}"            => $this->currentForm,
+            "{{componentProps}}"           => $this->currentForm == "Edit" ? "{{$this->table->variableNaming()}}:{{$this->table->variableNaming()}:{$this->table->modelName}}" : "",
+            "{{defaultValues}}"            => $defaultValues,
         ];
 
         $formPath->ensureDirectoryExists();
@@ -99,6 +105,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $override,
             self::FORM_STUB
         );
+
+        $formPath->format();
     }
 
     private function getFormProperties(): array
@@ -108,7 +116,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         if ($this->table->translatables()->count()) {
             $translatableContext = [
-                'open' => '<TranslatableInputsContext>',
+                'open'  => '<TranslatableInputsContext>',
                 'close' => '</TranslatableInputsContext>',
             ];
             $this->imports .= "\n import TranslatableInputsContext from \"@/Contexts/TranslatableInputsContext\";\n";
@@ -149,12 +157,19 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $nullable = $attribute->nullable ? "?" : "";
         if ($attribute->isString() || $attribute->isDateable()) {
             return "{$attribute->name}{$nullable}:string;\n";
-        } elseif ($attribute->isNumeric() || $attribute->isKey()) {
+        } elseif ($attribute->isNumeric()) {
             return "{$attribute->name}{$nullable}:number;\n";
         } elseif ($attribute->isBoolean()) {
             return "{$attribute->name}{$nullable}:boolean;\n";
         } elseif ($attribute->isFile()) {
             return "{$attribute->name}{$nullable}:File|string;\n";
+        } elseif ($attribute->isKey()) {
+            $relatedModelName = Naming::model(str_replace('_id', '', $attribute->name));
+            $relatedModelTable = CubeTable::create($relatedModelName);
+            if ($relatedModelTable->getModelPath()->exist()) {
+                return "{$attribute->name}{$nullable}:number;\n";
+            }
+            return "";
         } else {
             return "{$attribute->name}{$nullable}:any;\n";
         }
@@ -175,23 +190,27 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $labels = $attribute->booleanLabels();
             return $this->inertiaRadioButtonComponent($attribute, $labels, $this->currentForm == "Edit");
         } elseif ($attribute->isKey()) {
-            $relatedModel = Settings::make()->getTable(Naming::model(str_replace('_id', '', $attribute->name)));
-            $select2Route = $this->getRouteName($relatedModel, ContainerType::WEB, $this->actor) . '.allPaginatedJson';
+            $relatedModel =
+                Settings::make()->getTable(Naming::model(str_replace('_id', '', $attribute->name)))
+                ?? CubeTable::create(Naming::model(str_replace('_id', '', $attribute->name)));
+
+            $dataRoute = $this->getRouteName($relatedModel, ContainerType::WEB, $this->actor) . '.data';
 
             if (
-                !$relatedModel?->getModelPath()->exist()
-                || !$relatedModel?->getWebControllerPath()->exist()
-                || !ClassUtils::isMethodDefined($relatedModel?->getWebControllerPath(), 'allPaginatedJson')
-                || !$relatedModel->getTSModelPath()->exist()
+                !$relatedModel?->getModelPath()->exist() //Category Path
+                || !$relatedModel?->getWebControllerPath()->exist() // Category Controller
+                || !ClassUtils::isMethodDefined($relatedModel?->getWebControllerPath(), 'data') // exist
+                || !$relatedModel->getTSModelPath()->exist() // Category.ts
             ) {
                 return "";
             }
 
             $this->addImport("import { PaginatedResponse } from \"@/Models/Response\";");
             $this->addImport("import ApiSelect from \"@/Components/form/fields/Select/ApiSelect\";");
-            $this->addImport("import { {$relatedModel->modelName} } from \"@/Models/{$relatedModel->modelName}");
+            $this->addImport("import { {$relatedModel->modelName} } from \"@/Models/{$relatedModel->modelName}\"");
+            $this->addImport("import { translate } from \"@/Models/Translatable\";");
 
-            return $this->inertiaApiSelectComponent($relatedModel, $select2Route, $attribute, $this->currentForm == "Edit");
+            return $this->inertiaApiSelectComponent($relatedModel, $dataRoute, $attribute, $this->currentForm == "Edit");
         } elseif ($attribute->isFile()) {
             $this->addImport("import Input from \"@/Components/form/fields/Input\";");
             return $this->inertiaFileInputComponent($attribute, $this->currentForm == "Edit");
@@ -233,10 +252,10 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         });
 
         $stubProperties = [
-            '{{modelName}}' => $this->table->modelName,
+            '{{modelName}}'  => $this->table->modelName,
             '{{properties}}' => $properties,
-            "{{relations}}" => $relations,
-            "{{imports}}" => $this->imports,
+            "{{relations}}"  => $relations,
+            "{{imports}}"    => $this->imports,
         ];
 
         $interfacePath = $this->table->getTSModelPath();
@@ -254,6 +273,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             override: $override,
             otherStubsPath: self::MODEL_INTERFACE_STUB
         );
+
+        $interfacePath->format();
     }
 
     public function addImport($import): void
@@ -300,7 +321,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             } elseif ($attr->isFile()) {
                 $this->addImport("import { asset } from \"@/helper\";");
                 $this->addImport("import Gallery from \"@/Components/Show/Gallery\";");
-                $bigFields .= "<div className=\"bg-gray-50 my-2 mb-5 p-4 rounded-md font-bold text-xl\">
+                $bigFields .= "<div className=\"bg-gray-50 my-2 mb-5 p-4 rounded-md font-bold text-xl dark:bg-dark dark:text-white\">
                                     <label className=\"font-semibold text-lg\">{$attr->titleNaming()} :</label>
                                     <Gallery
                                         sources={
@@ -324,17 +345,19 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         });
 
         $stubProperties = [
-            '{{modelName}}' => $this->table->modelName,
-            "{{imports}}" => $this->imports,
+            '{{modelName}}'    => $this->table->modelName,
+            "{{imports}}"      => $this->imports,
             "{{variableName}}" => $modelVariable,
-            "{{editRoute}}" => $routes['edit'],
-            "{{smallFields}}" => $smallFields,
-            "{{bigFields}}" => $bigFields,
+            "{{editRoute}}"    => $routes['edit'],
+            "{{smallFields}}"  => $smallFields,
+            "{{bigFields}}"    => $bigFields,
         ];
 
         $showPagePath->ensureDirectoryExists();
 
         $this->generateFileFromStub($stubProperties, $showPagePath->fullPath, $override, self::SHOW_PAGE_STUB);
+
+        $showPagePath->format();
     }
 
     public function generateIndexPage(bool $override = false): void
@@ -346,13 +369,16 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $this->imports = "";
         $routes = $this->getRoutesNames($this->table, $this->actor);
         $stubProperties = [
-            '{{modelName}}' => $this->table->modelName,
-            "{{imports}}" => $this->imports,
-            "{{createRoute}}" => $routes['create'],
-            "{{dataRoute}}" => $routes['data'],
-            "{{columns}}" => $this->getDataTableColumns(),
-            "{{modelVariable}}" => $this->table->variableNaming(),
-            "{{indexRoute}}" => $routes['index'],
+            '{{modelName}}'          => $this->table->modelName,
+            "{{columns}}"            => $this->getDataTableColumns(),
+            "{{imports}}"            => $this->imports,
+            "{{createRoute}}"        => $routes['create'],
+            "{{dataRoute}}"          => $routes['data'],
+            "{{modelVariable}}"      => $this->table->variableNaming(),
+            "{{indexRoute}}"         => $routes['index'],
+            "{{importRoute}}"        => $routes['import'],
+            "{{exportRoute}}"        => $routes['export'],
+            '{{importExampleRoute}}' => $routes['example'],
         ];
 
         if ($indexPagePath->exist()) {
@@ -363,6 +389,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $indexPagePath->ensureDirectoryExists();
 
         $this->generateFileFromStub($stubProperties, $indexPagePath->fullPath, $override, self::INDEX_PAGE_STUB);
+
+        $indexPagePath->format();
     }
 
     public function getDataTableColumns(): string
@@ -391,7 +419,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 return true;
             } else {
                 $columns .= "{
-                    label: \"{$attr->titleNaming()} ?\",
+                    label: \"{$attr->titleNaming()}\",
                     name: \"{$attr->name}\",
                     sortable: true,
                 },";
@@ -417,11 +445,22 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 return true;
             }
 
+            $this->addImport('import { Link } from "@inertiajs/react";');
+            $relatedModelAttribute = $relatedModel->titleable();
+            $translatable = $relatedModelAttribute->isTranslatable() ? "translatable:true," : "";
+            $relatedModelShowRoute = $this->getRoutesNames($this->table, $this->actor)['show'];
             $columns .= "
             {
-                label: \"{$relatedModel->modelName} {$relatedModel->titleable()->titleNaming()}\",
-                name: \"{$rel->relationMethodNaming()}.{$relatedModel->titleable()->name}\",
+                label: \"{$relatedModel->modelName} {$relatedModelAttribute->titleNaming()}\",
+                name: \"{$rel->relationMethodNaming()}.{$relatedModelAttribute->name}\",
                 sortable: true,
+                {$translatable}
+                render:({$relatedModelAttribute->name} , {$rel->variableNaming()}) => (
+                            <Link
+                                className=\"hover:text-primary underline\"
+                                href={route(\"$relatedModelShowRoute\" , {$relatedModel->variableNaming()}.id)}>
+                                {{$relatedModelAttribute->name}}
+                            </Link>)
             },";
 
             return true;

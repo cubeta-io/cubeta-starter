@@ -38,15 +38,19 @@ class BaseExporter implements FromCollection, WithMapping, WithHeadings, WithCus
             }
             return $this->collection;
         }
-        
+
         return $this->model->export();
     }
 
     public function map($row): array
     {
+        if ($this->isExample) {
+            return [];
+        }
+
         $map = [];
 
-        $columns = method_exists($this->model, 'exportable') && !$this->isExample
+        $columns = method_exists($this->model, 'exportable')
             ? $this->model->exportable()
             : $this->model->getFillable();
 

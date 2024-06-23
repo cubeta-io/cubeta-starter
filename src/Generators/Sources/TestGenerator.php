@@ -31,7 +31,7 @@ class TestGenerator extends AbstractGenerator
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.test_namespace'),
             '{modelName}' => $this->table->modelName,
-            '{{ actor }}' => $this->actor,
+            '{{actor}}' => $this->actor,
             '{baseRouteName}' => $baseRouteName,
             '{modelNamespace}' => config('cubeta-starter.model_namespace'),
             '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
