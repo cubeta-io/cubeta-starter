@@ -12,10 +12,7 @@ use App\Repositories\Contracts\IBaseRepository;
  */
 class UserRepository extends BaseRepository
 {
-    public function __construct(User $user)
-    {
-        parent::__construct($user);
-    }
+    protected string $modelClass = User::class;
 
     public function getUserByEmail($email)
     {

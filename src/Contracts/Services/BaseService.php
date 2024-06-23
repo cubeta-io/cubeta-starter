@@ -2,7 +2,7 @@
 
 namespace App\Services\Contracts;
 
-use App\Repositories\Contracts\IBaseRepository;
+use App\Repositories\Contracts\BaseRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection as RegularCollection;
@@ -14,11 +14,12 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 abstract class BaseService implements IBaseService
 {
-    protected IBaseRepository $repository;
+    protected BaseRepository $repository;
+    protected string $repositoryClass = BaseRepository::class;
 
-    public function __construct(IBaseRepository $repository)
+    protected function __construct()
     {
-        $this->repository = $repository;
+        $this->repository = new $this->repositoryClass();
     }
 
     /**

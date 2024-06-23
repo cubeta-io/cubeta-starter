@@ -11,8 +11,5 @@ use App\Repositories\Contracts\IBaseRepository;
  */
 class {modelName}Repository extends BaseRepository
 {
-    public function __construct({modelName} ${modelVar})
-    {
-        parent::__construct(${modelVar});
-    }
+    protected string $modelClass = {modelName}::class;
 }

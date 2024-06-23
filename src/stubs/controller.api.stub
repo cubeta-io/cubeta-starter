@@ -11,11 +11,11 @@ use Illuminate\Http\Request;
 
 class {modelName}Controller extends ApiController{
 
-    private ${variableNaming}Service;
+    private {modelName}Service ${variableNaming}Service;
 
-    public function __construct({modelName}Service ${variableNaming}Service) {
+    public function __construct() {
 
-        $this->{variableNaming}Service = ${variableNaming}Service;
+        $this->{variableNaming}Service = {modelName}Service::make();
 
         // place the relations you want to return them within the response
         $this->relations = [] ;

@@ -15,14 +15,14 @@ class {modelName}Controller extends Controller
 {
     use DataTablesTrait;
 
-    private ${modelNameCamelCase}Service;
+    private {modelName}Service ${modelNameCamelCase}Service;
 
     // place the relations you want to return them within the response
     private array $relations = [];
 
-    public function __construct({modelName}Service ${modelNameCamelCase}Service)
+    public function __construct()
     {
-        $this->{modelNameCamelCase}Service = ${modelNameCamelCase}Service;
+        $this->{modelNameCamelCase}Service = {modelName}Service::make();
     }
 
 

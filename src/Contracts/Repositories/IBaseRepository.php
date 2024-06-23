@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 interface IBaseRepository
 {
+    public static function make(): static;
+
     /**
      * @param array $relations
      * @return Builder<T>
