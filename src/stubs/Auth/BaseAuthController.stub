@@ -22,9 +22,9 @@ class BaseAuthController extends ApiController
    /**
     * @throws Exception
     */
-    public function __construct(UserService $userService)
+    public function __construct()
     {
-        $this->userService = $userService;
+        $this->userService = UserService::make();
         $this->userService->setGuard();
     }
 

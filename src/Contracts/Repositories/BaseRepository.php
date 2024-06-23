@@ -23,6 +23,8 @@ abstract class BaseRepository implements IBaseRepository
 {
     use FileHandler;
 
+    protected string $modelClass = Model::class;
+    private static $instance;
     /**
      * @var T
      */
@@ -47,7 +49,7 @@ abstract class BaseRepository implements IBaseRepository
      */
     public function __construct(Model $model)
     {
-        $this->model = $model;
+        $this->model = new $this->modelClass;
 
         if (method_exists($this->model, 'filesKeys')) {
             $this->fileColumnsName = $this->model->filesKeys();
@@ -68,6 +70,16 @@ abstract class BaseRepository implements IBaseRepository
         $this->modelTableColumns = $this->getTableColumns();
     }
 
+    public static function make(): static
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new static();
+        } elseif (!(self::$instance instanceof static)) {
+            self::$instance = new static();
+        }
+        return self::$instance;
+    }
+    
     /**
      * @return array
      */

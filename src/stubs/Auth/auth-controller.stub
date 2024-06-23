@@ -7,10 +7,9 @@ use {serviceNamespace}\User\UserService;
 
 class {role}AuthController extends BaseAuthController
 {
-    public function __construct(UserService $userService)
+    public function __construct()
     {
-        parent::__construct($userService);
-
+        parent::__construct();
         $this->roleHook(RolesPermissionEnum::{roleEnumName}['role']);
     }
 }
