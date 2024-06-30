@@ -5,7 +5,7 @@ In this section we will talk about the roles permissions tools usage .
 after installing the tools using `php artisan cubeta:install permissions`run your migration by this
 command `php artisan migrate`
 
-## Roles :
+## Roles
 
 firstly you should make sure that the User model or whatever model you want to power it with the roles ,permissions
 feature is using the trait `HasRoles` like this :
@@ -57,7 +57,7 @@ you can remove a role from the user by doing this :
 auth()->user()->removeRole('admin');
 ```
 
-## Permissions :
+## Permissions
 
 permissions can be assigned to a user or to permission over a specific model
 like when you'd like to give the user an index permission for the product model .
@@ -106,12 +106,14 @@ this is required for checking if the actions on this model has to be authorized 
 so based on the provided **Product** model example if you do this checks  :
 
 ```php
-auth()->user()->assignPermission(['index' , 'create']);
+auth()->user()->assignPermission(['index' , 'show']);
 
-auth()->user()->hasPermission('index' , Product::class) // true
+auth()->user()->hasPermission('index' , Product::class); // true
 
-auth()->user()->hasPermission('create' , Product::class) // false 
+auth()->user()->hasPermission('create' , Product::class); // true 
 //because the permission don't have an authorized action in the model
+
+auth()->user()->hasPermission('show' , Product::class); // false
 ```
 
 > [!note]
@@ -126,7 +128,7 @@ auth()->user()->assignRole("admin");
 auth()->user()->hasPermission('index') // true
 ```
 
-## Abilities :
+## Abilities
 
 sometimes you want to specify the permissions on a specific records in the database like that the user can just delete
 his products so the permissions feature can handle such cases .

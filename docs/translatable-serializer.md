@@ -1,7 +1,12 @@
-# Translatable Serializer Class
+# Translatable Attributes Handling
 
-This serializer is meant to make your localized data handling smother and effortless .
-You can find this class in `app/Serializers/Translatable.php` .
+To handle translatable attributes (attributes with multi locale values) you have the following classes :
+
+1. `\App\Casts\Translatable::class`
+2. `\App\Serializers\Translatable::class`
+
+the cast class is a laravel cast class its purpose is to cast the attributes using the `\App\Serializers\Translatable`
+serializer class so your base focus should be in the serializer class .
 
 ## Basic usage
 
@@ -51,7 +56,7 @@ now the title and body properties will be cast to `App\Serializers\Translatable`
 the translatable serializer depends on the locales defined in your `config/cubeta-starter.php` file so make sure to add
 your available locales in it.
 
-### Getting data
+## Getting data
 
 let us assume we have the following locales **en** , **ar** defined in the package config file , then accessing those
 locales will be valid via the following methods :
@@ -71,7 +76,7 @@ $post->toArray(); // will return the value as json decoded array ["en" => "engli
 $post->toJson(); // will return the json value of the data "{"en" : "english title" , "ar" : "arabic title"}"
 ```
 
-### A special case for the usage in laravel Api Resources :
+## A special case for the usage in laravel **Api Resources** :
 
 of course, you have full access to the previous mentioned methods to access data of your object but to make it easier to
 control your api responses the translatable serializer will implement `JsonSerializable` interface, so you have to
@@ -108,7 +113,7 @@ class PostResource extends BaseResource
 based on the default implementation of the `jsonSerialize` method the **title** and **body** will be returned as json
 strings in the response
 
-### storing data
+## storing data
 
 the translatable cast accept data as arrays and as json strings so the following is acceptable :
 
@@ -140,14 +145,14 @@ $post->title = new \App\Serializers\Translatable('{"en" : "english title" , "ar"
 $post->save();
 ```
 
-### Searching
+## Searching
 
 when searching it is convenient to use the `LIKE` operator in where clauses but for a deterministic results you have to
 use `JSON_CONTAINS` as an operator in where clauses.
 
 ## Last thing
 
-the translatable serializer class provide a faker method, so you could use it like this : 
+the translatable serializer class provide a faker method, so you could use it like this :
 
 ```php
 \App\Serializers\Translatable::fake('word') ; // fake()->word() but one for each defined locale
