@@ -27,14 +27,14 @@ class ApiControllerGenerator extends AbstractGenerator
         $controllerPath->ensureDirectoryExists();
 
         $stubProperties = [
-            '{namespace}' => $this->table->getApiControllerNameSpace(false),
-            '{modelName}' => $this->table->modelName,
-            '{variableNaming}' => $this->table->variableNaming(),
-            '{serviceNamespace}' => $this->table->getServiceNamespace(false, true),
-            '{requestNamespace}' => $this->table->getRequestNameSpace(false, true),
-            '{resourceNamespace}' => $this->table->getResourceNameSpace(false, true),
-            '{idVariable}' => $this->table->idVariable(),
-            "{modelNamespace}" => $this->table->getModelNameSpace(),
+            '{namespace}'         => $this->table->getApiControllerNameSpace(false),
+            '{modelName}'         => $this->table->modelName,
+            '{variableNaming}'    => $this->table->variableNaming(),
+            '{idVariable}'        => $this->table->idVariable(),
+            "{modelNamespace}"    => $this->table->getModelClassString(),
+            '{resourceNamespace}' => $this->table->getResourceNameSpace(false),
+            '{requestNamespace}'  => $this->table->getRequestNameSpace(false),
+            '{serviceNamespace}'  => $this->table->getServiceNamespace(false),
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);

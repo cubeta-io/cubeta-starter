@@ -20,10 +20,10 @@ class RepositoryGenerator extends AbstractGenerator
         $repositoryPath->ensureDirectoryExists();
 
         $stubProperties = [
-            '{namespace}' => $this->table->getRepositoryNameSpace(),
-            '{modelName}' => $this->table->modelName,
-            '{modelVar}' => $this->table->variableNaming(),
-            '{modelNamespace}' => $this->table->getModelNameSpace()
+            '{namespace}'      => $this->table->getRepositoryNameSpace(false, true),
+            '{modelName}'      => $this->table->modelName,
+            '{modelVar}'       => $this->table->variableNaming(),
+            '{modelNamespace}' => $this->table->getModelNameSpace(false)
         ];
 
         $this->generateFileFromStub($stubProperties, $repositoryPath->fullPath);

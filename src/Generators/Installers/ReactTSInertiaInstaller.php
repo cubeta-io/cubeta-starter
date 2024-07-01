@@ -21,6 +21,8 @@ class ReactTSInertiaInstaller extends AbstractGenerator
     {
         $this->installInertia($override);
         $this->addSetLocalRoute();
+        $this->addRouteFile('public', version: $this->version);
+        $this->addRouteFile('protected', version: $this->version);
     }
 
     private function installInertia(bool $override = false): void
@@ -28,7 +30,7 @@ class ReactTSInertiaInstaller extends AbstractGenerator
         Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
 
         Artisan::call('vendor:publish', [
-            '--tag' => 'react-ts',
+            '--tag'   => 'react-ts',
             '--force' => $override,
         ]);
 

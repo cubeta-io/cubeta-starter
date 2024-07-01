@@ -2,7 +2,7 @@
 
 namespace  {namespace};
 
-use {modelNamespace}\{modelName};
+use {modelNamespace};
 use App\Repositories\Contracts\BaseRepository;
 use App\Repositories\Contracts\IBaseRepository;
 

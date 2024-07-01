@@ -52,25 +52,25 @@ class BladeControllerGenerator extends AbstractGenerator
             ->toJson();
 
         $stubProperties = [
-            '{modelName}' => $this->table->modelName,
-            '{modelNameCamelCase}' => $modelNameCamelCase,
-            '{idVariable}' => $idVariable,
-            '{tableName}' => $this->table->tableName,
-            '{addColumns}' => $addColumns,
-            '{rawColumns}' => $this->rawColumns ?? '',
-            '{indexRoute}' => $routesNames['index'],
-            '{createForm}' => $views['create'],
-            '{indexView}' => $views['index'],
-            '{showView}' => $views['show'],
-            '{editForm}' => $views['edit'],
-            '{namespace}' => $this->table->getWebControllerNameSpace(),
-            '{requestNamespace}' => $this->table->getRequestNameSpace(false, true),
-            '{modelNamespace}' => $this->table->getModelNameSpace(),
-            '{serviceNamespace}' => $this->table->getServiceNamespace(false, true),
+            '{modelName}'               => $this->table->modelName,
+            '{modelNameCamelCase}'      => $modelNameCamelCase,
+            '{idVariable}'              => $idVariable,
+            '{tableName}'               => $this->table->tableName,
+            '{addColumns}'              => $addColumns,
+            '{rawColumns}'              => $this->rawColumns ?? '',
+            '{indexRoute}'              => $routesNames['index'],
+            '{createForm}'              => $views['create'],
+            '{indexView}'               => $views['index'],
+            '{showView}'                => $views['show'],
+            '{editForm}'                => $views['edit'],
+            '{namespace}'               => $this->table->getWebControllerNameSpace(false, true),
+            '{requestNamespace}'        => $this->table->getRequestNameSpace(false),
+            '{modelNamespace}'          => $this->table->getModelNameSpace(false),
+            '{serviceNamespace}'        => $this->table->getServiceNamespace(false),
             '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns(),
-            '{additionalMethods}' => $this->additionalControllerMethods(),
-            '{loadedRelations}' => $loadedRelations,
-            '{baseRouteName}' => $routesNames['base'],
+            '{additionalMethods}'       => $this->additionalControllerMethods(),
+            '{loadedRelations}'         => $loadedRelations,
+            '{baseRouteName}'           => $routesNames['base'],
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
@@ -205,17 +205,17 @@ class BladeControllerGenerator extends AbstractGenerator
         $viewName = $model->viewNaming();
         if (!isset($actor) || $actor == '' || $actor = 'none') {
             return [
-                'index' => 'dashboard.' . $viewName . '.index',
-                'edit' => 'dashboard.' . $viewName . '.edit',
+                'index'  => 'dashboard.' . $viewName . '.index',
+                'edit'   => 'dashboard.' . $viewName . '.edit',
                 'create' => 'dashboard.' . $viewName . '.create',
-                'show' => 'dashboard.' . $viewName . '.show',
+                'show'   => 'dashboard.' . $viewName . '.show',
             ];
         }
         return [
-            'index' => 'dashboard.' . $actor . '.' . $viewName . '.index',
-            'edit' => 'dashboard.' . $actor . '.' . $viewName . '.edit',
+            'index'  => 'dashboard.' . $actor . '.' . $viewName . '.index',
+            'edit'   => 'dashboard.' . $actor . '.' . $viewName . '.edit',
             'create' => 'dashboard.' . $actor . '.' . $viewName . '.create',
-            'show' => 'dashboard.' . $actor . '.' . $viewName . '.show',
+            'show'   => 'dashboard.' . $actor . '.' . $viewName . '.show',
         ];
 
     }

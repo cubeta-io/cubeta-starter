@@ -2,13 +2,14 @@
 
 namespace {namespace};
 
-use {modelNamespace}\{modelName};
+use {modelNamespace};
 use App\Services\Contracts\BaseService;
 use App\Services\Contracts\Makable;
-use {repositoryNamespace}\{repositoryName};
+use {repositoryNamespace};
 
 /**
  * @extends {modelName}Service<{modelName}>
+ * @property {modelName}Repository $repository
  */
 class {modelName}Service extends BaseService
 {

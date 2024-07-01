@@ -39,18 +39,19 @@ class InertiaReactTSController extends AbstractGenerator
         $pagesPaths = $this->getTsxPagesPath();
 
         $stubProperties = [
-            '{{namespace}}' => config('cubeta-starter.web_controller_namespace'),
-            '{{requestNamespace}}' => config('cubeta-starter.request_namespace'),
-            '{{modelName}}' => $this->table->modelName,
-            '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
-            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace'),
+            '{{namespace}}'          => $this->table->getWebControllerNameSpace(false, true),
+            '{{modelName}}'          => $this->table->modelName,
             '{{modelNameCamelCase}}' => $modelNameCamelCase,
-            '{{createForm}}' => $pagesPaths['create'],
-            '{{updateForm}}' => $pagesPaths['edit'],
-            '{{indexRoute}}' => $routesNames['index'],
-            '{{showPage}}' => $pagesPaths['show'],
-            '{{indexPage}}' => $pagesPaths['index'],
-            "{{relations}}" => $loadedRelations,
+            '{{createForm}}'         => $pagesPaths['create'],
+            '{{updateForm}}'         => $pagesPaths['edit'],
+            '{{indexRoute}}'         => $routesNames['index'],
+            '{{showPage}}'           => $pagesPaths['show'],
+            '{{indexPage}}'          => $pagesPaths['index'],
+            "{{relations}}"          => $loadedRelations,
+            '{{serviceNamespace}}'   => $this->table->getServiceNamespace(false),
+            '{{requestNamespace}}'   => $this->table->getRequestNameSpace(),
+            '{{modelNamespace}}'     => $this->table->getModelNameSpace(false),
+            '{{serviceName}}'        => $this->table->getServiceName()
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
@@ -77,10 +78,10 @@ class InertiaReactTSController extends AbstractGenerator
     {
         $viewName = $this->table->viewNaming();
         return [
-            'index' => 'dashboard/' . $viewName . '/Index',
-            'edit' => 'dashboard/' . $viewName . '/Edit',
+            'index'  => 'dashboard/' . $viewName . '/Index',
+            'edit'   => 'dashboard/' . $viewName . '/Edit',
             'create' => 'dashboard/' . $viewName . '/Create',
-            'show' => 'dashboard/' . $viewName . '/Show',
+            'show'   => 'dashboard/' . $viewName . '/Show',
         ];
     }
 
@@ -101,7 +102,7 @@ class InertiaReactTSController extends AbstractGenerator
         $fileContent = $sidebarPath->getContent();
 
         $newSidebarItem = sprintf(
-            "    {\n        href: route(\"%s\"),\n        title: \"%s\",\n    },\n",
+            "    ,{\n        href: route(\"%s\"),\n        title: \"%s\",\n    },\n",
             $indexRoute,
             $title
         );
@@ -120,6 +121,9 @@ class InertiaReactTSController extends AbstractGenerator
 
         $updatedContent = preg_replace_callback($pattern, $callback, $fileContent);
 
+        // remove repeated commas
+        $updatedContent = preg_replace('/\s*,\s*(\s*,\s*)*/', ',', $updatedContent);
+        
         $sidebarPath->putContent($updatedContent);
         CubeLog::add(new ContentAppended($newSidebarItem, $sidebarPath->fullPath));
     }

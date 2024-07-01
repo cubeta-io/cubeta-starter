@@ -2,7 +2,7 @@
 
 namespace {namespace} ;
 
-use {resourceNamespace}\{modelName}Resource;
+use {resourceNamespace};
 use {modelNamespace}\{modelName};
 use Tests\Contracts\MainTestCase;
 

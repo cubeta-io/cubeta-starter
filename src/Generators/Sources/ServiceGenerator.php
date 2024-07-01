@@ -20,11 +20,11 @@ class ServiceGenerator extends AbstractGenerator
         $servicePath->ensureDirectoryExists();
 
         $stubProperties = [
-            '{modelName}' => $this->table->modelName,
-            '{repositoryName}' => $this->table->getRepositoryName(),
-            '{namespace}' => $this->table->getServiceNamespace(false),
-            '{repositoryNamespace}' => $this->table->getRepositoryNameSpace(),
-            "{modelNamespace}" => $this->table->getModelNameSpace()
+            '{modelName}'           => $this->table->modelName,
+            '{repositoryName}'      => $this->table->getRepositoryName(),
+            '{namespace}'           => $this->table->getServiceNamespace(false, true),
+            '{repositoryNamespace}' => $this->table->getRepositoryNameSpace(false),
+            "{modelNamespace}"      => $this->table->getModelNameSpace(false)
         ];
 
         $this->generateFileFromStub($stubProperties, $servicePath->fullPath);

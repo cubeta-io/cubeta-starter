@@ -29,12 +29,12 @@ class TestGenerator extends AbstractGenerator
         $testPath->ensureDirectoryExists();
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.test_namespace'),
-            '{modelName}' => $this->table->modelName,
-            '{{actor}}' => $this->actor,
-            '{baseRouteName}' => $baseRouteName,
-            '{modelNamespace}' => config('cubeta-starter.model_namespace'),
-            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
+            '{namespace}'             => config('cubeta-starter.test_namespace'),
+            '{modelName}'             => $this->table->modelName,
+            '{{actor}}'               => $this->actor,
+            '{baseRouteName}'         => $baseRouteName,
+            '{modelNamespace}'        => config('cubeta-starter.model_namespace'),
+            '{resourceNamespace}'     => $this->table->getResourceNameSpace(false),
             '{additionalFactoryData}' => $this->getAdditionalFactoryData()
         ];
 

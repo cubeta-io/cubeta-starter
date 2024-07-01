@@ -17,11 +17,11 @@ class RequestGenerator extends AbstractGenerator
         $rules = $this->generateRules();
 
         $stubProperties = [
-            '{namespace}' => $this->table->getRequestNameSpace(false),
-            '{class}' => $this->table->modelName,
-            '{rules}' => $rules['rules'],
+            '{namespace}'            => $this->table->getRequestNameSpace(false, true),
+            '{class}'                => $this->table->modelName,
+            '{rules}'                => $rules['rules'],
             '{prepareForValidation}' => $rules['prepare_for_validation'],
-            "{updateRules}" => $rules["updateRules"],
+            "{updateRules}"          => $rules["updateRules"],
         ];
 
         $requestPath = $this->table->getRequestPath();
@@ -94,9 +94,9 @@ class RequestGenerator extends AbstractGenerator
         $prepareForValidation .= "]);\n}\n}";
 
         return [
-            'rules' => $rules,
+            'rules'                  => $rules,
             'prepare_for_validation' => $prepareForValidation,
-            'updateRules' => str_replace('required', 'nullable', $rules),
+            'updateRules'            => str_replace('required', 'nullable', $rules),
         ];
     }
 

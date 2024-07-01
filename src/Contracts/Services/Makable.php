@@ -1,8 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Contracts\Services;
-
-use App\Services\DataField\DataFieldService;
+namespace App\Services\Contracts;
 
 trait Makable
 {

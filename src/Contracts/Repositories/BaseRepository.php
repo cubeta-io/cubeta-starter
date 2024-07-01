@@ -47,7 +47,7 @@ abstract class BaseRepository implements IBaseRepository
     /**
      * BaseRepository Constructor
      */
-    public function __construct(Model $model)
+    public function __construct()
     {
         $this->model = new $this->modelClass;
 
@@ -79,7 +79,7 @@ abstract class BaseRepository implements IBaseRepository
         }
         return self::$instance;
     }
-    
+
     /**
      * @return array
      */

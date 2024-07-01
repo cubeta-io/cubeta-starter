@@ -26,17 +26,20 @@ trait TestHelpers
     protected string $userType;
 
     protected array $pagination = [
-        'currentPage' => 1,
-        'from' => 1,
-        'to' => 5,
-        'total' => 5,
-        'per_page' => 10,
+        "currentPage" => 1,
+        "from"        => 1,
+        "is_first"    => true,
+        "is_last"     => true,
+        "per_page"    => 10,
+        "to"          => 5,
+        "total"       => 5,
+        "total_pages" => 1
     ];
 
     protected array $responseBody = [
-        'data' => null,
-        'status' => true,
-        'code' => 200,
+        'data'     => null,
+        'status'   => true,
+        'code'     => 200,
         'paginate' => null,
     ];
 
@@ -63,18 +66,17 @@ trait TestHelpers
         $tableName = (new $this->model())->getTable();
         $columns = Schema::getColumnListing($tableName);
 
-        return (bool) (in_array('deleted_at', $columns));
+        return (bool)(in_array('deleted_at', $columns));
     }
 
     /**
      * this function is for converting the return value of a resource as an array
-     *
      * @param mixed $data     the data that  has to be converted
      * @param bool  $multiple if you want to return an array of data
      */
     public function convertResourceToArray(mixed $data, bool $multiple = false): array
     {
-        if (! $multiple) {
+        if (!$multiple) {
             return json_decode(
                 json_encode(new $this->resource($data)),
                 JSON_PRETTY_PRINT
@@ -98,7 +100,6 @@ trait TestHelpers
 
     /**
      * data = [] ||| message = there is no data
-     *
      * @return void
      */
     public function failedMultiResponse()
@@ -113,7 +114,7 @@ trait TestHelpers
     public function login(string $email, string $password = '12345678'): void
     {
         auth()->attempt([
-            'email' => $email,
+            'email'    => $email,
             'password' => $password,
         ]);
     }

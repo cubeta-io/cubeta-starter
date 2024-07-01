@@ -2,11 +2,11 @@
 
 namespace {namespace};
 
-use {requestNamespace}\{modelName}\StoreUpdate{modelName}Request;
-use {serviceNamespace}\{modelName}\{modelName}Service;
-use {resourceNamespace}\{modelName}Resource;
+use {requestNamespace};
+use {serviceNamespace};
+use {resourceNamespace};
+use {modelNamespace};
 use App\Http\Controllers\ApiController;
-use {modelNamespace}\{modelName};
 use Illuminate\Http\Request;
 
 class {modelName}Controller extends ApiController{
@@ -50,7 +50,7 @@ class {modelName}Controller extends ApiController{
             return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.stored_successfully'));
         }
 
-        return $this->apiResponse(null, self::STATUS_OK, __('site.something_went_wrong'));
+        return $this->apiResponse(null, self::STATUS_NOT_FOUND, __('site.something_went_wrong'));
     }
 
     public function update(${idVariable}, StoreUpdate{modelName}Request $request)
