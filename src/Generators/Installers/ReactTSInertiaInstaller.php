@@ -3,8 +3,11 @@
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
+use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
@@ -21,8 +24,16 @@ class ReactTSInertiaInstaller extends AbstractGenerator
     {
         $this->installInertia($override);
         $this->addSetLocalRoute();
-        $this->addRouteFile('public', version: $this->version);
-        $this->addRouteFile('protected', version: $this->version);
+        $this->addRouteFile('public', container: ContainerType::WEB, version: $this->version);
+        $this->addRouteFile('protected', container: ContainerType::WEB, version: $this->version);
+        FileUtils::registerMiddleware(
+            "'locale' => Middleware\\AcceptedLanguagesMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS
+        );
+        FileUtils::registerMiddleware(
+            "Middleware\\HandleInertiaRequests::class",
+            MiddlewareArrayGroupEnum::WEB
+        );
     }
 
     private function installInertia(bool $override = false): void

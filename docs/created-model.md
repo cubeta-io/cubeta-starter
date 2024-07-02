@@ -1,6 +1,6 @@
 # Created Models
 
-The created models will have methods that controls the flow of your application
+The created models will have methods that help you control the flow of your application
 
 ## searchableArray method
 
@@ -106,6 +106,17 @@ or **_likes_** with values represent the desired data for example and based on t
 providing the query params values as arrays that represent a range will ignore the defined method and use
 the `whereBetween` method to query your data where the first array element and the second one fits in the `whereBetween`
 method.
+
+## ordering results
+
+When querying a model using its repository `globalQuery` method you can order the results based on each column in the
+corresponding table by using 2 query params :
+
+1. `sort_col` as the name of the column you want to order the results based on it.
+2. `sort_dir` as the order direction `asc` , `desc`.
+
+so when your request contain those params and your request uses the `globalQuery` method it will return the response
+data ordered by the selected column .
 
 > [!warning]
 > the functionality of the previous methods depends on using the `globalQuery` method based in the BaseRepository class

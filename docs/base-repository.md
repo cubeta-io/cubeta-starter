@@ -1,5 +1,9 @@
 # BaseRepository Class
 
+- `globalQuery(array $relations = [])`
+  this method will instantiate a unified query like the model global scope but with the abilities to add filter , search
+  and order to the query this is done by the `addSearch` , `filterFields` , `orderQueryBy` and a specific arrays defined
+  in your model check on that [here](created-model.md#created-models)
 - `all(array $relations = [])` : <br>
   this method will return all the corresponding model records without any format
 

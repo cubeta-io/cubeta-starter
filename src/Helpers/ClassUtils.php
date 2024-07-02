@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Helpers;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
@@ -29,7 +30,7 @@ class ClassUtils
 
     /**
      * @param CubePath $filePath
-     * @param string $functionName
+     * @param string   $functionName
      * @return bool
      */
     public static function isMethodDefined(CubePath $filePath, string $functionName): bool
@@ -59,7 +60,7 @@ class ClassUtils
 
     /**
      * @param CubePath $classPath the path of the class you want to add to it
-     * @param string $content the content you want to add
+     * @param string   $content   the content you want to add
      * @return void
      */
     public static function addToClass(CubePath $classPath, string $content): void
@@ -121,17 +122,20 @@ class ClassUtils
         $fileContent = $classPath->getContent();
 
         // this pattern search for the method then match its return statement that returns an array
-        $pattern = '/public\s+function\s+' . preg_quote($methodName, '/') . '\s*\([^)]*\)\s*(?::[^{;]+)?\s*{\s*return\s*\[(.*?)];\s*}/s';
+        $pattern = '/public\s*(static)?\s*function\s+' . preg_quote($methodName, '/') . '\s*\((.*?)\)\s*:?(.*?)\{\s*(.*?)\s*return\s*\[(.*?)]\s*;\s*}/s';//
 
-        // Search for the pattern in the content
         if (preg_match($pattern, $fileContent, $matches)) {
 
-            /************* checking if the content want to add exists in the return array *************/
-            $existingElementsNormalized = str_replace(',', '',FileUtils::extraTrim($matches[1]));
-            $contentNormalized = str_replace(',', '',FileUtils::extraTrim($content));
+            if (!isset($matches[5])) {
+                CubeLog::add(new FailedAppendContent($content,
+                    $classPath->fullPath,
+                    "Adding The Following Content\n$content\nTo The Returned Array Of The Method : [$methodName]"
+                ));
+                return false;
+            }
+            $returnArray = $matches[5];
 
-            // Check for duplicated content, ignoring whitespace differences
-            if (str_contains($existingElementsNormalized, $contentNormalized)) {
+            if (FileUtils::contentExistsInString($returnArray, $content)) {
                 CubeLog::add(new ContentAlreadyExist(
                     $content,
                     $classPath->fullPath,
@@ -139,18 +143,14 @@ class ClassUtils
                 ));
                 return false;
             }
-            /*******************************************************************************************/
 
-            // Insert the new content immediately before the closing bracket of the array
-            $existingElements = rtrim($matches[1], ",");
-            $updatedContent = rtrim($content, ","); // Still remove trailing comma from new content
-            $updatedContent = str_replace($matches[1], $existingElements . ($existingElements !== "" && !str_ends_with($existingElements, ",") ? "," : "") . "\n\t\t" . $updatedContent, $fileContent);
-            /******************************************************************************************************/
-
-            // check for repeated commas
-            $updatedContent = preg_replace('/,\s*,+/', ',', $updatedContent);
-
-            $classPath->putContent($updatedContent);
+            $fileContent = preg_replace_callback($pattern, function ($matches) use ($content, $methodName) {
+                $returnArray = $matches[5] . ",\n" . $content;
+                $returnArray = FileUtils::fixArrayOrObjectCommas($returnArray);
+                return 'public ' . ($matches[1] ? 'static ' : '') . 'function ' . $methodName . '(' . $matches[2] . ')' . ($matches[3] ? ':' . $matches[3] : '') . " \n{\n" . $matches[4] . " return [\n" . $returnArray . "\n];\n}";
+            }, $fileContent);
+            $fileContent = str_replace($matches[5], $returnArray, $fileContent);
+            $classPath->putContent($fileContent);
 
             CubeLog::add(new ContentAppended($content, $classPath->fullPath));
             $classPath->format();

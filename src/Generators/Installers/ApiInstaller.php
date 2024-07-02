@@ -2,7 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
+use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Artisan;
@@ -22,5 +24,9 @@ class ApiInstaller extends AbstractGenerator
 
         $this->addRouteFile('public', version: $this->version);
         $this->addRouteFile('protected', version: $this->version);
+        FileUtils::registerMiddleware(
+            "'locale' => Middleware\\AcceptedLanguagesMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS
+        );
     }
 }

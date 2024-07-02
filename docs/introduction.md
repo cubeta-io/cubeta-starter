@@ -45,7 +45,7 @@ you will find a complete installation interface (available just in development e
 in this page you'll be asked about your frontend stack , so you have three options :
 
 1. Blade , Bootstrap , JQuery
-2. Inertia , React , Typescript , Tailwind
+2. Inertia , React , Typescript , Tailwind , check on inertia.js [here](https://inertiajs.com/)
 3. No Frontend Just API
 
 Choosing one depends on your project needs cause selecting one of the frontend stacks will give you the ability to fit
@@ -91,13 +91,6 @@ For the same installing steps your have three commands :
 > [!warning]
 > installing (api or web) is critical to make the generated endpoints or pages work properly
 
-## Important Step !
-
-after installing (web or api) a new provider will appear in the `app/Providers` directory, so you need to
-register it in your project by going to `config/app.php` and in the file search for the `providers` array and add this
-line to it : `\App\Providers\CubetaStarterServiceProvider::class
-`
-
 
 > [!warning]
 > performing the installation processes using the package GUI will cause the to override any file that has the same name
@@ -112,23 +105,19 @@ line to it : `\App\Providers\CubetaStarterServiceProvider::class
 
 ## Accepted Language Middleware
 
-The package will publish a new middleware in case to handle your application localization so don't so don't forget to
-register it withing your application middlewares
+The package will publish a new middleware in case to handle your application localization and it will register it in
+your middleware aliases under the key `locale` in `/app/Http/Kernel.php`
 
-## Additional Step For Inertia , React.ts Installation
+## CubetaStarterServiceProvider service provider
 
-Inertia depends on a middleware named HandleInertiaRequests to be registered within your app middlewares so head
-to `app/Http/Kernelphp` then in the web middlewares array add this
-line : `\App\Http\Middleware\HandleInertiaRequests::class` like this :
+The package will publish a new service provider in case of installing `Blade` web stack and register it within
+the `providers` key in your `/config/app.php` config file , this service provider will register the published blade
+components.
 
-```php
-    protected $middlewareGroups = [
-        'web' => [
-            // your application middlewares ....
-            \App\Http\Middleware\HandleInertiaRequests::class,
-        ],
-    ];
-```
+## HandleInertiaRequests middleware
+
+As a part of the inertia.js installation [process](https://inertiajs.com/server-side-setup#middleware) the package will
+publish and register the `HandleInertiaRequests` middleware class in you `web` middlewares in `/app/Http/Kernel.php`.
 
 
 

@@ -3,7 +3,6 @@
     "rules": {
         "fully_qualified_strict_types": true,
         "align_multiline_comment": true,
-        "array_indentation": true,
         "combine_consecutive_issets": true,
         "combine_consecutive_unsets": true,
         "concat_space": {
@@ -48,6 +47,16 @@
             "allow_single_line_closure": true,
             "position_after_functions_and_oop_constructs": "next"
         },
-        "single_line_after_imports": true
+        "single_line_after_imports": true,
+        "array_syntax": {
+            "syntax": "short"
+        },
+        "trailing_comma_in_multiline": {
+            "elements": [
+                "arrays"
+            ]
+        },
+        "array_indentation": true,
+        "normalize_index_brace": true
     }
 }

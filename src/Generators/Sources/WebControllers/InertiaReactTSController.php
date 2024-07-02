@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\ReactTSPagesGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
@@ -116,14 +117,11 @@ class InertiaReactTSController extends AbstractGenerator
         }
 
         $callback = function ($matches) use ($newSidebarItem) {
-            return $matches[1] . $matches[2] . "\n                " . $newSidebarItem . "\n            " . $matches[3];
+            return FileUtils::fixArrayOrObjectCommas($matches[1] . $matches[2] . "\n                " . $newSidebarItem . "\n            " . $matches[3]);
         };
 
         $updatedContent = preg_replace_callback($pattern, $callback, $fileContent);
 
-        // remove repeated commas
-        $updatedContent = preg_replace('/\s*,\s*(\s*,\s*)*/', ',', $updatedContent);
-        
         $sidebarPath->putContent($updatedContent);
         CubeLog::add(new ContentAppended($newSidebarItem, $sidebarPath->fullPath));
     }

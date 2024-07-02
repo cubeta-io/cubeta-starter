@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Helpers;
 
 use Cubeta\CubetaStarter\CreateFile;
+use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
@@ -139,17 +140,26 @@ class FileUtils
      */
     public static function contentExistInFile(CubePath $filePath, string $content): bool
     {
+        if (!$filePath->exist()) {
+            CubeLog::add(new NotFound($filePath->fullPath, "Checking If $content Exists In it"));
+        }
+
         $fileContent = $filePath->getContent();
 
         if (!$fileContent) {
             return false;
         }
 
-        $fileContent = self::extraTrim($fileContent);
+        return self::contentExistsInString($fileContent, $content);
+    }
+
+    public static function contentExistsInString(string $string, string $content): bool
+    {
+        $string = self::extraTrim($string);
 
         $content = self::extraTrim($content);
 
-        if (str_contains(strtolower($fileContent), strtolower($content))) {
+        if (str_contains(strtolower($string), strtolower($content))) {
             return true;
         }
 
@@ -279,5 +289,95 @@ class FileUtils
         $filePath->putContent($fileContent);
         CubeLog::add(new ContentAppended($content, $filePath->fullPath));
         $filePath->format();
+    }
+
+    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type): void
+    {
+        $pattern = match ($type) {
+            MiddlewareArrayGroupEnum::GLOBAL => '/\s*protected\s*\$middleware\s*=\s*\[(.*?)\]\s*;/s',
+            MiddlewareArrayGroupEnum::API => '/\'api\'\s*=>\s*\[(.*?)\]\s*/s',
+            MiddlewareArrayGroupEnum::WEB => '/\'web\'\s*=>\s*\[(.*?)\]\s*/s',
+            MiddlewareArrayGroupEnum::ALIAS => '/protected\s*\$middlewareAliases\s*=\s*\[(.*?)\]\s*;/s',
+        };
+
+        $kernelPath = CubePath::make('/app/Http/Kernel.php');
+
+        if (!$kernelPath->exist()) {
+            CubeLog::add(new NotFound($kernelPath->fullPath, "Registering [$middlewareArrayItem] Middleware"));
+            return;
+        }
+
+        $kernelContent = $kernelPath->getContent();
+
+        if (preg_match($pattern, $kernelPath->getContent(), $matches)) {
+            if (!isset($matches[1])) {
+                CubeLog::add(new FailedAppendContent($middlewareArrayItem, $kernelPath->fullPath, "Registering [$middlewareArrayItem] Middleware"));
+                return;
+            }
+
+            $middlewares = $matches[1];
+            if (self::contentExistsInString($middlewares, $middlewareArrayItem)) {
+                CubeLog::add(new ContentAlreadyExist($middlewareArrayItem, $kernelPath->fullPath, "Registering [$middlewareArrayItem] Middleware"));
+                return;
+            }
+
+            $middlewares = $middlewares . ",\n" . $middlewareArrayItem . ",\n";
+            $middlewares = self::fixArrayOrObjectCommas($middlewares);
+            $kernelContent = str_replace($matches[1], "\n$middlewares\n", $kernelContent);
+            $kernelPath->putContent($kernelContent);
+            CubeLog::add(new ContentAppended($middlewareArrayItem, $kernelPath->fullPath));
+            $kernelPath->format();
+            return;
+        }
+
+        CubeLog::add(new FailedAppendContent($middlewareArrayItem, $kernelPath->fullPath, "Registering [$middlewareArrayItem] Middleware"));
+    }
+
+    public static function removeRepeatedCommas(string $string): array|string|null
+    {
+        return preg_replace('/(,\s*)+/', ",\n", $string);
+    }
+
+    public static function registerProvider(string $provider): void
+    {
+        $configPath = CubePath::make('/config/app.php');
+
+        if (!$configPath->exist()) {
+            CubeLog::add(new NotFound($configPath->fullPath, "Registering [$provider] Provider"));
+            return;
+        }
+
+        $configContent = $configPath->getContent();
+
+        $pattern = '/\s*\'providers\'\s*=>\s*\[([^]]*)]/';
+
+        if (preg_match($pattern, $configContent, $matches)) {
+            if (!isset($matches[1])) {
+                CubeLog::add(new FailedAppendContent($provider, $configPath->fullPath, "Registering [$provider] Provider"));
+                return;
+            }
+
+            $providers = $matches[1];
+            if (self::contentExistsInString($providers, $provider)) {
+                CubeLog::add(new ContentAlreadyExist($provider, $configPath->fullPath, "Registering [$provider] Provider"));
+                return;
+            }
+
+            $providers = $providers . ",\n" . $provider . ",\n";
+            $providers = self::fixArrayOrObjectCommas($providers);
+            $configContent = str_replace($matches[1], $providers, $configContent);
+            $configPath->putContent($configContent);
+            CubeLog::add(new ContentAppended($provider, $configPath->fullPath));
+            $configPath->format();
+            return;
+        }
+
+        CubeLog::add(new FailedAppendContent($provider, $configPath->fullPath, "Registering [$provider] Provider"));
+    }
+
+    public static function fixArrayOrObjectCommas(string $input): array|string|null
+    {
+        $input = trim($input, " \t\n\r\0\x0B,");
+        return self::removeRepeatedCommas($input);
     }
 }

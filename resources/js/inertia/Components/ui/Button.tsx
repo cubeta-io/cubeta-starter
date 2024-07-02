@@ -29,7 +29,7 @@ const Button: React.FunctionComponent<IButtonProps> = ({
         <button
             className={
                 className ??
-                `flex items-center disabled:hover:bg-opacity-15 disabled:cursor-not-allowed bg-${color} hover:text-${color} border-${color} p-2 text-white rounded-md hover:dark:bg-transparent`
+                `flex items-center disabled:hover:bg-opacity-15 disabled:cursor-not-allowed bg-${color} hover:border-${color} hover:bg-white hover:text-${color} border-${color} p-2 text-white rounded-md hover:dark:bg-transparent`
             }
             disabled={disabled}
             {...props}

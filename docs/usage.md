@@ -209,6 +209,9 @@ Do You Want To Create Authentication Api Controller For This Actor ? (yes/no) [y
  > yes
 ```
 
+> [!note]
+> You have to run `php artisan cubeta:install auth` if you'd like to create an authentication controller for your actor
+
 Now you will notice that the there is multiple files generated and some changes in your project files:
 
 1. **RolesPermissionsEnum.php** (basically in `app/Enums` Directory )
@@ -384,22 +387,33 @@ and in addition to that it's make sure that the entered translation is correspon
 the `config/cubeta-starter.php` config file if it is not it will return a validation error.
 
 3 - then the output will be :
+```shell
+Is This Column Nullable ? (yes/no) [no]:
+ > no
+
+```
+just chose whether the column is nullable or not
+
+4 - then this question will appear : 
+```shell
+Is This Column Unique ? (yes/no) [no]:
+ > no
+```
+just chose whether the column is unique or not
 
 ```shell
-Does this model related with another model by has many relation ? [No]:
-  [0] No
-  [1] Yes
+Does (<YourModelName>) model related with another model by has many relation ? (yes/no) [no]:
+ > yes
 ```
 
 if you hit yes it will ask you about the name of the related model so just type it
-then it will reask you if you have another has many related model just do the same
+then it will re-ask you if you have another has many related model just do the same
 
 4 - this output will come next :
 
 ```shell 
-Does this model related with another model by many to many relation ? [No]:
-  [0] No
-  [1] Yes
+Does (<YourModelName>) model related with another model by many to many relation ? (yes/no) [no]:
+ > yes
 ```
 
 so just like before type the model name if you're willing to hit yes
@@ -426,6 +440,7 @@ so you will find a :
 > releases it will give you a lot of features .
 
 ### Create Model Command Options
+
 if you'd like you can generate the model with just a specific file you can just add the desired file as an option like
 if you execute this command :
 
@@ -439,16 +454,16 @@ this command will generate the product model with a corresponding resource and c
 
 **the available options for these commands are :**
 
-1. --migration
-2. --request
-3. --resource
-4. --factory
-5. --seeder
-6. --repository
-7. --service
-8. --controller
-9. --web_controller
-10. --test
+1. `--migration`
+2. `--request`
+3. `--resource`
+4. `--factory`
+5. `--seeder`
+6. `--repository`
+7. `--service`
+8. `--controller`
+9. `--web_controller`
+10. `--test`
 
 > [!note]
 > you cannot do the same thing using the gui . you have to generate every file alone
