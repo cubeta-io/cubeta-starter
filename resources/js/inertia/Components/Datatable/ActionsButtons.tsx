@@ -40,7 +40,7 @@ function ActionsButtons<Data>({
     const csrf = usePage<PageProps>().props.csrfToken;
 
     return (
-        <div className={`flex justify-between items-center`}>
+        <div className={`flex justify-start gap-3 items-center`}>
             {buttons.includes("show") ? (
                 <Link href={sUrl} className="hover:bg-white-secondary p-0.5 rounded-md">
                     <Eye className="w-5 h-5 text-info" />
