@@ -54,7 +54,7 @@ const LanguageDropdown = () => {
                                     }),
                                     headers: {
                                         "Content-Type": "application/json",
-                                        "X-CSRF-TOKEN": csrfToken,
+                                        "X-CSRF-TOKEN": `${csrfToken}`,
                                     },
                                     method: "POST",
                                 }).then((r) => {
