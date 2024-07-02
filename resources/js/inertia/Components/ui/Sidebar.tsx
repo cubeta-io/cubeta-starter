@@ -27,7 +27,7 @@ export const Sidebar = ({toggleSidebar}: { toggleSidebar: () => void }) => {
                     />
                     <a
                         href="#"
-                        className="px-2 w-full text-2xl text-brand dark:text-white hover:underline"
+                        className="px-2 w-full text-xl text-brand dark:text-white hover:underline"
                     >
                         Cubeta Starter
                     </a>

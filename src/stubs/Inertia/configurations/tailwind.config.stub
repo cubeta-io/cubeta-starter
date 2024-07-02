@@ -25,9 +25,6 @@ export default {
                 dark: 'var(--color-dark)',
                 'dark-secondary': 'var(--color-dark-secondary)',
             },
-        },
-        fontFamily: {
-            'sans': ['Segoe UI', 'Arial', 'sans-serif'],
         }
     },
 
