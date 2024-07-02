@@ -154,7 +154,7 @@ trait StringsGenerator
                         name={\"category_id\"}
                         label={\"Category\"}
                         onChange={(e) =>
-                            setData(\"{$attribute->name}\", e.target.value)
+                            setData(\"{$attribute->name}\", Number(e.target.value))
                         }
                         {$optionLabel}
                         optionValue={\"id\"}
