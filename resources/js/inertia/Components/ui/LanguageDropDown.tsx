@@ -1,13 +1,15 @@
-import {useState} from "react";
-import {usePage} from "@inertiajs/react";
-import {PageProps} from "@/types";
-import {AvailableLocales} from "@/Models/Translatable";
+import { useState } from "react";
+import { usePage } from "@inertiajs/react";
+import { PageProps } from "@/types";
+import { AvailableLocales } from "@/Models/Translatable";
 
 const LanguageDropdown = () => {
-    const {currentLocale, availableLocales, csrfToken} =
+    const { currentLocale, availableLocales, csrfToken } =
         usePage<PageProps>().props;
     const [open, setOpen] = useState(false);
-    const [selectedLocale, setSelectedLocale] = useState(currentLocale);
+    const [selectedLocale, setSelectedLocale] = useState<
+        string | AvailableLocales
+    >(currentLocale as string);
 
     return (
         <div className="relative w-auto">
@@ -56,6 +58,10 @@ const LanguageDropdown = () => {
                                     },
                                     method: "POST",
                                 }).then((r) => {
+                                    window.localStorage.setItem(
+                                        "locale",
+                                        locale,
+                                    );
                                     location.reload();
                                 });
                                 setSelectedLocale(locale as AvailableLocales);

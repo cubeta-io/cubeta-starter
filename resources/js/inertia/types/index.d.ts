@@ -6,8 +6,8 @@ export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {
     authUser: User;
-    availableLocales: AvailableLocales[];
-    currentLocale: AvailableLocales;
+    availableLocales: AvailableLocales[]|string[];
+    currentLocale: AvailableLocales|string;
     currentRoute: string;
     tinymceApiKey: string;
     asset: string;

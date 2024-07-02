@@ -1,13 +1,10 @@
-import { usePage } from "@inertiajs/react";
-import { PageProps } from "../types";
-
 export type AvailableLocales = "en";
 
 export type Translatable = Record<AvailableLocales, string>;
 
 export function translate(
     val: string | undefined | null,
-    returnObject?: boolean,
+    returnObject?: false,
 ): string;
 
 export function translate(
@@ -19,6 +16,7 @@ export function translate(
     val: string | undefined | null,
     returnObject = false,
 ): string | Translatable {
+    const currentLocale = window.localStorage.getItem("locale") ?? "en";
     try {
         if (!val && returnObject) {
             return { en: "" } as Translatable;
@@ -30,7 +28,6 @@ export function translate(
             return tr;
         }
 
-        const { currentLocale } = usePage<PageProps>().props;
         return tr[currentLocale];
     } catch (e) {
         if (returnObject) {
