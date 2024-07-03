@@ -63,7 +63,7 @@ class {{modelName}}Controller extends Controller
         /** @var {{modelName}}|null $item */
         ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Service->store($request->validated(), $this->relations);
         if (${{modelNameCamelCase}}) {
-            return redirect()->route('{{indexRoute}}', ${{modelNameCamelCase}}->id)->with('success' , __('site.stored_successfully'));
+            return redirect()->route('{{indexRoute}}')->with('success' , __('site.stored_successfully'));
         }
         return redirect()->back()->with('error' , __('site.something_went_wrong'));
     }
@@ -85,7 +85,7 @@ class {{modelName}}Controller extends Controller
         /** @var {{modelName}}|null $item */
         ${{modelNameCamelCase}} = $this->{{modelNameCamelCase}}Service->update($request->validated(), ${{modelNameCamelCase}}Id, $this->relations);
         if (${{modelNameCamelCase}}) {
-            return redirect()->route('{{indexRoute}}', ${{modelNameCamelCase}}Id)->with('success' , __('site.update_successfully'));
+            return redirect()->route('{{indexRoute}}')->with('success' , __('site.update_successfully'));
         }
         else return redirect()->back()->with('error' , __('site.there_is_no_data'));
     }
