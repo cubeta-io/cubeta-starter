@@ -103,7 +103,7 @@ class InertiaReactTSController extends AbstractGenerator
         $fileContent = $sidebarPath->getContent();
 
         $newSidebarItem = sprintf(
-            "    ,{\n        href: route(\"%s\"),\n        title: \"%s\",\n    },\n",
+            "    ,{\n        href: route(\"%s\"),\n        title: \"%s\",\n\ticon:() => <TableCells />,\n    },\n",
             $indexRoute,
             $title
         );
@@ -123,6 +123,8 @@ class InertiaReactTSController extends AbstractGenerator
         $updatedContent = preg_replace_callback($pattern, $callback, $fileContent);
 
         $sidebarPath->putContent($updatedContent);
+        FileUtils::tsAddImportStatement('import TableCells from "../icons/TableCells";', $sidebarPath);
+        $sidebarPath->format();
         CubeLog::add(new ContentAppended($newSidebarItem, $sidebarPath->fullPath));
     }
 }

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Navbar from "@/Components/ui/Navbar";
-import "../../../css/app.css";
 import { Sidebar } from "@/Components/ui/Sidebar";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -34,13 +33,13 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
                     rtl={usePage<PageProps>().props.currentLocale == "ar"}
                 />
                 <div
-                    className={`bg-white-secondary dark:bg-dark-secondary h-screen ${
+                    className={`bg-white-secondary shadow-lg dark:bg-dark-secondary h-screen ${
                         isOpen
                             ? "slide-sidebar-right"
                             : "slide-sidebar-left w-1/4"
                     }`}
                 >
-                    <Sidebar toggleSidebar={toggleSidebar} />
+                    <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
                 </div>
                 <div
                     className={`w-full h-screen overflow-y-scroll bg-white dark:bg-dark`}

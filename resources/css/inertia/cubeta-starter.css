@@ -13,7 +13,7 @@
         --color-danger: #dc3545;
         --color-white: #ffffff;
         --color-black: #000000;
-        --color-white-secondary: #EDF6FC;
+        --color-white-secondary: #fafafa;
         --color-dark: #030B12;
         --color-dark-secondary: #061523;
     }
@@ -27,7 +27,7 @@
         --color-warning: #E2D73C;
         --color-danger: #E34F4F;
         --color-white: #ffffff;
-        --color-white-secondary: #EDF6FC;
+        --color-white-secondary: #fafafa;
         --color-black: #000000;
         --color-dark: #030B12;
         --color-dark-secondary: #061523;
@@ -65,7 +65,7 @@ body {
         @apply w-1/4
     }
     100% {
-        @apply w-0
+        @apply w-[7%]
     }
 }
 
@@ -74,7 +74,7 @@ body {
         @apply w-1/4
     }
     100% {
-        @apply w-0
+        @apply w-[7%]
     }
 }
 
@@ -85,7 +85,7 @@ body {
 
 @-webkit-keyframes slide-sidebar-right {
     0% {
-        @apply w-0
+        @apply w-[7%]
     }
     100% {
         @apply w-1/4
@@ -94,7 +94,7 @@ body {
 
 @keyframes slide-sidebar-right {
     0% {
-        @apply w-0
+        @apply w-[7%]
     }
     100% {
         @apply w-1/4

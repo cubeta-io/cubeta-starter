@@ -11,7 +11,7 @@ const Navbar = ({
     toggleSidebar: () => void;
 }) => {
     return (
-        <nav className="top-0 z-30 sticky flex justify-between items-center bg-white-secondary dark:bg-dark-secondary shadow-sm px-3 w-full max-h-20">
+        <nav className="top-0 z-30 sticky flex justify-between items-center bg-white-secondary dark:bg-dark-secondary shadow-md px-3 w-full max-h-20">
             <div className={`flex w-full items-center gap-1`}>
                 {!isSidebarOpen && (
                     <button type={"button"} onClick={() => toggleSidebar()}>
