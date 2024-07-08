@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 use Carbon\Carbon;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -36,7 +37,7 @@ class MigrationGenerator extends AbstractGenerator
 
         $stubProperties = [
             '{table}' => $this->table->tableNaming(),
-            '{col}' => $this->generateColumns(),
+            '{col}'   => $this->generateColumns(),
         ];
 
         $this->generateFileFromStub($stubProperties, $migrationPath->fullPath);
@@ -75,8 +76,8 @@ class MigrationGenerator extends AbstractGenerator
             $unique = $column->unique ? '->unique()' : '';
 
             $columns .= match ($column->type) {
-                'key' => '',
-                'translatable' => "\t\t\t\$table->json('{$name}')" . $nullable . $unique . "; \n",
+                ColumnTypeEnum::KEY->value => '',
+                ColumnTypeEnum::TRANSLATABLE->value => "\t\t\t\$table->json('{$name}')" . $nullable . $unique . "; \n",
                 default => "\t\t\t\$table->" . ($column->type == 'file' ? 'string' : $column->type) . "('{$name}')" . $nullable . $unique . "; \n",
             };
         });
@@ -95,11 +96,8 @@ class MigrationGenerator extends AbstractGenerator
     {
         $table1 = Str::singular(Naming::table($table1));
         $table2 = Str::singular(Naming::table($table2));
-
         $tables = [$table1, $table2];
-        sort($tables);
-
-        $pivotTableName = $tables[0] . '_' . Naming::table($tables[1]);
+        $pivotTableName = Naming::pivotTableNaming($table1 , $table2);
 
         if (!$this->checkIfMigrationExists(Naming::table($tables[0])) || !$this->checkIfMigrationExists(Naming::table($tables[1]))) {
             CubeLog::add(new CubeError(
@@ -130,8 +128,8 @@ class MigrationGenerator extends AbstractGenerator
 
         $stubProperties = [
             '{pivotTableName}' => $pivotTableName,
-            '{className1}' => '\\' . config('cubeta-starter.model_namespace') . "\\{$className1}",
-            '{className2}' => '\\' . config('cubeta-starter.model_namespace') . "\\{$className2}",
+            '{className1}'     => '\\' . config('cubeta-starter.model_namespace') . "\\{$className1}",
+            '{className2}'     => '\\' . config('cubeta-starter.model_namespace') . "\\{$className2}",
         ];
 
         try {

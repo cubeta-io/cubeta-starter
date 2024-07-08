@@ -169,4 +169,9 @@ class CubeRelation
     {
         return Settings::make()->getTable($this->modelName);
     }
+
+    public function getPivotTableName(): string
+    {
+        return Naming::pivotTableNaming($this->modelName , $this->relatedModel);
+    }
 }

@@ -84,7 +84,6 @@ class RequestGenerator extends AbstractGenerator
                 ColumnTypeEnum::INTEGER->value,
                 ColumnTypeEnum::BIG_INTEGER->value,
                 ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
-                ColumnTypeEnum::UNSIGNED_DOUBLE->value,
                 ColumnTypeEnum::DOUBLE->value,
                 ColumnTypeEnum::FLOAT->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','numeric'{$isUnique}],\n",
                 default => "\t\t\t'{$attribute->name}'=>['{$isNullable}','{$attribute->type}'{$isUnique}],\n",

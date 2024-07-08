@@ -4,7 +4,7 @@ import Pencil from "../icons/Pencil";
 import Trash from "../icons/Trash";
 import { swal } from "@/helper";
 import { toast } from "react-toastify";
-import { PageProps } from "@/types";
+import { MiddlewareProps } from "@/types";
 
 type Buttons = "delete" | "edit" | "show";
 
@@ -37,7 +37,7 @@ function ActionsButtons<Data>({
     const sUrl = showUrl ?? `${baseUrl}/${dataId ?? ""}`; // show url
     const eUrl = editUrl ?? `${baseUrl}/${dataId ?? ""}/edit` + ""; // edit url
 
-    const csrf = usePage<PageProps>().props.csrfToken;
+    const csrf = usePage<MiddlewareProps>().props.csrfToken;
 
     return (
         <div className={`flex justify-start gap-3 items-center`}>

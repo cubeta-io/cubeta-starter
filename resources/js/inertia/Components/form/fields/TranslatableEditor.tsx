@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { Translatable, translate } from "@/Models/Translatable";
 import { usePage } from "@inertiajs/react";
-import { PageProps } from "@/types";
+import { MiddlewareProps } from "@/types";
 import { LocaleContext } from "@/Contexts/TranslatableInputsContext";
 import {getNestedPropertyValue} from "@/helper";
 
@@ -38,7 +38,7 @@ const TranslatableTextEditor: React.FC<TranslatableProps> = ({
     const [value, setValue] = useState<object | undefined>(defaultValue ?? {});
 
     const locale = useContext(LocaleContext);
-    const { availableLocales } = usePage<PageProps>().props;
+    const { availableLocales } = usePage<MiddlewareProps>().props;
 
     const handleChange = async (
         lang: string,

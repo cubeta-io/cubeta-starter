@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { usePage } from "@inertiajs/react";
-import { PageProps } from "@/types";
+import { MiddlewareProps } from "@/types";
 import { AvailableLocales } from "@/Models/Translatable";
 
 const LanguageDropdown = () => {
     const { currentLocale, availableLocales, csrfToken } =
-        usePage<PageProps>().props;
+        usePage<MiddlewareProps>().props;
     const [open, setOpen] = useState(false);
     const [selectedLocale, setSelectedLocale] = useState<
         string | AvailableLocales
@@ -57,7 +57,7 @@ const LanguageDropdown = () => {
                                         "X-CSRF-TOKEN": `${csrfToken}`,
                                     },
                                     method: "POST",
-                                }).then((r) => {
+                                }).then(() => {
                                     window.localStorage.setItem(
                                         "locale",
                                         locale,

@@ -1,10 +1,10 @@
-import { useForm, usePage } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 import Modal from "../ui/Modal";
 import { DataTableSchema } from "./DataTableUtils";
 import DownloadFile from "@/Hooks/DownloadFile";
 import { FormEvent, useState } from "react";
 import Button from "../ui/Button";
-import { PageProps } from "@/types";
+import { MiddlewareProps } from "@/types";
 
 const ExportModal = ({
                          openExport,
@@ -19,7 +19,7 @@ const ExportModal = ({
     exportRoute?: string;
     exportables?: string[];
 }) => {
-    const csrf = usePage<PageProps>().props.csrfToken;
+    const csrf = usePage<MiddlewareProps>().props.csrfToken;
     const [cols, setCols] = useState<string[]>(
         exportables
             ? exportables

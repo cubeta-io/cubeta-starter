@@ -19,7 +19,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable;
 
     protected $guarded = ['id'];
 
@@ -45,12 +45,15 @@ class User extends Authenticatable implements JWTSubject
         );
     }
 
-    protected $casts = [
-        'id' => 'integer',
-        'email_verified_at' => 'datetime',
-        'created_at' => 'datetime:Y-m-d H:i:s',
-        'updated_at' => 'datetime:Y-m-d H:i:s',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'id' => 'integer',
+            'email_verified_at' => 'datetime',
+            'created_at' => 'datetime:Y-m-d H:i:s',
+            'updated_at' => 'datetime:Y-m-d H:i:s',
+        ];
+    }
 
     public function getJWTIdentifier()
     {

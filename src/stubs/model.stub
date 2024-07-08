@@ -20,9 +20,17 @@ class {modelName} extends Model
        {fillable}
     ];
 
-    protected $casts = [
-        {casts}
-    ];
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            {casts}
+        ];
+    }
 
     public function exportable(): array {
         return [

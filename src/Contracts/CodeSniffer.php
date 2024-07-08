@@ -70,7 +70,7 @@ class CodeSniffer
                 ClassUtils::addMethodToClass(
                     $relatedPath,
                     $this->table->relationMethodNaming(singular: false),
-                    $this->manyToManyFunction($this->table)
+                    $this->manyToManyFunction($this->table , $relation->getPivotTableName())
                 );
             }
 
@@ -574,8 +574,8 @@ class CodeSniffer
             return;
         }
 
-        $firstPattern = '#<Form\s*(.*?)\s*>\s*<div\s*(.*?)\s*>\s*(.*?)\s*</div\>#s';
-        $secondPattern = '#<Form\s*(.*?)\s*>\s*(.*?)\s*</Form\>#s';
+        $firstPattern = '#<Form\s*(.*?)\s*>\s*<div\s*(.*?)\s*>\s*(.*?)\s*</div>#s';
+        $secondPattern = '#<Form\s*(.*?)\s*>\s*(.*?)\s*</Form>#s';
 
         if (preg_match($firstPattern, $fileContent, $matches)) {
             $formContent = $matches[3];
