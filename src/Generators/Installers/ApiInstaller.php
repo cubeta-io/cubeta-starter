@@ -95,6 +95,7 @@ class ApiInstaller extends AbstractGenerator
         $bootstrapPath = CubePath::make("/bootstrap/app.php");
 
         if (!$bootstrapPath->exist()) {
+            CubeLog::add(new NotFound($bootstrapPath->fullPath, "Registering Exception Handler"));
             return false;
         }
         FileUtils::addImportStatement("use App\Exceptions\Handler;", $bootstrapPath);
