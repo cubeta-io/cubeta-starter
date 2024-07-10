@@ -111,7 +111,7 @@ your middleware aliases under the key `locale` in `/app/Http/Kernel.php`
 ## CubetaStarterServiceProvider service provider
 
 The package will publish a new service provider in case of installing `Blade` web stack and register it within
-the `providers` key in your `/config/app.php` config file , this service provider will register the published blade
+the `providers` key in your `/bootstrap/providers.php` config file , this service provider will register the published blade
 components.
 
 ## HandleInertiaRequests middleware
