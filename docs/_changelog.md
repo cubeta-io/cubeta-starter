@@ -17,7 +17,7 @@
    remove their dependency injection process
 4. Now just the blade based generation requires a service provider to register the blade components published via the
    package
-5. All required middlewares and service providers for a specific stack is being registered via its install command
+5. All required middlewares , exceptions handlers and service providers for a specific stack is being registered via its install command
 
 ## **V 1.1.7**
 

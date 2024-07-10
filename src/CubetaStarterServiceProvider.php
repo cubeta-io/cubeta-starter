@@ -120,7 +120,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->publishes([
             __DIR__ . '/../src/Traits/RestTrait.stub'                       => app_path('Traits/RestTrait.php'),
             __DIR__ . "/../src/Contracts/ApiController.stub"                => app_path("Http/Controllers/ApiController.php"),
-            __DIR__ . '/App/Exceptions/handler.stub'                        => base_path('/app/Exceptions/Handler.php'),
+            __DIR__ . '/../src/stubs/handler.stub'                          => base_path('/app/Exceptions/Handler.php'),
             __DIR__ . '/../config/cubeta-starter.php'                       => base_path('config/cubeta-starter.php'),
             __DIR__ . '/../pint.json'                                       => base_path('pint.json'),
             __DIR__ . '/../lang/site.php'                                   => lang_path('en/site.php'),
@@ -218,7 +218,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/App/Serializers/Translatable.stub"           => app_path("Serializers/Translatable.php"),
             __DIR__ . "/../src/Contracts/Repositories/BaseRepository.stub"  => app_path("Repositories/Contracts/BaseRepository.php"),
             __DIR__ . "/../src/Contracts/Services/BaseService.stub"         => app_path("Services/Contracts/BaseService.php"),
-            __DIR__ . "/../src/Contracts/BulkActions/BaseBulkAction.stub"         => app_path("BulkAction/BaseBulkAction.php"),
+            __DIR__ . "/../src/Contracts/BulkActions/BaseBulkAction.stub"   => app_path("BulkAction/BaseBulkAction.php"),
             __DIR__ . "/../src/Contracts/Services/Makable.stub"             => app_path("Services/Contracts/Makable.php"),
             __DIR__ . "/../src/Contracts/Excel/BaseExporter.stub"           => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.stub'           => app_path("Excel/BaseImporter.php"),

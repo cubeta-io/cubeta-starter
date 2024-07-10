@@ -32,23 +32,11 @@ class ApiInstaller extends AbstractGenerator
         $this->addApiRouteFile();
         $this->addRouteFile('public', version: $this->version);
         $this->addRouteFile('protected', version: $this->version);
+        $this->registerExceptoptionHandler($override);
         FileUtils::registerMiddleware(
             "'locale' => App\\Http\\Middleware\\AcceptedLanguagesMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS
         );
-
-        try {
-            FileUtils::generateFileFromStub(
-                [],
-                base_path('app/Exceptions/Handler.php'),
-                __DIR__ . '/../../stubs/handler.stub',
-                $override
-            );
-            CubeLog::add(new SuccessGenerating("Handler.php", base_path('app/Exceptions/Handler.php'), "Installing api tools"));
-            $this->registerExceptionsHandler();
-        } catch (Exception $exception) {
-            CubeLog::add($exception);
-        }
     }
 
     private function addApiRouteFile(): void
@@ -146,5 +134,25 @@ class ApiInstaller extends AbstractGenerator
 
         CubeLog::add(new FailedAppendContent($handler, $bootstrapPath->fullPath, "Registering Exception Handler"));
         return false;
+    }
+
+    /**
+     * @param bool $override
+     * @return void
+     */
+    private function registerExceptoptionHandler(bool $override): void
+    {
+        try {
+            FileUtils::generateFileFromStub(
+                [],
+                base_path('app/Exceptions/Handler.php'),
+                __DIR__ . '/../../stubs/handler.stub',
+                $override
+            );
+            CubeLog::add(new SuccessGenerating("Handler.php", base_path('app/Exceptions/Handler.php'), "Installing api tools"));
+            $this->registerExceptionsHandler();
+        } catch (Exception $exception) {
+            CubeLog::add($exception);
+        }
     }
 }
