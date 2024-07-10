@@ -10,9 +10,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * @template T of Model
- * @implements IBaseService<T>
  */
-abstract class BaseService implements IBaseService
+abstract class BaseService
 {
     protected BaseRepository $repository;
     protected string $repositoryClass = BaseRepository::class;

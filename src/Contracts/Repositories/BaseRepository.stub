@@ -17,9 +17,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * @template T of Model
- * @implements IBaseRepository<T>
  */
-abstract class BaseRepository implements IBaseRepository
+abstract class BaseRepository
 {
     use FileHandler;
 
