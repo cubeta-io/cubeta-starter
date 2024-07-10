@@ -27,12 +27,14 @@ class ReactTSInertiaInstaller extends AbstractGenerator
         $this->addRouteFile('public', container: ContainerType::WEB, version: $this->version);
         $this->addRouteFile('protected', container: ContainerType::WEB, version: $this->version);
         FileUtils::registerMiddleware(
-            "'locale' => App\\Http\Middleware\\AcceptedLanguagesMiddleware::class",
-            MiddlewareArrayGroupEnum::ALIAS
+            "'locale' => AcceptedLanguagesMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware ;"
         );
         FileUtils::registerMiddleware(
-            "App\\Http\\Middleware\\HandleInertiaRequests::class",
-            MiddlewareArrayGroupEnum::WEB
+            "HandleInertiaRequests::class",
+            MiddlewareArrayGroupEnum::WEB,
+            "use App\\Http\\Middleware\\HandleInertiaRequests ;"
         );
     }
 

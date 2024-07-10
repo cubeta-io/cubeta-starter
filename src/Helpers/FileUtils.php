@@ -292,8 +292,13 @@ class FileUtils
         $filePath->format();
     }
 
-    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type): bool
+    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type , string $importStatement): bool
     {
+        $bootstrapPath = CubePath::make("/bootstrap/app.php");
+        if (!$bootstrapPath->exist()){
+            return false;
+        }
+        self::addImportStatement($importStatement , $bootstrapPath);
         return match ($type) {
             MiddlewareArrayGroupEnum::GLOBAL, MiddlewareArrayGroupEnum::ALIAS => self::registerMiddlewareAliasOrGlobal($middlewareArrayItem, $type),
             MiddlewareArrayGroupEnum::API => self::registerWebOrApiMiddleware($middlewareArrayItem),

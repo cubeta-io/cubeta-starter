@@ -34,8 +34,9 @@ class ApiInstaller extends AbstractGenerator
         $this->addRouteFile('protected', version: $this->version);
         $this->registerExceptoptionHandler($override);
         FileUtils::registerMiddleware(
-            "'locale' => App\\Http\\Middleware\\AcceptedLanguagesMiddleware::class",
-            MiddlewareArrayGroupEnum::ALIAS
+            "'locale' => AcceptedLanguagesMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware ;"
         );
     }
 
@@ -90,7 +91,7 @@ class ApiInstaller extends AbstractGenerator
         CubeLog::add(new ContentAppended($newRouteFile, $bootstrapPath->fullPath));
     }
 
-    public function registerExceptionsHandler()
+    public function registerExceptionsHandler(): bool
     {
         $bootstrapPath = CubePath::make("/bootstrap/app.php");
 

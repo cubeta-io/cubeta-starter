@@ -32,8 +32,9 @@ class WebInstaller extends AbstractGenerator
         $this->addRouteFile('protected', ContainerType::WEB, $this->version);
         $this->addSetLocalRoute();
         FileUtils::registerMiddleware(
-            "'locale' => App\\Http\\Middleware\\AcceptedLanguagesMiddleware::class",
-            MiddlewareArrayGroupEnum::ALIAS
+            "'locale' => AcceptedLanguagesMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware;"
         );
         FileUtils::registerProvider("App\\Providers\\CubetaStarterServiceProvider::class");
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::BLADE->value));
