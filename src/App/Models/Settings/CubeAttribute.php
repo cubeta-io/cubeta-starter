@@ -58,10 +58,10 @@ class CubeAttribute
     public function toJson(): bool|string
     {
         return json_encode([
-            "name" => $this->name,
-            "type" => $this->type,
+            "name"     => $this->name,
+            "type"     => $this->type,
             "nullable" => $this->nullable,
-            "unique" => $this->unique,
+            "unique"   => $this->unique,
         ], JSON_PRETTY_PRINT);
     }
 
@@ -71,10 +71,10 @@ class CubeAttribute
     public function toArray(): array
     {
         return [
-            "name" => $this->name,
-            "type" => $this->type,
+            "name"     => $this->name,
+            "type"     => $this->type,
             "nullable" => $this->nullable,
-            "unique" => $this->unique,
+            "unique"   => $this->unique,
         ];
     }
 
@@ -172,5 +172,15 @@ class CubeAttribute
     public function getOwnerTable(): ?CubeTable
     {
         return Settings::make()->getTable($this->parentTableName);
+    }
+
+    public function labelNaming(): string
+    {
+        if ($this->isBoolean()) {
+            return str_starts_with($this->name, 'is_') ? $this->titleNaming() . " ?"
+                : $this->titleNaming();
+        } else {
+            return $this->titleNaming();
+        }
     }
 }

@@ -6,26 +6,18 @@
     }
 @endphp
 
-<div class="col-md-12 p-2">
-    <script type="module">
-        $(document).ready(function () {
-            tinymce.init({
-                selector: '#{{$name}}',
-                content_css: false,
-                skin: false,
-            });
-        });
-    </script>
-    <div {{$attributes->merge()}}>
-        <label for="{{$name}}">{{$label}}</label>
-        <textarea id="{{$name}}"
-                  name="{{$name}}">{{ old($name) ?? $value }}</textarea>
-    </div>
-
-    <!--Handling Validation Errors-->
+<div class="w-100" id="{{$name}}_text_editor">
+    <label for="{{$name}}_text_editor" class="form-label">
+        {{$label}}
+    </label>
+    <textarea
+        id="{{$name}}_text_editor"
+        name="{{$name}}"
+        class="form-control"
+        {{$attributes->merge()}}
+    >{{ old($name) ?? $value }}</textarea>
     @error($name)
     <div class="invalid-feedback">{{$message}}</div>
     @enderror
-    <!--End Of Handling Validation Errors-->
-
 </div>
+

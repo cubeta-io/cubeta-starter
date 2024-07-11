@@ -188,7 +188,7 @@ class BladeControllerGenerator extends AbstractGenerator
             return;
         }
 
-        $sidebarItem = "\t\t<li class=\"nav-item\">\n\t\t\t<a class=\"nav-link collapsed @if(request()->fullUrl() == route('{$routeName}')) active @endif\" href=\"{{route('{$routeName}')}}\">\n\t\t\t\t<i class=\"bi bi-circle\"></i><span>{$this->table->modelNaming()}</span>\n\t\t\t</a>\n\t\t</li>\n</ul>";
+        $sidebarItem = "\t\t<li class=\"nav-item\">\n\t\t\t<a class=\"nav-link collapsed @if(str_contains(request()->fullUrl() , route('{$routeName}'))) active @endif\" href=\"{{route('{$routeName}')}}\">\n\t\t\t\t<i class=\"bi bi-circle\"></i><span>{$this->table->modelNaming()}</span>\n\t\t\t</a>\n\t\t</li>\n</ul>";
 
         $sidebar = $sidebarPath->getContent();
         $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);

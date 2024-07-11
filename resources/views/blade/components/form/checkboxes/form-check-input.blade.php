@@ -2,7 +2,7 @@
 @php
     use Illuminate\Support\Str;
 @endphp
-<div class="form-check">
+<label class="form-check-label" for="{{strtolower(Str::snake($label))}}[]">
     <input class="form-check-input @error(strtolower(Str::snake($label))) is-invalid @enderror"
            type="checkbox"
            value="{{strtolower(Str::snake($label))}}"
@@ -11,7 +11,5 @@
         @checked($checked)
         {{$attributes->merge()}}
     >
-    <label class="form-check-label" for="{{strtolower(Str::snake($label))}}[]">
-        {{$label}}
-    </label>
-</div>
+    {{$label}}
+</label>

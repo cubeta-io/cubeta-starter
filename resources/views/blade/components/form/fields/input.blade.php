@@ -1,4 +1,4 @@
-@props(['label' , 'name' => null , 'value' => null])
+@props(['label' , 'name' => null , 'value' => null , 'class' => 'form-control'])
 
 @php
     if (!$name){
@@ -6,18 +6,19 @@
     }
 @endphp
 
-<div class="col-md-6 p-2">
-    <label for="{{$name}}">{{$label}}</label>
-    <input class="form-control @error($name) is-invalid @enderror"
-           id="{{$name}}"
-           name="{{$name}}"
-           value="{{ old($name) ?? $value ?? null }}"
-           step="any"
+<div id="{{$name}}_input_container" class="w-100">
+    <label for="{{$name}}" class="form-label">
+        {{$label}}
+    </label>
+    <input
+        class="{{$class}} @error($name) is-invalid @enderror"
+        id="{{$name}}"
+        name="{{$name}}"
+        value="{{ old($name) ?? $value ?? null }}"
+        step="any"
         {{$attributes->merge()}}
     >
-    <!--Handling Validation Errors-->
     @error($name)
     <div class="invalid-feedback">{{$message}}</div>
     @enderror
-    <!--End Of Handling Validation Errors-->
 </div>

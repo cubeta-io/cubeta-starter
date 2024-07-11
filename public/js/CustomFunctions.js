@@ -7,7 +7,9 @@ function markRequiredFields() {
         let input = inputs[i];
         if (input.hasAttribute('required')) {
             let label = document.querySelector('label[for="' + input.id + '"]');
-            label.innerHTML += "<span style='color: red;'>*</span>";
+            if (label) {
+                label.innerHTML += "<span style='color: red;'>*</span>";
+            }
         }
     }
 }
@@ -192,6 +194,39 @@ function downloadResponseFile(response, xhr) {
 
     document.body.removeChild(a);
     URL.revokeObjectURL(blobUrl);
+}
+
+/**
+ *
+ * @param $item
+ * @param token
+ * @param messages:object{deleteMessage:string , confirmMessage:string , denyMessage:string , successMessage:string}
+ */
+function handelDeletionOfItemFromDataTable($item, token, messages) {
+    let url = $item.data('deleteurl');
+    Swal.fire({
+        title: messages.deleteMessage,
+        showDenyButton: true,
+        confirmButtonText: messages.confirmMessage,
+        confirmButtonColor: '#0d6efd',
+        denyButtonText: messages.denyMessage,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': token
+                }
+            });
+            $.ajax({
+                "method": "DELETE",
+                "url": url,
+                success: function () {
+                    $item.parent().parent().parent().parent().remove();
+                }
+            });
+            Swal.fire(messages.successMessage + " !", '', 'success')
+        }
+    })
 }
 
 

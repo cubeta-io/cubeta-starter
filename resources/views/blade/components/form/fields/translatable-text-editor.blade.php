@@ -1,57 +1,38 @@
 @props(['label', 'name' => null, 'value' => null])
 
 @php
-
     if (!$name) {
         $name = strtolower(\Illuminate\Support\Str::snake($label));
     }
-
     if (old($name)) {
         $value = old($name);
     } elseif ($value) {
         $value = json_decode($value, true);
     }
-
 @endphp
 
-<div class="col-md-12 p-2">
-
+<div class="w-100" id="{{$name}}_translatable_text_editor_container">
     @foreach (config('cubeta-starter.available_locales') as $locale)
-        <label for="{{ $name }}-{{ $locale }}"
-               @if ($loop->index != 0) style="display: none" @endif>
-            {{ strtoupper($locale) }} : {{ $label }}
+        <label for={{ $name }}_{{ $locale }}_textarea
+               class="form-label @error($name) text-danger @enderror"
+               @if ($loop->index != 0) style="display: none" @endif
+        >
+            {{strtoupper($locale)}} : {{ $label }}
         </label>
     @endforeach
 
     @foreach (config('cubeta-starter.available_locales') as $locale)
-        <script type="module">
-            $(document).ready(function () {
-                let targetedTextArea = $("#{{ $name }}-{{ $locale }}");
-
-                tinymce.init({
-                    selector: '#{{ $name }}-{{ $locale }}',
-                    content_css: false,
-                    skin: false,
-                });
-
-                @if ($loop->index != 0)
-                tinymce.get("{{ $name }}-{{ $locale }}").hide();
-                targetedTextArea.hide();
-                @endif
-            });
-        </script>
-        <div {{ $attributes->merge() }}>
-            <textarea id="{{ $name }}-{{ $locale }}" class="translatable"
-                      @if ($loop->index != 0) style="display:none" @endif name="{{ $name }}[{{ $locale }}]">
-                {{ $value[$locale] ?? null }}
-            </textarea>
-        </div>
+        <textarea
+            id="{{ $name }}_{{ $locale }}_textarea"
+            class="translatable form-control"
+            data-locale="{{$locale}}"
+            @if ($loop->index != 0) style="display:none" @endif
+            name="{{ $name }}[{{ $locale }}]"
+                {{ $attributes->merge() }}
+            >{{ $value[$locale] ?? null }}</textarea>
     @endforeach
 
-    <!-- Handling Validation Errors -->
     @error($name)
     <div class="invalid-feedback">{{ $message }}</div>
     @enderror
-    <!-- End of Handling Validation Errors -->
-
 </div>
