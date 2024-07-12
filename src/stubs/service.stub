@@ -8,7 +8,7 @@ use App\Services\Contracts\Makable;
 use {repositoryNamespace};
 
 /**
- * @extends {modelName}Service<{modelName}>
+ * @extends BaseService<{modelName}>
  * @property {modelName}Repository $repository
  */
 class {modelName}Service extends BaseService
