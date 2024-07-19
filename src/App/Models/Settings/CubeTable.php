@@ -40,11 +40,11 @@ class CubeTable
     public string $version;
 
     /**
-     * @param string $modelName
-     * @param string $tableName
+     * @param string          $modelName
+     * @param string          $tableName
      * @param CubeAttribute[] $attributes
-     * @param CubeRelation[] $relations
-     * @param string $version
+     * @param CubeRelation[]  $relations
+     * @param string          $version
      */
     public function __construct(string $modelName, string $tableName, array $attributes, array $relations, string $version)
     {
@@ -58,10 +58,10 @@ class CubeTable
 
     /**
      * @param string $modelName
-     * @param array $attributes
-     * @param array $relations
-     * @param array $uniques
-     * @param array $nullables
+     * @param array  $attributes
+     * @param array  $relations
+     * @param array  $uniques
+     * @param array  $nullables
      * @param string $version
      * @return CubeTable
      */
@@ -104,8 +104,8 @@ class CubeTable
             "model_name" => $this->modelName,
             "table_name" => $this->tableName,
             "attributes" => $attributes,
-            "relations" => $relations,
-            "version" => $this->version,
+            "relations"  => $relations,
+            "version"    => $this->version,
         ];
     }
 
@@ -130,7 +130,7 @@ class CubeTable
             "model_name" => $this->modelName,
             "table_name" => $this->tableName,
             "attributes" => $attributes,
-            "relations" => $relations,
+            "relations"  => $relations,
         ]);
     }
 
@@ -153,7 +153,7 @@ class CubeTable
     }
 
     /**
-     * @param string $name
+     * @param string      $name
      * @param string|null $type
      * @return bool
      */
@@ -171,7 +171,7 @@ class CubeTable
     }
 
     /**
-     * @param string $modelName
+     * @param string      $modelName
      * @param string|null $type
      * @return bool
      */
@@ -297,5 +297,12 @@ class CubeTable
             ->implode("','");
 
         return "'$cols'";
+    }
+
+    public function hasTranslatableAttribute(): bool
+    {
+        return (bool)$this->attributes()
+            ->filter(fn(CubeAttribute $attr) => $attr->type == ColumnTypeEnum::TRANSLATABLE->value)
+            ->count();
     }
 }

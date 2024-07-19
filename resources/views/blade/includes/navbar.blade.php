@@ -11,9 +11,11 @@
 
     <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center">
-
+            <div>
+                <i class="bi bi-sun-fill mx-2 theme-toggle"></i>
+            </div>
             <!--Profile Nav-->
-            <li class="nav-item dropdown pe-3">
+            <li class="nav-item dropdown">
                 <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                     <img src="{{asset('images/profile-img.jpg')}}" alt="Profile" class="rounded-circle">
                     <span class="d-none d-md-block dropdown-toggle ps-2">{{auth()->user()?->name ?? "App Admin"}}</span>
@@ -91,3 +93,21 @@
         </ul>
     </nav>
 </header>
+
+
+@push('scripts')
+    <script type="module">
+        $(document).ready(function () {
+            const themeToggle = document.querySelector('.theme-toggle');
+            const theme = window.localStorage.getItem('theme') ?? "light"
+
+            if (theme === "dark") {
+                themeToggle.classList.remove('bi-sun-fill')
+                themeToggle.classList.add('bi-moon-stars-fill')
+            } else {
+                themeToggle.classList.remove('bi-moon-stars-fill')
+                themeToggle.classList.add('bi-sun-fill')
+            }
+        })
+    </script>
+@endpush

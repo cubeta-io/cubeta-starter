@@ -32,4 +32,42 @@
             select('body').classList.toggle('toggle-sidebar')
         })
     }
+
+    const getStoredTheme = () => localStorage.getItem('theme') ?? "light"
+    const setStoredTheme = theme => localStorage.setItem('theme', theme)
+
+    const getPreferredTheme = () => {
+        const storedTheme = getStoredTheme()
+        if (storedTheme) {
+            return storedTheme
+        }
+
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+
+    const setTheme = theme => {
+        if (theme === 'auto') {
+            document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
+            setStoredTheme(theme)
+        } else {
+            document.documentElement.setAttribute('data-bs-theme', theme)
+            setStoredTheme(theme)
+        }
+    }
+
+    const theme = getPreferredTheme();
+    setTheme(theme);
+
+    on('click', '.theme-toggle', function (e) {
+        const theme = getPreferredTheme();
+        if (theme === "light") {
+            setTheme("dark");
+            e.target.classList.toggle('bi-sun-fill')
+            e.target.classList.toggle('bi-moon-stars-fill')
+        } else {
+            setTheme("light")
+            e.target.classList.toggle('bi-moon-stars-fill')
+            e.target.classList.toggle('bi-sun-fill')
+        }
+    })
 })();

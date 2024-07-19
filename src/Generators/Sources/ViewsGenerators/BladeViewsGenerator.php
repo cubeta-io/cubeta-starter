@@ -32,8 +32,8 @@ class BladeViewsGenerator extends BladeControllerGenerator
 
     /**
      * @param CubePath $filePath
-     * @param string $newColumn
-     * @param string $htmlColName
+     * @param string   $newColumn
+     * @param string   $htmlColName
      * @return bool
      */
     public static function addColumnToDataTable(CubePath $filePath, string $newColumn, string $htmlColName = ""): bool
@@ -122,7 +122,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
     /**
      * @param string|null $storeRoute
      * @param string|null $updateRoute
-     * @param bool $override
+     * @param bool        $override
      * @return void
      */
     public function generateCreateOrUpdateForm(?string $storeRoute = null, ?string $updateRoute = null, bool $override = false): void
@@ -136,11 +136,12 @@ class BladeViewsGenerator extends BladeControllerGenerator
         $createdForm = $storeRoute ? 'Create' : 'Edit';
 
         $stubProperties = [
-            '{title}' => "{$createdForm} {$this->table->modelName}",
-            '{submitRoute}' => $storeRoute ?? $updateRoute,
-            '{components}' => $inputs,
-            '{method}' => $updateRoute ? 'PUT' : 'POST',
-            '{updateParameter}' => $updateRoute ? ", \${$modelVariable}" . '->id' : '',
+            '{title}'               => "{$createdForm} {$this->table->modelName}",
+            '{submitRoute}'         => $storeRoute ?? $updateRoute,
+            '{components}'          => $inputs,
+            '{method}'              => $updateRoute ? 'PUT' : 'POST',
+            '{updateParameter}'     => $updateRoute ? ", \${$modelVariable}" . '->id' : '',
+            '{translationSelector}' => $this->table->hasTranslatableAttribute() ? "<div class=\"m-2 d-flex justify-content-end\">\n<x-language-selector/>\n</div>" : ""
         ];
 
         $formPath = CubePath::make("resources/views/dashboard/{$viewsName}/" . strtolower($createdForm) . '.blade.php');
@@ -162,16 +163,12 @@ class BladeViewsGenerator extends BladeControllerGenerator
 
     /**
      * @param string|null $modelVariable
-     * @param bool $updateInput
+     * @param bool        $updateInput
      * @return string
      */
     private function generateInputs(?string $modelVariable = null, bool $updateInput = false): string
     {
         $inputs = '';
-
-        if (in_array('translatable', array_values($this->attributes))) {
-            $inputs .= "<x-language-selector/>\n";
-        }
 
         $this->table->attributes()->each(function (CubeAttribute $attribute) use ($updateInput, $modelVariable, &$inputs) {
             $label = $this->getLabelName($attribute->name);
@@ -196,31 +193,46 @@ class BladeViewsGenerator extends BladeControllerGenerator
                     $select2Route = $this->getRouteName($model, ContainerType::WEB, $this->actor) . '.allPaginatedJson';
                     if (!$model->getModelPath()->exist() || !$model->getWebControllerPath()->exist()) break;
                     if (!ClassUtils::isMethodDefined($model->getWebControllerPath(), 'allPaginatedJson')) break;
-                    $inputs .= "<x-select2 label=\"{$label}\" name=\"{$attribute->name}\" api=\"{{route('{$select2Route}')}}\" option-value=\"id\" option-inner-text=\"{$relatedTable->titleable()->name}\" {$value} {$isRequired}/> \n";
+                    $inputs .=
+                        "<div class=\"col-sm-12 col-md-6\">\n" .
+                        "<x-select2 label=\"{$label}\" name=\"{$attribute->name}\" api=\"{{route('{$select2Route}')}}\" option-value=\"id\" option-inner-text=\"{$relatedTable->titleable()->name}\" {$value} {$isRequired}/>\n" .
+                        "</div>\n";
                     break;
                 }
                 case ColumnTypeEnum::TRANSLATABLE->value:
                 {
-                    $inputs .= "<x-translatable-input label=\"{$label}\" name=\"{$attribute->name}\" type='text' {$value} {$isRequired}/> \n";
+                    $inputs .=
+                        "<div class=\"col-sm-12 col-md-6\">\n" .
+                        "<x-translatable-input label=\"{$label}\" name=\"{$attribute->name}\" type='text' {$value} {$isRequired}/>\n" .
+                        "</div>\n";
                     break;
                 }
                 case ColumnTypeEnum::BOOLEAN->value:
                 {
-                    $inputs .= "\n <x-form-check>
-                                    <x-form-check-radio name=\"{$attribute->name}\" value=\"{{0}}\" {$checked} {$isRequired}/>
-                                    <x-form-check-radio name=\"{$attribute->name}\" value=\"{{1}}\" {$checked} {$isRequired}/>
-                               </x-form-check> \n";
+                    $inputs .=
+                        "<div class=\"col-sm-12 col-md-6\">\n" .
+                        "<label class=\"form-label\">{$attribute->labelNaming()}</label>\n" .
+                        "<div class=\"d-flex gap-5\">\n" .
+                        "<x-form-check-radio name=\"{$attribute->name}\" :value=\"false\" {$checked} {$isRequired}/>\n" .
+                        "<x-form-check-radio name=\"{$attribute->name}\" :value=\"true\" {$checked} {$isRequired}/>\n" .
+                        "</div>\n</div> \n";
                     break;
                 }
                 case ColumnTypeEnum::TEXT->value:
                 {
-                    $inputs .= "\n <x-text-editor label=\"{$label}\" name=\"{$attribute->name}\" {$value} {$isRequired}/> \n";
+                    $inputs .=
+                        "<div class=\"col-sm-12 col-md-12\">\n" .
+                        "<x-text-editor label=\"{$label}\" name=\"{$attribute->name}\" {$value} {$isRequired}/>\n" .
+                        "</div>\n";
                     break;
                 }
                 default:
                 {
                     $fieldType = $this->getInputTagType($attribute);
-                    $inputs .= "\n <x-input label=\"{$label}\" name=\"{$attribute->name}\" type=\"{$fieldType}\" {$value} {$isRequired}/> \n";
+                    $inputs .=
+                        "<div class=\"col-sm-12 col-md-6\">\n" .
+                        "<x-input label=\"{$label}\" name=\"{$attribute->name}\" type=\"{$fieldType}\" {$value} {$isRequired}/>\n" .
+                        "</div>\n";
                     break;
                 }
             }
@@ -239,16 +251,16 @@ class BladeViewsGenerator extends BladeControllerGenerator
 
     /**
      * @param string $editRoute
-     * @param bool $override
+     * @param bool   $override
      * @return void
      */
     public function generateShowView(string $editRoute, bool $override = false): void
     {
         $viewsName = $this->table->viewNaming();
         $stubProperties = [
-            '{modelName}' => $this->table->modelName,
-            '{editRoute}' => $editRoute,
-            '{components}' => $this->generateShowViewComponents(),
+            '{modelName}'     => $this->table->modelName,
+            '{editRoute}'     => $editRoute,
+            '{components}'    => $this->generateShowViewComponents(),
             '{modelVariable}' => $this->table->variableNaming(),
         ];
 
@@ -277,13 +289,25 @@ class BladeViewsGenerator extends BladeControllerGenerator
         foreach ($this->table->attributes as $attribute) {
             $label = $this->getLabelName($attribute->name);
             if ($attribute->type == ColumnTypeEnum::TEXT->value) {
-                $components .= "<x-long-text-field :value=\"\${$modelVariable}->{$attribute->name}\" label=\"{$label}\"/> \n";
+                $components .=
+                    "<div class=\"col-md-12 col-sm-12\">\n" .
+                    "<x-long-text-field :value=\"\${$modelVariable}->{$attribute->name}\" label=\"{$label}\"/>\n" .
+                    "</div>";
             } elseif ($attribute->isFile()) {
-                $components .= "<x-image-preview :imagePath=\"\${$modelVariable}->{$attribute->name}\"/> \n";
+                $components .=
+                    "<div class=\"col-md-12 col-sm-12\">\n" .
+                    "<x-image-preview :imagePath=\"\${$modelVariable}->{$attribute->name}\"/> \n" .
+                    "</div>";
             } elseif ($attribute->isTranslatable()) {
-                $components .= "<x-translatable-small-text-field :value=\"\${$modelVariable}->getRawOriginal('{$attribute->name}')\" label=\"{$label}\"/> \n";
+                $components .=
+                    "<div class=\"col-sm-12 col-md-6\">\n" .
+                    "<x-translatable-small-text-field :value=\"\${$modelVariable}->getRawOriginal('{$attribute->name}')\" label=\"{$label}\"/>\n".
+                    "</div>";
             } else {
-                $components .= "<x-small-text-field :value=\"\${$modelVariable}->{$attribute->name}\" label=\"{$label}\"/> \n";
+                $components .=
+                    "<div class=\"col-sm-12 col-md-6\">\n" .
+                    "<x-small-text-field :value=\"\${$modelVariable}->{$attribute->name}\" label=\"{$label}\"/> \n" .
+                    "</div>";
             }
         }
 
@@ -293,7 +317,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
     /**
      * @param string $creatRoute
      * @param string $dataRoute
-     * @param bool $override
+     * @param bool   $override
      * @return void
      */
     public function generateIndexView(string $creatRoute, string $dataRoute, bool $override = false): void
@@ -302,15 +326,15 @@ class BladeViewsGenerator extends BladeControllerGenerator
         $routes = $this->getRoutesNames($this->table);
 
         $stubProperties = [
-            '{modelName}' => $this->table->modelName,
-            '{createRouteName}' => $creatRoute,
-            '{htmlColumns}' => $dataColumns['html'],
-            '{dataTableColumns}' => $dataColumns['json'],
+            '{modelName}'              => $this->table->modelName,
+            '{createRouteName}'        => $creatRoute,
+            '{htmlColumns}'            => $dataColumns['html'],
+            '{dataTableColumns}'       => $dataColumns['json'],
             '{dataTableDataRouteName}' => $dataRoute,
-            '{exportRoute}' => $routes['export'],
-            '{importRoute}' => $routes['import'],
-            '{exampleRoute}' => $routes['example'],
-            '{modelClassName}' => $this->table->getModelClassString(),
+            '{exportRoute}'            => $routes['export'],
+            '{importRoute}'            => $routes['import'],
+            '{exampleRoute}'           => $routes['example'],
+            '{modelClassName}'         => $this->table->getModelClassString(),
         ];
 
         $indexPath = CubePath::make("resources/views/dashboard/{$this->table->viewNaming()}/index.blade.php");
@@ -346,7 +370,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             }
 
             if ($attribute->isFile()) {
-                $json .= "{\n\t\"data\": '{$attribute->name}',render:function (data) {const filePath = \"{{asset(\"storage/\")}}/\" + data; return `<div class=\"gallery\"><a href=\"\${filePath}\"><img class=\"img-fluid\" src=\"\${filePath}\" alt=\"\"/></a>`;}}, \n";
+                $json .= "{\n\t\"data\": '{$attribute->name}',render:function (data) {const filePath = \"{{asset(\"storage/\")}}/\" + data; return `<div class=\"gallery\"><a href=\"\${filePath}\"><img class=\"img-fluid\" style=\"max-width: 80px\" src=\"\${filePath}\" alt=\"\"/></a>`;}}, \n";
                 $html .= "\n<th>{$label}</th>\n";
                 continue;
             }

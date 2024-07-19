@@ -1,17 +1,15 @@
-@props(['label', 'value', 'classes' => ''])
+@props(['label', 'value'])
 @php
     $value = json_decode($value, true);
 @endphp
 @foreach (config('cubeta-starter.available_locales') as $lang)
-    <div class="row">
-        <label {{ $attributes->merge(['class' => 'col-lg-3 col-md-4 label ' . $classes]) }}
-             id="{{ $lang }}-{{ $label }}-label">
-            {{ $label }} : {{ strtoupper($lang) }}
-        </label>
-
-        <p {{ $attributes->merge(['class' => 'col-lg-9 col-md-8 label ' . $classes]) }}
-             id="{{ $lang }}-{{ $label }}">
+    <label class="fw-bold d-flex align-items-center justify-content-between"
+           id="{{ $lang }}-{{ $label }}-label">
+        {{ $label }} : {{ strtoupper($lang) }}
+        <span
+            class="fw-normal"
+            id="{{ $lang }}-{{ $label }}">
             {{ $value[$lang] ?? '' }}
-        </p>
-    </div>
+        </span>
+    </label>
 @endforeach

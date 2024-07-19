@@ -1,109 +1,91 @@
 @extends('layout')
 @section('content')
-    <main id="main" class="main">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center card-header">
-                        <h1 class="page-title">Manage {modelName}</h1>
-                        <div class="d-flex gap-3">
-                            <x-export-button route="{{route('{exportRoute}')}}"
-                                             :cols="{modelClassName}::getModel()->exportable()"
-                            />
+   <x-page-card>
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="card-title">Manage {modelName}</h1>
+            <div class="d-flex gap-3">
+                <x-export-button route="{{route('{exportRoute}')}}"
+                                 :cols="{modelClassName}::getModel()->exportable()"
+                />
 
-                            <x-import-button route="{{route('{importRoute}')}}"
-                                             exroute="{{route('{exampleRoute}')}}"
-                            />
-                        </div>
-                    </div>
-
-                    <table class="table table-striped table-bordered pt-2 table-responsive" id="table">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            {htmlColumns}
-                            <th>Action</th>
-                        </tr>
-                        </thead>
-                    </table>
-                </div>
+                <x-import-button route="{{route('{importRoute}')}}"
+                                 exroute="{{route('{exampleRoute}')}}"
+                />
             </div>
-            <script type="module">
-                $(document).ready(function () {
+        </div>
 
-                    let table;
-                    $(function () {
-                        table = $('#table').DataTable({
-                            processing: true,
-                            serverSide: true,
-                            scrollX:true,
-                            autoWidth:false,
-                            buttons: [
-                                {
-                                    extend: 'csvHtml5',
-                                    className: 'btn btn-primary mt-2 mb-2',
-                                    init: function (api, node, config) {
-                                        $(node).removeClass('btn-secondary')
-                                    }
+        <table class="table" id="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                {htmlColumns}
+                <th>Action</th>
+            </tr>
+            </thead>
+        </table>
+   </x-page-card>
+
+    @push('scripts')
+        <script type="module">
+            $(document).ready(function () {
+                let table;
+                $(function () {
+                    table = $('#table').DataTable({
+                        pagingType: 'simple_numbers',
+                        processing: true,
+                        serverSide: true,
+                        scrollX:true,
+                        autoWidth:false,
+                        buttons: [
+                            {
+                                extend: 'csvHtml5',
+                                className: 'btn btn-primary mt-2 mb-2',
+                                init: function (api, node, config) {
+                                    $(node).removeClass('btn-secondary')
+                                }
+                            },
+                            {
+                                text: '<i class="bi bi-file-earmark-plus"></i>',
+                                action: function (e, dt, node, config) {
+                                    window.location.href = '{{route('{createRouteName}')}}';
                                 },
-                                {
-                                    text: '<i class="bi bi-file-earmark-plus"></i>',
-                                    action: function (e, dt, node, config) {
-                                        window.location.href = '{{route('{createRouteName}')}}';
-                                    },
-                                    className: 'btn-primary mt-2 mb-2',
-                                    init: function (api, node, config) {
-                                        $(node).removeClass('btn-secondary')
-                                    }
+                                className: 'btn-primary mt-2 mb-2',
+                                init: function (api, node, config) {
+                                    $(node).removeClass('btn-secondary')
                                 }
-                            ],
-                            dom: 'Blfrtip',
-                            lengthMenu: [
-                                [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"],
-                            ],
-                            ajax: '{{ route("{dataTableDataRouteName}") }}',
-                            columns: [
-                                {"data": 'id', searchable: true, orderable: true},
-                                {dataTableColumns}
-                                {"data": 'action', searchable: false, orderable: false}
-                            ]
-                        }).on('init.dt' , function (){
-                            const lengthMenu = $('#table_length');
-                            const tableFilter = $('#table_filter');
-                            lengthMenu.add(tableFilter).wrapAll('<div class="row"></div>');
-                            tableFilter.wrap('<div class="col-md-6"></div>');
-                            lengthMenu.wrap('<div class="col-md-6"></div>');
-                            initPluginsByClass();
-                        });
+                            }
+                        ],
+                        dom: 'Blfrtip',
+                        lengthMenu: [
+                            [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"],
+                        ],
+                        ajax: '{{ route("{dataTableDataRouteName}") }}',
+                        columns: [
+                            {"data": 'id', searchable: true, orderable: true},
+                            {dataTableColumns}
+                            {"data": 'action', searchable: false, orderable: false}
+                        ]
+                    }).on('init.dt' , function (){
+                        const lengthMenu = $('#table_length');
+                        const tableFilter = $('#table_filter');
+                        lengthMenu.add(tableFilter).wrapAll('<div class="row"></div>');
+                        tableFilter.wrap('<div class="col-md-6"></div>');
+                        lengthMenu.wrap('<div class="col-md-6"></div>');
+                        initPluginsByClass();
+                    });
 
-                        table.on('click', '.remove-item-from-table-btn', function () {
-                            let $this = $(this);
-                            let url = $this.data('deleteurl');
-                            Swal.fire({
-                                title: 'Do you want to delete this item?',
-                                showDenyButton: true,
-                                confirmButtonText: 'Yes',
-                                confirmButtonColor: '#0d6efd',
-                                denyButtonText: `No`,
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    $.ajaxSetup({
-                                        headers: {
-                                            'X-CSRF-TOKEN': "{{csrf_token()}}"
-                                        }
-                                    });
-                                    $.ajax({
-                                        "method": "DELETE",
-                                        "url": url,
-                                        success: function () {
-                                            $this.parent().parent().parent().parent().remove();
-                                        }
-                                    });
-                                    Swal.fire('Deleted!', '', 'success')
-                                }
-                            })
+                    table.on('click', '.remove-item-from-table-btn', function () {
+                        let $this = $(this);
+                        let url = $this.data('deleteurl');
+                         handelDeletionOfItemFromDataTable($this, "{{csrf_token()}}", {
+                            deleteMessage: "Do You Want To Delete This Item",
+                            successMessage: "Deleted Successfully",
+                            confirmMessage: "Yes",
+                            denyMessage: "No"
                         });
                     });
                 });
-            </script>
-    </main>
+            });
+        </script>
+    @endpush
 @endsection
