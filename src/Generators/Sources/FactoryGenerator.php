@@ -31,11 +31,12 @@ class FactoryGenerator extends AbstractGenerator
         $factoryAttributes = $this->generateFields();
 
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.factory_namespace'),
-            '{class}' => $this->table->modelName,
-            '{usedTraits}' => $this->getUsedTraits(),
-            '{rows}' => $factoryAttributes['rows'],
+            '{namespace}'         => config('cubeta-starter.factory_namespace'),
+            '{class}'             => $this->table->modelName,
+            '{usedTraits}'        => $this->getUsedTraits(),
+            '{rows}'              => $factoryAttributes['rows'],
             '//relationFactories' => $factoryAttributes['relatedFactories'],
+            '{modelNamespace}'    => $this->table->getModelNameSpace()
         ];
 
         $this->generateFileFromStub($stubProperties, $factoryPath->fullPath);
@@ -142,8 +143,7 @@ class FactoryGenerator extends AbstractGenerator
             ColumnTypeEnum::INTEGER->value,
             ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
             ColumnTypeEnum::BIG_INTEGER->value => '->numberBetween(1,2000)',
-            ColumnTypeEnum::UNSIGNED_DOUBLE->value => '->randomFloat(1,2000)',
-            ColumnTypeEnum::DOUBLE->value,
+            ColumnTypeEnum::DOUBLE->value => '->randomFloat(1,2000)',
             ColumnTypeEnum::FLOAT->value => '->randomFloat(1, 1, 100)',
             ColumnTypeEnum::STRING->value => '->sentence()',
             ColumnTypeEnum::TEXT->value => '->text()',

@@ -1,13 +1,14 @@
-import { AvailableLocales } from "@/Models/Translatable";
-import { User } from "@/Models/User";
-import { route as routeFn } from "ziggy-js";
+import {AvailableLocales} from "@/Models/Translatable";
+import {User} from "@/Models/User";
+import {route as routeFn} from "ziggy-js";
+import {PageProps as InertiaProps} from '@inertiajs/core';
 
-export type PageProps<
-    T extends Record<string, unknown> = Record<string, unknown>,
+export type MiddlewareProps<
+    T extends InertiaProps<string, unknown> = Record<string, unknown>,
 > = T & {
     authUser: User;
-    availableLocales: AvailableLocales[]|string[];
-    currentLocale: AvailableLocales|string;
+    availableLocales: AvailableLocales[] | string[];
+    currentLocale: AvailableLocales | string;
     currentRoute: string;
     tinymceApiKey: string;
     asset: string;

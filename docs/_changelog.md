@@ -2,11 +2,28 @@
 
 # **Changelog :**
 
+## **V 2.1.0**
+
+1. Introducing The `BaseBulkAction` class to make it easy to define your model available bulk
+   actions [check on it here](bulk-actions.md#basebulkaction-class) .
+2. Removing The BaseService and BaseRepository classes interfaces .
+
+## **V 2.0.0**
+
+1. Adding support generate dashboard CRUD'S using React , Typescript , Inertia.js , Tailwindcss
+2. Adding the ability to generate the code structure based on a version number via the package config
+   file [check here](usage.md#config)
+3. Updating the structure of the repository and service patterns to be instantiated using the singleton pattern and
+   remove their dependency injection process
+4. Now just the blade based generation requires a service provider to register the blade components published via the
+   package
+5. All required middlewares , exceptions handlers and service providers for a specific stack is being registered via its install command
+
 ## **V 1.1.7**
 
 ### **fixing some bugs**
 
-1. fixing the generated routes names for the generated controllers . 
+1. fixing the generated routes names for the generated controllers .
 2. now when publishing for api or for web 2 route files will be generated ( `public` , `protected` ) to give more
    customizable routing instead of the generated route files based on the actor name .
 

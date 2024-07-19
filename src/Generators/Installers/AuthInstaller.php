@@ -7,7 +7,11 @@ use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
@@ -38,7 +42,8 @@ class AuthInstaller extends AbstractGenerator
 
         if ($this->generatedFor == ContainerType::API || $this->generatedFor == ContainerType::BOTH) {
             $this->generateUserResource($override);
-            $this->generateBaseAuthController($override);
+            $this->generateBaseAuthApiController($override);
+            $this->addJwtGuard();
         }
 
         if ($this->generatedFor == ContainerType::WEB || $this->generatedFor == ContainerType::BOTH) {
@@ -54,7 +59,7 @@ class AuthInstaller extends AbstractGenerator
      */
     private function generateUserMigration(bool $override = false): void
     {
-        $migrationPath = CubePath::make(config('cubeta-starter.migration_path') . '/2014_10_12_000000_create_users_table.php');
+        $migrationPath = CubePath::make(config('cubeta-starter.migration_path') . '/0001_01_01_000000_create_users_table.php');
 
         $this->generateFileFromStub(
             [],
@@ -89,8 +94,8 @@ class AuthInstaller extends AbstractGenerator
     {
         // user service
         $stubProperties = [
-            '{{namespace}}' => config('cubeta-starter.service_namespace') . "\\$this->version",
-            '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
+            '{{namespace}}'           => config('cubeta-starter.service_namespace') . "\\$this->version",
+            '{{modelNamespace}}'      => config('cubeta-starter.model_namespace'),
             '{{repositoryNamespace}}' => config('cubeta-starter.repository_namespace'),
         ];
 
@@ -109,7 +114,7 @@ class AuthInstaller extends AbstractGenerator
     private function generateUserRepository(bool $override = false): void
     {
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.repository_namespace'),
+            '{namespace}'      => config('cubeta-starter.repository_namespace'),
             '{modelNamespace}' => config('cubeta-starter.model_namespace'),
         ];
 
@@ -168,12 +173,12 @@ class AuthInstaller extends AbstractGenerator
         if (ContainerType::isWeb($this->generatedFor)) {
             if ($this->frontType == FrontendTypeEnum::REACT_TS) {
                 Artisan::call('vendor:publish', [
-                    '--tag' => 'react-ts-auth',
+                    '--tag'   => 'react-ts-auth',
                     '--force' => $override
                 ]);
             } else {
                 Artisan::call('vendor:publish', [
-                    '--tag' => 'cubeta-auth-views',
+                    '--tag'   => 'cubeta-auth-views',
                     '--force' => $override
                 ]);
             }
@@ -215,12 +220,12 @@ class AuthInstaller extends AbstractGenerator
      * @param bool $override
      * @return void
      */
-    private function generateBaseAuthController(bool $override = false): void
+    private function generateBaseAuthApiController(bool $override = false): void
     {
         $stubProperties = [
-            '{{namespace}}' => config('cubeta-starter.api_controller_namespace') . "\\$this->version",
-            '{{requestNamespace}}' => config('cubeta-starter.request_namespace') . "\\$this->version",
-            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace') . "\\$this->version",
+            '{{namespace}}'         => config('cubeta-starter.api_controller_namespace') . "\\$this->version",
+            '{{requestNamespace}}'  => config('cubeta-starter.request_namespace') . "\\$this->version",
+            '{{serviceNamespace}}'  => config('cubeta-starter.service_namespace') . "\\$this->version",
             '{{resourceNamespace}}' => config('cubeta-starter.resource_namespace') . "\\$this->version",
         ];
 
@@ -238,7 +243,7 @@ class AuthInstaller extends AbstractGenerator
     private function generateBaseAuthWebController(bool $override = false): void
     {
         $stubProperties = [
-            '{{namespace}}' => config('cubeta-starter.web_controller_namespace') . "\\$this->version",
+            '{{namespace}}'        => config('cubeta-starter.web_controller_namespace') . "\\$this->version",
             '{{requestNamespace}}' => config('cubeta-starter.request_namespace') . "\\$this->version",
             '{{serviceNamespace}}' => config('cubeta-starter.service_namespace') . "\\$this->version"
         ];
@@ -280,7 +285,7 @@ class AuthInstaller extends AbstractGenerator
 
         if (!$publicRouteFile->exist()) {
             $this->generateFileFromStub(["{route}" => $publicRoutes, '{version}' => $this->version], $publicRouteFile->fullPath, true, __DIR__ . '/../../stubs/api.stub');
-            $this->addRouteFileToServiceProvider($publicRouteFile, ContainerType::WEB);
+            $this->registerRouteFile($publicRouteFile, ContainerType::WEB);
             FileUtils::addImportStatement($importStatement, $publicRouteFile);
             CubeLog::add(new SuccessMessage("Auth Web Public Routes Has Been Added Successfully To : [{$publicRouteFile->fullPath}]"));
         } else {
@@ -289,7 +294,7 @@ class AuthInstaller extends AbstractGenerator
 
         if (!$protectedRouteFile->exist()) {
             $this->generateFileFromStub(["{route}" => $protectedRoutes, '{version}' => $this->version], $protectedRouteFile->fullPath, true, __DIR__ . '/../../stubs/api.stub');
-            $this->addRouteFileToServiceProvider($protectedRouteFile, ContainerType::WEB);
+            $this->registerRouteFile($protectedRouteFile, ContainerType::WEB);
             FileUtils::addImportStatement($importStatement, $protectedRouteFile);
             CubeLog::add(new SuccessMessage("Auth Web Protected Routes Has Been Added Successfully To : [{$protectedRouteFile->fullPath}]"));
         } else {
@@ -326,5 +331,45 @@ class AuthInstaller extends AbstractGenerator
         $viewsPath = CubePath::make("resources/views/emails/reset-password-email.blade.php");
         $viewsPath->ensureDirectoryExists();
         $this->generateFileFromStub([], $viewsPath->fullPath, $override, __DIR__ . '/../../stubs/Auth/reset-password-email.stub');
+    }
+
+    private function addJwtGuard(): bool
+    {
+        $authConfigPath = CubePath::make('config/auth.php');
+
+        if (!$authConfigPath->exist()) {
+            CubeLog::add(new NotFound($authConfigPath->fullPath, "Registering jwt guard"));
+            CubeLog::add(new CubeInfo("Don't forget to add the jwt guard in your auth.php config file"));
+            return false;
+        }
+
+        $content = $authConfigPath->getContent();
+        $guard = "'api' => [\n'driver' => 'jwt' ,\n'provider' => 'users',\n]";
+        $pattern = '/\'guards\'\s*=>\s*\[\s*(\'(.*?)\'\s*=>\s*\[\s*(.*?)\s*]\s*(,?))*\s*]\s*/s';
+        if (preg_match($pattern, $content, $matches)) {
+            if (isset($matches[1])) {
+                $oldGuards = $matches[1];
+                if (FileUtils::contentExistsInString($oldGuards, $guard)
+                    || FileUtils::contentExistsInString($oldGuards, "'api'=>['driver'=>'jwt'")) {
+                    CubeLog::add(new AlreadyExist($authConfigPath->fullPath, "Registering jwt guard"));
+                    return false;
+                }
+                $content = preg_replace_callback($pattern, function () use ($oldGuards, $guard) {
+                    $oldGuards .= ",\n$guard,\n";
+                    $oldGuards = FileUtils::fixArrayOrObjectCommas($oldGuards);
+                    return "'guards' => [\n$oldGuards\n]";
+                }, $content);
+                $authConfigPath->putContent($content);
+                CubeLog::add(new ContentAppended($guard, $authConfigPath->fullPath));
+                $authConfigPath->format();
+                return true;
+            } else {
+                CubeLog::add(new FailedAppendContent($guard, $authConfigPath->fullPath, "Registering jwt guard"));
+                return false;
+            }
+        }
+
+        CubeLog::add(new FailedAppendContent($guard, $authConfigPath->fullPath, "Registering jwt guard"));
+        return false;
     }
 }

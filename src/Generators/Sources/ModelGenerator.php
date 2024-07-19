@@ -136,7 +136,7 @@ class ModelGenerator extends AbstractGenerator
                 }
 
                 if ($relation->isManyToMany()) {
-                    $relationsFunctions .= $this->manyToManyFunction($relation);
+                    $relationsFunctions .= $this->manyToManyFunction($relation , $relation->getPivotTableName());
                 }
             }
 

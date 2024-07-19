@@ -126,7 +126,7 @@ class ClassUtils
 
         if (preg_match($pattern, $fileContent, $matches)) {
 
-            if (!isset($matches[5])) {
+            if (!isset($matches[5]) ) {
                 CubeLog::add(new FailedAppendContent($content,
                     $classPath->fullPath,
                     "Adding The Following Content\n$content\nTo The Returned Array Of The Method : [$methodName]"

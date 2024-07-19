@@ -8,7 +8,6 @@ enum ColumnTypeEnum: string
     case BIG_INTEGER = 'bigInteger';
     case UNSIGNED_BIG_INTEGER = 'unsignedBigInteger';
     case DOUBLE = 'double';
-    case UNSIGNED_DOUBLE = 'unsignedDouble';
     case FLOAT = 'float';
     case STRING = 'string';
     case TEXT = 'text';
@@ -21,7 +20,6 @@ enum ColumnTypeEnum: string
     case FILE = 'file';
     case KEY = 'key';
     case TRANSLATABLE = 'translatable';
-    case FOREIGN_KEY = 'foreign_key';
 
     public static function getAllValues(): array
     {
@@ -34,7 +32,6 @@ enum ColumnTypeEnum: string
             ColumnTypeEnum::INTEGER->value,
             ColumnTypeEnum::BIG_INTEGER->value,
             ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
-            ColumnTypeEnum::UNSIGNED_DOUBLE->value,
             ColumnTypeEnum::DOUBLE->value,
             ColumnTypeEnum::FLOAT->value
         ]);

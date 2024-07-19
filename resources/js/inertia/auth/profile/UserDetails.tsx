@@ -17,7 +17,7 @@ const UserDetails = ({ user }: { user: User }) => {
                     className={`hover:text-primary  hover:border-b hover:border-b-primary py-2 px-8 cursor-pointer ${
                         selectedTab == "overview"
                             ? "text-primary border-b border-b-primary"
-                            : ""
+                            : "dark:text-white"
                     }`}
                 >
                     Overview
@@ -29,7 +29,7 @@ const UserDetails = ({ user }: { user: User }) => {
                     className={`hover:text-primary  hover:border-b hover:border-b-primary py-2 px-8 cursor-pointer ${
                         selectedTab == "edit_profile"
                             ? "text-primary border-b border-b-primary"
-                            : ""
+                            : "dark:text-white"
                     }`}
                 >
                     Edit Profile
@@ -47,16 +47,16 @@ export default UserDetails;
 const UserOverview = ({ user }: { user: User }) => {
     return (
         <div className="w-full p-8">
-            <h2 className="text-xl font-semibold">Profile Details :</h2>
+            <h2 className="text-xl font-semibold dark:text-white">Profile Details :</h2>
             <div className="my-5 grid grid-cols-1 md:grid-cols-2 gap-3">
-                <label className="flex justify-between items-center">
+                <label className="flex justify-between items-center dark:text-white">
                     <strong>User Name :</strong>
                     <p>
                         {user.first_name} {user.last_name}
                     </p>
                 </label>
 
-                <label className="flex justify-between items-center">
+                <label className="flex justify-between items-center dark:text-white">
                     <strong>Email :</strong>
                     <p>{user.email}</p>
                 </label>
@@ -65,8 +65,8 @@ const UserOverview = ({ user }: { user: User }) => {
     );
 };
 
-const EditProfile = ({ user }: { user: User }) => {
-    const { put, setData, errors, processing } = useForm<{
+const EditProfile = ({user}: { user: User }) => {
+    const {put, setData, processing} = useForm<{
         first_name?: string;
         last_name?: string;
         email?: string;
@@ -82,7 +82,7 @@ const EditProfile = ({ user }: { user: User }) => {
 
     return (
         <div className="w-full p-8">
-            <h2 className="text-xl font-semibold">Edit Profile :</h2>
+            <h2 className="text-xl font-semibold dark:text-white">Edit Profile :</h2>
             <Form onSubmit={onSubmit} processing={processing}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 my-5">
                     <Input

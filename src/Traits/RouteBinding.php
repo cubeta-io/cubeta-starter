@@ -2,28 +2,29 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
-use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\Logs\Errors\NotFound;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Exception;
 
 trait RouteBinding
 {
     /**
-     * @param CubeTable $table
+     * @param CubeTable   $table
      * @param string|null $actor
-     * @param string $container
-     * @param array $additionalRoutes
+     * @param string      $container
+     * @param array       $additionalRoutes
      * @return void
      */
     public function addRoute(CubeTable $table, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = [], string $version = 'v1'): void
@@ -90,9 +91,9 @@ trait RouteBinding
     }
 
     /**
-     * @param string $container
+     * @param string      $container
      * @param string|null $actor
-     * @param string $version
+     * @param string      $version
      * @return CubePath
      */
     public function getRouteFilePath(string $container, ?string $actor = null, string $version = 'v1'): CubePath
@@ -105,7 +106,8 @@ trait RouteBinding
 
     /**
      * @param string|null $actor
-     * @param string $container
+     * @param string      $container
+     * @param string      $version
      * @return void
      */
     public function addRouteFile(?string $actor = null, string $container = ContainerType::API, string $version = 'v1'): void
@@ -122,22 +124,26 @@ trait RouteBinding
                 $filePath->fullPath,
                 __DIR__ . '/../stubs/api.stub'
             );
+            CubeLog::add(new SuccessGenerating($filePath->fileName, $filePath->fullPath, "Adding [$actor.php] Route File"));
         } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
             CubeLog::add($e);
             return;
         }
-
-        $this->addRouteFileToServiceProvider($filePath, $container);
+        $this->registerRouteFile($filePath, $container);
     }
 
     /**
      * @param CubePath $routeFilePath
-     * @param string $container
+     * @param string   $container
      * @return void
      */
-    public function addRouteFileToServiceProvider(CubePath $routeFilePath, string $container = ContainerType::API): void
+    public function registerRouteFile(CubePath $routeFilePath, string $container = ContainerType::API): void
     {
-        $routeServiceProvider = CubePath::make('app/Providers/RouteServiceProvider.php');
+        $bootstrapFilePath = CubePath::make('/bootstrap/app.php');
+
+        if (!$bootstrapFilePath->exist()) {
+            CubeLog::add(new NotFound($bootstrapFilePath->fullPath, "Registering [$routeFilePath->fullPath] in the app routes"));
+        }
 
         $lineToAdd = '';
 
@@ -149,27 +155,59 @@ trait RouteBinding
             $lineToAdd = "Route::middleware('web')\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
         }
 
-        // Read the contents of the file
-        $fileContent = $routeServiceProvider->getContent();
+        $bootstrapContent = $bootstrapFilePath->getContent();
 
-        // Check if the line to add already exists in the file
-        if (!FileUtils::contentExistInFile($routeServiceProvider, $lineToAdd)) {
-            // If the line does not exist, add it to the boot() method
-            $pattern = '/\$this->routes\(function\s*\(\)\s*{\s*/';
-            $replacement = "$0{$lineToAdd}";
+        $patternWithThen = '/->\s*withRouting\s*\(\s*(.*?)then\s*:\s*function\s*\((.*?)\)\s*\{\s*(.*?)\s*}\s*(.*?)\s*\)/s';
 
-            $fileContent = preg_replace($pattern, $replacement, $fileContent, 1);
-            // Write the modified contents back to the file
-            $routeServiceProvider->putContent($fileContent);
+        if (preg_match($patternWithThen, $bootstrapContent, $matches)) {
+            if (isset($matches[3])) {
+                $functionBody = $matches[3];
+                if (FileUtils::contentExistsInString($functionBody, $lineToAdd)) {
+                    CubeLog::add(new ContentAlreadyExist($lineToAdd, $bootstrapFilePath->fullPath, "Registering [$routeFilePath->fullPath] in the app routes"));
+                    return;
+                }
+                $functionBody .= "\n$lineToAdd\n";
+                $bootstrapContent = str_replace($matches[3], $functionBody, $bootstrapContent);
+                $bootstrapFilePath->putContent($bootstrapContent);
+                CubeLog::add(new ContentAppended($lineToAdd, $bootstrapFilePath->fullPath));
+                FileUtils::addImportStatement('use Illuminate\Support\Facades\Route;', $bootstrapFilePath);
+                $bootstrapFilePath->format();
+                return;
+            } else {
+                CubeLog::add(new FailedAppendContent($lineToAdd, $bootstrapFilePath->fullPath, "Registering [$routeFilePath->fullPath] in the app routes"));
+                return;
+            }
         }
 
-        $routeServiceProvider->format();
-        CubeLog::add(new SuccessGenerating($routeFilePath->fileName, $routeFilePath->fullPath));
+        $patternWithoutThen = '/->\s*withRouting\s*\(\s*(.*?)\s*\)/s';
+        $newParameter = "then:function(){\n$lineToAdd\n}";
+        if (preg_match($patternWithoutThen, $bootstrapContent, $matches)) {
+            if (isset($matches[1])) {
+                $parameters = $matches[1];
+                if (FileUtils::contentExistsInString($parameters, $lineToAdd)) {
+                    CubeLog::add(new ContentAlreadyExist($newParameter, $bootstrapFilePath->fullPath, "Registering [$routeFilePath->fullPath] in the app routes"));
+                    return;
+                }
+                $parameters .= ",\n$newParameter,\n";
+                $parameters = FileUtils::fixArrayOrObjectCommas($parameters);
+                $bootstrapContent = str_replace($matches[1], $parameters, $bootstrapContent);
+                $bootstrapFilePath->putContent($bootstrapContent);
+                CubeLog::add(new ContentAppended($newParameter, $bootstrapFilePath->fullPath));
+                FileUtils::addImportStatement('use Illuminate\Support\Facades\Route;', $bootstrapFilePath);
+                $bootstrapFilePath->format();
+                return;
+            } else {
+                CubeLog::add(new FailedAppendContent($lineToAdd, $bootstrapFilePath->fullPath, "Registering [$routeFilePath->fullPath] in the app routes"));
+                return;
+            }
+        }
+
+        CubeLog::add(new FailedAppendContent($lineToAdd, $bootstrapFilePath->fullPath, "Registering [$routeFilePath->fullPath] in the app routes"));
     }
 
     /**
-     * @param CubeTable $table
-     * @param string $container
+     * @param CubeTable   $table
+     * @param string      $container
      * @param string|null $actor
      * @return string
      */
@@ -186,8 +224,8 @@ trait RouteBinding
 
     /**
      * @param CubeTable $table
-     * @param string $routeName
-     * @param array $additionalRoutes
+     * @param string    $routeName
+     * @param array     $additionalRoutes
      * @return array
      */
     public function addAdditionalRoutesForAdditionalControllerMethods(CubeTable $table, string $routeName, array $additionalRoutes = [], string $version = 'v1'): array
@@ -204,7 +242,7 @@ trait RouteBinding
 
     /**
      * @param CubePath $routePath
-     * @param string $route
+     * @param string   $route
      * @return bool
      */
     public function routeExist(CubePath $routePath, string $route): bool

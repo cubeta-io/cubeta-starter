@@ -13,10 +13,11 @@
         "spatie/laravel-package-tools": "^1.11",
         "illuminate/support": "*",
         "php-open-source-saver/jwt-auth": "^2.1",
-        "maatwebsite/excel": "^3.1"
+        "maatwebsite/excel": "^3.1",
+        "laravel/framework": ">=v11.0.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^7.5",
+        "orchestra/testbench": "^v9.1.2",
         "laravel/pint": "^1.7"
     },
     "autoload": {

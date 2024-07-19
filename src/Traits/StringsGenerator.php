@@ -26,10 +26,10 @@ trait StringsGenerator
      * @param CubeTable|CubeRelation $model
      * @return string
      */
-    public function manyToManyFunction(CubeTable|CubeRelation $model): string
+    public function manyToManyFunction(CubeTable|CubeRelation $model, string $pivot): string
     {
         $relationName = $model->relationMethodNaming(singular: false);
-        return "public function $relationName()\n{\n\t return \$this->belongsToMany(" . $model->modelName . "::class);\n}\n\n";
+        return "public function $relationName()\n{\n\t return \$this->belongsToMany(" . $model->modelName . "::class , '$pivot');\n}\n\n";
     }
 
     /**

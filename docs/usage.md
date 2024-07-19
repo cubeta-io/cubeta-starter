@@ -1,5 +1,6 @@
 # Usage
 
+## Config
 First I need you to take a look on the `cubeta-starter.php` file in the `config` directory and see the options
 there .
 The most elements in the config array are for the generated files directories and namespaces **except** :
@@ -10,9 +11,10 @@ The most elements in the config array are for the generated files directories an
    e.g :`http://localhost/example-project/public/` [read more about the generated postman
    collection](created-files#postman-collection)
 3. `available_locales` : the package provides a way to store your table columns with their
-   translations [(read more about it here)](created-files#translations) so in this case this situation you'll need to
+   translations [(read more about it here)](translatable-serializer.md#translatable-attributes-handling) so in this case this situation you'll need to
    define your project available locales here
 4. `defaultLocale` : here define your default project locales.
+5. `version` : here you'll define the version of the generated code so your files we'll be structured based on it .
 
 ## The Package GUI
 
@@ -98,7 +100,7 @@ command `php artisan cubeta:install permissions` which will generate the followi
 
 now you can handle your actor roles and permissions easily and with an opinionated way
 
-check the usage manual [here](permissions-usage.md#cubeta-permissions-usage) .
+check the usage manual [here](permissions-usage.md#how-to-use-roles-permissions-tools) .
 
 ## Install Auth Command
 
@@ -357,7 +359,7 @@ on the validation and cast this column to `Translatable::class` .
 
 the `Translatable::class` is a custom cast class you can check on it in `app/Casts` directory , and its job is to cast
 the translated value (basically json string) to `\App\Serializers\Translatable` object which class that will make your
-localized data handling easier [check on it](translatable-serializer.md#translatable-serializer-class).
+localized data handling easier [check on it here](translatable-serializer.md#translatable-attributes-handling).
 
 The `LanguageShape` validation rule will make sure that the received json is simple and hasn't any nesting objects e.g :
 
@@ -387,18 +389,22 @@ and in addition to that it's make sure that the entered translation is correspon
 the `config/cubeta-starter.php` config file if it is not it will return a validation error.
 
 3 - then the output will be :
+
 ```shell
 Is This Column Nullable ? (yes/no) [no]:
  > no
 
 ```
+
 just chose whether the column is nullable or not
 
-4 - then this question will appear : 
+4 - then this question will appear :
+
 ```shell
 Is This Column Unique ? (yes/no) [no]:
  > no
 ```
+
 just chose whether the column is unique or not
 
 ```shell

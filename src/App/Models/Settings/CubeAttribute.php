@@ -83,8 +83,7 @@ class CubeAttribute
      */
     public function isKey(): bool
     {
-        return $this->type == ColumnTypeEnum::KEY->value
-            || $this->type == ColumnTypeEnum::FOREIGN_KEY->value;
+        return $this->type == ColumnTypeEnum::KEY->value;
     }
 
     /**
@@ -139,7 +138,6 @@ class CubeAttribute
             ColumnTypeEnum::BIG_INTEGER->value,
             ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
             ColumnTypeEnum::DOUBLE->value,
-            ColumnTypeEnum::UNSIGNED_DOUBLE->value,
             ColumnTypeEnum::FLOAT->value,
         ]);
     }

@@ -2,7 +2,7 @@ import {LocaleContext} from "@/Contexts/TranslatableInputsContext";
 import {usePage} from "@inertiajs/react";
 import React, {ChangeEvent, useContext, useRef, useState} from "react";
 import Input, {InputProps} from "./Input";
-import {PageProps} from "@/types";
+import {MiddlewareProps} from "@/types";
 import {Translatable, translate} from "@/Models/Translatable";
 
 interface ITranslatableInputProps {
@@ -28,7 +28,7 @@ const TranslatableInput: React.FC<
          ...props
      }) => {
     const locale = useContext(LocaleContext);
-    const availableLocales = usePage<PageProps>().props.availableLocales;
+    const availableLocales = usePage<MiddlewareProps>().props.availableLocales;
     const inputRef = useRef<HTMLInputElement>(null);
 
     const errors = usePage().props.errors;

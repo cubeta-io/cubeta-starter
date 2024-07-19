@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Helpers;
 
 use Cubeta\CubetaStarter\CreateFile;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
@@ -105,7 +106,7 @@ class FileUtils
             return;
         }
 
-        $namespacePattern = '/namespace\s+([A-Za-z0-9]+(\\\\*[A-Za-z0-9]+)+);/';
+        $namespacePattern = '/namespace\s*(.*?)\s*;/';
         // Check if the namespace declaration exists
         if (preg_match($namespacePattern, $contents, $matches)) {
             $contents = str_replace($matches[0], "{$matches[0]} \n$importStatement\n", $contents);
@@ -247,8 +248,8 @@ class FileUtils
             return;
         }
 
-        $firstPattern = '#<Form\s*(.*?)\s*>\s*<div\s*(.*?)\s*>\s*(.*?)\s*</div\>#s';
-        $secondPattern = '#<Form\s*(.*?)\s*>\s*(.*?)\s*</Form\>#s';
+        $firstPattern = '#<Form\s*(.*?)\s*>\s*<div\s*(.*?)\s*>\s*(.*?)\s*</div>#s';
+        $secondPattern = '#<Form\s*(.*?)\s*>\s*(.*?)\s*</Form>#s';
 
         if (preg_match($firstPattern, $fileContent, $matches)) {
             $formContent = $matches[3];
@@ -291,46 +292,155 @@ class FileUtils
         $filePath->format();
     }
 
-    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type): void
+    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type , string $importStatement): bool
     {
-        $pattern = match ($type) {
-            MiddlewareArrayGroupEnum::GLOBAL => '/\s*protected\s*\$middleware\s*=\s*\[(.*?)\]\s*;/s',
-            MiddlewareArrayGroupEnum::API => '/\'api\'\s*=>\s*\[(.*?)\]\s*/s',
-            MiddlewareArrayGroupEnum::WEB => '/\'web\'\s*=>\s*\[(.*?)\]\s*/s',
-            MiddlewareArrayGroupEnum::ALIAS => '/protected\s*\$middlewareAliases\s*=\s*\[(.*?)\]\s*;/s',
+        $bootstrapPath = CubePath::make("/bootstrap/app.php");
+        if (!$bootstrapPath->exist()){
+            return false;
+        }
+        self::addImportStatement($importStatement , $bootstrapPath);
+        return match ($type) {
+            MiddlewareArrayGroupEnum::GLOBAL, MiddlewareArrayGroupEnum::ALIAS => self::registerMiddlewareAliasOrGlobal($middlewareArrayItem, $type),
+            MiddlewareArrayGroupEnum::API => self::registerWebOrApiMiddleware($middlewareArrayItem),
+            MiddlewareArrayGroupEnum::WEB => self::registerWebOrApiMiddleware($middlewareArrayItem, ContainerType::WEB),
+        };
+    }
+
+    public static function registerWebOrApiMiddleware($middleware, string $container = ContainerType::API): bool
+    {
+        $methodName = $container == ContainerType::API ? "api" : "web";
+        $bootstrapPath = CubePath::make("/bootstrap/app.php");
+
+        if (!$bootstrapPath->exist()) {
+            CubeLog::add(new NotFound($bootstrapPath->fullPath, "Registering $middleware middleware in the $container middlewares group"));
+            return false;
+        }
+
+        $bootstrapContent = $bootstrapPath->getContent();
+
+        $patternWithMethodExists = '/->\s*withMiddleware\s*\(' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)' .
+            '\$middleware\s*->\s*' . $methodName . '\s*\(\s*(.*?)\s*append\s*:\s*\[\s*(.*?)\s*]\s*(.*?)\)\s*;' .
+            '(.*?)\s*}\s*\)/s';
+        if (preg_match($patternWithMethodExists, $bootstrapContent, $matches)) {
+            if (isset($matches[3])) {
+                if (FileUtils::contentExistsInString($matches[3], $middleware)) {
+                    CubeLog::add(new ContentAlreadyExist($middleware, $bootstrapPath->fullPath, "Registering $middleware middleware in the $container middlewares group"));
+                    return false;
+                }
+                $bootstrapContent = preg_replace_callback($patternWithMethodExists, function ($matches) use ($methodName, $middleware) {
+                    $middlewaresArray = $matches[3];
+                    $middlewaresArray .= "\n$middleware,\n";
+                    $middlewaresArray = FileUtils::fixArrayOrObjectCommas($middlewaresArray);
+                    return "->withMiddleware(function (Middleware \$middleware)" .
+                        " {\n{$matches[1]}\$middleware->$methodName({$matches[2]}append: [\n{$middlewaresArray}\n]{$matches[4]});\n{$matches[5]}\n})";
+                }, $bootstrapContent);
+                $bootstrapPath->putContent($bootstrapContent);
+                CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
+                $bootstrapPath->format();
+                return true;
+            } else {
+                CubeLog::add(new FailedAppendContent($middleware, $bootstrapPath->fullPath, "Registering $middleware middleware in the $container middlewares group"));
+                return false;
+            }
+        }
+
+        $patternWithoutMethodExists = '/->\s*withMiddleware\s*\(' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)\s*}' .
+            '\s*\)\s*/s';
+        if (preg_match($patternWithoutMethodExists, $bootstrapContent, $matches)) {
+            if (isset($matches[1])) {
+                $bootstrapContent = preg_replace_callback($patternWithoutMethodExists, function ($matches) use ($methodName, $middleware) {
+                    $registered = $matches[1];
+                    $registered .= "\n\$middleware->$methodName(append: [\n$middleware,\n]);\n";
+                    return "->withMiddleware(function(Middleware \$middleware) {\n$registered\n})";
+                }, $bootstrapContent);
+                $bootstrapPath->putContent($bootstrapContent);
+                CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
+                $bootstrapPath->format();
+                return true;
+            } else {
+                CubeLog::add(new FailedAppendContent($middleware, $bootstrapPath->fullPath, "Registering $middleware middleware in the $container middlewares group"));
+                return false;
+            }
+        }
+
+        CubeLog::add(new FailedAppendContent($middleware, $bootstrapPath->fullPath, "Registering $middleware middleware in the $container middlewares group"));
+        return false;
+    }
+
+    public static function registerMiddlewareAliasOrGlobal($middleware, MiddlewareArrayGroupEnum $type): bool
+    {
+        $methodName = match ($type) {
+            MiddlewareArrayGroupEnum::ALIAS => "alias",
+            MiddlewareArrayGroupEnum::GLOBAL => "use",
+            default => null
         };
 
-        $kernelPath = CubePath::make('/app/Http/Kernel.php');
-
-        if (!$kernelPath->exist()) {
-            CubeLog::add(new NotFound($kernelPath->fullPath, "Registering [$middlewareArrayItem] Middleware"));
-            return;
+        if (!$methodName) {
+            return false;
         }
 
-        $kernelContent = $kernelPath->getContent();
+        $context = "Registering $middleware middleware in " . ($type == MiddlewareArrayGroupEnum::GLOBAL ? "global middlewares group" : "middlewares aliases");
 
-        if (preg_match($pattern, $kernelPath->getContent(), $matches)) {
-            if (!isset($matches[1])) {
-                CubeLog::add(new FailedAppendContent($middlewareArrayItem, $kernelPath->fullPath, "Registering [$middlewareArrayItem] Middleware"));
-                return;
-            }
+        $bootstrapPath = CubePath::make("/bootstrap/app.php");
 
-            $middlewares = $matches[1];
-            if (self::contentExistsInString($middlewares, $middlewareArrayItem)) {
-                CubeLog::add(new ContentAlreadyExist($middlewareArrayItem, $kernelPath->fullPath, "Registering [$middlewareArrayItem] Middleware"));
-                return;
-            }
-
-            $middlewares = $middlewares . ",\n" . $middlewareArrayItem . ",\n";
-            $middlewares = self::fixArrayOrObjectCommas($middlewares);
-            $kernelContent = str_replace($matches[1], "\n$middlewares\n", $kernelContent);
-            $kernelPath->putContent($kernelContent);
-            CubeLog::add(new ContentAppended($middlewareArrayItem, $kernelPath->fullPath));
-            $kernelPath->format();
-            return;
+        if (!$bootstrapPath->exist()) {
+            CubeLog::add(new NotFound($bootstrapPath->fullPath, $context));
+            return false;
         }
 
-        CubeLog::add(new FailedAppendContent($middlewareArrayItem, $kernelPath->fullPath, "Registering [$middlewareArrayItem] Middleware"));
+        $bootstrapContent = $bootstrapPath->getContent();
+
+        $patternWithMethodExists = '/->\s*withMiddleware\s*\(' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)' .
+            '\$middleware\s*->\s*' . $methodName . '\s*\(\s*\[\s*(.*?)\s*]\s*\)\s*;' .
+            '(.*?)\s*}\s*\)/s';
+        if (preg_match($patternWithMethodExists, $bootstrapContent, $matches)) {
+            if (isset($matches[2])) {
+                if (FileUtils::contentExistsInString($matches[2], $middleware)) {
+                    CubeLog::add(new ContentAlreadyExist($middleware, $bootstrapPath->fullPath, $context));
+                    return false;
+                }
+                $bootstrapContent = preg_replace_callback($patternWithMethodExists, function ($matches) use ($methodName, $middleware) {
+                    $middlewaresArray = $matches[2];
+                    $middlewaresArray .= "\n$middleware,\n";
+                    $middlewaresArray = FileUtils::fixArrayOrObjectCommas($middlewaresArray);
+                    return "->withMiddleware(function (Middleware \$middleware)" .
+                        " {\n{$matches[1]}\$middleware->{$methodName}([\n{$middlewaresArray}\n]);\n{$matches[3]}\n})";
+                }, $bootstrapContent);
+                $bootstrapPath->putContent($bootstrapContent);
+                CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
+                $bootstrapPath->format();
+                return true;
+            } else {
+                CubeLog::add(new FailedAppendContent($middleware, $bootstrapPath->fullPath, $context));
+                return false;
+            }
+        }
+
+        $patternWithoutMethodExists = '/->\s*withMiddleware\s*\(' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)\s*}' .
+            '\s*\)\s*/s';
+        if (preg_match($patternWithoutMethodExists, $bootstrapContent, $matches)) {
+            if (isset($matches[1])) {
+                $bootstrapContent = preg_replace_callback($patternWithoutMethodExists, function ($matches) use ($methodName, $middleware) {
+                    $registered = $matches[1];
+                    $registered .= "\n\$middleware->{$methodName}([\n$middleware,\n]);\n";
+                    return "->withMiddleware(function(Middleware \$middleware) {\n$registered\n})";
+                }, $bootstrapContent);
+                $bootstrapPath->putContent($bootstrapContent);
+                CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
+                $bootstrapPath->format();
+                return true;
+            } else {
+                CubeLog::add(new FailedAppendContent($middleware, $bootstrapPath->fullPath, $context));
+                return false;
+            }
+        }
+
+        CubeLog::add(new FailedAppendContent($middleware, $bootstrapPath->fullPath, $context));
+        return false;
     }
 
     public static function removeRepeatedCommas(string $string): array|string|null
@@ -340,7 +450,7 @@ class FileUtils
 
     public static function registerProvider(string $provider): void
     {
-        $configPath = CubePath::make('/config/app.php');
+        $configPath = CubePath::make('/bootstrap/providers.php');
 
         if (!$configPath->exist()) {
             CubeLog::add(new NotFound($configPath->fullPath, "Registering [$provider] Provider"));
@@ -349,7 +459,7 @@ class FileUtils
 
         $configContent = $configPath->getContent();
 
-        $pattern = '/\s*\'providers\'\s*=>\s*\[([^]]*)]/';
+        $pattern = '/\s*return\s*\[\s*(.*?)\s*]\s*/';
 
         if (preg_match($pattern, $configContent, $matches)) {
             if (!isset($matches[1])) {
