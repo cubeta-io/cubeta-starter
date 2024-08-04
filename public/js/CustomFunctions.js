@@ -28,7 +28,10 @@ function disableSubmitUntilFillRequiredFields() {
     const requiredFields = form.querySelectorAll('[required]');
     let allFilled = true;
     for (let i = 0; i < requiredFields.length; i++) {
-        if (requiredFields[i].value === '') {
+        if (requiredFields[i].tagName == "INPUT" && requiredFields[i].getAttribute("type") == "radio") {
+            continue;
+        }
+        if (requiredFields[i].value == undefined || requiredFields[i].value == "" || requiredFields[i].value == null) {
             allFilled = false;
             break;
         }
@@ -37,6 +40,7 @@ function disableSubmitUntilFillRequiredFields() {
 
     form.addEventListener('input', disableSubmitUntilFillRequiredFields);
 }
+
 
 /**
  * this function to handle the delete request for the image

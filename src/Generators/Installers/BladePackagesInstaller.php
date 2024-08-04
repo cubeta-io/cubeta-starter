@@ -15,22 +15,23 @@ class BladePackagesInstaller extends AbstractGenerator
     {
         FileUtils::executeCommandInTheBaseDirectory('composer require yajra/laravel-datatables');
 
-        FileUtils::executeCommandInTheBaseDirectory("npm install ".
-            " vite ".
-            " jquery ".
-            " select2 ".
-            " tinymce ".
-            " bootstrap ".
-            " sweetalert2 ".
-            " baguettebox.js ".
-            " bootstrap-icons ".
+        FileUtils::executeCommandInTheBaseDirectory("npm install " .
+            " vite " .
+            " jquery " .
+            " select2 " .
+            " tinymce " .
+            " bootstrap " .
+            " sweetalert2 " .
+            " baguettebox.js " .
+            " bootstrap-icons " .
             " laravel-vite-plugin " .
-            " datatables.net-buttons ".
-            " select2-bootstrap-5-theme ".
-            " datatables.net-select-bs5 ".
-            " datatables.net-buttons-bs5 ".
-            " datatables.net-fixedheader-bs5 ".
-            " datatables.net-fixedcolumns-bs5 "
+            " datatables.net-buttons " .
+            " select2-bootstrap-5-theme " .
+            " datatables.net-select-bs5 " .
+            " datatables.net-buttons-bs5 " .
+            " datatables.net-fixedheader-bs5 " .
+            " datatables.net-fixedcolumns-bs5 " .
+            "sass"
         );
     }
 }
