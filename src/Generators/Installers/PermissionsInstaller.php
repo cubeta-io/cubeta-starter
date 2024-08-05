@@ -8,6 +8,8 @@ use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 
 class PermissionsInstaller extends AbstractGenerator
 {
@@ -26,6 +28,8 @@ class PermissionsInstaller extends AbstractGenerator
         $this->generateExceptions($override);
 
         $this->generateInterface($override);
+
+        $this->addTraitToUserModel();
 
         FileUtils::executeCommandInTheBaseDirectory("php artisan migrate");
     }
@@ -141,7 +145,7 @@ class PermissionsInstaller extends AbstractGenerator
             "{{modelsNamespace}}"     => config('cubeta-starter.model_namespace'),
         ], $traitsPath->fullPath,
             $override,
-            __DIR__ . CubePath::stubPath('permissions/HasRoles.stub'),
+            CubePath::stubPath('permissions/HasRoles.stub'),
         );
     }
 
@@ -168,5 +172,32 @@ class PermissionsInstaller extends AbstractGenerator
             $override,
             CubePath::stubPath('permissions/ActionsMustBeAuthorized.stub'),
         );
+    }
+
+    public function addTraitToUserModel(): void
+    {
+        $modelPath = CubePath::make(config('cubeta-starter.model_path') . '/User.php');
+
+        if (!$modelPath->exist()) {
+            CubeLog::add(new NotFound($modelPath->fullPath, "Trying to add HasRoles trait to [User] model"));
+            return;
+        }
+
+        $modelContent = $modelPath->getContent();
+        $pattern = '/\s*class\s*User\s*(.*?)\s*\{\s*(.*?)\s*}/s';
+        if (preg_match($pattern, $modelContent, $matches)) {
+            if (isset($matches[2])) {
+                $modelContent = str_replace($matches[2], "\nuse HasRoles;\n$matches[2]", $modelContent);
+                $modelPath->putContent($modelContent);
+                FileUtils::addImportStatement("use App\Traits\HasRoles;", $modelPath);
+                $modelPath->format();
+                return;
+            } else {
+                CubeLog::add(new FailedAppendContent("use App\Traits\HasRoles;", $modelPath, "Installing permissions"));
+                return;
+            }
+        }
+
+        CubeLog::add(new FailedAppendContent("use App\Traits\HasRoles;", $modelPath, "Installing permissions"));
     }
 }

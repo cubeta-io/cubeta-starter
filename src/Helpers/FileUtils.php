@@ -57,7 +57,7 @@ class FileUtils
     public static function formatPhpFile(string $filePath): void
     {
         $command = base_path("/vendor/bin/pint") . " {$filePath}";
-        self::executeCommandInTheBaseDirectory($command);
+        self::executeCommandInTheBaseDirectory($command, false);
         CubeLog::add(new SuccessMessage("The File : [{$filePath}] Formatted Successfully"));
     }
 
@@ -69,21 +69,28 @@ class FileUtils
     public static function formatJsFile(string $filePath): void
     {
         $command = "npx prettier {$filePath} --write";
-        self::executeCommandInTheBaseDirectory($command);
+        self::executeCommandInTheBaseDirectory($command, false);
         CubeLog::add(new SuccessMessage("The File : [{$filePath}] Formatted Successfully"));
     }
 
     /**
      * @param string $command
+     * @param bool   $withLog
      * @return false|string|null
      */
-    public static function executeCommandInTheBaseDirectory(string $command): bool|string|null
+    public static function executeCommandInTheBaseDirectory(string $command, $withLog = true): bool|string|null
     {
         if (app()->environment('local')) {
             $rootDirectory = base_path();
             $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
 
-            return shell_exec($fullCommand);
+            $output = shell_exec($fullCommand);
+
+            if (is_string($output) && $withLog) {
+                CubeLog::add($output);
+            }
+
+            return $output;
         }
 
         CubeLog::add(new WrongEnvironment("Running Command : $command"));
@@ -230,13 +237,13 @@ class FileUtils
         return $haystack;
     }
 
-    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type , string $importStatement): bool
+    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type, string $importStatement): bool
     {
         $bootstrapPath = CubePath::make("/bootstrap/app.php");
-        if (!$bootstrapPath->exist()){
+        if (!$bootstrapPath->exist()) {
             return false;
         }
-        self::addImportStatement($importStatement , $bootstrapPath);
+        self::addImportStatement($importStatement, $bootstrapPath);
         return match ($type) {
             MiddlewareArrayGroupEnum::GLOBAL, MiddlewareArrayGroupEnum::ALIAS => self::registerMiddlewareAliasOrGlobal($middlewareArrayItem, $type),
             MiddlewareArrayGroupEnum::API => self::registerWebOrApiMiddleware($middlewareArrayItem),
