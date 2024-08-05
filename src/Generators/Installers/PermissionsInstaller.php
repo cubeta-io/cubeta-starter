@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
+use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -30,6 +31,20 @@ class PermissionsInstaller extends AbstractGenerator
         $this->generateInterface($override);
 
         $this->addTraitToUserModel();
+
+        $this->addMiddlewares($override);
+
+        FileUtils::registerMiddleware(
+            "'has-role' => HasRoleMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            "use App\\Http\\Middleware\\HasRoleMiddleware;"
+        );
+
+        FileUtils::registerMiddleware(
+            "'has-permission' => HasPermissionMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            "use App\\Http\\Middleware\\HasPermissionMiddleware;"
+        );
 
         FileUtils::executeCommandInTheBaseDirectory("php artisan migrate");
     }
@@ -199,5 +214,22 @@ class PermissionsInstaller extends AbstractGenerator
         }
 
         CubeLog::add(new FailedAppendContent("use App\Traits\HasRoles;", $modelPath, "Installing permissions"));
+    }
+
+    public function addMiddlewares(bool $override = false): void
+    {
+        $this->generateFileFromStub(
+            [],
+            CubePath::make('app/Http/Middleware/HasPermissionMiddleware.php')->fullPath,
+            $override,
+            CubePath::stubPath('middlewares/HasPermissionMiddleware.stub'),
+        );
+
+        $this->generateFileFromStub(
+            [],
+            CubePath::make('app/Http/Middleware/HasRoleMiddleware.php')->fullPath,
+            $override,
+            CubePath::stubPath('middlewares/HasRoleMiddleware.stub'),
+        );
     }
 }
