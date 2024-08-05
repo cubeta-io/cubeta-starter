@@ -151,7 +151,7 @@ trait RouteBinding
         $lineToAdd = '';
 
         if (count($middlewares)) {
-            $middlewares = "'" . str_replace(',', "','", implode(", ", $middlewares)) . "'";
+            $middlewares = "'" . str_replace(',', "','", implode(",", $middlewares)) . "'";
         } else {
             $middlewares = "";
         }
