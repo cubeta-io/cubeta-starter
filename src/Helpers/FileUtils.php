@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Helpers;
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
+use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
@@ -78,12 +79,15 @@ class FileUtils
      * @param bool   $withLog
      * @return false|string|null
      */
-    public static function executeCommandInTheBaseDirectory(string $command, $withLog = true): bool|string|null
+    public static function executeCommandInTheBaseDirectory(string $command, bool $withLog = true): bool|string|null
     {
         if (app()->environment('local')) {
             $rootDirectory = base_path();
             $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
 
+            if ($withLog) {
+                CubeLog::add(new CubeInfo("Running command : [$command]"));
+            }
             $output = shell_exec($fullCommand);
 
             if (is_string($output) && $withLog) {

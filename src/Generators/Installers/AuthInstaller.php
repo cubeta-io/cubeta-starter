@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\EnvParser;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
@@ -14,7 +15,9 @@ use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
+use http\Env;
 use Illuminate\Support\Facades\Artisan;
 
 class AuthInstaller extends AbstractGenerator
@@ -31,6 +34,8 @@ class AuthInstaller extends AbstractGenerator
      */
     public function run(bool $override = true): void
     {
+        $envParser = EnvParser::make();
+
         $this->generateUserMigration($override);
         $this->generateUserModel($override);
         $this->generateUserService($override);
@@ -40,16 +45,25 @@ class AuthInstaller extends AbstractGenerator
         $this->generateUserFactory($override);
         $this->generateResetPasswordEmail($override);
 
-        if ($this->generatedFor == ContainerType::API || $this->generatedFor == ContainerType::BOTH) {
+        if (ContainerType::isApi($this->generatedFor)) {
+            FileUtils::executeCommandInTheBaseDirectory("composer require php-open-source-saver/jwt-auth");
             $this->generateUserResource($override);
             $this->generateBaseAuthApiController($override);
             $this->addJwtGuard();
+            $envParser?->addVariable("JWT_ALGO", "HS256");
+            if ($envParser && !$envParser->hasValue("JWT_SECRET")) {
+                FileUtils::executeCommandInTheBaseDirectory("php artisan jwt:secret");
+            }
+            $envParser?->addVariable("JWT_BLACKLIST_ENABLED", "false");
         }
 
-        if ($this->generatedFor == ContainerType::WEB || $this->generatedFor == ContainerType::BOTH) {
+        if (ContainerType::isWeb($this->generatedFor)) {
             $this->generateBaseAuthWebController($override);
             $this->generateWebAuthRoutes();
             $this->generateAuthViews($override);
+            if ($envParser && !$envParser->hasValue("APP_KEY")) {
+                FileUtils::executeCommandInTheBaseDirectory("php artisan key:generate");
+            }
         }
     }
 
@@ -216,7 +230,8 @@ class AuthInstaller extends AbstractGenerator
     private function generateUserResource(bool $override = false): void
     {
         $stubProperties = [
-            '{namespace}' => config('cubeta-starter.resource_namespace') . "\\$this->version",
+            '{namespace}'         => config('cubeta-starter.resource_namespace') . "\\$this->version",
+            '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
         ];
 
         $resourcePath = CubePath::make(config('cubeta-starter.resource_path') . "/$this->version/UserResource.php");
@@ -280,7 +295,7 @@ class AuthInstaller extends AbstractGenerator
             $protectedRoutes = file_get_contents(CubePath::stubPath('Auth/auth-react-ts-routes-protected.stub'));
             $publicRoutes = file_get_contents(CubePath::stubPath('Auth/auth-react-ts-routes-public.stub'));
         } else {
-            $protectedRoutes = file_get_contents(CubePath::make('Auth/auth-web-routes-protected.stub'));
+            $protectedRoutes = file_get_contents(CubePath::stubPath('Auth/auth-web-routes-protected.stub'));
             $protectedRoutes = str_replace("{version}", $this->version, $protectedRoutes);
             $publicRoutes = file_get_contents(CubePath::stubPath('Auth/auth-web-routes-public.stub'));
             $publicRoutes = str_replace("{version}", $this->version, $publicRoutes);
@@ -371,7 +386,7 @@ class AuthInstaller extends AbstractGenerator
                 $oldGuards = $matches[1];
                 if (FileUtils::contentExistsInString($oldGuards, $guard)
                     || FileUtils::contentExistsInString($oldGuards, "'api'=>['driver'=>'jwt'")) {
-                    CubeLog::add(new AlreadyExist($authConfigPath->fullPath, "Registering jwt guard"));
+                    CubeLog::add(new ContentAlreadyExist($guard, $authConfigPath->fullPath, "Registering jwt guard"));
                     return false;
                 }
                 $content = preg_replace_callback($pattern, function () use ($oldGuards, $guard) {

@@ -26,8 +26,6 @@ class ApiInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
-        FileUtils::executeCommandInTheBaseDirectory("composer require php-open-source-saver/jwt-auth");
-
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-api"]);
         CubeLog::add(Artisan::output());
 
