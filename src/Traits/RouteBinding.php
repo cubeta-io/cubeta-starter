@@ -157,11 +157,11 @@ trait RouteBinding
         }
 
         if ($container == ContainerType::API) {
-            $lineToAdd = "Route::middleware(['api', $middlewares])\n->prefix('api')\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
+            $lineToAdd = "Route::middleware(['api' ,'locale', $middlewares])\n->prefix('api')\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
         }
 
         if ($container == ContainerType::WEB) {
-            $lineToAdd = "Route::middleware(['web', $middlewares])\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
+            $lineToAdd = "Route::middleware(['web', 'locale', $middlewares])\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
         }
 
         $bootstrapContent = $bootstrapFilePath->getContent();
