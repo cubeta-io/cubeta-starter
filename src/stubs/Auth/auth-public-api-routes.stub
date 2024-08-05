@@ -1,0 +1,5 @@
+Route::post('/{role}/register', [{version}\{controllerName}AuthController::class, 'register'])->name("{role}.register");
+Route::post('/{role}/login', [{version}\{controllerName}AuthController::class, 'login'])->name("{role}.login");
+Route::post('/{role}/password-reset-request', [{version}\{controllerName}AuthController::class, 'passwordResetRequest'])->name("{role}.reset-password-request");
+Route::post('/{role}/check-reset-password-code', [{version}\{controllerName}AuthController::class, 'checkPasswordResetCode'])->name("{role}.check-reset-password-code");
+Route::post('/{role}/reset-password', [{version}\{controllerName}AuthController::class, 'passwordReset'])->name("{role}.password-reset");

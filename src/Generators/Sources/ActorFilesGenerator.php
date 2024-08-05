@@ -45,14 +45,20 @@ class ActorFilesGenerator extends AbstractGenerator
         if (ContainerType::isWeb($this->generatedFor)) {
             $routeFile = CubePath::make("routes/{$this->version}/web/{$this->role}.php");
             if (!$routeFile->exist()) {
-                $this->addRouteFile($this->role, ContainerType::WEB, $this->version);
+                $this->addRouteFile($this->role, ContainerType::WEB, $this->version, [
+                    'auth:web',
+                    'has-role:' . $this->role,
+                ]);
             }
         }
 
         if (ContainerType::isApi($this->generatedFor)) {
             $routeFile = CubePath::make("routes/{$this->version}/api/{$this->role}.php");
             if (!$routeFile->exist()) {
-                $this->addRouteFile($this->role, ContainerType::API, $this->version);
+                $this->addRouteFile($this->role, ContainerType::API, $this->version, [
+                    'auth:api',
+                    'has-role:' . $this->role,
+                ]);
             }
         }
 
@@ -213,6 +219,22 @@ class ActorFilesGenerator extends AbstractGenerator
 
         $apiRouteFile->putContent($routes, FILE_APPEND);
         FileUtils::addImportStatement($importStatement, $apiRouteFile);
+        CubeLog::add(new ContentAppended($routes, $apiRouteFile->fullPath));
+
+        $publicApiRouteFile = CubePath::make("/routes/{$this->version}/api/public.php");
+        $publicAuthRoutes = file_get_contents(CubePath::stubPath('Auth/auth-public-api-routes.stub'));
+        $publicAuthRoutes = str_replace('{role}', $this->role, $publicAuthRoutes);
+        $publicAuthRoutes = str_replace("{controllerName}", ucfirst(Str::studly($this->role)), $publicAuthRoutes);
+        $publicAuthRoutes = str_replace("{version}", $this->version, $publicAuthRoutes);
+
+        if (!$publicApiRouteFile->exist()) {
+            $this->addRouteFile(actor: 'public', version: $this->version);
+        }
+
+        $publicApiRouteFile->putContent($publicAuthRoutes, FILE_APPEND);
+        FileUtils::addImportStatement($importStatement, $publicApiRouteFile);
+        CubeLog::add(new ContentAppended($publicAuthRoutes, $publicApiRouteFile->fullPath));
+
         try {
             Postman::make()->getCollection()->newAuthApi($this->role)->save();
             CubeLog::add(new SuccessMessage("Postman Collection Now Has Folder For The Generated {$this->role} Auth Controller  \nRe-Import It In Postman"));

@@ -11,7 +11,6 @@ use Cubeta\CubetaStarter\Helpers\EnvParser;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
