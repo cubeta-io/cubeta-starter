@@ -112,7 +112,7 @@ trait RouteBinding
      * @param array       $middlewares
      * @return void
      */
-    public function addRouteFile(?string $actor = null, string $container = ContainerType::API, string $version = 'v1' , array $middlewares = []): void
+    public function addRouteFile(?string $actor = null, string $container = ContainerType::API, string $version = 'v1', array $middlewares = []): void
     {
         $actor = Str::singular(Str::lower($actor));
 
@@ -131,7 +131,7 @@ trait RouteBinding
             CubeLog::add($e);
             return;
         }
-        $this->registerRouteFile($filePath, $container , $middlewares);
+        $this->registerRouteFile($filePath, $container, $middlewares);
     }
 
     /**
@@ -151,7 +151,7 @@ trait RouteBinding
         $lineToAdd = '';
 
         if (count($middlewares)) {
-            $middlewares = implode(", ", $middlewares);
+            $middlewares = "'" . str_replace(',', "','", implode(", ", $middlewares)) . "'";
         } else {
             $middlewares = "";
         }
@@ -207,11 +207,10 @@ trait RouteBinding
                 CubeLog::add(new ContentAppended($newParameter, $bootstrapFilePath->fullPath));
                 FileUtils::addImportStatement('use Illuminate\Support\Facades\Route;', $bootstrapFilePath);
                 $bootstrapFilePath->format();
-                return;
             } else {
                 CubeLog::add(new FailedAppendContent($lineToAdd, $bootstrapFilePath->fullPath, "Registering [$routeFilePath->fullPath] in the app routes"));
-                return;
             }
+            return;
         }
 
         CubeLog::add(new FailedAppendContent($lineToAdd, $bootstrapFilePath->fullPath, "Registering [$routeFilePath->fullPath] in the app routes"));

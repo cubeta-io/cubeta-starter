@@ -29,7 +29,7 @@ class WebInstaller extends AbstractGenerator
         CubeLog::add(Artisan::output());
 
         $this->addRouteFile('public', ContainerType::WEB, $this->version);
-        $this->addRouteFile('protected', ContainerType::WEB, $this->version, ["auth:web"]);
+        $this->addRouteFile(actor: 'protected', container: ContainerType::WEB, version: $this->version, middlewares: ["auth:web"]);
         $this->addSetLocalRoute();
         FileUtils::registerMiddleware(
             "'locale' => AcceptedLanguagesMiddleware::class",
