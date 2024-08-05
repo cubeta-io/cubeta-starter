@@ -2,7 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Generators;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Error;
 use Mockery\Exception;
@@ -54,6 +56,19 @@ class GeneratorFactory
         if (!$this->source) {
             throw new Exception("Undefined Generator Factory Key Please Provide One");
         }
+
+        $settings = Settings::make();
+
+        if (ContainerType::isWeb($generatedFor) && !$settings->installedWeb()) {
+            CubeLog::add(new CubeError("Install Web tools by running [php artisan cubeta:install web && php artisan cubeta:install web-packages] or [php artisan cubeta:install react-ts && php artisan cubeta:install react-ts-packages] and try again"));
+            return;
+        }
+
+        if (ContainerType::isApi($generatedFor) && !$settings->installedApi()) {
+            CubeLog::add(new CubeError("Install Web tools by running [php artisan cubeta:install api] and try again"));
+            return;
+        }
+
         $generator = match ($this->source) {
             Sources\MigrationGenerator::$key => new Sources\MigrationGenerator(
                 fileName: $fileName,

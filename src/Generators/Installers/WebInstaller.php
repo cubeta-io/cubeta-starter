@@ -38,5 +38,7 @@ class WebInstaller extends AbstractGenerator
         );
         FileUtils::registerProvider("App\\Providers\\CubetaStarterServiceProvider::class");
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::BLADE->value));
+        Settings::make()->setInstalledWeb();
+        Settings::make()->setFrontendType(FrontendTypeEnum::BLADE);
     }
 }

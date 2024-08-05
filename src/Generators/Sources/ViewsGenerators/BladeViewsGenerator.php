@@ -7,11 +7,13 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
@@ -106,6 +108,11 @@ class BladeViewsGenerator extends BladeControllerGenerator
 
     public function run(bool $override = false): void
     {
+        if (!Settings::make()->getFrontendType() == FrontendTypeEnum::BLADE) {
+            CubeLog::add(new CubeError("Install web tools by running [php artisan cubeta:install web && php artisan cubeta:install web-packages] then try again", happenedWhen: "Generating a {$this->table->modelName} blade views"));
+            return;
+        }
+
         $routes = $this->getRoutesNames($this->table, $this->actor);
 
         $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);

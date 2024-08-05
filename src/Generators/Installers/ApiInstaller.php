@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -38,6 +39,8 @@ class ApiInstaller extends AbstractGenerator
             MiddlewareArrayGroupEnum::ALIAS,
             "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware ;"
         );
+
+        Settings::make()->setInstalledApi();
     }
 
     private function addApiRouteFile(): void

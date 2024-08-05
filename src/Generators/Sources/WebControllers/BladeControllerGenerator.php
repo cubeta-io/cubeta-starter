@@ -8,11 +8,14 @@ use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\BladeViewsGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Logs\CubeError;
+use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +33,11 @@ class BladeControllerGenerator extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        if (!Settings::make()->getFrontendType() == FrontendTypeEnum::BLADE) {
+            CubeLog::add(new CubeError("Install blade tools by running [php artisan cubeta:install web && php artisan cubeta:install web-packages] then try again", happenedWhen: "Generating a {$this->table->modelName} web controller"));
+            return;
+        }
+
         $modelNameCamelCase = $this->table->variableNaming();
         $idVariable = $this->table->idVariable();
         $controllerPath = $this->table->getWebControllerPath();

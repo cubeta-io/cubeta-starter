@@ -65,6 +65,8 @@ class AuthInstaller extends AbstractGenerator
                 FileUtils::executeCommandInTheBaseDirectory("php artisan key:generate");
             }
         }
+
+        Settings::make()->setInstalledAuth();
     }
 
     /**

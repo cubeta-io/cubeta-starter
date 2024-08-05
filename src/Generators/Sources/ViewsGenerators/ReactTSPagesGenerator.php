@@ -8,11 +8,14 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSController;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Logs\CubeError;
+use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 
@@ -25,6 +28,11 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
     public function run(bool $override = false): void
     {
+        if (!Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
+            CubeLog::add(new CubeError("Install react-ts tools by running [php artisan cubeta:install react-ts && php artisan cubeta:install react-ts-packages] then try again", happenedWhen: "Generating a {$this->table->modelName} react pages"));
+            return;
+        }
+
         $routes = $this->getRoutesNames($this->table, $this->actor);
 
         $this->generateTypeScriptInterface($override);

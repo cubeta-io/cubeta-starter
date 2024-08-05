@@ -3,10 +3,12 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\App\Models\Postman\Postman;
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
@@ -40,6 +42,16 @@ class ActorFilesGenerator extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        $settings = Settings::make();
+        if (!$settings->hasRoles()) {
+            CubeLog::add(new CubeError("Install permissions by running [php artisan cubeta:install permissions] then try again"));
+            return;
+        }
+        if (!$settings->installedAuth()) {
+            CubeLog::add(new CubeError("Install auth tools by running [php artisan cubeta:install auth] then try again]"));
+            return;
+        }
+
         $this->createRolesEnum();
 
         if (ContainerType::isWeb($this->generatedFor)) {

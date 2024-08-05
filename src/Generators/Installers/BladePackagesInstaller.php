@@ -2,6 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 
@@ -33,5 +35,8 @@ class BladePackagesInstaller extends AbstractGenerator
             " datatables.net-fixedcolumns-bs5 " .
             "sass"
         );
+
+        Settings::make()->setInstalledWeb();
+        Settings::make()->setFrontendType(FrontendTypeEnum::BLADE);
     }
 }

@@ -15,6 +15,9 @@ class Settings
     private static ?FrontendTypeEnum $frontendStack = null;
     private static bool $hasRoles = false;
     private static string $version;
+    private static bool $installedApi = false;
+    private static bool $installedWeb = false;
+    private static bool $installedAuth = false;
 
     private function __construct()
     {
@@ -33,6 +36,24 @@ class Settings
             self::$hasRoles = (bool)self::$json['has_roles'];
         } else {
             self::$hasRoles = false;
+        }
+
+        if (isset(self::$json['installed_api'])) {
+            self::$installedApi = (bool)self::$json['installed_api'];
+        } else {
+            self::$installedApi = false;
+        }
+
+        if (isset(self::$json['installed_web'])) {
+            self::$installedWeb = (bool)self::$json['installed_web'];
+        } else {
+            self::$installedWeb = false;
+        }
+
+        if (isset(self::$json['installed_auth'])) {
+            self::$installedAuth = (bool)self::$json['installed_auth'];
+        } else {
+            self::$installedAuth = false;
         }
 
         if (isset(self::$json["tables"])) {
@@ -218,6 +239,60 @@ class Settings
     public function setHasRoles(bool $value = true): void
     {
         self::$json["has_roles"] = $value;
+        self::storeJsonSettings(self::$json);
+    }
+
+    /**
+     * @return bool
+     */
+    public function installedApi(): bool
+    {
+        return self::$installedApi;
+    }
+
+    /**
+     * @param bool $value
+     * @return void
+     */
+    public function setInstalledApi(bool $value = true): void
+    {
+        self::$json["installed_api"] = $value;
+        self::storeJsonSettings(self::$json);
+    }
+
+    /**
+     * @return bool
+     */
+    public function installedWeb(): bool
+    {
+        return self::$installedWeb;
+    }
+
+    /**
+     * @param bool $value
+     * @return void
+     */
+    public function setInstalledWeb(bool $value = true): void
+    {
+        self::$json["installed_web"] = $value;
+        self::storeJsonSettings(self::$json);
+    }
+
+    /**
+     * @return bool
+     */
+    public function installedAuth(): bool
+    {
+        return self::$installedAuth;
+    }
+
+    /**
+     * @param bool $value
+     * @return void
+     */
+    public function setInstalledAuth(bool $value = true): void
+    {
+        self::$json["installed_auth"] = $value;
         self::storeJsonSettings(self::$json);
     }
 }

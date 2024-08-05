@@ -3,11 +3,14 @@
 namespace Cubeta\CubetaStarter\Generators\Sources\WebControllers;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\ReactTSPagesGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
@@ -21,6 +24,11 @@ class InertiaReactTSController extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        if (!Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
+            CubeLog::add(new CubeError("Install react-ts tools by running [php artisan cubeta:install react-ts && php artisan cubeta:install react-ts-packages] then try again", happenedWhen: "Generating a {$this->table->modelName} web controller"));
+            return;
+        }
+
         $modelNameCamelCase = $this->table->variableNaming();
         $routesNames = $this->getRoutesNames($this->table, $this->actor);
         $controllerPath = $this->table->getWebControllerPath();

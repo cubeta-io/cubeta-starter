@@ -37,12 +37,13 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             MiddlewareArrayGroupEnum::WEB,
             "use App\\Http\\Middleware\\HandleInertiaRequests ;"
         );
+
+        Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
+        Settings::make()->setInstalledWeb();
     }
 
     private function installInertia(bool $override = false): void
     {
-        Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
-
         Artisan::call('vendor:publish', [
             '--tag'   => 'react-ts',
             '--force' => $override,
