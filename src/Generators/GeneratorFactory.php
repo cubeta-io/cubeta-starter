@@ -14,6 +14,23 @@ class GeneratorFactory
 {
     private ?string $source = null;
 
+    public function independentFromContainer(): array
+    {
+        return [
+            Sources\MigrationGenerator::$key,
+            Sources\ModelGenerator::$key,
+            Sources\RequestGenerator::$key,
+            Sources\FactoryGenerator::$key,
+            Sources\SeederGenerator::$key,
+            Sources\RepositoryGenerator::$key,
+            Sources\ServiceGenerator::$key,
+            Installers\BladePackagesInstaller::$key,
+            Installers\PermissionsInstaller::$key,
+            Installers\ReactTSInertiaInstaller::$key,
+            Installers\ReactTsPackagesInstaller::$key,
+        ];
+    }
+
     public function __construct(?string $source = null)
     {
         $this->source = $source;
@@ -62,7 +79,7 @@ class GeneratorFactory
         if (
             ContainerType::isWeb($generatedFor)
             && !$settings->installedWeb()
-            && !in_array($this->source, [Installers\ApiInstaller::$key, Installers\WebInstaller::$key])
+            && !in_array($this->source, $this->independentFromContainer())
         ) {
             CubeLog::add(new CubeError("Install Web tools by running [php artisan cubeta:install web && php artisan cubeta:install web-packages] or [php artisan cubeta:install react-ts && php artisan cubeta:install react-ts-packages] and try again"));
             return;
@@ -71,7 +88,7 @@ class GeneratorFactory
         if (
             ContainerType::isApi($generatedFor)
             && !$settings->installedApi()
-            && !in_array($this->source, [Installers\ApiInstaller::$key, Installers\WebInstaller::$key])
+            && !in_array($this->source, $this->independentFromContainer())
         ) {
             CubeLog::add(new CubeError("Install Web tools by running [php artisan cubeta:install api] and try again"));
             return;
