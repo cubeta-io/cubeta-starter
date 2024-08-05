@@ -17,6 +17,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
+    {hasRoles}
 
     protected $guarded = ['id'];
 

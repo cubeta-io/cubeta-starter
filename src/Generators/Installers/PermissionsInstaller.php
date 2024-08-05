@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
@@ -47,6 +48,8 @@ class PermissionsInstaller extends AbstractGenerator
         );
 
         FileUtils::executeCommandInTheBaseDirectory("php artisan migrate");
+
+        Settings::make()->setHasRoles();
     }
 
     public function generateMigrations(bool $override = false): void

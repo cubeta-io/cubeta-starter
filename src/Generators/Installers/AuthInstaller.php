@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
@@ -91,6 +92,7 @@ class AuthInstaller extends AbstractGenerator
     {
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.model_namespace'),
+            '{hasRoles}'  => Settings::make()->hasRoles() ? "use \App\Traits\HasRoles;\n" : '',
         ];
 
         $modelPath = CubePath::make(config('cubeta-starter.model_path') . "/User.php");

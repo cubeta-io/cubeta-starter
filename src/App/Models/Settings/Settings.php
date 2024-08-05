@@ -13,6 +13,7 @@ class Settings
     private static array $json;
     private static array $tables;
     private static ?FrontendTypeEnum $frontendStack = null;
+    private static bool $hasRoles = false;
     private static string $version;
 
     private function __construct()
@@ -26,6 +27,12 @@ class Settings
 
         if (isset(self::$json['frontend_type'])) {
             self::$frontendStack = FrontendTypeEnum::tryFrom(self::$json['frontend_type']);
+        }
+
+        if (isset(self::$json['has_roles'])) {
+            self::$hasRoles = (bool)self::$json['has_roles'];
+        } else {
+            self::$hasRoles = false;
         }
 
         if (isset(self::$json["tables"])) {
@@ -70,7 +77,7 @@ class Settings
 
     public function getAllModels(): array
     {
-        return array_map(fn($table) => $table['model_name'], self::$tables);
+        return array_map(fn ($table) => $table['model_name'], self::$tables);
     }
 
     public function getTable(string $modelName): ?CubeTable
@@ -194,5 +201,23 @@ class Settings
     public function getFrontendType(): ?FrontendTypeEnum
     {
         return self::$frontendStack;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasRoles(): bool
+    {
+        return self::$hasRoles;
+    }
+
+    /**
+     * @param bool $value
+     * @return void
+     */
+    public function setHasRoles(bool $value = true): void
+    {
+        self::$json["has_roles"] = $value;
+        self::storeJsonSettings(self::$json);
     }
 }
