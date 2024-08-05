@@ -31,7 +31,7 @@ class ApiInstaller extends AbstractGenerator
 
         $this->addApiRouteFile();
         $this->addRouteFile('public', version: $this->version);
-        $this->addRouteFile('protected', version: $this->version);
+        $this->addRouteFile('protected', version: $this->version, middlewares: ["auth:api"]);
         $this->registerExceptionHandler($override);
         FileUtils::registerMiddleware(
             "'locale' => AcceptedLanguagesMiddleware::class",

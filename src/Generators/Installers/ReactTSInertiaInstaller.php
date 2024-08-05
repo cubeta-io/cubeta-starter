@@ -25,8 +25,8 @@ class ReactTSInertiaInstaller extends AbstractGenerator
     {
         $this->installInertia($override);
         $this->addSetLocalRoute();
-        $this->addRouteFile('public', container: ContainerType::WEB, version: $this->version);
-        $this->addRouteFile('protected', container: ContainerType::WEB, version: $this->version);
+        $this->addRouteFile(actor: 'public', container: ContainerType::WEB, version: $this->version);
+        $this->addRouteFile(actor: 'protected', container: ContainerType::WEB, version: $this->version, middlewares: ["auth:web"]);
         FileUtils::registerMiddleware(
             "'locale' => AcceptedLanguagesMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,

@@ -109,9 +109,10 @@ trait RouteBinding
      * @param string|null $actor
      * @param string      $container
      * @param string      $version
+     * @param array       $middlewares
      * @return void
      */
-    public function addRouteFile(?string $actor = null, string $container = ContainerType::API, string $version = 'v1'): void
+    public function addRouteFile(?string $actor = null, string $container = ContainerType::API, string $version = 'v1' , array $middlewares = []): void
     {
         $actor = Str::singular(Str::lower($actor));
 
@@ -130,15 +131,16 @@ trait RouteBinding
             CubeLog::add($e);
             return;
         }
-        $this->registerRouteFile($filePath, $container);
+        $this->registerRouteFile($filePath, $container , $middlewares);
     }
 
     /**
      * @param CubePath $routeFilePath
      * @param string   $container
+     * @param array    $middlewares
      * @return void
      */
-    public function registerRouteFile(CubePath $routeFilePath, string $container = ContainerType::API): void
+    public function registerRouteFile(CubePath $routeFilePath, string $container = ContainerType::API, array $middlewares = []): void
     {
         $bootstrapFilePath = CubePath::make('/bootstrap/app.php');
 
@@ -148,12 +150,18 @@ trait RouteBinding
 
         $lineToAdd = '';
 
+        if (count($middlewares)) {
+            $middlewares = implode(", ", $middlewares);
+        } else {
+            $middlewares = "";
+        }
+
         if ($container == ContainerType::API) {
-            $lineToAdd = "Route::middleware('api')\n->prefix('api')\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
+            $lineToAdd = "Route::middleware(['api', $middlewares])\n->prefix('api')\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
         }
 
         if ($container == ContainerType::WEB) {
-            $lineToAdd = "Route::middleware('web')\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
+            $lineToAdd = "Route::middleware(['web', $middlewares])\n->group(base_path('{$routeFilePath->inProjectPath}'));\n";
         }
 
         $bootstrapContent = $bootstrapFilePath->getContent();
@@ -163,7 +171,10 @@ trait RouteBinding
         if (preg_match($patternWithThen, $bootstrapContent, $matches)) {
             if (isset($matches[3])) {
                 $functionBody = $matches[3];
-                if (FileUtils::contentExistsInString($functionBody, $lineToAdd)) {
+                if (
+                    FileUtils::contentExistsInString($functionBody, $lineToAdd)
+                    || FileUtils::contentExistsInString($functionBody, $routeFilePath->inProjectPath)
+                ) {
                     CubeLog::add(new ContentAlreadyExist($lineToAdd, $bootstrapFilePath->fullPath, "Registering [$routeFilePath->fullPath] in the app routes"));
                     return;
                 }
