@@ -28,6 +28,7 @@ class GeneratorFactory
             Installers\PermissionsInstaller::$key,
             Installers\ReactTSInertiaInstaller::$key,
             Installers\ReactTsPackagesInstaller::$key,
+            Installers\ApiInstaller::$key,
         ];
     }
 

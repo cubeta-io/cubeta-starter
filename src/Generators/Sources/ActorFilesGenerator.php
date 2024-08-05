@@ -9,6 +9,7 @@ use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeError;
+use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
@@ -79,6 +80,8 @@ class ActorFilesGenerator extends AbstractGenerator
         if ($this->authenticated && ContainerType::isApi($this->generatedFor)) {
             $this->generateAuthControllers($override);
         }
+
+        CubeLog::add(new CubeInfo("Don't forget to run [php artisan db:seed RoleSeeder]"));
     }
 
     public function createRolesEnum(): void

@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
@@ -47,9 +48,8 @@ class PermissionsInstaller extends AbstractGenerator
             "use App\\Http\\Middleware\\HasPermissionMiddleware;"
         );
 
-        FileUtils::executeCommandInTheBaseDirectory("php artisan migrate");
-
         Settings::make()->setHasRoles();
+        CubeLog::add(new CubeInfo("Don't forget to run [php artisan migrate]"));
     }
 
     public function generateMigrations(bool $override = false): void
