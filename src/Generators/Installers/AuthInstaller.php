@@ -11,6 +11,7 @@ use Cubeta\CubetaStarter\Helpers\EnvParser;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
@@ -65,6 +66,8 @@ class AuthInstaller extends AbstractGenerator
                 FileUtils::executeCommandInTheBaseDirectory("php artisan key:generate");
             }
         }
+
+        CubeLog::add(new CubeWarning("Don't forgot to re-run your users table migration"));
 
         Settings::make()->setInstalledAuth();
     }

@@ -59,12 +59,20 @@ class GeneratorFactory
 
         $settings = Settings::make();
 
-        if (ContainerType::isWeb($generatedFor) && !$settings->installedWeb()) {
+        if (
+            ContainerType::isWeb($generatedFor)
+            && !$settings->installedWeb()
+            && !in_array($this->source, [Installers\ApiInstaller::$key, Installers\WebInstaller::$key])
+        ) {
             CubeLog::add(new CubeError("Install Web tools by running [php artisan cubeta:install web && php artisan cubeta:install web-packages] or [php artisan cubeta:install react-ts && php artisan cubeta:install react-ts-packages] and try again"));
             return;
         }
 
-        if (ContainerType::isApi($generatedFor) && !$settings->installedApi()) {
+        if (
+            ContainerType::isApi($generatedFor)
+            && !$settings->installedApi()
+            && !in_array($this->source, [Installers\ApiInstaller::$key, Installers\WebInstaller::$key])
+        ) {
             CubeLog::add(new CubeError("Install Web tools by running [php artisan cubeta:install api] and try again"));
             return;
         }

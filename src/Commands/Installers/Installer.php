@@ -44,9 +44,11 @@ class Installer extends BaseCommand
                 $gen = new GeneratorFactory(ApiInstaller::$key);
                 break;
             case "web" :
+                $container = ContainerType::WEB;
                 $gen = new GeneratorFactory(WebInstaller::$key);
                 break;
             case "web-packages" :
+                $container = ContainerType::WEB;
                 $gen = new GeneratorFactory(BladePackagesInstaller::$key);
                 break;
             case "permissions" :
@@ -74,12 +76,6 @@ class Installer extends BaseCommand
             override: $override,
             version: $version
         );
-
-        switch ($plugin) {
-            case "auth" :
-                CubeLog::add(new CubeWarning("Don't forgot to re-run your users table migration"));
-                break;
-        }
 
         $this->handleCommandLogsAndErrors();
     }
