@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 
 class ResourceGenerator extends AbstractGenerator
 {
@@ -24,9 +25,9 @@ class ResourceGenerator extends AbstractGenerator
         $resourcePath->ensureDirectoryExists();
 
         $stubProperties = [
-            '{model}' => $this->table->getModelClassString(),
-            '{namespace}' => $this->table->getResourceNameSpace(false, true),
-            '{class}' => $resourceName,
+            '{model}'           => $this->table->getModelClassString(),
+            '{namespace}'       => $this->table->getResourceNameSpace(false, true),
+            '{class}'           => $resourceName,
             '{resource_fields}' => $this->generateFields(),
         ];
 
@@ -83,6 +84,6 @@ class ResourceGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/../../stubs/resource.stub';
+        return CubePath::stubPath('resource.stub');
     }
 }

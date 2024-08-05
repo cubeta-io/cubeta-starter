@@ -47,8 +47,8 @@ class BladeControllerGenerator extends AbstractGenerator
         $addColumns = $this->getAdditionalColumns();
 
         $loadedRelations = $this->table->relations()
-            ->filter(fn(CubeRelation $rel) => $rel->exists())
-            ->map(fn(CubeRelation $rel) => $rel->method())
+            ->filter(fn (CubeRelation $rel) => $rel->exists())
+            ->map(fn (CubeRelation $rel) => $rel->method())
             ->toJson();
 
         $stubProperties = [
@@ -222,6 +222,6 @@ class BladeControllerGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/../../../stubs/controller.web.stub';
+        return CubePath::stubPath('controller.web.stub');
     }
 }

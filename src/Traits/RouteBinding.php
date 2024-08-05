@@ -25,6 +25,7 @@ trait RouteBinding
      * @param string|null $actor
      * @param string      $container
      * @param array       $additionalRoutes
+     * @param string      $version
      * @return void
      */
     public function addRoute(CubeTable $table, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = [], string $version = 'v1'): void
@@ -122,7 +123,7 @@ trait RouteBinding
             FileUtils::generateFileFromStub(
                 ['{route}' => '//add-your-routes-here'],
                 $filePath->fullPath,
-                __DIR__ . '/../stubs/api.stub'
+                CubePath::stubPath('api.stub')
             );
             CubeLog::add(new SuccessGenerating($filePath->fileName, $filePath->fullPath, "Adding [$actor.php] Route File"));
         } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
@@ -226,6 +227,7 @@ trait RouteBinding
      * @param CubeTable $table
      * @param string    $routeName
      * @param array     $additionalRoutes
+     * @param string    $version
      * @return array
      */
     public function addAdditionalRoutesForAdditionalControllerMethods(CubeTable $table, string $routeName, array $additionalRoutes = [], string $version = 'v1'): array

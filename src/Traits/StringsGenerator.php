@@ -24,6 +24,7 @@ trait StringsGenerator
 
     /**
      * @param CubeTable|CubeRelation $model
+     * @param string                 $pivot
      * @return string
      */
     public function manyToManyFunction(CubeTable|CubeRelation $model, string $pivot): string

@@ -12,6 +12,8 @@ use Cubeta\CubetaStarter\Generators\Installers\PermissionsInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\ReactTSInertiaInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\ReactTsPackagesInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\WebInstaller;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\CubeWarning;
 
 class Installer extends BaseCommand
 {
@@ -31,7 +33,11 @@ class Installer extends BaseCommand
             return;
         }
 
-        $override = $this->option('force') ?? false;
+        $override = $this->option('force') ?? null;
+
+        if (!$override) {
+            $override = $this->askForOverride();
+        }
 
         switch ($plugin) {
             case "api" :
@@ -48,12 +54,10 @@ class Installer extends BaseCommand
                 break;
             case "auth" :
                 $container = $this->askForContainer();
-                $override = $this->askForOverride();
                 $gen = new GeneratorFactory(AuthInstaller::$key);
                 break;
             case "react-ts" :
                 $container = ContainerType::WEB;
-                $override = $this->askForOverride();
                 $gen = new GeneratorFactory(ReactTSInertiaInstaller::$key);
                 break;
             case "react-ts-packages":
@@ -70,6 +74,12 @@ class Installer extends BaseCommand
             override: $override,
             version: $version
         );
+
+        switch ($plugin) {
+            case "auth" :
+                CubeLog::add(new CubeWarning("Don't forgot to re-run your users table migration"));
+                break;
+        }
 
         $this->handleCommandLogsAndErrors();
     }

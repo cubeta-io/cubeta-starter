@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
@@ -35,7 +36,7 @@ class TestGenerator extends AbstractGenerator
             '{baseRouteName}'         => $baseRouteName,
             '{modelNamespace}'        => config('cubeta-starter.model_namespace'),
             '{resourceNamespace}'     => $this->table->getResourceNameSpace(false),
-            '{additionalFactoryData}' => $this->getAdditionalFactoryData()
+            '{additionalFactoryData}' => $this->getAdditionalFactoryData(),
         ];
 
         $this->generateFileFromStub(
@@ -62,6 +63,6 @@ class TestGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/../../stubs/test.stub';
+        return CubePath::stubPath('test.stub');
     }
 }

@@ -20,11 +20,6 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 {
     use WebGeneratorHelper, StringsGenerator;
 
-    const MODEL_INTERFACE_STUB = __DIR__ . '/../../../stubs/Inertia/ts/interface.stub';
-    const FORM_STUB = __DIR__ . '/../../../stubs/Inertia/pages/form.stub';
-    const SHOW_PAGE_STUB = __DIR__ . '/../../../stubs/Inertia/pages/show.stub';
-    const INDEX_PAGE_STUB = __DIR__ . '/../../../stubs/Inertia/pages/index.stub';
-
     private string $imports = "";
     private string $currentForm = "Create";
 
@@ -103,7 +98,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $stubProperties,
             $formPath->fullPath,
             $override,
-            self::FORM_STUB
+            CubePath::stubPath('Inertia/pages/form.stub')
         );
 
         $formPath->format();
@@ -271,7 +266,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             stubProperties: $stubProperties,
             path: $interfacePath->fullPath,
             override: $override,
-            otherStubsPath: self::MODEL_INTERFACE_STUB
+            otherStubsPath: CubePath::stubPath('Inertia/ts/interface.stub')
         );
 
         $interfacePath->format();
@@ -355,7 +350,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $showPagePath->ensureDirectoryExists();
 
-        $this->generateFileFromStub($stubProperties, $showPagePath->fullPath, $override, self::SHOW_PAGE_STUB);
+        $this->generateFileFromStub($stubProperties, $showPagePath->fullPath, $override, CubePath::stubPath('Inertia/pages/show.stub'));
 
         $showPagePath->format();
     }
@@ -388,7 +383,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $indexPagePath->ensureDirectoryExists();
 
-        $this->generateFileFromStub($stubProperties, $indexPagePath->fullPath, $override, self::INDEX_PAGE_STUB);
+        $this->generateFileFromStub($stubProperties, $indexPagePath->fullPath, $override, CubePath::stubPath('Inertia/pages/index.stub'));
 
         $indexPagePath->format();
     }

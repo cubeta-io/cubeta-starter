@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
@@ -54,7 +55,7 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             stubProperties: [],
             path: resource_path('/views/app.blade.php'),
             override: $override,
-            otherStubsPath: __DIR__ . '/../../stubs/Inertia/views/app-view.stub'
+            otherStubsPath: CubePath::stubPath('Inertia/views/app-view.stub')
         );
 
         // adding inertia middleware
@@ -62,7 +63,7 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             stubProperties: [],
             path: app_path('/Http/Middleware/HandleInertiaRequests.php'),
             override: $override,
-            otherStubsPath: __DIR__ . '/../../stubs/Inertia/HandleInertiaRequestsMiddleware.stub'
+            otherStubsPath: CubePath::stubPath('Inertia/HandleInertiaRequestsMiddleware.stub')
         );
 
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::REACT_TS->value));

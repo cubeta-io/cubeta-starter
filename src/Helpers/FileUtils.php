@@ -56,7 +56,7 @@ class FileUtils
      */
     public static function formatPhpFile(string $filePath): void
     {
-        $command = base_path() . "./vendor/bin/pint {$filePath}";
+        $command = base_path("/vendor/bin/pint") . " {$filePath}";
         self::executeCommandInTheBaseDirectory($command);
         CubeLog::add(new SuccessMessage("The File : [{$filePath}] Formatted Successfully"));
     }
@@ -228,68 +228,6 @@ class FileUtils
             return substr_replace($haystack, $replace, $pos, strlen($needle));
         }
         return $haystack;
-    }
-
-    public static function addReactTSApiSelectToForm(string $content, $formInterfaceProperty, CubePath $filePath)
-    {
-        $operationContext = "Trying To Add New ApiSelect Component To The Form";
-        if (!$filePath->exist()) {
-            CubeLog::add(new NotFound(
-                $filePath->fullPath,
-                $operationContext
-            ));
-            return;
-        }
-
-        $fileContent = $filePath->getContent();
-
-        if (FileUtils::contentExistInFile($filePath, $content)) {
-            CubeLog::add(new ContentAlreadyExist($content, $filePath->fullPath, $operationContext));
-            return;
-        }
-
-        $firstPattern = '#<Form\s*(.*?)\s*>\s*<div\s*(.*?)\s*>\s*(.*?)\s*</div>#s';
-        $secondPattern = '#<Form\s*(.*?)\s*>\s*(.*?)\s*</Form>#s';
-
-        if (preg_match($firstPattern, $fileContent, $matches)) {
-            $formContent = $matches[3];
-            $substitute = $matches[3];
-        } elseif (preg_match($secondPattern, $fileContent, $matches)) {
-            $formContent = $matches[2];
-            $substitute = $matches[2];
-        } else {
-            CubeLog::add(new FailedAppendContent(
-                $content,
-                $filePath->fullPath,
-                $operationContext
-            ));
-            return;
-        }
-
-        $formContent .= "\n$content\n";
-        $fileContent = str_replace($substitute, $formContent, $fileContent);
-
-        // adding new property
-        $formInterfacePattern = '#useForm\s*<\s*\{\s*(.*?)\s*}\s*>#s';
-        if (preg_match($formInterfacePattern, $fileContent, $matches)
-            && !FileUtils::contentExistInFile($filePath, $formInterfaceProperty)
-        ) {
-            $interfaceProperties = $matches[1];
-            $interfaceProperties .= "\n$formInterfaceProperty\n";
-            $fileContent = str_replace($matches[1], $interfaceProperties, $fileContent);
-        } else {
-            CubeLog::add(new FailedAppendContent(
-                $formInterfaceProperty,
-                $filePath->fullPath,
-                $operationContext
-            ));
-            return;
-        }
-
-
-        $filePath->putContent($fileContent);
-        CubeLog::add(new ContentAppended($content, $filePath->fullPath));
-        $filePath->format();
     }
 
     public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type , string $importStatement): bool

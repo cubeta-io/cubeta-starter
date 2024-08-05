@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Illuminate\Support\Str;
 
@@ -36,7 +37,7 @@ class FactoryGenerator extends AbstractGenerator
             '{usedTraits}'        => $this->getUsedTraits(),
             '{rows}'              => $factoryAttributes['rows'],
             '//relationFactories' => $factoryAttributes['relatedFactories'],
-            '{modelNamespace}'    => $this->table->getModelNameSpace()
+            '{modelNamespace}'    => $this->table->getModelNameSpace(),
         ];
 
         $this->generateFileFromStub($stubProperties, $factoryPath->fullPath);
@@ -169,6 +170,6 @@ class FactoryGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/../../stubs/factory.stub';
+        return CubePath::stubPath('factory.stub');
     }
 }

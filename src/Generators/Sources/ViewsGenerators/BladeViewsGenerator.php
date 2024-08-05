@@ -24,10 +24,6 @@ class BladeViewsGenerator extends BladeControllerGenerator
 {
     use WebGeneratorHelper;
 
-    const FORM_STUB = __DIR__ . '/../../../stubs/views/form.stub';
-    const SHOW_STUB = __DIR__ . '/../../../stubs/views/show.stub';
-    const INDEX_STUB = __DIR__ . '/../../../stubs/views/index.stub';
-
     public static string $key = "views";
 
     /**
@@ -141,7 +137,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             '{components}'          => $inputs,
             '{method}'              => $updateRoute ? 'PUT' : 'POST',
             '{updateParameter}'     => $updateRoute ? ", \${$modelVariable}" . '->id' : '',
-            '{translationSelector}' => $this->table->hasTranslatableAttribute() ? "<div class=\"m-2 d-flex justify-content-end\">\n<x-language-selector/>\n</div>" : ""
+            '{translationSelector}' => $this->table->hasTranslatableAttribute() ? "<div class=\"m-2 d-flex justify-content-end\">\n<x-language-selector/>\n</div>" : "",
         ];
 
         $formPath = CubePath::make("resources/views/dashboard/{$viewsName}/" . strtolower($createdForm) . '.blade.php');
@@ -157,7 +153,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             $stubProperties,
             $formPath->fullPath,
             $override,
-            self::FORM_STUB
+            CubePath::stubPath('views/form.stub')
         );
     }
 
@@ -275,7 +271,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
         $this->generateFileFromStub($stubProperties,
             $showPath->fullPath,
             $override,
-            self::SHOW_STUB
+            CubePath::stubPath('views/show.stub')
         );
     }
 
@@ -301,7 +297,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             } elseif ($attribute->isTranslatable()) {
                 $components .=
                     "<div class=\"col-sm-12 col-md-6\">\n" .
-                    "<x-translatable-small-text-field :value=\"\${$modelVariable}->getRawOriginal('{$attribute->name}')\" label=\"{$label}\"/>\n".
+                    "<x-translatable-small-text-field :value=\"\${$modelVariable}->getRawOriginal('{$attribute->name}')\" label=\"{$label}\"/>\n" .
                     "</div>";
             } else {
                 $components .=
@@ -349,7 +345,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             $stubProperties,
             $indexPath->fullPath,
             $override,
-            self::INDEX_STUB
+            CubePath::stubPath('views/index.stub')
         );
     }
 

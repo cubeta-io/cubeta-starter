@@ -26,13 +26,15 @@ class ApiInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        FileUtils::executeCommandInTheBaseDirectory("composer require php-open-source-saver/jwt-auth");
+
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-api"]);
         CubeLog::add(Artisan::output());
 
         $this->addApiRouteFile();
         $this->addRouteFile('public', version: $this->version);
         $this->addRouteFile('protected', version: $this->version);
-        $this->registerExceptoptionHandler($override);
+        $this->registerExceptionHandler($override);
         FileUtils::registerMiddleware(
             "'locale' => AcceptedLanguagesMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,
@@ -53,7 +55,7 @@ class ApiInstaller extends AbstractGenerator
             FileUtils::generateFileFromStub(
                 ['{route}' => '//add-your-routes-here'],
                 $apiFilePath->fullPath,
-                __DIR__ . '/../../stubs/api.stub'
+                CubePath::stubPath("api.stub")
             );
             CubeLog::add(new SuccessGenerating($apiFilePath->fileName, $apiFilePath->fullPath, "Installing api tools"));
         } catch (Exception $e) {
@@ -142,13 +144,13 @@ class ApiInstaller extends AbstractGenerator
      * @param bool $override
      * @return void
      */
-    private function registerExceptoptionHandler(bool $override): void
+    private function registerExceptionHandler(bool $override): void
     {
         try {
             FileUtils::generateFileFromStub(
                 [],
                 base_path('app/Exceptions/Handler.php'),
-                __DIR__ . '/../../stubs/handler.stub',
+                CubePath::stubPath("handler.stub"),
                 $override
             );
             CubeLog::add(new SuccessGenerating("Handler.php", base_path('app/Exceptions/Handler.php'), "Installing api tools"));

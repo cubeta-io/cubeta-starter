@@ -32,8 +32,8 @@ class InertiaReactTSController extends AbstractGenerator
 
         $loadedRelations = $this->table
             ->relations()
-            ->filter(fn(CubeRelation $rel) => $rel->getModelPath()->exist())
-            ->map(fn(CubeRelation $rel) => "'{$rel->method()}'")
+            ->filter(fn (CubeRelation $rel) => $rel->getModelPath()->exist())
+            ->map(fn (CubeRelation $rel) => "'{$rel->method()}'")
             ->implode(',');
 
         $controllerPath->ensureDirectoryExists();
@@ -52,7 +52,7 @@ class InertiaReactTSController extends AbstractGenerator
             '{{serviceNamespace}}'   => $this->table->getServiceNamespace(false),
             '{{requestNamespace}}'   => $this->table->getRequestNameSpace(),
             '{{modelNamespace}}'     => $this->table->getModelNameSpace(false),
-            '{{serviceName}}'        => $this->table->getServiceName()
+            '{{serviceName}}'        => $this->table->getServiceName(),
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
@@ -88,7 +88,7 @@ class InertiaReactTSController extends AbstractGenerator
 
     public function stubsPath(): string
     {
-        return __DIR__ . '/../../../stubs/Inertia/php/controller.stub';
+        return CubePath::stubPath('Inertia/php/controller.stub');
     }
 
     public function addSidebarItem(string $indexRoute, string $title): void

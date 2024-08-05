@@ -65,7 +65,7 @@ class ActorFilesGenerator extends AbstractGenerator
 
     public function createRolesEnum(): void
     {
-        $enum = file_get_contents(__DIR__ . '/../../stubs/RolesPermissionEnum-entity.stub');
+        $enum = file_get_contents(CubePath::stubPath('RolesPermissionEnum-entity.stub'));
         $roleEnum = $this->roleEnumNaming($this->role);
         $roleEnumValue = Str::singular(Str::lower($this->role));
 
@@ -114,7 +114,7 @@ class ActorFilesGenerator extends AbstractGenerator
                 return;
             }
         } else {
-            $enumStub = file_get_contents(__DIR__ . '/../../stubs/RolesPermissionEnum.stub');
+            $enumStub = file_get_contents(CubePath::stubPath('RolesPermissionEnum.stub'));
 
             $enumStub = str_replace(
                 [
@@ -161,11 +161,11 @@ class ActorFilesGenerator extends AbstractGenerator
         $this->generateFileFromStub(
             [
                 '{seederNamespace}' => config('cubeta-starter.seeder_namespace'),
-                "{modelNamespace}" => config('cubeta-starter.model_namespace'),
+                "{modelNamespace}"  => config('cubeta-starter.model_namespace'),
             ],
             $seederPath->fullPath,
             $override,
-            __DIR__ . '/../../stubs/RoleSeeder.stub'
+            CubePath::stubPath('RoleSeeder.stub')
         );
     }
 
@@ -177,10 +177,10 @@ class ActorFilesGenerator extends AbstractGenerator
         $controllerPath = CubePath::make(config('cubeta-starter.api_controller_path') . "/$this->version/" . ucfirst(Str::studly($this->role)) . "AuthController.php");
 
         $stubProperties = [
-            '{namespace}' => "$apiControllerNamespace\\$this->version",
+            '{namespace}'        => "$apiControllerNamespace\\$this->version",
             '{serviceNamespace}' => "$apiServiceNamespace\\$this->version",
-            '{role}' => ucfirst(Str::studly($this->role)),
-            '{roleEnumName}' => $this->roleEnumNaming($this->role)
+            '{role}'             => ucfirst(Str::studly($this->role)),
+            '{roleEnumName}'     => $this->roleEnumNaming($this->role),
         ];
 
         if ($controllerPath->exist()) {
@@ -194,7 +194,7 @@ class ActorFilesGenerator extends AbstractGenerator
             $stubProperties,
             $controllerPath->fullPath,
             $override,
-            __DIR__ . '/../../stubs/Auth/auth-controller.stub'
+            CubePath::stubPath('Auth/auth-controller.stub')
         );
 
         $apiRouteFile = CubePath::make("routes/{$this->version}/api/{$this->role}.php");
@@ -204,7 +204,7 @@ class ActorFilesGenerator extends AbstractGenerator
             return;
         }
 
-        $routes = file_get_contents(__DIR__ . '/../../stubs/Auth/auth-api-routes.stub');
+        $routes = file_get_contents(CubePath::stubPath('Auth/auth-api-routes.stub'));
 
         $routes = str_replace('{role}', $this->role, $routes);
         $routes = str_replace("{controllerName}", ucfirst(Str::studly($this->role)), $routes);
@@ -223,7 +223,7 @@ class ActorFilesGenerator extends AbstractGenerator
 
     private function addPostmanAuthCollection(): void
     {
-        $authPostmanEntity = file_get_contents(__DIR__ . "/../../stubs/Auth/auth-postman-entity.stub");
+        $authPostmanEntity = file_get_contents(CubePath::stubPath('Auth/auth-postman-entity.stub'));
         $authPostmanEntity = str_replace("{role}", $this->role, $authPostmanEntity);
         $projectName = config('cubeta-starter.project_name');
         $collectionPath = CubePath::make(
@@ -244,7 +244,7 @@ class ActorFilesGenerator extends AbstractGenerator
             $collectionPath->putContent($collection);
         } else {
             $projectURL = config('cubeta-starter.project_url') ?? "http://localhost/" . $projectName . "/public/";
-            $collectionStub = file_get_contents(__DIR__ . '/../../stubs/postman-collection.stub');
+            $collectionStub = file_get_contents(CubePath::stubPath('postman-collection.stub'));
             $collectionStub = str_replace(
                 ['{projectName}', '{project-url}', '// add-your-cruds-here'],
                 [$projectName, $projectURL, $authPostmanEntity],
