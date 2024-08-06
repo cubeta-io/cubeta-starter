@@ -8,11 +8,11 @@
 <script src="{{ asset('js/CustomFunctions.js') }}"></script>
 
 <script type="module">
-
     $(document).ready(function () {
         markRequiredFields();
         initPluginsByClass();
         handleImageGalleryExistence();
+        changeLocale();
     });
     disableSubmitUntilFillRequiredFields();
 

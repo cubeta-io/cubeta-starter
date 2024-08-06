@@ -23,13 +23,12 @@
                 <!-- End Profile Iamge Icon -->
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                     <li class="dropdown-header">
-                        <h6>{{auth()->user()?->name ?? "App Admin"}}</h6>
+                        <h6>{{(auth()->user()?->first_name . " " . auth()->user()?->last_name) ?? "App Admin"}}</h6>
                         <span>Admin</span>
                     </li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
-
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="#">
                             <i class="bi bi-person"></i>
@@ -89,7 +88,6 @@
                 </div>
             </li>
             <!-- end of language dropdown -->
-
         </ul>
     </nav>
 </header>
