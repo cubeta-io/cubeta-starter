@@ -320,7 +320,7 @@ header {
     background-color: #eaeaea;
 }
 
-.active {
+.active-sidebar-item {
     background-color: #eaeaea;
 }
 
@@ -394,11 +394,11 @@ header {
 }
 
 .sidebar-nav .nav-content a:hover,
-.sidebar-nav .nav-content a.active {
+.sidebar-nav .nav-content a.active-sidebar-item {
     color: #4154f1;
 }
 
-.sidebar-nav .nav-content a.active i {
+.sidebar-nav .nav-content a.active-sidebar-item i {
     background-color: #4154f1;
 }
 
@@ -602,7 +602,7 @@ html[data-bs-theme="dark"] .nav-link:hover {
     color: white;
 }
 
-html[data-bs-theme="dark"] .active {
+html[data-bs-theme="dark"] .active-sidebar-item {
     background-color: var(--bs-primary);
 }
 
