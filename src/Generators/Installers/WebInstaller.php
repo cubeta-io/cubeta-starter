@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
@@ -39,10 +40,35 @@ class WebInstaller extends AbstractGenerator
             MiddlewareArrayGroupEnum::ALIAS,
             "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware;"
         );
+        $this->publishHomePage($override);
         FileUtils::registerProvider("App\\Providers\\CubetaStarterServiceProvider::class");
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::BLADE->value));
         Settings::make()->setInstalledWeb();
         Settings::make()->setFrontendType(FrontendTypeEnum::BLADE);
         CubeLog::add(new CubeInfo("Don't forgot to install web packages by the GUI or by running [php artisan cubeta:install web-packages]"));
+    }
+
+    public function publishHomePage(bool $override = false): void
+    {
+        $viewPath = CubePath::make('/resources/views/dashboard/index.blade.php');
+        $viewPath->ensureDirectoryExists();
+        $this->generateFileFromStub(
+            [],
+            $viewPath->fullPath,
+            $override,
+            CubePath::stubPath('views/home.stub')
+        );
+
+        $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, $this->actor, $this->version);
+        $content = $publicRoutFilePath->getContent();
+        $route = "Route::view('/dashboard' , 'dashboard.index')->name('web.public.index');";
+        if (!FileUtils::contentExistInFile($publicRoutFilePath, $route)) {
+            $content .= "\n$route\n";
+        } else {
+            return;
+        }
+
+        $publicRoutFilePath->putContent($content);
+        $publicRoutFilePath->format();
     }
 }
