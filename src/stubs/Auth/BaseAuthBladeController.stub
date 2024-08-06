@@ -114,6 +114,6 @@ class BaseAuthController extends Controller
     public function logout()
     {
         $this->userService->logout();
-        return redirect()->route("web.public.login");
+        return redirect()->route("web.public.login-page");
     }
 }

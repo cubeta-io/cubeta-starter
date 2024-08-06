@@ -61,6 +61,10 @@ class AuthInstaller extends AbstractGenerator
             $this->generateBaseAuthWebController($override);
             $this->generateWebAuthRoutes();
             $this->generateAuthViews($override);
+
+            $this->addRouteToNavbarDropdown("user-details", 'web.protected.user-details');
+            $this->addRouteToNavbarDropdown("logout", 'web.protected.logout');
+
             if ($envParser && !$envParser->hasValue("APP_KEY")) {
                 FileUtils::executeCommandInTheBaseDirectory("php artisan key:generate");
             }
@@ -411,5 +415,30 @@ class AuthInstaller extends AbstractGenerator
 
         CubeLog::add(new FailedAppendContent($guard, $authConfigPath->fullPath, "Registering jwt guard"));
         return false;
+    }
+
+    public function addRouteToNavbarDropdown(string $tagId, string $routeName): void
+    {
+        $navbarPath = CubePath::make("resources/views/includes/navbar.blade.php");
+        if (!$navbarPath->exist()) {
+            CubeLog::add(new NotFound($navbarPath->fullPath, "Adding auth routes to navbar dropdown"));
+            return;
+        }
+
+        $navbarContent = $navbarPath->getContent();
+        $pattern = '#<\s*\ba\s*(.*?)\s*\bid=[\'"]\b' . $tagId . '[\'"]\s*(.*?)\s*>#';
+        $navbarContent = preg_replace_callback($pattern, function ($matches) use ($navbarPath, $routeName, $tagId) {
+            $hrefPattern = '/href\s*=\s*[\'"](.*?)[\'"]/s';
+            if (isset($matches[0]) && preg_match($hrefPattern, $matches[0])) {
+                CubeLog::add(new ContentAppended("href=\"{{route('$routeName')}}\"", $navbarPath->fullPath));
+                return preg_replace_callback($hrefPattern, function () use ($routeName) {
+                    return "href=\"{{route('$routeName')}}\"";
+                }, $matches[0]);
+            } else {
+                CubeLog::add(new ContentAppended("href=\"{{route('$routeName')}}\"", $navbarPath->fullPath));
+                return "<a $matches[1] id=\"$tagId\" $matches[2] href=\"{{route('$routeName')}}\"";
+            }
+        }, $navbarContent);
+        $navbarPath->putContent($navbarContent);
     }
 }
