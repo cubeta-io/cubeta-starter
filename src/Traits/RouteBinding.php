@@ -25,9 +25,9 @@ trait RouteBinding
     {
         $this->generateFileFromStub(
             [],
-            CubePath::make('/app/Http/Middleware/Authenticate.php'),
+            CubePath::make('/app/Http/Middleware/Authenticate.php')->fullPath,
             $override,
-            CubePath::stubPath('middlewares/Authenticate.php')
+            CubePath::stubPath('middlewares/Authenticate.stub')
         );
 
         FileUtils::registerMiddleware(
