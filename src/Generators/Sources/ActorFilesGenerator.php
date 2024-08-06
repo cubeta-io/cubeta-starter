@@ -59,7 +59,7 @@ class ActorFilesGenerator extends AbstractGenerator
             $routeFile = CubePath::make("routes/{$this->version}/web/{$this->role}.php");
             if (!$routeFile->exist()) {
                 $this->addRouteFile($this->role, ContainerType::WEB, $this->version, [
-                    'auth:web',
+                    'authenticated',
                     'has-role:' . $this->role,
                 ]);
             }
@@ -69,7 +69,7 @@ class ActorFilesGenerator extends AbstractGenerator
             $routeFile = CubePath::make("routes/{$this->version}/api/{$this->role}.php");
             if (!$routeFile->exist()) {
                 $this->addRouteFile($this->role, ContainerType::API, $this->version, [
-                    'auth:api',
+                    'authenticated',
                     'has-role:' . $this->role,
                 ]);
             }

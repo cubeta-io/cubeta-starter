@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
@@ -20,6 +21,22 @@ use Illuminate\Support\Str;
 
 trait RouteBinding
 {
+    public function addAndRegisterAuthenticateMiddleware(bool $override = false): void
+    {
+        $this->generateFileFromStub(
+            [],
+            CubePath::make('/app/Http/Middleware/Authenticate.php'),
+            $override,
+            CubePath::stubPath('middlewares/Authenticate.php')
+        );
+
+        FileUtils::registerMiddleware(
+            "'authenticated' => Authenticate::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            'use App\Http\Middleware\Authenticate;'
+        );
+    }
+
     /**
      * @param CubeTable   $table
      * @param string|null $actor

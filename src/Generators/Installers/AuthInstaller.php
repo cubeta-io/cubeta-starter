@@ -18,7 +18,6 @@ use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
-use http\Env;
 use Illuminate\Support\Facades\Artisan;
 
 class AuthInstaller extends AbstractGenerator
