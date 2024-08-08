@@ -30,7 +30,7 @@ class ActorFilesGenerator extends AbstractGenerator
 
     private string $role;
     private ?array $permissions;
-    private bool $authenticated = false;
+    private bool $authenticated;
 
     public function __construct(string $role, ?array $permissions = null, bool $authenticated = false, string $generatedFor = ContainerType::API, string $version = 'v1')
     {
@@ -54,7 +54,6 @@ class ActorFilesGenerator extends AbstractGenerator
         }
 
         $this->createRolesEnum();
-
         if (ContainerType::isWeb($this->generatedFor)) {
             $routeFile = CubePath::make("routes/{$this->version}/web/{$this->role}.php");
             if (!$routeFile->exist()) {
@@ -225,11 +224,19 @@ class ActorFilesGenerator extends AbstractGenerator
             return;
         }
 
-        $routes = file_get_contents(CubePath::stubPath('Auth/auth-api-routes.stub'));
+        $publicAuthRoutesNames = $this->getAuthRouteNames(ContainerType::API, $this->actor, true);
+        $protectedAuthRoutesNames = $this->getAuthRouteNames(ContainerType::API, $this->actor);
 
-        $routes = str_replace('{role}', $this->role, $routes);
-        $routes = str_replace("{controllerName}", ucfirst(Str::studly($this->role)), $routes);
-        $routes = str_replace("{version}", $this->version, $routes);
+        $routes = FileUtils::generateStringFromStub(CubePath::stubPath('Auth/auth-api-routes.stub'), [
+            "{{version}}"             => $this->version,
+            "{{controllerName}}"      => ucfirst(Str::studly($this->role)),
+            "{{role}}"                => "$this->role",
+            "{{refresh-route}}"       => $protectedAuthRoutesNames['refresh'],
+            "{{logout-route}}"        => $protectedAuthRoutesNames['logout'],
+            "{{update-user-details}}" => $protectedAuthRoutesNames['update-user-details'],
+            "{{user-details-route}}"  => $protectedAuthRoutesNames['user-details'],
+        ]);
+
         $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . "\\$this->version;";
 
         $apiRouteFile->putContent($routes, FILE_APPEND);
@@ -237,10 +244,16 @@ class ActorFilesGenerator extends AbstractGenerator
         CubeLog::add(new ContentAppended($routes, $apiRouteFile->fullPath));
 
         $publicApiRouteFile = CubePath::make("/routes/{$this->version}/api/public.php");
-        $publicAuthRoutes = file_get_contents(CubePath::stubPath('Auth/auth-public-api-routes.stub'));
-        $publicAuthRoutes = str_replace('{role}', $this->role, $publicAuthRoutes);
-        $publicAuthRoutes = str_replace("{controllerName}", ucfirst(Str::studly($this->role)), $publicAuthRoutes);
-        $publicAuthRoutes = str_replace("{version}", $this->version, $publicAuthRoutes);
+        $publicAuthRoutes = FileUtils::generateStringFromStub(CubePath::stubPath('Auth/auth-public-api-routes.stub'), [
+            "{{version}}"                      => $this->version,
+            "{{controllerName}}"               => ucfirst(Str::studly($this->role)),
+            "{{role}}"                         => "$this->role",
+            "{{register-route}}"               => $publicAuthRoutesNames['register'],
+            "{{login-route}}"                  => $publicAuthRoutesNames['login'],
+            "{{password-reset-request}}"       => $publicAuthRoutesNames['password-reset-request'],
+            "{{validate-password-reset-code}}" => $publicAuthRoutesNames['validate-reset-code'],
+            "{{password-reset}}"               => $publicAuthRoutesNames['password-reset'],
+        ]);
 
         if (!$publicApiRouteFile->exist()) {
             $this->addRouteFile(actor: 'public', version: $this->version);

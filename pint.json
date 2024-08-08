@@ -56,7 +56,14 @@
                 "arrays"
             ]
         },
-        "array_indentation": true,
-        "normalize_index_brace": true
+        "array_indentation": false,
+        "normalize_index_brace": true,
+        "imports_order": [
+            "class",
+            "function",
+            "const"
+        ],
+        "sort_algorithm": "alpha",
+        "no_trailing_comma_in_singleline_array": true
     }
 }

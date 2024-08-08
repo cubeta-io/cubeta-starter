@@ -1,4 +1,4 @@
-Route::post('/{role}/refresh', [{version}\{controllerName}AuthController::class, 'refresh'])->name("{role}.refresh-token");
-Route::post('/{role}/logout', [{version}\{controllerName}AuthController::class, 'logout'])->name("{role}.logout");
-Route::post('/{role}/update-user-data' , [{version}\{controllerName}AuthController::class, 'updateUserDetails'])->name("{role}.update-user-data");
-
+Route::post('/{{version}}/{{role}}/refresh', [{{version}}\{{controllerName}}AuthController::class, 'refresh'])->name("{{refresh-route}}");
+Route::post('/{{version}}/{{role}}/logout', [{{version}}\{{controllerName}}AuthController::class, 'logout'])->name("{{logout-route}}");
+Route::post('/{{version}}/{{role}}/update-user-data' , [{{version}}\{{controllerName}}AuthController::class, 'updateUserDetails'])->name("{{update-user-details}}");
+Route::get('/{{version}}/{{role}}/user-details', [{{version}}\{{controllerName}}AuthController::class, 'userDetails'])->name('{{user-details-route}}');

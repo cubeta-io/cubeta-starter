@@ -11,6 +11,8 @@ use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestUrl;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Exception;
 use Illuminate\Support\Collection;
 
@@ -30,10 +32,10 @@ class PostmanCollection implements PostmanObject
     public string $scheme = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json";
 
     /**
-     * @param string $name
-     * @param PostmanItem[] $items
+     * @param string            $name
+     * @param PostmanItem[]     $items
      * @param PostmanVariable[] $variables
-     * @param PostmanEvent[] $events
+     * @param PostmanEvent[]    $events
      */
     public function __construct(string $name, array $items, array $variables, array $events)
     {
@@ -51,10 +53,10 @@ class PostmanCollection implements PostmanObject
     public function toArray(): array
     {
         return [
-            'info' => ["name" => $this->name, "schema" => $this->scheme],
-            'item' => array_map(fn(PostmanItem $item) => $item->toArray(), $this->items ?? []),
-            'event' => array_map(fn($event) => $event->toArray(), $this->events),
-            'variable' => array_map(fn($var) => $var->toArray(), $this->variables),
+            'info'     => ["name" => $this->name, "schema" => $this->scheme],
+            'item'     => array_map(fn (PostmanItem $item) => $item->toArray(), $this->items ?? []),
+            'event'    => array_map(fn ($event) => $event->toArray(), $this->events),
+            'variable' => array_map(fn ($var) => $var->toArray(), $this->variables),
         ];
     }
 
@@ -186,8 +188,10 @@ class PostmanCollection implements PostmanObject
             return $this;
         }
 
-        $apiStub = file_get_contents(__DIR__ . '/../../../stubs/Auth/auth-postman-entity.stub');
-        $api = str_replace("{role}", $role, $apiStub);
+        $api = FileUtils::generateStringFromStub(CubePath::stubPath('Auth/auth-postman-entity.stub'), [
+            '{{role}}'    => $role,
+            "{{version}}" => config('cubeta-starter.version'),
+        ]);
         $this->items[] = PostmanItem::serialize(json_decode($api, true));
         return $this;
     }
@@ -200,9 +204,9 @@ class PostmanCollection implements PostmanObject
     {
         return new self(
             $data['info']['name'] ?? '',
-            array_map(fn($item) => PostmanItem::serialize($item), $data['item']),
-            array_map(fn($variable) => PostmanVariable::serialize($variable), $data['variable'] ?? []),
-            array_map(fn($event) => PostmanEvent::serialize($event), $data['event'] ?? [])
+            array_map(fn ($item) => PostmanItem::serialize($item), $data['item']),
+            array_map(fn ($variable) => PostmanVariable::serialize($variable), $data['variable'] ?? []),
+            array_map(fn ($event) => PostmanEvent::serialize($event), $data['event'] ?? [])
         );
     }
 

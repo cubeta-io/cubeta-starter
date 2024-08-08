@@ -1,4 +1,4 @@
 /** Auth Routes */
-Route::put('dashboard/update-user-data', [v1\BaseAuthController::class , 'updateUserData'])->name('web.protected.update-user-data');
-Route::get('dashboard/user-details', [v1\BaseAuthController::class , 'userDetails'])->name('web.protected.user-details');
-Route::get('dashboard/logout', [v1\BaseAuthController::class , 'logout'])->name('web.protected.logout');
+Route::put('{{version}}/dashboard/update-user-data', [{{version}}\BaseAuthController::class , 'updateUserData'])->name('{{update-user-details}}');
+Route::get('{{version}}/dashboard/user-details', [{{version}}\BaseAuthController::class , 'userDetails'])->name('{{user-details-route}}');
+Route::get('{{version}}/dashboard/logout', [{{version}}\BaseAuthController::class , 'logout'])->name('{{logout-route}}');

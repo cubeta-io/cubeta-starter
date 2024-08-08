@@ -28,6 +28,16 @@ class AuthInstaller extends AbstractGenerator
 
     public string $type = 'installer';
 
+    private array $publicRoutes = [];
+    private array $protectedRoutes = [];
+
+    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '', string $version = 'v1')
+    {
+        parent::__construct($fileName, $attributes, $relations, $nullables, $uniques, $actor, $generatedFor, $version);
+        $this->publicRoutes = $this->getAuthRouteNames($this->generatedFor, $this->actor, true);
+        $this->protectedRoutes = $this->getAuthRouteNames($this->generatedFor, $this->actor);
+    }
+
     /**
      * @param bool $override
      * @return void
@@ -46,15 +56,9 @@ class AuthInstaller extends AbstractGenerator
         $this->generateResetPasswordEmail($override);
 
         if (ContainerType::isApi($this->generatedFor)) {
-            FileUtils::executeCommandInTheBaseDirectory("composer require php-open-source-saver/jwt-auth");
+            $this->initializeJwt();
             $this->generateUserResource($override);
             $this->generateBaseAuthApiController($override);
-            $this->addJwtGuard();
-            $envParser?->addVariable("JWT_ALGO", "HS256");
-            if ($envParser && !$envParser->hasValue("JWT_SECRET")) {
-                FileUtils::executeCommandInTheBaseDirectory("php artisan jwt:secret");
-            }
-            $envParser?->addVariable("JWT_BLACKLIST_ENABLED", "false");
         }
 
         if (ContainerType::isWeb($this->generatedFor)) {
@@ -62,8 +66,8 @@ class AuthInstaller extends AbstractGenerator
             $this->generateWebAuthRoutes();
             $this->generateAuthViews($override);
 
-            $this->addRouteToNavbarDropdown("user-details", 'web.protected.user-details');
-            $this->addRouteToNavbarDropdown("logout", 'web.protected.logout');
+            $this->addRouteToNavbarDropdown("user-details", $this->protectedRoutes['user-details']);
+            $this->addRouteToNavbarDropdown("logout", $this->protectedRoutes['logout']);
 
             if ($envParser && !$envParser->hasValue("APP_KEY")) {
                 FileUtils::executeCommandInTheBaseDirectory("php artisan key:generate");
@@ -210,10 +214,53 @@ class AuthInstaller extends AbstractGenerator
                     '--force' => $override,
                 ]);
             } else {
-                Artisan::call('vendor:publish', [
-                    '--tag'   => 'cubeta-auth-views',
-                    '--force' => $override,
-                ]);
+                $this->generateFileFromStub(
+                    [
+                        "{{login-route}}"                 => $this->publicRoutes['login'],
+                        "{{register-page}}"               => $this->publicRoutes['register-page'],
+                        "{{password-reset-request-page}}" => $this->publicRoutes['password-reset-request-page'],
+                    ],
+                    CubePath::make('resources/views/login.blade.php')->fullPath,
+                    $override,
+                    CubePath::stubPath('Auth/views/login.blade.stub')
+                );
+                $this->generateFileFromStub(
+                    [
+                        "{{register-route}}"   => $this->publicRoutes['register'],
+                        "{{login-page-route}}" => $this->publicRoutes['login-page'],
+                    ],
+                    CubePath::make('resources/views/register.blade.php')->fullPath,
+                    $override,
+                    CubePath::stubPath('Auth/views/register.blade.stub')
+                );
+                $this->generateFileFromStub(
+                    [
+                        "{{update-user-data-route}}" => $this->protectedRoutes['update-user-details'],
+                    ],
+                    CubePath::make('resources/views/user-details.blade.php')->fullPath,
+                    $override,
+                    CubePath::stubPath('Auth/views/user-details.blade.stub')
+                );
+                $this->generateFileFromStub(
+                    [
+                        "{{password-reset-request}}" => $this->publicRoutes['password-reset-request'],
+                    ],
+                    CubePath::make('resources/views/reset-password-request.blade.php')->fullPath,
+                    $override,
+                    CubePath::stubPath('Auth/views/reset-password-request.blade.stub')
+                );
+                $this->generateFileFromStub(
+                    ["{{validate-reset-code}}" => $this->publicRoutes['validate-reset-code']],
+                    CubePath::make('resources/views/check-reset-code.blade.php')->fullPath,
+                    $override,
+                    CubePath::stubPath('Auth/views/check-reset-code.blade.stub')
+                );
+                $this->generateFileFromStub(
+                    ["{{password-reset}}" => $this->publicRoutes['password-reset']],
+                    CubePath::make('resources/views/reset-password.blade.php')->fullPath,
+                    $override,
+                    CubePath::stubPath('Auth/views/reset-password.blade.stub')
+                );
             }
 
             CubeLog::add(Artisan::output());
@@ -277,9 +324,12 @@ class AuthInstaller extends AbstractGenerator
     private function generateBaseAuthWebController(bool $override = false): void
     {
         $stubProperties = [
-            '{{namespace}}'        => config('cubeta-starter.web_controller_namespace') . "\\$this->version",
-            '{{requestNamespace}}' => config('cubeta-starter.request_namespace') . "\\$this->version",
-            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace') . "\\$this->version",
+            '{{namespace}}'           => config('cubeta-starter.web_controller_namespace') . "\\$this->version",
+            '{{requestNamespace}}'    => config('cubeta-starter.request_namespace') . "\\$this->version",
+            '{{serviceNamespace}}'    => config('cubeta-starter.service_namespace') . "\\$this->version",
+            "{{user-details-route}}"  => $this->protectedRoutes['user-details'],
+            "{{password-reset-page}}" => $this->publicRoutes['password-reset-page'],
+            "{{login-page-route}}"    => $this->publicRoutes['login-page'],
         ];
 
         $controllerPath = CubePath::make(config('cubeta-starter.web_controller_path') . "/$this->version/BaseAuthController.php");
@@ -300,15 +350,47 @@ class AuthInstaller extends AbstractGenerator
      */
     private function generateWebAuthRoutes(): void
     {
+        $publicRoutesStubProperties = [
+            '{{version}}'                          => $this->version,
+            "{{login-page-route}}"                 => $this->publicRoutes['login-page'],
+            "{{login-route}}"                      => $this->publicRoutes['login'],
+            "{{request-password-reset-code-page}}" => $this->publicRoutes['password-reset-request-page'],
+            "{{request-password-reset-code}}"      => $this->publicRoutes['password-reset-request'],
+            "{{validate-password-reset-code}}"     => $this->publicRoutes['validate-reset-code'],
+            "{{password-reset-page}}"              => $this->publicRoutes['password-reset-page'],
+            "{{password-reset}}"                   => $this->publicRoutes['password-reset'],
+            "{{register-page}}"                    => $this->publicRoutes['register-page'],
+            "{{register}}"                         => $this->publicRoutes['register'],
+        ];
+
+        $protectedRoutesStubProperties = [
+            "{{version}}"             => $this->version,
+            "{{update-user-details}}" => $this->protectedRoutes['update-user-details'],
+            "{{user-details-route}}"  => $this->protectedRoutes['user-details'],
+            "{{logout-route}}"        => $this->protectedRoutes['logout'],
+        ];
+
+
         if ($this->frontType == FrontendTypeEnum::REACT_TS) {
-            $protectedRoutes = file_get_contents(CubePath::stubPath('Auth/auth-react-ts-routes-protected.stub'));
-            $publicRoutes = file_get_contents(CubePath::stubPath('Auth/auth-react-ts-routes-public.stub'));
+            $protectedRoutes = FileUtils::generateStringFromStub(
+                CubePath::stubPath('Auth/auth-react-ts-routes-protected.stub'),
+                $protectedRoutesStubProperties
+            );
+            $publicRoutes = FileUtils::generateStringFromStub(
+                CubePath::stubPath('Auth/auth-react-ts-routes-public.stub'),
+                $publicRoutesStubProperties
+            );
         } else {
-            $protectedRoutes = file_get_contents(CubePath::stubPath('Auth/auth-web-routes-protected.stub'));
-            $protectedRoutes = str_replace("{version}", $this->version, $protectedRoutes);
-            $publicRoutes = file_get_contents(CubePath::stubPath('Auth/auth-web-routes-public.stub'));
-            $publicRoutes = str_replace("{version}", $this->version, $publicRoutes);
+            $protectedRoutes = FileUtils::generateStringFromStub(
+                CubePath::stubPath('Auth/auth-web-routes-protected.stub'),
+                $protectedRoutesStubProperties
+            );
+            $publicRoutes = FileUtils::generateStringFromStub(
+                CubePath::stubPath('Auth/auth-web-routes-public.stub'),
+                $publicRoutesStubProperties
+            );
         }
+
         $publicRouteFile = CubePath::make("routes/{$this->version}/web/public.php");
         $protectedRouteFile = CubePath::make("routes/{$this->version}/web/protected.php");
 
@@ -440,5 +522,17 @@ class AuthInstaller extends AbstractGenerator
             }
         }, $navbarContent);
         $navbarPath->putContent($navbarContent);
+    }
+
+    private function initializeJwt(): void
+    {
+        $envParser = EnvParser::make();
+        FileUtils::executeCommandInTheBaseDirectory("composer require php-open-source-saver/jwt-auth");
+        $this->addJwtGuard();
+        $envParser?->addVariable("JWT_ALGO", "HS256");
+        if ($envParser && !$envParser->hasValue("JWT_SECRET")) {
+            FileUtils::executeCommandInTheBaseDirectory("php artisan jwt:secret");
+        }
+        $envParser?->addVariable("JWT_BLACKLIST_ENABLED", "false");
     }
 }

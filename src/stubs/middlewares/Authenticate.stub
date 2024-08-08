@@ -3,11 +3,15 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Traits\RestTrait;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ApiController;
 use Symfony\Component\HttpFoundation\Response;
 
 class Authenticate
 {
+    use RestTrait;
+
     /**
      * Handle an incoming request.
      *
@@ -15,13 +19,14 @@ class Authenticate
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()?->user()) {
-            if ($request->expectsJson()) {
-                abort(401);
-            } else {
-                return redirect()->route('web.public.login-page');
+        if ($request->expectsJson()) {
+            if (!auth('api')?->user()) {
+                return $this->apiResponse(null, ApiController::STATUS_UNAUTHORIZED, __('site.unauthorized_user'));
             }
+        } elseif (!auth('web')?->user()) {
+            return redirect()->route('{{web-login-page-route}}');
         }
+
         return $next($request);
     }
 }

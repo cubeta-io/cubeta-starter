@@ -3,11 +3,15 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Traits\RestTrait;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ApiController;
 use Symfony\Component\HttpFoundation\Response;
 
 class HasRoleMiddleware
 {
+    use RestTrait;
+
     /**
      * Handle an incoming request.
      *
@@ -18,8 +22,12 @@ class HasRoleMiddleware
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (!auth()?->user()?->hasRole($role)) {
-            abort(403);
+        if ($request->expectsJson()) {
+            if (!auth('api')?->user()?->hasRole($role)) {
+                return $this->apiResponse(null, ApiController::STATUS_UNAUTHORIZED, __('site.unauthorized_user'));
+            } elseif (!auth('api')?->user()?->hasRole($role)) {
+                abort(403, __('site.unauthorized_user'));
+            }
         }
 
         return $next($request);

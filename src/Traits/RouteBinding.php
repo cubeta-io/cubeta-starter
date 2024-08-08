@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -18,13 +19,18 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use JetBrains\PhpStorm\ArrayShape;
 
 trait RouteBinding
 {
+    /**
+     * @param bool $override
+     * @return void
+     */
     public function addAndRegisterAuthenticateMiddleware(bool $override = false): void
     {
         $this->generateFileFromStub(
-            [],
+            ['{{web-login-page-route}}' => $this->getAuthRouteNames(ContainerType::WEB, null, true)['login-page']],
             CubePath::make('/app/Http/Middleware/Authenticate.php')->fullPath,
             $override,
             CubePath::stubPath('middlewares/Authenticate.stub')
@@ -118,8 +124,13 @@ trait RouteBinding
     {
         if ($actor && $actor != "none") {
             return CubePath::make("routes/{$version}/{$container}/{$actor}.php");
+        } else {
+            if (Settings::make()->installedAuth()) {
+                return CubePath::make("routes/{$version}/{$container}/protected.php");
+            } else {
+                return CubePath::make("routes/{$version}/{$container}/public.php");
+            }
         }
-        return CubePath::make("routes/{$version}/{$container}/public.php");
     }
 
     /**
@@ -201,11 +212,10 @@ trait RouteBinding
                 CubeLog::add(new ContentAppended($lineToAdd, $bootstrapFilePath->fullPath));
                 FileUtils::addImportStatement('use Illuminate\Support\Facades\Route;', $bootstrapFilePath);
                 $bootstrapFilePath->format();
-                return;
             } else {
                 CubeLog::add(new FailedAppendContent($lineToAdd, $bootstrapFilePath->fullPath, "Registering [$routeFilePath->fullPath] in the app routes"));
-                return;
             }
+            return;
         }
 
         $patternWithoutThen = '/->\s*withRouting\s*\(\s*(.*?)\s*\)/s';
@@ -242,12 +252,17 @@ trait RouteBinding
     public function getRouteName(CubeTable $table, string $container = ContainerType::API, ?string $actor = null): string
     {
         $modelLowerPluralName = $table->routeNameNaming();
+        $version = config('cubeta-starter.version');
 
         if (!isset($actor) || $actor == '' || $actor == 'none') {
-            return "{$container}.public.{$modelLowerPluralName}";
+            if (Settings::make()->installedAuth()) {
+                return "$version.{$container}.protected.{$modelLowerPluralName}";
+            } else {
+                return "$version.{$container}.public.{$modelLowerPluralName}";
+            }
         }
 
-        return "{$container}.{$actor}.{$modelLowerPluralName}";
+        return "$version.{$container}.{$actor}.{$modelLowerPluralName}";
     }
 
     /**
@@ -259,11 +274,12 @@ trait RouteBinding
      */
     public function addAdditionalRoutesForAdditionalControllerMethods(CubeTable $table, string $routeName, array $additionalRoutes = [], string $version = 'v1'): array
     {
-        $pluralLowerModelName = $table->routeUrlNaming(withVersion: false);
+        $version = config('cubeta-starter.version');
+        $pluralLowerModelName = $table->routeUrlNaming();
         $routes = [];
 
         if (in_array('allPaginatedJson', $additionalRoutes)) {
-            $routes[] = "Route::get(\"dashboard/{$pluralLowerModelName}/all-paginated-json\", [{$version}\\{$table->modelNaming()}" . "Controller::class, \"allPaginatedJson\"])->name(\"{$routeName}.allPaginatedJson\");";
+            $routes[] = "Route::get(\"$version/dashboard/{$pluralLowerModelName}/all-paginated-json\", [{$version}\\{$table->modelNaming()}" . "Controller::class, \"allPaginatedJson\"])->name(\"{$routeName}.allPaginatedJson\");";
         }
 
         return $routes;
@@ -331,6 +347,73 @@ trait RouteBinding
 
         if ($routePath->exist() && !FileUtils::contentExistInFile($routePath, $route)) {
             $routePath->putContent($route, FILE_APPEND);
+        }
+    }
+
+    /**
+     * @param string      $container
+     * @param string|null $actor
+     * @param bool        $public
+     * @return array{
+     *     register:string ,
+     *     register-page:string,
+     *     login:string ,
+     *     login-page:string,
+     *     password-reset-request:string ,
+     *     password-reset-request-page:string,
+     *     validate-reset-code:string,
+     *     password-reset:string,
+     *     password-reset-page:string,
+     *     refresh:string ,
+     *     logout:string ,
+     *     update-user-details:string,
+     *     user-details:string
+     * }
+     */
+    public function getAuthRouteNames(string $container = ContainerType::API, ?string $actor = null, bool $public = false): array
+    {
+        $version = config('cubeta-starter.version');
+        if (!$actor || $actor == "none") {
+            $actor = "protected";
+        }
+
+        if ($container == ContainerType::API) {
+            if ($public) {
+                return [
+                    'register'               => "$version.api.public" . $actor == null ? '.' : ".$actor." . "register",
+                    'login'                  => "$version.api.public" . $actor == null ? '.' : ".$actor." . "login",
+                    "password-reset-request" => "$version.api.public" . $actor == null ? '.' : ".$actor." . "reset.password.request",
+                    "validate-reset-code"    => "$version.api.public" . $actor == null ? '.' : ".$actor." . "check.reset.password.code",
+                    'password-reset'         => "$version.api.public" . $actor == null ? '.' : ".$actor." . "password.reset",
+                ];
+            } else {
+                return [
+                    'refresh'             => "$version.api.$actor.refresh.token",
+                    'logout'              => "$version.api.$actor.logout",
+                    'update-user-details' => "$version.api.$actor.update.user.data",
+                    'user-details'        => "$version.api.$actor.user.details",
+                ];
+            }
+        } else {
+            if ($public) {
+                return [
+                    'login'                       => "$version.web.public.login",
+                    'login-page'                  => "$version.web.public.login.page",
+                    'register'                    => "$version.web.public.register",
+                    "register-page"               => "$version.web.public.register.page",
+                    'password-reset-request'      => "$version.web.public.request.reset.password.code",
+                    'password-reset-request-page' => "$version.web.public.request.reset.password.code-page",
+                    'validate-reset-code'         => "$version.web.public.validate.reset.password.code",
+                    'password-reset'              => "$version.web.public.change.password",
+                    'password-reset-page'         => "$version.web.public.reset.password.page",
+                ];
+            } else {
+                return [
+                    'update-user-details' => "$version.web.$actor.update.user.data",
+                    'user-details'        => "$version.web.$actor.user.details",
+                    'logout'              => "$version.web.$actor.logout",
+                ];
+            }
         }
     }
 }

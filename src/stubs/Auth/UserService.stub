@@ -11,7 +11,8 @@ use App\Services\Contracts\Makable;
 use Exception;
 
 /**
- * Class UserService
+ * @extends BaseService<User>
+ * @property UserRepository $repository
  */
 class UserService extends BaseService
 {
@@ -37,7 +38,7 @@ class UserService extends BaseService
     /**
      * @param array $data
      * @param string|null $role
-     * @return array{user:User , token:string , refresh_token:string}|User|null
+     * @return array{User , string , string}|User|null
      */
     public function updateUserDetails(array $data, ?string $role = null): array|User|null
     {
@@ -69,7 +70,7 @@ class UserService extends BaseService
      * @param array $data
      * @param string|null $role
      * @param array $additionalData
-     * @return User|Authenticatable|array{user:User , token:string , refresh_token:string}|null
+     * @return User|Authenticatable|array{User , string , string}|null
      */
     public function login(array $data, ?string $role = null, array $additionalData = []): User|Authenticatable|array|null
     {
@@ -112,8 +113,7 @@ class UserService extends BaseService
      * @param $fcm_token
      * @return void
      */
-    public
-    function clearFcmTokenFromOtherUsers($fcm_token): void
+    public function clearFcmTokenFromOtherUsers($fcm_token): void
     {
         $users = $this->repository->getByFcmToken($fcm_token);
         foreach ($users as $user) {
@@ -125,8 +125,7 @@ class UserService extends BaseService
     /**
      * @return void
      */
-    public
-    function logout(): void
+    public function logout(): void
     {
         $user = auth($this->guard)->user();
         auth($this->guard)->logout();
@@ -135,17 +134,16 @@ class UserService extends BaseService
     }
 
     /**
-     * @return array{user:User , token:string , refresh_token:string}|null
+     * @return array{User , string , string}|null
      */
-    public
-    function refresh_token(): ?array
+    public function refresh_token(): ?array
     {
         try {
             $user = auth($this->guard)->user();
             $token = auth($this->guard)->setTTL(env('JWT_TTL', 10080))->refresh();
             $refresh_token = auth($this->guard)->setTTL(env('JWT_REFRESH_TTL', 20160))->refresh();
 
-            return ['user' => $user, 'token' => $token, 'refresh_token' => $refresh_token];
+            return [$user,$token,$refresh_token];
         } catch (Exception) {
             return null;
         }
@@ -154,10 +152,9 @@ class UserService extends BaseService
     /**
      * @param array $data
      * @param string|null $role
-     * @return array{user:User , token:string , refresh_token:string}|User
+     * @return array{User , string , string}|User
      */
-    public
-    function register(array $data, ?string $role = null): array|User
+    public function register(array $data, ?string $role = null): array|User
     {
         $user = $this->repository->create($data);
 
@@ -180,8 +177,7 @@ class UserService extends BaseService
      * @param string $email
      * @return bool|null
      */
-    public
-    function passwordResetRequest(string $email): ?bool
+    public function passwordResetRequest(string $email): ?bool
     {
         $user = $this->getUserByEmail($email);
 
@@ -210,8 +206,7 @@ class UserService extends BaseService
      * @param $email
      * @return User|null
      */
-    public
-    function getUserByEmail($email): ?User
+    public function getUserByEmail($email): ?User
     {
         return $this->repository->getUserByEmail($email);
     }
@@ -220,8 +215,7 @@ class UserService extends BaseService
      * @param $token
      * @return User|null
      */
-    public
-    function getUserByPasswordResetCode($token): ?User
+    public function getUserByPasswordResetCode($token): ?User
     {
         return $this->repository->getUserByPasswordResetCode($token);
     }
@@ -231,8 +225,7 @@ class UserService extends BaseService
      * @param string $password
      * @return bool
      */
-    public
-    function passwordReset(string $reset_password_code, string $password): bool
+    public function passwordReset(string $reset_password_code, string $password): bool
     {
         $user = $this->getUserByPasswordResetCode($reset_password_code);
 
@@ -251,8 +244,7 @@ class UserService extends BaseService
      * @param string|null $role
      * @return User|Authenticatable|null
      */
-    public
-    function userDetails(?string $role = null): User|Authenticatable|null
+    public function userDetails(?string $role = null): User|Authenticatable|null
     {
         $user = auth($this->guard)->user();
 

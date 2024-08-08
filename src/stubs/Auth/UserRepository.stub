@@ -4,11 +4,9 @@ namespace {namespace};
 
 use {modelNamespace}\User;
 use App\Repositories\Contracts\BaseRepository;
-use App\Repositories\Contracts\IBaseRepository;
 
 /**
  * @extends  BaseRepository<User>
- * @implements IBaseRepository<User>
  */
 class UserRepository extends BaseRepository
 {

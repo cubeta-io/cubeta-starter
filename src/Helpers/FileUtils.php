@@ -279,7 +279,7 @@ class FileUtils
                 }
                 $bootstrapContent = preg_replace_callback($patternWithMethodExists, function ($matches) use ($methodName, $middleware) {
                     $middlewaresArray = $matches[3];
-                    $middlewaresArray .= "\n$middleware,\n";
+                    $middlewaresArray .= ",\n$middleware,\n";
                     $middlewaresArray = FileUtils::fixArrayOrObjectCommas($middlewaresArray);
                     return "->withMiddleware(function (Middleware \$middleware)" .
                         " {\n{$matches[1]}\$middleware->$methodName({$matches[2]}append: [\n{$middlewaresArray}\n]{$matches[4]});\n{$matches[5]}\n})";
@@ -353,7 +353,7 @@ class FileUtils
                 }
                 $bootstrapContent = preg_replace_callback($patternWithMethodExists, function ($matches) use ($methodName, $middleware) {
                     $middlewaresArray = $matches[2];
-                    $middlewaresArray .= "\n$middleware,\n";
+                    $middlewaresArray .= "\n,$middleware,\n";
                     $middlewaresArray = FileUtils::fixArrayOrObjectCommas($middlewaresArray);
                     return "->withMiddleware(function (Middleware \$middleware)" .
                         " {\n{$matches[1]}\$middleware->{$methodName}([\n{$middlewaresArray}\n]);\n{$matches[3]}\n})";
@@ -438,5 +438,19 @@ class FileUtils
     {
         $input = trim($input, " \t\n\r\0\x0B,");
         return self::removeRepeatedCommas($input);
+    }
+
+    public static function generateStringFromStub(string $stubPath, array $properties = []): string
+    {
+        $search = [];
+        $replace = [];
+
+        foreach ($properties as $key => $value) {
+            $search[] = "{$key}";
+            $replace[] = "$value";
+        }
+
+        $stub = file_get_contents($stubPath);
+        return str_replace($search, $replace, $stub);
     }
 }

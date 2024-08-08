@@ -38,7 +38,7 @@ class BaseAuthController extends Controller
         //login method and this data will be stored in the users table
         $user = $this->userService->login($request->validated(), $this->role, []);
         if ($user) {
-            return redirect()->route('web.protected.user-details');
+            return redirect()->route('{{user-details-route}}');
         } else {
             Session::flash('error', __('site.credentials_not_match_records'));
             return redirect()->back();
@@ -49,7 +49,7 @@ class BaseAuthController extends Controller
     {
         $user = $this->userService->register($request->validated(), $this->role);
         if ($user) {
-            return redirect()->route('web.protected.user-details');
+            return redirect()->route('{{user-details-route}}');
         } else {
             Session::flash('error', __('site.something_went_wrong'));
             return redirect()->back();
@@ -61,7 +61,7 @@ class BaseAuthController extends Controller
         $user = $this->userService->updateUserDetails($request->validated(), $this->role);
 
         if ($user) {
-            return redirect()->route('web.protected.user-details');
+            return redirect()->route('{{user-details-route}}');
         } else {
             Session::flash('error', __('site.something_went_wrong'));
             return redirect()->back();
@@ -94,7 +94,7 @@ class BaseAuthController extends Controller
     public function validateResetPasswordCode(CheckPasswordResetRequest $request)
     {
         $request->validated();
-        return redirect()->route('web.public.reset-password-page');
+        return redirect()->route('{{password-reset-page}}');
     }
 
     public function changePassword(ResetPasswordRequest $request)
@@ -104,7 +104,7 @@ class BaseAuthController extends Controller
 
         if ($result) {
             Session::flash('success', __('site.password_changed_successfully'));
-            return redirect()->route('web.protected.user-details');
+            return redirect()->route('{{login-page-route}}');
         } else {
             Session::flash('error', __('site.credentials_not_match_records'));
             return redirect()->back();
@@ -114,6 +114,6 @@ class BaseAuthController extends Controller
     public function logout()
     {
         $this->userService->logout();
-        return redirect()->route("web.public.login-page");
+        return redirect()->route("{{login-page-route}}");
     }
 }

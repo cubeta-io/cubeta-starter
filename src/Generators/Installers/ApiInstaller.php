@@ -80,7 +80,11 @@ class ApiInstaller extends AbstractGenerator
                     return;
                 }
                 $registered = $matches[1];
-                $registered .= ",\n $newRouteFile,\n";
+                if (preg_match('/\s*web\s*:\s*(.*?)\s*,\s*/s', $registered, $innerMatches)) {
+                    $registered = str_replace($innerMatches[0], "$innerMatches[0]\n$newRouteFile,\n", $registered);
+                } else {
+                    $registered = "$newRouteFile,\n$registered";
+                }
                 $registered = FileUtils::fixArrayOrObjectCommas($registered);
                 $bootstrapContent = str_replace($matches[1], $registered, $bootstrapContent);
                 $bootstrapPath->putContent($bootstrapContent);
