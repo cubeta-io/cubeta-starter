@@ -1,11 +1,11 @@
 /** Auth Routes */
-Route::inertia("{{version}}/dashboard/login", 'auth/Login')->name("{{login-page-route}}");
-Route::post('dashboard/login', [{{version}}\BaseAuthController::class, 'login'])->name('{{login-page-route}}');
-Route::post('{{version}}/dashboard/login', [{{version}}\BaseAuthController::class, 'login'])->name('{{login-route}}');
-Route::inertia('{{version}}/dashboard/request-reset-password-code-page', 'auth/ForgetPassword')->name('{{request-password-reset-code-page}}');
-Route::post('{{version}}/dashboard/request-reset-password-code', [{{version}}\BaseAuthController::class, 'requestResetPasswordCode'])->name('{{request-password-reset-code}}');
-Route::post('{{version}}/dashboard/validate-reset-password-code', [{{version}}\BaseAuthController::class, 'validateResetPasswordCode'])->name('{{validate-password-reset-code}}');
-Route::inertia('{{version}}/dashboard/reset-page', 'auth/ResetPassword')->name('{{password-reset-page}}');
-Route::post('{{version}}/dashboard/change-password', [{{version}}\BaseAuthController::class, 'changePassword'])->name('{{password-reset}}');
-Route::inertia('{{version}}/dashboard/register', 'auth/Register')->name('{{register-page}}');
-Route::post('{{version}}/dashboard/register', [{{version}}\BaseAuthController::class, 'register'])->name('{{register}}');
+Route::post('/{{version}}/dashboard/login', [{{version}}\BaseAuthController::class, 'login'])->name('{{login-page-route}}');
+Route::post('/{{version}}/dashboard/login', [{{version}}\BaseAuthController::class, 'login'])->name('{{login-route}}');
+Route::post('/{{version}}/dashboard/request-reset-password-code', [{{version}}\BaseAuthController::class, 'requestResetPasswordCode'])->name('{{request-password-reset-code}}');
+Route::post('/{{version}}/dashboard/validate-reset-password-code', [{{version}}\BaseAuthController::class, 'validateResetPasswordCode'])->name('{{validate-password-reset-code}}');
+Route::post('/{{version}}/dashboard/change-password', [{{version}}\BaseAuthController::class, 'changePassword'])->name('{{password-reset}}');
+Route::post('/{{version}}/dashboard/register', [{{version}}\BaseAuthController::class, 'register'])->name('{{register}}');
+Route::inertia("/{{version}}/dashboard/login", 'auth/Login')->name("{{login-page-route}}");
+Route::inertia('/{{version}}/dashboard/request-reset-password-code-page', 'auth/ForgetPassword')->name('{{request-password-reset-code-page}}');
+Route::inertia('/{{version}}/dashboard/reset-page', 'auth/ResetPassword')->name('{{password-reset-page}}');
+Route::inertia('/{{version}}/dashboard/register', 'auth/Register')->name('{{register-page}}');

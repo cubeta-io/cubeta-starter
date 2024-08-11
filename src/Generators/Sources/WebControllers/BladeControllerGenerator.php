@@ -131,8 +131,6 @@ class BladeControllerGenerator extends AbstractGenerator
                         return \"<a href='\" . route('{$showRouteName}', \$row->{$attribute->name}) . \"'>{$columnCalling}</a>\";
                     })";
                 $this->rawColumns .= "'{$columnName}' ,";
-            } elseif ($attribute->isTranslatable()) {
-                $dataColumn .= "\n->editColumn(\"{$attribute->name}\" , fn(\$data) => \$data->{$attribute->name})\n";
             }
         }
 

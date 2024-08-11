@@ -326,7 +326,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
     public function generateIndexView(string $creatRoute, string $dataRoute, bool $override = false): void
     {
         $dataColumns = $this->generateDataTableColumns();
-        $routes = $this->getRoutesNames($this->table);
+        $routes = $this->getRoutesNames($this->table, $this->actor);
 
         $stubProperties = [
             '{modelName}'              => $this->table->modelName,
@@ -387,7 +387,13 @@ class BladeViewsGenerator extends BladeControllerGenerator
                 $json .= "{\"data\": '{$usedName}', searchable: true, orderable: true}, \n";
             }
 
-            $json .= "{\"data\": '{$attribute->name}', searchable: true, orderable: true}, \n";
+            if ($attribute->isTranslatable()) {
+                $render = ",render: (data) => translate(data)";
+            } else {
+                $render = "";
+            }
+
+            $json .= "{\"data\": '{$attribute->name}', searchable: true, orderable: true $render}, \n";
 
             $html .= "\n<th>{$label}</th>\n";
         }

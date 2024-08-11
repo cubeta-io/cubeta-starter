@@ -59,7 +59,13 @@
                         lengthMenu: [
                             [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"],
                         ],
-                        ajax: '{{ route("{dataTableDataRouteName}") }}',
+                        ajax:{
+                             url:"{{ route('{dataTableDataRouteName}') }}",
+                             headers: {
+                                "Accept": "application/html",
+                                "content-type": "application/html"
+                             }
+                        },
                         columns: [
                             {"data": 'id', searchable: true, orderable: true},
                             {dataTableColumns}

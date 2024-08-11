@@ -416,4 +416,10 @@ trait RouteBinding
             }
         }
     }
+
+    public function getWebIndexPageRoute(?string $actor = null): string
+    {
+        $version = config('cubeta-starter.version');
+        return "Route::view('/$version/dashboard' , 'dashboard.index')->name('$version.web.$actor.index');";
+    }
 }

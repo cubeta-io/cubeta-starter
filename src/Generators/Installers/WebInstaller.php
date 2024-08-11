@@ -59,9 +59,9 @@ class WebInstaller extends AbstractGenerator
             CubePath::stubPath('views/home.stub')
         );
 
-        $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, $this->actor, $this->version);
+        $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "protected", $this->version);
         $content = $publicRoutFilePath->getContent();
-        $route = "Route::view('/dashboard' , 'dashboard.index')->name('web.public.index');";
+        $route = "Route::view('/$this->version/dashboard' , 'dashboard.index')->name('web.public.index');";
         if (!FileUtils::contentExistInFile($publicRoutFilePath, $route)) {
             $content .= "\n$route\n";
         } else {

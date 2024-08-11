@@ -8,6 +8,8 @@
 <script src="{{ asset('js/CustomFunctions.js') }}"></script>
 
 <script type="module">
+    localStorage.setItem('locale', "{{app()->getLocale()}}");
+
     $(document).ready(function () {
         markRequiredFields();
         initPluginsByClass();

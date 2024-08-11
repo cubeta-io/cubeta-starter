@@ -36,6 +36,7 @@ class ActorFilesGenerator extends AbstractGenerator
     {
         parent::__construct(generatedFor: $generatedFor);
         $this->role = strtolower(Str::singular($role));
+        $this->actor = $this->role;
         $this->permissions = $permissions;
         $this->authenticated = $authenticated;
         $this->version = $version;
@@ -224,8 +225,8 @@ class ActorFilesGenerator extends AbstractGenerator
             return;
         }
 
-        $publicAuthRoutesNames = $this->getAuthRouteNames(ContainerType::API, $this->actor, true);
-        $protectedAuthRoutesNames = $this->getAuthRouteNames(ContainerType::API, $this->actor);
+        $publicAuthRoutesNames = $this->getAuthRouteNames(ContainerType::API, $this->role, true);
+        $protectedAuthRoutesNames = $this->getAuthRouteNames(ContainerType::API, $this->role);
 
         $routes = FileUtils::generateStringFromStub(CubePath::stubPath('Auth/auth-api-routes.stub'), [
             "{{version}}"             => $this->version,
