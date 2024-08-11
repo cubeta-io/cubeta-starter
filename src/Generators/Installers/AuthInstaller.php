@@ -207,63 +207,115 @@ class AuthInstaller extends AbstractGenerator
      */
     private function generateAuthViews(bool $override = false): void
     {
-        if (ContainerType::isWeb($this->generatedFor)) {
-            if ($this->frontType == FrontendTypeEnum::REACT_TS) {
-                Artisan::call('vendor:publish', [
-                    '--tag'   => 'react-ts-auth',
-                    '--force' => $override,
-                ]);
-            } else {
-                $this->generateFileFromStub(
-                    [
-                        "{{login-route}}"                 => $this->publicRoutes['login'],
-                        "{{register-page}}"               => $this->publicRoutes['register-page'],
-                        "{{password-reset-request-page}}" => $this->publicRoutes['password-reset-request-page'],
-                    ],
-                    CubePath::make('resources/views/login.blade.php')->fullPath,
-                    $override,
-                    CubePath::stubPath('Auth/views/login.blade.stub')
-                );
-                $this->generateFileFromStub(
-                    [
-                        "{{register-route}}"   => $this->publicRoutes['register'],
-                        "{{login-page-route}}" => $this->publicRoutes['login-page'],
-                    ],
-                    CubePath::make('resources/views/register.blade.php')->fullPath,
-                    $override,
-                    CubePath::stubPath('Auth/views/register.blade.stub')
-                );
-                $this->generateFileFromStub(
-                    [
-                        "{{update-user-data-route}}" => $this->protectedRoutes['update-user-details'],
-                    ],
-                    CubePath::make('resources/views/user-details.blade.php')->fullPath,
-                    $override,
-                    CubePath::stubPath('Auth/views/user-details.blade.stub')
-                );
-                $this->generateFileFromStub(
-                    [
-                        "{{password-reset-request}}" => $this->publicRoutes['password-reset-request'],
-                    ],
-                    CubePath::make('resources/views/reset-password-request.blade.php')->fullPath,
-                    $override,
-                    CubePath::stubPath('Auth/views/reset-password-request.blade.stub')
-                );
-                $this->generateFileFromStub(
-                    ["{{validate-reset-code}}" => $this->publicRoutes['validate-reset-code']],
-                    CubePath::make('resources/views/check-reset-code.blade.php')->fullPath,
-                    $override,
-                    CubePath::stubPath('Auth/views/check-reset-code.blade.stub')
-                );
-                $this->generateFileFromStub(
-                    ["{{password-reset}}" => $this->publicRoutes['password-reset']],
-                    CubePath::make('resources/views/reset-password.blade.php')->fullPath,
-                    $override,
-                    CubePath::stubPath('Auth/views/reset-password.blade.stub')
-                );
-            }
+        if (!ContainerType::isWeb($this->generatedFor)) {
+            return;
+        }
 
-            CubeLog::add(Artisan::output());
+        $generationInfo = [];
+        $stubProperties = [
+            'login-page'                  => [
+                "{{login-route}}"                 => $this->publicRoutes['login'],
+                "{{register-page}}"               => $this->publicRoutes['register-page'],
+                "{{password-reset-request-page}}" => $this->publicRoutes['password-reset-request-page'],
+            ],
+            'register-page'               => [
+                "{{register-route}}"   => $this->publicRoutes['register'],
+                "{{login-page-route}}" => $this->publicRoutes['login-page'],
+            ],
+            'user-details-page'           => ["{{update-user-data-route}}" => $this->protectedRoutes['update-user-details']],
+            'reset-password-request-page' => ["{{password-reset-request}}" => $this->publicRoutes['password-reset-request']],
+            'validate-reset-code-page'    => ["{{validate-reset-code}}" => $this->publicRoutes['validate-reset-code']],
+            'reset-password-page'         => ["{{password-reset}}" => $this->publicRoutes['password-reset']],
+        ];
+        if ($this->frontType == FrontendTypeEnum::REACT_TS) {
+            $generationInfo[] = [
+                'stub_properties' => $stubProperties['login-page'],
+                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/Login.stub'),
+                'target'          => CubePath::make('resources/js/Pages/auth/Login.tsx')->fullPath,
+            ];
+            $generationInfo[] = [
+                'stub_properties' => $stubProperties['register-page'],
+                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/Register.stub'),
+                'target'          => CubePath::make('resources/js/Pages/auth/Register.tsx')->fullPath,
+            ];
+
+            $generationInfo[] = [
+                'stub_properties' => $stubProperties['user-details-page'],
+                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/UserDetails.stub'),
+                'target'          => CubePath::make('resources/js/Pages/dashboard/profile/UserDetails.tsx')->fullPath,
+            ];
+
+            $generationInfo[] = [
+                'stub_properties' => $stubProperties['reset-password-request-page'],
+                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/ForgetPassword.stub'),
+                'target'          => CubePath::make('resources/js/Pages/auth/ForgetPassword.tsx')->fullPath,
+            ];
+
+            $generationInfo[] = [
+                'stub_properties' => $stubProperties['validate-reset-code-page'],
+                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/ResetPasswordCodeForm.stub'),
+                'target'          => CubePath::make('resources/js/Pages/auth/ResetPasswordCodeForm.tsx')->fullPath,
+            ];
+
+            $generationInfo[] = [
+                'stub_properties' => $stubProperties['reset-password-page'],
+                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/ResetPassword.stub'),
+                'target'          => CubePath::make('resources/js/Pages/auth/ResetPassword.tsx')->fullPath,
+            ];
+
+            $generationInfo[] = [
+                'stub_properties' => [],
+                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/User.stub'),
+                'target'          => CubePath::make('resources/js/Models/User.ts')->fullPath,
+            ];
+        } elseif ($this->frontType == FrontendTypeEnum::BLADE) {
+            $generationInfo[] = [
+                'stub_properties' => [
+                    "{{login-route}}"                 => $this->publicRoutes['login'],
+                    "{{register-page}}"               => $this->publicRoutes['register-page'],
+                    "{{password-reset-request-page}}" => $this->publicRoutes['password-reset-request-page'],
+                ],
+                'stub_path'       => CubePath::stubPath('Auth/views/login.blade.stub'),
+                'target'          => CubePath::make('resources/views/login.blade.php')->fullPath,
+            ];
+
+            $generationInfo[] = [
+                'stub_properties' => $stubProperties['register-page'],
+                'stub_path'       => CubePath::stubPath('Auth/views/register.blade.stub'),
+                'target'          => CubePath::make('resources/views/register.blade.php')->fullPath,
+            ];
+
+            $generationInfo[] = [
+                'stub_properties' => $stubProperties['user-details-page'],
+                'stub_path'       => CubePath::stubPath('Auth/views/user-details.blade.stub'),
+                'target'          => CubePath::make('resources/views/user-details.blade.php')->fullPath,
+            ];
+
+            $generationInfo[] = [
+                'stub_properties' => $stubProperties['reset-password-request-page'],
+                'stub_path'       => CubePath::stubPath('Auth/views/reset-password-request.blade.stub'),
+                'target'          => CubePath::make('resources/views/reset-password-request.blade.php')->fullPath,
+            ];
+
+            $generationInfo[] = [
+                'stub_properties' => $stubProperties['validate-reset-code-page'],
+                'stub_path'       => CubePath::stubPath('Auth/views/check-reset-code.blade.stub'),
+                'target'          => CubePath::make('resources/views/check-reset-code.blade.php')->fullPath,
+            ];
+            $generationInfo[] = [
+                'stub_properties' => $stubProperties['reset-password-page'],
+                'stub_path'       => CubePath::stubPath('Auth/views/reset-password.blade.stub'),
+                'target'          => CubePath::make('resources/views/reset-password.blade.php')->fullPath,
+            ];
+        }
+
+        foreach ($generationInfo as $info) {
+            $this->generateFileFromStub(
+                $info['stub_properties'],
+                $info['target'],
+                $override,
+                $info['stub_path']
+            );
         }
     }
 

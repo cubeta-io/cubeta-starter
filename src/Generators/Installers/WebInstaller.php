@@ -40,7 +40,8 @@ class WebInstaller extends AbstractGenerator
             MiddlewareArrayGroupEnum::ALIAS,
             "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware;"
         );
-        $this->publishHomePage($override);
+        $this->generateSidebar($override);
+        $this->generateHomePage($override);
         FileUtils::registerProvider("App\\Providers\\CubetaStarterServiceProvider::class");
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::BLADE->value));
         Settings::make()->setInstalledWeb();
@@ -48,7 +49,7 @@ class WebInstaller extends AbstractGenerator
         CubeLog::add(new CubeInfo("Don't forgot to install web packages by the GUI or by running [php artisan cubeta:install web-packages]"));
     }
 
-    public function publishHomePage(bool $override = false): void
+    public function generateHomePage(bool $override = false): void
     {
         $viewPath = CubePath::make('/resources/views/dashboard/index.blade.php');
         $viewPath->ensureDirectoryExists();
@@ -61,7 +62,7 @@ class WebInstaller extends AbstractGenerator
 
         $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "protected", $this->version);
         $content = $publicRoutFilePath->getContent();
-        $route = "Route::view('/$this->version/dashboard' , 'dashboard.index')->name('web.public.index');";
+        $route = $this->getWebIndexPageRoute("protected", FrontendTypeEnum::BLADE);
         if (!FileUtils::contentExistInFile($publicRoutFilePath, $route)) {
             $content .= "\n$route\n";
         } else {
@@ -70,5 +71,17 @@ class WebInstaller extends AbstractGenerator
 
         $publicRoutFilePath->putContent($content);
         $publicRoutFilePath->format();
+    }
+
+    private function generateSidebar(bool $override): void
+    {
+        $this->generateFileFromStub(
+            [
+                '{{index-route}}' => $this->getWebIndexPageRoute(actor: 'protected', justName: true),
+            ],
+            CubePath::make('resources/views/includes/sidebar.blade.php')->fullPath,
+            $override,
+            CubePath::stubPath('views/sidebar.stub')
+        );
     }
 }

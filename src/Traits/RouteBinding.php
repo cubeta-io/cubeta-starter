@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Traits;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
@@ -417,9 +418,17 @@ trait RouteBinding
         }
     }
 
-    public function getWebIndexPageRoute(?string $actor = null): string
+    public function getWebIndexPageRoute(?string $actor = null, FrontendTypeEnum $frontendType = FrontendTypeEnum::BLADE, bool $justName = false): string
     {
         $version = config('cubeta-starter.version');
-        return "Route::view('/$version/dashboard' , 'dashboard.index')->name('$version.web.$actor.index');";
+        $name = "$version.web.$actor.index";
+        if ($justName) {
+            return $name;
+        }
+        if ($frontendType == FrontendTypeEnum::REACT_TS) {
+            return "Route::inertia('/$version/dashboard/', 'dashboard/Index')->name('$name');";
+        } else {
+            return "Route::view('/$version/dashboard' , 'dashboard.index')->name('$name');";
+        }
     }
 }

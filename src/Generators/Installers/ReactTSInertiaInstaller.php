@@ -42,6 +42,9 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             "use App\\Http\\Middleware\\HandleInertiaRequests ;"
         );
 
+        $this->generateSidebar($override);
+        $this->generateHomePage($override);
+
         Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
         Settings::make()->setInstalledWeb();
         CubeLog::add(new CubeInfo("Don't forgot to install react-ts packages by the GUI or by running [php artisan cubeta:install react-ts-packages]"));
@@ -73,5 +76,39 @@ class ReactTSInertiaInstaller extends AbstractGenerator
         );
 
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::REACT_TS->value));
+    }
+
+    public function generateHomePage(bool $override = false): void
+    {
+        $pagePath = CubePath::make('/resources/js/Pages/dashboard/Index.tsx');
+        $pagePath->ensureDirectoryExists();
+        $this->generateFileFromStub(
+            [],
+            $pagePath->fullPath,
+            $override,
+            CubePath::stubPath('Inertia/pages/dashboard.stub')
+        );
+
+        $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "protected", $this->version);
+        $content = $publicRoutFilePath->getContent();
+        $route = $this->getWebIndexPageRoute("protected", FrontendTypeEnum::REACT_TS);
+        if (!FileUtils::contentExistInFile($publicRoutFilePath, $route)) {
+            $content .= "\n$route\n";
+        } else {
+            return;
+        }
+
+        $publicRoutFilePath->putContent($content);
+        $publicRoutFilePath->format();
+    }
+
+    private function generateSidebar(bool $override): void
+    {
+        $this->generateFileFromStub(
+            ['{{index-route}}' => $this->getWebIndexPageRoute(actor: "protected", justName: true)],
+            CubePath::make('resources/js/Components/ui/Sidebar.tsx')->fullPath,
+            $override,
+            CubePath::stubPath('Inertia/components/Sidebar.stub')
+        );
     }
 }

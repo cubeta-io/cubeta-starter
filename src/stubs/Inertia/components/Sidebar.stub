@@ -7,7 +7,7 @@ import PresentationChart from "../icons/PresentationChart";
 
 const sidebarItems = [
     {
-        href: "/",
+        href: route("{{index-route}}"),
         title: "Dashboard",
         icon: () => <PresentationChart />,
     },

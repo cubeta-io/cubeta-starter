@@ -1,5 +1,4 @@
 /** Auth Routes */
-Route::post('/{{version}}/dashboard/login', [{{version}}\BaseAuthController::class, 'login'])->name('{{login-page-route}}');
 Route::post('/{{version}}/dashboard/login', [{{version}}\BaseAuthController::class, 'login'])->name('{{login-route}}');
 Route::post('/{{version}}/dashboard/request-reset-password-code', [{{version}}\BaseAuthController::class, 'requestResetPasswordCode'])->name('{{request-password-reset-code}}');
 Route::post('/{{version}}/dashboard/validate-reset-password-code', [{{version}}\BaseAuthController::class, 'validateResetPasswordCode'])->name('{{validate-password-reset-code}}');
