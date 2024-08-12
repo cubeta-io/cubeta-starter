@@ -30,7 +30,7 @@ class InertiaReactTSController extends AbstractGenerator
         }
 
         $modelNameCamelCase = $this->table->variableNaming();
-        $routesNames = $this->getRoutesNames($this->table, $this->actor);
+        $routesNames = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $controllerPath = $this->table->getWebControllerPath();
 
         if ($controllerPath->exist()) {

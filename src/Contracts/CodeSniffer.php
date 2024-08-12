@@ -70,7 +70,7 @@ class CodeSniffer
                 ClassUtils::addMethodToClass(
                     $relatedPath,
                     $this->table->relationMethodNaming(singular: false),
-                    $this->manyToManyFunction($this->table , $relation->getPivotTableName())
+                    $this->manyToManyFunction($this->table, $relation->getPivotTableName())
                 );
             }
 
@@ -458,7 +458,7 @@ class CodeSniffer
                 }
                 $calledAttribute = $this->table->variableNaming() . "." . $this->table->titleable()->name;
                 $columnLabel = $this->table->modelName . " " . $this->table->titleable()->titleNaming();
-                $currentModelShowRoute = $this->getRouteName($this->table, ContainerType::WEB, $actor) . ".show";
+                $currentModelShowRoute = $this->getRouteNames($this->table, ContainerType::WEB, $actor)["show"];
                 $translatable = $this->table->titleable()->isTranslatable() ? "translatable:true," : "";
                 $newColumn = "{
                                  name:\"$calledAttribute\" ,
@@ -486,7 +486,7 @@ class CodeSniffer
                     $this->addNewInputToReactTSForm(
                         $this->inertiaApiSelectComponent(
                             $this->table,
-                            $this->getRouteName($this->table, ContainerType::WEB, $actor) . ".data",
+                            $this->getRouteNames($this->table, ContainerType::WEB, $actor)["data"],
                             $relatedKeyAttribute
                         ),
                         $this->table->keyName() . ":" . "number;",
@@ -499,7 +499,7 @@ class CodeSniffer
                     $this->addNewInputToReactTSForm(
                         $this->inertiaApiSelectComponent(
                             $this->table,
-                            $this->getRouteName($this->table, ContainerType::WEB, $actor) . ".data",
+                            $this->getRouteNames($this->table, ContainerType::WEB, $actor)["data"],
                             $relatedKeyAttribute,
                             true
                         ),

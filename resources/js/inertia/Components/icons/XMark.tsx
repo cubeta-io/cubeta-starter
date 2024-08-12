@@ -1,5 +1,3 @@
-interface IXMarkProps {}
-
 const XMark: React.FunctionComponent<React.SVGAttributes<SVGSVGElement>> = ({
     className = "w-6 h-6",
     ...props

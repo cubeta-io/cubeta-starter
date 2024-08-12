@@ -113,7 +113,7 @@ trait TestHelpers
      */
     public function login(string $email, string $password = '12345678'): void
     {
-        auth()->attempt([
+        auth('api')->attempt([
             'email'    => $email,
             'password' => $password,
         ]);
@@ -133,6 +133,6 @@ trait TestHelpers
         if (isset($type) && $type != 'none') {
             $this->user->assignRole($type);
         }
-        $this->be($this->user);
+        $this->be($this->user , 'api');
     }
 }

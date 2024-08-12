@@ -21,10 +21,7 @@
 
                         translatableInputs.forEach(function (input) {
                             const inputName = input.name;
-                            const inputId = input.id;
-                            const languageCode = inputName.match(/\[(.*?)]/)[
-                                1]; // Extract language code from input name
-
+                            const languageCode = inputName.match(/\[(.*?)]/)[1]; // Extract language code from input name
 
                             if (languageCode === selectedLanguage) {
                                 input.style.display =

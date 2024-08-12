@@ -55,18 +55,19 @@ trait NamingConventions
     }
 
     /**
-     * return the name based on name convention for routes for a given string if provided or to the model name if not provided
+     * return the name based on name convention for routes for a given string if provided or to the model name if not
+     * provided
      */
-    public function routeUrlNaming(?string $name = null, string $version = "v1", bool $withVersion = false): string
+    public function routeUrlNaming(?string $name = null): string
     {
-        $url = $name
+        return $name
             ? $this->lowerPluralKebabNaming($name)
             : $this->lowerPluralKebabNaming($this->usedString);
-        return $withVersion ? "$version/$url" : $url;
     }
 
     /**
-     * return the used name of the model for the route name for a given string if provided or to the model name if not provided
+     * return the used name of the model for the route name for a given string if provided or to the model name if not
+     * provided
      */
     public function routeNameNaming(?string $name = null): string
     {
@@ -76,9 +77,10 @@ trait NamingConventions
     }
 
     /**
-     * return the name based on name convention for relation functions in the models for a given string if provided or to the model name if not provided
+     * return the name based on name convention for relation functions in the models for a given string if provided or
+     * to the model name if not provided
      * @param string|null $name
-     * @param bool $singular
+     * @param bool        $singular
      * @return string
      */
     public function relationMethodNaming(?string $name = null, bool $singular = true): string
@@ -230,12 +232,12 @@ trait NamingConventions
         if (Str::contains($this->name, 'is_')) {
             $base = Str::replace('is_', '', $this->name);
             return [
-                'true' => Str::title($base),
-                'false' => 'Not' . Str::title($base)
+                'true'  => Str::title($base),
+                'false' => 'Not' . Str::title($base),
             ];
         } else return [
-            'true' => Str::title($this->name),
-            'false' => 'Not' . Str::title($this->name)
+            'true'  => Str::title($this->name),
+            'false' => 'Not' . Str::title($this->name),
         ];
     }
 }

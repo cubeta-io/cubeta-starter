@@ -140,7 +140,8 @@ trait StringsGenerator
                                 {
                                     method: \"GET\",
                                     headers: {
-                                        accept: \"application/json\",
+                                        \"Accept\": \"application/html\",
+                                        \"Content-Type\": \"application/html\"
                                     },
                                 }
                             ).then((res) => res.json())

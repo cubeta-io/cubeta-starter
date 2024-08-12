@@ -134,15 +134,17 @@ class ModelGenerator extends AbstractGenerator
             if ($relation->getModelPath()->exist()) {
                 if ($relation->isHasMany()) {
                     $relationsFunctions .= $this->hasManyFunction($relation);
+                    $properties .= "* @property  \Illuminate\Support\Collection<{$relation->modelName}>|\Illuminate\Database\Eloquent\Collection<{$relation->modelName}>|{$relation->modelName}[] {$relation->method()}\n";
                 }
 
                 if ($relation->isManyToMany()) {
                     $relationsFunctions .= $this->manyToManyFunction($relation, $relation->getPivotTableName());
+                    $properties .= "* @property  \Illuminate\Support\Collection<{$relation->modelName}>|\Illuminate\Database\Eloquent\Collection<{$relation->modelName}>|{$relation->modelName}[] {$relation->method()}\n";
                 }
             }
 
             if ($relation->isBelongsTo()) {
-                $properties .= "* @property {$relation->modelName} {$relation->method()}\n";
+                $properties .= "* @property  {$relation->modelName} {$relation->method()}\n";
 
                 if ($relatedTable && $relation->exists()) {
                     $relationName = $relation->relationMethodNaming();
@@ -155,10 +157,10 @@ class ModelGenerator extends AbstractGenerator
                 $exportables .= "'$exportedCol' , \n";
             }
 
-            if ($relation->loadable()) {
+            if ($relation->getModelPath()->exist()) {
                 if ($relatedTable) {
                     $relationsSearchable .=
-                        "'{$relation->method()}' => [\n{{$relatedTable->searchableColsAsString()}}\n//add your {$relation->method()} desired column to be search within\n] , \n";
+                        "'{$relation->method()}' => [\n{$relatedTable->searchableColsAsString()}\n//add your {$relation->method()} desired column to be search within\n] , \n";
                 } else {
                     $relationsSearchable .=
                         "'{$relation->method()}' => [\n//add your {$relation->method()} desired column to be search within\n] , \n";

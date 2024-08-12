@@ -33,7 +33,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             return;
         }
 
-        $routes = $this->getRoutesNames($this->table, $this->actor);
+        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
 
         $this->generateTypeScriptInterface($override);
 
@@ -197,7 +197,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 Settings::make()->getTable(Naming::model(str_replace('_id', '', $attribute->name)))
                 ?? CubeTable::create(Naming::model(str_replace('_id', '', $attribute->name)));
 
-            $dataRoute = $this->getRouteName($relatedModel, ContainerType::WEB, $this->actor) . '.data';
+            $dataRoute = $this->getRouteNames($relatedModel, ContainerType::WEB, $this->actor)["data"];
 
             if (
                 !$relatedModel?->getModelPath()->exist() //Category Path
@@ -301,7 +301,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $smallFields = "";
         $bigFields = "";
 
-        $routes = $this->getRoutesNames($this->table, $this->actor);
+        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $pageName = $this->table->viewNaming();
 
         $showPagePath = CubePath::make("resources/js/Pages/dashboard/$pageName/Show.tsx");
@@ -370,18 +370,19 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $indexPagePath = CubePath::make("resources/js/Pages/dashboard/$pageName/Index.tsx");
 
         $this->imports = "";
-        $routes = $this->getRoutesNames($this->table, $this->actor);
+        $dataTableColumns = $this->getDataTableColumns();
+        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $stubProperties = [
-            '{{modelName}}'          => $this->table->modelName,
-            "{{columns}}"            => $this->getDataTableColumns(),
             "{{imports}}"            => $this->imports,
+            "{{columns}}"            => $dataTableColumns,
+            '{{modelName}}'          => $this->table->modelName,
+            "{{modelVariable}}"      => $this->table->variableNaming(),
             "{{createRoute}}"        => $routes['create'],
             "{{dataRoute}}"          => $routes['data'],
-            "{{modelVariable}}"      => $this->table->variableNaming(),
             "{{indexRoute}}"         => $routes['index'],
             "{{importRoute}}"        => $routes['import'],
             "{{exportRoute}}"        => $routes['export'],
-            '{{importExampleRoute}}' => $routes['example'],
+            '{{importExampleRoute}}' => $routes['import_example'],
         ];
 
         if ($indexPagePath->exist()) {
@@ -451,7 +452,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $this->addImport('import { Link } from "@inertiajs/react";');
             $relatedModelAttribute = $relatedModel->titleable();
             $translatable = $relatedModelAttribute->isTranslatable() ? "translatable:true," : "";
-            $relatedModelShowRoute = $this->getRoutesNames($this->table, $this->actor)['show'];
+            $relatedModelShowRoute = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor)['show'];
             $columns .= "
             {
                 label: \"{$relatedModel->modelName} {$relatedModelAttribute->titleNaming()}\",

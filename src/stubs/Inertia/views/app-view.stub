@@ -20,7 +20,7 @@
         rel="stylesheet">
 </head>
 
-<body class="antialiased bg-white dark:bg-dark" >
+<body class="antialiased bg-white dark:bg-dark transition-all duration-300" >
     @inertia
 </body>
 

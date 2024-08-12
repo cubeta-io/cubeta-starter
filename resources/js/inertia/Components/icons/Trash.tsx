@@ -1,7 +1,5 @@
 import * as React from "react";
 
-interface ITrashProps {}
-
 const Trash: React.FunctionComponent<React.SVGAttributes<SVGSVGElement>> = ({
     className = "w-6 h-6",
     ...props

@@ -10,30 +10,6 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 trait WebGeneratorHelper
 {
     /**
-     * @return array{index:string, show:string, edit:string, destroy:string, store:string, create:string, data:string,
-     *                             update:string, base:string, export:string, import:string, example:string}
-     */
-    protected function getRoutesNames(CubeTable $model, ?string $actor = null): array
-    {
-        $baseRouteName = $this->getRouteName($model, ContainerType::WEB, $actor);
-
-        return [
-            'index'   => $baseRouteName . '.index',
-            'show'    => $baseRouteName . '.show',
-            'edit'    => $baseRouteName . '.edit',
-            'destroy' => $baseRouteName . '.destroy',
-            'store'   => $baseRouteName . '.store',
-            'create'  => $baseRouteName . '.create',
-            'data'    => $baseRouteName . '.data',
-            'update'  => $baseRouteName . '.update',
-            'export'  => $baseRouteName . '.export',
-            'import'  => $baseRouteName . '.import',
-            'example' => $baseRouteName . '.get.example',
-            'base'    => $baseRouteName,
-        ];
-    }
-
-    /**
      * @param CubeAttribute $attribute
      * @return string
      */

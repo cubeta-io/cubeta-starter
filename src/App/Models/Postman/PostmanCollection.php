@@ -11,13 +11,17 @@ use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestUrl;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Exception;
 use Illuminate\Support\Collection;
 
 class PostmanCollection implements PostmanObject
 {
+    use RouteBinding;
+
     public string $name;
 
     /** @var PostmanItem[] */
@@ -66,9 +70,7 @@ class PostmanCollection implements PostmanObject
             return $this;
         }
 
-        if ($actor) {
-            $baseUrl = "$version/$actor/{$table->routeUrlNaming(withVersion: true)}";
-        } else $baseUrl = $table->routeUrlNaming(withVersion: true);
+        $baseUrl = $this->getRouteUrls($table->modelName, ContainerType::API, $actor)["resource"];
 
         $index = new PostmanRequest(
             name: "index",

@@ -65,13 +65,13 @@ class CubeRelation
     {
         if ($this->key) {
             return json_encode([
-                "type" => $this->type,
+                "type"       => $this->type,
                 "model_name" => $this->modelName,
-                "key" => $this->key
+                "key"        => $this->key,
             ], JSON_PRETTY_PRINT);
         }
         return json_encode([
-            "type" => $this->type,
+            "type"       => $this->type,
             "model_name" => $this->modelName,
         ], JSON_PRETTY_PRINT);
     }
@@ -83,13 +83,13 @@ class CubeRelation
     {
         if ($this->key) {
             return [
-                "type" => $this->type,
+                "type"       => $this->type,
                 "model_name" => $this->modelName,
-                "key" => $this->key
+                "key"        => $this->key,
             ];
         }
         return [
-            "type" => $this->type,
+            "type"       => $this->type,
             "model_name" => $this->modelName,
         ];
     }
@@ -172,6 +172,23 @@ class CubeRelation
 
     public function getPivotTableName(): string
     {
-        return Naming::pivotTableNaming($this->modelName , $this->relatedModel);
+        return Naming::pivotTableNaming($this->modelName, $this->relatedModel);
+    }
+
+    public function loadableFromCurrentSide(): bool
+    {
+        $related = CubeTable::create($this->relatedModel);
+
+        return $this->getModelPath()->exist()
+            && ClassUtils::isMethodDefined($this->getModelPath(), $related->relationMethodNaming(singular: $this->isHasMany() || $this->isHasOne()));
+    }
+
+    public function loadableFromOtherSide(): bool
+    {
+        $related = CubeTable::create($this->relatedModel);
+        $relatedModelPath = $related->getModelPath();
+
+        return $relatedModelPath->exist()
+            && ClassUtils::isMethodDefined($relatedModelPath, $this->method());
     }
 }

@@ -19,12 +19,14 @@ use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 use JetBrains\PhpStorm\ArrayShape;
 
 class BladeViewsGenerator extends BladeControllerGenerator
 {
     use WebGeneratorHelper;
+    use RouteBinding;
 
     public static string $key = "views";
 
@@ -113,7 +115,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             return;
         }
 
-        $routes = $this->getRoutesNames($this->table, $this->actor);
+        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
 
         $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
         $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
@@ -193,7 +195,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
                     $model = CubeTable::create(Naming::model(str_replace('_id', '', $attribute->name)));
                     $relatedTable = Settings::make()->getTable($model->modelName);
                     $value = str_replace('_id', '', $value);
-                    $select2Route = $this->getRouteName($model, ContainerType::WEB, $this->actor) . '.allPaginatedJson';
+                    $select2Route = $this->getRouteNames($model, ContainerType::WEB, $this->actor)["all_paginated_json"];
                     if (!$model->getModelPath()->exist() || !$model->getWebControllerPath()->exist()) break;
                     if (!ClassUtils::isMethodDefined($model->getWebControllerPath(), 'allPaginatedJson')) break;
                     $inputs .=
@@ -326,7 +328,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
     public function generateIndexView(string $creatRoute, string $dataRoute, bool $override = false): void
     {
         $dataColumns = $this->generateDataTableColumns();
-        $routes = $this->getRoutesNames($this->table, $this->actor);
+        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
 
         $stubProperties = [
             '{modelName}'              => $this->table->modelName,
@@ -336,7 +338,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             '{dataTableDataRouteName}' => $dataRoute,
             '{exportRoute}'            => $routes['export'],
             '{importRoute}'            => $routes['import'],
-            '{exampleRoute}'           => $routes['example'],
+            '{exampleRoute}'           => $routes['import_example'],
             '{modelClassName}'         => $this->table->getModelClassString(),
         ];
 

@@ -20,7 +20,6 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use JetBrains\PhpStorm\ArrayShape;
 
 trait RouteBinding
 {
@@ -52,10 +51,10 @@ trait RouteBinding
      * @param string      $version
      * @return void
      */
-    public function addRoute(CubeTable $table, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = [], string $version = 'v1'): void
+    public function addRoute(CubeTable $table, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = []): void
     {
+        $version = config('cubeta-starter.version', 'v1');
         $isWeb = ContainerType::isWeb($container);
-        $pluralLowerModelName = $table->routeUrlNaming(withVersion: !$isWeb);
 
         $routePath = $this->getRouteFilePath($container, $actor, $version);
 
@@ -63,26 +62,26 @@ trait RouteBinding
             $this->addRouteFile($actor, $container, $version);
         }
 
-        $routeName = $this->getRouteName($table, $container, $actor);
-
         $controllerName = $table->getControllerName();
 
         if ($isWeb) {
-            $routes = $this->addAdditionalRoutesForAdditionalControllerMethods($table, $routeName, $additionalRoutes, $version);
-            $routes[] = "Route::get('dashboard/{$pluralLowerModelName}/data', [{$version}\\{$controllerName}::class, 'data'])->name('{$routeName}.data');";
-            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export' , [{$version}\\{$controllerName}::class , 'export'])->name('$routeName.export');";
-            $routes[] = "Route::get('dashboard/$pluralLowerModelName/get-import-example', [{$version}\\{$controllerName}::class, 'getImportExample'])->name('$routeName.get.example');";
-            $routes[] = "Route::post('dashboard/$pluralLowerModelName/import', [{$version}\\{$controllerName}::class, 'import'])->name('$routeName.import');";
-            $routes[] = "Route::post('dashboard/$pluralLowerModelName/export', [{$version}\\{$controllerName}::class, 'export'])->name('$routeName.export');";
-            $routes[] = "Route::Resource('dashboard/{$pluralLowerModelName}' , {$version}\\{$controllerName}::class)->names('{$routeName}') ;";
+            $routeNames = $this->getRouteNames($table, ContainerType::WEB, $actor);
+            $routeUrls = $this->getRouteUrls($table->modelName, ContainerType::WEB, $actor);
+            $routes = $this->addAdditionalRoutesForAdditionalControllerMethods($table, $actor, $additionalRoutes, $version);
+            $routes[] = "Route::get('{$routeUrls["data_table"]}', [{$version}\\{$controllerName}::class, 'data'])->name('{$routeNames["data"]}');";
+            $routes[] = "Route::post('{$routeUrls["export"]}' , [{$version}\\{$controllerName}::class , 'export'])->name('{$routeNames["export"]}');";
+            $routes[] = "Route::get('{$routeUrls["import_example"]}', [{$version}\\{$controllerName}::class, 'getImportExample'])->name('{$routeNames["import_example"]}');";
+            $routes[] = "Route::post('{$routeUrls["import"]}', [{$version}\\{$controllerName}::class, 'import'])->name('{$routeNames["import"]}');";
+            $routes[] = "Route::Resource('{$routeUrls["resource"]}' , {$version}\\{$controllerName}::class)->names('{$routeNames["resource"]}') ;";
 
             $importStatement = 'use ' . config('cubeta-starter.web_controller_namespace') . "\\$version" . ';';
         } else {
-            $sub = ($actor && $actor != 'none') ? "$actor/" : '';
-            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/export', [{$version}\\{$controllerName}::class, 'export'])->name('$routeName.export');";
-            $routes[] = "Route::post('/{$sub}{$pluralLowerModelName}/import', [{$version}\\{$controllerName}::class, 'import'])->name('$routeName.import');";
-            $routes[] = "Route::get('/{$sub}{$pluralLowerModelName}/get-import-example', [{$version}\\{$controllerName}::class, 'getImportExample'])->name('$routeName.get.example');";
-            $routes[] = "Route::apiResource('/{$sub}{$pluralLowerModelName}' , {$version}\\{$controllerName}::class)->names('$routeName') ;\n";
+            $routeNames = $this->getRouteNames($table, ContainerType::API, $actor);
+            $routeUrls = $this->getRouteUrls($table->modelName, ContainerType::API, $actor);
+            $routes[] = "Route::post('{$routeUrls["export"]}', [{$version}\\{$controllerName}::class, 'export'])->name('{$routeNames["export"]}');";
+            $routes[] = "Route::post('{$routeUrls["import"]}', [{$version}\\{$controllerName}::class, 'import'])->name('{$routeNames["import"]}');";
+            $routes[] = "Route::get('{$routeUrls["import_example"]}', [{$version}\\{$controllerName}::class, 'getImportExample'])->name('{$routeNames["import_example"]}');";
+            $routes[] = "Route::apiResource('{$routeUrls["resource"]}' , {$version}\\{$controllerName}::class)->names('{$routeNames["resource"]}') ;\n";
 
             $importStatement = 'use ' . config('cubeta-starter.api_controller_namespace') . "\\$version" . ';';
         }
@@ -268,19 +267,20 @@ trait RouteBinding
 
     /**
      * @param CubeTable $table
-     * @param string    $routeName
+     * @param string    $actor
      * @param array     $additionalRoutes
      * @param string    $version
      * @return array
      */
-    public function addAdditionalRoutesForAdditionalControllerMethods(CubeTable $table, string $routeName, array $additionalRoutes = [], string $version = 'v1'): array
+    public function addAdditionalRoutesForAdditionalControllerMethods(CubeTable $table, ?string $actor = null, array $additionalRoutes = [], string $version = 'v1'): array
     {
         $version = config('cubeta-starter.version');
-        $pluralLowerModelName = $table->routeUrlNaming();
         $routes = [];
 
         if (in_array('allPaginatedJson', $additionalRoutes)) {
-            $routes[] = "Route::get(\"$version/dashboard/{$pluralLowerModelName}/all-paginated-json\", [{$version}\\{$table->modelNaming()}" . "Controller::class, \"allPaginatedJson\"])->name(\"{$routeName}.allPaginatedJson\");";
+            $url = $this->getRouteUrls($table->modelName, ContainerType::WEB)['all_paginated_json'];
+            $routeName = $this->getRouteNames($table, ContainerType::WEB, $actor)["all_paginated_json"];
+            $routes[] = "Route::get(\"$url\", [{$version}\\{$table->getControllerName()}" . "::class, \"allPaginatedJson\"])->name(\"{$routeName}\");";
         }
 
         return $routes;
@@ -429,6 +429,98 @@ trait RouteBinding
             return "Route::inertia('/$version/dashboard/', 'dashboard/Index')->name('$name');";
         } else {
             return "Route::view('/$version/dashboard' , 'dashboard.index')->name('$name');";
+        }
+    }
+
+    /**
+     * @param string      $modelName
+     * @param string      $container
+     * @param string|null $actor
+     * @return array{
+     *     data_table:string ,export:string,import_example:string,import:string,
+     *     resource:string,store:string,create:string,update:string,edit:string,
+     *     show:string,delete:string,index:string,all_paginated_json:string
+     * }
+     */
+    public function getRouteUrls(string $modelName, string $container, ?string $actor = null): array
+    {
+        $version = config('cubeta-starter.version', "v1");
+        $actor = $actor && $actor != 'none' ? "/$actor" : "";
+        $modelRouteName = CubeTable::create($modelName)->routeUrlNaming();
+        $idVariable = Str::camel($modelRouteName) . "Id";
+
+        if (ContainerType::isWeb($container)) {
+            return [
+                'data_table'         => "/$version/dashboard$actor/$modelRouteName/data",
+                'export'             => "/$version/dashboard$actor/$modelRouteName/export",
+                'import_example'     => "/$version/dashboard$actor/$modelRouteName/get-import-example",
+                'import'             => "/$version/dashboard$actor/$modelRouteName/import",
+                'resource'           => "/$version/dashboard$actor/$modelRouteName",
+                "store"              => "/$version/dashboard$actor/$modelRouteName",
+                "create"             => "/$version/dashboard$actor/$modelRouteName/create",
+                "update"             => "/$version/dashboard$actor/$modelRouteName/$idVariable",
+                'edit'               => "/$version/dashboard$actor/$modelRouteName/$idVariable/edit",
+                'show'               => "/$version/dashboard$actor/$modelRouteName/$idVariable",
+                'delete'             => "/$version/dashboard$actor/$modelRouteName/$idVariable/delete",
+                "index"              => "/$version/dashboard$actor/$modelRouteName",
+                "all_paginated_json" => "/$version/dashboard$actor/{$modelRouteName}/all-paginated-json",
+            ];
+        } else {
+            return [
+                'export'         => "/{$version}{$actor}/$modelRouteName/export",
+                'import_example' => "/{$version}{$actor}/$modelRouteName/get-import-example",
+                'import'         => "/{$version}{$actor}/$modelRouteName/import",
+                'resource'       => "/{$version}{$actor}/$modelRouteName",
+                "store"          => "/{$version}{$actor}/$modelRouteName",
+                "update"         => "/{$version}{$actor}/$modelRouteName/$idVariable",
+                'show'           => "/{$version}{$actor}/$modelRouteName/$idVariable",
+                'delete'         => "/{$version}{$actor}/$modelRouteName/$idVariable/delete",
+                "index"          => "/{$version}{$actor}/$modelRouteName",
+            ];
+        }
+    }
+
+    /**
+     * @param CubeTable   $table
+     * @param string      $container
+     * @param string|null $actor
+     * @return array{
+     *     data:string, export:string, import:string, import_example:string, index:string, store:string,
+     *     create:string, update:string, edit:string, show:string, delete:string,
+     *     all_paginated_json:string,resource:string
+     * }
+     */
+    public function getRouteNames(CubeTable $table, string $container, ?string $actor = null): array
+    {
+        $base = $this->getRouteName($table, $container, $actor);
+        if (ContainerType::isApi($container)) {
+            return [
+                'export'         => "$base.export",
+                'import'         => "$base.import",
+                'import_example' => "$base.import.get.example",
+                "index"          => "$base.index",
+                "store"          => "$base.store",
+                "update"         => "$base.update",
+                "show"           => "$base.show",
+                "delete"         => "$base.destroy",
+                "resource"       => $base,
+            ];
+        } else {
+            return [
+                "data"               => "$base.data",
+                'export'             => "$base.export",
+                'import'             => "$base.import",
+                'import_example'     => "$base.get.example",
+                "index"              => "$base.index",
+                "store"              => "$base.store",
+                "create"             => "$base.create",
+                "update"             => "$base.update",
+                "edit"               => "$base.edit",
+                "show"               => "$base.show",
+                "delete"             => "$base.destroy",
+                "all_paginated_json" => "$base.allPaginatedJson",
+                "resource"           => $base,
+            ];
         }
     }
 }

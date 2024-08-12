@@ -49,7 +49,7 @@ class BladeControllerGenerator extends AbstractGenerator
 
         $controllerPath->ensureDirectoryExists();
 
-        $routesNames = $this->getRoutesNames($this->table, $this->actor);
+        $routesNames = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $views = $this->getViewsNames($this->table, $this->actor);
 
         $addColumns = $this->getAdditionalColumns();
@@ -97,7 +97,7 @@ class BladeControllerGenerator extends AbstractGenerator
         CodeSniffer::make()
             ->setModel($this->table)
             ->checkForWebRelations(
-                $this->getRouteName($this->table, ContainerType::WEB, $this->actor) . '.allPaginatedJson'
+                $this->getRouteNames($this->table, ContainerType::WEB, $this->actor)["all_paginated_json"]
             );
     }
 
@@ -116,7 +116,7 @@ class BladeControllerGenerator extends AbstractGenerator
                     continue;
                 }
 
-                $showRouteName = $this->getRoutesNames($relatedModel, $this->actor)['show'];
+                $showRouteName = $this->getRouteNames($relatedModel, ContainerType::WEB, $this->actor)['show'];
 
                 if (!Route::has($showRouteName)) {
                     continue;
