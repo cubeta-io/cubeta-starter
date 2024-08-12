@@ -66,8 +66,13 @@ class AuthInstaller extends AbstractGenerator
             $this->generateWebAuthRoutes();
             $this->generateAuthViews($override);
 
-            $this->addRouteToNavbarDropdown("user-details", $this->protectedRoutes['user-details']);
-            $this->addRouteToNavbarDropdown("logout", $this->protectedRoutes['logout']);
+            if ($this->frontType == FrontendTypeEnum::REACT_TS) {
+                $this->addRouteToReactTsProfileDropdown("logout", $this->protectedRoutes['logout']);
+                $this->addRouteToReactTsProfileDropdown("user-details", $this->protectedRoutes['user-details']);
+            } else {
+                $this->addRouteToBladeNavbarDropdown("user-details", $this->protectedRoutes['user-details']);
+                $this->addRouteToBladeNavbarDropdown("logout", $this->protectedRoutes['logout']);
+            }
 
             if ($envParser && !$envParser->hasValue("APP_KEY")) {
                 FileUtils::executeCommandInTheBaseDirectory("php artisan key:generate");
@@ -551,7 +556,7 @@ class AuthInstaller extends AbstractGenerator
         return false;
     }
 
-    public function addRouteToNavbarDropdown(string $tagId, string $routeName): void
+    public function addRouteToBladeNavbarDropdown(string $tagId, string $routeName): void
     {
         $navbarPath = CubePath::make("resources/views/includes/navbar.blade.php");
         if (!$navbarPath->exist()) {
@@ -574,6 +579,39 @@ class AuthInstaller extends AbstractGenerator
             }
         }, $navbarContent);
         $navbarPath->putContent($navbarContent);
+    }
+
+    public function addRouteToReactTsProfileDropdown(string $tagId, string $routeName): void
+    {
+        $dropDownPath = CubePath::make("resources/js/Components/ui/ProfileDropDown.tsx");
+        if (!$dropDownPath->exist()) {
+            CubeLog::add(new NotFound($dropDownPath->fullPath, "Adding auth routes to navbar dropdown"));
+            return;
+        }
+        $dropDownContent = $dropDownPath->getContent();
+        $idTagPattern = FileUtils::getReactComponentPropPatterns('id', $tagId);
+        $pattern = '#<\s*Link\s*[^>]*\s*' . $idTagPattern . '\s*[^>]*\s*>#s';
+
+        if (preg_match($pattern, $dropDownContent, $matches)) {
+            $linkTag = $matches[0];
+            $hrefPattern = '#' . FileUtils::getReactComponentPropPatterns('href') . '#s';
+            if (preg_match($hrefPattern, $linkTag, $hrefMatches)) {
+                $linkTag = preg_replace_callback($hrefPattern, function () use ($routeName) {
+                    return " href={route('$routeName')} ";
+                }, $linkTag);
+                $dropDownContent = str_replace($matches[0], $linkTag, $dropDownContent);
+                $dropDownPath->putContent($dropDownContent);
+                CubeLog::add(new ContentAppended("route('$routeName')", $dropDownPath->fullPath));
+                return;
+            } else {
+                $dropDownContent = str_replace($linkTag, str_replace('>', " href={route('$routeName')} >", $linkTag), $dropDownContent);
+                $dropDownPath->putContent($dropDownContent);
+                CubeLog::add(new ContentAppended("href={route('$routeName')}", $dropDownPath->fullPath));
+                return;
+            }
+        }
+
+        CubeLog::add(new FailedAppendContent("href={route('$routeName')}", $dropDownPath->fullPath), "Adding auth routes to navbar dropdown");
     }
 
     private function initializeJwt(): void

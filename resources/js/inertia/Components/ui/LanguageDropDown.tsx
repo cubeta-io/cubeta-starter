@@ -1,24 +1,38 @@
-import { useState } from "react";
-import { usePage } from "@inertiajs/react";
-import { MiddlewareProps } from "@/types";
-import { AvailableLocales } from "@/Models/Translatable";
+import {useEffect, useRef, useState} from "react";
+import {usePage} from "@inertiajs/react";
+import {MiddlewareProps} from "@/types";
+import {AvailableLocales} from "@/Models/Translatable";
 
 const LanguageDropdown = () => {
-    const { currentLocale, availableLocales, csrfToken } =
+    const {currentLocale, availableLocales, csrfToken} =
         usePage<MiddlewareProps>().props;
     const [open, setOpen] = useState(false);
     const [selectedLocale, setSelectedLocale] = useState<
         string | AvailableLocales
     >(currentLocale as string);
 
+    const selectorRef = useRef<HTMLDivElement>(null);
+
+    const handleClickOutside = (event: MouseEvent) => {
+        if (selectorRef.current && !selectorRef.current.contains(event.target as Node)) {
+            setOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
     return (
-        <div className="relative w-auto">
+        <div ref={selectorRef} className="relative w-auto cursor-pointer">
             <div
                 className="inline-flex items-center bg-white-secondary dark:bg-dark-secondary rounded-md overflow-hidden"
                 onClick={() => setOpen((prevState) => !prevState)}
             >
-                <a
-                    href="#"
+                <div
                     className="flex bg-primary p-2 text-sm/none text-white"
                 >
                     {selectedLocale as string}
@@ -34,7 +48,7 @@ const LanguageDropdown = () => {
                             clipRule="evenodd"
                         />
                     </svg>
-                </a>
+                </div>
             </div>
 
             <div

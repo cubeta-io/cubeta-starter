@@ -453,4 +453,15 @@ class FileUtils
         $stub = file_get_contents($stubPath);
         return str_replace($search, $replace, $stub);
     }
+
+    public static function getReactComponentPropPatterns(string $propName, ?string $value = null): string
+    {
+        $value = $value != null ? $value : '[^>]*';
+        return '((' . $propName . '\s*=\s*{\s*\'\s*' . $value . '\s*\'\s*})|('
+            . $propName . '\s*=\s*{\s*"\s*' . $value . '\s*"\s*})|('
+            . $propName . '\s*=\s*{\s*`\s*' . $value . '\s*`\s*})|('
+            . $propName . '\s*=\s*{\s*' . $value . '\s*})|('
+            . $propName . '\s*=\s*\'\s*' . $value . '\s*\'\s*)|('
+            . $propName . '\s*=\s*"\s*' . $value . '\s*"\s*))';
+    }
 }
