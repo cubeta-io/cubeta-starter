@@ -36,7 +36,8 @@ const Index = ({exportables}:{exportables:string[]}) => {
                     {
                         method: "GET",
                         headers: {
-                            accept: "application/json",
+                            accept: "application/html",
+                            "Content-Type": "application/html"
                         },
                     }
                 ).then((res) => res.json())
