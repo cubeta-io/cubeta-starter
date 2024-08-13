@@ -40,8 +40,9 @@ class WebInstaller extends AbstractGenerator
             MiddlewareArrayGroupEnum::ALIAS,
             "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware;"
         );
-        $this->generateSidebar($override);
         $this->generateHomePage($override);
+        $this->addIndexPageRoute($this->version, FrontendTypeEnum::BLADE);
+        $this->generateSidebar($override);
         FileUtils::registerProvider("App\\Providers\\CubetaStarterServiceProvider::class");
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::BLADE->value));
         Settings::make()->setInstalledWeb();
@@ -59,25 +60,19 @@ class WebInstaller extends AbstractGenerator
             $override,
             CubePath::stubPath('views/home.stub')
         );
-
-        $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "protected", $this->version);
-        $content = $publicRoutFilePath->getContent();
-        $route = $this->getWebIndexPageRoute("protected", FrontendTypeEnum::BLADE);
-        if (!FileUtils::contentExistInFile($publicRoutFilePath, $route)) {
-            $content .= "\n$route\n";
-        } else {
-            return;
-        }
-
-        $publicRoutFilePath->putContent($content);
-        $publicRoutFilePath->format();
     }
 
     private function generateSidebar(bool $override): void
     {
+        if (Settings::make()->installedAuth()) {
+            $route = $this->getWebIndexPageRoute(actor: "protected", justName: true);
+        } else {
+            $route = $this->getWebIndexPageRoute(actor: "public", justName: true);
+        }
+
         $this->generateFileFromStub(
             [
-                '{{index-route}}' => $this->getWebIndexPageRoute(actor: 'protected', justName: true),
+                '{{index-route}}' => $route,
             ],
             CubePath::make('resources/views/includes/sidebar.blade.php')->fullPath,
             $override,

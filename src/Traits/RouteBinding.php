@@ -523,4 +523,25 @@ trait RouteBinding
             ];
         }
     }
+
+    public function addIndexPageRoute(string $version, FrontendTypeEnum $frontendStack = FrontendTypeEnum::BLADE): void
+    {
+        $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "protected" , $version);
+        $content = $publicRoutFilePath->getContent();
+
+        if (Settings::make()->installedAuth()) {
+            $route = $this->getWebIndexPageRoute("protected", $frontendStack);
+        } else {
+            $route = $this->getWebIndexPageRoute("public", $frontendStack);
+        }
+
+        if (!FileUtils::contentExistInFile($publicRoutFilePath, $route)) {
+            $content .= "\n$route\n";
+        } else {
+            return;
+        }
+
+        $publicRoutFilePath->putContent($content);
+        $publicRoutFilePath->format();
+    }
 }

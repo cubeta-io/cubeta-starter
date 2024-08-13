@@ -30,9 +30,10 @@ use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 
-class CallAppropriateCommand extends Controller
+class GeneratorController extends Controller
 {
     public Request $request;
     private mixed $actor;
@@ -42,9 +43,27 @@ class CallAppropriateCommand extends Controller
     private mixed $nullables;
     private mixed $relations;
     private mixed $uniques;
+    private bool $installedWeb;
+    private bool $installedApi;
+    private ?string $validContainer = null;
 
     public function __construct(Request $request)
     {
+        $this->installedApi = Settings::make()->installedApi();
+        $this->installedWeb = Settings::make()->installedWeb();
+
+        if ($this->installedApi && $this->installedWeb) {
+            $this->validContainer = ContainerType::BOTH;
+        }
+
+        if ($this->installedApi && !$this->installedWeb) {
+            $this->validContainer = ContainerType::API;
+        }
+
+        if ($this->installedWeb && !$this->installedApi) {
+            $this->validContainer = ContainerType::WEB;
+        }
+
         $this->request = $request;
         $this->modelName = $request->model_name;
         $this->relations = $this->configureRequestArray($request->relations);
@@ -63,37 +82,7 @@ class CallAppropriateCommand extends Controller
             return [];
         }
 
-        return collect($array)->mapWithKeys(fn($item) => [$item['name'] => $item['type']])->toArray();
-    }
-
-    public function generateActors(Request $request)
-    {
-        $roles = $request->roles ?? [];
-        $authenticated = $request->authenticated ?? [];
-
-        $result = $this->convertRolesPermissionsToArray($roles);
-
-        if (!$result) {
-            return redirect()->route('cubeta-starter.generate-add-actor.page', ['error' => 'Invalid Role Name']);
-        }
-
-        $rolesPermissions = $result['rolesPermissions'];
-        $roleContainer = $result['roleContainer'];
-
-        //TODO::CHECK HERE
-        (new GeneratorFactory(PermissionsInstaller::$key))->make();
-
-        foreach ($rolesPermissions as $role => $permissions) {
-            (new ActorFilesGenerator(
-                $role,
-                $permissions,
-                in_array($role, $authenticated),
-                $roleContainer[$role],
-                $this->version
-            ))->run();
-        }
-
-        return $this->handleLogs('cubeta-starter.generate-add-actor.page', "New Roles Added");
+        return collect($array)->mapWithKeys(fn ($item) => [$item['name'] => $item['type']])->toArray();
     }
 
     private function convertRolesPermissionsToArray(array $rolesPermissionArray = [])
@@ -133,24 +122,6 @@ class CallAppropriateCommand extends Controller
         return redirect()->route($redirectRouteName, ['success' => $successMessage]);
     }
 
-    public function fullGeneration()
-    {
-        return $this->runFactory([
-            "key" => "all",
-            "route" => 'cubeta-starter.generate-full.page',
-        ], "A Full CRUD Operation Has Been Created");
-    }
-
-    public function generateApiController()
-    {
-        $factoryData = [
-            'key' => ApiControllerGenerator::$key,
-            'route' => 'cubeta-starter.generate-api-controller.page',
-        ];
-
-        return $this->runFactory($factoryData, "Api Controller Created Successfully");
-    }
-
     public function runFactory(array $factoryData, string $successMessage)
     {
         set_time_limit(0);
@@ -183,11 +154,11 @@ class CallAppropriateCommand extends Controller
             }
 
             if (isset($this->nullables) && count($this->nullables) > 0) {
-                $arguments['nullables'] = array_map(fn($nullable) => Naming::column($nullable), $this->nullables);
+                $arguments['nullables'] = array_map(fn ($nullable) => Naming::column($nullable), $this->nullables);
             }
 
             if (isset($this->uniques) && count($this->uniques) > 0) {
-                $arguments['uniques'] = array_map(fn($unique) => Naming::column($unique), $this->uniques);
+                $arguments['uniques'] = array_map(fn ($unique) => Naming::column($unique), $this->uniques);
             }
 
             if (isset($this->actor)) {
@@ -231,151 +202,81 @@ class CallAppropriateCommand extends Controller
         }
     }
 
-    public function generateFactory()
+
+    public function generateActors(Request $request)
     {
-        $factoryData = [
-            'key' => FactoryGenerator::$key,
-            'route' => 'cubeta-starter.generate-factory.page',
-        ];
+        $roles = $request->roles ?? [];
+        $authenticated = $request->authenticated ?? [];
 
-        return $this->runFactory($factoryData, "New Factory Generated Successfully");
-    }
+        $result = $this->convertRolesPermissionsToArray($roles);
 
-    public function generateMigration()
-    {
-        $factoryData = [
-            'key' => MigrationGenerator::$key,
-            'route' => 'cubeta-starter.generate-migration.page',
-        ];
-
-        return $this->runFactory($factoryData, "New Migration Generated Successfully");
-    }
-
-    public function generateModel()
-    {
-        $factoryData = [
-            'key' => ModelGenerator::$key,
-            'route' => 'cubeta-starter.generate-full.page',
-        ];
-
-        return $this->runFactory($factoryData, "New Model generated Successfully");
-    }
-
-    public function generateRepository()
-    {
-        $factoryData = [
-            'key' => RepositoryGenerator::$key,
-            'route' => 'cubeta-starter.generate-repository.page',
-        ];
-
-        return $this->runFactory($factoryData, "New Repository Class Generated Successfully");
-    }
-
-    public function generateRequest()
-    {
-        $factoryData = [
-            'key' => RequestGenerator::$key,
-            'route' => 'cubeta-starter.generate-request.page',
-        ];
-
-        return $this->runFactory($factoryData, "New Form Request Generated Successfully");
-    }
-
-    public function generateResource()
-    {
-        $factoryData = [
-            'key' => ResourceGenerator::$key,
-            'route' => 'cubeta-starter.generate-resource.page',
-        ];
-
-        return $this->runFactory($factoryData, "New Resource Generated Successfully");
-    }
-
-    public function generateSeeder()
-    {
-        $factoryData = [
-            'key' => SeederGenerator::$key,
-            'route' => 'cubeta-starter.generate-seeder.page',
-        ];
-
-        return $this->runFactory($factoryData, "New Seeder Generated Successfully");
-    }
-
-    public function generateService()
-    {
-        $factoryData = [
-            'key' => ServiceGenerator::$key,
-            'route' => 'cubeta-starter.generate-service.page',
-        ];
-
-        return $this->runFactory($factoryData, "New Service Class And Its Interface Generated Successfully");
-    }
-
-    public function generateTest()
-    {
-        $factoryData = [
-            'key' => TestGenerator::$key,
-            'route' => 'cubeta-starter.generate-test.page',
-        ];
-
-        return $this->runFactory($factoryData, "New Test For Api Controller Generated Successfully");
-    }
-
-    public function generateWebController()
-    {
-        $factoryData = [
-            'key' => BladeControllerGenerator::$key,
-            'route' => 'cubeta-starter.generate-web-controller.page',
-        ];
-
-        return $this->runFactory($factoryData, "New Web Controller With Related Views Generated Successfully");
-    }
-
-    public function installWebPackages()
-    {
-        (new GeneratorFactory(BladePackagesInstaller::$key))->make();
-        return $this->handleLogs("cubeta-starter.complete-installation", "Web Packages Installed Successfully");
-    }
-
-    public function installAuth(string $container = ContainerType::BOTH)
-    {
-        (new GeneratorFactory(AuthInstaller::$key))->make(generatedFor: $container , override: true);
-        return $this->handleLogs("cubeta-starter.generate-add-actor.page", "Authentication Tools Prepared Successfully");
-    }
-
-    public function installApi()
-    {
-        (new GeneratorFactory(ApiInstaller::$key))->make(override: true);
-        return $this->handleLogs("cubeta-starter.complete-installation", "Api Based Usage Tools Generated Successfully");
-    }
-
-    public function installWeb()
-    {
-        (new GeneratorFactory(WebInstaller::$key))->make(override: true);
-        return $this->handleLogs('cubeta-starter.complete-installation', "Web Based Usage Tools Generated Successfully");
-    }
-
-    public function installReactTs()
-    {
-        (new GeneratorFactory(ReactTSInertiaInstaller::$key))->make(override: true);
-        return $this->handleLogs("cubeta-starter.complete-installation", "React Frontend Stack Tools Has Been Installed");
-    }
-
-    public function installReactTsPackages()
-    {
-        (new GeneratorFactory(ReactTsPackagesInstaller::$key))->make();
-        return $this->handleLogs("cubeta-starter.complete-installation", "React , Typescript Packages Has Been Installed");
-    }
-
-    public function choseFrontendStack(Request $request)
-    {
-        $stack = FrontendTypeEnum::tryFrom($request->input('stack'));
-
-        if (!$stack) {
-            return redirect()->back();
+        if (!$result) {
+            return redirect()->route('cubeta-starter.generate-add-actor.page', ['error' => 'Invalid Role Name']);
         }
 
-        Settings::make()->setFrontendType($stack);
+        $rolesPermissions = $result['rolesPermissions'];
+        $roleContainer = $result['roleContainer'];
+
+        //TODO::CHECK HERE
+        (new GeneratorFactory(PermissionsInstaller::$key))->make();
+
+        foreach ($rolesPermissions as $role => $permissions) {
+            (new ActorFilesGenerator(
+                $role,
+                $permissions,
+                in_array($role, $authenticated),
+                $roleContainer[$role],
+                $this->version
+            ))->run();
+        }
+
+        return $this->handleLogs('cubeta-starter.generate-add-actor.page', "New Roles Added");
+    }
+
+    public function settingsHandler(Request $request)
+    {
+        set_time_limit(0);
+        $data = $this->prepareValues($request->all());
+        foreach ($data as $item) {
+            if (isset($data['api']) && $data['api']) {
+                (new GeneratorFactory(ApiInstaller::$key))->make();
+            }
+
+            if (isset($data['web']) && $data['web']) {
+                if (isset($data['frontend_stack']) && FrontendTypeEnum::tryFrom($data['frontend_stack']) == FrontendTypeEnum::BLADE) {
+                    (new GeneratorFactory(WebInstaller::$key))->make();
+                    (new GeneratorFactory(BladePackagesInstaller::$key))->make();
+                } elseif (isset($data['frontend_stack']) && FrontendTypeEnum::tryFrom($data['frontend_stack']) == FrontendTypeEnum::REACT_TS) {
+                    (new GeneratorFactory(ReactTsPackagesInstaller::$key))->make();
+                    (new GeneratorFactory(ReactTSInertiaInstaller::$key))->make();
+                }
+            }
+
+            if (isset($data['auth']) && $data['auth'] && $this->validContainer) {
+                (new GeneratorFactory(AuthInstaller::$key))->make(generatedFor: $this->validContainer);
+            }
+
+            if (isset($data['permissions']) && $data['permissions']) {
+                (new GeneratorFactory(PermissionsInstaller::$key))->make();
+            }
+        }
+
         return redirect()->back();
+    }
+
+    public function addActor(Request $request)
+    {
+        dd($request->all());
+    }
+
+    private function prepareValues(array $data = [])
+    {
+        foreach ($data as $key => $value) {
+            if ($data[$key] == "true") {
+                $data[$key] = true;
+            }
+        }
+
+        return $data;
     }
 }

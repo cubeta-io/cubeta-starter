@@ -78,7 +78,7 @@ class BladeControllerGenerator extends AbstractGenerator
             '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns(),
             '{additionalMethods}'       => $this->additionalControllerMethods(),
             '{loadedRelations}'         => $loadedRelations,
-            '{baseRouteName}'           => $routesNames['base'],
+            '{baseRouteName}'           => $routesNames['resource'],
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);

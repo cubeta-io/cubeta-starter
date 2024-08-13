@@ -5,19 +5,22 @@
         "build": "vite build"
     },
     "devDependencies": {
+        "axios": "^1.1.2",
         "baguettebox.js": "^1.11.1",
         "bootstrap": "^5.2.3",
         "datatables.net-fixedcolumns-bs5": "^4.3.0",
         "datatables.net-fixedheader-bs5": "^3.4.0",
         "jquery": "^3.7.1",
         "laravel-datatables-vite": "^0.5.2",
+        "laravel-vite-plugin": "^0.7.2",
         "sass": "^1.72.0",
         "select2": "^4.1.0-rc.0",
         "select2-bootstrap-5-theme": "^1.3.0",
         "sweetalert2": "^11.6.13",
         "tinymce": "^6.7.3",
-        "axios": "^1.1.2",
-        "laravel-vite-plugin": "^0.7.2",
         "vite": "^4.0.0"
+    },
+    "dependencies": {
+        "bootstrap-icons": "^1.11.3"
     }
 }

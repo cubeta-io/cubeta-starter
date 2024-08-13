@@ -42,8 +42,9 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             "use App\\Http\\Middleware\\HandleInertiaRequests ;"
         );
 
-        $this->generateSidebar($override);
         $this->generateHomePage($override);
+        $this->addIndexPageRoute($this->version, FrontendTypeEnum::REACT_TS);
+        $this->generateSidebar($override);
 
         Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
         Settings::make()->setInstalledWeb();
@@ -88,18 +89,6 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             $override,
             CubePath::stubPath('Inertia/pages/dashboard.stub')
         );
-
-        $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "protected", $this->version);
-        $content = $publicRoutFilePath->getContent();
-        $route = $this->getWebIndexPageRoute("protected", FrontendTypeEnum::REACT_TS);
-        if (!FileUtils::contentExistInFile($publicRoutFilePath, $route)) {
-            $content .= "\n$route\n";
-        } else {
-            return;
-        }
-
-        $publicRoutFilePath->putContent($content);
-        $publicRoutFilePath->format();
     }
 
     private function generateSidebar(bool $override): void
