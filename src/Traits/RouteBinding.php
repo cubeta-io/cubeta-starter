@@ -526,14 +526,15 @@ trait RouteBinding
 
     public function addIndexPageRoute(string $version, FrontendTypeEnum $frontendStack = FrontendTypeEnum::BLADE): void
     {
-        $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "protected" , $version);
-        $content = $publicRoutFilePath->getContent();
-
         if (Settings::make()->installedAuth()) {
+            $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "protected" , $version);
             $route = $this->getWebIndexPageRoute("protected", $frontendStack);
         } else {
+            $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "public" , $version);
             $route = $this->getWebIndexPageRoute("public", $frontendStack);
         }
+
+        $content = $publicRoutFilePath->getContent();
 
         if (!FileUtils::contentExistInFile($publicRoutFilePath, $route)) {
             $content .= "\n$route\n";

@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class Authenticate
 {
-    use RestTrait;
-
     /**
      * Handle an incoming request.
      *
@@ -21,7 +19,12 @@ class Authenticate
     {
         if ($request->expectsJson()) {
             if (!auth('api')?->user()) {
-                return $this->apiResponse(null, ApiController::STATUS_UNAUTHORIZED, __('site.unauthorized_user'));
+                return response()->json([
+                    'data'      => null,
+                    'status'    => false,
+                    'code'      => 401,
+                    'message'   => __('site.unauthorized_user')
+                ]);
             }
         } elseif (!auth('web')?->user()) {
             return redirect()->route('{{web-login-page-route}}');

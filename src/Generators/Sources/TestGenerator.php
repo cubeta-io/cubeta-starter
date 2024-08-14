@@ -18,6 +18,10 @@ class TestGenerator extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        if ($this->generatedFor == ContainerType::API) {
+            return;
+        }
+
         $baseRouteName = $this->getRouteName($this->table, ContainerType::API, $this->actor) . '.';
 
         $testPath = $this->table->getTestPath();

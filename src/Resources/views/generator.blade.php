@@ -11,8 +11,8 @@
         $noRelationsNeeded = \Cubeta\CubetaStarter\Generators\GeneratorFactory::notNeedForRelations();
         $noColumnsNeeded = \Cubeta\CubetaStarter\Generators\GeneratorFactory::noNeedForColumns();
     @endphp
-    <div class="d-flex justify-content-center align-items-center">
-        <div class="card mt-5">
+    <div class="d-flex justify-content-center align-items-center" style="overflow-y: scroll">
+        <div class="card" style="margin-bottom: 100px; margin-top: 100px">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-start">
                     <h2 class="text-white">Generate</h2>
@@ -109,7 +109,7 @@
                             </button>
                         </div>
 
-                        <div class="d-flex gap-3 align-items-center" id="relations_inputs_container_0">
+                        <div class="my-3 d-flex gap-3 align-items-center" id="relations_inputs_container_0">
                             <input placeholder="name" class="brand-input p-1"
                                    name="relations[0][name]"
                                    id="relation_name_0"
@@ -214,7 +214,7 @@
 
             function getRelationNameInput(id) {
                 return `<input required placeholder="name" class="brand-input p-1"
-                               name="relations[${id}}][name]"
+                               name="relations[${id}][name]"
                                id="relation_name_${id}"
                                type="text"
                         />`
@@ -237,7 +237,7 @@
             }
 
             function getRelationFieldsContainer(id) {
-                return `<div class="d-flex gap-3 align-items-center" id="relations_inputs_container_${id}">
+                return `<div class="my-3 d-flex gap-3 align-items-center" id="relations_inputs_container_${id}">
                             ${getRelationNameInput(id) + getRelationTypeSelect(id) + getRemoveRelationButton(id)}
                         </div>`
             }

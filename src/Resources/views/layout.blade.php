@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" style="--chakra-ui-color-mode: light;" data-react-helmet="lang">
-<body class="h-100">
+<body>
 
 @include('CubetaStarter::includes.header')
 @include('CubetaStarter::includes.navbar')

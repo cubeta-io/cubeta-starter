@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
@@ -15,40 +16,19 @@ use Cubeta\CubetaStarter\Generators\Installers\ReactTsPackagesInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\PermissionsInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\WebInstaller;
 use Cubeta\CubetaStarter\Generators\Sources\ActorFilesGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\ApiControllerGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\FactoryGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\ModelGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\RepositoryGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\RequestGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\ResourceGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\SeederGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\ServiceGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\TestGenerator;
-use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
-use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Validation\Rule;
 
 class GeneratorController extends Controller
 {
     public Request $request;
-    private mixed $actor;
-    private mixed $columns;
-    private mixed $container;
-    private mixed $modelName;
-    private mixed $nullables;
-    private mixed $relations;
-    private mixed $uniques;
     private bool $installedWeb;
     private bool $installedApi;
     private ?string $validContainer = null;
 
-    public function __construct(Request $request)
+    public function __construct()
     {
         $this->installedApi = Settings::make()->installedApi();
         $this->installedWeb = Settings::make()->installedWeb();
@@ -64,45 +44,7 @@ class GeneratorController extends Controller
         if ($this->installedWeb && !$this->installedApi) {
             $this->validContainer = ContainerType::WEB;
         }
-
-        $this->request = $request;
-        $this->modelName = $request->model_name;
-//        $this->relations = $this->configureRequestArray($request->relations);
-//        $this->columns = $this->configureRequestArray($request->columns);
-        $this->actor = $request->actor;
-        $this->container = $request->containerType;
-        $this->nullables = $request->nullables;
-        $this->uniques = $request->uniques;
-        $this->version = $request->version ?? 'v1';
         ini_set('max_execution_time', 0);
-    }
-
-    private function configureRequestArray($array = null)
-    {
-        if (!isset($array) || $array == []) {
-            return [];
-        }
-
-        return collect($array)->mapWithKeys(fn ($item) => [$item['name'] => $item['type']])->toArray();
-    }
-
-    private function convertRolesPermissionsToArray(array $rolesPermissionArray = [])
-    {
-        $rolesPermissions = [];
-        $roleContainer = [];
-
-        foreach ($rolesPermissionArray as $array) {
-            $rolesPermissions[$array['name']] = explode(",", $array['permissions']);
-            $roleContainer[$array['name']] = $array['container'];
-        }
-
-        foreach ($rolesPermissions as $role => $permissions) {
-            if (empty(trim($role))) {
-                return false;
-            }
-        }
-
-        return ['rolesPermissions' => $rolesPermissions, 'roleContainer' => $roleContainer];
     }
 
     private function handleLogs()
@@ -113,83 +55,44 @@ class GeneratorController extends Controller
         Cache::forever('logs', [...$oldLogs, ...$logs]);
     }
 
-    public function runFactory(array $factoryData, string $successMessage)
+    /**
+     * @param array{
+     *     model_name:string,columns:array,relations:array,uniques:array,nullables:array,
+     *     actor:string|null,container:string,generate_key:string
+     * } $factoryData
+     */
+    public function runFactory(array $factoryData)
     {
         set_time_limit(0);
         try {
-
-            if (empty(trim($this->modelName))) {
-                return redirect()->route($factoryData['route'], ['error' => "Invalid Model Name"]);
-            }
-
-            $arguments['name'] = $this->modelName;
-
-            $tempColsArray = [];
-            if (isset($this->columns) && count($this->columns) > 0) {
-                foreach ($this->columns as $col => $type) {
-                    if (empty(trim($col))) {
-                        return redirect()->route($factoryData['route'], ['error' => "Invalid Column Name"]);
-                    }
-                    $tempColsArray[Naming::column($col)] = $type;
-                }
-                $arguments['attributes'] = $tempColsArray;
-            }
-
-            if (isset($this->relations) && count($this->relations) > 0) {
-                foreach ($this->relations as $relation => $type) {
-                    if (empty(trim($relation))) {
-                        return redirect()->route($factoryData['route'], ['error' => "Invalid Relation Name"]);
-                    }
-                }
-                $arguments['relations'] = $this->relations;
-            }
-
-            if (isset($this->nullables) && count($this->nullables) > 0) {
-                $arguments['nullables'] = array_map(fn ($nullable) => Naming::column($nullable), $this->nullables);
-            }
-
-            if (isset($this->uniques) && count($this->uniques) > 0) {
-                $arguments['uniques'] = array_map(fn ($unique) => Naming::column($unique), $this->uniques);
-            }
-
-            if (isset($this->actor)) {
-                $arguments['actor'] = $this->actor;
-            }
-
-            if (isset($this->container) && !in_array($this->container, ContainerType::ALL)) {
-                return redirect()->route($factoryData['route'], ['error' => "Invalid container name"]);
-            }
-
             $generator = new GeneratorFactory();
-            if ($factoryData['key'] == "all") {
+            if ($factoryData['generate_key'] == "full_crud") {
                 foreach (GeneratorFactory::getAllGeneratorsKeys() as $key) {
                     $generator->setSource($key)->make(
-                        fileName: $arguments['name'],
-                        attributes: $arguments['attributes'] ?? [],
-                        relations: $arguments['relations'] ?? [],
-                        nullables: $arguments['nullables'] ?? [],
-                        uniques: $arguments['uniques'] ?? [],
-                        actor: $arguments['actor'] ?? null,
-                        generatedFor: $this->container ?? ContainerType::API,
+                        fileName: $factoryData['model_name'],
+                        attributes: $factoryData['columns'] ?? [],
+                        relations: $factoryData['relations'] ?? [],
+                        nullables: $factoryData['nullables'] ?? [],
+                        uniques: $factoryData['uniques'] ?? [],
+                        actor: $factoryData['actor'] ?? null,
+                        generatedFor: $factoryData['container'] ?? ContainerType::API,
                     );
                 }
             } else {
-                $generator->setSource($factoryData['key'])->make(
-                    fileName: $arguments['name'],
-                    attributes: $arguments['attributes'] ?? [],
-                    relations: $arguments['relations'] ?? [],
-                    nullables: $arguments['nullables'] ?? [],
-                    uniques: $arguments['uniques'] ?? [],
-                    actor: $arguments['actor'] ?? null,
-                    generatedFor: $this->container ?? ContainerType::API,
+                $generator->setSource($factoryData['generate_key'])->make(
+                    fileName: $factoryData['model_name'],
+                    attributes: $factoryData['columns'] ?? [],
+                    relations: $factoryData['relations'] ?? [],
+                    nullables: $factoryData['nullables'] ?? [],
+                    uniques: $factoryData['uniques'] ?? [],
+                    actor: $factoryData['actor'] ?? null,
+                    generatedFor: $factoryData['container'] ?? ContainerType::API,
                 );
             }
-
-            return $this->handleLogs($factoryData['route'], $successMessage);
-
+            $this->handleLogs();
         } catch (Exception $exception) {
-            $error = CubeLog::exceptionToHtml($exception);
-            return view('CubetaStarter::command-output', compact('error'));
+            CubeLog::add($exception);
+            $this->handleLogs();
         }
     }
 
@@ -240,18 +143,17 @@ class GeneratorController extends Controller
     private function prepareValues(array $data = [])
     {
         foreach ($data as $key => $value) {
-            if ($data[$key] == "true") {
+            if ($value == "true") {
                 $data[$key] = true;
             }
         }
-
         return $data;
     }
 
     public function clearLogs()
     {
         Cache::delete('logs');
-        return response()->json(['success' => true], 200);
+        return response()->json(['success' => true]);
     }
 
     public function generatePage()
@@ -275,6 +177,45 @@ class GeneratorController extends Controller
 
     public function generate(Request $request)
     {
-        dd($request->all());
+        $data = $request->all();
+        $modelName = $data['model_name'];
+        $generateKey = $data['generate_key'] ?? "full_crud";
+        $container = $data['container'] ?? ($this->installedApi ? ContainerType::API : ContainerType::WEB);
+        $actor = $data['actor'] ?? null;
+        $columns = [];
+        $nullables = [];
+        $uniques = [];
+        $relations = [];
+
+        if (isset($data['columns'])) {
+            foreach ($data['columns'] as $column) {
+                $columns[$column['name']] = $column[$column['type']] ?? ColumnTypeEnum::STRING->value;
+                if (isset($column['unique']) && $column['unique'] == "true") {
+                    $uniques[] = $column['name'];
+                }
+                if (isset($column['nullable']) && $column['nullable'] == "true") {
+                    $nullables[] = $column['name'];
+                }
+            }
+        }
+
+        if (isset($data['relations'])) {
+            foreach ($data['relations'] as $relation) {
+                $relations[$relation['name']] = $relation["type"];
+            }
+        }
+
+        $this->runFactory([
+            'generate_key' => $generateKey,
+            'model_name'   => $modelName,
+            'container'    => $container,
+            'actor'        => $actor,
+            'columns'      => $columns,
+            'relations'    => $relations,
+            'nullables'    => $nullables,
+            'uniques'      => $uniques,
+        ]);
+
+        return redirect()->route('cubeta.starter.generate.page');
     }
 }
