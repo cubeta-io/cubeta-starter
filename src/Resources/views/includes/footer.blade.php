@@ -15,7 +15,7 @@
         modal.hide();
 
         $('.submit-button').click(function () {
-            document.getElementById('modal-title').innerText = "installing react , typescript Based Usage Tools"
+            document.getElementById('modal-title').innerText = "Please wait while we generate your files ..."
             modal.show();
         })
 

@@ -3,6 +3,7 @@
 <body class="h-100">
 
 @include('CubetaStarter::includes.header')
+@include('CubetaStarter::includes.navbar')
 @include('CubetaStarter::includes.loading-modal')
 @yield('content')
 

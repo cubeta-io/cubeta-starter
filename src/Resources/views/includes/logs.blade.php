@@ -18,15 +18,12 @@
     </div>
     <div id="terminal">
         @php
-            $logs = collect(\Illuminate\Support\Facades\Cache::get('logs') ?? []) ;
+            $logs = collect(\Illuminate\Support\Facades\Cache::get('logs') ?? [])->reverse() ;
         @endphp
         @if(count($logs))
             @foreach($logs as $log)
                 @if(is_string($log))
-                    <div
-                        class='my-5 p-3 w-100 d-flex gap-1 p-2 flex-column justify-content-between border border-success rounded-3 border-2'
-                        style='position: relative'>
-                        <span style='position: absolute; top: -25%; left: 1%' class='bg-success rounded-2 p-1 fw-bold'>Info</span>
+                    <div class='my-5 p-3 w-100 p-2 border border-success rounded-3 border-2'>
                         <div class='w-100'>{{$log}}</div>
                     </div>
                 @else

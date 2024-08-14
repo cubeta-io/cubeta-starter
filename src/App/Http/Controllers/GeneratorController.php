@@ -67,8 +67,8 @@ class GeneratorController extends Controller
 
         $this->request = $request;
         $this->modelName = $request->model_name;
-        $this->relations = $this->configureRequestArray($request->relations);
-        $this->columns = $this->configureRequestArray($request->columns);
+//        $this->relations = $this->configureRequestArray($request->relations);
+//        $this->columns = $this->configureRequestArray($request->columns);
         $this->actor = $request->actor;
         $this->container = $request->containerType;
         $this->nullables = $request->nullables;
@@ -110,7 +110,7 @@ class GeneratorController extends Controller
         CubeLog::handleExceptionsAsErrors();
         $logs = CubeLog::logs();
         $oldLogs = Cache::get('logs') ?? [];
-        Cache::add('logs', [...$oldLogs, ...$logs]);
+        Cache::forever('logs', [...$oldLogs, ...$logs]);
     }
 
     public function runFactory(array $factoryData, string $successMessage)
@@ -193,37 +193,6 @@ class GeneratorController extends Controller
         }
     }
 
-
-    public function generateActors(Request $request)
-    {
-        $roles = $request->roles ?? [];
-        $authenticated = $request->authenticated ?? [];
-
-        $result = $this->convertRolesPermissionsToArray($roles);
-
-        if (!$result) {
-            return redirect()->route('cubeta-starter.generate-add-actor.page', ['error' => 'Invalid Role Name']);
-        }
-
-        $rolesPermissions = $result['rolesPermissions'];
-        $roleContainer = $result['roleContainer'];
-
-        //TODO::CHECK HERE
-        (new GeneratorFactory(PermissionsInstaller::$key))->make();
-
-        foreach ($rolesPermissions as $role => $permissions) {
-            (new ActorFilesGenerator(
-                $role,
-                $permissions,
-                in_array($role, $authenticated),
-                $roleContainer[$role],
-                $this->version
-            ))->run();
-        }
-
-        return $this->handleLogs('cubeta-starter.generate-add-actor.page', "New Roles Added");
-    }
-
     public function settingsHandler(Request $request)
     {
         set_time_limit(0);
@@ -263,7 +232,7 @@ class GeneratorController extends Controller
             return redirect()->back();
         }
 
-        (new ActorFilesGenerator($data['actor'], [], $data['authenticated'], $data['container']))->run();
+        (new ActorFilesGenerator($data['actor'], [], $data['authenticated'] ?? false, $data['container']))->run();
         $this->handleLogs();
         return redirect()->back();
     }
@@ -283,5 +252,29 @@ class GeneratorController extends Controller
     {
         Cache::delete('logs');
         return response()->json(['success' => true], 200);
+    }
+
+    public function generatePage()
+    {
+        if (!$this->installedApi && !$this->installedWeb) {
+            return redirect()->route('cubeta.starter.settings');
+        }
+
+        $generatingType = GeneratorFactory::getAllGeneratorsKeys();
+        $installedApi = $this->installedApi;
+        $installedWeb = $this->installedWeb;
+        $hasRoles = Settings::make()->hasRoles();
+
+        return view('CubetaStarter::generator', compact([
+            'generatingType',
+            'installedApi',
+            'installedWeb',
+            'hasRoles',
+        ]));
+    }
+
+    public function generate(Request $request)
+    {
+        dd($request->all());
     }
 }

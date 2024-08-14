@@ -34,7 +34,7 @@ nav div a:hover {
 }
 
 .active-item {
-    border-bottom: 5px solid var(--brand-secondary);
+    border-bottom: 5px solid var(--brand-secondary) !important;
 }
 
 
@@ -256,4 +256,20 @@ input[type="checkbox"] {
 .modal-body {
     color: var(--bs-white) !important;
     background-color: var(--brand-light) !important;
+}
+
+
+/*scrollbar*/
+
+::-webkit-scrollbar {
+    width: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--brand-light);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--brand-light);
 }

@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
@@ -81,6 +82,8 @@ abstract class AbstractGenerator
             CubeLog::add(new AlreadyExist($path, "Trying To Generate : [" . pathinfo($path, PATHINFO_BASENAME) . "]"));
             return;
         }
+
+        CubePath::make($path)->ensureDirectoryExists();
 
         try {
             FileUtils::generateFileFromStub($stubProperties, $path, $otherStubsPath ?? $this->stubsPath(), $override);

@@ -38,6 +38,25 @@ class GeneratorFactory
         $this->source = $source;
     }
 
+    public static function notNeedForRelations(): array
+    {
+        return [
+            Sources\RequestGenerator::$key,
+            Sources\SeederGenerator::$key,
+            Sources\RepositoryGenerator::$key,
+            Sources\ServiceGenerator::$key,
+        ];
+    }
+
+    public static function noNeedForColumns(): array
+    {
+        return [
+            Sources\SeederGenerator::$key,
+            Sources\RepositoryGenerator::$key,
+            Sources\ServiceGenerator::$key,
+        ];
+    }
+
     public static function getAllGeneratorsKeys(): array
     {
         return [
