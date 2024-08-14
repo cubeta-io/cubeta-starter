@@ -77,10 +77,12 @@
                                    id="ask_permissions">
                         </div>
                     </div>
-                    <div class="d-flex flex-column align-items-start justify-content-start my-3">
-                        <h2 class="text-white">Actors : </h2>
-                        <p class="text-white">{{implode(' , ',array_filter($actors , fn ($actor) => $actor != 'none'))}}</p>
-                    </div>
+                    @if(\Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->hasRoles())
+                        <div class="d-flex flex-column align-items-start justify-content-start my-3">
+                            <h2 class="text-white">Actors : </h2>
+                            <p class="text-white">{{implode(' , ',array_filter($actors , fn ($actor) => $actor != 'none'))}}</p>
+                        </div>
+                    @endif
                     <div class="d-flex justify-content-end">
                         <button class="submit-button">
                             Save
@@ -101,11 +103,12 @@
                     </div>
                     <form method="POST" action="{{route('cubeta.starter.add.actor')}}">
                         <div class="w-100 d-flex align-items-center gap-2">
-                            <input placeholder="actor name" name="actor" class="brand-input" id="add_actor">
+                            <input placeholder="actor name" name="actor" class="brand-input" id="add_actor" required>
                             <span class="text-white">For</span>
                             <div>
                                 <select name="container" class="rounded px-4" id="ask_container"
-                                        style="padding: 2px 1.5rem;">
+                                        style="padding: 2px 1.5rem;" required
+                                >
                                     <option value="both">Both</option>
                                     <option value="api">API</option>
                                     <option value="web">WEB</option>

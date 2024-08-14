@@ -32,6 +32,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\Rule;
 
 class GeneratorController extends Controller
 {
@@ -104,22 +105,12 @@ class GeneratorController extends Controller
         return ['rolesPermissions' => $rolesPermissions, 'roleContainer' => $roleContainer];
     }
 
-    private function handleLogs($redirectRouteName, $successMessage)
+    private function handleLogs()
     {
-        [$logs, $exceptions] = CubeLog::splitExceptions();
-        Cache::put('logs', $logs);
-
-        foreach ($exceptions as &$exception) {
-            $exception = CubeLog::exceptionToHtml($exception);
-        }
-
-        Cache::put('exceptions', $exceptions);
-
-        if (count($exceptions)) {
-            return redirect()->route($redirectRouteName, ['error' => "Check Logs For Errors"]);
-        }
-
-        return redirect()->route($redirectRouteName, ['success' => $successMessage]);
+        CubeLog::handleExceptionsAsErrors();
+        $logs = CubeLog::logs();
+        $oldLogs = Cache::get('logs') ?? [];
+        Cache::add('logs', [...$oldLogs, ...$logs]);
     }
 
     public function runFactory(array $factoryData, string $successMessage)
@@ -237,36 +228,44 @@ class GeneratorController extends Controller
     {
         set_time_limit(0);
         $data = $this->prepareValues($request->all());
-        foreach ($data as $item) {
-            if (isset($data['api']) && $data['api']) {
-                (new GeneratorFactory(ApiInstaller::$key))->make();
-            }
 
-            if (isset($data['web']) && $data['web']) {
-                if (isset($data['frontend_stack']) && FrontendTypeEnum::tryFrom($data['frontend_stack']) == FrontendTypeEnum::BLADE) {
-                    (new GeneratorFactory(WebInstaller::$key))->make();
-                    (new GeneratorFactory(BladePackagesInstaller::$key))->make();
-                } elseif (isset($data['frontend_stack']) && FrontendTypeEnum::tryFrom($data['frontend_stack']) == FrontendTypeEnum::REACT_TS) {
-                    (new GeneratorFactory(ReactTsPackagesInstaller::$key))->make();
-                    (new GeneratorFactory(ReactTSInertiaInstaller::$key))->make();
-                }
-            }
+        if (isset($data['api']) && $data['api']) {
+            (new GeneratorFactory(ApiInstaller::$key))->make();
+        }
 
-            if (isset($data['auth']) && $data['auth'] && $this->validContainer) {
-                (new GeneratorFactory(AuthInstaller::$key))->make(generatedFor: $this->validContainer);
-            }
-
-            if (isset($data['permissions']) && $data['permissions']) {
-                (new GeneratorFactory(PermissionsInstaller::$key))->make();
+        if (isset($data['web']) && $data['web']) {
+            if (isset($data['frontend_stack']) && FrontendTypeEnum::tryFrom($data['frontend_stack']) == FrontendTypeEnum::BLADE) {
+                (new GeneratorFactory(WebInstaller::$key))->make();
+                (new GeneratorFactory(BladePackagesInstaller::$key))->make();
+            } elseif (isset($data['frontend_stack']) && FrontendTypeEnum::tryFrom($data['frontend_stack']) == FrontendTypeEnum::REACT_TS) {
+                (new GeneratorFactory(ReactTsPackagesInstaller::$key))->make();
+                (new GeneratorFactory(ReactTSInertiaInstaller::$key))->make();
             }
         }
+
+        if (isset($data['auth']) && $data['auth'] && $this->validContainer) {
+            (new GeneratorFactory(AuthInstaller::$key))->make(generatedFor: $this->validContainer);
+        }
+
+        if (isset($data['permissions']) && $data['permissions']) {
+            (new GeneratorFactory(PermissionsInstaller::$key))->make();
+        }
+
+        $this->handleLogs();
 
         return redirect()->back();
     }
 
     public function addActor(Request $request)
     {
-        dd($request->all());
+        $data = $this->prepareValues($request->all());
+        if (!isset($data['actor']) || !isset($data['container'])) {
+            return redirect()->back();
+        }
+
+        (new ActorFilesGenerator($data['actor'], [], $data['authenticated'], $data['container']))->run();
+        $this->handleLogs();
+        return redirect()->back();
     }
 
     private function prepareValues(array $data = [])
@@ -278,5 +277,11 @@ class GeneratorController extends Controller
         }
 
         return $data;
+    }
+
+    public function clearLogs()
+    {
+        Cache::delete('logs');
+        return response()->json(['success' => true], 200);
     }
 }

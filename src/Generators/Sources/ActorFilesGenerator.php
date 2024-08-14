@@ -50,7 +50,7 @@ class ActorFilesGenerator extends AbstractGenerator
             return;
         }
         if (!$settings->installedAuth()) {
-            CubeLog::add(new CubeError("Install auth tools by running [php artisan cubeta:install auth] then try again]"));
+            CubeLog::add(new CubeError("Install auth tools by running [php artisan cubeta:install auth] then try again"));
             return;
         }
 

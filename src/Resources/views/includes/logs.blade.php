@@ -3,7 +3,8 @@
     <div class="terminal-header">
         <div>
             <button id="slide-down"
-                    class="btn btn-sm btn-secondary"
+                    class="btn btn-sm"
+                    style="background-color: var(--brand-primary)"
             >
                 <div id="chevron_up">
                     @include('CubetaStarter::icons.chevron-up')
@@ -16,7 +17,25 @@
         <button id="clear-terminal" class="btn btn-sm btn-danger">@include('CubetaStarter::icons.trash')</button>
     </div>
     <div id="terminal">
-        > Generating Logs ...
+        @php
+            $logs = collect(\Illuminate\Support\Facades\Cache::get('logs') ?? []) ;
+        @endphp
+        @if(count($logs))
+            @foreach($logs as $log)
+                @if(is_string($log))
+                    <div
+                        class='my-5 p-3 w-100 d-flex gap-1 p-2 flex-column justify-content-between border border-success rounded-3 border-2'
+                        style='position: relative'>
+                        <span style='position: absolute; top: -25%; left: 1%' class='bg-success rounded-2 p-1 fw-bold'>Info</span>
+                        <div class='w-100'>{{$log}}</div>
+                    </div>
+                @else
+                    {!! $log->getHtml() !!}
+                @endif
+            @endforeach
+        @else
+            > Generating Logs ...
+        @endif
     </div>
     <div class="resizer"></div>
 </div>
@@ -35,6 +54,7 @@
             $('.resizer').on('mousedown', function (e) {
                 isResizing = true;
                 startY = e.clientY;
+                terminal.show('scale-up-ver-bottom')
                 startHeight = terminal.outerHeight();
                 $(document).on('mousemove', resizeTerminal);
                 $(document).on('mouseup', stopResize);
@@ -59,9 +79,15 @@
                 chevronUp.toggle('hidden');
             });
 
-            $('#clear-terminal').click(function () {
-                terminal.text('');  // Clear the terminal content
-            });
+            $("#clear-terminal").on('click', function () {
+                fetch('{{route('cubeta.starter.clear.logs')}}', {
+                    headers: {
+                        'Accept': "application/json",
+                    }
+                }).then(() => {
+                    $("#terminal").html('> Generating Logs ...');
+                })
+            })
         });
     </script>
 @endpush

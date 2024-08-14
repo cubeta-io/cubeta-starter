@@ -8,4 +8,5 @@ Route::prefix('/cubeta-starter')->name('cubeta.starter.')->group(function () {
     Route::view('/settings', 'CubetaStarter::settings')->name('settings');
     Route::post('/settings', [GeneratorController::class, 'settingsHandler'])->name('settings.set');
     Route::post('add-actor', [GeneratorController::class, 'addActor'])->name('add.actor');
+    Route::get('/clear-logs', [GeneratorController::class, 'clearLogs'])->name('clear.logs');
 });

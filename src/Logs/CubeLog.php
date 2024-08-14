@@ -26,8 +26,8 @@ class CubeLog
 
     public static function splitExceptions(): array
     {
-        $logs = array_filter(self::$logs, fn($log) => (!$log instanceof Exception and !$log instanceof Throwable));
-        $exceptions = array_filter(self::$logs, fn($log) => ($log instanceof Exception or $log instanceof Throwable));
+        $logs = array_filter(self::$logs, fn ($log) => (!$log instanceof Exception and !$log instanceof Throwable));
+        $exceptions = array_filter(self::$logs, fn ($log) => ($log instanceof Exception or $log instanceof Throwable));
 
         return [$logs, $exceptions];
     }
@@ -44,5 +44,14 @@ class CubeLog
                     <div class='w-100'><span class='bg-danger-light'>File</span> : {$exception->getFile()}</div>
                     <div class='w-100'><span class='bg-danger-light'>Line</span> : {$exception->getLine()}</div>
                 </div>";
+    }
+
+    public static function handleExceptionsAsErrors(): void
+    {
+        foreach (self::$logs as $key => $log) {
+            if ($log instanceof Exception or $log instanceof Throwable) {
+                self::$logs[$key] = new CubeError($log->getMessage(), $log->getFile());
+            }
+        }
     }
 }
