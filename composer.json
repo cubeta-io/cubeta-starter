@@ -9,10 +9,8 @@
         }
     ],
     "require": {
-        "intervention/image": "^2.7",
         "spatie/laravel-package-tools": "^1.11",
         "illuminate/support": "*",
-        "maatwebsite/excel": "^3.1",
         "laravel/framework": ">=v11.0.0"
     },
     "require-dev": {

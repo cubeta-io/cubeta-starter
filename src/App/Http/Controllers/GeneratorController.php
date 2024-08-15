@@ -19,16 +19,11 @@ use Cubeta\CubetaStarter\Generators\Sources\ActorFilesGenerator;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 class GeneratorController extends Controller
 {
     public Request $request;
-    private bool $installedWeb;
-    private bool $installedApi;
-    private ?string $validContainer = null;
 
     public function __construct()
     {
@@ -125,8 +120,8 @@ class GeneratorController extends Controller
 
         if (isset($data['web']) && $data['web']) {
             if (isset($data['frontend_stack']) && FrontendTypeEnum::tryFrom($data['frontend_stack']) == FrontendTypeEnum::BLADE) {
-                (new GeneratorFactory(WebInstaller::$key))->make(override: $override);
                 (new GeneratorFactory(BladePackagesInstaller::$key))->make(override: $override);
+                (new GeneratorFactory(WebInstaller::$key))->make(override: $override);
             } elseif (isset($data['frontend_stack']) && FrontendTypeEnum::tryFrom($data['frontend_stack']) == FrontendTypeEnum::REACT_TS) {
                 (new GeneratorFactory(ReactTsPackagesInstaller::$key))->make(override: $override);
                 (new GeneratorFactory(ReactTSInertiaInstaller::$key))->make(override: $override);

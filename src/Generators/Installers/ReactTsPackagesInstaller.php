@@ -20,13 +20,13 @@ class ReactTsPackagesInstaller extends AbstractGenerator
     {
         $this->preparePackageJson();
 
-        // install inertia
-        FileUtils::executeCommandInTheBaseDirectory("composer require inertiajs/inertia-laravel");
+        FileUtils::executeCommandInTheBaseDirectory("composer require " .
+            " tightenco/ziggy " .
+            " intervention/image:^2.7 " .
+            " maatwebsite/excel:^3 " .
+            " inertiajs/inertia-laravel"
+        );
 
-        //install ziggy route handler
-        FileUtils::executeCommandInTheBaseDirectory("composer require tightenco/ziggy");
-
-        //generate route handler type system
         FileUtils::executeCommandInTheBaseDirectory("php artisan ziggy:generate --types");
 
         //install js packages
