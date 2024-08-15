@@ -112,30 +112,29 @@
                                 @include('CubetaStarter::icons.plus')
                             </button>
                         </div>
+                        {{--                        <div class="my-3 d-flex gap-3 align-items-center" id="relations_inputs_container_0">--}}
+                        {{--                            <input placeholder="name" class="brand-input p-1"--}}
+                        {{--                                   name="relations[0][name]"--}}
+                        {{--                                   id="relation_name_0"--}}
+                        {{--                                   type="text"--}}
+                        {{--                                   required--}}
+                        {{--                            />--}}
+                        {{--                            <select required name="relations[0][type]" id="relation_type_select_0"--}}
+                        {{--                                    class="rounded custom-select p-1">--}}
+                        {{--                                <option value="{{\Cubeta\CubetaStarter\Enums\RelationsTypeEnum::HasMany->value}}">Has--}}
+                        {{--                                    many--}}
+                        {{--                                </option>--}}
+                        {{--                                <option value="{{\Cubeta\CubetaStarter\Enums\RelationsTypeEnum::ManyToMany->value}}">--}}
+                        {{--                                    Many to many--}}
+                        {{--                                </option>--}}
+                        {{--                            </select>--}}
 
-                        <div class="my-3 d-flex gap-3 align-items-center" id="relations_inputs_container_0">
-                            <input placeholder="name" class="brand-input p-1"
-                                   name="relations[0][name]"
-                                   id="relation_name_0"
-                                   type="text"
-                                   required
-                            />
-                            <select required name="relations[0][type]" id="relation_type_select_0"
-                                    class="rounded custom-select p-1">
-                                <option value="{{\Cubeta\CubetaStarter\Enums\RelationsTypeEnum::HasMany->value}}">Has
-                                    many
-                                </option>
-                                <option value="{{\Cubeta\CubetaStarter\Enums\RelationsTypeEnum::ManyToMany->value}}">
-                                    Many to many
-                                </option>
-                            </select>
-
-                            <button onclick="removeRelationField(event)" id="remove_relation_button_0"
-                                    data-relation-id="0" type="button"
-                                    style="background-color: var(--brand-primary)" class="btn btn-sm">
-                                @include('CubetaStarter::icons.minus')
-                            </button>
-                        </div>
+                        {{--                            <button onclick="removeRelationField(event)" id="remove_relation_button_0"--}}
+                        {{--                                    data-relation-id="0" type="button"--}}
+                        {{--                                    style="background-color: var(--brand-primary)" class="btn btn-sm">--}}
+                        {{--                                @include('CubetaStarter::icons.minus')--}}
+                        {{--                            </button>--}}
+                        {{--                        </div>--}}
                     </div>
 
                     <div class="d-flex justify-content-end">
