@@ -3,16 +3,17 @@
     @php
         $roleEnumPath = \Cubeta\CubetaStarter\Helpers\CubePath::make("app/Enums/RolesPermissionEnum.php");
         if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RolesPermissionEnum")) {
-            $actors = ['none', ...\App\Enums\RolesPermissionEnum::ALLROLES];
+            $actors = [ ...\App\Enums\RolesPermissionEnum::ALLROLES];
         }else{
             $actors = [];
         }
         $columnTypes = \Cubeta\CubetaStarter\Enums\ColumnTypeEnum::getAllValues();
         $noRelationsNeeded = \Cubeta\CubetaStarter\Generators\GeneratorFactory::notNeedForRelations();
         $noColumnsNeeded = \Cubeta\CubetaStarter\Generators\GeneratorFactory::noNeedForColumns();
+        $needActor = \Cubeta\CubetaStarter\Generators\Sources\ControllerGenerator::$key  . " , " .\Cubeta\CubetaStarter\Generators\Sources\TestGenerator::$key . " , " . "full_crud"
     @endphp
-    <div class="d-flex justify-content-center align-items-center" style="overflow-y: scroll">
-        <div class="card" style="margin-bottom: 100px; margin-top: 100px">
+    <div class="w-100 d-flex justify-content-center align-items-center" style="overflow-y: scroll;">
+        <div class="w-100 card" style="max-width: 55%;margin-bottom: 100px; margin-top: 100px">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-start">
                     <h2 class="text-white">Generate</h2>
@@ -47,12 +48,15 @@
                         </select>
 
                         @if($hasRoles)
-                            <label class="fw-semibold text-white">Act with</label>
-                            <select required name="actor" class="rounded custom-select">
-                                @foreach($actors as $actor)
-                                    <option value="{{$actor}}">{{$actor}}</option>
-                                @endforeach
-                            </select>
+                            <div id="actor_select">
+                                <label class="fw-semibold text-white">Act with</label>
+                                <select name="actor" class="rounded custom-select">
+                                    <option value="{{null}}">None</option>
+                                    @foreach($actors as $actor)
+                                        <option value="{{$actor}}">{{$actor}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         @endif
                     </div>
 
@@ -254,11 +258,12 @@
             $(document).ready(function () {
                 const rels = $("#relations_fields_container");
                 const cols = $("#columns_fields_container");
-                const form = $("#generate_form");
+                const actorSelect = $("#actor_select")
                 $("#generate_key_select").on('change', function (event) {
                     const selected = $(event.target).val();
                     const dontNeedRelations = "{{implode(" , ",$noRelationsNeeded)}}";
                     const dontNeedColumns = "{{implode(" , " , $noColumnsNeeded)}}";
+                    const needActor = "{{$needActor}}"
                     if (dontNeedRelations.includes(selected)) {
                         rels.css('display', 'none');
                     } else {
@@ -269,6 +274,12 @@
                         cols.css('display', 'none');
                     } else {
                         cols.css('display', 'flex');
+                    }
+
+                    if (!needActor.includes(selected)) {
+                        actorSelect.css('display', 'none');
+                    } else {
+                        actorSelect.css('display', 'block')
                     }
                 })
             })

@@ -44,7 +44,8 @@ trait TestHelpers
     ];
 
     protected array $headers = [
-        'Accept' => 'application/json',
+        'Accept' => 'Application/Json',
+        'Content-Type' => 'Application/Json'
     ];
 
     public function setUp(): void

@@ -131,6 +131,7 @@ input[type="checkbox"] {
     overflow-y: auto;
     padding: 10px;
     font-family: 'Courier New', Courier, monospace;
+    max-height: 75vh;
 }
 
 .terminal-header {
@@ -139,16 +140,14 @@ input[type="checkbox"] {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 10px;
-    padding-left: 30px;
-    padding-right: 30px;
+    padding: 5px;
 }
 
 .resizer {
     width: 100%;
-    height: 10px;
+    height: 5px;
     cursor: ns-resize;
-    background-color: var(--brand-light);
+    background-color: transparent;
 }
 
 

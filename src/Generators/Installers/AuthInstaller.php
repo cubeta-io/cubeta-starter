@@ -108,7 +108,7 @@ class AuthInstaller extends AbstractGenerator
     {
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.model_namespace'),
-            '{hasRoles}'  => Settings::make()->hasRoles() ? "use \App\Traits\HasRoles;\n" : '',
+            '{hasRoles}'  => Settings::make()->installedRoles() ? "use \App\Traits\HasRoles;\n" : '',
         ];
 
         $modelPath = CubePath::make(config('cubeta-starter.model_path') . "/User.php");

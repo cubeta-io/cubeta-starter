@@ -19,7 +19,9 @@ use Cubeta\CubetaStarter\Generators\Sources\ActorFilesGenerator;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class GeneratorController extends Controller
 {
@@ -30,21 +32,28 @@ class GeneratorController extends Controller
 
     public function __construct()
     {
-        $this->installedApi = Settings::make()->installedApi();
-        $this->installedWeb = Settings::make()->installedWeb();
-
-        if ($this->installedApi && $this->installedWeb) {
-            $this->validContainer = ContainerType::BOTH;
-        }
-
-        if ($this->installedApi && !$this->installedWeb) {
-            $this->validContainer = ContainerType::API;
-        }
-
-        if ($this->installedWeb && !$this->installedApi) {
-            $this->validContainer = ContainerType::WEB;
-        }
         ini_set('max_execution_time', 0);
+    }
+
+    private function getContainer()
+    {
+        $installedApi = Settings::make()->installedApi();
+        $installedWeb = Settings::make()->installedWeb();
+        $validContainer = ContainerType::API;
+
+        if ($installedApi && $installedWeb) {
+            $validContainer = ContainerType::BOTH;
+        }
+
+        if ($installedApi && !$installedWeb) {
+            $validContainer = ContainerType::API;
+        }
+
+        if ($installedWeb && !$installedApi) {
+            $validContainer = ContainerType::WEB;
+        }
+
+        return $validContainer;
     }
 
     private function handleLogs()
@@ -76,6 +85,8 @@ class GeneratorController extends Controller
                         uniques: $factoryData['uniques'] ?? [],
                         actor: $factoryData['actor'] ?? null,
                         generatedFor: $factoryData['container'] ?? ContainerType::API,
+                        override: true,
+                        version: config('cubeta-starter.version')
                     );
                 }
             } else {
@@ -87,6 +98,8 @@ class GeneratorController extends Controller
                     uniques: $factoryData['uniques'] ?? [],
                     actor: $factoryData['actor'] ?? null,
                     generatedFor: $factoryData['container'] ?? ContainerType::API,
+                    override: true,
+                    version: config('cubeta-starter.version')
                 );
             }
             $this->handleLogs();
@@ -100,27 +113,31 @@ class GeneratorController extends Controller
     {
         set_time_limit(0);
         $data = $this->prepareValues($request->all());
+        $override = false;
+
+        if (isset($data['override']) && $data['override'] == "override") {
+            $override = true;
+        }
 
         if (isset($data['api']) && $data['api']) {
-            (new GeneratorFactory(ApiInstaller::$key))->make();
+            (new GeneratorFactory(ApiInstaller::$key))->make(override: $override);
         }
 
         if (isset($data['web']) && $data['web']) {
             if (isset($data['frontend_stack']) && FrontendTypeEnum::tryFrom($data['frontend_stack']) == FrontendTypeEnum::BLADE) {
-                (new GeneratorFactory(WebInstaller::$key))->make();
-                (new GeneratorFactory(BladePackagesInstaller::$key))->make();
+                (new GeneratorFactory(WebInstaller::$key))->make(override: $override);
+                (new GeneratorFactory(BladePackagesInstaller::$key))->make(override: $override);
             } elseif (isset($data['frontend_stack']) && FrontendTypeEnum::tryFrom($data['frontend_stack']) == FrontendTypeEnum::REACT_TS) {
-                (new GeneratorFactory(ReactTsPackagesInstaller::$key))->make();
-                (new GeneratorFactory(ReactTSInertiaInstaller::$key))->make();
+                (new GeneratorFactory(ReactTsPackagesInstaller::$key))->make(override: $override);
+                (new GeneratorFactory(ReactTSInertiaInstaller::$key))->make(override: $override);
             }
         }
-
-        if (isset($data['auth']) && $data['auth'] && $this->validContainer) {
-            (new GeneratorFactory(AuthInstaller::$key))->make(generatedFor: $this->validContainer);
+        if (isset($data['auth']) && $data['auth']) {
+            (new GeneratorFactory(AuthInstaller::$key))->make(generatedFor: $this->getContainer(), override: $override);
         }
 
         if (isset($data['permissions']) && $data['permissions']) {
-            (new GeneratorFactory(PermissionsInstaller::$key))->make();
+            (new GeneratorFactory(PermissionsInstaller::$key))->make(override: $override);
         }
 
         $this->handleLogs();
@@ -158,14 +175,14 @@ class GeneratorController extends Controller
 
     public function generatePage()
     {
-        if (!$this->installedApi && !$this->installedWeb) {
+        if (!Settings::make()->installedApi() && !Settings::make()->installedWeb()) {
             return redirect()->route('cubeta.starter.settings');
         }
 
         $generatingType = GeneratorFactory::getAllGeneratorsKeys();
-        $installedApi = $this->installedApi;
-        $installedWeb = $this->installedWeb;
-        $hasRoles = Settings::make()->hasRoles();
+        $installedApi = Settings::make()->installedApi();
+        $installedWeb = Settings::make()->installedWeb();
+        $hasRoles = Settings::make()->installedRoles();
 
         return view('CubetaStarter::generator', compact([
             'generatingType',
@@ -180,7 +197,11 @@ class GeneratorController extends Controller
         $data = $request->all();
         $modelName = $data['model_name'];
         $generateKey = $data['generate_key'] ?? "full_crud";
-        $container = $data['container'] ?? ($this->installedApi ? ContainerType::API : ContainerType::WEB);
+        $container = $data['container']
+            ?? (Settings::make()->installedApi()
+                ? ContainerType::API
+                : ContainerType::WEB);
+
         $actor = $data['actor'] ?? null;
         $columns = [];
         $nullables = [];

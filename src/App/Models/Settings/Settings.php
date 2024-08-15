@@ -227,7 +227,7 @@ class Settings
     /**
      * @return bool
      */
-    public function hasRoles(): bool
+    public function installedRoles(): bool
     {
         return self::$hasRoles;
     }
@@ -236,7 +236,7 @@ class Settings
      * @param bool $value
      * @return void
      */
-    public function setHasRoles(bool $value = true): void
+    public function setInstalledRoles(bool $value = true): void
     {
         self::$json["has_roles"] = $value;
         self::storeJsonSettings(self::$json);

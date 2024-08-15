@@ -45,7 +45,7 @@ class ActorFilesGenerator extends AbstractGenerator
     public function run(bool $override = false): void
     {
         $settings = Settings::make();
-        if (!$settings->hasRoles()) {
+        if (!$settings->installedRoles()) {
             CubeLog::add(new CubeError("Install permissions by running [php artisan cubeta:install permissions] then try again"));
             return;
         }

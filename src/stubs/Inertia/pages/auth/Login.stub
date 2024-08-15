@@ -45,6 +45,7 @@ const Login = () => {
                             onSubmit={onSubmit}
                             processing={processing}
                             buttonText="Login"
+                            backButton={false}
                         >
                             <div className="flex flex-col gap-5 my-5 w-full">
                                 <Input

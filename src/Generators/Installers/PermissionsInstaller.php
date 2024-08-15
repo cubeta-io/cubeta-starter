@@ -48,7 +48,7 @@ class PermissionsInstaller extends AbstractGenerator
             "use App\\Http\\Middleware\\HasPermissionMiddleware;"
         );
 
-        Settings::make()->setHasRoles();
+        Settings::make()->setInstalledRoles();
         CubeLog::add(new CubeInfo("Don't forget to run [php artisan migrate]"));
     }
 

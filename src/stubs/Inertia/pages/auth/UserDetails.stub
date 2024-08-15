@@ -83,7 +83,7 @@ const EditProfile = ({user}: { user: User }) => {
     return (
         <div className="w-full p-8">
             <h2 className="text-xl font-semibold dark:text-white">Edit Profile :</h2>
-            <Form onSubmit={onSubmit} processing={processing}>
+            <Form onSubmit={onSubmit} processing={processing} backButton={false}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 my-5">
                     <Input
                         name="first_name"
