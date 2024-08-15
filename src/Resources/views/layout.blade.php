@@ -4,7 +4,7 @@
 
 @include('CubetaStarter::includes.header')
 @include('CubetaStarter::includes.navbar')
-@include('CubetaStarter::includes.loading-modal')
+@include('CubetaStarter::includes.loading-progressbar')
 @yield('content')
 
 @include('CubetaStarter::includes.footer')

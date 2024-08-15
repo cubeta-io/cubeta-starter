@@ -1,18 +1,3 @@
-{{--<div class="modal mt-5" tabindex="-1" role="dialog" id="spinner" data-keyboard="false"--}}
-{{--     data-backdrop="static">--}}
-{{--    <div class="modal-dialog" role="document">--}}
-{{--        <div class="modal-content bg-white">--}}
-{{--            <div class="modal-body">--}}
-{{--                <div class="d-flex flex-column justify-content-center align-items-center">--}}
-{{--                    <h3 id="modal-title" class="text-center"></h3>--}}
-{{--                    <div class="lds-dual-ring"></div>--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--        </div>--}}
-{{--    </div>--}}
-{{--</div>--}}
-
-
 <div id="progress-bar" class="progress"
      style="height: 5px; display: none; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;">
     <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
