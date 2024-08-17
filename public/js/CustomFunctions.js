@@ -28,7 +28,10 @@ function disableSubmitUntilFillRequiredFields() {
     const requiredFields = form.querySelectorAll('[required]');
     let allFilled = true;
     for (let i = 0; i < requiredFields.length; i++) {
-        if (requiredFields[i].value === '') {
+        if (requiredFields[i].tagName === "INPUT" && requiredFields[i].getAttribute("type") === "radio") {
+            continue;
+        }
+        if (requiredFields[i].value === undefined || requiredFields[i].value === "" || requiredFields[i].value == null) {
             allFilled = false;
             break;
         }
@@ -37,6 +40,7 @@ function disableSubmitUntilFillRequiredFields() {
 
     form.addEventListener('input', disableSubmitUntilFillRequiredFields);
 }
+
 
 /**
  * this function to handle the delete request for the image
@@ -166,7 +170,7 @@ function changeLocale() {
                     lang: $(this).data("lang"),
                 },
                 url: $(this).data("route"),
-                success: function (response) {
+                success: function () {
                     location.reload();
                 },
                 error: function (error) {
@@ -197,10 +201,9 @@ function downloadResponseFile(response, xhr) {
 }
 
 /**
- *
  * @param $item
  * @param token
- * @param messages:object{deleteMessage:string , confirmMessage:string , denyMessage:string , successMessage:string}
+ * @param messages
  */
 function handelDeletionOfItemFromDataTable($item, token, messages) {
     let url = $item.data('deleteurl');
@@ -227,6 +230,14 @@ function handelDeletionOfItemFromDataTable($item, token, messages) {
             Swal.fire(messages.successMessage + " !", '', 'success')
         }
     })
+}
+
+function translate(data, locale = undefined) {
+    locale = locale
+        ? locale
+        : localStorage.getItem('locale') ?? "en";
+
+    return Object.values(data).pop()[locale];
 }
 
 

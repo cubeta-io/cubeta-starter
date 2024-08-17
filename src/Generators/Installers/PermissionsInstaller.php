@@ -2,11 +2,17 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
+use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 
 class PermissionsInstaller extends AbstractGenerator
 {
@@ -25,6 +31,25 @@ class PermissionsInstaller extends AbstractGenerator
         $this->generateExceptions($override);
 
         $this->generateInterface($override);
+
+        $this->addTraitToUserModel();
+
+        $this->addMiddlewares($override);
+
+        FileUtils::registerMiddleware(
+            "'has-role' => HasRoleMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            "use App\\Http\\Middleware\\HasRoleMiddleware;"
+        );
+
+        FileUtils::registerMiddleware(
+            "'has-permission' => HasPermissionMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            "use App\\Http\\Middleware\\HasPermissionMiddleware;"
+        );
+
+        Settings::make()->setInstalledRoles();
+        CubeLog::add(new CubeInfo("Don't forget to run [php artisan migrate]"));
     }
 
     public function generateMigrations(bool $override = false): void
@@ -40,7 +65,7 @@ class PermissionsInstaller extends AbstractGenerator
                 [],
                 $migrationPath->fullPath,
                 $override,
-                __DIR__ . '/../../stubs/permissions/create_model_has_permissions_table.stub',
+                CubePath::stubPath('permissions/create_model_has_permissions_table.stub'),
             );
         } else {
             CubeLog::add(new AlreadyExist($migrationPath->fullPath, "Installing Permissions"));
@@ -55,7 +80,7 @@ class PermissionsInstaller extends AbstractGenerator
                 [],
                 $migrationPath->fullPath,
                 $override,
-                __DIR__ . '/../../stubs/permissions/create_model_has_roles_table.stub',
+                CubePath::stubPath('permissions/create_model_has_roles_table.stub'),
             );
         } else {
             CubeLog::add(new AlreadyExist($migrationPath->fullPath, "Installing Permissions"));
@@ -73,7 +98,7 @@ class PermissionsInstaller extends AbstractGenerator
                 [],
                 $migrationPath->fullPath,
                 $override,
-                __DIR__ . '/../../stubs/permissions/create_roles_table.stub',
+                CubePath::stubPath('permissions/create_roles_table.stub'),
             );
         } else {
             CubeLog::add(new AlreadyExist($migrationPath->fullPath, "Installing Permissions"));
@@ -90,7 +115,7 @@ class PermissionsInstaller extends AbstractGenerator
             ['{{modelNamespace}}' => config('cubeta-starter.model_namespace'),],
             $modelPath->fullPath,
             $override,
-            __DIR__ . '/../../stubs/permissions/ModelHasPermission.stub',
+            CubePath::stubPath('permissions/ModelHasPermission.stub'),
         );
 
         $modelPath = CubePath::make(config('cubeta-starter.model_path') . '/Role.php');
@@ -101,7 +126,7 @@ class PermissionsInstaller extends AbstractGenerator
         ],
             $modelPath->fullPath,
             $override,
-            __DIR__ . '/../../stubs/permissions/Role.stub',
+            CubePath::stubPath('permissions/Role.stub'),
         );
 
         $modelPath = CubePath::make(config('cubeta-starter.model_path') . '/ModelHasRole.php');
@@ -110,7 +135,7 @@ class PermissionsInstaller extends AbstractGenerator
         ],
             $modelPath->fullPath,
             $override,
-            __DIR__ . '/../../stubs/permissions/ModelHasRole.stub',
+            CubePath::stubPath('permissions/ModelHasRole.stub'),
         );
     }
 
@@ -127,18 +152,18 @@ class PermissionsInstaller extends AbstractGenerator
             ],
             $traitsPath->fullPath,
             $override,
-            __DIR__ . '/../../stubs/permissions/HasPermissions.stub',
+            CubePath::stubPath('permissions/HasPermissions.stub'),
         );
 
         $traitsPath = CubePath::make(config('cubeta-starter.trait_path') . '/HasRoles.php');
 
         $this->generateFileFromStub([
-            "{{traitsNamespace}}" => config('cubeta-starter.trait_namespace'),
+            "{{traitsNamespace}}"     => config('cubeta-starter.trait_namespace'),
             "{{exceptionsNamespace}}" => config('cubeta-starter.exception_namespace'),
-            "{{modelsNamespace}}" => config('cubeta-starter.model_namespace'),
+            "{{modelsNamespace}}"     => config('cubeta-starter.model_namespace'),
         ], $traitsPath->fullPath,
             $override,
-            __DIR__ . '/../../stubs/permissions/HasRoles.stub',
+            CubePath::stubPath('permissions/HasRoles.stub'),
         );
     }
 
@@ -151,7 +176,7 @@ class PermissionsInstaller extends AbstractGenerator
             ["{{exceptionNamespace}}" => config('cubeta-starter.exception_namespace')],
             $exceptionsPath->fullPath,
             $override,
-            __DIR__ . '/../../stubs/permissions/RoleDoesNotExistException.stub',
+            CubePath::stubPath('permissions/RoleDoesNotExistException.stub'),
         );
     }
 
@@ -163,7 +188,51 @@ class PermissionsInstaller extends AbstractGenerator
             [],
             $interfacePath->fullPath,
             $override,
-            __DIR__ . '/../../stubs/permissions/ActionsMustBeAuthorized.stub',
+            CubePath::stubPath('permissions/ActionsMustBeAuthorized.stub'),
+        );
+    }
+
+    public function addTraitToUserModel(): void
+    {
+        $modelPath = CubePath::make(config('cubeta-starter.model_path') . '/User.php');
+
+        if (!$modelPath->exist()) {
+            CubeLog::add(new NotFound($modelPath->fullPath, "Trying to add HasRoles trait to [User] model"));
+            return;
+        }
+
+        $modelContent = $modelPath->getContent();
+        $pattern = '/\s*class\s*User\s*(.*?)\s*\{\s*(.*?)\s*}/s';
+        if (preg_match($pattern, $modelContent, $matches)) {
+            if (isset($matches[2])) {
+                $modelContent = str_replace($matches[2], "\nuse HasRoles;\n$matches[2]", $modelContent);
+                $modelPath->putContent($modelContent);
+                FileUtils::addImportStatement("use App\Traits\HasRoles;", $modelPath);
+                $modelPath->format();
+                return;
+            } else {
+                CubeLog::add(new FailedAppendContent("use App\Traits\HasRoles;", $modelPath, "Installing permissions"));
+                return;
+            }
+        }
+
+        CubeLog::add(new FailedAppendContent("use App\Traits\HasRoles;", $modelPath, "Installing permissions"));
+    }
+
+    public function addMiddlewares(bool $override = false): void
+    {
+        $this->generateFileFromStub(
+            [],
+            CubePath::make('app/Http/Middleware/HasPermissionMiddleware.php')->fullPath,
+            $override,
+            CubePath::stubPath('middlewares/HasPermissionMiddleware.stub'),
+        );
+
+        $this->generateFileFromStub(
+            [],
+            CubePath::make('app/Http/Middleware/HasRoleMiddleware.php')->fullPath,
+            $override,
+            CubePath::stubPath('middlewares/HasRoleMiddleware.stub'),
         );
     }
 }

@@ -24,9 +24,9 @@ class FailedAppendContent extends CubeError
 
     public function getHtml(): string
     {
-        $msg = "<div class='w-100 d-flex gap-1 flex-column justify-content-between p-2 border border-danger rounded-3 border-2'>
+        $msg = "<div style='position:relative;' class='my-5 p-3 w-100 d-flex gap-1 flex-column justify-content-between p-2 border border-danger rounded-3 border-2'>
+                    <span style='position: absolute; top: -25%; left: 1%' class='bg-danger rounded-2 p-1 fw-bold'>Error</span> :  Failed To Append The Following Content :<br>
                     <div class='w-100'>
-                        <span class='bg-danger rounded-2 p-1 fw-bold'>Error</span> :  Failed To Append The Following Content :<br>
                         <code> {$this->content}</code><br>
                         To : [{$this->filePath}]
                      </div>

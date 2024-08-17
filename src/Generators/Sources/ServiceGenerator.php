@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 
 class ServiceGenerator extends AbstractGenerator
 {
@@ -34,6 +35,6 @@ class ServiceGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/../../stubs/service.stub';
+        return CubePath::stubPath('service.stub');
     }
 }

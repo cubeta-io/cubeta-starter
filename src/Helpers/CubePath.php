@@ -4,7 +4,6 @@ namespace Cubeta\CubetaStarter\Helpers;
 
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
-use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 
 class CubePath
 {
@@ -20,6 +19,8 @@ class CubePath
      */
     public function __construct(string $inProjectFilePath)
     {
+        $inProjectFilePath = str_replace('/', DIRECTORY_SEPARATOR, $inProjectFilePath);
+        $inProjectFilePath = str_replace(base_path(), '', $inProjectFilePath);
         $this->inProjectPath = str_replace('//', '/', $inProjectFilePath);
         $this->initialize();
     }
@@ -74,5 +75,22 @@ class CubePath
     public function getFileExtension(): ?string
     {
         return pathinfo($this->fullPath, PATHINFO_EXTENSION) ?: null;
+    }
+
+    public static function stubPath(string $stubPath): string
+    {
+        return realpath(
+            __DIR__ .
+            DIRECTORY_SEPARATOR .
+            '..' .
+            DIRECTORY_SEPARATOR .
+            'stubs' .
+            (
+            str_starts_with(DIRECTORY_SEPARATOR, $stubPath)
+                ? ''
+                : DIRECTORY_SEPARATOR
+            ) .
+            str_replace('/', DIRECTORY_SEPARATOR, $stubPath)
+        );
     }
 }

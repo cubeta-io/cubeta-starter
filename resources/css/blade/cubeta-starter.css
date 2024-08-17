@@ -126,7 +126,7 @@ h6 {
 }
 
 .card {
-    box-shadow: 0 0 30px rgba(1, 41, 112, 0.1);
+    box-shadow: rgba(0, 0, 0, 0.24) 0 3px 8px;
 }
 
 /*--------------------------------------------------------------
@@ -176,6 +176,10 @@ h6 {
 /*--------------------------------------------------------------
 # Header Nav
 --------------------------------------------------------------*/
+header {
+    box-shadow: rgba(0, 0, 0, 0.24) 0 3px 8px !important;
+}
+
 html[data-bs-theme="dark"] header {
     background-color: var(--bs-dark);
 }
@@ -255,8 +259,8 @@ header {
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--bs-primary);
-    box-shadow: 0 0 20px rgba(1, 41, 112, 0.1);
     background-color: var(--bs-white);
+    box-shadow: rgba(0, 0, 0, 0.24) 3px 0 8px !important;
 }
 
 
@@ -320,7 +324,7 @@ header {
     background-color: #eaeaea;
 }
 
-.active {
+.active-sidebar-item {
     background-color: #eaeaea;
 }
 
@@ -394,11 +398,11 @@ header {
 }
 
 .sidebar-nav .nav-content a:hover,
-.sidebar-nav .nav-content a.active {
+.sidebar-nav .nav-content a.active-sidebar-item {
     color: #4154f1;
 }
 
-.sidebar-nav .nav-content a.active i {
+.sidebar-nav .nav-content a.active-sidebar-item i {
     background-color: #4154f1;
 }
 
@@ -407,12 +411,12 @@ header {
 --------------------------------------------------------------*/
 .profile .profile-overview .label {
     font-weight: 600;
-    color: rgba(1, 41, 112, 0.6);
+    color: var(--brand-color);
 }
 
 .profile .profile-edit label {
     font-weight: 600;
-    color: rgba(1, 41, 112, 0.6);
+    color: var(--brand-color);
 }
 
 
@@ -529,7 +533,7 @@ header {
 
 .theme-toggle:hover {
     cursor: pointer;
-    box-shadow: 0px 10px 14px -7px #434748;
+    box-shadow: 0 10px 14px -7px #434748;
     border-radius: 8px;
 }
 
@@ -602,7 +606,6 @@ html[data-bs-theme="dark"] .nav-link:hover {
     color: white;
 }
 
-html[data-bs-theme="dark"] .active {
+html[data-bs-theme="dark"] .active-sidebar-item {
     background-color: var(--bs-primary);
 }
-

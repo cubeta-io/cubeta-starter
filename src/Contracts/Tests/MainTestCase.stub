@@ -20,7 +20,7 @@ class MainTestCase extends TestCase
         $this->responseBody['data'] = false;
         $this->responseBody['message'] = __('site.there_is_no_data');
 
-        $this->delete(route($this->requestPath, fake()->uuid()))
+        $this->delete(route($this->requestPath, fake()->uuid()) , [] , $this->headers)
             ->assertExactJson($this->responseBody)
             ->assertOk();
 

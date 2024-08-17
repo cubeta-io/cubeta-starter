@@ -20,9 +20,10 @@ class SuccessGenerating extends CubeInfo
 
     public function getHtml(): string
     {
-        $msg = "<div class='w-100 d-flex gap-1 flex-column justify-content-between p-2 border border-success rounded-3 border-2'>
+        $msg = "<div style='position: relative' class='my-5 p-3 w-100 d-flex gap-1 flex-column justify-content-between p-2 border border-success rounded-3 border-2'>
+                    <span style='position: absolute; top: -25%; left: 1%' class='bg-success rounded-2 p-1 fw-bold'>Info</span>
                     <div class='w-100'>
-                        <span class='bg-success rounded-2 p-1 fw-bold'>Info</span> :  ({$this->fileName}) Generated Successfully <br>
+                        File : ({$this->fileName}) Generated Successfully
                         Path : [{$this->filePath}]
                     </div>
                 ";

@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 
 
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 
 class SeederGenerator extends AbstractGenerator
 {
@@ -22,8 +23,8 @@ class SeederGenerator extends AbstractGenerator
         $seederPath->ensureDirectoryExists();
 
         $stubProperties = [
-            '{modelName}' => $this->table->modelName,
-            '{modelNamespace}' => config('cubeta-starter.model_namespace')
+            '{modelName}'      => $this->table->modelName,
+            '{modelNamespace}' => config('cubeta-starter.model_namespace'),
         ];
 
         $this->generateFileFromStub($stubProperties, $seederPath->fullPath);
@@ -33,6 +34,6 @@ class SeederGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/../../stubs/seeder.stub';
+        return CubePath::stubPath('seeder.stub');
     }
 }

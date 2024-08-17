@@ -93,7 +93,7 @@ abstract class BaseRepository
      * @param array $relationships
      * @return Collection<T>|RegularCollection<T>|array
      */
-    public function all(array $relationships = []): Collection | array | RegularCollection
+    public function all(array $relationships = []): Collection|array|RegularCollection
     {
         return $this->globalQuery($relationships)->get();
     }
@@ -107,8 +107,12 @@ abstract class BaseRepository
         $query = $this->model->with($relations);
 
         if (request()->method() == 'GET') {
-            $query = $this->addSearch($query);
-            $query = $this->filterFields($query);
+            $query = $query->where(function (Builder $builder) {
+                return $this->filterFields($builder);
+            });
+            $query = $query->where(function ($q) {
+                return $this->addSearch($q);
+            });
             $query = $this->orderQueryBy($query);
         }
 
@@ -160,34 +164,43 @@ abstract class BaseRepository
             $relation = $filterFields['relation'] ?? null;
             $method = $filterFields['method'] ?? "where";
             $callback = $filterFields['query'] ?? null;
-            $value = request($relation ?? $field);
+            $value = request($field);
             $range = is_array($value);
+            $value = $this->unsetEmptyParams($value);
+            if ($range && isset($value)) {
+                $value = array_values($value);
+            }
 
             if (!$value) {
                 continue;
             }
 
-            if ($relation) {
-                $query = $query->whereHas($relation, function (QueryBuilder $q) use ($range, $field, $method, $operator, $value) {
+            if ($callback && is_callable($callback)) {
+                $query = call_user_func($callback, $query, $value);
+            } elseif ($relation) {
+                $tables = explode('.', $relation);
+                $col = $tables[count($tables) - 1];
+                unset($tables[count($tables) - 1]);
+                $relation = implode('.', $tables);
+
+                $query = $query->whereRelation($relation, function (Builder $q) use ($col, $relation, $range, $field, $method, $operator, $value) {
+                    $relTable = $q->getModel()->getTable();
                     if ($range) {
-                        return $q->whereBetween($field, $value);
+                        return $this->handleRangeQuery($value, $q, $relTable, $col);
                     }
                     if ($operator === "like") {
-                        return $q->{$method}($field, $operator, "%" . $value . "%");
+                        return $q->{$method}("$relTable.$col", $operator, "%" . $value . "%");
                     }
-                    return $q->{$method}($field, $operator, $value);
+                    return $q->{$method}("$relTable.$col", $operator, $value);
                 });
-            } elseif ($callback && is_callable($callback)) {
-                $query = call_user_func($callback, $query, $value);
             } else {
                 if ($range) {
-                    $query = $query->whereBetween($field, $value);
+                    $query = $this->handleRangeQuery($value, $query, $this->tableName, $field);
                 } elseif ($operator == 'like') {
-                    $query = $query->{$method}($field, $operator, "%" . $value . "%");
+                    $query = $query->{$method}($this->tableName . '.' . $field, $operator, "%" . $value . "%");
                 } else {
-                    $query = $query->{$method}($field, $operator, $value);
+                    $query = $query->{$method}($this->tableName . '.' . $field, $operator, $value);
                 }
-
             }
         }
 
@@ -220,7 +233,7 @@ abstract class BaseRepository
 
     /**
      * @param array $relationships
-     * @param int $per_page
+     * @param int   $per_page
      * @return array{data:Collection<T>|array<T>|RegularCollection<T> , pagination_data:array}|null
      */
     public function all_with_pagination(array $relationships = [], int $per_page = 10): ?array
@@ -244,13 +257,13 @@ abstract class BaseRepository
 
         return [
             'currentPage' => $paginated_arr['current_page'],
-            'from' => $paginated_arr['from'],
-            'to' => $paginated_arr['to'],
-            'total' => $paginated_arr['total'],
-            'per_page' => $paginated_arr['per_page'],
+            'from'        => $paginated_arr['from'],
+            'to'          => $paginated_arr['to'],
+            'total'       => $paginated_arr['total'],
+            'per_page'    => $paginated_arr['per_page'],
             'total_pages' => ceil($paginated_arr['total'] / $paginated_arr['per_page']),
-            'is_first' => $paginated_arr['current_page'] == 1,
-            'is_last' => $paginated_arr['current_page'] == ceil($paginated_arr['total'] / $paginated_arr['per_page']),
+            'is_first'    => $paginated_arr['current_page'] == 1,
+            'is_last'     => $paginated_arr['current_page'] == ceil($paginated_arr['total'] / $paginated_arr['per_page']),
         ];
     }
 
@@ -294,9 +307,9 @@ abstract class BaseRepository
 
     /**
      * @param string $col_name
-     * @param $data
-     * @param bool $is_store
-     * @param $item
+     * @param        $data
+     * @param bool   $is_store
+     * @param        $item
      * @return string
      */
     private function storeUpdateFileIfExist(string $col_name, &$data, bool $is_store = true, $item = null): string
@@ -352,7 +365,7 @@ abstract class BaseRepository
     }
 
     /**
-     * @param $id
+     * @param       $id
      * @param array $relationships
      * @return T|null
      */
@@ -369,7 +382,7 @@ abstract class BaseRepository
 
     /**
      * @param array $data
-     * @param $id
+     * @param       $id
      * @param array $relationships
      * @return T|null
      */
@@ -393,6 +406,30 @@ abstract class BaseRepository
         }
 
         return null;
+    }
+
+    /**
+     * @param mixed   $value
+     * @param Builder $query
+     * @param string  $table
+     * @param string  $column
+     * @return Builder
+     */
+    function handleRangeQuery(array $value, Builder $query, string $table, string $column): Builder
+    {
+        if (count($value) == 2) {
+            if (!isset($value[0]) && isset($value[1])) {
+                $query = $query->where("$table.$column", '<=', $value[1]);
+            } elseif (isset($value[0]) && !isset($value[1])) {
+                $query->where("$table.$column", '>=', $value[0]);
+            } elseif (isset($value[0]) && isset($value[1])) {
+                $query = $query->whereBetween("$table.$column", [$value[0], $value[1]])
+                    ->orWhereBetween("$table.$column", [$value[1], $value[0]]);
+            }
+        } elseif (count($value) > 2) {
+            $query->whereIn("$table.$column", array_values(array_filter($value)));
+        }
+        return $query;
     }
 
     /**
@@ -450,5 +487,24 @@ abstract class BaseRepository
     public function import(): void
     {
         Excel::import(new BaseImporter($this->model), request()->file('excel_file'));
+    }
+
+    protected function unsetEmptyParams(string|array|null $param = null): string|array|null
+    {
+        if (!$param) {
+            return null;
+        }
+        if (is_array($param)) {
+            foreach ($param as $value) {
+                if (strlen(trim(preg_replace('/\s+/', '', $value))) != 0) {
+                    return $param;
+                }
+            }
+            return null;
+        } elseif (strlen(trim(preg_replace('/\s+/', '', $param))) == 0) {
+            return null;
+        } else {
+            return $param;
+        }
     }
 }

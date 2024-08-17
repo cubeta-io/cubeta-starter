@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
@@ -33,7 +34,7 @@ abstract class AbstractGenerator
     protected string $version;
     protected CubeTable $table;
 
-    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '', string $version = 'v1')
+    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '', ?string $version = null)
     {
         $this->fileName = trim($fileName);
         $this->attributes = $attributes;
@@ -42,7 +43,7 @@ abstract class AbstractGenerator
         $this->uniques = $uniques;
         $this->actor = $actor;
         $this->generatedFor = $generatedFor === '' ? ContainerType::BOTH : $generatedFor;
-        $this->version = $version;
+        $this->version = $version ?? config('cubeta-starter.version');
         $this->frontType = Settings::make()->getFrontendType() ?? FrontendTypeEnum::NONE;
 
         $this->mergeRelations();
@@ -81,6 +82,8 @@ abstract class AbstractGenerator
             CubeLog::add(new AlreadyExist($path, "Trying To Generate : [" . pathinfo($path, PATHINFO_BASENAME) . "]"));
             return;
         }
+
+        CubePath::make($path)->ensureDirectoryExists();
 
         try {
             FileUtils::generateFileFromStub($stubProperties, $path, $otherStubsPath ?? $this->stubsPath(), $override);

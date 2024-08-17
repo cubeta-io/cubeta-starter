@@ -97,7 +97,7 @@ class MigrationGenerator extends AbstractGenerator
         $table1 = Str::singular(Naming::table($table1));
         $table2 = Str::singular(Naming::table($table2));
         $tables = [$table1, $table2];
-        $pivotTableName = Naming::pivotTableNaming($table1 , $table2);
+        $pivotTableName = Naming::pivotTableNaming($table1, $table2);
 
         if (!$this->checkIfMigrationExists(Naming::table($tables[0])) || !$this->checkIfMigrationExists(Naming::table($tables[1]))) {
             CubeLog::add(new CubeError(
@@ -136,7 +136,7 @@ class MigrationGenerator extends AbstractGenerator
             FileUtils::generateFileFromStub(
                 $stubProperties,
                 $migrationPath->fullPath,
-                __DIR__ . '/../../stubs/pivot-migration.stub'
+                CubePath::stubPath('pivot-migration.stub')
             );
         } catch (Exception|BindingResolutionException|FileNotFoundException $exception) {
             CubeLog::add($exception);
@@ -150,6 +150,6 @@ class MigrationGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/../../stubs/migration.stub';
+        return CubePath::stubPath('migration.stub');
     }
 }

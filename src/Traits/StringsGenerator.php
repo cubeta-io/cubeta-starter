@@ -24,6 +24,7 @@ trait StringsGenerator
 
     /**
      * @param CubeTable|CubeRelation $model
+     * @param string                 $pivot
      * @return string
      */
     public function manyToManyFunction(CubeTable|CubeRelation $model, string $pivot): string
@@ -139,7 +140,8 @@ trait StringsGenerator
                                 {
                                     method: \"GET\",
                                     headers: {
-                                        accept: \"application/json\",
+                                        \"Accept\": \"application/html\",
+                                        \"Content-Type\": \"application/html\"
                                     },
                                 }
                             ).then((res) => res.json())

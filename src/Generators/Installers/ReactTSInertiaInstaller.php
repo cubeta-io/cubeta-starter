@@ -7,7 +7,9 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
@@ -23,9 +25,12 @@ class ReactTSInertiaInstaller extends AbstractGenerator
     public function run(bool $override = false): void
     {
         $this->installInertia($override);
+
+        $this->addAndRegisterAuthenticateMiddleware($override);
+
         $this->addSetLocalRoute();
-        $this->addRouteFile('public', container: ContainerType::WEB, version: $this->version);
-        $this->addRouteFile('protected', container: ContainerType::WEB, version: $this->version);
+        $this->addRouteFile(actor: 'public', container: ContainerType::WEB, version: $this->version);
+        $this->addRouteFile(actor: 'protected', container: ContainerType::WEB, version: $this->version, middlewares: ["authenticated"]);
         FileUtils::registerMiddleware(
             "'locale' => AcceptedLanguagesMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,
@@ -36,12 +41,18 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             MiddlewareArrayGroupEnum::WEB,
             "use App\\Http\\Middleware\\HandleInertiaRequests ;"
         );
+
+        $this->generateHomePage($override);
+        $this->addIndexPageRoute($this->version, FrontendTypeEnum::REACT_TS);
+        $this->generateSidebar($override);
+
+        Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
+        Settings::make()->setInstalledWeb();
+        CubeLog::add(new CubeInfo("Don't forgot to install react-ts packages by the GUI or by running [php artisan cubeta:install react-ts-packages]"));
     }
 
     private function installInertia(bool $override = false): void
     {
-        Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
-
         Artisan::call('vendor:publish', [
             '--tag'   => 'react-ts',
             '--force' => $override,
@@ -54,7 +65,7 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             stubProperties: [],
             path: resource_path('/views/app.blade.php'),
             override: $override,
-            otherStubsPath: __DIR__ . '/../../stubs/Inertia/views/app-view.stub'
+            otherStubsPath: CubePath::stubPath('Inertia/views/app-view.stub')
         );
 
         // adding inertia middleware
@@ -62,9 +73,32 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             stubProperties: [],
             path: app_path('/Http/Middleware/HandleInertiaRequests.php'),
             override: $override,
-            otherStubsPath: __DIR__ . '/../../stubs/Inertia/HandleInertiaRequestsMiddleware.stub'
+            otherStubsPath: CubePath::stubPath('Inertia/HandleInertiaRequestsMiddleware.stub')
         );
 
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::REACT_TS->value));
+    }
+
+    public function generateHomePage(bool $override = false): void
+    {
+        $pagePath = CubePath::make('/resources/js/Pages/dashboard/Index.tsx');
+        $pagePath->ensureDirectoryExists();
+        $this->generateFileFromStub(
+            [],
+            $pagePath->fullPath,
+            $override,
+            CubePath::stubPath('Inertia/pages/dashboard.stub')
+        );
+    }
+
+    private function generateSidebar(bool $override): void
+    {
+        $routeActor = Settings::make()->installedAuth() ? "protected" : "public";
+        $this->generateFileFromStub(
+            ['{{index-route}}' => $this->getWebIndexPageRoute(actor: $routeActor, justName: true)],
+            CubePath::make('resources/js/Components/ui/Sidebar.tsx')->fullPath,
+            $override,
+            CubePath::stubPath('Inertia/components/Sidebar.stub')
+        );
     }
 }

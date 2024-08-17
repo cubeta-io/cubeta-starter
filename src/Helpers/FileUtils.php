@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Helpers;
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
+use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
@@ -56,8 +57,8 @@ class FileUtils
      */
     public static function formatPhpFile(string $filePath): void
     {
-        $command = base_path() . "./vendor/bin/pint {$filePath}";
-        self::executeCommandInTheBaseDirectory($command);
+        $command = base_path("/vendor/bin/pint") . " {$filePath}";
+        self::executeCommandInTheBaseDirectory($command, false);
         CubeLog::add(new SuccessMessage("The File : [{$filePath}] Formatted Successfully"));
     }
 
@@ -69,21 +70,31 @@ class FileUtils
     public static function formatJsFile(string $filePath): void
     {
         $command = "npx prettier {$filePath} --write";
-        self::executeCommandInTheBaseDirectory($command);
+        self::executeCommandInTheBaseDirectory($command, false);
         CubeLog::add(new SuccessMessage("The File : [{$filePath}] Formatted Successfully"));
     }
 
     /**
      * @param string $command
+     * @param bool   $withLog
      * @return false|string|null
      */
-    public static function executeCommandInTheBaseDirectory(string $command): bool|string|null
+    public static function executeCommandInTheBaseDirectory(string $command, bool $withLog = true): bool|string|null
     {
         if (app()->environment('local')) {
             $rootDirectory = base_path();
             $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
 
-            return shell_exec($fullCommand);
+            if ($withLog) {
+                CubeLog::add(new CubeInfo("Running command : [$command]"));
+            }
+            $output = shell_exec($fullCommand);
+
+            if (is_string($output) && $withLog) {
+                CubeLog::add($output);
+            }
+
+            return $output;
         }
 
         CubeLog::add(new WrongEnvironment("Running Command : $command"));
@@ -230,75 +241,13 @@ class FileUtils
         return $haystack;
     }
 
-    public static function addReactTSApiSelectToForm(string $content, $formInterfaceProperty, CubePath $filePath)
-    {
-        $operationContext = "Trying To Add New ApiSelect Component To The Form";
-        if (!$filePath->exist()) {
-            CubeLog::add(new NotFound(
-                $filePath->fullPath,
-                $operationContext
-            ));
-            return;
-        }
-
-        $fileContent = $filePath->getContent();
-
-        if (FileUtils::contentExistInFile($filePath, $content)) {
-            CubeLog::add(new ContentAlreadyExist($content, $filePath->fullPath, $operationContext));
-            return;
-        }
-
-        $firstPattern = '#<Form\s*(.*?)\s*>\s*<div\s*(.*?)\s*>\s*(.*?)\s*</div>#s';
-        $secondPattern = '#<Form\s*(.*?)\s*>\s*(.*?)\s*</Form>#s';
-
-        if (preg_match($firstPattern, $fileContent, $matches)) {
-            $formContent = $matches[3];
-            $substitute = $matches[3];
-        } elseif (preg_match($secondPattern, $fileContent, $matches)) {
-            $formContent = $matches[2];
-            $substitute = $matches[2];
-        } else {
-            CubeLog::add(new FailedAppendContent(
-                $content,
-                $filePath->fullPath,
-                $operationContext
-            ));
-            return;
-        }
-
-        $formContent .= "\n$content\n";
-        $fileContent = str_replace($substitute, $formContent, $fileContent);
-
-        // adding new property
-        $formInterfacePattern = '#useForm\s*<\s*\{\s*(.*?)\s*}\s*>#s';
-        if (preg_match($formInterfacePattern, $fileContent, $matches)
-            && !FileUtils::contentExistInFile($filePath, $formInterfaceProperty)
-        ) {
-            $interfaceProperties = $matches[1];
-            $interfaceProperties .= "\n$formInterfaceProperty\n";
-            $fileContent = str_replace($matches[1], $interfaceProperties, $fileContent);
-        } else {
-            CubeLog::add(new FailedAppendContent(
-                $formInterfaceProperty,
-                $filePath->fullPath,
-                $operationContext
-            ));
-            return;
-        }
-
-
-        $filePath->putContent($fileContent);
-        CubeLog::add(new ContentAppended($content, $filePath->fullPath));
-        $filePath->format();
-    }
-
-    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type , string $importStatement): bool
+    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type, string $importStatement): bool
     {
         $bootstrapPath = CubePath::make("/bootstrap/app.php");
-        if (!$bootstrapPath->exist()){
+        if (!$bootstrapPath->exist()) {
             return false;
         }
-        self::addImportStatement($importStatement , $bootstrapPath);
+        self::addImportStatement($importStatement, $bootstrapPath);
         return match ($type) {
             MiddlewareArrayGroupEnum::GLOBAL, MiddlewareArrayGroupEnum::ALIAS => self::registerMiddlewareAliasOrGlobal($middlewareArrayItem, $type),
             MiddlewareArrayGroupEnum::API => self::registerWebOrApiMiddleware($middlewareArrayItem),
@@ -330,7 +279,7 @@ class FileUtils
                 }
                 $bootstrapContent = preg_replace_callback($patternWithMethodExists, function ($matches) use ($methodName, $middleware) {
                     $middlewaresArray = $matches[3];
-                    $middlewaresArray .= "\n$middleware,\n";
+                    $middlewaresArray .= ",\n$middleware,\n";
                     $middlewaresArray = FileUtils::fixArrayOrObjectCommas($middlewaresArray);
                     return "->withMiddleware(function (Middleware \$middleware)" .
                         " {\n{$matches[1]}\$middleware->$methodName({$matches[2]}append: [\n{$middlewaresArray}\n]{$matches[4]});\n{$matches[5]}\n})";
@@ -404,7 +353,7 @@ class FileUtils
                 }
                 $bootstrapContent = preg_replace_callback($patternWithMethodExists, function ($matches) use ($methodName, $middleware) {
                     $middlewaresArray = $matches[2];
-                    $middlewaresArray .= "\n$middleware,\n";
+                    $middlewaresArray .= "\n,$middleware,\n";
                     $middlewaresArray = FileUtils::fixArrayOrObjectCommas($middlewaresArray);
                     return "->withMiddleware(function (Middleware \$middleware)" .
                         " {\n{$matches[1]}\$middleware->{$methodName}([\n{$middlewaresArray}\n]);\n{$matches[3]}\n})";
@@ -489,5 +438,30 @@ class FileUtils
     {
         $input = trim($input, " \t\n\r\0\x0B,");
         return self::removeRepeatedCommas($input);
+    }
+
+    public static function generateStringFromStub(string $stubPath, array $properties = []): string
+    {
+        $search = [];
+        $replace = [];
+
+        foreach ($properties as $key => $value) {
+            $search[] = "{$key}";
+            $replace[] = "$value";
+        }
+
+        $stub = file_get_contents($stubPath);
+        return str_replace($search, $replace, $stub);
+    }
+
+    public static function getReactComponentPropPatterns(string $propName, ?string $value = null): string
+    {
+        $value = $value != null ? $value : '[^>]*';
+        return '((' . $propName . '\s*=\s*{\s*\'\s*' . $value . '\s*\'\s*})|('
+            . $propName . '\s*=\s*{\s*"\s*' . $value . '\s*"\s*})|('
+            . $propName . '\s*=\s*{\s*`\s*' . $value . '\s*`\s*})|('
+            . $propName . '\s*=\s*{\s*' . $value . '\s*})|('
+            . $propName . '\s*=\s*\'\s*' . $value . '\s*\'\s*)|('
+            . $propName . '\s*=\s*"\s*' . $value . '\s*"\s*))';
     }
 }

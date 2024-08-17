@@ -3,11 +3,14 @@
 namespace Cubeta\CubetaStarter\Generators\Sources\WebControllers;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\ReactTSPagesGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
@@ -21,8 +24,13 @@ class InertiaReactTSController extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        if (!Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
+            CubeLog::add(new CubeError("Install react-ts tools by running [php artisan cubeta:install react-ts && php artisan cubeta:install react-ts-packages] then try again", happenedWhen: "Generating a {$this->table->modelName} web controller"));
+            return;
+        }
+
         $modelNameCamelCase = $this->table->variableNaming();
-        $routesNames = $this->getRoutesNames($this->table, $this->actor);
+        $routesNames = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $controllerPath = $this->table->getWebControllerPath();
 
         if ($controllerPath->exist()) {
@@ -32,8 +40,8 @@ class InertiaReactTSController extends AbstractGenerator
 
         $loadedRelations = $this->table
             ->relations()
-            ->filter(fn(CubeRelation $rel) => $rel->getModelPath()->exist())
-            ->map(fn(CubeRelation $rel) => "'{$rel->method()}'")
+            ->filter(fn (CubeRelation $rel) => $rel->getModelPath()->exist())
+            ->map(fn (CubeRelation $rel) => "'{$rel->method()}'")
             ->implode(',');
 
         $controllerPath->ensureDirectoryExists();
@@ -52,7 +60,7 @@ class InertiaReactTSController extends AbstractGenerator
             '{{serviceNamespace}}'   => $this->table->getServiceNamespace(false),
             '{{requestNamespace}}'   => $this->table->getRequestNameSpace(),
             '{{modelNamespace}}'     => $this->table->getModelNameSpace(false),
-            '{{serviceName}}'        => $this->table->getServiceName()
+            '{{serviceName}}'        => $this->table->getServiceName(),
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
@@ -88,7 +96,7 @@ class InertiaReactTSController extends AbstractGenerator
 
     public function stubsPath(): string
     {
-        return __DIR__ . '/../../../stubs/Inertia/php/controller.stub';
+        return CubePath::stubPath('Inertia/php/controller.stub');
     }
 
     public function addSidebarItem(string $indexRoute, string $title): void

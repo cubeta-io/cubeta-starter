@@ -1,5 +1,5 @@
 		{
-			"name": "{role} auth",
+			"name": "{{role}} auth",
 			"item": [
 				{
 					"name": "register",
@@ -44,17 +44,17 @@
 							"formdata": [
 								{
 									"key": "first_name",
-									"value": "{role}",
+									"value": "{{role}}",
 									"type": "text"
 								},
 								{
 									"key": "last_name",
-									"value": "{role}",
+									"value": "{{role}}",
 									"type": "text"
 								},
 								{
 									"key": "email",
-									"value": "{role}@email.com",
+									"value": "{{role}}@email.com",
 									"type": "text"
 								},
 								{
@@ -70,9 +70,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{role}/register",
+							"raw": "{{local}}/{{version}}/{{role}}/register",
 							"host": [
-								"{{local}}/{role}"
+								"{{local}}/{{version}}/{{role}}"
 							],
 							"path": [
 								"register"
@@ -85,7 +85,7 @@
 					"name": "update info",
 					"event": [
 						{
-							"listen": "{role}",
+							"listen": "{{role}}",
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);\r",
@@ -124,17 +124,17 @@
 							"formdata": [
 								{
 									"key": "first_name",
-									"value": "{role}",
+									"value": "{{role}}",
 									"type": "text"
 								},
 								{
 									"key": "last_name",
-									"value": "{role}",
+									"value": "{{role}}",
 									"type": "text"
 								},
 								{
 									"key": "email",
-									"value": "{role}@email.com",
+									"value": "{{role}}@email.com",
 									"type": "text"
 								},
 								{
@@ -155,9 +155,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{role}/update-user-data",
+							"raw": "{{local}}/{{version}}/{{role}}/update-user-data",
 							"host": [
-								"{{local}}/{role}"
+								"{{local}}/{{version}}/{{role}}"
 							],
 							"path": [
 								"update-user-data"
@@ -204,7 +204,7 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "{role}@email.com"
+									"value": "{{role}}@email.com"
 								},
 								{
 									"key": "password",
@@ -213,9 +213,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{role}/login",
+							"raw": "{{local}}/{{version}}/{{role}}/login",
 							"host": [
-								"{{local}}/{role}"
+								"{{local}}/{{version}}/{{role}}"
 							],
 							"path": [
 								"login"
@@ -250,9 +250,9 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{local}}/{role}/refresh",
+							"raw": "{{local}}/{{version}}/{{role}}/refresh",
 							"host": [
-								"{{local}}/{role}"
+								"{{local}}/{{version}}/{{role}}"
 							],
 							"path": [
 								"refresh"
@@ -287,15 +287,15 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "{role}@email.com",
+									"value": "{{role}}@email.com",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{role}/password-reset-request",
+							"raw": "{{local}}/{{version}}/{{role}}/password-reset-request",
 							"host": [
-								"{{local}}/{role}"
+								"{{local}}/{{version}}/{{role}}"
 							],
 							"path": [
 								"password-reset-request"
@@ -335,9 +335,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{role}/check-reset-password-code",
+							"raw": "{{local}}/{{version}}/{{role}}/check-reset-password-code",
 							"host": [
-								"{{local}}/{role}"
+								"{{local}}/{{version}}/{{role}}"
 							],
 							"path": [
 								"check-reset-password-code"
@@ -388,9 +388,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{role}/reset-password",
+							"raw": "{{local}}/{{version}}/{{role}}/reset-password",
 							"host": [
-								"{{local}}/{role}"
+								"{{local}}/{{version}}/{{role}}"
 							],
 							"path": [
 								"reset-password"
@@ -425,9 +425,9 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{local}}/{role}/logout",
+							"raw": "{{local}}/{{version}}/{{role}}/logout",
 							"host": [
-								"{{local}}/{role}"
+								"{{local}}/{{version}}/{{role}}"
 							],
 							"path": [
 								"logout"
@@ -435,6 +435,39 @@
 						}
 					},
 					"response": []
-				}
+				},
+				{
+                    "name": "user details",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{local}}/{{version}}/{{role}}/user-details",
+                            "host": [
+                                "{{local}}v1"
+                            ],
+                            "path": [
+                                "user-details"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
 			]
 		}

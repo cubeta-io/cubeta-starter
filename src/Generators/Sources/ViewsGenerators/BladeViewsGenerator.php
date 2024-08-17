@@ -7,26 +7,26 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 use JetBrains\PhpStorm\ArrayShape;
 
 class BladeViewsGenerator extends BladeControllerGenerator
 {
     use WebGeneratorHelper;
-
-    const FORM_STUB = __DIR__ . '/../../../stubs/views/form.stub';
-    const SHOW_STUB = __DIR__ . '/../../../stubs/views/show.stub';
-    const INDEX_STUB = __DIR__ . '/../../../stubs/views/index.stub';
+    use RouteBinding;
 
     public static string $key = "views";
 
@@ -110,7 +110,12 @@ class BladeViewsGenerator extends BladeControllerGenerator
 
     public function run(bool $override = false): void
     {
-        $routes = $this->getRoutesNames($this->table, $this->actor);
+        if (!Settings::make()->getFrontendType() == FrontendTypeEnum::BLADE) {
+            CubeLog::add(new CubeError("Install web tools by running [php artisan cubeta:install web && php artisan cubeta:install web-packages] then try again", happenedWhen: "Generating a {$this->table->modelName} blade views"));
+            return;
+        }
+
+        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
 
         $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
         $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
@@ -141,7 +146,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             '{components}'          => $inputs,
             '{method}'              => $updateRoute ? 'PUT' : 'POST',
             '{updateParameter}'     => $updateRoute ? ", \${$modelVariable}" . '->id' : '',
-            '{translationSelector}' => $this->table->hasTranslatableAttribute() ? "<div class=\"m-2 d-flex justify-content-end\">\n<x-language-selector/>\n</div>" : ""
+            '{translationSelector}' => $this->table->hasTranslatableAttribute() ? "<div class=\"m-2 d-flex justify-content-end\">\n<x-language-selector/>\n</div>" : "",
         ];
 
         $formPath = CubePath::make("resources/views/dashboard/{$viewsName}/" . strtolower($createdForm) . '.blade.php');
@@ -157,7 +162,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             $stubProperties,
             $formPath->fullPath,
             $override,
-            self::FORM_STUB
+            CubePath::stubPath('views/form.stub')
         );
     }
 
@@ -190,7 +195,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
                     $model = CubeTable::create(Naming::model(str_replace('_id', '', $attribute->name)));
                     $relatedTable = Settings::make()->getTable($model->modelName);
                     $value = str_replace('_id', '', $value);
-                    $select2Route = $this->getRouteName($model, ContainerType::WEB, $this->actor) . '.allPaginatedJson';
+                    $select2Route = $this->getRouteNames($model, ContainerType::WEB, $this->actor)["all_paginated_json"];
                     if (!$model->getModelPath()->exist() || !$model->getWebControllerPath()->exist()) break;
                     if (!ClassUtils::isMethodDefined($model->getWebControllerPath(), 'allPaginatedJson')) break;
                     $inputs .=
@@ -275,7 +280,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
         $this->generateFileFromStub($stubProperties,
             $showPath->fullPath,
             $override,
-            self::SHOW_STUB
+            CubePath::stubPath('views/show.stub')
         );
     }
 
@@ -301,7 +306,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             } elseif ($attribute->isTranslatable()) {
                 $components .=
                     "<div class=\"col-sm-12 col-md-6\">\n" .
-                    "<x-translatable-small-text-field :value=\"\${$modelVariable}->getRawOriginal('{$attribute->name}')\" label=\"{$label}\"/>\n".
+                    "<x-translatable-small-text-field :value=\"\${$modelVariable}->getRawOriginal('{$attribute->name}')\" label=\"{$label}\"/>\n" .
                     "</div>";
             } else {
                 $components .=
@@ -323,7 +328,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
     public function generateIndexView(string $creatRoute, string $dataRoute, bool $override = false): void
     {
         $dataColumns = $this->generateDataTableColumns();
-        $routes = $this->getRoutesNames($this->table);
+        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
 
         $stubProperties = [
             '{modelName}'              => $this->table->modelName,
@@ -333,7 +338,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             '{dataTableDataRouteName}' => $dataRoute,
             '{exportRoute}'            => $routes['export'],
             '{importRoute}'            => $routes['import'],
-            '{exampleRoute}'           => $routes['example'],
+            '{exampleRoute}'           => $routes['import_example'],
             '{modelClassName}'         => $this->table->getModelClassString(),
         ];
 
@@ -349,7 +354,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             $stubProperties,
             $indexPath->fullPath,
             $override,
-            self::INDEX_STUB
+            CubePath::stubPath('views/index.stub')
         );
     }
 
@@ -384,7 +389,13 @@ class BladeViewsGenerator extends BladeControllerGenerator
                 $json .= "{\"data\": '{$usedName}', searchable: true, orderable: true}, \n";
             }
 
-            $json .= "{\"data\": '{$attribute->name}', searchable: true, orderable: true}, \n";
+            if ($attribute->isTranslatable()) {
+                $render = ",render: (data) => translate(data)";
+            } else {
+                $render = "";
+            }
+
+            $json .= "{\"data\": '{$attribute->name}', searchable: true, orderable: true $render}, \n";
 
             $html .= "\n<th>{$label}</th>\n";
         }

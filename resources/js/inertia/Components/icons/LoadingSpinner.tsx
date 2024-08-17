@@ -1,7 +1,5 @@
 import React from "react";
 
-interface ILoadingSpinnerProps {}
-
 const LoadingSpinner: React.FunctionComponent<
     React.SVGAttributes<SVGSVGElement>
 > = ({ className, ...props }) => {

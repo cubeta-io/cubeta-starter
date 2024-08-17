@@ -39,7 +39,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->publishApi();
         $this->publishInertiaReactTs();
         $this->publishAuthBladeViews();
-        $this->publishAuthReactTsPages();
     }
 
     /**
@@ -224,18 +223,5 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.stub'           => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/Traits/FileHandler.stub'                     => app_path("Traits/FileHandler.php"),
         ], 'react-ts');
-    }
-
-    public function publishAuthReactTsPages(): void
-    {
-        $this->publishes([
-            __DIR__ . '/../resources/js/inertia/auth/ForgetPassword.tsx'        => resource_path('js/Pages/auth/ForgetPassword.tsx'),
-            __DIR__ . '/../resources/js/inertia/auth/Login.tsx'                 => resource_path('js/Pages/auth/Login.tsx'),
-            __DIR__ . '/../resources/js/inertia/auth/Register.tsx'              => resource_path('js/Pages/auth/Register.tsx'),
-            __DIR__ . '/../resources/js/inertia/auth/ResetPassword.tsx'         => resource_path('js/Pages/auth/ResetPassword.tsx'),
-            __DIR__ . '/../resources/js/inertia/auth/ResetPasswordCodeForm.tsx' => resource_path('js/Pages/auth/ResetPasswordCodeForm.tsx'),
-            __DIR__ . '/../resources/js/inertia/auth/profile/UserDetails.tsx'   => resource_path('/js/Pages/dashboard/profile/UserDetails.tsx'),
-            __DIR__ . '/../resources/js/inertia/auth/User.ts'                   => resource_path('js/Models/User.ts'),
-        ], 'react-ts-auth');
     }
 }

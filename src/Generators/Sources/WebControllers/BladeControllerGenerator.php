@@ -8,11 +8,14 @@ use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\BladeViewsGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Logs\CubeError;
+use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +33,11 @@ class BladeControllerGenerator extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        if (!Settings::make()->getFrontendType() == FrontendTypeEnum::BLADE) {
+            CubeLog::add(new CubeError("Install blade tools by running [php artisan cubeta:install web && php artisan cubeta:install web-packages] then try again", happenedWhen: "Generating a {$this->table->modelName} web controller"));
+            return;
+        }
+
         $modelNameCamelCase = $this->table->variableNaming();
         $idVariable = $this->table->idVariable();
         $controllerPath = $this->table->getWebControllerPath();
@@ -41,14 +49,14 @@ class BladeControllerGenerator extends AbstractGenerator
 
         $controllerPath->ensureDirectoryExists();
 
-        $routesNames = $this->getRoutesNames($this->table, $this->actor);
+        $routesNames = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $views = $this->getViewsNames($this->table, $this->actor);
 
         $addColumns = $this->getAdditionalColumns();
 
         $loadedRelations = $this->table->relations()
-            ->filter(fn(CubeRelation $rel) => $rel->exists())
-            ->map(fn(CubeRelation $rel) => $rel->method())
+            ->filter(fn (CubeRelation $rel) => $rel->exists())
+            ->map(fn (CubeRelation $rel) => $rel->method())
             ->toJson();
 
         $stubProperties = [
@@ -70,7 +78,7 @@ class BladeControllerGenerator extends AbstractGenerator
             '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns(),
             '{additionalMethods}'       => $this->additionalControllerMethods(),
             '{loadedRelations}'         => $loadedRelations,
-            '{baseRouteName}'           => $routesNames['base'],
+            '{baseRouteName}'           => $routesNames['resource'],
         ];
 
         $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
@@ -89,7 +97,7 @@ class BladeControllerGenerator extends AbstractGenerator
         CodeSniffer::make()
             ->setModel($this->table)
             ->checkForWebRelations(
-                $this->getRouteName($this->table, ContainerType::WEB, $this->actor) . '.allPaginatedJson'
+                $this->getRouteNames($this->table, ContainerType::WEB, $this->actor)["all_paginated_json"]
             );
     }
 
@@ -108,7 +116,7 @@ class BladeControllerGenerator extends AbstractGenerator
                     continue;
                 }
 
-                $showRouteName = $this->getRoutesNames($relatedModel, $this->actor)['show'];
+                $showRouteName = $this->getRouteNames($relatedModel, ContainerType::WEB, $this->actor)['show'];
 
                 if (!Route::has($showRouteName)) {
                     continue;
@@ -123,8 +131,6 @@ class BladeControllerGenerator extends AbstractGenerator
                         return \"<a href='\" . route('{$showRouteName}', \$row->{$attribute->name}) . \"'>{$columnCalling}</a>\";
                     })";
                 $this->rawColumns .= "'{$columnName}' ,";
-            } elseif ($attribute->isTranslatable()) {
-                $dataColumn .= "\n->editColumn(\"{$attribute->name}\" , fn(\$data) => \$data->{$attribute->name})\n";
             }
         }
 
@@ -188,7 +194,7 @@ class BladeControllerGenerator extends AbstractGenerator
             return;
         }
 
-        $sidebarItem = "\t\t<li class=\"nav-item\">\n\t\t\t<a class=\"nav-link collapsed @if(str_contains(request()->fullUrl() , route('{$routeName}'))) active @endif\" href=\"{{route('{$routeName}')}}\">\n\t\t\t\t<i class=\"bi bi-circle\"></i><span>{$this->table->modelNaming()}</span>\n\t\t\t</a>\n\t\t</li>\n</ul>";
+        $sidebarItem = "\t\t<li class=\"nav-item\">\n\t\t\t<a class=\"nav-link collapsed @if(str_contains(request()->fullUrl() , route('{$routeName}'))) active-sidebar-item @endif\" href=\"{{route('{$routeName}')}}\">\n\t\t\t\t<i class=\"bi bi-circle\"></i><span>{$this->table->modelNaming()}</span>\n\t\t\t</a>\n\t\t</li>\n</ul>";
 
         $sidebar = $sidebarPath->getContent();
         $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);
@@ -222,6 +228,6 @@ class BladeControllerGenerator extends AbstractGenerator
 
     protected function stubsPath(): string
     {
-        return __DIR__ . '/../../../stubs/controller.web.stub';
+        return CubePath::stubPath('controller.web.stub');
     }
 }

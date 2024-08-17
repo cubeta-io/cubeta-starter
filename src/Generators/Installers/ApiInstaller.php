@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -26,18 +27,25 @@ class ApiInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        FileUtils::executeCommandInTheBaseDirectory("composer require intervention/image:^2.7 " .
+            " maatwebsite/excel:^3 "
+        );
+
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-api"]);
         CubeLog::add(Artisan::output());
 
         $this->addApiRouteFile();
+        $this->addAndRegisterAuthenticateMiddleware($override);
         $this->addRouteFile('public', version: $this->version);
-        $this->addRouteFile('protected', version: $this->version);
-        $this->registerExceptoptionHandler($override);
+        $this->addRouteFile('protected', version: $this->version, middlewares: ["authenticated"]);
+        $this->registerExceptionHandler($override);
         FileUtils::registerMiddleware(
             "'locale' => AcceptedLanguagesMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,
             "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware ;"
         );
+
+        Settings::make()->setInstalledApi();
     }
 
     private function addApiRouteFile(): void
@@ -53,7 +61,7 @@ class ApiInstaller extends AbstractGenerator
             FileUtils::generateFileFromStub(
                 ['{route}' => '//add-your-routes-here'],
                 $apiFilePath->fullPath,
-                __DIR__ . '/../../stubs/api.stub'
+                CubePath::stubPath("api.stub")
             );
             CubeLog::add(new SuccessGenerating($apiFilePath->fileName, $apiFilePath->fullPath, "Installing api tools"));
         } catch (Exception $e) {
@@ -76,7 +84,11 @@ class ApiInstaller extends AbstractGenerator
                     return;
                 }
                 $registered = $matches[1];
-                $registered .= ",\n $newRouteFile,\n";
+                if (preg_match('/\s*web\s*:\s*(.*?)\s*,\s*/s', $registered, $innerMatches)) {
+                    $registered = str_replace($innerMatches[0], "$innerMatches[0]\n$newRouteFile,\n", $registered);
+                } else {
+                    $registered = "$newRouteFile,\n$registered";
+                }
                 $registered = FileUtils::fixArrayOrObjectCommas($registered);
                 $bootstrapContent = str_replace($matches[1], $registered, $bootstrapContent);
                 $bootstrapPath->putContent($bootstrapContent);
@@ -142,13 +154,13 @@ class ApiInstaller extends AbstractGenerator
      * @param bool $override
      * @return void
      */
-    private function registerExceptoptionHandler(bool $override): void
+    private function registerExceptionHandler(bool $override): void
     {
         try {
             FileUtils::generateFileFromStub(
                 [],
                 base_path('app/Exceptions/Handler.php'),
-                __DIR__ . '/../../stubs/handler.stub',
+                CubePath::stubPath("handler.stub"),
                 $override
             );
             CubeLog::add(new SuccessGenerating("Handler.php", base_path('app/Exceptions/Handler.php'), "Installing api tools"));

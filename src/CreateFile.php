@@ -44,7 +44,6 @@ class CreateFile
     /**
      * @param bool $override
      * @return $this
-     * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
     public function callFileGenerateFunctions(bool $override = false): static

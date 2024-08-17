@@ -36,7 +36,7 @@ const ExportModal = ({
                 method: "POST",
                 headers: {
                     "X-CSRF-TOKEN": csrf,
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/html",
                 },
                 body: JSON.stringify({ columns: cols }),
             }),

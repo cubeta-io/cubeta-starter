@@ -8,11 +8,14 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSController;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Logs\CubeError;
+use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 
@@ -20,17 +23,17 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 {
     use WebGeneratorHelper, StringsGenerator;
 
-    const MODEL_INTERFACE_STUB = __DIR__ . '/../../../stubs/Inertia/ts/interface.stub';
-    const FORM_STUB = __DIR__ . '/../../../stubs/Inertia/pages/form.stub';
-    const SHOW_PAGE_STUB = __DIR__ . '/../../../stubs/Inertia/pages/show.stub';
-    const INDEX_PAGE_STUB = __DIR__ . '/../../../stubs/Inertia/pages/index.stub';
-
     private string $imports = "";
     private string $currentForm = "Create";
 
     public function run(bool $override = false): void
     {
-        $routes = $this->getRoutesNames($this->table, $this->actor);
+        if (!Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
+            CubeLog::add(new CubeError("Install react-ts tools by running [php artisan cubeta:install react-ts && php artisan cubeta:install react-ts-packages] then try again", happenedWhen: "Generating a {$this->table->modelName} react pages"));
+            return;
+        }
+
+        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
 
         $this->generateTypeScriptInterface($override);
 
@@ -103,7 +106,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $stubProperties,
             $formPath->fullPath,
             $override,
-            self::FORM_STUB
+            CubePath::stubPath('Inertia/pages/form.stub')
         );
 
         $formPath->format();
@@ -194,7 +197,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 Settings::make()->getTable(Naming::model(str_replace('_id', '', $attribute->name)))
                 ?? CubeTable::create(Naming::model(str_replace('_id', '', $attribute->name)));
 
-            $dataRoute = $this->getRouteName($relatedModel, ContainerType::WEB, $this->actor) . '.data';
+            $dataRoute = $this->getRouteNames($relatedModel, ContainerType::WEB, $this->actor)["data"];
 
             if (
                 !$relatedModel?->getModelPath()->exist() //Category Path
@@ -271,7 +274,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             stubProperties: $stubProperties,
             path: $interfacePath->fullPath,
             override: $override,
-            otherStubsPath: self::MODEL_INTERFACE_STUB
+            otherStubsPath: CubePath::stubPath('Inertia/ts/interface.stub')
         );
 
         $interfacePath->format();
@@ -298,7 +301,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $smallFields = "";
         $bigFields = "";
 
-        $routes = $this->getRoutesNames($this->table, $this->actor);
+        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $pageName = $this->table->viewNaming();
 
         $showPagePath = CubePath::make("resources/js/Pages/dashboard/$pageName/Show.tsx");
@@ -355,7 +358,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $showPagePath->ensureDirectoryExists();
 
-        $this->generateFileFromStub($stubProperties, $showPagePath->fullPath, $override, self::SHOW_PAGE_STUB);
+        $this->generateFileFromStub($stubProperties, $showPagePath->fullPath, $override, CubePath::stubPath('Inertia/pages/show.stub'));
 
         $showPagePath->format();
     }
@@ -367,18 +370,19 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $indexPagePath = CubePath::make("resources/js/Pages/dashboard/$pageName/Index.tsx");
 
         $this->imports = "";
-        $routes = $this->getRoutesNames($this->table, $this->actor);
+        $dataTableColumns = $this->getDataTableColumns();
+        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $stubProperties = [
-            '{{modelName}}'          => $this->table->modelName,
-            "{{columns}}"            => $this->getDataTableColumns(),
             "{{imports}}"            => $this->imports,
+            "{{columns}}"            => $dataTableColumns,
+            '{{modelName}}'          => $this->table->modelName,
+            "{{modelVariable}}"      => $this->table->variableNaming(),
             "{{createRoute}}"        => $routes['create'],
             "{{dataRoute}}"          => $routes['data'],
-            "{{modelVariable}}"      => $this->table->variableNaming(),
             "{{indexRoute}}"         => $routes['index'],
             "{{importRoute}}"        => $routes['import'],
             "{{exportRoute}}"        => $routes['export'],
-            '{{importExampleRoute}}' => $routes['example'],
+            '{{importExampleRoute}}' => $routes['import_example'],
         ];
 
         if ($indexPagePath->exist()) {
@@ -388,7 +392,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $indexPagePath->ensureDirectoryExists();
 
-        $this->generateFileFromStub($stubProperties, $indexPagePath->fullPath, $override, self::INDEX_PAGE_STUB);
+        $this->generateFileFromStub($stubProperties, $indexPagePath->fullPath, $override, CubePath::stubPath('Inertia/pages/index.stub'));
 
         $indexPagePath->format();
     }
@@ -448,7 +452,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $this->addImport('import { Link } from "@inertiajs/react";');
             $relatedModelAttribute = $relatedModel->titleable();
             $translatable = $relatedModelAttribute->isTranslatable() ? "translatable:true," : "";
-            $relatedModelShowRoute = $this->getRoutesNames($this->table, $this->actor)['show'];
+            $relatedModelShowRoute = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor)['show'];
             $columns .= "
             {
                 label: \"{$relatedModel->modelName} {$relatedModelAttribute->titleNaming()}\",

@@ -34,12 +34,12 @@
                                     <h5 class="card-title">Profile Details</h5>
 
                                     <div class="row">
-                                        <div class="col-lg-3 col-md-4 label ">Full Name</div>
+                                        <div class="col-lg-3 col-md-4 ">Full Name</div>
                                         <div class="col-lg-9 col-md-8">{{$user->first_name}} {{$user->last_name}}</div>
                                     </div>
 
                                     <div class="row">
-                                        <div class="col-lg-3 col-md-4 label">Email</div>
+                                        <div class="col-lg-3 col-md-4">Email</div>
                                         <div class="col-lg-9 col-md-8">{{$user->email}}</div>
                                     </div>
 
@@ -48,7 +48,7 @@
                                 <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
 
                                     <!-- Profile Edit Form -->
-                                    <form action="{{route('web.protected.update-user-data')}}" method="POST">
+                                    <form action="{{route('{{update-user-data-route}}')}}" method="POST">
                                         @method('PUT')
                                         @csrf
                                         <div class="row mb-3">

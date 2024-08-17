@@ -30,13 +30,5 @@ class AddActor extends BaseCommand
         $generator->run($override);
 
         $this->handleCommandLogsAndErrors();
-
-        $this->warn("Don't Forgot To Run <php artisan cubeta:install permissions> and <php artisan install:cubeta-auth> If You Haven't Run Them");
-        if (ContainerType::isApi($container)){
-            $this->warn("Don't Forgot To Run <php artisan vendor:publish --tag=cubeta-starter-api> If You Haven't Run It");
-        }
-        if (ContainerType::isWeb($container)){
-            $this->warn("Don't Forgot To Run <php artisan vendor:publish --tag=cubeta-starter-web> If You Haven't Run It");
-        }
     }
 }

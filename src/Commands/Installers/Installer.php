@@ -12,6 +12,8 @@ use Cubeta\CubetaStarter\Generators\Installers\PermissionsInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\ReactTSInertiaInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\ReactTsPackagesInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\WebInstaller;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\CubeWarning;
 
 class Installer extends BaseCommand
 {
@@ -31,16 +33,22 @@ class Installer extends BaseCommand
             return;
         }
 
-        $override = $this->option('force') ?? false;
+        $override = $this->option('force') ?? null;
+
+        if (!$override) {
+            $override = $this->askForOverride();
+        }
 
         switch ($plugin) {
             case "api" :
                 $gen = new GeneratorFactory(ApiInstaller::$key);
                 break;
             case "web" :
+                $container = ContainerType::WEB;
                 $gen = new GeneratorFactory(WebInstaller::$key);
                 break;
             case "web-packages" :
+                $container = ContainerType::WEB;
                 $gen = new GeneratorFactory(BladePackagesInstaller::$key);
                 break;
             case "permissions" :
@@ -48,12 +56,10 @@ class Installer extends BaseCommand
                 break;
             case "auth" :
                 $container = $this->askForContainer();
-                $override = $this->askForOverride();
                 $gen = new GeneratorFactory(AuthInstaller::$key);
                 break;
             case "react-ts" :
                 $container = ContainerType::WEB;
-                $override = $this->askForOverride();
                 $gen = new GeneratorFactory(ReactTSInertiaInstaller::$key);
                 break;
             case "react-ts-packages":
