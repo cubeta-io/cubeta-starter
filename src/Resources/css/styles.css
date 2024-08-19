@@ -51,7 +51,7 @@ nav div a:hover {
    main pages
  */
 div .card {
-    width: 50%;
+    width: 75%;
 }
 
 
@@ -100,7 +100,7 @@ select option {
 }
 
 .brand-input::placeholder {
-    color: var(--bs-white) !important;
+    color: #a6a6a6 !important;
 }
 
 .brand-input:focus {

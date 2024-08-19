@@ -13,7 +13,7 @@
         $needActor = \Cubeta\CubetaStarter\Generators\Sources\ControllerGenerator::$key  . " , " .\Cubeta\CubetaStarter\Generators\Sources\TestGenerator::$key . " , " . "full_crud"
     @endphp
     <div class="w-100 d-flex justify-content-center align-items-center" style="overflow-y: scroll;">
-        <div class="w-100 card" style="max-width: 55%;margin-bottom: 100px; margin-top: 100px">
+        <div class="card" style=" max-width: 60%;margin-bottom: 100px; margin-top: 100px">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-start">
                     <h2 class="text-white">Generate</h2>
@@ -72,9 +72,10 @@
                         <div class="d-flex gap-3 align-items-center" id="columns_inputs_container_0">
                             <input required placeholder="name" class="brand-input p-1" name="columns[0][name]"
                                    type="text"/>
-                            <select required name="columns[0][type]" class="rounded custom-select p-1">
+                            <select id="column_type_0" required name="columns[0][type]"
+                                    class="rounded custom-select p-1">
                                 @foreach($columnTypes as $column)
-                                    <option value="{{$type}}">{{$column}}</option>
+                                    <option value="{{$column}}">{{$column}}</option>
                                 @endforeach
                             </select>
 
@@ -166,9 +167,9 @@
             }
 
             function getColumnTypeField(id) {
-                return `<select required name="columns[${id}][type]" class="rounded custom-select p-1">
+                return `<select id="column_type_${id}" required name="columns[${id}][type]" class="rounded custom-select p-1">
                             @foreach($columnTypes as $column)
-                <option value="{{$type}}">{{$column}}</option>
+                <option value="{{$column}}">{{$column}}</option>
                             @endforeach
                 </select>`;
             }
@@ -205,11 +206,26 @@
                         </div>`
             }
 
+            $(`#column_type_0`).on('change', function (e) {
+                if (e.target.value === "{{\Cubeta\CubetaStarter\Enums\ColumnTypeEnum::FILE->value}}") {
+                    $(`#nullable_0`).attr('checked', true);
+                } else {
+                    $(`#nullable_0`).attr('checked', false);
+                }
+            })
+
             let columnsCount = 0;
             addColumnButton.on('click', function (event) {
                 event.preventDefault();
                 columnsCount++;
                 columnsContainer.append(getFullColumnContainer(columnsCount));
+                $(`#column_type_${columnsCount}`).on('change', function (e) {
+                    if (e.target.value === "{{\Cubeta\CubetaStarter\Enums\ColumnTypeEnum::FILE->value}}") {
+                        $(`#nullable_${columnsCount}`).attr('checked', true);
+                    } else {
+                        $(`#nullable_${columnsCount}`).attr('checked', false);
+                    }
+                })
             })
 
             const addRelationButton = $("#add_relation_button");

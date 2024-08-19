@@ -1,6 +1,5 @@
 @extends('CubetaStarter::layout')
 @section('content')
-
     @php
         $stacks = array_reverse(\Cubeta\CubetaStarter\Enums\FrontendTypeEnum::getAllValues());
         $roleEnumPath = \Cubeta\CubetaStarter\Helpers\CubePath::make("app/Enums/RolesPermissionEnum.php");
@@ -17,7 +16,7 @@
     @endphp
 
     <div class="d-flex align-items-center justify-content-start flex-column w-100">
-        <div class="w-100 d-flex justify-content-center align-items-center my-4" style="max-width: 55%;">
+        <div class="w-100 d-flex justify-content-center align-items-center my-4" style=" max-width: 60%;">
             <div class="card w-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-start">
@@ -130,7 +129,7 @@
 
         @if(\Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedRoles())
             <div class="w-100 d-flex justify-content-center align-items-center my-4"
-                 style="margin-bottom: 200px!important;max-width: 55%;">
+                 style="margin-bottom: 200px!important; max-width: 60%;">
                 <div class="card w-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-start">
