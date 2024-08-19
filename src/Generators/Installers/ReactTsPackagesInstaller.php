@@ -23,7 +23,7 @@ class ReactTsPackagesInstaller extends AbstractGenerator
         FileUtils::executeCommandInTheBaseDirectory("composer require " .
             " tightenco/ziggy " .
             " intervention/image:^2.7 " .
-            " maatwebsite/excel:^3 " .
+            " maatwebsite/excel" .
             " inertiajs/inertia-laravel"
         );
 
