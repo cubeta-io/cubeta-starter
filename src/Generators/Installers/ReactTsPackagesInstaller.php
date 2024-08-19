@@ -22,8 +22,7 @@ class ReactTsPackagesInstaller extends AbstractGenerator
 
         FileUtils::executeCommandInTheBaseDirectory("composer require " .
             " tightenco/ziggy " .
-            " intervention/image:^2.7 " .
-            " maatwebsite/excel:^3 " .
+            " maatwebsite/excel " .
             " inertiajs/inertia-laravel"
         );
 
@@ -31,6 +30,7 @@ class ReactTsPackagesInstaller extends AbstractGenerator
 
         //install js packages
         FileUtils::executeCommandInTheBaseDirectory('npm install ' .
+            ' laravel-vite-plugin' .
             ' @inertiajs/react ' .
             ' tailwindcss ' .
             ' @tailwindcss/forms ' .
@@ -47,7 +47,8 @@ class ReactTsPackagesInstaller extends AbstractGenerator
             ' autoprefixer ' .
             ' sweetalert2 ' .
             ' sweetalert2-react-content ' .
-            ' react-toastify'
+            ' react-toastify ' .
+            " vite "
         );
 
         // install prettier

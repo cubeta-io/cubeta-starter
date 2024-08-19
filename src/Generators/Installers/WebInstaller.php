@@ -65,7 +65,7 @@ class WebInstaller extends AbstractGenerator
 
     private function generateSidebar(bool $override): void
     {
-        if (Settings::make()->installedAuth()) {
+        if (Settings::make()->installedApiAuth()) {
             $route = $this->getWebIndexPageRoute(actor: "protected", justName: true);
         } else {
             $route = $this->getWebIndexPageRoute(actor: "public", justName: true);

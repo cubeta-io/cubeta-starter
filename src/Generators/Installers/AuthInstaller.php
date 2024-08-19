@@ -28,8 +28,8 @@ class AuthInstaller extends AbstractGenerator
 
     public string $type = 'installer';
 
-    private array $publicRoutes = [];
-    private array $protectedRoutes = [];
+    private array $publicRoutes;
+    private array $protectedRoutes;
 
     public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '', string $version = 'v1')
     {
@@ -59,6 +59,7 @@ class AuthInstaller extends AbstractGenerator
             $this->initializeJwt();
             $this->generateUserResource($override);
             $this->generateBaseAuthApiController($override);
+            Settings::make()->setInstalledApiAuth();
         }
 
         if (ContainerType::isWeb($this->generatedFor)) {
@@ -77,11 +78,11 @@ class AuthInstaller extends AbstractGenerator
             if ($envParser && !$envParser->hasValue("APP_KEY")) {
                 FileUtils::executeCommandInTheBaseDirectory("php artisan key:generate");
             }
+            Settings::make()->setInstalledWebAuth();
         }
 
         CubeLog::add(new CubeWarning("Don't forgot to re-run your users table migration"));
 
-        Settings::make()->setInstalledAuth();
     }
 
     /**
