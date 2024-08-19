@@ -18,7 +18,7 @@ class BladePackagesInstaller extends AbstractGenerator
         FileUtils::executeCommandInTheBaseDirectory("composer require " .
             " intervention/image:^2.7 " .
             " yajra/laravel-datatables " .
-            " maatwebsite/excel:^3"
+            " maatwebsite/excel"
         );
 
         FileUtils::executeCommandInTheBaseDirectory("npm install " .
