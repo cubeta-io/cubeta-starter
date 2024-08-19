@@ -1,6 +1,6 @@
 <nav class="d-flex flex-row py-3">
     <div class="d-flex align-items-center justify-content-start h-100 w-50 gap-2">
-        <img class="h-100 img-fluid" src="{{asset("$assetsPath/images/logo-light.png")}}" alt="cubeta logo">
+        @include('CubetaStarter::icons.cubeta-light-svg')
         <h3 class="fw-bolder text-white p-0 m-0">CUBETA</h3>
     </div>
     <div class="d-flex align-items-center justify-content-end gap-5 w-50 text-white">
