@@ -75,6 +75,7 @@ class ActorFilesGenerator extends AbstractGenerator
                 $this->addRouteFile($this->role, ContainerType::API, $this->version, [
                     'authenticated',
                     'has-role:' . $this->role,
+                    'jwt_auth',
                 ]);
             }
         }

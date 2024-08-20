@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Generators\Installers;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
+use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\EnvParser;
@@ -56,7 +57,7 @@ class AuthInstaller extends AbstractGenerator
         $this->generateResetPasswordEmail($override);
 
         if (ContainerType::isApi($this->generatedFor)) {
-            $this->initializeJwt();
+            $this->initializeJwt($override);
             $this->generateUserResource($override);
             $this->generateBaseAuthApiController($override);
             Settings::make()->setInstalledApiAuth();
@@ -615,7 +616,7 @@ class AuthInstaller extends AbstractGenerator
         CubeLog::add(new FailedAppendContent("href={route('$routeName')}", $dropDownPath->fullPath), "Adding auth routes to navbar dropdown");
     }
 
-    private function initializeJwt(): void
+    private function initializeJwt(bool $override = false): void
     {
         $envParser = EnvParser::make();
         FileUtils::executeCommandInTheBaseDirectory("composer require php-open-source-saver/jwt-auth");
@@ -625,5 +626,17 @@ class AuthInstaller extends AbstractGenerator
             FileUtils::executeCommandInTheBaseDirectory("php artisan jwt:secret");
         }
         $envParser?->addVariable("JWT_BLACKLIST_ENABLED", "false");
-    }
+
+        FileUtils::generateFileFromStub(
+            ["{{trait_namespace}}" => config('cubeta-starter.trait_namespace')],
+            CubePath::make('/app/Http/Middleware/JWTAuthMiddleware.php')->fullPath,
+            CubePath::stubPath('/middlewares/JWTAuthMiddleware.stub'),
+            $override
+        );
+
+        FileUtils::registerMiddleware(
+            "'jwt-auth' => JWTAuthMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            'use App\Http\Middleware\JWTAuthMiddleware;'
+        );    }
 }
