@@ -189,7 +189,7 @@ class GeneratorController extends Controller
 
         if (isset($data['columns'])) {
             foreach ($data['columns'] as $column) {
-                $columns[$column['name']] = $column[$column['type']] ?? ColumnTypeEnum::STRING->value;
+                $columns[$column['name']] = $column['type'] ?? ColumnTypeEnum::STRING->value;
                 if (isset($column['unique']) && $column['unique'] == "true") {
                     $uniques[] = $column['name'];
                 }
