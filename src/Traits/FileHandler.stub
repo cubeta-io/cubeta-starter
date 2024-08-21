@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 trait FileHandler
 {
@@ -29,12 +30,12 @@ trait FileHandler
      * this function takes a base64 encoded image and store it in the filesystem and return the name of it
      * (ex. 12546735.png) that will be stored in DB
      *
-     * @param      $file
-     * @param      $dir
-     * @param bool $is_base_64
+     * @param        $file
+     * @param string $dir
+     * @param bool   $is_base_64
      * @return string
      */
-    public function storeFile($file, $dir, bool $is_base_64 = false): string
+    public function storeFile($file, string $dir = "/", bool $is_base_64 = false): string
     {
         $this->files = new Filesystem();
         $this->makeDirectory(storage_path('app/public/' . $dir));
@@ -43,8 +44,9 @@ trait FileHandler
         } else {
             $name = $dir . '/' . $file->hashName();
         }
-        Storage::disk('public')->put(storage_path('app/public/') . $name, $file);
-        return $name;
+        $name = str_replace('//', '/', $name);
+        Storage::disk('public')->put($dir, $file);
+        return Str::startsWith($name, "/") ? asset("storage$name") : asset("storage/$name");
     }
 
     /**
