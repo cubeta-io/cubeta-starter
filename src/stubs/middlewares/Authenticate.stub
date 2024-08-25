@@ -17,7 +17,7 @@ class Authenticate
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->expectsJson()) {
+        if ($request->acceptsJson()) {
             if (!auth('api')?->user()) {
                 return response()->json([
                     'data'      => null,
@@ -26,7 +26,7 @@ class Authenticate
                     'message'   => __('site.unauthorized_user')
                 ]);
             }
-        } elseif (!auth('web')?->user()) {
+        } elseif ($request->acceptsHtml() && !auth('web')?->user()) {
             return redirect()->route('{{web-login-page-route}}');
         }
 
