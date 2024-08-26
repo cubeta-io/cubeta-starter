@@ -43,12 +43,15 @@ abstract class BaseRepository
 
     private array $searchableKeys = [];
 
+    private string $tableName;
+
     /**
      * BaseRepository Constructor
      */
     public function __construct()
     {
         $this->model = new $this->modelClass;
+        $this->tableName = $this->model->getTable();
 
         if (method_exists($this->model, 'filesKeys')) {
             $this->fileColumnsName = $this->model->filesKeys();
@@ -100,7 +103,7 @@ abstract class BaseRepository
 
     /**
      * @param array $relations
-     * @return Builder<T>
+     * @return Builder|T
      */
     public function globalQuery(array $relations = []): Builder
     {
@@ -154,7 +157,7 @@ abstract class BaseRepository
     /**
      * this function implement already defined filters in the model
      * @param Builder $query
-     * @return Builder<T>
+     * @return Builder|T
      */
     private function filterFields(Builder $query): Builder
     {
@@ -209,7 +212,7 @@ abstract class BaseRepository
 
     /**
      * @param $query
-     * @return mixed
+     * @return Builder|T
      */
     private function orderQueryBy($query): mixed
     {
@@ -413,7 +416,7 @@ abstract class BaseRepository
      * @param Builder $query
      * @param string  $table
      * @param string  $column
-     * @return Builder
+     * @return Builder|T
      */
     function handleRangeQuery(array $value, Builder $query, string $table, string $column): Builder
     {
@@ -423,8 +426,8 @@ abstract class BaseRepository
             } elseif (isset($value[0]) && !isset($value[1])) {
                 $query->where("$table.$column", '>=', $value[0]);
             } elseif (isset($value[0]) && isset($value[1])) {
-                $query = $query->whereBetween("$table.$column", [$value[0], $value[1]])
-                    ->orWhereBetween("$table.$column", [$value[1], $value[0]]);
+                $query = $query->where("$table.$column", '>=', $value[0])
+                    ->where("$table.$column", '<=', $value[1]);
             }
         } elseif (count($value) > 2) {
             $query->whereIn("$table.$column", array_values(array_filter($value)));
