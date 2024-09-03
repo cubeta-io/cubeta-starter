@@ -243,9 +243,9 @@ abstract class BaseRepository
     {
         $per_page = request("limit") ?? $per_page;
         $all = $this->globalQuery($relationships)->paginate($per_page);
-        if (count($all) > 0) {
+        if ($all->count() > 0) {
             $pagination_data = $this->formatPaginateData($all);
-            return ['data' => $all->items(), 'pagination_data' => $pagination_data];
+            return ['data' => $all->getCollection(), 'pagination_data' => $pagination_data];
         }
         return null;
     }
