@@ -133,19 +133,16 @@ class ModelGenerator extends AbstractGenerator
                 if ($relation->isHasMany()) {
                     $relationsFunctions .= $this->hasManyFunction($relation);
                     $properties .= "* @property  \Illuminate\Support\Collection<{$relation->modelName}>|\Illuminate\Database\Eloquent\Collection<{$relation->modelName}>|{$relation->modelName}[] {$relation->method()}\n";
-                    $properties .= "* @method  \Illuminate\Database\Eloquent\Relations\HasMany {$relation->method()}\n";
                 }
 
                 if ($relation->isManyToMany()) {
                     $relationsFunctions .= $this->manyToManyFunction($relation, $relation->getPivotTableName());
                     $properties .= "* @property  \Illuminate\Support\Collection<{$relation->modelName}>|\Illuminate\Database\Eloquent\Collection<{$relation->modelName}>|{$relation->modelName}[] {$relation->method()}\n";
-                    $properties .= "* @method  \Illuminate\Database\Eloquent\Relations\BelongsToMany {$relation->method()}\n";
                 }
             }
 
             if ($relation->isBelongsTo()) {
                 $properties .= "* @property {$relation->modelName} {$relation->method()}\n";
-                $properties .= "* @method  \Illuminate\Database\Eloquent\Relations\BelongsTo {$relation->method()}\n";
 
                 if ($relatedTable && $relation->exists()) {
                     $relationName = $relation->relationMethodNaming();
