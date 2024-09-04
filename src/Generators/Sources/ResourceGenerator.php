@@ -43,12 +43,8 @@ class ResourceGenerator extends AbstractGenerator
     {
         $fields = "'id' => \$this->id, \n\t\t\t";
         $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$fields) {
-            $key  = Str::snake($attribute->name);
-            if ($attribute->isFile()) {
-                $fields .= "'{$key}' => \$this->get" . $attribute->modelNaming() . "Path(), \n\t\t\t";
-            } else {
-                $fields .= "'{$key}' => \$this->{$attribute->name},\n\t\t\t";
-            }
+            $key = Str::snake($attribute->name);
+            $fields .= "'{$key}' => \$this->{$attribute->name},\n\t\t\t";
         });
 
         foreach ($this->table->relations() as $rel) {

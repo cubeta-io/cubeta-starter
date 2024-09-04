@@ -108,14 +108,12 @@ class ModelGenerator extends AbstractGenerator
                 $filesKeys .= "'{$attribute->name}' ,\n";
                 $properties .= "* @property {$nullableProperty}string {$attribute->name} \n";
                 $colName = $attribute->modelNaming();
-                $fileFunctions .= '/**
-                              * return the full path of the stored ' . $colName . '
-                              * @return string|null
-                              */
-                              public function get' . $colName . "Path() : ?string
-                              {
-                                  return \$this->{$colName} != null ? asset('storage/'.\$this->{$colName}) : null;
-                              }\n";
+                $fileFunctions .= 'protected function ' . $attribute->name . '(): \Illuminate\Database\Eloquent\Casts\Attribute
+                                   {
+                                        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+                                            get: fn ($value, array $attributes) => $value != null ? asset(\'storage/\' . $value) : null,
+                                        );
+                                   }';
                 FileUtils::ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->table->modelName) . '/' . Str::plural($colName)));
 
             } elseif (ColumnTypeEnum::isDateTimeType($attribute->type)) {
