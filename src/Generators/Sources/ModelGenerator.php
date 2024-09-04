@@ -87,8 +87,9 @@ class ModelGenerator extends AbstractGenerator
             }
 
             if ($attribute->type === ColumnTypeEnum::BOOLEAN->value) {
-                $booleanValueScope .= "\tpublic function scope" . ucfirst(Str::studly($attribute->name)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute->name . "' , 1);\n\t}\n";
+                $booleanValueScope .= "\tpublic function scope" . ucfirst(Str::studly($attribute->name)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute->name . "' , true);\n\t}\n";
                 $casts .= "'{$attribute->name}' => 'boolean' , \n";
+                $properties .= "* @property {$nullableProperty}bool {$attribute->name} \n";
             } elseif ($attribute->isTranslatable()) {
                 $searchable .= "'{$attribute->name}' , \n";
                 $casts .= "'{$attribute->name}' => \\App\\Casts\\Translatable::class, \n";
