@@ -1,6 +1,5 @@
 @extends('CubetaStarter::layout')
 @section('content')
-
     @php
         $stacks = array_reverse(\Cubeta\CubetaStarter\Enums\FrontendTypeEnum::getAllValues());
         $roleEnumPath = \Cubeta\CubetaStarter\Helpers\CubePath::make("app/Enums/RolesPermissionEnum.php");
@@ -12,11 +11,12 @@
         $installedApi = \Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedApi();
         $installedWeb = \Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedWeb();
         $installedRoles = \Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedRoles();
-        $installedAuth = \Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedAuth();
+        $installedApiAuth = \Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedApiAuth();
+        $installedWebAuth = \Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedWebAuth();
     @endphp
 
     <div class="d-flex align-items-center justify-content-start flex-column w-100">
-        <div class="w-100 d-flex justify-content-center align-items-center my-4" style="max-width: 55%;">
+        <div class="w-100 d-flex justify-content-center align-items-center my-4" style=" max-width: 60%;">
             <div class="card w-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-start">
@@ -45,8 +45,8 @@
                             <div class="col-md-3 my-2">
                                 <input class="form-check-input" name="web" type="checkbox" value="true"
                                        id="ask_dashboard"
-                                        @disabled($installedWeb)
-                                        @checked(!$installedWeb)
+                                    @disabled($installedWeb)
+                                    @checked(!$installedWeb)
                                 >
                             </div>
 
@@ -58,7 +58,7 @@
                                     @foreach($stacks as $stack)
                                         @if($stack != \Cubeta\CubetaStarter\Enums\FrontendTypeEnum::NONE->value)
                                             <option
-                                                    value="{{$stack}}" @disabled(\Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->getFrontendType() == \Cubeta\CubetaStarter\Enums\FrontendTypeEnum::tryFrom($stack))>
+                                                value="{{$stack}}" @disabled(\Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->getFrontendType() == \Cubeta\CubetaStarter\Enums\FrontendTypeEnum::tryFrom($stack))>
                                                 {{$stack}}
                                             </option>
                                         @endif
@@ -66,14 +66,26 @@
                                 </select>
                             </div>
 
-                            <label class="form-check-label col-md-9 my-2" for="ask_auth">
-                                Do you have authentication ?
-                                @if($installedAuth)
+                            <label class="form-check-label col-md-9 my-2" for="ask_web_auth">
+                                Do you need authentication for the generated dashboard ?
+                                @if($installedWebAuth)
                                     <span style="padding: 1px" class="bg-success rounded-2">Installed</span>
                                 @endif
                             </label>
-                            <div class="col-md-3 my-2">
-                                <input class="form-check-input" type="checkbox" name="auth" value="true" id="ask_auth">
+                            <div class="col-md-3 my-2" id="web_auth_container">
+                                <input class="form-check-input" type="checkbox" name="web_auth" value="true"
+                                       id="ask_web_auth" @disabled($installedWebAuth)>
+                            </div>
+
+                            <label class="form-check-label col-md-9 my-2" for="ask_api_auth">
+                                Do you need authentication for the generated API's ?
+                                @if($installedApiAuth)
+                                    <span style="padding: 1px" class="bg-success rounded-2">Installed</span>
+                                @endif
+                            </label>
+                            <div class="col-md-3 my-2" id="api_auth_container">
+                                <input class="form-check-input" type="checkbox" name="api_auth" value="true"
+                                       id="ask_api_auth" @disabled($installedApiAuth)>
                             </div>
 
                             <label class="form-check-label col-md-9 my-2" for="ask_permissions">
@@ -85,7 +97,7 @@
                             <div class="col-md-3 my-2">
                                 <input class="form-check-input" name="permissions" type="checkbox" value="true"
                                        id="ask_permissions"
-                                        @disabled($installedRoles)
+                                    @disabled($installedRoles)
                                 >
                             </div>
 
@@ -117,7 +129,7 @@
 
         @if(\Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedRoles())
             <div class="w-100 d-flex justify-content-center align-items-center my-4"
-                 style="margin-bottom: 200px!important;max-width: 55%;">
+                 style="margin-bottom: 200px!important; max-width: 60%;">
                 <div class="card w-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-start">
@@ -160,25 +172,60 @@
     @push('custom-scripts')
         <script type="module">
             $(document).ready(function () {
-                const askDashboard = $("#ask_dashboard");
-                const stackSelect = $("#frontend_stack_select")
-                const stackSelectLabel = $(`label[for="ask_stack"]`);
-                if (askDashboard.is(':checked')) {
-                    stackSelect.removeClass('hidden');
-                    stackSelectLabel.removeClass('hidden');
-                } else {
-                    stackSelect.addClass('hidden');
-                    stackSelectLabel.addClass('hidden');
-                }
-                askDashboard.on('input', function () {
+                function handleShowedFields() {
+                    const askDashboard = $("#ask_dashboard");
+                    const stackSelect = $("#frontend_stack_select")
+                    const stackSelectLabel = $(`label[for="ask_stack"]`);
+                    const askApi = $("#ask_api");
+                    const askApiAuth = $("#api_auth_container");
+                    const askAuthApiLabel = $(`label[for="ask_api_auth"]`);
+                    const askWebAuth = $("#web_auth_container");
+                    const askAuthWebLabel = $(`label[for="ask_web_auth"]`);
+
+
                     if (askDashboard.is(':checked')) {
                         stackSelect.removeClass('hidden');
                         stackSelectLabel.removeClass('hidden');
+                        askWebAuth.removeClass("hidden");
+                        askAuthWebLabel.removeClass("hidden")
+                    } else if ("{{$installedWeb && !$installedWebAuth}}" == true) {
+                        askWebAuth.removeClass("hidden");
+                        askAuthWebLabel.removeClass("hidden")
+                    } else if ("{{$installedWebAuth}}" == true) {
+                        askWebAuth.removeClass("hidden");
+                        askAuthWebLabel.removeClass("hidden")
                     } else {
                         stackSelect.addClass('hidden');
                         stackSelectLabel.addClass('hidden');
+                        askWebAuth.addClass("hidden");
+                        askAuthWebLabel.addClass("hidden");
                     }
-                })
+
+                    if (askApi.is(':checked')) {
+                        askApiAuth.removeClass("hidden");
+                        askAuthApiLabel.removeClass("hidden")
+                    } else if ("{{$installedApi && !$installedApiAuth}}" == true) {
+                        askApiAuth.removeClass("hidden");
+                        askAuthApiLabel.removeClass("hidden")
+                    } else if ("{{$installedApiAuth}}" == true) {
+                        askApiAuth.removeClass("hidden");
+                        askAuthApiLabel.removeClass("hidden")
+                    } else {
+                        askApiAuth.addClass("hidden");
+                        askAuthApiLabel.addClass("hidden")
+                    }
+                    return {askDashboard, askApi};
+                }
+
+                const {askDashboard, askApi} = handleShowedFields();
+
+                askDashboard.on('input', function () {
+                    handleShowedFields();
+                });
+
+                askApi.on('input', function () {
+                    handleShowedFields();
+                });
             });
         </script>
     @endpush

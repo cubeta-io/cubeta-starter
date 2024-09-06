@@ -38,7 +38,7 @@ class BaseAuthController extends ApiController
         //you can pass additional data as an array for the third parameter in the
         //login method and this data will be stored in the users table
         $result = $this->userService->login($request->validated(), $this->role, []);
-        if (!$result) {
+        if (!$result || !is_array($result)) {
             return $this->apiResponse(null, self::STATUS_NOT_FOUND, __('site.credentials_not_match_records'));
         }
 
@@ -60,7 +60,7 @@ class BaseAuthController extends ApiController
     public function refresh(Request $request)
     {
         $result = $this->userService->refresh_token();
-        if (!$result) {
+        if (!$result || !is_array($result)) {
             return $this->apiResponse(null, self::STATUS_UNAUTHORIZED, __('site.token_refreshed_failed'));
         }
         [$user, $token, $refresh_token] = $result;
@@ -76,7 +76,7 @@ class BaseAuthController extends ApiController
     {
         $result = $this->userService->register($request->validated(), $this->role);
 
-        if (!$result) {
+        if (!$result || !is_array($result)) {
             return $this->apiResponse(null, self::STATUS_NOT_FOUND, __('site.failed'));
         }
 
@@ -117,7 +117,7 @@ class BaseAuthController extends ApiController
     {
         $result = $this->userService->updateUserDetails($request->validated(), $this->role);
 
-        if (!$result) {
+        if (!$result || !is_array($result)) {
             return $this->apiResponse(null, self::STATUS_BAD_REQUEST, __('site.unauthorized_user'));
         }
 

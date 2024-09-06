@@ -2,10 +2,9 @@
 
 namespace App\Traits;
 
-use Illuminate\Support\Str;
 use Illuminate\Filesystem\Filesystem;
-use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 trait FileHandler
 {
@@ -22,10 +21,8 @@ trait FileHandler
     {
         if (file_exists(storage_path('app/public/') . $file)) {
             Storage::disk('public')->delete($file);
-
             return true;
         }
-
         return false;
     }
 
@@ -33,14 +30,12 @@ trait FileHandler
      * this function takes a base64 encoded image and store it in the filesystem and return the name of it
      * (ex. 12546735.png) that will be stored in DB
      *
-     * @param $file
-     * @param $dir
-     * @param bool $to_compress
-     * @param bool $is_base_64
-     * @param int $width
+     * @param        $file
+     * @param string $dir
+     * @param bool   $is_base_64
      * @return string
      */
-    public function storeFile($file, $dir, bool $to_compress = true, bool $is_base_64 = false, int $width = 300): string
+    public function storeFile($file, string $dir = "/", bool $is_base_64 = false): string
     {
         $this->files = new Filesystem();
         $this->makeDirectory(storage_path('app/public/' . $dir));
@@ -49,30 +44,9 @@ trait FileHandler
         } else {
             $name = $dir . '/' . $file->hashName();
         }
-        if ($to_compress) {
-            Image::make($file)->resize($width, null, function ($constraint) {
-                $constraint->aspectRatio();
-            })->save(storage_path('app/public/') . $name);
-        } else {
-            Image::make($file)->save(storage_path('app/public/') . $name);
-        }
-
-        return $name;
-    }
-
-    /**
-     * @param string $url image URL
-     * @param string $dir the rest of the storage path where you want to store
-     * @return array
-     */
-    public function storeImageFromUrl(string $url, string $dir = ''): array
-    {
-        $this->files = new Filesystem();
-        $this->makeDirectory(storage_path('app/public/' . $dir));
-        $name = $dir . '/' . Str::random() . '.jpg';
-        $image = Image::make($url)->save(storage_path('app/public/') . $name);
-
-        return ['name' => $name, 'object' => $image];
+        $name = str_replace('//', '/', $name);
+        Storage::disk('public')->put($dir, $file);
+        return Str::startsWith($name, "/") ? asset("storage$name") : asset("storage/$name");
     }
 
     /**
@@ -99,23 +73,22 @@ trait FileHandler
 
     /**
      * this function takes $newImage(base64 encoded) and $oldImage(DB name) ,
-     * it deletes the $oldImage from the filesystem and store the $newImage and return its name that will be stored in DB
+     * it deletes the $oldImage from the filesystem and store the $newImage and return its name that will be stored in
+     * DB
      *
-     * @param $new_file
-     * @param $old_file
-     * @param $dir
-     * @param bool $to_compress
+     * @param      $new_file
+     * @param      $old_file
+     * @param      $dir
      * @param bool $is_base_64
-     * @param int $width
      * @return string
      */
-    public function updateFile($new_file, $old_file, $dir, bool $to_compress = true, bool $is_base_64 = false, int $width = 300): string
+    public function updateFile($new_file, $old_file, $dir, bool $is_base_64 = false): string
     {
         if ($old_file) {
             $this->deleteFile($old_file);
         }
 
-        return $this->storeFile($new_file, $dir, $to_compress, $is_base_64, $width);
+        return $this->storeFile($new_file, $dir, $is_base_64);
     }
 
     /**
@@ -136,23 +109,21 @@ trait FileHandler
      *
      * @param array $data
      * @param array $filesKeys
-     * @param bool $is_store
-     * @param null $item
-     * @param bool $to_compress
-     * @param bool $is_base_64
-     * @param int $width
+     * @param bool  $is_store
+     * @param null  $item
+     * @param bool  $is_base_64
      * @return array
      */
-    private function storeOrUpdateRequestedFiles(array $data, array $filesKeys = [], bool $is_store = true, $item = null, bool $to_compress = true, bool $is_base_64 = false, int $width = 300): array
+    private function storeOrUpdateRequestedFiles(array $data, array $filesKeys = [], bool $is_store = true, $item = null, bool $is_base_64 = false): array
     {
         $model_files = [];
         if (count($filesKeys) > 0) {
             foreach ($filesKeys as $file) {
                 if (in_array($file, $data)) {
                     if ($is_store) {
-                        $model_files["$file"] = $this->storeFile($data["$file"], $this->model->getTable(), $to_compress, $is_base_64, $width);
+                        $model_files["$file"] = $this->storeFile($data["$file"], $this->model->getTable(), $is_base_64);
                     } else {
-                        $model_files["$file"] = $this->updateFile($data["$file"], $item->{"$file"}, $this->model->getTable(), $to_compress, $is_base_64, $width);
+                        $model_files["$file"] = $this->updateFile($data["$file"], $item->{"$file"}, $this->model->getTable(), $is_base_64);
                     }
                     unset($data["$file"]);
                 }

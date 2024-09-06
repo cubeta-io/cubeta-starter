@@ -27,28 +27,7 @@ class GeneratorController extends Controller
 
     public function __construct()
     {
-        ini_set('max_execution_time', 0);
-    }
-
-    private function getContainer()
-    {
-        $installedApi = Settings::make()->installedApi();
-        $installedWeb = Settings::make()->installedWeb();
-        $validContainer = ContainerType::API;
-
-        if ($installedApi && $installedWeb) {
-            $validContainer = ContainerType::BOTH;
-        }
-
-        if ($installedApi && !$installedWeb) {
-            $validContainer = ContainerType::API;
-        }
-
-        if ($installedWeb && !$installedApi) {
-            $validContainer = ContainerType::WEB;
-        }
-
-        return $validContainer;
+        ini_set('max_execution_time', 3600);
     }
 
     private function handleLogs()
@@ -67,7 +46,6 @@ class GeneratorController extends Controller
      */
     public function runFactory(array $factoryData)
     {
-        set_time_limit(0);
         try {
             $generator = new GeneratorFactory();
             if ($factoryData['generate_key'] == "full_crud") {
@@ -127,9 +105,15 @@ class GeneratorController extends Controller
                 (new GeneratorFactory(ReactTSInertiaInstaller::$key))->make(override: $override);
             }
         }
-        if (isset($data['auth']) && $data['auth']) {
-            (new GeneratorFactory(AuthInstaller::$key))->make(generatedFor: $this->getContainer(), override: $override);
+
+        if (isset($data['api_auth']) && $data['api_auth']) {
+            (new GeneratorFactory(AuthInstaller::$key))->make(override: $override);
         }
+
+        if (isset($data['web_auth']) && $data['web_auth']) {
+            (new GeneratorFactory(AuthInstaller::$key))->make(generatedFor: ContainerType::WEB, override: $override);
+        }
+
 
         if (isset($data['permissions']) && $data['permissions']) {
             (new GeneratorFactory(PermissionsInstaller::$key))->make(override: $override);
@@ -205,7 +189,7 @@ class GeneratorController extends Controller
 
         if (isset($data['columns'])) {
             foreach ($data['columns'] as $column) {
-                $columns[$column['name']] = $column[$column['type']] ?? ColumnTypeEnum::STRING->value;
+                $columns[$column['name']] = $column['type'] ?? ColumnTypeEnum::STRING->value;
                 if (isset($column['unique']) && $column['unique'] == "true") {
                     $uniques[] = $column['name'];
                 }

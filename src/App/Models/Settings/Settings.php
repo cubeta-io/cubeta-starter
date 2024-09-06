@@ -17,7 +17,8 @@ class Settings
     private static string $version;
     private static bool $installedApi = false;
     private static bool $installedWeb = false;
-    private static bool $installedAuth = false;
+    private static bool $installedApiAuth = false;
+    private static bool $installedWebAuth = false;
 
     private function __construct()
     {
@@ -50,10 +51,16 @@ class Settings
             self::$installedWeb = false;
         }
 
-        if (isset(self::$json['installed_auth'])) {
-            self::$installedAuth = (bool)self::$json['installed_auth'];
+        if (isset(self::$json['installed_api_auth'])) {
+            self::$installedApiAuth = (bool)self::$json['installed_api_auth'];
         } else {
-            self::$installedAuth = false;
+            self::$installedApiAuth = false;
+        }
+
+        if (isset(self::$json['installed_web_auth'])) {
+            self::$installedWebAuth = (bool)self::$json['installed_web_auth'];
+        } else {
+            self::$installedWebAuth = false;
         }
 
         if (isset(self::$json["tables"])) {
@@ -281,18 +288,29 @@ class Settings
     /**
      * @return bool
      */
-    public function installedAuth(): bool
+    public function installedApiAuth(): bool
     {
-        return self::$installedAuth;
+        return self::$installedApiAuth;
     }
 
     /**
      * @param bool $value
      * @return void
      */
-    public function setInstalledAuth(bool $value = true): void
+    public function setInstalledApiAuth(bool $value = true): void
     {
-        self::$json["installed_auth"] = $value;
+        self::$json["installed_api_auth"] = $value;
         self::storeJsonSettings(self::$json);
+    }
+
+    public function setInstalledWebAuth(bool $value = true): void
+    {
+        self::$json["installed_web_auth"] = $value;
+        self::storeJsonSettings(self::$json);
+    }
+
+    public function installedWebAuth(): bool
+    {
+        return self::$installedWebAuth;
     }
 }

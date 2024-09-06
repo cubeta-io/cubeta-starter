@@ -80,15 +80,16 @@ class ModelGenerator extends AbstractGenerator
         ) {
             $fillable .= "'{$attribute->name}' ,\n";
 
-            $nullableProperty = $attribute->nullable ? "?" : "";
+            $nullableProperty = $attribute->nullable ? "null|" : "";
 
             if (!$attribute->isKey()) {
                 $exportables .= "'{$attribute->name}' ,\n";
             }
 
             if ($attribute->type === ColumnTypeEnum::BOOLEAN->value) {
-                $booleanValueScope .= "\tpublic function scope" . ucfirst(Str::studly($attribute->name)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute->name . "' , 1);\n\t}\n";
+                $booleanValueScope .= "\tpublic function scope" . ucfirst(Str::studly($attribute->name)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute->name . "' , true);\n\t}\n";
                 $casts .= "'{$attribute->name}' => 'boolean' , \n";
+                $properties .= "* @property {$nullableProperty}bool {$attribute->name} \n";
             } elseif ($attribute->isTranslatable()) {
                 $searchable .= "'{$attribute->name}' , \n";
                 $casts .= "'{$attribute->name}' => \\App\\Casts\\Translatable::class, \n";
@@ -108,14 +109,12 @@ class ModelGenerator extends AbstractGenerator
                 $filesKeys .= "'{$attribute->name}' ,\n";
                 $properties .= "* @property {$nullableProperty}string {$attribute->name} \n";
                 $colName = $attribute->modelNaming();
-                $fileFunctions .= '/**
-                              * return the full path of the stored ' . $colName . '
-                              * @return string|null
-                              */
-                              public function get' . $colName . "Path() : ?string
-                              {
-                                  return \$this->{$colName} != null ? asset('storage/'.\$this->{$colName}) : null;
-                              }\n";
+                $fileFunctions .= 'protected function ' . $attribute->name . '(): \Illuminate\Database\Eloquent\Casts\Attribute
+                                   {
+                                        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+                                            get: fn ($value, array $attributes) => $value != null ? asset(\'storage/\' . $value) : null,
+                                        );
+                                   }';
                 FileUtils::ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->table->modelName) . '/' . Str::plural($colName)));
 
             } elseif (ColumnTypeEnum::isDateTimeType($attribute->type)) {
@@ -144,7 +143,7 @@ class ModelGenerator extends AbstractGenerator
             }
 
             if ($relation->isBelongsTo()) {
-                $properties .= "* @property  {$relation->modelName} {$relation->method()}\n";
+                $properties .= "* @property {$relation->modelName} {$relation->method()}\n";
 
                 if ($relatedTable && $relation->exists()) {
                     $relationName = $relation->relationMethodNaming();

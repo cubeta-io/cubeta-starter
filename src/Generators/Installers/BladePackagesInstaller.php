@@ -16,13 +16,13 @@ class BladePackagesInstaller extends AbstractGenerator
     public function run(bool $override = false): void
     {
         FileUtils::executeCommandInTheBaseDirectory("composer require " .
-            " intervention/image:^2.7 " .
             " yajra/laravel-datatables " .
-            " maatwebsite/excel:^3"
+            " maatwebsite/excel"
         );
 
         FileUtils::executeCommandInTheBaseDirectory("npm install " .
             " vite " .
+            " laravel-vite-plugin" .
             " jquery " .
             " select2 " .
             " tinymce " .
@@ -37,7 +37,7 @@ class BladePackagesInstaller extends AbstractGenerator
             " datatables.net-buttons-bs5 " .
             " datatables.net-fixedheader-bs5 " .
             " datatables.net-fixedcolumns-bs5 " .
-            "sass"
+            " sass "
         );
 
         Settings::make()->setInstalledWeb();

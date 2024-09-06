@@ -24,31 +24,31 @@ class {modelName}Test extends MainTestCase
     // if your endpoints return the model with its relation put the relations in the array
     protected array $relations = [];
 
-    public function test_user_can_index_{modelName}()
+    public function test_{{methodActor}}_can_index_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'index');
         $this->indexTest();
     }
 
-    public function test_user_can_show_a_{modelName}()
+    public function test_{{methodActor}}_can_show_a_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'show');
         $this->showTest();
     }
 
-    public function test_user_can_create_a_{modelName}()
+    public function test_{{methodActor}}_can_create_a_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'store');
         $this->storeTest([{additionalFactoryData}]);
     }
 
-    public function test_user_can_update_{modelName}()
+    public function test_{{methodActor}}_can_update_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'update');
         $this->updateTest([{additionalFactoryData}]);
     }
 
-    public function test_user_can_delete_a_{modelName}()
+    public function test_{{methodActor}}_can_delete_a_{modelName}()
     {
         $this->requestPathHook($this->baseUrl.'destroy');
         $this->deleteTest();

@@ -27,9 +27,7 @@ class ApiInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
-        FileUtils::executeCommandInTheBaseDirectory("composer require intervention/image:^2.7 " .
-            " maatwebsite/excel:^3 "
-        );
+        FileUtils::executeCommandInTheBaseDirectory("composer require maatwebsite/excel");
 
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-api"]);
         CubeLog::add(Artisan::output());

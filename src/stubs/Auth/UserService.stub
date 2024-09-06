@@ -91,13 +91,11 @@ class UserService extends BaseService
 
         if (isset($data['fcm_token']) && $data['fcm_token']) {
             $this->clearFcmTokenFromOtherUsers($data['fcm_token']);
-            $user->fcm_token = $data['fcm_token'];
-            $user->save();
+            $additionalData['fcm_token'] = $data['fcm_token'];
         }
 
-        foreach ($additionalData as $key => $value) {
-            $user->{$key} = $value;
-            $user->save();
+        if (count($additionalData)) {
+            $user->update($additionalData);
         }
 
         if (!request()->acceptsHtml()) {

@@ -137,9 +137,10 @@ class CodeSniffer
 
             if ($relation->isHasMany()) {
                 $relationName = $this->table->relationMethodNaming();
+                $key = Str::snake($relationName);
 
                 if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
-                    $content = "'$relationName' => new $currentResourceClass(\$this->whenLoaded('$relationName')) , \n";
+                    $content = "'$key' => new $currentResourceClass(\$this->whenLoaded('$relationName')) , \n";
                     ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
                 } else {
                     CubeLog::add(new ContentNotFound(
@@ -152,9 +153,10 @@ class CodeSniffer
 
             if ($relation->isManyToMany()) {
                 $relationName = $this->table->relationMethodNaming(singular: false);
+                $key = Str::snake($relationName);
 
                 if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
-                    $content = "'$relationName' => $currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
+                    $content = "'$key' => $currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
                     ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
                 } else {
                     CubeLog::add(new ContentNotFound(
@@ -167,7 +169,8 @@ class CodeSniffer
 
             if ($relation->isBelongsTo() || $relation->isHasOne()) {
                 $relationName = $this->table->relationMethodNaming(singular: false);
-                $content = "'$relationName' => $currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
+                $key = Str::snake($relationName);
+                $content = "'$key' => $currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
 
                 if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
                     ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);

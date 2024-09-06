@@ -10,6 +10,7 @@ use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
 class FactoryGenerator extends AbstractGenerator
@@ -69,7 +70,7 @@ class FactoryGenerator extends AbstractGenerator
             } elseif (Str::contains($name, 'description') && $type == ColumnTypeEnum::TEXT->value) {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->text(),\n";
             } elseif ($attribute->isFile()) {
-                $rows .= "\t\t\t'{$name}' => \$this->storeImageFromUrl(fake()->imageUrl)['name'],\n";
+                $rows .= "\t\t\t'{$name}' => \$this->storeFile(\Illuminate\Http\UploadedFile::fake()->image(\"image.png\")),\n";
             } elseif (Str::contains($name, 'age') && $type == ColumnTypeEnum::INTEGER->value) {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->numberBetween(15,60),\n";
             } elseif (Str::contains($name, 'time') && $type == ColumnTypeEnum::TIME->value) {

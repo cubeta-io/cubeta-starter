@@ -23,6 +23,27 @@ use Illuminate\Support\Str;
 
 trait RouteBinding
 {
+    private function actorUrlName(?string $actor = null): ?string
+    {
+        return $actor
+            ? str_replace('_', '-', Str::snake(Str::lower(Str::singular($actor))))
+            : null;
+    }
+
+    private function actorRouteNameNaming(?string $actor = null): ?string
+    {
+        return $actor
+            ? str_replace('_', '.', (Str::singular(Str::singular($actor))))
+            : null;
+    }
+
+    private function actorFileNaming(?string $actor = null): ?string
+    {
+        return $actor
+            ? str_replace('_', '-', Str::snake(Str::lower(Str::singular($actor))))
+            : null;
+    }
+
     /**
      * @param bool $override
      * @return void
@@ -48,7 +69,6 @@ trait RouteBinding
      * @param string|null $actor
      * @param string      $container
      * @param array       $additionalRoutes
-     * @param string      $version
      * @return void
      */
     public function addRoute(CubeTable $table, ?string $actor = null, string $container = ContainerType::API, array $additionalRoutes = []): void
@@ -123,9 +143,13 @@ trait RouteBinding
     public function getRouteFilePath(string $container, ?string $actor = null, string $version = 'v1'): CubePath
     {
         if ($actor && $actor != "none") {
+            $actor = $this->actorFileNaming($actor);
             return CubePath::make("routes/{$version}/{$container}/{$actor}.php");
         } else {
-            if (Settings::make()->installedAuth()) {
+            if (
+                (ContainerType::isApi($container) && Settings::make()->installedApiAuth())
+                || (ContainerType::isWeb($container) && Settings::make()->installedWebAuth())
+            ) {
                 return CubePath::make("routes/{$version}/{$container}/protected.php");
             } else {
                 return CubePath::make("routes/{$version}/{$container}/public.php");
@@ -142,7 +166,7 @@ trait RouteBinding
      */
     public function addRouteFile(?string $actor = null, string $container = ContainerType::API, string $version = 'v1', array $middlewares = []): void
     {
-        $actor = Str::singular(Str::lower($actor));
+        $actor = $this->actorFileNaming($actor);
 
         $filePath = $this->getRouteFilePath($container, $actor, $version);
 
@@ -255,21 +279,24 @@ trait RouteBinding
         $version = config('cubeta-starter.version');
 
         if (!isset($actor) || $actor == '' || $actor == 'none') {
-            if (Settings::make()->installedAuth()) {
+            if (
+                (ContainerType::isApi($container) && Settings::make()->installedApiAuth())
+                || (ContainerType::isWeb($container) && Settings::make()->installedWebAuth())
+            ) {
                 return "$version.{$container}.protected.{$modelLowerPluralName}";
             } else {
                 return "$version.{$container}.public.{$modelLowerPluralName}";
             }
         }
-
+        $actor = $this->actorRouteNameNaming($actor);
         return "$version.{$container}.{$actor}.{$modelLowerPluralName}";
     }
 
     /**
-     * @param CubeTable $table
-     * @param string    $actor
-     * @param array     $additionalRoutes
-     * @param string    $version
+     * @param CubeTable   $table
+     * @param string|null $actor
+     * @param array       $additionalRoutes
+     * @param string      $version
      * @return array
      */
     public function addAdditionalRoutesForAdditionalControllerMethods(CubeTable $table, ?string $actor = null, array $additionalRoutes = [], string $version = 'v1'): array
@@ -376,6 +403,8 @@ trait RouteBinding
         $version = config('cubeta-starter.version');
         if (!$actor || $actor == "none") {
             $actor = "protected";
+        } else {
+            $actor = $this->actorRouteNameNaming($actor);
         }
 
         if ($container == ContainerType::API) {
@@ -420,6 +449,7 @@ trait RouteBinding
 
     public function getWebIndexPageRoute(?string $actor = null, FrontendTypeEnum $frontendType = FrontendTypeEnum::BLADE, bool $justName = false): string
     {
+        $actor = $this->actorRouteNameNaming($actor);
         $version = config('cubeta-starter.version');
         $name = "$version.web.$actor.index";
         if ($justName) {
@@ -445,7 +475,10 @@ trait RouteBinding
     public function getRouteUrls(string $modelName, string $container, ?string $actor = null): array
     {
         $version = config('cubeta-starter.version', "v1");
+
+        $actor = $this->actorUrlName($actor);
         $actor = $actor && $actor != 'none' ? "/$actor" : "";
+
         $modelRouteName = CubeTable::create($modelName)->routeUrlNaming();
         $idVariable = Str::camel($modelRouteName) . "Id";
 
@@ -526,11 +559,11 @@ trait RouteBinding
 
     public function addIndexPageRoute(string $version, FrontendTypeEnum $frontendStack = FrontendTypeEnum::BLADE): void
     {
-        if (Settings::make()->installedAuth()) {
-            $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "protected" , $version);
+        if (Settings::make()->installedWebAuth()) {
+            $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "protected", $version);
             $route = $this->getWebIndexPageRoute("protected", $frontendStack);
         } else {
-            $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "public" , $version);
+            $publicRoutFilePath = $this->getRouteFilePath(ContainerType::WEB, "public", $version);
             $route = $this->getWebIndexPageRoute("public", $frontendStack);
         }
 

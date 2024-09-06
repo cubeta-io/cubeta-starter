@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Illuminate\Support\Str;
 
 class ResourceGenerator extends AbstractGenerator
 {
@@ -42,11 +43,8 @@ class ResourceGenerator extends AbstractGenerator
     {
         $fields = "'id' => \$this->id, \n\t\t\t";
         $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$fields) {
-            if ($attribute->isFile()) {
-                $fields .= "'{$attribute->name}' => \$this->get" . $attribute->modelNaming() . "Path(), \n\t\t\t";
-            } else {
-                $fields .= "'{$attribute->name}' => \$this->{$attribute->name},\n\t\t\t";
-            }
+            $key = Str::snake($attribute->name);
+            $fields .= "'{$key}' => \$this->{$attribute->name},\n\t\t\t";
         });
 
         foreach ($this->table->relations() as $rel) {
@@ -57,6 +55,7 @@ class ResourceGenerator extends AbstractGenerator
 
             if ($rel->isHasOne() || $rel->isBelongsTo()) {
                 $relation = $rel->method();
+                $key = Str::snake($relation);
                 $relatedModelResource = $rel->getResourceName();
 
                 // check that the resource model has the relation method
@@ -64,10 +63,11 @@ class ResourceGenerator extends AbstractGenerator
                     continue;
                 }
 
-                $fields .= "'{$relation}' =>  new {$relatedModelResource}(\$this->whenLoaded('{$relation}')) , \n\t\t\t";
+                $fields .= "'{$key}' =>  new {$relatedModelResource}(\$this->whenLoaded('{$relation}')) , \n\t\t\t";
 
             } elseif ($rel->isManyToMany() || $rel->isHasMany()) {
                 $relation = $rel->method();
+                $key = Str::snake($relation);
                 $relatedModelResource = $rel->getResourceName();
 
                 // check that the resource model has the relation method
@@ -75,7 +75,7 @@ class ResourceGenerator extends AbstractGenerator
                     continue;
                 }
 
-                $fields .= "'{$relation}' =>  {$relatedModelResource}::collection(\$this->whenLoaded('{$relation}')) , \n\t\t\t";
+                $fields .= "'{$key}' =>  {$relatedModelResource}::collection(\$this->whenLoaded('{$relation}')) , \n\t\t\t";
             }
         }
 

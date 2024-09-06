@@ -41,4 +41,9 @@ class Naming
         sort($tables);
         return $tables[0] . '_' . Naming::table($tables[1]);
     }
+
+    public static function role(string $name): string
+    {
+        return Str::snake(strtolower(Str::singular($name)));
+    }
 }

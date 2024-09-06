@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
@@ -34,12 +35,11 @@ class ActorFilesGenerator extends AbstractGenerator
 
     public function __construct(string $role, ?array $permissions = null, bool $authenticated = false, string $generatedFor = ContainerType::API, string $version = 'v1')
     {
-        parent::__construct(generatedFor: $generatedFor);
-        $this->role = strtolower(Str::singular($role));
+        $this->role = Naming::role($role);
         $this->actor = $this->role;
         $this->permissions = $permissions;
         $this->authenticated = $authenticated;
-        $this->version = $version;
+        parent::__construct(actor: $this->role, generatedFor: $generatedFor, version: $version);
     }
 
     public function run(bool $override = false): void
@@ -49,7 +49,11 @@ class ActorFilesGenerator extends AbstractGenerator
             CubeLog::add(new CubeError("Install permissions by running [php artisan cubeta:install permissions] then try again"));
             return;
         }
-        if (!$settings->installedAuth()) {
+        if (
+            (!$settings->installedApiAuth() && !$settings->installedWebAuth())
+            || (!$settings->installedWebAuth() && ContainerType::isWeb($this->generatedFor))
+            || (!$settings->installedApiAuth() && ContainerType::isApi($this->generatedFor))
+        ) {
             CubeLog::add(new CubeError("Install auth tools by running [php artisan cubeta:install auth] then try again"));
             return;
         }
@@ -71,6 +75,7 @@ class ActorFilesGenerator extends AbstractGenerator
                 $this->addRouteFile($this->role, ContainerType::API, $this->version, [
                     'authenticated',
                     'has-role:' . $this->role,
+                    'jwt-auth',
                 ]);
             }
         }
@@ -218,7 +223,7 @@ class ActorFilesGenerator extends AbstractGenerator
             CubePath::stubPath('Auth/auth-controller.stub')
         );
 
-        $apiRouteFile = CubePath::make("routes/{$this->version}/api/{$this->role}.php");
+        $apiRouteFile = CubePath::make("routes/{$this->version}/api/{$this->actorFileNaming($this->actor)}.php");
 
         if (!$apiRouteFile->exist()) {
             CubeLog::add(new CubeWarning("An Api File For ({$this->role}) Doesn't Exist\nRoutes For The Generated Controller Will Not Be Generated", "Generating Auth Controller For ({$this->role})"));
@@ -231,7 +236,7 @@ class ActorFilesGenerator extends AbstractGenerator
         $routes = FileUtils::generateStringFromStub(CubePath::stubPath('Auth/auth-api-routes.stub'), [
             "{{version}}"             => $this->version,
             "{{controllerName}}"      => ucfirst(Str::studly($this->role)),
-            "{{role}}"                => "$this->role",
+            "{{role}}"                => $this->actorUrlName($this->role),
             "{{refresh-route}}"       => $protectedAuthRoutesNames['refresh'],
             "{{logout-route}}"        => $protectedAuthRoutesNames['logout'],
             "{{update-user-details}}" => $protectedAuthRoutesNames['update-user-details'],
@@ -248,7 +253,7 @@ class ActorFilesGenerator extends AbstractGenerator
         $publicAuthRoutes = FileUtils::generateStringFromStub(CubePath::stubPath('Auth/auth-public-api-routes.stub'), [
             "{{version}}"                      => $this->version,
             "{{controllerName}}"               => ucfirst(Str::studly($this->role)),
-            "{{role}}"                         => "$this->role",
+            "{{role}}"                         => $this->actorUrlName($this->role),
             "{{register-route}}"               => $publicAuthRoutesNames['register'],
             "{{login-route}}"                  => $publicAuthRoutesNames['login'],
             "{{password-reset-request}}"       => $publicAuthRoutesNames['password-reset-request'],
