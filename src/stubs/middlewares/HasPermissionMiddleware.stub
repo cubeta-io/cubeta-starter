@@ -23,7 +23,7 @@ class HasPermissionMiddleware
             return response()->json([
                                     'data'      => null,
                                     'status'    => false,
-                                    'code'      => 403,
+                                    'code'      => 401,
                                     'message'   => __('site.unauthorized_user')
                                 ]);
         } elseif (!$request->expectsJson() && !auth('web')->user()?->hasPermission($permission, $model)) {
