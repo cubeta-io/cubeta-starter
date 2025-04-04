@@ -71,7 +71,7 @@ class Handler
 
         if ($exception instanceof RouteNotFoundException) {
             if ($exception->getMessage() == 'Route [login] not defined.') {
-                return rest()->notAuthorized()->send()
+                return rest()->notAuthorized()->send();
             }
         }
 
