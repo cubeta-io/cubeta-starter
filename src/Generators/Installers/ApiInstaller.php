@@ -190,7 +190,7 @@ class ApiInstaller extends AbstractGenerator
             ];
         }
 
-        $composerPath->putContent(json_encode($json, JSON_PRETTY_PRINT));
+        $composerPath->putContent(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
         CubeLog::add(
             new CubeInfo(
