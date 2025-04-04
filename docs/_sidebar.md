@@ -7,7 +7,6 @@
     - [Base Repository Class](base-repository.md#baserepository-class)
     - [MainTestCase Class](main-test.md#maintestcase-class)
     - [Translatable Serializer](translatable-serializer.md#translatable-attributes-handling)
-    - [RestTrait Trait](rest-trait.md#resttrait)
     - [FileHandler Trait](file-handler-trait.md#filehandler-trait)
 - [The Created Models](created-model.md#created-models)
 - [Roles And Permissions](permissions-usage.md#how-to-use-roles-permissions-tools)

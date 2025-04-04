@@ -117,7 +117,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     private function publishApi(): void
     {
         $this->publishes([
-            __DIR__ . '/../src/Traits/RestTrait.stub'                       => app_path('Traits/RestTrait.php'),
             __DIR__ . "/../src/Contracts/ApiController.stub"                => app_path("Http/Controllers/ApiController.php"),
             __DIR__ . '/../src/stubs/handler.stub'                          => base_path('/app/Exceptions/Handler.php'),
             __DIR__ . '/../config/cubeta-starter.php'                       => base_path('config/cubeta-starter.php'),
@@ -137,6 +136,8 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.stub'           => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/Traits/FileHandler.stub'                     => app_path("Traits/FileHandler.php"),
             __DIR__ . '/../src/app/Http/Resources/BaseResource.stub'        => app_path('Http/Resources/BaseResource.php'),
+            __DIR__ . '/../src/stubs/Modules/ApiResponse.stub'              => app_path('Modules/ApiResponse.php'),
+            __DIR__ . '/../src/stubs/Helpers/helpers.stub'                  => app_path('Helpers/helpers.php'),
         ], 'cubeta-starter-api');
     }
 

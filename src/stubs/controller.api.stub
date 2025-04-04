@@ -16,7 +16,6 @@ class {modelName}Controller extends ApiController{
     public function __construct() {
 
         $this->{variableNaming}Service = {modelName}Service::make();
-
         // place the relations you want to return them within the response
         $this->relations = [] ;
     }
@@ -24,54 +23,55 @@ class {modelName}Controller extends ApiController{
      public function index()
     {
         $items = $this->{variableNaming}Service->indexWithPagination($this->relations);
-        if ($items) {
-            return $this->apiResponse({modelName}Resource::collection($items['data']), self::STATUS_OK, __('site.get_successfully'), $items['pagination_data']);
-        }
-
-        return $this->noData([]);
+        return rest()
+           ->ok()
+           ->getSuccess()
+           ->data($items)
+           ->send();
     }
 
     public function show(${idVariable})
     {
-        /** @var {modelName}|null $item */
         $item = $this->{variableNaming}Service->view(${idVariable}, $this->relations);
-        if ($item) {
-            return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.get_successfully'));
-        }
-
-        return $this->noData(null);
+        return rest()
+           ->when(
+                $item,
+                fn($rest) => $rest->getSuccess()->data($item),
+                fn($rest) => $rest->noData()
+           )->send();
     }
 
     public function store(StoreUpdate{modelName}Request $request)
     {
-        /** @var {modelName}|null $item */
         $item = $this->{variableNaming}Service->store($request->validated() , $this->relations);
-        if ($item) {
-            return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.stored_successfully'));
-        }
-
-        return $this->apiResponse(null, self::STATUS_NOT_FOUND, __('site.something_went_wrong'));
+        return rest()
+           ->when(
+                $item,
+                fn($rest) => $rest->storeSuccess()->data($item),
+                fn($rest) => $rest->noData()
+           )->send();
     }
 
     public function update(${idVariable}, StoreUpdate{modelName}Request $request)
     {
-        /** @var {modelName}|null $item */
         $item = $this->{variableNaming}Service->update($request->validated(), ${idVariable} , $this->relations);
-        if ($item) {
-            return $this->apiResponse(new {modelName}Resource($item), self::STATUS_OK, __('site.update_successfully'));
-        }
-
-        return $this->noData(null);
+        return rest()
+           ->when(
+                $item,
+                fn($rest) => $rest->updateSuccess()->data($item),
+                fn($rest) => $rest->noData()
+           )->send();
     }
 
     public function destroy(${idVariable})
     {
         $item = $this->{variableNaming}Service->delete(${idVariable});
-        if ($item) {
-            return $this->apiResponse(true, self::STATUS_OK, __('site.delete_successfully'));
-        }
-
-        return $this->noData(false);
+        return rest()
+            ->when(
+                $item->delete(),
+                fn($rest) => $rest->ok()->deleteSuccess(),
+                fn($rest) => $rest->noData(),
+            )->send();
     }
 
     public function export(Request $request)

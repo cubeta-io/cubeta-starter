@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Traits\RestTrait;
-
 /**
  * Class ApiController
  */
 class ApiController extends Controller
 {
-    use RestTrait;
-
     public array $relations = [];
 
     //Exception

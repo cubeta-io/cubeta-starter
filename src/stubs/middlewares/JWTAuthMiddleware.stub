@@ -6,7 +6,6 @@ use Closure;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use {{trait_namespace}}\RestTrait;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\ApiController;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
@@ -14,8 +13,6 @@ use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 
 class JWTAuthMiddleware
 {
-    use RestTrait;
-
     /**
      * @param Request $request
      * @param Closure $next
@@ -26,7 +23,7 @@ class JWTAuthMiddleware
         try {
             $user = JWTAuth::parseToken()->authenticate();
         } catch (TokenExpiredException $exception) {
-            return $this->apiResponse(null, ApiController::TOKEN_EXPIRATION, __('site.token_expired'));
+            return rest()->tokenExpiration()->send();
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
         }
