@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Illuminate\Support\Facades\Artisan;
 
 class BladePackagesInstaller extends AbstractGenerator
 {
@@ -20,24 +21,32 @@ class BladePackagesInstaller extends AbstractGenerator
             " maatwebsite/excel"
         );
 
+        Artisan::call('vendor:publish', [
+            '--tage' => 'datatables'
+        ]);
+
         FileUtils::executeCommandInTheBaseDirectory("npm install " .
+            // Facilities
             " vite " .
             " laravel-vite-plugin" .
             " jquery " .
+            " sass " .
             " select2 " .
-            " tinymce " .
             " bootstrap " .
-            " sweetalert2 " .
-            " baguettebox.js " .
             " bootstrap-icons " .
             " laravel-vite-plugin " .
-            " datatables.net-buttons " .
+            // UI tools
+            " tinymce " .
+            // select 2
+            " sweetalert2 " .
             " select2-bootstrap-5-theme " .
-            " datatables.net-select-bs5 " .
+            " baguettebox.js " .
+            // Datatables
+            " datatables.net-bs5 " .
             " datatables.net-buttons-bs5 " .
-            " datatables.net-fixedheader-bs5 " .
             " datatables.net-fixedcolumns-bs5 " .
-            " sass "
+            " datatables.net-fixedheader-bs5 " .
+            " datatables.net-select-bs5 "
         );
 
         Settings::make()->setInstalledWeb();
