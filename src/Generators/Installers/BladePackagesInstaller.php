@@ -22,7 +22,7 @@ class BladePackagesInstaller extends AbstractGenerator
         );
 
         Artisan::call('vendor:publish', [
-            '--tage' => 'datatables'
+            'tage' => 'datatables'
         ]);
 
         FileUtils::executeCommandInTheBaseDirectory("npm install " .
