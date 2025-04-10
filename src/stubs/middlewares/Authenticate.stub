@@ -17,7 +17,7 @@ class Authenticate
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->acceptsJson()) {
+        if ($request->acceptsJson() && $request->expectsJson()) {
             if (!auth('api')?->user()) {
                 return response()->json([
                     'data'      => null,

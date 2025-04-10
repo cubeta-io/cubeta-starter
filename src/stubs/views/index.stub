@@ -62,8 +62,9 @@
                         ajax:{
                              url:"{{ route('{dataTableDataRouteName}') }}",
                              headers: {
-                                "Accept": "application/html",
-                                "content-type": "application/html"
+                                  "Accept": "application/html",
+                                  "Content-Type": "application/html",
+                                  "Accept-language": "{{app()->getLocale()}}"
                              }
                         },
                         columns: [

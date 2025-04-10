@@ -111,7 +111,7 @@ class GeneratorFactory
             && !$settings->installedApi()
             && !in_array($this->source, $this->independentFromContainer())
         ) {
-            CubeLog::add(new CubeError("Install Web tools by running [php artisan cubeta:install api] and try again"));
+            CubeLog::add(new CubeError("Install Api tools by running [php artisan cubeta:install api] and try again"));
             return;
         }
 
