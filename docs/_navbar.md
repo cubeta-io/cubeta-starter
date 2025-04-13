@@ -22,5 +22,4 @@
 * [MainTestCase Class](#main-testcase-class)
 * [Translations](#translations)
 * [Restful Trait](#restful-trait)
-* [FileHandler Trait](#file-handler-trait)
 

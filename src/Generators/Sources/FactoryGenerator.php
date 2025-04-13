@@ -35,7 +35,6 @@ class FactoryGenerator extends AbstractGenerator
         $stubProperties = [
             '{namespace}'         => config('cubeta-starter.factory_namespace'),
             '{class}'             => $this->table->modelName,
-            '{usedTraits}'        => $this->getUsedTraits(),
             '{rows}'              => $factoryAttributes['rows'],
             '//relationFactories' => $factoryAttributes['relatedFactories'],
             '{modelNamespace}'    => $this->table->getModelNameSpace(),
@@ -156,17 +155,6 @@ class FactoryGenerator extends AbstractGenerator
             ColumnTypeEnum::TIMESTAMP->value => '->dateTime()',
             default => null,
         };
-    }
-
-    private function getUsedTraits(): string
-    {
-        $usedTraits = '';
-        //TODO::when merging with dev there will be a config option for traits so make the use traits use the config option for traits namespace
-        if (in_array('file', $this->attributes)) {
-            $usedTraits .= "use \App\Traits\FileHandler; \n";
-        }
-
-        return $usedTraits;
     }
 
     protected function stubsPath(): string
