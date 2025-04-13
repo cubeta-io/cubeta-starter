@@ -5,6 +5,9 @@ namespace {namespace};
 use App\Casts\MediaCast;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @mixin Model
+ */
 trait HasMedia
 {
     protected static function boot(): void

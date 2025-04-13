@@ -25,7 +25,9 @@ class ServiceGenerator extends AbstractGenerator
             '{repositoryName}'      => $this->table->getRepositoryName(),
             '{namespace}'           => $this->table->getServiceNamespace(false, true),
             '{repositoryNamespace}' => $this->table->getRepositoryNameSpace(false),
-            "{modelNamespace}"      => $this->table->getModelNameSpace(false)
+            "{modelNamespace}"      => $this->table->getModelNameSpace(false),
+            '{serviceNamespace}'    => config('cubeta-starter.service_namespace'),
+            '{traitsNamespace}'     => config('cubeta-starter.trait_namespace'),
         ];
 
         $this->generateFileFromStub($stubProperties, $servicePath->fullPath);

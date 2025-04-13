@@ -27,10 +27,10 @@ class WebInstaller extends AbstractGenerator
     {
         Settings::make()->setFrontendType(FrontendTypeEnum::BLADE);
 
-        $mediaTraitPath = config('cubeta-starter.trait_path') . '/HasMedia.php';
-        $this->generateFileFromStub([
-            "{namespace}" => config('cubeta-starter.trait_namespace'),
-        ], $mediaTraitPath, true, CubePath::stubPath("traits/HasMedia.stub"));
+        $this->publishBaseRepository($override);
+        $this->publishBaseService($override);
+        $this->publishMakableTrait($override);
+        $this->publishHasMediaTrait($override);
 
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-web"]);
         CubeLog::add(Artisan::output());

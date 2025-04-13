@@ -5,9 +5,9 @@ namespace {{namespace}}\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use App\Notifications\ResetPasswordCodeEmail;
 use {{repositoryNamespace}}\UserRepository;
-use App\Services\Contracts\BaseService;
+use {{serviceNamespace}}\BaseService;
 use {{modelNamespace}}\User;
-use App\Services\Contracts\Makable;
+use {{traitsNamespace}}\Makable;
 use Exception;
 
 /**

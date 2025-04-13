@@ -98,4 +98,43 @@ abstract class AbstractGenerator
     {
         return "";
     }
+
+    protected function publishBaseService(bool $override = false): void
+    {
+        $publishPath = CubePath::make(config('cubeta-starter.service_path') . "/Contracts/BaseService.php");
+        $stubPath = CubePath::stubPath("BaseService.stub");
+
+        $this->generateFileFromStub([
+            "{namespace}" => config('cubeta-starter.service_namespace'),
+            "{repository_namespace}" => config("cubeta-starter.repository_namespace"),
+        ], $publishPath->fullPath, $override, $stubPath);
+    }
+
+    protected function publishBaseRepository(bool $override = false): void
+    {
+        $publishPath = CubePath::make(config('cubeta-starter.repository_path') . "/Contracts/BaseRepository.php");
+        $stubPath = CubePath::stubPath("BaseRepository.stub");
+
+        $this->generateFileFromStub([
+            "{namespace}" => config('cubeta-starter.repository_namespace'),
+        ], $publishPath->fullPath, $override, $stubPath);
+    }
+
+    protected function publishMakableTrait(bool $override = false): void
+    {
+        $publishPath = CubePath::make(config('cubeta-starter.trait_path') . "/Makable.php");
+        $stubPath = CubePath::stubPath("traits/Makable.stub");
+
+        $this->generateFileFromStub([
+            "{namespace}" => config('cubeta-starter.trait_namespace'),
+        ], $publishPath->fullPath, $override, $stubPath);
+    }
+
+    protected function publishHasMediaTrait(bool $override = false): void
+    {
+        $mediaTraitPath = config('cubeta-starter.trait_path') . '/HasMedia.php';
+        $this->generateFileFromStub([
+            "{namespace}" => config('cubeta-starter.trait_namespace'),
+        ], $mediaTraitPath, true, CubePath::stubPath("traits/HasMedia.stub"));
+    }
 }

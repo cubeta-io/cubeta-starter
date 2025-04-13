@@ -136,6 +136,8 @@ class AuthInstaller extends AbstractGenerator
             '{{namespace}}'           => config('cubeta-starter.service_namespace') . "\\$this->version",
             '{{modelNamespace}}'      => config('cubeta-starter.model_namespace'),
             '{{repositoryNamespace}}' => config('cubeta-starter.repository_namespace'),
+            '{{traitsNamespace}}'     => config('cubeta-starter.trait_namespace'),
+            '{{serviceNamespace}}'    => config('cubeta-starter.service_namespace'),
         ];
 
 

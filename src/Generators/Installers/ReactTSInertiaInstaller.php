@@ -26,10 +26,10 @@ class ReactTSInertiaInstaller extends AbstractGenerator
     {
         $this->installInertia($override);
 
-        $mediaTraitPath = config('cubeta-starter.trait_path') . '/HasMedia.php';
-        $this->generateFileFromStub([
-            "{namespace}" => config('cubeta-starter.trait_namespace'),
-        ], $mediaTraitPath, true, CubePath::stubPath("traits/HasMedia.stub"));
+        $this->publishBaseRepository($override);
+        $this->publishBaseService($override);
+        $this->publishMakableTrait($override);
+        $this->publishHasMediaTrait($override);
 
         $this->addAndRegisterAuthenticateMiddleware($override);
 
