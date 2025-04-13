@@ -80,7 +80,7 @@ class RequestGenerator extends AbstractGenerator
                 ColumnTypeEnum::TIME->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','date_format:H:i'{$isUnique}],\n",
                 ColumnTypeEnum::BOOLEAN->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','boolean'{$isUnique}],\n",
                 ColumnTypeEnum::KEY->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','numeric','exists:{$attribute->tableNaming(str_replace('_id', '', $attribute->name))},id'{$isUnique}],\n",
-                ColumnTypeEnum::FILE->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','image','mimes:jpeg,png,jpg','max:2048'{$isUnique}],\n",
+                ColumnTypeEnum::FILE->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','image','mimes:jpeg,png,jpg','max:5000'{$isUnique}],\n",
                 ColumnTypeEnum::TEXT->value => "\t\t\t'{$attribute->name}'=>['{$isNullable}','string'{$isUnique}],\n",
                 ColumnTypeEnum::INTEGER->value,
                 ColumnTypeEnum::BIG_INTEGER->value,

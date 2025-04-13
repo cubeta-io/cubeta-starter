@@ -9,7 +9,6 @@ use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Illuminate\Support\Str;
 
@@ -33,18 +32,17 @@ class ModelGenerator extends AbstractGenerator
         $modelAttributes = $this->generateModelClassAttributes();
 
         $stubProperties = [
-            '{namespace}'           => config('cubeta-starter.model_namespace'),
-            '{modelName}'           => $this->table->modelName,
-            '{relations}'           => $modelAttributes['relationsCode'],
-            '{properties}'          => $modelAttributes['properties'],
-            '{fileGetter}'          => $modelAttributes['filesFunctions'],
-            '{fillable}'            => $modelAttributes['fillable'],
-            '{filesKeys}'           => $modelAttributes['filesKeys'],
-            '{scopes}'              => $modelAttributes['booleanValueScopes'],
-            '{searchableKeys}'      => $modelAttributes['searchable'],
+            '{namespace}' => config('cubeta-starter.model_namespace'),
+            '{modelName}' => $this->table->modelName,
+            '{relations}' => $modelAttributes['relationsCode'],
+            '{properties}' => $modelAttributes['properties'],
+            '{fillable}' => $modelAttributes['fillable'],
+            '{scopes}' => $modelAttributes['booleanValueScopes'],
+            '{searchableKeys}' => $modelAttributes['searchable'],
             '{searchableRelations}' => $modelAttributes['relationSearchable'],
-            '{casts}'               => $modelAttributes['casts'],
-            '{exportables}'         => $modelAttributes['exportables'],
+            '{casts}' => $modelAttributes['casts'],
+            '{exportables}' => $modelAttributes['exportables'],
+            '{traits}' => $modelAttributes['traits'],
         ];
 
         $this->generateFileFromStub($stubProperties, $modelPath->fullPath);
@@ -54,29 +52,34 @@ class ModelGenerator extends AbstractGenerator
         CodeSniffer::make()->setModel($this->table)->checkForModelsRelations();
     }
 
+    /**
+     * @return array{fillable:string,searchable:string,
+     *     relationSearchable:string,properties:string,
+     *     booleanValueScopes:string,casts:string,
+     *     relationsCode:string,exportables:string,
+     *     traits:string}
+     */
     private function generateModelClassAttributes(): array
     {
         $fillable = '';
         $exportables = '';
-        $filesKeys = '';
         $searchable = '';
         $relationsSearchable = '';
         $properties = "/**  \n";
-        $fileFunctions = '';
         $booleanValueScope = '';
         $casts = '';
         $relationsFunctions = '';
+        $traits = '';
 
         $this->table->attributes()->each(function (CubeAttribute $attribute) use (
-            &$fileFunctions,
-            &$filesKeys,
             &$searchable,
             &$relationsFunctions,
             &$properties,
             &$casts,
             &$booleanValueScope,
             &$exportables,
-            &$fillable
+            &$fillable,
+            &$traits,
         ) {
             $fillable .= "'{$attribute->name}' ,\n";
 
@@ -106,17 +109,9 @@ class ModelGenerator extends AbstractGenerator
                 $properties .= "* @property {$nullableProperty}string {$attribute->name} \n";
 
             } elseif ($attribute->isFile()) {
-                $filesKeys .= "'{$attribute->name}' ,\n";
-                $properties .= "* @property {$nullableProperty}string {$attribute->name} \n";
-                $colName = $attribute->modelNaming();
-                $fileFunctions .= 'protected function ' . $attribute->name . '(): \Illuminate\Database\Eloquent\Casts\Attribute
-                                   {
-                                        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
-                                            get: fn ($value, array $attributes) => $value != null ? asset(\'storage/\' . $value) : null,
-                                        );
-                                   }';
-                FileUtils::ensureDirectoryExists(storage_path('app/public/' . Str::lower($this->table->modelName) . '/' . Str::plural($colName)));
-
+                $properties .= "* @property {$nullableProperty}array{url:string,size:numeric,extension:string,mime_type:string} {$attribute->name} \n";
+                $traits .= 'use \\' . config('cubeta-starter.trait_namespace') . "\\HasMedia;\n";
+                $casts .= "'{$attribute->name}' => \\App\\Casts\\MediaCast::class, \n";
             } elseif (ColumnTypeEnum::isDateTimeType($attribute->type)) {
                 $properties .= "* @property {$nullableProperty}string {$attribute->name} \n";
             } elseif (ColumnTypeEnum::isNumericType($attribute->type)) {
@@ -170,16 +165,15 @@ class ModelGenerator extends AbstractGenerator
         $properties .= "*/ \n";
 
         return [
-            'fillable'           => $fillable,
-            'filesKeys'          => $filesKeys,
-            'searchable'         => $searchable,
+            'fillable' => $fillable,
+            'searchable' => $searchable,
             'relationSearchable' => $relationsSearchable,
-            'properties'         => $properties,
-            'filesFunctions'     => $fileFunctions,
+            'properties' => $properties,
             'booleanValueScopes' => $booleanValueScope,
-            'casts'              => $casts,
-            'relationsCode'      => $relationsFunctions,
-            'exportables'        => $exportables,
+            'casts' => $casts,
+            'relationsCode' => $relationsFunctions,
+            'exportables' => $exportables,
+            'traits' => $traits,
         ];
     }
 

@@ -141,11 +141,11 @@ class BladeViewsGenerator extends BladeControllerGenerator
         $createdForm = $storeRoute ? 'Create' : 'Edit';
 
         $stubProperties = [
-            '{title}'               => "{$createdForm} {$this->table->modelName}",
-            '{submitRoute}'         => $storeRoute ?? $updateRoute,
-            '{components}'          => $inputs,
-            '{method}'              => $updateRoute ? 'PUT' : 'POST',
-            '{updateParameter}'     => $updateRoute ? ", \${$modelVariable}" . '->id' : '',
+            '{title}' => "{$createdForm} {$this->table->modelName}",
+            '{submitRoute}' => $storeRoute ?? $updateRoute,
+            '{components}' => $inputs,
+            '{method}' => $updateRoute ? 'PUT' : 'POST',
+            '{updateParameter}' => $updateRoute ? ", \${$modelVariable}" . '->id' : '',
             '{translationSelector}' => $this->table->hasTranslatableAttribute() ? "<div class=\"m-2 d-flex justify-content-end\">\n<x-language-selector/>\n</div>" : "",
         ];
 
@@ -186,6 +186,11 @@ class BladeViewsGenerator extends BladeControllerGenerator
                     ? ":value=\"\${$modelVariable}->getRawOriginal('{$attribute->name}')\""
                     : ":value=\"\${$modelVariable}->{$attribute->name}\"")
                 : null;
+
+            if ($attribute->isFile()) {
+                $value = "";
+            }
+
             $checked = $updateInput
                 ? ":checked=\"\${$modelVariable}->{$attribute->name}\""
                 : 'checked';
@@ -263,9 +268,9 @@ class BladeViewsGenerator extends BladeControllerGenerator
     {
         $viewsName = $this->table->viewNaming();
         $stubProperties = [
-            '{modelName}'     => $this->table->modelName,
-            '{editRoute}'     => $editRoute,
-            '{components}'    => $this->generateShowViewComponents(),
+            '{modelName}' => $this->table->modelName,
+            '{editRoute}' => $editRoute,
+            '{components}' => $this->generateShowViewComponents(),
             '{modelVariable}' => $this->table->variableNaming(),
         ];
 
@@ -301,7 +306,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             } elseif ($attribute->isFile()) {
                 $components .=
                     "<div class=\"col-md-12 col-sm-12\">\n" .
-                    "<x-image-preview :imagePath=\"\${$modelVariable}->{$attribute->name}\"/> \n" .
+                    "<x-image-preview :imagePath=\"\${$modelVariable}->{$attribute->name}['url']\"/> \n" .
                     "</div>";
             } elseif ($attribute->isTranslatable()) {
                 $components .=
@@ -331,15 +336,15 @@ class BladeViewsGenerator extends BladeControllerGenerator
         $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
 
         $stubProperties = [
-            '{modelName}'              => $this->table->modelName,
-            '{createRouteName}'        => $creatRoute,
-            '{htmlColumns}'            => $dataColumns['html'],
-            '{dataTableColumns}'       => $dataColumns['json'],
+            '{modelName}' => $this->table->modelName,
+            '{createRouteName}' => $creatRoute,
+            '{htmlColumns}' => $dataColumns['html'],
+            '{dataTableColumns}' => $dataColumns['json'],
             '{dataTableDataRouteName}' => $dataRoute,
-            '{exportRoute}'            => $routes['export'],
-            '{importRoute}'            => $routes['import'],
-            '{exampleRoute}'           => $routes['import_example'],
-            '{modelClassName}'         => $this->table->getModelClassString(),
+            '{exportRoute}' => $routes['export'],
+            '{importRoute}' => $routes['import'],
+            '{exampleRoute}' => $routes['import_example'],
+            '{modelClassName}' => $this->table->getModelClassString(),
         ];
 
         $indexPath = CubePath::make("resources/views/dashboard/{$this->table->viewNaming()}/index.blade.php");
@@ -375,7 +380,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             }
 
             if ($attribute->isFile()) {
-                $json .= "{\n\t\"data\": '{$attribute->name}',render:function (data) {const filePath = \"{{asset(\"storage/\")}}/\" + data; return `<div class=\"gallery\"><a href=\"\${filePath}\"><img class=\"img-fluid\" style=\"max-width: 80px\" src=\"\${filePath}\" alt=\"\"/></a>`;}}, \n";
+                $json .= "{\n\t\"data\": '{$attribute->name}',render:function (data) {const filePath = data?.url; return `<div class=\"gallery\"><a href=\"\${filePath}\"><img class=\"img-fluid\" style=\"max-width: 80px\" src=\"\${filePath}\" alt=\"\"/></a>`;}}, \n";
                 $html .= "\n<th>{$label}</th>\n";
                 continue;
             }

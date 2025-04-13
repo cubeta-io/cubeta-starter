@@ -29,6 +29,11 @@ class ApiInstaller extends AbstractGenerator
     {
         FileUtils::executeCommandInTheBaseDirectory("composer require maatwebsite/excel");
 
+        $mediaTraitPath = config('cubeta-starter.trait_path') . '/HasMedia.php';
+        $this->generateFileFromStub([
+            "{namespace}" => config('cubeta-starter.trait_namespace'),
+        ], $mediaTraitPath, true, CubePath::stubPath("traits/HasMedia.stub"));
+
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-api"]);
         CubeLog::add(Artisan::output());
 

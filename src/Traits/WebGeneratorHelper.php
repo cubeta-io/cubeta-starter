@@ -3,9 +3,7 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
-use Cubeta\CubetaStarter\Enums\ContainerType;
 
 trait WebGeneratorHelper
 {

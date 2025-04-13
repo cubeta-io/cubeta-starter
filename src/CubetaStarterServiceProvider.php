@@ -99,6 +99,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/Excel/BaseExporter.stub"                 => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.stub'                 => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/Traits/FileHandler.stub'                           => app_path("Traits/FileHandler.php"),
+            __DIR__ . '/../src/stubs/casts/MediaCast.stub'                  => app_path("Casts/MediaCast.php"),
         ], 'cubeta-starter-web');
     }
 
@@ -137,6 +138,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.stub'           => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/Traits/FileHandler.stub'                     => app_path("Traits/FileHandler.php"),
             __DIR__ . '/../src/app/Http/Resources/BaseResource.stub'        => app_path('Http/Resources/BaseResource.php'),
+            __DIR__ . '/../src/stubs/casts/MediaCast.stub'                  => app_path("Casts/MediaCast.php"),
         ], 'cubeta-starter-api');
     }
 
@@ -222,6 +224,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/Excel/BaseExporter.stub"           => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.stub'           => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/Traits/FileHandler.stub'                     => app_path("Traits/FileHandler.php"),
+            __DIR__ . '/../src/stubs/casts/MediaCast.stub'                  => app_path("Casts/MediaCast.php"),
         ], 'react-ts');
     }
 }
