@@ -269,11 +269,12 @@ public function register(AuthRegisterRequest $request)
     {
         [$user , $token, $refresh_token] = $this->userService->register($request->validated(), $this->role);
 
-        return $this->apiResponse([
+        return rest()->ok()->data([
             'user' => new UserResource($user) ,
             'token' => $token ,
             'refresh_token' => $refresh_token
-        ], self::STATUS_OK, __('site.registered_successfully'));
+        ])->message(__('site.registered_successfully'))
+        ->send();
     }
 ```
 

@@ -50,13 +50,9 @@ the corresponding created migration will match the types of the columns you ente
 
 the created controller contains the five basic methods `(index , show , store , update , delete)`
 
-it is extends the ApiController class which use the RestTrait
+it extends the ApiController class
 <br>
 <br>
-**RestTrait** : it is a trait with methods that will handle your json response using the following
-methods `(apiResponse , apiValidation , formatPaginateData)`
-
-[you can have a look at it .](rest-trait.md#resttrait)
 
 ## Requests
 

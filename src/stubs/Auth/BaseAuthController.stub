@@ -39,37 +39,42 @@ class BaseAuthController extends ApiController
         //login method and this data will be stored in the users table
         $result = $this->userService->login($request->validated(), $this->role, []);
         if (!$result || !is_array($result)) {
-            return $this->apiResponse(null, self::STATUS_NOT_FOUND, __('site.credentials_not_match_records'));
+            return rest()->message(__('site.credentials_not_match_records'))->send();
         }
 
         [$user, $token, $refresh_token] = $result;
-        return $this->apiResponse([
-            'user'          => new UserResource($user),
-            'token'         => $token,
-            'refresh_token' => $refresh_token,
-        ], self::STATUS_OK, __('site.successfully_logged_in'));
+        return rest()
+            ->data([
+                       'user'          => new UserResource($user),
+                       'token'         => $token,
+                       'refresh_token' => $refresh_token,
+           ])->message(__('site.successfully_logged_in'))
+           ->ok()
+           ->send();
     }
 
     public function logout()
     {
         $this->userService->logout();
 
-        return $this->apiResponse(null, self::STATUS_OK, __('site.logout_success'));
+        return rest()->ok()->message(__('site.logout_success'))->send();
     }
 
     public function refresh(Request $request)
     {
         $result = $this->userService->refresh_token();
         if (!$result || !is_array($result)) {
-            return $this->apiResponse(null, self::STATUS_UNAUTHORIZED, __('site.token_refreshed_failed'));
+            return rest()->notAuthorized()->message(__('site.token_refreshed_failed'))->send();
         }
         [$user, $token, $refresh_token] = $result;
-        return $this->apiResponse([
-            'user'          => new UserResource($user),
-            'token'         => $token,
-            'refresh_token' => $refresh_token,
-        ], self::STATUS_OK, __('site.token_refreshed_successfully'));
-
+        return rest()
+            ->data([
+                       'user'          => new UserResource($user),
+                       'token'         => $token,
+                       'refresh_token' => $refresh_token,
+           ])->message(__('site.token_refreshed_successfully'))
+           ->ok()
+           ->send();
     }
 
     public function register(AuthRegisterRequest $request)
@@ -77,40 +82,43 @@ class BaseAuthController extends ApiController
         $result = $this->userService->register($request->validated(), $this->role);
 
         if (!$result || !is_array($result)) {
-            return $this->apiResponse(null, self::STATUS_NOT_FOUND, __('site.failed'));
+            return rest()->noData()->message(__('site.failed'))->send();
         }
 
         [$user, $token, $refresh_token] = $result;
-        return $this->apiResponse([
-            'user'          => new UserResource($user),
-            'token'         => $token,
-            'refresh_token' => $refresh_token,
-        ], self::STATUS_OK, __('site.registered_successfully'));
+        return rest()
+            ->data([
+                       'user'          => new UserResource($user),
+                       'token'         => $token,
+                       'refresh_token' => $refresh_token,
+           ])->message(__('site.registered_successfully'))
+           ->ok()
+           ->send();
     }
 
     public function passwordResetRequest(RequestResetPasswordRequest $request)
     {
         $result = $this->userService->passwordResetRequest($request->email);
         if ($result) {
-            return $this->apiResponse(null, self::STATUS_OK, __('site.password_reset_code_sent'));
+            return rest()->ok()->message(__('site.password_reset_code_sent'))->send();
         }
 
-        return $this->apiResponse(null, self::STATUS_OK, __('site.wrong_email'));
+        return rest()->notFound()->message( __('site.wrong_email'))->send();
     }
 
     public function checkPasswordResetCode(CheckPasswordResetRequest $request)
     {
-        return $this->apiResponse(null, self::STATUS_OK, __('site.code_correct'));
+        return rest()->ok()->message(__('site.code_correct'))->send();
     }
 
     public function passwordReset(ResetPasswordRequest $request)
     {
         $result = $this->userService->passwordReset($request->reset_password_code, $request->password);
         if ($result) {
-            return $this->apiResponse(true, self::STATUS_OK, __('site.password_reset_successful'));
+            return rest()->ok()->message(__('site.password_reset_successful'))->send();
         }
 
-        return $this->apiResponse(null, self::STATUS_BAD_REQUEST, __('site.code_incorrect'));
+        return rest()->notFound()->message(__('site.code_incorrect'))->send();
     }
 
     public function updateUserDetails(UpdateUserRequest $request)
@@ -118,16 +126,17 @@ class BaseAuthController extends ApiController
         $result = $this->userService->updateUserDetails($request->validated(), $this->role);
 
         if (!$result || !is_array($result)) {
-            return $this->apiResponse(null, self::STATUS_BAD_REQUEST, __('site.unauthorized_user'));
+            return rest()->notAuthorized()->message(__('site.unauthorized_user'))->send();
         }
 
         [$user, $token, $refresh_token] = $result;
-        return $this->apiResponse([
+        return rest()->data([
             'user'          => new UserResource($user),
             'token'         => $token,
             'refresh_token' => $refresh_token,
-        ], self::STATUS_OK, __('site.update_successfully'));
-
+        ])->updateSuccess()
+            ->ok()
+            ->send();
     }
 
     public function userDetails()
@@ -135,9 +144,9 @@ class BaseAuthController extends ApiController
         $user = $this->userService->userDetails($this->role);
 
         if ($user) {
-            return $this->apiResponse(new UserResource($user), self::STATUS_OK, __('site.get_successfully'));
+            return rest()->data($user)->getSuccess()->ok()->send();
         } else {
-            return $this->apiResponse(null, self::STATUS_BAD_REQUEST, __('site.unauthorized_user'));
+            return rest()->notAuthorized()->message(__('site.unauthorized_user'))->send();
         }
     }
 }
