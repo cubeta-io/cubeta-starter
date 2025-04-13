@@ -10,6 +10,7 @@ use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\EnvParser;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Helpers\PackageManager;
 use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\CubeWarning;
@@ -19,7 +20,6 @@ use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Illuminate\Support\Facades\Artisan;
 
 class AuthInstaller extends AbstractGenerator
 {
@@ -110,7 +110,7 @@ class AuthInstaller extends AbstractGenerator
     {
         $stubProperties = [
             '{namespace}' => config('cubeta-starter.model_namespace'),
-            '{hasRoles}'  => Settings::make()->installedRoles() ? "use \App\Traits\HasRoles;\n" : '',
+            '{hasRoles}' => Settings::make()->installedRoles() ? "use \App\Traits\HasRoles;\n" : '',
         ];
 
         $modelPath = CubePath::make(config('cubeta-starter.model_path') . "/User.php");
@@ -133,11 +133,11 @@ class AuthInstaller extends AbstractGenerator
     {
         // user service
         $stubProperties = [
-            '{{namespace}}'           => config('cubeta-starter.service_namespace') . "\\$this->version",
-            '{{modelNamespace}}'      => config('cubeta-starter.model_namespace'),
+            '{{namespace}}' => config('cubeta-starter.service_namespace') . "\\$this->version",
+            '{{modelNamespace}}' => config('cubeta-starter.model_namespace'),
             '{{repositoryNamespace}}' => config('cubeta-starter.repository_namespace'),
-            '{{traitsNamespace}}'     => config('cubeta-starter.trait_namespace'),
-            '{{serviceNamespace}}'    => config('cubeta-starter.service_namespace'),
+            '{{traitsNamespace}}' => config('cubeta-starter.trait_namespace'),
+            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace'),
         ];
 
 
@@ -160,7 +160,7 @@ class AuthInstaller extends AbstractGenerator
     private function generateUserRepository(bool $override = false): void
     {
         $stubProperties = [
-            '{namespace}'      => config('cubeta-starter.repository_namespace'),
+            '{namespace}' => config('cubeta-starter.repository_namespace'),
             '{modelNamespace}' => config('cubeta-starter.model_namespace'),
         ];
 
@@ -222,99 +222,99 @@ class AuthInstaller extends AbstractGenerator
 
         $generationInfo = [];
         $stubProperties = [
-            'login-page'                  => [
-                "{{login-route}}"                 => $this->publicRoutes['login'],
-                "{{register-page}}"               => $this->publicRoutes['register-page'],
+            'login-page' => [
+                "{{login-route}}" => $this->publicRoutes['login'],
+                "{{register-page}}" => $this->publicRoutes['register-page'],
                 "{{password-reset-request-page}}" => $this->publicRoutes['password-reset-request-page'],
             ],
-            'register-page'               => [
-                "{{register-route}}"   => $this->publicRoutes['register'],
+            'register-page' => [
+                "{{register-route}}" => $this->publicRoutes['register'],
                 "{{login-page-route}}" => $this->publicRoutes['login-page'],
             ],
-            'user-details-page'           => ["{{update-user-data-route}}" => $this->protectedRoutes['update-user-details']],
+            'user-details-page' => ["{{update-user-data-route}}" => $this->protectedRoutes['update-user-details']],
             'reset-password-request-page' => ["{{password-reset-request}}" => $this->publicRoutes['password-reset-request']],
-            'validate-reset-code-page'    => ["{{validate-reset-code}}" => $this->publicRoutes['validate-reset-code']],
-            'reset-password-page'         => ["{{password-reset}}" => $this->publicRoutes['password-reset']],
+            'validate-reset-code-page' => ["{{validate-reset-code}}" => $this->publicRoutes['validate-reset-code']],
+            'reset-password-page' => ["{{password-reset}}" => $this->publicRoutes['password-reset']],
         ];
         if ($this->frontType == FrontendTypeEnum::REACT_TS) {
             $generationInfo[] = [
                 'stub_properties' => $stubProperties['login-page'],
-                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/Login.stub'),
-                'target'          => CubePath::make('resources/js/Pages/auth/Login.tsx')->fullPath,
+                'stub_path' => CubePath::stubPath('Inertia/pages/auth/Login.stub'),
+                'target' => CubePath::make('resources/js/Pages/auth/Login.tsx')->fullPath,
             ];
             $generationInfo[] = [
                 'stub_properties' => $stubProperties['register-page'],
-                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/Register.stub'),
-                'target'          => CubePath::make('resources/js/Pages/auth/Register.tsx')->fullPath,
+                'stub_path' => CubePath::stubPath('Inertia/pages/auth/Register.stub'),
+                'target' => CubePath::make('resources/js/Pages/auth/Register.tsx')->fullPath,
             ];
 
             $generationInfo[] = [
                 'stub_properties' => $stubProperties['user-details-page'],
-                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/UserDetails.stub'),
-                'target'          => CubePath::make('resources/js/Pages/dashboard/profile/UserDetails.tsx')->fullPath,
+                'stub_path' => CubePath::stubPath('Inertia/pages/auth/UserDetails.stub'),
+                'target' => CubePath::make('resources/js/Pages/dashboard/profile/UserDetails.tsx')->fullPath,
             ];
 
             $generationInfo[] = [
                 'stub_properties' => $stubProperties['reset-password-request-page'],
-                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/ForgetPassword.stub'),
-                'target'          => CubePath::make('resources/js/Pages/auth/ForgetPassword.tsx')->fullPath,
+                'stub_path' => CubePath::stubPath('Inertia/pages/auth/ForgetPassword.stub'),
+                'target' => CubePath::make('resources/js/Pages/auth/ForgetPassword.tsx')->fullPath,
             ];
 
             $generationInfo[] = [
                 'stub_properties' => $stubProperties['validate-reset-code-page'],
-                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/ResetPasswordCodeForm.stub'),
-                'target'          => CubePath::make('resources/js/Pages/auth/ResetPasswordCodeForm.tsx')->fullPath,
+                'stub_path' => CubePath::stubPath('Inertia/pages/auth/ResetPasswordCodeForm.stub'),
+                'target' => CubePath::make('resources/js/Pages/auth/ResetPasswordCodeForm.tsx')->fullPath,
             ];
 
             $generationInfo[] = [
                 'stub_properties' => $stubProperties['reset-password-page'],
-                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/ResetPassword.stub'),
-                'target'          => CubePath::make('resources/js/Pages/auth/ResetPassword.tsx')->fullPath,
+                'stub_path' => CubePath::stubPath('Inertia/pages/auth/ResetPassword.stub'),
+                'target' => CubePath::make('resources/js/Pages/auth/ResetPassword.tsx')->fullPath,
             ];
 
             $generationInfo[] = [
                 'stub_properties' => [],
-                'stub_path'       => CubePath::stubPath('Inertia/pages/auth/User.stub'),
-                'target'          => CubePath::make('resources/js/Models/User.ts')->fullPath,
+                'stub_path' => CubePath::stubPath('Inertia/pages/auth/User.stub'),
+                'target' => CubePath::make('resources/js/Models/User.ts')->fullPath,
             ];
         } elseif ($this->frontType == FrontendTypeEnum::BLADE) {
             $generationInfo[] = [
                 'stub_properties' => [
-                    "{{login-route}}"                 => $this->publicRoutes['login'],
-                    "{{register-page}}"               => $this->publicRoutes['register-page'],
+                    "{{login-route}}" => $this->publicRoutes['login'],
+                    "{{register-page}}" => $this->publicRoutes['register-page'],
                     "{{password-reset-request-page}}" => $this->publicRoutes['password-reset-request-page'],
                 ],
-                'stub_path'       => CubePath::stubPath('Auth/views/login.blade.stub'),
-                'target'          => CubePath::make('resources/views/login.blade.php')->fullPath,
+                'stub_path' => CubePath::stubPath('Auth/views/login.blade.stub'),
+                'target' => CubePath::make('resources/views/login.blade.php')->fullPath,
             ];
 
             $generationInfo[] = [
                 'stub_properties' => $stubProperties['register-page'],
-                'stub_path'       => CubePath::stubPath('Auth/views/register.blade.stub'),
-                'target'          => CubePath::make('resources/views/register.blade.php')->fullPath,
+                'stub_path' => CubePath::stubPath('Auth/views/register.blade.stub'),
+                'target' => CubePath::make('resources/views/register.blade.php')->fullPath,
             ];
 
             $generationInfo[] = [
                 'stub_properties' => $stubProperties['user-details-page'],
-                'stub_path'       => CubePath::stubPath('Auth/views/user-details.blade.stub'),
-                'target'          => CubePath::make('resources/views/user-details.blade.php')->fullPath,
+                'stub_path' => CubePath::stubPath('Auth/views/user-details.blade.stub'),
+                'target' => CubePath::make('resources/views/user-details.blade.php')->fullPath,
             ];
 
             $generationInfo[] = [
                 'stub_properties' => $stubProperties['reset-password-request-page'],
-                'stub_path'       => CubePath::stubPath('Auth/views/reset-password-request.blade.stub'),
-                'target'          => CubePath::make('resources/views/reset-password-request.blade.php')->fullPath,
+                'stub_path' => CubePath::stubPath('Auth/views/reset-password-request.blade.stub'),
+                'target' => CubePath::make('resources/views/reset-password-request.blade.php')->fullPath,
             ];
 
             $generationInfo[] = [
                 'stub_properties' => $stubProperties['validate-reset-code-page'],
-                'stub_path'       => CubePath::stubPath('Auth/views/check-reset-code.blade.stub'),
-                'target'          => CubePath::make('resources/views/check-reset-code.blade.php')->fullPath,
+                'stub_path' => CubePath::stubPath('Auth/views/check-reset-code.blade.stub'),
+                'target' => CubePath::make('resources/views/check-reset-code.blade.php')->fullPath,
             ];
             $generationInfo[] = [
                 'stub_properties' => $stubProperties['reset-password-page'],
-                'stub_path'       => CubePath::stubPath('Auth/views/reset-password.blade.stub'),
-                'target'          => CubePath::make('resources/views/reset-password.blade.php')->fullPath,
+                'stub_path' => CubePath::stubPath('Auth/views/reset-password.blade.stub'),
+                'target' => CubePath::make('resources/views/reset-password.blade.php')->fullPath,
             ];
         }
 
@@ -347,7 +347,7 @@ class AuthInstaller extends AbstractGenerator
     private function generateUserResource(bool $override = false): void
     {
         $stubProperties = [
-            '{namespace}'         => config('cubeta-starter.resource_namespace') . "\\$this->version",
+            '{namespace}' => config('cubeta-starter.resource_namespace') . "\\$this->version",
             '{resourceNamespace}' => config('cubeta-starter.resource_namespace'),
         ];
 
@@ -365,9 +365,9 @@ class AuthInstaller extends AbstractGenerator
     private function generateBaseAuthApiController(bool $override = false): void
     {
         $stubProperties = [
-            '{{namespace}}'         => config('cubeta-starter.api_controller_namespace') . "\\$this->version",
-            '{{requestNamespace}}'  => config('cubeta-starter.request_namespace') . "\\$this->version",
-            '{{serviceNamespace}}'  => config('cubeta-starter.service_namespace') . "\\$this->version",
+            '{{namespace}}' => config('cubeta-starter.api_controller_namespace') . "\\$this->version",
+            '{{requestNamespace}}' => config('cubeta-starter.request_namespace') . "\\$this->version",
+            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace') . "\\$this->version",
             '{{resourceNamespace}}' => config('cubeta-starter.resource_namespace') . "\\$this->version",
         ];
 
@@ -385,12 +385,12 @@ class AuthInstaller extends AbstractGenerator
     private function generateBaseAuthWebController(bool $override = false): void
     {
         $stubProperties = [
-            '{{namespace}}'           => config('cubeta-starter.web_controller_namespace') . "\\$this->version",
-            '{{requestNamespace}}'    => config('cubeta-starter.request_namespace') . "\\$this->version",
-            '{{serviceNamespace}}'    => config('cubeta-starter.service_namespace') . "\\$this->version",
-            "{{user-details-route}}"  => $this->protectedRoutes['user-details'],
+            '{{namespace}}' => config('cubeta-starter.web_controller_namespace') . "\\$this->version",
+            '{{requestNamespace}}' => config('cubeta-starter.request_namespace') . "\\$this->version",
+            '{{serviceNamespace}}' => config('cubeta-starter.service_namespace') . "\\$this->version",
+            "{{user-details-route}}" => $this->protectedRoutes['user-details'],
             "{{password-reset-page}}" => $this->publicRoutes['password-reset-page'],
-            "{{login-page-route}}"    => $this->publicRoutes['login-page'],
+            "{{login-page-route}}" => $this->publicRoutes['login-page'],
         ];
 
         $controllerPath = CubePath::make(config('cubeta-starter.web_controller_path') . "/$this->version/BaseAuthController.php");
@@ -412,23 +412,23 @@ class AuthInstaller extends AbstractGenerator
     private function generateWebAuthRoutes(): void
     {
         $publicRoutesStubProperties = [
-            '{{version}}'                          => $this->version,
-            "{{login-page-route}}"                 => $this->publicRoutes['login-page'],
-            "{{login-route}}"                      => $this->publicRoutes['login'],
+            '{{version}}' => $this->version,
+            "{{login-page-route}}" => $this->publicRoutes['login-page'],
+            "{{login-route}}" => $this->publicRoutes['login'],
             "{{request-password-reset-code-page}}" => $this->publicRoutes['password-reset-request-page'],
-            "{{request-password-reset-code}}"      => $this->publicRoutes['password-reset-request'],
-            "{{validate-password-reset-code}}"     => $this->publicRoutes['validate-reset-code'],
-            "{{password-reset-page}}"              => $this->publicRoutes['password-reset-page'],
-            "{{password-reset}}"                   => $this->publicRoutes['password-reset'],
-            "{{register-page}}"                    => $this->publicRoutes['register-page'],
-            "{{register}}"                         => $this->publicRoutes['register'],
+            "{{request-password-reset-code}}" => $this->publicRoutes['password-reset-request'],
+            "{{validate-password-reset-code}}" => $this->publicRoutes['validate-reset-code'],
+            "{{password-reset-page}}" => $this->publicRoutes['password-reset-page'],
+            "{{password-reset}}" => $this->publicRoutes['password-reset'],
+            "{{register-page}}" => $this->publicRoutes['register-page'],
+            "{{register}}" => $this->publicRoutes['register'],
         ];
 
         $protectedRoutesStubProperties = [
-            "{{version}}"             => $this->version,
+            "{{version}}" => $this->version,
             "{{update-user-details}}" => $this->protectedRoutes['update-user-details'],
-            "{{user-details-route}}"  => $this->protectedRoutes['user-details'],
-            "{{logout-route}}"        => $this->protectedRoutes['logout'],
+            "{{user-details-route}}" => $this->protectedRoutes['user-details'],
+            "{{logout-route}}" => $this->protectedRoutes['logout'],
         ];
 
 
@@ -621,7 +621,7 @@ class AuthInstaller extends AbstractGenerator
     private function initializeJwt(bool $override = false): void
     {
         $envParser = EnvParser::make();
-        FileUtils::executeCommandInTheBaseDirectory("composer require php-open-source-saver/jwt-auth");
+        PackageManager::composerInstall("php-open-source-saver/jwt-auth");
         $this->addJwtGuard();
         $envParser?->addVariable("JWT_ALGO", "HS256");
         if ($envParser && !$envParser->hasValue("JWT_SECRET")) {
@@ -640,5 +640,6 @@ class AuthInstaller extends AbstractGenerator
             "'jwt-auth' => JWTAuthMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,
             'use App\Http\Middleware\JWTAuthMiddleware;'
-        );    }
+        );
+    }
 }

@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Helpers\PackageManager;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
@@ -29,7 +30,7 @@ class ApiInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
-        FileUtils::executeCommandInTheBaseDirectory("composer require maatwebsite/excel");
+        PackageManager::composerInstall("maatwebsite/excel");
 
         $this->publishBaseRepository($override);
         $this->publishBaseService($override);

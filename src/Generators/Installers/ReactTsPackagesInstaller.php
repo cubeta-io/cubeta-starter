@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Helpers\PackageManager;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 
@@ -20,39 +21,39 @@ class ReactTsPackagesInstaller extends AbstractGenerator
     {
         $this->preparePackageJson();
 
-        FileUtils::executeCommandInTheBaseDirectory("composer require " .
-            " tightenco/ziggy " .
-            " maatwebsite/excel " .
-            " inertiajs/inertia-laravel"
-        );
+        PackageManager::composerInstall([
+            "tightenco/ziggy",
+            "maatwebsite/excel",
+            "inertiajs/inertia-laravel"
+        ]);
 
         FileUtils::executeCommandInTheBaseDirectory("php artisan ziggy:generate --types");
 
         //install js packages
-        FileUtils::executeCommandInTheBaseDirectory('npm install ' .
-            ' laravel-vite-plugin' .
-            ' @inertiajs/react ' .
-            ' tailwindcss ' .
-            ' @tailwindcss/forms ' .
-            ' @types/node ' .
-            ' @types/react ' .
-            ' @types/react-dom ' .
-            ' @vitejs/plugin-react ' .
-            ' postcss ' .
-            ' react ' .
-            ' react-dom ' .
-            ' typescript ' .
-            ' @tinymce/tinymce-react ' .
-            ' @vitejs/plugin-react-refresh ' .
-            ' autoprefixer ' .
-            ' sweetalert2 ' .
-            ' sweetalert2-react-content ' .
-            ' react-toastify ' .
-            " vite "
-        );
+        PackageManager::npmInstall([
+            'laravel-vite-plugin',
+            '@inertiajs/react',
+            'tailwindcss',
+            '@tailwindcss/forms',
+            '@types/node',
+            '@types/react',
+            '@types/react-dom',
+            '@vitejs/plugin-react',
+            'postcss',
+            'react',
+            'react-dom',
+            'typescript',
+            '@tinymce/tinymce-react',
+            '@vitejs/plugin-react-refresh',
+            'autoprefixer',
+            'sweetalert2',
+            'sweetalert2-react-content',
+            'react-toastify',
+            "vite"
+        ]);
 
-        // install prettier
-        FileUtils::executeCommandInTheBaseDirectory("npm install --save-dev --save-exact prettier");
+        PackageManager::npmInstall("prettier", true);
+
         Settings::make()->setInstalledWeb();
         Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
     }
