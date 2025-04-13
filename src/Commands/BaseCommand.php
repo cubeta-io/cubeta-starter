@@ -166,7 +166,7 @@ class BaseCommand extends Command
             $type = $this->choice(
                 "What is the data type of the (( {$field} field )) ? default is ",
                 ColumnTypeEnum::getAllValues(),
-                6,
+                5,
             );
             $attributes[$field] = $type;
 
