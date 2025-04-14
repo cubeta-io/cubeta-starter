@@ -115,6 +115,11 @@ class CubeAttribute
         return ColumnTypeEnum::isDateTimeType($this->type);
     }
 
+    public function isDate(): bool
+    {
+        return ColumnTypeEnum::DATE->value == $this->type;
+    }
+
     /**
      * @return bool
      */

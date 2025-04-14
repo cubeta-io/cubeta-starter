@@ -74,7 +74,7 @@ class FactoryGenerator extends AbstractGenerator
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->numberBetween(15,60),\n";
             } elseif (Str::contains($name, 'time') && $type == ColumnTypeEnum::TIME->value) {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->time('H:i'),\n";
-            } elseif ((Str::endsWith($name, '_at') || Str::contains($name, 'date')) && ColumnTypeEnum::isDateTimeType($type)) {
+            } elseif ((Str::endsWith($name, '_at') || Str::contains($name, 'date')) && $attribute->isDate()) {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->date(),\n";
             } elseif (Str::startsWith($name, 'is_') && $type == ColumnTypeEnum::BOOLEAN->value) {
                 $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->boolean(),\n";
