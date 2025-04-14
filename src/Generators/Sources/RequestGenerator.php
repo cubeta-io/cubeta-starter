@@ -22,7 +22,6 @@ class RequestGenerator extends AbstractGenerator
             '{class}'                => $this->table->modelName,
             '{rules}'                => $rules['rules'],
             '{prepareForValidation}' => $rules['prepare_for_validation'],
-            "{updateRules}"          => $rules["updateRules"],
         ];
 
         $requestPath = $this->table->getRequestPath();
@@ -57,7 +56,7 @@ class RequestGenerator extends AbstractGenerator
             if ($attribute->type == ColumnTypeEnum::STRING->value && in_array($attribute->name, ['name', 'first_name', 'last_name', 'email', 'password', 'phone', 'phone_number', 'number'])) {
                 $rules .= match ($attribute->name) {
                     'name', 'first_name', 'last_name' => "\t\t\t'{$attribute->name}'=>['{$isNullable}','string','min:3','max:255'{$isUnique}],\n",
-                    'email' => "\t\t\t'{$attribute->name}'=>'['{$isNullable}','string','max:255','email'{$isUnique}],\n",
+                    'email' => "\t\t\t'{$attribute->name}'=> ['{$isNullable}','string','max:255','email'{$isUnique}],\n",
                     'password' => "\t\t\t'{$attribute->name}'=>['{$isNullable}','string','max:255','min:6','confirmed'{$isUnique}],\n",
                     'phone', 'phone_number', 'number' => "\t\t\t'{$attribute->name}'=>['{$isNullable}','string','max:255','min:6'{$isUnique}],\n",
                 };
@@ -96,7 +95,6 @@ class RequestGenerator extends AbstractGenerator
         return [
             'rules'                  => $rules,
             'prepare_for_validation' => $prepareForValidation,
-            'updateRules'            => str_replace('required', 'nullable', $rules),
         ];
     }
 
