@@ -248,7 +248,7 @@ abstract class BaseRepository
             $result = $this->modelClass::find($id);
         }
 
-        return $result->delete();
+        return $result?->delete();
     }
 
     /**

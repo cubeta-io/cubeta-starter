@@ -68,7 +68,7 @@ class {modelName}Controller extends ApiController{
         $item = $this->{variableNaming}Service->delete(${idVariable});
         return rest()
             ->when(
-                $item->delete(),
+                $item,
                 fn($rest) => $rest->ok()->deleteSuccess(),
                 fn($rest) => $rest->noData(),
             )->send();
