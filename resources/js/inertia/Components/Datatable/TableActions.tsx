@@ -1,9 +1,9 @@
 import { Link } from "@inertiajs/react";
-import DocumentPlus from "../icons/DocumentPlus";
-import { TableActionsProps } from "./DataTableUtils";
-import Filter from "../icons/Filter";
-import ArrowDownTray from "../icons/ArrowDownTray";
-import TableCells from "../icons/TableCells";
+import { TableActionsProps } from "@/Components/Datatable/DataTableUtils";
+import DocumentPlus from "@/Components/icons/DocumentPlus";
+import Filter from "@/Components/icons/Filter";
+import ArrowDownTray from "@/Components/icons/ArrowDownTray";
+import TableCells from "@/Components/icons/TableCells";
 
 function TableActions({
                           createUrl,
@@ -35,6 +35,7 @@ function TableActions({
                     <button
                         type={"button"}
                         onClick={() => setOpenFilter((prevState) => !prevState)}
+                        className={"cursor-pointer"}
                     >
                         <Filter
                             className={
@@ -46,7 +47,10 @@ function TableActions({
                     ""
                 )}
                 {importable && (
-                    <button onClick={() => setOpenImport((prev) => !prev)}>
+                    <button
+                        onClick={() => setOpenImport((prev) => !prev)}
+                        className={"cursor-pointer"}
+                    >
                         <ArrowDownTray
                             className={
                                 "h-7 w-7 text-secondary hover:text-black dark:hover:text-white "
@@ -55,7 +59,10 @@ function TableActions({
                     </button>
                 )}
                 {exportable && (
-                    <button onClick={() => setOpenExport((prev) => !prev)}>
+                    <button
+                        onClick={() => setOpenExport((prev) => !prev)}
+                        className={"cursor-pointer"}
+                    >
                         <TableCells
                             className={
                                 "h-7 w-7 text-success hover:text-black dark:hover:text-white"
@@ -66,7 +73,7 @@ function TableActions({
             </div>
             <div className={"flex gap-2"}>
                 <select
-                    className="border-gray-300 py-2 rounded-lg w-full text-gray-700 sm:text-sm dark:bg-gray-800 dark:text-white"
+                    className="cursor-pointer border-gray-300 py-2 rounded-lg w-full text-gray-700 sm:text-sm dark:bg-gray-800 dark:text-white"
                     onChange={(e) => {
                         setPage(1);
                         setSearch("");

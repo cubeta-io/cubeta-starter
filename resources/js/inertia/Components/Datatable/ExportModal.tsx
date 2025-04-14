@@ -120,7 +120,7 @@ const ExportModal = ({
                             ),
                         )}
                 </div>
-                <div className="flex items-center my-3">
+                <div className="flex items-center my-5">
                     <Button disabled={isLoading}>Export</Button>
                 </div>
             </form>

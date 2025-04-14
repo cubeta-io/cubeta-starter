@@ -2,6 +2,7 @@ import ClosedEye from "@/Components/icons/ClosedEye";
 import Eye from "@/Components/icons/Eye";
 import { usePage } from "@inertiajs/react";
 import React, { ChangeEvent, HTMLProps, useState } from "react";
+import Email from "@/Components/icons/Email";
 
 export interface InputProps extends HTMLProps<HTMLInputElement> {
     name: string;
@@ -30,16 +31,18 @@ const Input: React.FC<InputProps> = ({
     const errors = usePage().props.errors;
 
     return (
-        <div className={`flex flex-col w-full`}>
+        <div
+            className={`p-0 flex flex-col w-full`}
+        >
             <label
                 htmlFor={`${name}-id`}
                 className={
                     type == "file"
-                        ? "block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        ? "flex flex-col items-start justify-between text-sm font-medium text-gray-900 dark:text-white"
                         : `block relative border-gray-200 shadow-sm border focus-within:border-blue-600 rounded-md focus-within:ring-1 focus-within:ring-blue-600`
                 }
             >
-                {type == "file" ? label ?? "" : ""}
+                {type == "file" ? (label ?? "") : ""}
                 <input
                     type={
                         type === "password"
@@ -52,7 +55,7 @@ const Input: React.FC<InputProps> = ({
                     className={
                         className ??
                         (type == "file"
-                            ? "block w-full text-sm text-gray-900 border border-gray-300 p-1 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                            ? "block shadow-sm w-full bg-transparent text-sm text-gray-900 border border-gray-300 px-1 py-2 h-full rounded-sm cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                             : "peer border-none bg-transparent dark:text-white placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 w-full")
                     }
                     placeholder={placeholder}
@@ -64,20 +67,7 @@ const Input: React.FC<InputProps> = ({
 
                 {type === "email" && (
                     <span className={"absolute right-2 top-2"}>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="w-6 h-6"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25"
-                            />
-                        </svg>
+                        <Email />
                     </span>
                 )}
 

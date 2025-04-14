@@ -1,5 +1,5 @@
-import React, { ButtonHTMLAttributes } from "react";
-import LoadingSpinner from "../icons/LoadingSpinner";
+import React, {ButtonHTMLAttributes} from "react";
+import LoadingSpinner from "@/Components/icons/LoadingSpinner";
 
 interface IButtonProps
     extends React.DetailedHTMLProps<
@@ -29,13 +29,13 @@ const Button: React.FunctionComponent<IButtonProps> = ({
         <button
             className={
                 className ??
-                `flex items-center disabled:hover:bg-opacity-15 disabled:cursor-not-allowed bg-${color} hover:border-${color} hover:bg-white hover:text-${color} border-${color} p-2 text-white rounded-md hover:dark:bg-transparent`
+                `flex items-center cursor-pointer disabled:hover:bg-opacity-15 disabled:cursor-not-allowed bg-${color} hover:bg-white hover:dark:bg-transparent border border-${color} hover:border-${color} text-white hover:text-${color} p-2 rounded-md`
             }
             disabled={disabled}
             {...props}
         >
             {children}
-            {disabled ? <LoadingSpinner /> : ""}
+            {disabled ? <LoadingSpinner/> : ""}
         </button>
     );
 };

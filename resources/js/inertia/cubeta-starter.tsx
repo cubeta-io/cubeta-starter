@@ -1,8 +1,8 @@
 import "./bootstrap";
 import "../css/cubeta-starter.css";
-import { createRoot } from "react-dom/client";
-import { createInertiaApp } from "@inertiajs/react";
-import React, { lazy, Suspense } from "react";
+import {createRoot} from "react-dom/client";
+import {createInertiaApp} from "@inertiajs/react";
+import React, {Suspense} from "react";
 import Layout from "@/Components/layouts/Layout";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
@@ -16,8 +16,9 @@ const authPages = [
 ];
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
-    resolve: async (name) => {
+    title: (title: any) => `${title} - ${appName}`,
+    resolve: async (name: any) => {
+        // @ts-ignore
         const pages = import.meta.glob('./Pages/**/*.tsx');
         let page = (await pages[`./Pages/${name}.tsx`]()).default;
 
@@ -25,12 +26,12 @@ createInertiaApp({
         page.layout =
             page.layout ||
             (!authPages.includes(page.name ?? "undefined")
-                ? (page) => <Layout children={page} />
+                ? (page) => <Layout children={page}/>
                 : null);
 
         return page;
     },
-    setup({ el, App, props }) {
+    setup({el, App, props}) {
         const root = createRoot(el);
 
         root.render(
@@ -44,7 +45,7 @@ createInertiaApp({
     },
 });
 
-const dark = "dark" == window.localStorage.getItem("theme_mode") ?? "light";
+const dark = "dark" == window.localStorage.getItem("theme_mode") ? "dark" : "light";
 const htmlTag = document.querySelector("html");
 if (dark) {
     htmlTag?.classList.add("dark");

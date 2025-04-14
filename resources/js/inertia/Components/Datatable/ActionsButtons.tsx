@@ -1,10 +1,10 @@
-import { Link, usePage } from "@inertiajs/react";
+import {Link, usePage} from "@inertiajs/react";
 import Eye from "../icons/Eye";
 import Pencil from "../icons/Pencil";
 import Trash from "../icons/Trash";
-import { swal } from "@/helper";
-import { toast } from "react-toastify";
-import { MiddlewareProps } from "@/types";
+import {swal} from "@/helper";
+import {toast} from "react-toastify";
+import {MiddlewareProps} from "@/types";
 
 type Buttons = "delete" | "edit" | "show";
 
@@ -43,14 +43,14 @@ function ActionsButtons<Data>({
         <div className={`flex justify-start gap-3 items-center`}>
             {buttons.includes("show") ? (
                 <Link href={sUrl} className="hover:bg-white-secondary p-0.5 rounded-md">
-                    <Eye className="w-5 h-5 text-info" />
+                    <Eye className="w-5 h-5 text-info"/>
                 </Link>
             ) : (
                 ""
             )}
             {buttons.includes("edit") ? (
                 <Link href={eUrl} className="hover:bg-white-secondary p-0.5 rounded-md">
-                    <Pencil className="w-5 h-5 text-success" />
+                    <Pencil className="w-5 h-5 text-success"/>
                 </Link>
             ) : (
                 ""
@@ -59,7 +59,7 @@ function ActionsButtons<Data>({
             {buttons.includes("delete") ? (
                 <button className="hover:bg-white-secondary p-0.5 rounded-md">
                     <Trash
-                        className="w-5 h-5 text-danger"
+                        className="w-5 h-5 text-danger cursor-pointer"
                         onClick={() => {
                             swal.fire({
                                 title: "Do you want to Delete this item ?",

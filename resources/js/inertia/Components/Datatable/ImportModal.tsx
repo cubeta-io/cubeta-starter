@@ -1,7 +1,7 @@
-import { FormEvent, useState } from "react";
+import {FormEvent} from "react";
 import Modal from "../ui/Modal";
 import Input from "../form/fields/Input";
-import { useForm } from "@inertiajs/react";
+import {useForm} from "@inertiajs/react";
 import Button from "../ui/Button";
 import DownloadFile from "@/Hooks/DownloadFile";
 
@@ -18,11 +18,11 @@ const ImportModal = ({
     importRoute: string;
     importExampleRoute?: string;
 }) => {
-    const { post, setData, errors, processing } = useForm<{
+    const {post, setData, errors, processing} = useForm<{
         excel_file?: File;
     }>();
 
-    const { isLoading, downloadFile } = DownloadFile();
+    const {isLoading, downloadFile} = DownloadFile();
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -56,7 +56,7 @@ const ImportModal = ({
                         }}
                     />
                 </label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 my-5">
                     <Button type="submit" disabled={processing}>
                         Import
                     </Button>

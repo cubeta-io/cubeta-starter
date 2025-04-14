@@ -1,6 +1,6 @@
-import ChevronLeft from "../icons/ChevronLeft";
-import ChevronRight from "../icons/ChevronRight";
 import { TablePaginatorProps } from "./DataTableUtils";
+import ChevronRight from "@/Components/icons/ChevronRight";
+import ChevronLeft from "@/Components/icons/ChevronLeft";
 
 function TablePaginator<ApiResponse>({
                                          response,
@@ -56,7 +56,7 @@ function TablePaginator<ApiResponse>({
                             <li key={`page-${index + 1}`}>
                                 <button
                                     onClick={() => setPage(index + 1)}
-                                    className={`size-8 rounded-md text-center leading-8  ${
+                                    className={`size-8 rounded-md text-center leading-8 cursor-pointer ${
                                         index + 1 == page
                                             ? "bg-primary text-white"
                                             : "bg-white dark:bg-white text-primary"
@@ -81,7 +81,7 @@ function TablePaginator<ApiResponse>({
                             <li key={`page-${index + 1}`}>
                                 <button
                                     onClick={() => setPage(index + 1)}
-                                    className={`size-8 rounded-md text-center leading-8  ${
+                                    className={`size-8 rounded-md text-center leading-8 cursor-pointer ${
                                         index + 1 == page
                                             ? "bg-primary text-white"
                                             : "bg-white dark:bg-white text-primary"
