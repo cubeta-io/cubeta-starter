@@ -11,7 +11,8 @@
     "require": {
         "spatie/laravel-package-tools": "^1.92.0",
         "illuminate/support": "^v12.0.0",
-        "laravel/framework": "^v12.0.0"
+        "laravel/framework": "^v12.0.0",
+        "laravel/prompts": "^0.3.5"
     },
     "require-dev": {
         "orchestra/testbench": "^v10.0.0",

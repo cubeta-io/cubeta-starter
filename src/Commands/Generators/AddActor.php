@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\Sources\ActorFilesGenerator;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
+use function Laravel\Prompts\confirm;
 
 class AddActor extends BaseCommand
 {
@@ -21,7 +22,7 @@ class AddActor extends BaseCommand
 
         $authenticated = false;
         if (ContainerType::isApi($container)) {
-            $authenticated = $this->confirm("Do You Want To Create Authentication Api Controller For This Actor ?", true);
+            $authenticated = confirm("Do You Want To Create Authentication Api Controller For This Actor ?", true);
         }
 
         $override = $this->askForOverride();
