@@ -112,8 +112,9 @@ class ModelGenerator extends AbstractGenerator
                 $properties .= "* @property {$nullableProperty}array{url:string,size:numeric,extension:string,mime_type:string} {$attribute->name} \n";
                 $traits .= 'use \\' . config('cubeta-starter.trait_namespace') . "\\HasMedia;\n";
                 $casts .= "'{$attribute->name}' => \\App\\Casts\\MediaCast::class, \n";
-            } elseif (ColumnTypeEnum::isDateTimeType($attribute->type)) {
-                $properties .= "* @property {$nullableProperty}string {$attribute->name} \n";
+            } elseif ($attribute->isDateable()) {
+                $properties .= "* @property {$nullableProperty}\Carbon\Carbon {$attribute->name} \n";
+                $casts .= "'$attribute->name' => 'datetime', \n";
             } elseif (ColumnTypeEnum::isNumericType($attribute->type)) {
                 $properties .= "* @property {$nullableProperty}numeric {$attribute->name} \n";
             } else {
