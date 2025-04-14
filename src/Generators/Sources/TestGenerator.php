@@ -9,6 +9,7 @@ use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Illuminate\Support\Str;
 
 class TestGenerator extends AbstractGenerator
 {
@@ -34,14 +35,15 @@ class TestGenerator extends AbstractGenerator
         $testPath->ensureDirectoryExists();
 
         $stubProperties = [
-            '{namespace}'             => config('cubeta-starter.test_namespace'),
-            '{modelName}'             => $this->table->modelName,
-            '{{actor}}'               => !$this->actor ? "none" : $this->actor,
-            '{baseRouteName}'         => $baseRouteName,
-            '{modelNamespace}'        => config('cubeta-starter.model_namespace'),
-            '{resourceNamespace}'     => $this->table->getResourceNameSpace(false),
-            '{additionalFactoryData}' => $this->getAdditionalFactoryData(),
-            '{{methodActor}}'         => $this->actor != 'none' && $this->actor != null ? $this->actor : "user",
+            '{namespace}'                             => config('cubeta-starter.test_namespace'),
+            '{modelName}'                             => $this->table->modelName,
+            '{model_name_in_test_method}'             => Str::snake($this->table->modelName),
+            '{{actor}}'                               => !$this->actor ? "none" : $this->actor,
+            '{baseRouteName}'                         => $baseRouteName,
+            '{modelNamespace}'                        => config('cubeta-starter.model_namespace'),
+            '{resourceNamespace}'                     => $this->table->getResourceNameSpace(false),
+            '{additionalFactoryData}'                 => $this->getAdditionalFactoryData(),
+            '{{methodActor}}'                         => $this->actor != 'none' && $this->actor != null ? $this->actor : "user",
         ];
 
         $this->generateFileFromStub(
