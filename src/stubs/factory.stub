@@ -23,7 +23,5 @@ class {class}Factory extends Factory
     }
 
 
-
     //relationFactories
-
 }

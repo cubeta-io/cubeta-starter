@@ -4,21 +4,19 @@ namespace {{namespace}};
 use {{requestNamespace}};
 use {{modelNamespace}};
 use {{serviceNamespace}};
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Http\Controllers\WebController;
 
-class {{modelName}}Controller extends Controller
+class {{modelName}}Controller extends WebController
 {
-
-    private ${{modelNameCamelCase}}Service;
-
-    // place the relations you want to return them within the response
-    private array $relations = [{{relations}}];
+    private {{serviceName}} ${{modelNameCamelCase}}Service;
 
     public function __construct()
     {
         $this->{{modelNameCamelCase}}Service = {{serviceName}}::make();
+        // place the relations you want to return them within the response
+        $this->relations = [];
     }
 
     public function data()
@@ -26,8 +24,8 @@ class {{modelName}}Controller extends Controller
         $items = $this->{{modelNameCamelCase}}Service->indexWithPagination($this->relations);
         if($items){
             return response()->json([
-                'data' => $items['data'],
-                'pagination_data' => $items['pagination_data'],
+                'data' => $items->items(),
+                'pagination_data' => $this->paginationData($items),
             ], 200);
         }
 
@@ -128,9 +126,7 @@ class {{modelName}}Controller extends Controller
     public function import(Request $request)
     {
         try{
-            $request->validate([
-                        'excel_file' => 'required|mimes:xls,xlsx',
-                    ]);
+            $request->validate(['excel_file' => 'required|mimes:xls,xlsx']);
             $this->{{modelNameCamelCase}}Service->import();
             return redirect()->back()->with('message' , __('site.success'));
         }catch (\Exception){

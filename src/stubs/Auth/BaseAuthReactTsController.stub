@@ -3,7 +3,8 @@
 namespace {{namespace}};
 
 use Exception;
-use App\Http\Controllers\Controller;
+use Inertia\Inertia;
+use App\Http\Controllers\WebController;
 use Illuminate\Support\Facades\Session;
 use {{serviceNamespace}}\User\UserService;
 use {{requestNamespace}}\AuthRequests\AuthLoginRequest;
@@ -12,7 +13,6 @@ use {{requestNamespace}}\AuthRequests\AuthRegisterRequest;
 use {{requestNamespace}}\AuthRequests\ResetPasswordRequest;
 use {{requestNamespace}}\AuthRequests\CheckPasswordResetRequest;
 use {{requestNamespace}}\AuthRequests\RequestResetPasswordRequest;
-use Inertia\Inertia;
 
 class BaseAuthController extends Controller
 {
@@ -44,7 +44,6 @@ class BaseAuthController extends Controller
             return redirect()->back();
         }
     }
-
 
     public function updateUserData(UpdateUserRequest $request)
     {

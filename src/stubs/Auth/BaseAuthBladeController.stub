@@ -3,7 +3,7 @@
 namespace {{namespace}};
 
 use Exception;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\WebController;
 use Illuminate\Support\Facades\Session;
 use {{serviceNamespace}}\User\UserService;
 use {{requestNamespace}}\AuthRequests\AuthLoginRequest;
@@ -13,7 +13,7 @@ use {{requestNamespace}}\AuthRequests\ResetPasswordRequest;
 use {{requestNamespace}}\AuthRequests\CheckPasswordResetRequest;
 use {{requestNamespace}}\AuthRequests\RequestResetPasswordRequest;
 
-class BaseAuthController extends Controller
+class BaseAuthController extends WebController
 {
     private UserService $userService;
     private ?string $role = null;

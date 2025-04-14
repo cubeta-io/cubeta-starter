@@ -9,7 +9,7 @@ use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\Logs\CubeInfo;
+use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
@@ -24,6 +24,11 @@ class ReactTSInertiaInstaller extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        if (!Settings::make()->installedWebPackages()) {
+            CubeLog::add(new CubeError("Install React TS and Inertia packages first by running [php artisan cubeta:install react-ts-packages] and try again"));
+            return;
+        }
+
         $this->installInertia($override);
 
         $this->publishBaseRepository($override);
@@ -53,7 +58,6 @@ class ReactTSInertiaInstaller extends AbstractGenerator
 
         Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
         Settings::make()->setInstalledWeb();
-        CubeLog::add(new CubeInfo("Don't forgot to install react-ts packages by the GUI or by running [php artisan cubeta:install react-ts-packages]"));
     }
 
     private function installInertia(bool $override = false): void

@@ -76,6 +76,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/cubeta-starter.php'                             => base_path('config/cubeta-starter.php'),
+            __DIR__ . '/stubs/WebController.stub'                                 => app_path('Http/Controllers/WebController.php'),
             __DIR__ . '/../pint.json'                                             => base_path('pint.json'),
             __DIR__ . '/../lang/site.php'                                         => lang_path('en/site.php'),
             __DIR__ . '/../resources/views/blade/components'                      => resource_path('views/components'),
@@ -95,7 +96,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/BulkActions/BaseBulkAction.stub"         => app_path("BulkAction/BaseBulkAction.php"),
             __DIR__ . "/../src/Contracts/Excel/BaseExporter.stub"                 => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.stub'                 => app_path("Excel/BaseImporter.php"),
-            __DIR__ . '/../src/stubs/casts/MediaCast.stub'                  => app_path("Casts/MediaCast.php"),
+            __DIR__ . '/../src/stubs/casts/MediaCast.stub'                        => app_path("Casts/MediaCast.php"),
         ], 'cubeta-starter-web');
     }
 
@@ -114,7 +115,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     private function publishApi(): void
     {
         $this->publishes([
-            __DIR__ . "/../src/Contracts/ApiController.stub"                => app_path("Http/Controllers/ApiController.php"),
+            __DIR__ . "/../src/stubs/ApiController.stub"                    => app_path("Http/Controllers/ApiController.php"),
             __DIR__ . '/../src/stubs/handler.stub'                          => base_path('/app/Exceptions/Handler.php'),
             __DIR__ . '/../config/cubeta-starter.php'                       => base_path('config/cubeta-starter.php'),
             __DIR__ . '/../pint.json'                                       => base_path('pint.json'),
@@ -190,10 +191,9 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../config/cubeta-starter.php'                      => base_path('config/cubeta-starter.php'),
             __DIR__ . '/../pint.json'                                      => base_path('pint.json'),
             __DIR__ . '/../lang/site.php'                                  => lang_path('en/site.php'),
-            __DIR__ . '/stubs/Inertia/configurations/postcss.config.stub'  => base_path('/postcss.config.js'),
-            __DIR__ . '/stubs/Inertia/configurations/tailwind.config.stub' => base_path('/tailwind.config.js'),
             __DIR__ . '/stubs/Inertia/configurations/tsconfig.stub'        => base_path('/tsconfig.json'),
             __DIR__ . '/stubs/Inertia/configurations/vite.config.stub'     => base_path('/vite.config.js'),
+            __DIR__ . '/stubs/WebController.stub'                          => app_path('/Http/Controllers/WebController.php'),
 
             __DIR__ . '/../resources/js/inertia/Components'         => resource_path('/js/Components'),
             __DIR__ . '/../resources/js/inertia/Hooks'              => resource_path('/js/Hooks'),

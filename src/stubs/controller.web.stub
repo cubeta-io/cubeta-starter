@@ -6,25 +6,23 @@ use {requestNamespace};
 use {modelNamespace};
 use {serviceNamespace};
 use Yajra\DataTables\Facades\DataTables;
-use App\Http\Controllers\Controller;
 use App\Traits\DataTablesTrait;
 use Illuminate\Http\Request;
+use App\Http\Controllers\WebController;
 
 
-class {modelName}Controller extends Controller
+class {modelName}Controller extends WebController
 {
     use DataTablesTrait;
 
     private {modelName}Service ${modelNameCamelCase}Service;
 
-    // place the relations you want to return them within the response
-    private array $relations = [];
-
     public function __construct()
     {
         $this->{modelNameCamelCase}Service = {modelName}Service::make();
+        // place the relations you want to return them within the response
+        $this->relations = [];
     }
-
 
     /**
      * @throws \Exception
@@ -43,7 +41,6 @@ class {modelName}Controller extends Controller
 
             return $query->rawColumns(['action' , {rawColumns}])->make(true);
     }
-
 
     public function index()
     {

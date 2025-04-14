@@ -34,12 +34,12 @@ class ReactTsPackagesInstaller extends AbstractGenerator
             'laravel-vite-plugin',
             '@inertiajs/react',
             'tailwindcss',
+            "@tailwindcss/vite",
             '@tailwindcss/forms',
             '@types/node',
             '@types/react',
             '@types/react-dom',
             '@vitejs/plugin-react',
-            'postcss',
             'react',
             'react-dom',
             'typescript',
@@ -53,9 +53,11 @@ class ReactTsPackagesInstaller extends AbstractGenerator
         ]);
 
         PackageManager::npmInstall("prettier", true);
+        FileUtils::executeCommandInTheBaseDirectory("node --eval \"fs.writeFileSync('.prettierrc','{}\\n')\"");
 
         Settings::make()->setInstalledWeb();
         Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
+        Settings::make()->setInstalledWebPackages();
     }
 
     public function preparePackageJson(): void

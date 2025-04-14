@@ -2,9 +2,11 @@ import ActionsButtons from "@/Components/Datatable/ActionsButtons";
 import DataTable from "@/Components/Datatable/DataTable";
 import { {{modelName}} } from "@/Models/{{modelName}}";
 import { PaginatedResponse } from "@/Models/Response";
+import { getLocale } from "@/helper";
 {{imports}}
 
 const Index = ({exportables}:{exportables:string[]}) => {
+    const locale = getLocale();
     return (
         <DataTable
             title="{{modelName}} Table"
@@ -37,7 +39,8 @@ const Index = ({exportables}:{exportables:string[]}) => {
                         method: "GET",
                         headers: {
                             accept: "application/html",
-                            "Content-Type": "application/html"
+                            "Content-Type": "application/html",
+                            "Accept-Language": locale,
                         },
                     }
                 ).then((res) => res.json())

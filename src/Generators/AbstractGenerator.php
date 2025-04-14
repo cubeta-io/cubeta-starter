@@ -132,9 +132,9 @@ abstract class AbstractGenerator
 
     protected function publishHasMediaTrait(bool $override = false): void
     {
-        $mediaTraitPath = config('cubeta-starter.trait_path') . '/HasMedia.php';
+        $mediaTraitPath = CubePath::make(config('cubeta-starter.trait_path') . '/HasMedia.php');
         $this->generateFileFromStub([
             "{namespace}" => config('cubeta-starter.trait_namespace'),
-        ], $mediaTraitPath, $override, CubePath::stubPath("traits/HasMedia.stub"));
+        ], $mediaTraitPath->fullPath, $override, CubePath::stubPath("traits/HasMedia.stub"));
     }
 }

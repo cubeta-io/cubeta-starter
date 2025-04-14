@@ -19,6 +19,7 @@ class Settings
     private static bool $installedWeb = false;
     private static bool $installedApiAuth = false;
     private static bool $installedWebAuth = false;
+    private static bool $installedWebPackages = false;
 
     private function __construct()
     {
@@ -49,6 +50,12 @@ class Settings
             self::$installedWeb = (bool)self::$json['installed_web'];
         } else {
             self::$installedWeb = false;
+        }
+
+        if (isset(self::$json['installed_web_packages'])) {
+            self::$installedWebPackages = (bool)self::$json['installed_web_packages'];
+        } else {
+            self::$installedWebPackages = false;
         }
 
         if (isset(self::$json['installed_api_auth'])) {
@@ -105,7 +112,7 @@ class Settings
 
     public function getAllModels(): array
     {
-        return array_map(fn ($table) => $table['model_name'], self::$tables);
+        return array_map(fn($table) => $table['model_name'], self::$tables);
     }
 
     public function getTable(string $modelName): ?CubeTable
@@ -312,5 +319,16 @@ class Settings
     public function installedWebAuth(): bool
     {
         return self::$installedWebAuth;
+    }
+
+    public function installedWebPackages(): bool
+    {
+        return self::$installedWebPackages;
+    }
+
+    public function setInstalledWebPackages(bool $value = true): void
+    {
+        self::$json["installed_web_packages"] = $value;
+        self::storeJsonSettings(self::$json);
     }
 }

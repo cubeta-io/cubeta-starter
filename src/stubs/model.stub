@@ -37,7 +37,6 @@ class {modelName} extends Model
     {
         return [
             {searchableKeys}
-            // add your searchable columns, so you can search within them in the index method
         ] ;
     }
 
@@ -45,8 +44,6 @@ class {modelName} extends Model
     {
         return [
             {searchableRelations}
-            // add your relations and their searchable columns,
-            // so you can search within them in the index method
         ];
     }
 

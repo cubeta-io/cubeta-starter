@@ -157,7 +157,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
     public function getAttributeInterfaceProperty(CubeAttribute $attribute): string
     {
-        $nullable = $attribute->nullable ? "?" : "";
+        $nullable = ($attribute->nullable || $attribute->isFile()) ? "?" : "";
         $base = "{$attribute->name}{$nullable}:";
         if ($attribute->isString() || $attribute->isDateable()) {
             return "{$base}string;\n";
@@ -167,7 +167,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             return "{$base}boolean;\n";
         } elseif ($attribute->isFile()) {
             $this->addImport("import { Media } from \"@/Models/Media\";");
-            return "{$base}string|undefined|Media;\n";
+            return "{$base}string|undefined|File;\n";
         } elseif ($attribute->isKey()) {
             $relatedModelName = Naming::model(str_replace('_id', '', $attribute->name));
             $relatedModelTable = CubeTable::create($relatedModelName);
@@ -328,7 +328,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 $bigFields .= "<div className=\"bg-gray-50 my-2 mb-5 p-4 rounded-md font-bold text-xl dark:bg-dark dark:text-white\">
                                     <label className=\"font-semibold text-lg\">{$attr->titleNaming()} :</label>
                                     <Gallery
-                                        sources={{$modelVariable}{$nullable}.{$attr->name}?.url}
+                                        sources={[{$modelVariable}{$nullable}.{$attr->name}?.url]}
                                     />
                                 </div>";
             } elseif ($attr->isTranslatable()) {
