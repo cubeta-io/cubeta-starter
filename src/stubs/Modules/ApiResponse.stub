@@ -2,7 +2,6 @@
 
 namespace App\Modules;
 
-
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -108,7 +107,7 @@ class ApiResponse implements JsonSerializable
                 return $this;
             } elseif ($item instanceof Model) {
                 $modelName = class_basename(get_class($item));
-                $resourceName = "\\App\\Http\\Resources\\{$modelName}Resource";
+                $resourceName = "\\App\\Http\\Resources\\v1\\{$modelName}Resource";
                 if (class_exists($resourceName)) {
                     $this->data = $resourceName::collection($data);
                     $this->paginationData = $this->formatPaginateData($data);
@@ -119,7 +118,7 @@ class ApiResponse implements JsonSerializable
 
         if ($data instanceof Model) {
             $modelName = class_basename(get_class($data));
-            $resourceName = "\\App\\Http\\Resources\\{$modelName}Resource";
+            $resourceName = "\\App\\Http\\Resources\\v1\\{$modelName}Resource";
             if (class_exists($resourceName)) {
                 $this->data = $resourceName::make($data);
                 return $this;
@@ -243,7 +242,7 @@ class ApiResponse implements JsonSerializable
      * @param Closure(ApiResponse):(ApiResponse)|null $else
      * @return $this
      */
-    public function when(bool|Closure $condition, Closure $then, ?Closure $else = null): static
+    public function when($condition, Closure $then, ?Closure $else = null): static
     {
         if (is_callable($condition)) {
             $condition = $condition($this);
