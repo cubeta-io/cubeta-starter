@@ -17,12 +17,13 @@ class MainTestCase extends TestCase
     public function deleteTest(array $additionalFactoryData = [], bool $ownership = false, bool $isDebug = false): void
     {
         // the user provided undefined ID
-        $this->responseBody['data'] = false;
+        $this->responseBody['data'] = null;
         $this->responseBody['message'] = __('site.there_is_no_data');
+        $this->responseBody['code'] = Response::HTTP_NOT_FOUND;
 
-        $this->delete(route($this->requestPath, fake()->uuid()) , [] , $this->headers)
+        $this->delete(route($this->requestPath, fake()->uuid()), [], $this->headers)
             ->assertExactJson($this->responseBody)
-            ->assertOk();
+            ->assertNotFound();
 
         if ($ownership) {
             // the user tried to delete another user data
@@ -40,8 +41,9 @@ class MainTestCase extends TestCase
             $factoryData = $this->model::factory()->create($additionalFactoryData);
         }
 
-        $this->responseBody['data'] = true;
+        $this->responseBody['data'] = null;
         $this->responseBody['message'] = __('site.delete_successfully');
+        $this->responseBody['code'] = Response::HTTP_OK;
 
         $response = $this->delete(route($this->requestPath, $factoryData->id), [], $this->headers)
             ->assertExactJson($this->responseBody)
@@ -66,7 +68,18 @@ class MainTestCase extends TestCase
     {
         // there is no data
         $this->responseBody['data'] = [];
-        $this->responseBody['message'] = __('site.there_is_no_data');
+        $this->responseBody['message'] = __('site.get_successfully');
+        $this->responseBody['code'] = 200;
+        $this->responseBody['pagination_data'] = [
+            "current_page" => 1,
+            "from" => null,
+            "is_first_page" => true,
+            "is_last_page" => true,
+            "per_page" => 10,
+            "to" => null,
+            "total" => 0,
+            "total_pages" => 1
+        ];
 
         $this->get(route($this->requestPath), $this->headers)
             ->assertExactJson($this->responseBody)
@@ -91,7 +104,7 @@ class MainTestCase extends TestCase
 
         $this->responseBody['data'] = $this->convertResourceToArray($factoryData->load($this->relations), true);
         $this->responseBody['message'] = __('site.get_successfully');
-        $this->responseBody['paginate'] = $this->pagination;
+        $this->responseBody['pagination_data'] = $this->pagination;
         $response = $this->get(route($this->requestPath), $this->headers)
             ->assertExactJson($this->responseBody)
             ->assertOk();
@@ -108,10 +121,11 @@ class MainTestCase extends TestCase
     {
         // the user provided invalid id
         $this->responseBody['message'] = __('site.there_is_no_data');
+        $this->responseBody['code'] = Response::HTTP_NOT_FOUND;
 
         $this->get(route($this->requestPath, fake()->uuid()), $this->headers)
             ->assertExactJson($this->responseBody)
-            ->assertOk();
+            ->assertNotFound();
 
         if ($ownership) {
             // the user tried to show another user data
@@ -132,6 +146,7 @@ class MainTestCase extends TestCase
         // the user provided the right id
         $this->responseBody['data'] = $this->convertResourceToArray($factoryData->load($this->relations));
         $this->responseBody['message'] = __('site.get_successfully');
+        $this->responseBody['code'] = Response::HTTP_OK;
         $response = $this->get(route($this->requestPath, $factoryData->id), $this->headers)
             ->assertExactJson($this->responseBody)
             ->assertOk();
@@ -147,7 +162,8 @@ class MainTestCase extends TestCase
     public function storeTest(array $additionalAttributes = [], mixed $requestParams = null, bool $isDebug = false): void
     {
         $attributes = $this->model::factory()->raw($additionalAttributes);
-        $response = $this->post(route($this->requestPath, $requestParams), $attributes, $this->headers);
+        $response = $this->post(route($this->requestPath, $requestParams), $attributes, $this->headers)
+            ->assertOk();
 
         if ($isDebug) {
             dd($response);
@@ -166,18 +182,21 @@ class MainTestCase extends TestCase
 
     /**
      * @param array $additionalFactoryData optional data to the factories
-     * @param array $attributes            if you are trying to send a custom attributes to the update request send an array of it
+     * @param array $attributes            if you are trying to send a custom attributes to the update request send an
+     *                                     array of it
      * @param bool  $ownership             determine if the action has to be on the authenticated user data
-     * @param bool  $replacing             this var pointing to the case where the update endpoint creating a new record to the database
+     * @param bool  $replacing             this var pointing to the case where the update endpoint creating a new
+     *                                     record to the database
      */
     public function updateTest(array $attributes = [], array $additionalFactoryData = [], bool $ownership = false, bool $replacing = true, bool $isDebug = false): void
     {
         $attributes = $this->model::factory()->raw($attributes);
         //the user provided invalid ID
         $this->responseBody['message'] = __('site.there_is_no_data');
+        $this->responseBody['code'] = Response::HTTP_NOT_FOUND;
         $this->put(route($this->requestPath, fake()->uuid), $attributes, $this->headers)
             ->assertExactJson($this->responseBody)
-            ->assertOk();
+            ->assertNotFound();
 
         if ($ownership) {
             // the user tried to update another user data
@@ -207,6 +226,7 @@ class MainTestCase extends TestCase
             $this->responseBody['data'] = $this->convertResourceToArray($createdData->load($this->relations));
         }
         $this->responseBody['message'] = __('site.update_successfully');
+        $this->responseBody['code'] = Response::HTTP_OK;
         $response->assertExactJson($this->responseBody);
 
         if ($isDebug) {
