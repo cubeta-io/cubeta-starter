@@ -3,7 +3,7 @@
 - [Introduction](introduction.md#introduction "introduction")
 - [Usage](usage.md#usage)
 - [Created Classes And Files](created-files#created-classes-and-files)
-- Basic Classes And Traits
+- Basic Classes
     - [Base Repository Class](base-repository.md#baserepository-class)
     - [MainTestCase Class](main-test.md#maintestcase-class)
     - [Translatable Serializer](translatable-serializer.md#translatable-attributes-handling)

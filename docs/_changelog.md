@@ -2,10 +2,23 @@
 
 # **Changelog :**
 
+## **V 3.0.0**
+1. Adding support for the `Laravel 12` and drop support for previous versions.
+2. Adding support for `inertia.js 2.0` and drop support for previous versions.
+3. Adding support for `tailwindcss 4.0` and drop support for previous versions.
+4. Adding support for `react 19` and drop support for previous versions.
+5. Introduce `ApiResponse` class to replace the `RestTrait` to handle api responses
+6. Introduce the new `MediaCast` mode cast class to replace the usage of the `FileHandler` trait
+7. Bug fixes
+
+## **V 2.2.0**
+1. Adding support for the `Laravel 11` and drop support for previous versions. 
+2. Bug fixes
+
 ## **V 2.1.0**
 
 1. Introducing The `BaseBulkAction` class to make it easy to define your model available bulk
-   actions [check on it here](bulk-actions.md#basebulkaction-class) .
+   actions .
 2. Removing The BaseService and BaseRepository classes interfaces .
 
 ## **V 2.0.0**
