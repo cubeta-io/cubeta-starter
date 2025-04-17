@@ -2,8 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Stub\Contracts;
 
-use BadMethodCallException;
-
 abstract class ClassStubBuilder extends StubBuilder
 {
     protected string $namespace;
@@ -57,14 +55,9 @@ abstract class ClassStubBuilder extends StubBuilder
         return $this;
     }
 
-    public function dockBlock(string|array $dockBlock): static
+    public function dockBlock(string $property, string $type): static
     {
-        if (is_array($dockBlock)) {
-            $this->dockBlock = array_merge($dockBlock, $this->dockBlock);
-        } else {
-            $this->dockBlock[] = $dockBlock;
-        }
-
+        $this->dockBlock[$property] = $type;
         return $this;
     }
 
@@ -76,13 +69,29 @@ abstract class ClassStubBuilder extends StubBuilder
 
     protected function getStubPropertyArray(): array
     {
+        $traits = "";
+        foreach ($this->traits as $trait) {
+            $traits .= "use {$trait};\n";
+        }
+
+        $imports = "";
+        foreach ($this->imports as $import) {
+            $imports .= "use {$import};\n";
+        }
+
+        $docBlocks = "/**\n";
+        foreach ($this->dockBlock as $property => $type) {
+            $docBlocks .= "* @property $type $property\n";
+        }
+        $docBlocks .= "*/\n";
+
         return [
             '{{namespace}}' => $this->namespace,
-            '{{imports}}' => $this->imports,
-            '{{traits}}' => $this->traits,
-            '{{properties}}' => $this->properties,
-            '{{methods}}' => $this->methods,
-            '{{dockBlock}}' => $this->dockBlock,
+            '{{imports}}' => $imports,
+            '{{traits}}' => $traits,
+            '{{properties}}' => implode("\n", $this->properties),
+            '{{methods}}' => implode("\n", $this->methods),
+            '{{doc_block}}' => $docBlocks,
             ...$this->stubProperties,
         ];
     }
