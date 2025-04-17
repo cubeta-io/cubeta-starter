@@ -208,10 +208,11 @@ class ActorFilesGenerator extends AbstractGenerator
         $routes = RoleProtectedAuthRoutesStubBuilder::make()
             ->version($this->version)
             ->role($this->role)
+            ->controllerName(str($this->role)->studly()->singular()->toString())
             ->refreshRouteName($protectedAuthRoutesNames['refresh_route_name'])
             ->logoutRouteName($protectedAuthRoutesNames['logout'])
             ->updateUserRouteName($protectedAuthRoutesNames['update-user-details'])
-            ->userDetailRouteName($protectedAuthRoutesNames['user-details'])
+            ->userDetailsRouteName($protectedAuthRoutesNames['user-details'])
             ->toString();
 
         $apiRouteFile->putContent($routes, FILE_APPEND);
