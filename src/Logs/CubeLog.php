@@ -4,10 +4,13 @@ namespace Cubeta\CubetaStarter\Logs;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\Logs\Errors\WrongEnvironment;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 use Exception;
 use Throwable;
 
@@ -82,6 +85,17 @@ class CubeLog
         ));
     }
 
+    public static function contentNotFound(string $content, string $filePath, ?string $context = null): void
+    {
+        self::add(
+            new ContentNotFound(
+                $content,
+                $filePath,
+                $context
+            )
+        );
+    }
+
     public static function fileAlreadyExists(string $filePath, ?string $happenedWhen = null): void
     {
         self::add(new AlreadyExist(
@@ -112,6 +126,33 @@ class CubeLog
             $message,
             $affectedPath,
             $context
+        ));
+    }
+
+    public static function failedAppending(string $content, string $filePath = null, ?string $context = null): void
+    {
+        self::add(
+            new FailedAppendContent(
+                $content,
+                $filePath,
+                $context
+            )
+        );
+    }
+
+    public static function notFound(string $content, string $filePath = null, ?string $context = null): void
+    {
+        self::add(new ContentNotFound(
+            $content,
+            $filePath,
+            $context
+        ));
+    }
+
+    public static function wrongEnvironment(string $happenedWhen): void
+    {
+        self::add(new WrongEnvironment(
+            $happenedWhen
         ));
     }
 }

@@ -33,7 +33,7 @@ class ActorFilesGenerator extends AbstractGenerator
     private string $role;
     private ?array $permissions;
     private bool $authenticated;
-    private bool $override = false;
+    private bool $override;
 
     public function __construct(string $role, ?array $permissions = null, bool $authenticated = false, string $generatedFor = ContainerType::API, string $version = 'v1', bool $override = false)
     {
