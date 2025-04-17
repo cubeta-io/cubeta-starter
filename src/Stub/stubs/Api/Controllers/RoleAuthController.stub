@@ -10,6 +10,6 @@ class {role}AuthController extends BaseAuthController
     public function __construct()
     {
         parent::__construct();
-        $this->roleHook(RolesPermissionEnum::{roleEnumName}['role']);
+        $this->roleHook(RolesPermissionEnum::{role_enum_name}['role']);
     }
 }

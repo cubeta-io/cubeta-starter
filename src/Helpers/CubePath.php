@@ -84,13 +84,23 @@ class CubePath
             DIRECTORY_SEPARATOR .
             '..' .
             DIRECTORY_SEPARATOR .
+            'Stub' .
+            DIRECTORY_SEPARATOR .
             'stubs' .
             (
-            str_starts_with(DIRECTORY_SEPARATOR, $stubPath)
+            (str_starts_with($stubPath, "/") || str_starts_with($stubPath, "\\"))
                 ? ''
                 : DIRECTORY_SEPARATOR
             ) .
-            str_replace('/', DIRECTORY_SEPARATOR, $stubPath)
+            str_replace(
+                '/',
+                DIRECTORY_SEPARATOR,
+                str_replace(
+                    '\\',
+                    DIRECTORY_SEPARATOR,
+                    $stubPath
+                )
+            )
         );
     }
 }

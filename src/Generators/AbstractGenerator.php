@@ -19,7 +19,6 @@ use Mockery\Exception;
 
 abstract class AbstractGenerator
 {
-    public static string $key = '';
     public string $type = '';
     public FrontendTypeEnum $frontType;
 

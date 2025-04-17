@@ -2,6 +2,12 @@
 
 namespace Cubeta\CubetaStarter\Logs;
 
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
+use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Exception;
 use Throwable;
 
@@ -26,8 +32,8 @@ class CubeLog
 
     public static function splitExceptions(): array
     {
-        $logs = array_filter(self::$logs, fn ($log) => (!$log instanceof Exception and !$log instanceof Throwable));
-        $exceptions = array_filter(self::$logs, fn ($log) => ($log instanceof Exception or $log instanceof Throwable));
+        $logs = array_filter(self::$logs, fn($log) => (!$log instanceof Exception and !$log instanceof Throwable));
+        $exceptions = array_filter(self::$logs, fn($log) => ($log instanceof Exception or $log instanceof Throwable));
 
         return [$logs, $exceptions];
     }
@@ -53,5 +59,59 @@ class CubeLog
                 self::$logs[$key] = new CubeError($log->getMessage(), $log->getFile());
             }
         }
+    }
+
+    public static function contentAppended(string $content, string|CubePath $path): void
+    {
+        self::add(new ContentAppended(
+            $content,
+            $path instanceof CubePath
+                ? $path->fullPath
+                : $path
+        ));
+    }
+
+    public static function contentAlreadyExists(string $content, string|CubePath $path, ?string $context = null): void
+    {
+        self::add(new ContentAlreadyExist(
+            $content,
+            $path instanceof CubePath
+                ? $path->fullPath
+                : $path,
+            $context
+        ));
+    }
+
+    public static function fileAlreadyExists(string $filePath, ?string $happenedWhen = null): void
+    {
+        self::add(new AlreadyExist(
+            $filePath,
+            $happenedWhen ?? ""
+        ));
+    }
+
+    public static function generatedSuccessfully(string $fileName, ?string $filePath = null, ?string $context = null): void
+    {
+        self::add(new SuccessGenerating(
+            $fileName,
+            $filePath,
+            $context
+        ));
+    }
+
+    public static function success(string $message): void
+    {
+        self::add(
+            new SuccessMessage($message)
+        );
+    }
+
+    public static function error(string $message, ?string $affectedPath = null, ?string $context = null): void
+    {
+        self::add(new CubeError(
+            $message,
+            $affectedPath,
+            $context
+        ));
     }
 }

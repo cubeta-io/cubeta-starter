@@ -6,7 +6,7 @@ use Cubeta\CubetaStarter\Logs\CubeError;
 
 class AlreadyExist extends CubeError
 {
-    public function __construct(string $filePath, string $happenedWhen)
+    public function __construct(string $filePath, ?string $happenedWhen = null)
     {
         parent::__construct(
             message: "[$filePath] Already Exists !",
