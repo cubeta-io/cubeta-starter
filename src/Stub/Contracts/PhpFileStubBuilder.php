@@ -20,4 +20,9 @@ abstract class PhpFileStubBuilder extends StubBuilder
 
         return $this;
     }
+
+    protected function getStubPropertyArray(): array
+    {
+        return $this->stubProperties;
+    }
 }

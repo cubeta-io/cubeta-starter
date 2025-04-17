@@ -24,7 +24,7 @@ abstract class StubBuilder
         }
 
         if (isset($arguments[0])) {
-            $this->stubProperties["{{" . str($name)->singular()->snake()->toString() . "}}"] = $arguments[0];
+            $this->stubProperties["{{" . str($name)->snake()->toString() . "}}"] = $arguments[0];
             return $this;
         }
 
