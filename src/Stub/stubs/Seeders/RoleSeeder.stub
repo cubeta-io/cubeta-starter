@@ -1,10 +1,10 @@
 <?php
 
-namespace {namespace};
+namespace {{namespace}};
 
 use App\Enums\RolesPermissionEnum;
 use Illuminate\Database\Seeder;
-use {model_namespace}\Role;
+use {{model_namespace}}\Role;
 
 class RoleSeeder extends Seeder
 {

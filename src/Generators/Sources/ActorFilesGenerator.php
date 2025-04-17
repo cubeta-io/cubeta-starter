@@ -231,11 +231,12 @@ class ActorFilesGenerator extends AbstractGenerator
         $publicAuthRoutes = RolePublicAuthRoutesStubBuilder::make()
             ->version($this->version)
             ->role($this->role)
-            ->registerRoute($publicAuthRoutesNames['register'])
-            ->loginRoute($publicAuthRoutesNames['login'])
-            ->requestResetRoute($publicAuthRoutesNames['password-reset-request'])
-            ->validatePasswordResetRoute($publicAuthRoutesNames['validate-reset-code'])
-            ->resetPasswordRoute($publicAuthRoutesNames['reset-password'])
+            ->controllerName(str($this->role)->singular()->studly()->toString())
+            ->registerRouteName($publicAuthRoutesNames['register'])
+            ->loginRouteName($publicAuthRoutesNames['login'])
+            ->passwordResetRequestRouteName($publicAuthRoutesNames['password-reset-request'])
+            ->validatePasswordResetCodeRouteName($publicAuthRoutesNames['validate-reset-code'])
+            ->passwordResetRouteName($publicAuthRoutesNames['reset-password'])
             ->toString();
 
         if (!$publicApiRouteFile->exist()) {
