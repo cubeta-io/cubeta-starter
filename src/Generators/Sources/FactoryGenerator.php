@@ -9,8 +9,8 @@ use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Stub\Builders\FactoryStubBuilder;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
 class FactoryGenerator extends AbstractGenerator
@@ -18,6 +18,24 @@ class FactoryGenerator extends AbstractGenerator
     use StringsGenerator;
 
     public static string $key = 'factory';
+    private FactoryStubBuilder $builder;
+
+    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '', ?string $version = null, bool $override = false)
+    {
+        parent::__construct(
+            $fileName,
+            $attributes,
+            $relations,
+            $nullables,
+            $uniques,
+            $actor,
+            $generatedFor,
+            $version,
+            $override
+        );
+
+        $this->builder = FactoryStubBuilder::make();
+    }
 
     public function run(bool $override = false): void
     {
@@ -30,75 +48,68 @@ class FactoryGenerator extends AbstractGenerator
 
         $factoryPath->ensureDirectoryExists();
 
-        $factoryAttributes = $this->generateFields();
+        $this->generateFields();
+        $this->builder
+            ->namespace(config('cubeta-starter.factory_namespace'))
+            ->modelNamespace($this->table->getModelNameSpace())
+            ->modelName($this->table->modelName)
+            ->generate($factoryPath, $this->override);
 
-        $stubProperties = [
-            '{namespace}'         => config('cubeta-starter.factory_namespace'),
-            '{class}'             => $this->table->modelName,
-            '{rows}'              => $factoryAttributes['rows'],
-            '//relationFactories' => $factoryAttributes['relatedFactories'],
-            '{modelNamespace}'    => $this->table->getModelNameSpace(),
-        ];
-
-        $this->generateFileFromStub($stubProperties, $factoryPath->fullPath);
 
         $factoryPath->format();
 
         CodeSniffer::make()->setModel($this->table)->checkForFactoryRelations();
     }
 
-    private function generateFields(): array
+    private function generateFields(): void
     {
-        $rows = '';
-        $relatedFactories = '';
-
-        $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$rows) {
+        $this->table->attributes()->each(function (CubeAttribute $attribute) {
             $isUnique = $attribute->unique ? "->unique()" : "";
             $name = $attribute->name;
             $type = $attribute->type;
 
             if ($attribute->isKey()) {
                 $relatedModel = CubeTable::create(str_replace('_id', '', $name));
-                $rows .= "\t\t\t'{$name}' => " . $relatedModel->getModelClassString() . "::factory() ,\n";
+                $this->builder->row($name, $relatedModel->getModelClassString() . "::factory()");
             } elseif ($attribute->isTranslatable()) {
-                $rows .= "\t\t\t'{$name}' => \\App\\Serializers\\Translatable::fake(),\n";
+                $this->builder->import("\\App\\Serializers\\Translatable");
+                $this->builder->row($name, "Translatable::fake()");
             } elseif ($type == ColumnTypeEnum::STRING->value) {
-                $rows .= $this->handleStringType($name, $isUnique);
+                $this->builder->row(...$this->handleStringType($name, $isUnique));
             } elseif ((in_array($name, ['cost', 'price', 'value', 'expense']) || Str::contains($name, ['price', 'cost'])) && ColumnTypeEnum::isNumericType($type)) {
-                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->randomFloat(2, 0, 1000),\n";
+                $this->builder->row($name, "fake(){$isUnique}->randomFloat(2, 0, 1000)");
             } elseif (Str::contains($name, 'description') && $type == ColumnTypeEnum::TEXT->value) {
-                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->text(),\n";
+                $this->builder->row($name, "fake(){$isUnique}->text()");
             } elseif ($attribute->isFile()) {
-                $rows .= "\t\t\t'{$name}' => \Illuminate\Http\UploadedFile::fake()->image(\"image.png\"),\n";
+                $this->builder->import("\\Illuminate\\Http\\UploadedFile");
+                $this->builder->row($name, "UploadedFile::fake()->image(\"image.png\")");
             } elseif (Str::contains($name, 'age') && $type == ColumnTypeEnum::INTEGER->value) {
-                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->numberBetween(15,60),\n";
+                $this->builder->row($name, "fake(){$isUnique}->numberBetween(15,60)");
             } elseif (Str::contains($name, 'time') && $type == ColumnTypeEnum::TIME->value) {
-                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->time('H:i'),\n";
+                $this->builder->row($name, "fake(){$isUnique}->time('H:i')");
             } elseif ((Str::endsWith($name, '_at') || Str::contains($name, 'date')) && $attribute->isDate()) {
-                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->date(),\n";
+                $this->builder->row($name, "fake(){$isUnique}->date()");
             } elseif (Str::startsWith($name, 'is_') && $type == ColumnTypeEnum::BOOLEAN->value) {
-                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}->boolean(),\n";
+                $this->builder->row($name, "fake(){$isUnique}->boolean()");
             } elseif ($type == ColumnTypeEnum::JSON->value) {
-                $rows .= "\t\t\t'{$name}' => json_encode([fake()->word() => fake()->word()]), \n";
+                $this->builder->row($name, "json_encode([fake()->word() => fake()->word()])");
             } elseif ($fakerMethod = $this->getFakeMethod($type)) {
-                $rows .= "\t\t\t'{$name}' => fake(){$isUnique}{$fakerMethod}, \n";
+                $this->builder->row($name, "fake(){$isUnique}{$fakerMethod}");
             } else {
-                $rows .= "\t\t\t '{$name}' => fake(){$isUnique}->{$type}(), \n";
+                $this->builder->row($name, "fake(){$isUnique}->{$type}()");
             }
         });
 
-        $this->table->relations()->each(function (CubeRelation $rel) use (&$relatedFactories) {
+        $this->table->relations()->each(function (CubeRelation $rel) {
             if ($rel->isHasMany() || $rel->isManyToMany()) {
                 if ($rel->getModelPath()->exist()) {
-                    $relatedFactories .= $this->factoryRelationMethod($rel);
+                    $this->builder->method($this->factoryRelationMethod($rel));
                 }
             }
         });
-
-        return ['rows' => $rows, 'relatedFactories' => $relatedFactories];
     }
 
-    private function handleStringType(string $name, string $isUnique): string
+    private function handleStringType(string $name, string $isUnique): array
     {
         $originalName = $name;
         if (Str::contains($name, 'phone')) {
@@ -135,7 +146,7 @@ class FactoryGenerator extends AbstractGenerator
             default => "word()"
         };
 
-        return "\t\t\t'{$originalName}' => fake(){$isUnique}->{$fakerMethod},\n";
+        return [$originalName, "fake(){$isUnique}->{$fakerMethod}"];
     }
 
     private function getFakeMethod(string $type): ?string

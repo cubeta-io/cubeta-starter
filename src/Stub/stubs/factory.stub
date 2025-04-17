@@ -1,14 +1,15 @@
 <?php
 
-namespace {namespace};
+namespace {{namespace}};
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+{{imports}}
 
 /**
- * @extends Factory<{modelNamespace}>
+ * @extends Factory<{{model_namespace}}>
  */
-class {class}Factory extends Factory
+class {{model_name}}Factory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,10 +19,9 @@ class {class}Factory extends Factory
     public function definition(): array
     {
         return [
-            {rows}
+            {{rows}}
         ];
     }
 
-
-    //relationFactories
+    {{methods}}
 }
