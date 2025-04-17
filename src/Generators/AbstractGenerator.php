@@ -63,7 +63,7 @@ abstract class AbstractGenerator
         $this->relations = array_merge($this->relations, $belongToRelations);
     }
 
-    public function run(bool $override = false): void
+    public function run(): void
     {
 
     }

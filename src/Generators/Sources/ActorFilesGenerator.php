@@ -11,10 +11,7 @@ use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\CubeWarning;
-use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
-use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\RoleAuthControllerStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Routes\RoleProtectedAuthRoutesStubBuilder;
@@ -45,7 +42,7 @@ class ActorFilesGenerator extends AbstractGenerator
         parent::__construct(actor: $this->role, generatedFor: $generatedFor, version: $version);
     }
 
-    public function run(bool $override = false): void
+    public function run(): void
     {
         $settings = Settings::make();
         if (!$settings->installedRoles()) {
@@ -178,7 +175,7 @@ class ActorFilesGenerator extends AbstractGenerator
         return Str::singular(Str::upper(Str::snake($name)));
     }
 
-    public function createRoleSeeder(bool $override = false): void
+    public function createRoleSeeder(): void
     {
         $seederPath = CubePath::make(config('cubeta-starter.seeder_path') . '/RoleSeeder.php');
 
