@@ -2,6 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Stub\Contracts;
 
+use BadMethodCallException;
+
 abstract class ClassStubBuilder extends StubBuilder
 {
     protected string $namespace;
@@ -70,5 +72,18 @@ abstract class ClassStubBuilder extends StubBuilder
     {
         $this->namespace = $namespace;
         return $this;
+    }
+
+    protected function getStubPropertyArray(): array
+    {
+        return [
+            '{{namespace}}' => $this->namespace,
+            '{{imports}}' => $this->imports,
+            '{{traits}}' => $this->traits,
+            '{{properties}}' => $this->properties,
+            '{{methods}}' => $this->methods,
+            '{{dockBlock}}' => $this->dockBlock,
+            ...$this->stubProperties,
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Stub\Contracts;
 
+use BadMethodCallException;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
@@ -13,6 +14,22 @@ use Mockery\Exception;
 abstract class StubBuilder
 {
     use Makable;
+
+    protected array $stubProperties = [];
+
+    public function __call(string $name, array $arguments)
+    {
+        if (method_exists($this, $name)) {
+            return $this->$name(...$arguments);
+        }
+
+        if (isset($arguments[0])) {
+            $this->stubProperties["{{" . str($name)->singular()->snake()->toString() . "}}"] = $arguments[0];
+            return $this;
+        }
+
+        throw new BadMethodCallException("Call to undefined method $name()");
+    }
 
     abstract protected function stubPath(): string;
 

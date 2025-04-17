@@ -30,7 +30,6 @@ class ActorFilesGenerator extends AbstractGenerator
     private string $role;
     private ?array $permissions;
     private bool $authenticated;
-    private bool $override;
 
     public function __construct(string $role, ?array $permissions = null, bool $authenticated = false, string $generatedFor = ContainerType::API, string $version = 'v1', bool $override = false)
     {
@@ -38,8 +37,7 @@ class ActorFilesGenerator extends AbstractGenerator
         $this->actor = $this->role;
         $this->permissions = $permissions;
         $this->authenticated = $authenticated;
-        $this->override = $override;
-        parent::__construct(actor: $this->role, generatedFor: $generatedFor, version: $version);
+        parent::__construct(actor: $this->role, generatedFor: $generatedFor, version: $version, override: $override);
     }
 
     public function run(): void

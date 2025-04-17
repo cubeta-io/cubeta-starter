@@ -32,8 +32,9 @@ abstract class AbstractGenerator
     protected string $fileName;
     protected string $version;
     protected CubeTable $table;
+    protected bool $override;
 
-    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '', ?string $version = null)
+    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '', ?string $version = null, bool $override = false)
     {
         $this->fileName = trim($fileName);
         $this->attributes = $attributes;
@@ -44,6 +45,7 @@ abstract class AbstractGenerator
         $this->generatedFor = $generatedFor === '' ? ContainerType::BOTH : $generatedFor;
         $this->version = $version ?? config('cubeta-starter.version');
         $this->frontType = Settings::make()->getFrontendType() ?? FrontendTypeEnum::NONE;
+        $this->override = $override;
 
         $this->mergeRelations();
 
