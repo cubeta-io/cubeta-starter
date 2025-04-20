@@ -2,7 +2,19 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 
-class CubeUnsignedBigInteger extends CubeNumeric
-{
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
 
+class CubeUnsignedBigInteger extends CubeNumeric implements HasFakeMethod, HasMigrationColumn
+{
+    public function migrationColumn(): MigrationColumn
+    {
+        return new MigrationColumn(
+            $this->columnNaming(),
+            "unsignedBigInteger",
+            $this->nullable,
+            $this->unique
+        );
+    }
 }

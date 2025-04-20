@@ -3,11 +3,13 @@
 namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
 use Illuminate\Support\Str;
 
-class CubeStringable extends CubeAttribute implements HasFakeMethod
+class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -51,5 +53,15 @@ class CubeStringable extends CubeAttribute implements HasFakeMethod
             'gender' => "randomElement(['male' , 'female'])",
             default => "word"
         };
+    }
+
+    public function migrationColumn(): MigrationColumn
+    {
+        return new MigrationColumn(
+            $this->columnNaming(),
+            "string",
+            $this->nullable,
+            $this->unique
+        );
     }
 }

@@ -8,28 +8,10 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Method;
 abstract class ClassStubBuilder extends StubBuilder
 {
     protected string $namespace;
-    protected array $imports = [];
     protected array $traits = [];
     protected array $properties = [];
     protected array $methods = [];
     protected array $dockBlock = [];
-
-    /**
-     * when providing a string or an array of strings,
-     * it must be a full import string like this "use Illuminate\Http\UploadedFile ;"
-     * @param string|array|ImportString|ImportString[] $import
-     * @return $this
-     */
-    public function import(string|array|ImportString $import): static
-    {
-        if (is_array($import)) {
-            $this->imports = array_merge($import, $this->imports);
-        } else {
-            $this->imports[] = $import;
-        }
-
-        return $this;
-    }
 
     public function trait(string|array $trait): static
     {
@@ -95,7 +77,6 @@ abstract class ClassStubBuilder extends StubBuilder
 
         return [
             '{{namespace}}' => $this->namespace,
-            '{{imports}}' => implode("\n", $this->imports),
             '{{traits}}' => $traits,
             '{{properties}}' => implode("\n", $this->properties),
             '{{methods}}' => array_reduce($this->methods, fn($carry, $method) => "$carry\n\n$method"),
