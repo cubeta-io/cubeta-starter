@@ -4,7 +4,6 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\App\Models\Postman\Postman;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
-use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\ApiControllerStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
@@ -28,9 +27,9 @@ class ApiControllerGenerator extends AbstractGenerator
         ApiControllerStubBuilder::make()
             ->namespace($this->table->getApiControllerNameSpace(false))
             ->modelName($this->table->modelName)
-            ->modelNamespace($this->table->getModelClassString())
+            ->modelNamespace($this->table->getModelNameSpace(false))
             ->resourceNamespace($this->table->getResourceNameSpace(false))
-            ->serviceNamespace($this->table->variableNaming())
+            ->serviceNamespace($this->table->getServiceNamespace(false))
             ->idVariable($this->table->idVariable())
             ->requestNamespace($this->table->getRequestNameSpace(false))
             ->serviceName($this->table->modelName)
