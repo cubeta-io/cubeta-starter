@@ -2,6 +2,21 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeBoolean;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeDate;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeDateTime;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeDouble;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeFile;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeFloat;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeInteger;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeJson;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeKey;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeString;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeText;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTime;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTimestamp;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTranslatable;
+use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeUnsignedBigInteger;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
@@ -58,10 +73,10 @@ class CubeAttribute
     public function toJson(): bool|string
     {
         return json_encode([
-            "name"     => $this->name,
-            "type"     => $this->type,
+            "name" => $this->name,
+            "type" => $this->type,
             "nullable" => $this->nullable,
-            "unique"   => $this->unique,
+            "unique" => $this->unique,
         ], JSON_PRETTY_PRINT);
     }
 
@@ -71,10 +86,10 @@ class CubeAttribute
     public function toArray(): array
     {
         return [
-            "name"     => $this->name,
-            "type"     => $this->type,
+            "name" => $this->name,
+            "type" => $this->type,
             "nullable" => $this->nullable,
-            "unique"   => $this->unique,
+            "unique" => $this->unique,
         ];
     }
 
@@ -187,5 +202,29 @@ class CubeAttribute
         } else {
             return $this->titleNaming();
         }
+    }
+
+    public static function factory(string $name, string $type, bool $nullable = false, bool $unique = false, ?string $parentTableName = null): CubeText|CubeInteger|CubeFloat|CubeDateTime|CubeTranslatable|CubeTimestamp|CubeDate|CubeAttribute|CubeKey|CubeJson|CubeString|CubeBoolean|CubeFile|CubeDouble|CubeTime|CubeUnsignedBigInteger
+    {
+        $type = ColumnTypeEnum::tryFrom($type);
+
+        return match ($type) {
+            ColumnTypeEnum::STRING => new CubeString($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::TEXT => new CubeText($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::JSON => new CubeJson($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::INTEGER, ColumnTypeEnum::BIG_INTEGER => new CubeInteger($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::UNSIGNED_BIG_INTEGER => new CubeUnsignedBigInteger($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::DOUBLE => new CubeDouble($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::FLOAT => new CubeFloat($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::BOOLEAN => new CubeBoolean($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::DATE => new CubeDate($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::TIME => new CubeTime($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::DATETIME => new CubeDateTime($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::TIMESTAMP => new CubeTimestamp($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::FILE => new CubeFile($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::KEY => new CubeKey($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::TRANSLATABLE => new CubeTranslatable($name, $type->value, $nullable, $unique, $parentTableName),
+            default => new CubeAttribute($name, $type->value, $nullable, $unique, $parentTableName),
+        };
     }
 }

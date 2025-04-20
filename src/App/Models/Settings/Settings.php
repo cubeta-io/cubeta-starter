@@ -125,14 +125,14 @@ class Settings
                 $attributes = [];
 
                 foreach ($table['attributes'] as $attribute) {
-                    $attributes[] = new CubeAttribute($attribute['name'], $attribute['type'], $attribute['nullable'], $attribute['unique'], $tableName);
+                    $attributes[] = CubeAttribute::factory($attribute['name'], $attribute['type'], $attribute['nullable'], $attribute['unique'], $tableName);
                 }
 
                 $relations = [];
 
                 foreach ($table['relations'] as $type => $relationships) {
                     foreach ($relationships as $relationship) {
-                        $relations[] = new CubeRelation($type, $relationship['model_name'], $table['model_name'], self::$version);
+                        $relations[] = CubeRelation::factory($type, $relationship['model_name'], $table['model_name'], self::$version);
                     }
                 }
 
@@ -159,10 +159,10 @@ class Settings
             if ($type == ColumnTypeEnum::KEY->value) {
                 $type = ColumnTypeEnum::KEY->value;
                 $parent = Naming::model(str_replace('_id', '', $colName));
-                $relationships[] = new CubeRelation(RelationsTypeEnum::BelongsTo->value, $parent, $modelName, self::$version);
+                $relationships[] = CubeRelation::factory(RelationsTypeEnum::BelongsTo->value, $parent, $modelName, self::$version);
             }
 
-            $columns[] = new CubeAttribute($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques), Naming::table($modelName));
+            $columns[] = CubeAttribute::factory($colName, $type, in_array($colName, $nullables), in_array($colName, $uniques), Naming::table($modelName));
         }
 
         foreach ($relations as $relation => $type) {
@@ -170,7 +170,7 @@ class Settings
                 continue;
             }
 
-            $relationships[] = new CubeRelation($type, $relation, $modelName, self::$version);
+            $relationships[] = CubeRelation::factory($type, $relation, $modelName, self::$version);
         }
 
         $table = new CubeTable(

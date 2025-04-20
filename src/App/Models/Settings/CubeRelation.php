@@ -2,6 +2,8 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Relations\CubeHasMany;
+use Cubeta\CubetaStarter\App\Models\Settings\Relations\CubeManyToMany;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
@@ -65,13 +67,13 @@ class CubeRelation
     {
         if ($this->key) {
             return json_encode([
-                "type"       => $this->type,
+                "type" => $this->type,
                 "model_name" => $this->modelName,
-                "key"        => $this->key,
+                "key" => $this->key,
             ], JSON_PRETTY_PRINT);
         }
         return json_encode([
-            "type"       => $this->type,
+            "type" => $this->type,
             "model_name" => $this->modelName,
         ], JSON_PRETTY_PRINT);
     }
@@ -83,13 +85,13 @@ class CubeRelation
     {
         if ($this->key) {
             return [
-                "type"       => $this->type,
+                "type" => $this->type,
                 "model_name" => $this->modelName,
-                "key"        => $this->key,
+                "key" => $this->key,
             ];
         }
         return [
-            "type"       => $this->type,
+            "type" => $this->type,
             "model_name" => $this->modelName,
         ];
     }
@@ -190,5 +192,16 @@ class CubeRelation
 
         return $relatedModelPath->exist()
             && ClassUtils::isMethodDefined($relatedModelPath, $this->method());
+    }
+
+    public static function factory(string $type, string $modelName, string $relatedModel, string $version = 'v1'): CubeRelation|CubeHasMany|CubeManyToMany
+    {
+        $type = RelationsTypeEnum::tryFrom($type);
+
+        return match ($type) {
+            RelationsTypeEnum::HasMany => new CubeHasMany($type->value, $modelName, $relatedModel, $version),
+            RelationsTypeEnum::ManyToMany => new CubeManyToMany($type->value, $modelName, $relatedModel, $version),
+            default => new self($type->value, $modelName, $relatedModel, $version)
+        };
     }
 }
