@@ -3,9 +3,8 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Carbon\Carbon;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
-use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -13,16 +12,21 @@ use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Cubeta\CubetaStarter\Stub\Builders\Migrations\MigrationStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Migrations\PivotMigrationStubBuilder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Mockery\Exception;
 
 class MigrationGenerator extends AbstractGenerator
 {
     public static string $key = 'migration';
+    private MigrationStubBuilder $builder;
+
+    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '', ?string $version = null, bool $override = false)
+    {
+        parent::__construct($fileName, $attributes, $relations, $nullables, $uniques, $actor, $generatedFor, $version, $override);
+        $this->builder = MigrationStubBuilder::make();
+    }
 
     public function run(bool $override = false): void
     {
@@ -35,12 +39,15 @@ class MigrationGenerator extends AbstractGenerator
 
         $migrationPath->ensureDirectoryExists();
 
-        $stubProperties = [
-            '{table}' => $this->table->tableNaming(),
-            '{col}'   => $this->generateColumns(),
-        ];
+        $this->table->attributes()->each(function (CubeAttribute $column) use (&$columns) {
+            if ($column instanceof HasMigrationColumn) {
+                $this->builder->column($column->migrationColumn());
+            }
+        });
 
-        $this->generateFileFromStub($stubProperties, $migrationPath->fullPath);
+        $this->builder->tableName($this->table->tableNaming())
+            ->generate($migrationPath, $this->override);
+
 
         foreach ($this->table->relations(RelationsTypeEnum::ManyToMany) as $relation) {
             $this->createPivotTable($this->table->tableName, $relation->tableNaming());
@@ -65,31 +72,6 @@ class MigrationGenerator extends AbstractGenerator
         }
 
         return null;
-    }
-
-    public function generateColumns(): string
-    {
-        $columns = '';
-        $this->table->attributes()->each(function (CubeAttribute $column) use (&$columns) {
-            $name = $column->name;
-            $nullable = $column->nullable ? '->nullable()' : '';
-            $unique = $column->unique ? '->unique()' : '';
-
-            $columns .= match ($column->type) {
-                ColumnTypeEnum::KEY->value => '',
-                ColumnTypeEnum::TRANSLATABLE->value => "\t\t\t\$table->json('{$name}')" . $nullable . $unique . "; \n",
-                default => "\t\t\t\$table->" . ($column->type == 'file' ? 'string' : $column->type) . "('{$name}')" . $nullable . $unique . "; \n",
-            };
-        });
-
-        $this->table->relations()->each(function (CubeRelation $relation) use (&$columns) {
-            if ($relation->isHasOne() || $relation->isBelongsTo()) {
-                $nullable = in_array($relation->key, $this->nullables) ? '->nullable()' : '';
-                $columns .= "\t\t\t\$table->foreignIdFor(\\" . config('cubeta-starter.model_namespace') . "\\{$relation->modelName}::class){$nullable}->constrained()->cascadeOnDelete(); \n";
-            }
-        });
-
-        return $columns;
     }
 
     private function createPivotTable(string $table1, string $table2): void
@@ -126,30 +108,14 @@ class MigrationGenerator extends AbstractGenerator
 
         $migrationPath->ensureDirectoryExists();
 
-        $stubProperties = [
-            '{pivotTableName}' => $pivotTableName,
-            '{className1}'     => '\\' . config('cubeta-starter.model_namespace') . "\\{$className1}",
-            '{className2}'     => '\\' . config('cubeta-starter.model_namespace') . "\\{$className2}",
-        ];
-
-        try {
-            FileUtils::generateFileFromStub(
-                $stubProperties,
-                $migrationPath->fullPath,
-                CubePath::stubPath('pivot-migration.stub')
-            );
-        } catch (Exception|BindingResolutionException|FileNotFoundException $exception) {
-            CubeLog::add($exception);
-            return;
-        }
+        PivotMigrationStubBuilder::make()
+            ->pivotTableName($pivotTableName)
+            ->firstModelName($className1)
+            ->secondModelName($className2)
+            ->import(config('cubeta-starter.model_namespace') . "\\{$className1}")
+            ->import(config('cubeta-starter.model_namespace') . "\\{$className2}")
+            ->generate($migrationPath, $this->override);
 
         $migrationPath->format();
-
-        CubeLog::add(new SuccessMessage("Pivot Table For [$table1 , $table2] Has Been Created : [{$migrationPath->fullPath}]"));
-    }
-
-    protected function stubsPath(): string
-    {
-        return CubePath::stubPath('migration.stub');
     }
 }
