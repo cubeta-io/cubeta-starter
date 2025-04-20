@@ -19,7 +19,7 @@ class MigrationStubBuilder extends PhpFileStubBuilder
             $this->import($column->import);
         }
 
-        $this->columns[] = "{$column} ;";
+        $this->columns[] = "{$column}";
         return $this;
     }
 

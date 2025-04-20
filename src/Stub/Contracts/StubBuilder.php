@@ -16,7 +16,9 @@ abstract class StubBuilder
 {
     use Makable;
 
-    protected array $stubProperties = [];
+    protected array $stubProperties = [
+        "{{imports}}" => ""
+    ];
     protected array $imports = [];
 
     public function __call(string $name, array $arguments)
@@ -80,6 +82,7 @@ abstract class StubBuilder
                 $override
             );
             CubeLog::generatedSuccessfully($path->fileName, $path->fullPath);
+            $path->format();
             return true;
         } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
             CubeLog::add($e);

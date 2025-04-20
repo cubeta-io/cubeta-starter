@@ -23,7 +23,14 @@ class MigrationColumn
 
     public function __toString(): string
     {
-        $statement = "\$table->{$this->method}(" . $this->isKey ? $this->name : "'$this->name'" . ")";
+        $statement = "\$table->{$this->method}(";
+        if ($this->isKey) {
+            $statement .= "$this->name";
+        } else {
+            $statement .= "'$this->name'";
+        }
+
+        $statement .= ")";
 
         if ($this->nullable) {
             $statement .= "->nullable()";

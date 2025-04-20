@@ -2,15 +2,15 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Carbon\Carbon;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
-use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Stub\Builders\Migrations\MigrationStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Migrations\PivotMigrationStubBuilder;
@@ -39,7 +39,7 @@ class MigrationGenerator extends AbstractGenerator
 
         $migrationPath->ensureDirectoryExists();
 
-        $this->table->attributes()->each(function (CubeAttribute $column) use (&$columns) {
+        $this->table->attributes()->each(function (CubeAttribute $column) {
             if ($column instanceof HasMigrationColumn) {
                 $this->builder->column($column->migrationColumn());
             }
@@ -48,12 +48,9 @@ class MigrationGenerator extends AbstractGenerator
         $this->builder->tableName($this->table->tableNaming())
             ->generate($migrationPath, $this->override);
 
-
         foreach ($this->table->relations(RelationsTypeEnum::ManyToMany) as $relation) {
             $this->createPivotTable($this->table->tableName, $relation->tableNaming());
         }
-
-        $migrationPath->format();
     }
 
     public static function checkIfMigrationExists(string $tableName): ?string
@@ -82,40 +79,38 @@ class MigrationGenerator extends AbstractGenerator
         $pivotTableName = Naming::pivotTableNaming($table1, $table2);
 
         if (!$this->checkIfMigrationExists(Naming::table($tables[0])) || !$this->checkIfMigrationExists(Naming::table($tables[1]))) {
-            CubeLog::add(new CubeError(
+            CubeLog::error(
                 message: "The Related Table Migration Isn't Defined \n Remember When Creating The Related Model To Mention The Many-To-Many Relation In The Generation Form",
-                happenedWhen: "Generating Migration For ({$this->table->modelName}) Model"
-            ));
+                context: "Generating Migration For ({$this->table->modelName}) Model"
+            );
             return;
         }
 
         $migrationName = 'create_' . $pivotTableName . '_table';
 
-        $date = Carbon::now()->addSecond()->format('Y_m_d_His');
+        $date = now()->addSecond()->format('Y_m_d_His');
 
         $migrationPath = CubePath::make(config('cubeta-starter.migration_path') . '/' . $date . '_' . $migrationName . '.php');
 
         $checkMigrationResult = $this->checkIfMigrationExists($pivotTableName);
 
         if ($checkMigrationResult) {
-            // this procedure to make the pivot migration get a date after the two tables
+            // this procedure to make the pivot migration get a date after the two tables,
             // so when running the migrations don't get any error
             unlink($checkMigrationResult);
         }
 
-        $className1 = Naming::model($table1);
-        $className2 = Naming::model($table2);
+        $firstModel = CubeTable::create($table1);
+        $secondModel = CubeTable::create($table2);
 
         $migrationPath->ensureDirectoryExists();
 
         PivotMigrationStubBuilder::make()
             ->pivotTableName($pivotTableName)
-            ->firstModelName($className1)
-            ->secondModelName($className2)
-            ->import(config('cubeta-starter.model_namespace') . "\\{$className1}")
-            ->import(config('cubeta-starter.model_namespace') . "\\{$className2}")
+            ->firstModelName($firstModel->modelName)
+            ->secondModelName($secondModel->modelName)
+            ->import(new ImportString($firstModel->getModelNameSpace(false)))
+            ->import(new ImportString($secondModel->getModelNameSpace(false)))
             ->generate($migrationPath, $this->override);
-
-        $migrationPath->format();
     }
 }
