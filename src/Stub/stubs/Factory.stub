@@ -3,7 +3,6 @@
 namespace {{namespace}};
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 {{imports}}
 
 /**

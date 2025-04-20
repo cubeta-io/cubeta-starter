@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Factories;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 
@@ -18,9 +19,13 @@ class FactoryStubBuilder extends ClassStubBuilder
         return CubePath::stubPath('Factory.stub');
     }
 
-    public function row(string $key, string $value): static
+    public function row(FakeMethodString $faker): static
     {
-        $this->rows[] = "$key => $value ,";
+        if (!is_null($faker->import)){
+            $this->import($faker->import);
+        }
+
+        $this->rows[] = "{$faker} ,";
         return $this;
     }
 

@@ -2,6 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Stub\Contracts;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Method;
+
 abstract class ClassStubBuilder extends StubBuilder
 {
     protected string $namespace;
@@ -11,7 +14,13 @@ abstract class ClassStubBuilder extends StubBuilder
     protected array $methods = [];
     protected array $dockBlock = [];
 
-    public function import(string|array $import): static
+    /**
+     * when providing a string or an array of strings,
+     * it must be a full import string like this "use Illuminate\Http\UploadedFile ;"
+     * @param string|array|ImportString|ImportString[] $import
+     * @return $this
+     */
+    public function import(string|array|ImportString $import): static
     {
         if (is_array($import)) {
             $this->imports = array_merge($import, $this->imports);
@@ -44,7 +53,11 @@ abstract class ClassStubBuilder extends StubBuilder
         return $this;
     }
 
-    public function method(string|array $method): static
+    /**
+     * @param string|array|Method|Method[] $method
+     * @return $this
+     */
+    public function method(string|array|Method $method): static
     {
         if (is_array($method)) {
             $this->methods = array_merge($method, $this->methods);
@@ -74,11 +87,6 @@ abstract class ClassStubBuilder extends StubBuilder
             $traits .= "use {$trait};\n";
         }
 
-        $imports = "";
-        foreach ($this->imports as $import) {
-            $imports .= "use {$import};\n";
-        }
-
         $docBlocks = "/**\n";
         foreach ($this->dockBlock as $property => $type) {
             $docBlocks .= "* @property $type $property\n";
@@ -87,10 +95,10 @@ abstract class ClassStubBuilder extends StubBuilder
 
         return [
             '{{namespace}}' => $this->namespace,
-            '{{imports}}' => $imports,
+            '{{imports}}' => implode("\n", $this->imports),
             '{{traits}}' => $traits,
             '{{properties}}' => implode("\n", $this->properties),
-            '{{methods}}' => implode("\n", $this->methods),
+            '{{methods}}' => array_reduce($this->methods, fn($carry, $method) => "$carry\n\n$method"),
             '{{doc_block}}' => $docBlocks,
             ...$this->stubProperties,
         ];
