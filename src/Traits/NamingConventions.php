@@ -10,7 +10,8 @@ use Cubeta\CubetaStarter\Helpers\Naming;
 use Illuminate\Support\Str;
 
 /**
- * @mixin CubeTable|CubeRelation|CubeAttribute
+ * Provides naming conventions for various components such as variables, routes, models, tables, etc.
+ * @property CubeRelation|CubeAttribute|CubeTable $this
  */
 trait NamingConventions
 {
@@ -232,11 +233,11 @@ trait NamingConventions
         if (Str::contains($this->name, 'is_')) {
             $base = Str::replace('is_', '', $this->name);
             return [
-                'true'  => Str::title($base),
+                'true' => Str::title($base),
                 'false' => 'Not' . Str::title($base),
             ];
         } else return [
-            'true'  => Str::title($this->name),
+            'true' => Str::title($this->name),
             'false' => 'Not' . Str::title($this->name),
         ];
     }

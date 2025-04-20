@@ -2,12 +2,15 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
+use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 
 /**
- * @mixin CubeTable|CubeRelation
+ * A trait providing methods to generate paths, namespaces, and class strings
+ * for various application components, such as models, controllers, requests,
+ * resources, factories, seeders, repositories, services, tests, migrations, and views.
+ * @property CubeRelation|CubeAttribute $this
  */
 trait HasPathAndNamespace
 {
