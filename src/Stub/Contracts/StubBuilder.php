@@ -49,7 +49,11 @@ abstract class StubBuilder
             $this->imports[] = $import;
         }
 
-        $this->stubProperties["{{imports}}"] = implode("\n", $this->imports);
+        $this->stubProperties["{{imports}}"] = collect($this->imports)
+            ->map(fn($import) => $import instanceof ImportString ? trim($import->__toString()) : trim($import))
+            ->unique(fn($import) => $import instanceof ImportString ? $import->__toString() : $import)
+            ->implode("\n");
+
         return $this;
     }
 

@@ -2,13 +2,15 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
 
-class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
+class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -24,5 +26,10 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationCo
             $this->nullable,
             $this->unique,
         );
+    }
+
+    public function docBlockProperty(): DocBlockProperty
+    {
+        return new DocBlockProperty($this->name, "numeric");
     }
 }

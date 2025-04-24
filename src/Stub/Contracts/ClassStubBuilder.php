@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Stub\Contracts;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Method;
 
 abstract class ClassStubBuilder extends StubBuilder
@@ -21,10 +21,19 @@ abstract class ClassStubBuilder extends StubBuilder
             $this->traits[] = $trait;
         }
 
+        $this->traits = collect($this->traits)
+            ->map(fn($trait) => trim($trait))
+            ->unique()
+            ->toArray();
+
         return $this;
     }
 
-    public function property(string|array $property): static
+    /**
+     * @param string|array $property
+     * @return $this
+     */
+    public function property(array|string $property): static
     {
         if (is_array($property)) {
             $this->properties = array_merge($property, $this->properties);
@@ -50,9 +59,18 @@ abstract class ClassStubBuilder extends StubBuilder
         return $this;
     }
 
-    public function dockBlock(string $property, string $type): static
+    public function dockBlock(DocBlockProperty $property): static
     {
-        $this->dockBlock[$property] = $type;
+        $this->dockBlock[] = $property;
+        if ($property->import) {
+            $this->import($property->import);
+        }
+
+        $this->dockBlock = collect($this->dockBlock)
+            ->map(fn(DocBlockProperty $property) => trim($property))
+            ->unique()
+            ->toArray();
+
         return $this;
     }
 
@@ -64,23 +82,12 @@ abstract class ClassStubBuilder extends StubBuilder
 
     protected function getStubPropertyArray(): array
     {
-        $traits = "";
-        foreach ($this->traits as $trait) {
-            $traits .= "use {$trait};\n";
-        }
-
-        $docBlocks = "/**\n";
-        foreach ($this->dockBlock as $property => $type) {
-            $docBlocks .= "* @property $type $property\n";
-        }
-        $docBlocks .= "*/\n";
-
         return [
             '{{namespace}}' => $this->namespace,
-            '{{traits}}' => $traits,
-            '{{properties}}' => implode("\n", $this->properties),
+            '{{traits}}' => implode("\n", array_map(fn($trait) => "use " . $trait . ";", $this->traits)),
+            '{{properties}}' => implode("\n *", $this->properties),
             '{{methods}}' => array_reduce($this->methods, fn($carry, $method) => "$carry\n\n$method"),
-            '{{doc_block}}' => $docBlocks,
+            '{{doc_block}}' => implode("\n *", $this->dockBlock),
             ...$this->stubProperties,
         ];
     }
