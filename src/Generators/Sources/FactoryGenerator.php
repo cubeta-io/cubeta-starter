@@ -50,7 +50,7 @@ class FactoryGenerator extends AbstractGenerator
 
         $this->builder
             ->namespace(config('cubeta-starter.factory_namespace'))
-            ->modelNamespace($this->table->getModelNameSpace())
+            ->modelNamespace($this->table->getModelNameSpace(false))
             ->modelName($this->table->modelName)
             ->generate($factoryPath, $this->override);
 

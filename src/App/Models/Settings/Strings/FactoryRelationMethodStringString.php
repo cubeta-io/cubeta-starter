@@ -4,7 +4,7 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Strings;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 
-class FactoryRelationMethod extends Method
+class FactoryRelationMethodStringString extends MethodString
 {
     public function __construct(string $relatedModelName)
     {
@@ -13,9 +13,13 @@ class FactoryRelationMethod extends Method
         parent::__construct(
             "with$relatedModelName",
             [
-                'int' => 'count = 1'
+                'count = 1' => 'int'
             ],
-            "return \$this->has({$model->getModelNameSpace()}::factory(\$count));",
+            "return \$this->has({$model->modelName}::factory(\$count));",
+            returnType: "self",
+            imports: [
+                new ImportString($model->getModelNameSpace(false))
+            ],
         );
     }
 }

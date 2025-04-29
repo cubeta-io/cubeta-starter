@@ -4,9 +4,10 @@ namespace {{namespace}};
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 {{imports}}
+use {{model_namespace}};
 
 /**
- * @extends Factory<{{model_namespace}}>
+ * @extends Factory<{{model_name}}>
  */
 class {{model_name}}Factory extends Factory
 {
