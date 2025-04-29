@@ -15,11 +15,6 @@ use Cubeta\CubetaStarter\Helpers\CubePath;
 trait HasPathAndNamespace
 {
     /**
-     * @var string
-     */
-    public string $cubetaPath = '';
-
-    /**
      * @return CubePath
      */
     public function getModelPath(): CubePath
