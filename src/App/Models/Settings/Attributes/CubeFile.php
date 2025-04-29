@@ -5,13 +5,15 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockProperty;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 
-class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty
+class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -22,9 +24,9 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
         );
     }
 
-    public function migrationColumn(): MigrationColumn
+    public function migrationColumn(): MigrationColumnString
     {
-        return new MigrationColumn(
+        return new MigrationColumnString(
             $this->columnNaming(),
             "json",
             $this->nullable,
@@ -32,11 +34,20 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
         );
     }
 
-    public function docBlockProperty(): DocBlockProperty
+    public function docBlockProperty(): DocBlockPropertyString
     {
-        return new DocBlockProperty(
+        return new DocBlockPropertyString(
             $this->name,
             "array{url:string,size:string,extension:string,mime_type:string}"
+        );
+    }
+
+    public function modelCastColumn(): CastColumnString
+    {
+        return new CastColumnString(
+            $this->name,
+            "MediaCast::class",
+            new ImportString("App\\Casts\\MediaCast")
         );
     }
 }

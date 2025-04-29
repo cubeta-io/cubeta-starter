@@ -8,7 +8,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 
 class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
 {
@@ -24,10 +24,10 @@ class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
         );
     }
 
-    public function migrationColumn(): MigrationColumn
+    public function migrationColumn(): MigrationColumnString
     {
         $relatedModel = CubeTable::create(str_replace('_id', '', $this->name));
-        return new MigrationColumn(
+        return new MigrationColumnString(
             "{$relatedModel->modelName}::class",
             "foreignIdFor",
             $this->nullable,

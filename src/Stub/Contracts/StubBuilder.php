@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Stub\Contracts;
 
 use BadMethodCallException;
+use Closure;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
@@ -19,7 +20,7 @@ abstract class StubBuilder
     protected array $stubProperties = [
         "{{imports}}" => ""
     ];
-    protected array $imports = [];
+    public array $imports = [];
 
     public function __call(string $name, array $arguments)
     {
@@ -92,5 +93,28 @@ abstract class StubBuilder
             CubeLog::add($e);
             return false;
         }
+    }
+
+    /**
+     * @param bool|Closure(self $builder):bool|mixed $condition
+     * @param Closure(self $builder):void            $then
+     * @param Closure(self $builder):void|null       $else
+     * @return static
+     */
+    public function when(mixed $condition, Closure $then, ?Closure $else = null): static
+    {
+        if (is_callable($condition)) {
+            $condition = boolval($condition($this));
+        }
+
+        if ($condition) {
+            $then($this);
+        } else {
+            if ($else) {
+                $else($this);
+            }
+        }
+
+        return $this;
     }
 }

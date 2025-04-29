@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings;
 
-class MigrationColumn
+class MigrationColumnString
 {
     public ?ImportString $import;
     public string $name;

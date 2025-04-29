@@ -5,7 +5,7 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 
 class CubeString extends CubeStringable implements HasFakeMethod, HasMigrationColumn
 {
@@ -19,9 +19,9 @@ class CubeString extends CubeStringable implements HasFakeMethod, HasMigrationCo
         );
     }
 
-    public function migrationColumn(): MigrationColumn
+    public function migrationColumn(): MigrationColumnString
     {
-        return new MigrationColumn(
+        return new MigrationColumnString(
             $this->columnNaming(),
             "string",
             $this->nullable,

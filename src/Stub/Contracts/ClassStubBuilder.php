@@ -2,8 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Stub\Contracts;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockProperty;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Method;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MethodString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\TraitString;
 
 abstract class ClassStubBuilder extends StubBuilder
 {
@@ -13,17 +14,29 @@ abstract class ClassStubBuilder extends StubBuilder
     protected array $methods = [];
     protected array $dockBlock = [];
 
-    public function trait(string|array $trait): static
+    /**
+     * @param TraitString|TraitString[] $trait
+     * @return $this
+     */
+    public function trait(TraitString|array $trait): static
     {
         if (is_array($trait)) {
+            foreach ($trait as $singleTrait) {
+                if ($singleTrait->import) {
+                    $this->import($singleTrait->import);
+                }
+            }
+
             $this->traits = array_merge($trait, $this->traits);
         } else {
             $this->traits[] = $trait;
+            if ($trait->import) {
+                $this->import($trait->import);
+            }
         }
 
         $this->traits = collect($this->traits)
-            ->map(fn($trait) => trim($trait))
-            ->unique()
+            ->unique(fn(TraitString $trait) => $trait->traitName)
             ->toArray();
 
         return $this;
@@ -45,30 +58,42 @@ abstract class ClassStubBuilder extends StubBuilder
     }
 
     /**
-     * @param string|array|Method|Method[] $method
+     * @param MethodString|MethodString[] $method
      * @return $this
      */
-    public function method(string|array|Method $method): static
+    public function method(MethodString|array $method): static
     {
         if (is_array($method)) {
+            foreach ($method as $item) {
+                if ($item->imports) {
+                    $this->import($item->imports);
+                }
+            }
             $this->methods = array_merge($method, $this->methods);
         } else {
+            if ($method->imports) {
+                $this->import($method->imports);
+            }
             $this->methods[] = $method;
         }
+
+        $this->methods = collect($this->methods)
+            ->unique(function (MethodString $method) {
+                return $method->name;
+            })->toArray();
 
         return $this;
     }
 
-    public function dockBlock(DocBlockProperty $property): static
+    public function dockBlock(DocBlockPropertyString $property): static
     {
         $this->dockBlock[] = $property;
-        if ($property->import) {
-            $this->import($property->import);
+        if ($property->imports) {
+            $this->import($property->imports);
         }
 
         $this->dockBlock = collect($this->dockBlock)
-            ->map(fn(DocBlockProperty $property) => trim($property))
-            ->unique()
+            ->unique(fn(DocBlockPropertyString $property) => $property->name)
             ->toArray();
 
         return $this;
@@ -82,12 +107,16 @@ abstract class ClassStubBuilder extends StubBuilder
 
     protected function getStubPropertyArray(): array
     {
+        $methods = "";
+        foreach ($this->methods as $method) {
+            $methods .= $method . "\n\n";
+        }
+
         return [
             '{{namespace}}' => $this->namespace,
-            '{{traits}}' => implode("\n", array_map(fn($trait) => "use " . $trait . ";", $this->traits)),
-            '{{properties}}' => implode("\n *", $this->properties),
-            '{{methods}}' => array_reduce($this->methods, fn($carry, $method) => "$carry\n\n$method"),
-            '{{doc_block}}' => implode("\n *", $this->dockBlock),
+            '{{traits}}' => array_reduce($this->traits, fn($carry, TraitString $trait) => "$carry\n$trait"),
+            '{{methods}}' => $methods,
+            '{{doc_block}}' => implode("\n * ", $this->dockBlock),
             ...$this->stubProperties,
         ];
     }

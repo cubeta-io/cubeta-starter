@@ -6,9 +6,9 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockProperty;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 use Illuminate\Support\Str;
 
 class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty
@@ -57,9 +57,9 @@ class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigratio
         };
     }
 
-    public function migrationColumn(): MigrationColumn
+    public function migrationColumn(): MigrationColumnString
     {
-        return new MigrationColumn(
+        return new MigrationColumnString(
             $this->columnNaming(),
             "string",
             $this->nullable,
@@ -67,8 +67,8 @@ class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigratio
         );
     }
 
-    public function docBlockProperty(): DocBlockProperty
+    public function docBlockProperty(): DocBlockPropertyString
     {
-        return new DocBlockProperty($this->name, "string");
+        return new DocBlockPropertyString($this->name, "string");
     }
 }

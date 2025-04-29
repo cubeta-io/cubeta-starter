@@ -4,10 +4,11 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 
-class CubeDate extends CubeDateable implements HasFakeMethod, HasMigrationColumn
+class CubeDate extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -17,9 +18,9 @@ class CubeDate extends CubeDateable implements HasFakeMethod, HasMigrationColumn
         );
     }
 
-    public function migrationColumn(): MigrationColumn
+    public function migrationColumn(): MigrationColumnString
     {
-        return new MigrationColumn(
+        return new MigrationColumnString(
             $this->columnNaming(),
             "date",
             $this->nullable,

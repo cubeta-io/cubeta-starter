@@ -4,17 +4,24 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 
-class CubeDouble extends CubeNumeric implements HasFakeMethod, HasMigrationColumn
+class CubeDouble extends CubeNumeric implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn
 {
-    public function migrationColumn(): MigrationColumn
+    public function migrationColumn(): MigrationColumnString
     {
-        return new MigrationColumn(
+        return new MigrationColumnString(
             $this->columnNaming(),
             "double",
             $this->nullable,
             $this->unique
         );
+    }
+
+    public function modelCastColumn(): CastColumnString
+    {
+        return new CastColumnString($this->name, "double");
     }
 }

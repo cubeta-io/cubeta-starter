@@ -4,10 +4,12 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 
-class CubeJson extends CubeStringable implements HasFakeMethod, HasMigrationColumn
+class CubeJson extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -18,13 +20,21 @@ class CubeJson extends CubeStringable implements HasFakeMethod, HasMigrationColu
         );
     }
 
-    public function migrationColumn(): MigrationColumn
+    public function migrationColumn(): MigrationColumnString
     {
-        return new MigrationColumn(
+        return new MigrationColumnString(
             $this->columnNaming(),
             "json",
             $this->nullable,
             $this->unique
+        );
+    }
+
+    public function modelCastColumn(): CastColumnString
+    {
+        return new CastColumnString(
+            $this->name,
+            "array"
         );
     }
 }

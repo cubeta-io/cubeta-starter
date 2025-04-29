@@ -4,9 +4,11 @@ namespace {{namespace}};
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+{{imports}}
 
 /**
  * {{model_name}} Model class
+ * @property integer id
  * {{doc_block}}
  */
 class {{model_name}} extends Model

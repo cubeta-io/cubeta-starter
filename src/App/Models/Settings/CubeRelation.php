@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Relations\CubeBelongsTo;
 use Cubeta\CubetaStarter\App\Models\Settings\Relations\CubeHasMany;
 use Cubeta\CubetaStarter\App\Models\Settings\Relations\CubeManyToMany;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
@@ -201,6 +202,7 @@ class CubeRelation
         return match ($type) {
             RelationsTypeEnum::HasMany => new CubeHasMany($type->value, $modelName, $relatedModel, $version),
             RelationsTypeEnum::ManyToMany => new CubeManyToMany($type->value, $modelName, $relatedModel, $version),
+            RelationsTypeEnum::BelongsTo => new CubeBelongsTo($type->value, $modelName, $relatedModel, $version),
             default => new self($type->value, $modelName, $relatedModel, $version)
         };
     }

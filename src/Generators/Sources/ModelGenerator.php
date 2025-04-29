@@ -2,19 +2,29 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelRelationMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelScopeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\TraitString;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
-use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
-use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Stub\Builders\Models\ModelStubBuilder;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
-use Illuminate\Support\Str;
 
 class ModelGenerator extends AbstractGenerator
 {
     public static string $key = 'model';
+    private ModelStubBuilder $builder;
+
+    public function __construct(string $fileName = "", array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], ?string $actor = null, string $generatedFor = '', ?string $version = null, bool $override = false)
+    {
+        parent::__construct($fileName, $attributes, $relations, $nullables, $uniques, $actor, $generatedFor, $version, $override);
+        $this->builder = ModelStubBuilder::make();
+    }
 
     use StringsGenerator;
 
@@ -29,157 +39,62 @@ class ModelGenerator extends AbstractGenerator
 
         $modelPath->ensureDirectoryExists();
 
-        $modelAttributes = $this->generateModelClassAttributes();
-
-        $stubProperties = [
-            '{namespace}' => config('cubeta-starter.model_namespace'),
-            '{modelName}' => $this->table->modelName,
-            '{relations}' => $modelAttributes['relationsCode'],
-            '{properties}' => $modelAttributes['properties'],
-            '{fillable}' => $modelAttributes['fillable'],
-            '{scopes}' => $modelAttributes['booleanValueScopes'],
-            '{searchableKeys}' => $modelAttributes['searchable'],
-            '{searchableRelations}' => $modelAttributes['relationSearchable'],
-            '{casts}' => $modelAttributes['casts'],
-            '{exportables}' => $modelAttributes['exportables'],
-            '{traits}' => $modelAttributes['traits'],
-        ];
-
-        $this->generateFileFromStub($stubProperties, $modelPath->fullPath);
-
-        $modelPath->format();
+        $this->generateModelClassAttributes();
+        $this->builder
+            ->namespace(config('cubeta-starter.model_namespace'))
+            ->modelName($this->table->modelName)
+            ->generate($modelPath, $this->override);
 
         CodeSniffer::make()->setModel($this->table)->checkForModelsRelations();
     }
 
-    /**
-     * @return array{fillable:string,searchable:string,
-     *     relationSearchable:string,properties:string,
-     *     booleanValueScopes:string,casts:string,
-     *     relationsCode:string,exportables:string,
-     *     traits:string}
-     */
-    private function generateModelClassAttributes(): array
+
+    private function generateModelClassAttributes(): void
     {
-        $fillable = '';
-        $exportables = '';
-        $searchable = '';
-        $relationsSearchable = '';
-        $properties = "/**  \n";
-        $booleanValueScope = '';
-        $casts = '';
-        $relationsFunctions = '';
-        $traits = '';
-
-        $this->table->attributes()->each(function (CubeAttribute $attribute) use (
-            &$searchable,
-            &$relationsFunctions,
-            &$properties,
-            &$casts,
-            &$booleanValueScope,
-            &$exportables,
-            &$fillable,
-            &$traits,
-        ) {
-            $fillable .= "'{$attribute->name}' ,\n";
-
-            $nullableProperty = $attribute->nullable ? "null|" : "";
-
-            if (!$attribute->isKey()) {
-                $exportables .= "'{$attribute->name}' ,\n";
-            }
-
-            if ($attribute->type === ColumnTypeEnum::BOOLEAN->value) {
-                $booleanValueScope .= "\tpublic function scope" . ucfirst(Str::studly($attribute->name)) . "(\$query)\t\n{\n\t\treturn \$query->where('" . $attribute->name . "' , true);\n\t}\n";
-                $casts .= "'{$attribute->name}' => 'boolean' , \n";
-                $properties .= "* @property {$nullableProperty}bool {$attribute->name} \n";
-            } elseif ($attribute->isTranslatable()) {
-                $searchable .= "'{$attribute->name}' , \n";
-                $casts .= "'{$attribute->name}' => \\App\\Casts\\Translatable::class, \n";
-            } elseif ($attribute->isKey()) {
-                $relatedModelName = $attribute->modelNaming(str_replace('_id', '', $attribute->name));
-                $relatedModel = CubeTable::create($relatedModelName);
-                $properties .= "* @property {$nullableProperty}integer {$attribute->name} \n";
-
-                if ($relatedModel->getModelPath()->exist()) {
-                    $relationsFunctions .= $this->belongsToFunction($relatedModel);
-                }
-            } elseif ($attribute->isString()) {
-                $searchable .= "'{$attribute->name}' , \n";
-                $properties .= "* @property {$nullableProperty}string {$attribute->name} \n";
-
-            } elseif ($attribute->isFile()) {
-                $properties .= "* @property {$nullableProperty}array{url:string,size:numeric,extension:string,mime_type:string} {$attribute->name} \n";
-                $traits .= 'use \\' . config('cubeta-starter.trait_namespace') . "\\HasMedia;\n";
-                $casts .= "'{$attribute->name}' => \\App\\Casts\\MediaCast::class, \n";
-            } elseif ($attribute->isDateable()) {
-                $properties .= "* @property {$nullableProperty}\Carbon\Carbon {$attribute->name} \n";
-                $casts .= "'$attribute->name' => 'datetime', \n";
-            } elseif (ColumnTypeEnum::isNumericType($attribute->type)) {
-                $properties .= "* @property {$nullableProperty}numeric {$attribute->name} \n";
-            } else {
-                $properties .= "* @property {$nullableProperty}{$attribute->type} {$attribute->name} \n";
-            }
+        $this->table->attributes()->each(function (CubeAttribute $attribute) {
+            $this->builder
+                ->fillable($attribute->name)
+                ->when(
+                    !$attribute->isKey(),
+                    fn($builder) => $builder->exportable($attribute->name),
+                )->when(
+                    $attribute instanceof HasModelCastColumn,
+                    fn($builder) => $builder->cast($attribute->modelCastColumn())
+                )->when(
+                    $attribute instanceof HasDocBlockProperty,
+                    fn($builder) => $builder->dockBlock($attribute->docBlockProperty())
+                )->when(
+                    $attribute->isString(),
+                    fn($builder) => $builder->searchable($attribute->name)
+                )->when(
+                    $attribute->isFile(),
+                    fn($builder) => $builder->trait(new TraitString(
+                        "HasMedia",
+                        new ImportString("App\\Traits\\HasMedia")
+                    ))
+                )->when(
+                    $attribute instanceof HasModelScopeMethod,
+                    fn($builder) => $builder->method($attribute->modelScopeMethod())
+                );
         });
 
         $this->table->relations()->each(function (CubeRelation $relation) use (&$relationsFunctions, &$relationsSearchable, &$exportables, &$properties) {
-
             $relatedTable = $relation->getTable();
 
-            if ($relation->getModelPath()->exist()) {
-                if ($relation->isHasMany()) {
-                    $relationsFunctions .= $this->hasManyFunction($relation);
-                    $properties .= "* @property  \Illuminate\Support\Collection<{$relation->modelName}>|\Illuminate\Database\Eloquent\Collection<{$relation->modelName}>|{$relation->modelName}[] {$relation->method()}\n";
-                }
-
-                if ($relation->isManyToMany()) {
-                    $relationsFunctions .= $this->manyToManyFunction($relation, $relation->getPivotTableName());
-                    $properties .= "* @property  \Illuminate\Support\Collection<{$relation->modelName}>|\Illuminate\Database\Eloquent\Collection<{$relation->modelName}>|{$relation->modelName}[] {$relation->method()}\n";
-                }
-            }
-
-            if ($relation->isBelongsTo()) {
-                $properties .= "* @property {$relation->modelName} {$relation->method()}\n";
-
-                if ($relatedTable && $relation->exists()) {
-                    $relationName = $relation->relationMethodNaming();
-                    $col = $relatedTable->titleable()->name;
-                    $exportedCol = "$relationName.$col";
-                } else {
-                    $exportedCol = $relation->key;
-                }
-
-                $exportables .= "'$exportedCol' , \n";
-            }
-
-            if ($relation->getModelPath()->exist()) {
-                if ($relatedTable) {
-                    $relationsSearchable .=
-                        "'{$relation->method()}' => [\n{$relatedTable->searchableColsAsString()}\n//add your {$relation->method()} desired column to be search within\n] , \n";
-                } else {
-                    $relationsSearchable .=
-                        "'{$relation->method()}' => [\n//add your {$relation->method()} desired column to be search within\n] , \n";
-                }
-            }
+            $this->builder->when(
+                $relation instanceof HasModelRelationMethod && $relation->exists(),
+                fn($builder) => $builder->method($relation->modelRelationMethod()),
+            )->when(
+                $relation instanceof HasDocBlockProperty && $relation->exists(),
+                fn($builder) => $builder->dockBlock($relation->docBlockProperty())
+            )->when(
+                $relation->isBelongsTo() && $relation->exists() && $relatedTable,
+                fn($builder) => $builder->exportable("{$relation->method()}." . $relation->getTable()->titleable()->name),
+                fn($builder) => $builder->exportable($relation->keyName())
+            )->when(
+                $relation->getModelPath()->exist(),
+                fn($builder) => $builder->relationSearchable($relation->method(), $relatedTable->searchables())
+            );
         });
-
-        $properties .= "*/ \n";
-
-        return [
-            'fillable' => $fillable,
-            'searchable' => $searchable,
-            'relationSearchable' => $relationsSearchable,
-            'properties' => $properties,
-            'booleanValueScopes' => $booleanValueScope,
-            'casts' => $casts,
-            'relationsCode' => $relationsFunctions,
-            'exportables' => $exportables,
-            'traits' => $traits,
-        ];
-    }
-
-    protected function stubsPath(): string
-    {
-        return CubePath::stubPath('model.stub');
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Migrations;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Stub\Contracts\PhpFileStubBuilder;
 
@@ -13,7 +13,7 @@ class MigrationStubBuilder extends PhpFileStubBuilder
 {
     private array $columns = [];
 
-    public function column(MigrationColumn $column): static
+    public function column(MigrationColumnString $column): static
     {
         if (!is_null($column->import)) {
             $this->import($column->import);

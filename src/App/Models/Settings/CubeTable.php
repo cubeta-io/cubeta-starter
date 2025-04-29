@@ -104,8 +104,8 @@ class CubeTable
             "model_name" => $this->modelName,
             "table_name" => $this->tableName,
             "attributes" => $attributes,
-            "relations"  => $relations,
-            "version"    => $this->version,
+            "relations" => $relations,
+            "version" => $this->version,
         ];
     }
 
@@ -130,7 +130,7 @@ class CubeTable
             "model_name" => $this->modelName,
             "table_name" => $this->tableName,
             "attributes" => $attributes,
-            "relations"  => $relations,
+            "relations" => $relations,
         ]);
     }
 
@@ -287,6 +287,14 @@ class CubeTable
     public function collect(): Collection
     {
         return collect($this->toArray());
+    }
+
+    public function searchables(): array
+    {
+        return $this->attributes()
+            ->filter(fn(CubeAttribute $attr) => $attr->isString())
+            ->map(fn(CubeAttribute $attr) => $attr->name)
+            ->toArray();
     }
 
     public function searchableColsAsString(): string

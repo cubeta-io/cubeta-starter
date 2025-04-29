@@ -5,12 +5,16 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelScopeMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\ModelScopeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockProperty;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 
-class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty
+class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasModelScopeMethod
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -20,9 +24,9 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationCo
         );
     }
 
-    public function migrationColumn(): MigrationColumn
+    public function migrationColumn(): MigrationColumnString
     {
-        return new MigrationColumn(
+        return new MigrationColumnString(
             $this->columnNaming(),
             "boolean",
             $this->nullable,
@@ -30,8 +34,18 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationCo
         );
     }
 
-    public function docBlockProperty(): DocBlockProperty
+    public function docBlockProperty(): DocBlockPropertyString
     {
-        return new DocBlockProperty($this->name, "boolean");
+        return new DocBlockPropertyString($this->name, "boolean");
+    }
+
+    public function modelCastColumn(): CastColumnString
+    {
+        return new CastColumnString($this->name, "boolean");
+    }
+
+    public function modelScopeMethod(): ModelScopeMethodString
+    {
+        return new ModelScopeMethodString($this->name);
     }
 }

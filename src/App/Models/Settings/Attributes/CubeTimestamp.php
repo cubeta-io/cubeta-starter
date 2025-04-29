@@ -4,13 +4,13 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 
 class CubeTimestamp extends CubeDateable implements HasFakeMethod, HasMigrationColumn
 {
-    public function migrationColumn(): MigrationColumn
+    public function migrationColumn(): MigrationColumnString
     {
-        return new MigrationColumn(
+        return new MigrationColumnString(
             $this->columnNaming(),
             "timestamp",
             $this->nullable,

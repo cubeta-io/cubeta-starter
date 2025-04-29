@@ -5,12 +5,14 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockProperty;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 
-class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty
+class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -18,9 +20,9 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationCo
         return new FakeMethodString($this->name, "fake(){$isUnique}->randomNumber(2)");
     }
 
-    public function migrationColumn(): MigrationColumn
+    public function migrationColumn(): MigrationColumnString
     {
-        return new MigrationColumn(
+        return new MigrationColumnString(
             $this->columnNaming(),
             "float",
             $this->nullable,
@@ -28,8 +30,16 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationCo
         );
     }
 
-    public function docBlockProperty(): DocBlockProperty
+    public function docBlockProperty(): DocBlockPropertyString
     {
-        return new DocBlockProperty($this->name, "numeric");
+        return new DocBlockPropertyString($this->name, "numeric");
+    }
+
+    public function modelCastColumn(): CastColumnString
+    {
+        return new CastColumnString(
+            $this->name,
+            'integer'
+        );
     }
 }
