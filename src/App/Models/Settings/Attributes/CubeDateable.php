@@ -11,12 +11,14 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 
-class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule
+class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -60,6 +62,14 @@ class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationC
                 new ValidationRuleString('date'),
                 new ValidationRuleString('date_format:Y-m-d'),
             ]
+        );
+    }
+
+    public function resourcePropertyString(): ResourcePropertyString
+    {
+        return new ResourcePropertyString(
+            $this->name,
+            "\$this->{$this->name}?->format('Y-m-d H:i')"
         );
     }
 }

@@ -8,12 +8,12 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelScopeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\ModelScopeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ModelScopeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 

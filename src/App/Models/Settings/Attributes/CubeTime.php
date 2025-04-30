@@ -6,11 +6,13 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 
-class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn,HasPropertyValidationRule
+class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasResourcePropertyString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -33,11 +35,19 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
     public function propertyValidationRule(): PropertyValidationRuleString
     {
         return new PropertyValidationRuleString(
-            $this->name ,
+            $this->name,
             [
                 ...$this->uniqueOrNullableValidationRules(),
                 new ValidationRuleString('date_format:H:i'),
             ]
+        );
+    }
+
+    public function resourcePropertyString(): ResourcePropertyString
+    {
+        return new ResourcePropertyString(
+            $this->name,
+            "\$this->{$this->name}?->format('H:i')"
         );
     }
 }

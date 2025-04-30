@@ -6,11 +6,14 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelRelationMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ModelRelationString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ResourcePropertyString;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 
-class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod, HasDocBlockProperty
+
+class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod, HasDocBlockProperty, HasResourcePropertyString
 {
     public function modelRelationMethod(): ModelRelationString
     {
@@ -26,6 +29,17 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod, HasD
             str($this->modelName)->singular()->lower()->toString(),
             "$this->modelName|null",
             imports: new ImportString($this->getModelNameSpace())
+        );
+    }
+
+    public function resourcePropertyString(): ResourcePropertyString
+    {
+        return new ResourcePropertyString(
+            str($this->modelName)->singular()->snake()->lower()->toString(),
+            "{$this->getResourceName()}::make(\$this->whenLoaded('{$this->relationMethodNaming()}'))",
+            [
+                new ImportString($this->getResourceNameSpace(false))
+            ]
         );
     }
 }

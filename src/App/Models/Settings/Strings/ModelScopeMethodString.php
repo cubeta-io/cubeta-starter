@@ -1,9 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Settings\Contracts;
-
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MethodString;
+namespace Cubeta\CubetaStarter\App\Models\Settings\Strings;
 
 class ModelScopeMethodString extends MethodString
 {

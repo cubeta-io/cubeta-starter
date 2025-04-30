@@ -7,11 +7,13 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 
-class CubeDate extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn, HasPropertyValidationRule
+class CubeDate extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -40,6 +42,14 @@ class CubeDate extends CubeDateable implements HasFakeMethod, HasMigrationColumn
                 new ValidationRuleString('date'),
                 new ValidationRuleString('date_format:Y-m-d'),
             ]
+        );
+    }
+
+    public function resourcePropertyString(): ResourcePropertyString
+    {
+        return new ResourcePropertyString(
+            $this->name,
+            "\$this->{$this->name}?->format('Y-m-d')"
         );
     }
 }

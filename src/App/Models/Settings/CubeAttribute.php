@@ -17,7 +17,9 @@ use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTime;
 use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTimestamp;
 use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTranslatable;
 use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeUnsignedBigInteger;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
@@ -26,7 +28,7 @@ use Cubeta\CubetaStarter\Traits\NamingConventions;
 /**
  *
  */
-class CubeAttribute
+class CubeAttribute implements HasResourcePropertyString
 {
     use NamingConventions;
 
@@ -246,5 +248,12 @@ class CubeAttribute
         }
 
         return $rules;
+    }
+
+    public function resourcePropertyString(): ResourcePropertyString
+    {
+        return new ResourcePropertyString(
+            $this->name
+        );
     }
 }
