@@ -13,13 +13,6 @@ class RepositoryGenerator extends AbstractGenerator
     {
         $repositoryPath = $this->table->getRepositoryPath();
 
-        if ($repositoryPath->exist()) {
-            $repositoryPath->logAlreadyExist("Generating Repository Class For ({$this->table->modelName}) Model");
-            return;
-        }
-
-        $repositoryPath->ensureDirectoryExists();
-
         RepositoryStubBuilder::make()
             ->repositoriesNamespace($this->table->getRepositoryNameSpace(false, true))
             ->modelNamespace($this->table->getModelNameSpace(false))

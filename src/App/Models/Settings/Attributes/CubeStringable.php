@@ -5,13 +5,16 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 use Illuminate\Support\Str;
 
-class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty
+class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasPropertyValidationRule
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -70,5 +73,26 @@ class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigratio
     public function docBlockProperty(): DocBlockPropertyString
     {
         return new DocBlockPropertyString($this->name, "string");
+    }
+
+    public function propertyValidationRule(): PropertyValidationRuleString
+    {
+        return new PropertyValidationRuleString(
+            $this->name,
+            [
+                ...$this->uniqueOrNullableValidationRules(),
+                new ValidationRuleString('string'),
+            ]
+        );
+    }
+
+    public function isPassword(): bool
+    {
+        return str($this->name)->contains('password');
+    }
+
+    public function isEmail(): bool
+    {
+        return str($this->name)->contains('email');
     }
 }

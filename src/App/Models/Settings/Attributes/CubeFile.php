@@ -6,14 +6,17 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 
-class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn
+class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -49,5 +52,35 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
             "MediaCast::class",
             new ImportString("App\\Casts\\MediaCast")
         );
+    }
+
+    public function propertyValidationRule(): PropertyValidationRuleString
+    {
+        $rules = [
+            ...$this->uniqueOrNullableValidationRules(),
+            new ValidationRuleString($this->isImageLike() ? 'image' : 'file'),
+            new ValidationRuleString('max:10000'),
+        ];
+
+        if ($this->isImageLike()) {
+            $rules[] = new ValidationRuleString('mimes:jpeg,png,jpg,gif,svg,webp');
+        }
+
+        return new PropertyValidationRuleString(
+            $this->name,
+            $rules
+        );
+    }
+
+    private function isImageLike(): bool
+    {
+        return str($this->name)
+            ->contains([
+                'image',
+                'profile',
+                'icon',
+                'img',
+                'svg',
+            ]);
     }
 }

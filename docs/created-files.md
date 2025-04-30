@@ -58,18 +58,18 @@ it extends the ApiController class
 
 each model property will have this rules : `required|PropertyType` unless this :
 
-| property name	                                                                                         | rules                                      |
-|:-------------------------------------------------------------------------------------------------------|--------------------------------------------|
-| name,first_name ,last_name	                                                                            | required,string ,min:3 ,max:255            |
-| email                                                                                                  | required,string,max:255 ,email             |
-| password                                                                                               | required,string,max:255 ,min:6 ,confirmed  |
-| phone , phone_number , number	                                                                         | required,string,max:255 ,min:6             |
-| any word ends with `_at` (started_at , ends_at , … , any type that seems to be a date type)            | required,date                              |
-| any word starts with `is_` (is_original , is_available , …. , any type that seems to be boolean value) | required,boolean                           |
-| any word ends with `_id` (user_id , product_id , …. , any type that seems to be foreign key)           | required,integer,exists:parent table,id    |
-| columns with file type	                                                                                | nullable,image,mimes:jpeg,png,jpg,max:2048 |
-| columns with text type                                                                                 | nullable ,string                           |
-| columns with translatable type                                                                         | required , json , new LanguageShape        |
+| property name	                                                                                         | rules                                       |
+|:-------------------------------------------------------------------------------------------------------|---------------------------------------------|
+| name,first_name ,last_name	                                                                            | required,string ,min:3 ,max:255             |
+| email                                                                                                  | required,string,max:255 ,email              |
+| password                                                                                               | required,string,max:255 ,min:6 ,confirmed   |
+| phone , phone_number , number	                                                                         | required,string,max:255 ,min:6              |
+| any word ends with `_at` (started_at , ends_at , … , any type that seems to be a date type)            | required,date                               |
+| any word starts with `is_` (is_original , is_available , …. , any type that seems to be boolean value) | required,boolean                            |
+| any word ends with `_id` (user_id , product_id , …. , any type that seems to be foreign key)           | required,integer,exists:parent table,id     |
+| columns with file type	                                                                                | nullable,image,mimes:jpeg,png,jpg,max:2048  |
+| columns with text type                                                                                 | nullable ,string                            |
+| columns with translatable type                                                                         | required , json , new ValidTranslatableJson |
 
 > [!attention]
 > it is important to check on the rules of the created form request after each created model to

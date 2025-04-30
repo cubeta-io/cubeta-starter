@@ -17,6 +17,8 @@ use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTime;
 use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTimestamp;
 use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTranslatable;
 use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeUnsignedBigInteger;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
@@ -226,5 +228,23 @@ class CubeAttribute
             ColumnTypeEnum::TRANSLATABLE => new CubeTranslatable($name, $type->value, $nullable, $unique, $parentTableName),
             default => new CubeAttribute($name, $type->value, $nullable, $unique, $parentTableName),
         };
+    }
+
+    /**
+     * @return ValidationRuleString[]
+     */
+    protected function uniqueOrNullableValidationRules(): array
+    {
+        $rules = [new ValidationRuleString($this->nullable ? 'nullable' : 'required')];
+
+        if ($this->unique) {
+            $routeParameter = str($this->name)->lower()->singular()->toString();
+            $rules[] = new ValidationRuleString(
+                "Rule::unique('{$this->parentTableName}','{$this->name}')->when(\$this->method() == 'PUT', fn(\$rule) => \$rule->ignore(\$this->route('$routeParameter')))",
+                [new ImportString("Illuminate\Validation\Rule")]
+            );
+        }
+
+        return $rules;
     }
 }

@@ -6,14 +6,17 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 
-class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn
+class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -46,5 +49,17 @@ class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationC
     public function modelCastColumn(): CastColumnString
     {
         return new CastColumnString($this->name, "datetime");
+    }
+
+    public function propertyValidationRule(): PropertyValidationRuleString
+    {
+        return new PropertyValidationRuleString(
+            $this->name,
+            [
+                ...$this->uniqueOrNullableValidationRules(),
+                new ValidationRuleString('date'),
+                new ValidationRuleString('date_format:Y-m-d'),
+            ]
+        );
     }
 }

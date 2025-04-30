@@ -4,9 +4,12 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 
-class CubeTimestamp extends CubeDateable implements HasFakeMethod, HasMigrationColumn
+class CubeTimestamp extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule
 {
     public function migrationColumn(): MigrationColumnString
     {
@@ -15,6 +18,17 @@ class CubeTimestamp extends CubeDateable implements HasFakeMethod, HasMigrationC
             "timestamp",
             $this->nullable,
             $this->unique
+        );
+    }
+
+    public function propertyValidationRule(): PropertyValidationRuleString
+    {
+        return new PropertyValidationRuleString(
+            $this->name,
+            [
+                new ValidationRuleString('date'),
+                new ValidationRuleString('date_format:Y-m-d H:i'),
+            ]
         );
     }
 }

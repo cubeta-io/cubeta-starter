@@ -6,13 +6,16 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 
-class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn
+class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -51,6 +54,22 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
             $this->name,
             "Translatable::class",
             new ImportString("App\\Casts\\Translatable")
+        );
+    }
+
+    public function propertyValidationRule(): PropertyValidationRuleString
+    {
+        return new PropertyValidationRuleString(
+            $this->name,
+            [
+                new ValidationRuleString('json'),
+                new ValidationRuleString(
+                    'new ValidTranslatableJson',
+                    [
+                        new ImportString('App\Rules\ValidTranslatableJson'),
+                    ]
+                )
+            ],
         );
     }
 }

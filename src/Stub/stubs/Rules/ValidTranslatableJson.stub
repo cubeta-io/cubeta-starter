@@ -6,7 +6,7 @@ use Closure;
 use Exception;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class LanguageShape implements ValidationRule
+class ValidTranslatableJson implements ValidationRule
 {
     public function hasNestedArrays($array): bool
     {

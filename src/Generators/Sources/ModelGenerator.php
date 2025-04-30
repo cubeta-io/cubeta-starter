@@ -32,13 +32,6 @@ class ModelGenerator extends AbstractGenerator
     {
         $modelPath = $this->table->getModelPath();
 
-        if ($modelPath->exist()) {
-            $modelPath->logAlreadyExist("Generating {$this->table->modelName} Model");
-            return;
-        }
-
-        $modelPath->ensureDirectoryExists();
-
         $this->generateModelClassAttributes();
         $this->builder
             ->namespace(config('cubeta-starter.model_namespace'))

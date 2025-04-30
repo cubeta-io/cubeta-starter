@@ -39,15 +39,7 @@ class FactoryGenerator extends AbstractGenerator
     {
         $factoryPath = $this->table->getFactoryPath();
 
-        if ($factoryPath->exist()) {
-            $factoryPath->logAlreadyExist("Generating Factory For ({$this->table->modelName}) Model");
-            return;
-        }
-
-        $factoryPath->ensureDirectoryExists();
-
         $this->generateFields();
-
         $this->builder
             ->namespace(config('cubeta-starter.factory_namespace'))
             ->modelNamespace($this->table->getModelNameSpace(false))

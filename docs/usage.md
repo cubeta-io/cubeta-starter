@@ -355,14 +355,14 @@ those are the column type you just enter the number of the type
 
 Of course there isn't a column type called translatable in Laravel . to make it easier for you to use the prepared
 things for the translation we called this column translatable in fact the generated column type is json but in this way
-we've marked this column as translatable so the generated code will make sure to use the `LanguageShape` validation rule
+we've marked this column as translatable so the generated code will make sure to use the `ValidTranslatableJson` validation rule
 on the validation and cast this column to `Translatable::class` .
 
 the `Translatable::class` is a custom cast class you can check on it in `app/Casts` directory , and its job is to cast
-the translated value (basically json string) to `\App\Serializers\Translatable` object which class that will make your
+the translated value (basically JSON string) to `\App\Serializers\Translatable` object which class that will make your
 localized data handling easier [check on it here](translatable-serializer.md#translatable-attributes-handling).
 
-The `LanguageShape` validation rule will make sure that the received json is simple and hasn't any nesting objects e.g :
+The `ValidTranslatableJson` validation rule will make sure that the received json is simple and hasn't any nesting objects e.g :
 
 ```json
 {

@@ -17,13 +17,6 @@ class ApiControllerGenerator extends AbstractGenerator
     {
         $controllerPath = $this->table->getApiControllerPath();
 
-        if ($controllerPath->exist()) {
-            $controllerPath->logAlreadyExist("Generating Api Controller For ({$this->table->modelName}) Model");
-            return;
-        }
-
-        $controllerPath->ensureDirectoryExists();
-
         ApiControllerStubBuilder::make()
             ->namespace($this->table->getApiControllerNameSpace(false))
             ->modelName($this->table->modelName)
