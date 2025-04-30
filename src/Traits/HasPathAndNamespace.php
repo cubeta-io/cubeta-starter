@@ -19,7 +19,7 @@ trait HasPathAndNamespace
      */
     public function getModelPath(): CubePath
     {
-        return CubePath::make(config('cubeta-starter.model_path') . "/{$this->modelName}.php");
+        return CubePath::make(config('cubeta-starter.model_path') . "/{$this->modelNaming()}.php");
     }
 
     /**
@@ -27,7 +27,7 @@ trait HasPathAndNamespace
      */
     public function getModelClassString(): string
     {
-        return "\\" . config('cubeta-starter.model_namespace') . "\\{$this->modelName}";
+        return "\\" . config('cubeta-starter.model_namespace') . "\\{$this->modelNaming()}";
     }
 
     public function getModelNameSpace(bool $withStart = true, bool $prefixOnly = false): string
@@ -91,7 +91,7 @@ trait HasPathAndNamespace
      */
     public function getRequestPath(): CubePath
     {
-        return CubePath::make(config('cubeta-starter.request_path') . "/{$this->version}/{$this->modelName}/{$this->getRequestName()}.php");
+        return CubePath::make(config('cubeta-starter.request_path') . "/{$this->version}/{$this->modelNaming()}/{$this->getRequestName()}.php");
     }
 
     /**
@@ -99,14 +99,14 @@ trait HasPathAndNamespace
      */
     public function getRequestClassString(): string
     {
-        return "\\" . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelName}\\{$this->getRequestName()}";
+        return "\\" . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getRequestName()}";
     }
 
     public function getRequestNameSpace(bool $withStart = true, bool $prefixOnly = false): string
     {
         return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\$this->modelName"
-            : ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelName}\\{$this->getRequestName()}";
+            ? ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\$this->modelNaming()"
+            : ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getRequestName()}";
     }
 
     /**
@@ -194,7 +194,7 @@ trait HasPathAndNamespace
      */
     public function getServicePath(): CubePath
     {
-        return CubePath::make(config('cubeta-starter.service_path') . "/{$this->version}/{$this->modelName}/{$this->getServiceName()}.php");
+        return CubePath::make(config('cubeta-starter.service_path') . "/{$this->version}/{$this->modelNaming()}/{$this->getServiceName()}.php");
     }
 
     /**
@@ -205,8 +205,8 @@ trait HasPathAndNamespace
     public function getServiceNamespace(bool $withStart = true, bool $prefixOnly = false): string
     {
         return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelName}"
-            : ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelName}\\{$this->getServiceName()}";
+            ? ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelNaming()}"
+            : ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getServiceName()}";
     }
 
     /**

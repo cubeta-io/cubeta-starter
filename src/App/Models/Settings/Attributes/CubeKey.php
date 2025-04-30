@@ -12,12 +12,31 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
+use Cubeta\CubetaStarter\Helpers\Naming;
 
 class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule
 {
+    public function tableNaming(?string $name = null): string
+    {
+        if ($name) {
+            return Naming::table($name);
+        }
+
+        return str($this->name)->replace('_id', '')->snake()->plural()->toString();
+    }
+
+    public function modelNaming(?string $name = null): string
+    {
+        if ($name) {
+            return Naming::model($name);
+        }
+
+        return str($this->name)->replace('_id', '')->singular()->studly()->ucfirst()->toString();
+    }
+
     public function fakeMethod(): FakeMethodString
     {
-        $relatedModel = CubeTable::create(str_replace('_id', '', $this->name));
+        $relatedModel = CubeTable::create($this->modelNaming());
 
         return new FakeMethodString(
             $this->name,
@@ -28,7 +47,7 @@ class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
 
     public function migrationColumn(): MigrationColumnString
     {
-        $relatedModel = CubeTable::create(str_replace('_id', '', $this->name));
+        $relatedModel = CubeTable::create($this->modelNaming());
         return new MigrationColumnString(
             "{$relatedModel->modelName}::class",
             "foreignIdFor",
@@ -41,15 +60,13 @@ class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
 
     public function propertyValidationRule(): PropertyValidationRuleString
     {
-        $relatedTableName = str($this->name)->replace('_id', '')->snake()->plural()->toString();
-
         return new PropertyValidationRuleString(
             $this->name,
             [
                 new ValidationRuleString('numeric'),
                 ...$this->uniqueOrNullableValidationRules(),
                 new ValidationRuleString(
-                    "Rule::exists('{$relatedTableName}' , 'id')",
+                    "Rule::exists('{$this->tableNaming()}' , 'id')",
                     [
                         new ImportString('Illuminate\Validation\Rule')
                     ]
