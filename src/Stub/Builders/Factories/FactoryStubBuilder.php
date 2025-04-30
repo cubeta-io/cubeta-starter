@@ -16,7 +16,7 @@ class FactoryStubBuilder extends ClassStubBuilder
 
     protected function stubPath(): string
     {
-        return CubePath::stubPath('Factory.stub');
+        return CubePath::stubPath('Factories/Factory.stub');
     }
 
     public function row(FakeMethodString $faker): static

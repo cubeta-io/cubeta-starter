@@ -96,7 +96,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/BulkActions/BaseBulkAction.stub"         => app_path("BulkAction/BaseBulkAction.php"),
             __DIR__ . "/../src/Contracts/Excel/BaseExporter.stub"                 => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.stub'                 => app_path("Excel/BaseImporter.php"),
-            __DIR__ . '/../src/Stub/stubs/casts/MediaCast.stub'                        => app_path("Casts/MediaCast.php"),
+            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
         ], 'cubeta-starter-web');
     }
 
@@ -130,7 +130,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/Excel/BaseExporter.stub"           => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.stub'           => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/app/Http/Resources/BaseResource.stub'        => app_path('Http/Resources/BaseResource.php'),
-            __DIR__ . '/../src/Stub/stubs/casts/MediaCast.stub'                  => app_path("Casts/MediaCast.php"),
+            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
             __DIR__ . '/../src/Stub/stubs/Modules/ApiResponse.stub'              => app_path('Modules/ApiResponse.php'),
             __DIR__ . '/../src/Stub/stubs/Helpers/helpers.stub'                  => app_path('Helpers/helpers.php'),
         ], 'cubeta-starter-api');
@@ -213,7 +213,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Contracts/BulkActions/BaseBulkAction.stub"   => app_path("BulkAction/BaseBulkAction.php"),
             __DIR__ . "/../src/Contracts/Excel/BaseExporter.stub"           => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Contracts/Excel/BaseImporter.stub'           => app_path("Excel/BaseImporter.php"),
-            __DIR__ . '/../src/Stub/stubs/casts/MediaCast.stub'                  => app_path("Casts/MediaCast.php"),
+            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
         ], 'react-ts');
     }
 }
