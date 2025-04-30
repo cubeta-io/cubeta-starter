@@ -3,7 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
-use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Stub\Builders\Repositories\RepositoryStubBuilder;
 
 class RepositoryGenerator extends AbstractGenerator
 {
@@ -20,20 +20,10 @@ class RepositoryGenerator extends AbstractGenerator
 
         $repositoryPath->ensureDirectoryExists();
 
-        $stubProperties = [
-            '{namespace}'      => $this->table->getRepositoryNameSpace(false, true),
-            '{modelName}'      => $this->table->modelName,
-            '{modelVar}'       => $this->table->variableNaming(),
-            '{modelNamespace}' => $this->table->getModelNameSpace(false),
-        ];
-
-        $this->generateFileFromStub($stubProperties, $repositoryPath->fullPath);
-
-        $repositoryPath->format();
-    }
-
-    protected function stubsPath(): string
-    {
-        return CubePath::stubPath('repository.stub');
+        RepositoryStubBuilder::make()
+            ->repositoriesNamespace($this->table->getRepositoryNameSpace(false, true))
+            ->modelNamespace($this->table->getModelNameSpace(false))
+            ->modelName($this->table->modelName)
+            ->generate($repositoryPath, $this->override);
     }
 }

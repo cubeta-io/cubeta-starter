@@ -8,7 +8,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\TraitString;
 
 abstract class ClassStubBuilder extends StubBuilder
 {
-    protected string $namespace;
+    protected string $namespace = "";
     protected array $traits = [];
     protected array $properties = [];
     protected array $methods = [];
