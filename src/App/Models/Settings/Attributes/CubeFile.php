@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasPropertyValidationRule;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasTestAdditionalFactoryData;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
@@ -14,9 +15,10 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\TestAdditionalFactoryDataString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
 
-class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule
+class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -82,5 +84,16 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
                 'img',
                 'svg',
             ]);
+    }
+
+    public function testAdditionalFactoryData(): TestAdditionalFactoryDataString
+    {
+        return new TestAdditionalFactoryDataString(
+            $this->name,
+            'UploadedFile::fake()->image("image.png")',
+            [
+                new ImportString("Illuminate\\Http\\UploadedFile"),
+            ]
+        );
     }
 }

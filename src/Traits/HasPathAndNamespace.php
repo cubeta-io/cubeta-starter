@@ -209,20 +209,46 @@ trait HasPathAndNamespace
             : ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getServiceName()}";
     }
 
-    /**
-     * @return CubePath
-     */
-    public function getTestPath(): CubePath
+    public function getTestNamespace(?string $actor = null, bool $withStart = true, bool $prefixOnly = false): string
     {
-        return CubePath::make(config('cubeta-starter.test_path') . "/{$this->getTestName()}.php");
+        if (empty($actor) || $actor == 'none') {
+            return $prefixOnly
+                ? ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace')
+                : ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace') . "\\" . $this->getTestName();
+        }
+
+        $actor = str($actor)->studly()->singular();
+        return $prefixOnly
+            ? ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace') . "\\$actor"
+            : ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace') . "\\$actor\\" . $this->getTestName();
     }
 
     /**
+     * @param string|null $actor
+     * @return CubePath
+     */
+    public function getTestPath(?string $actor = null): CubePath
+    {
+        if (empty($actor) || $actor == 'none') {
+            return CubePath::make(config('cubeta-starter.test_path') . "/{$this->getTestName()}.php");
+        }
+
+        $actor = str($actor)->studly()->singular();
+        return CubePath::make(config('cubeta-starter.test_path') . "/$actor/{$this->getTestName()}.php");
+    }
+
+    /**
+     * @param string|null $actor
      * @return string
      */
-    public function getTestClassString(): string
+    public function getTestClassString(?string $actor = null): string
     {
-        return "\\" . config('cubeta-starter.test_namespace') . "\\{$this->getTestName()}";
+        if (empty($actor) || $actor == 'none') {
+            return "\\" . config('cubeta-starter.test_namespace') . "\\{$this->getTestName()}";
+        }
+
+        $actor = str($actor)->studly()->singular();
+        return "\\" . config('cubeta-starter.test_namespace') . "\\$actor\\{$this->getTestName()}";
     }
 
     /**
