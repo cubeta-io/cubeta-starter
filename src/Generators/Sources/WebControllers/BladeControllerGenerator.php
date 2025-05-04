@@ -2,23 +2,27 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources\WebControllers;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\SidebarItemString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Controllers\TranslatableColumnDataTableColumnOrderingOptionsArrayString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Controllers\YajraDataTableTranslatableColumnOrderingHandler;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
-use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\BladeViewsGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Controllers\ControllerStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
-use Illuminate\Support\Facades\Route;
 use JetBrains\PhpStorm\ArrayShape;
 
 class BladeControllerGenerator extends AbstractGenerator
@@ -27,10 +31,6 @@ class BladeControllerGenerator extends AbstractGenerator
 
     public static string $key = 'web-controller';
 
-    protected string $rawColumns = "";
-
-    protected array $additionalRoutes = [];
-
     public function run(bool $override = false): void
     {
         if (!Settings::make()->getFrontendType() == FrontendTypeEnum::BLADE) {
@@ -38,52 +38,56 @@ class BladeControllerGenerator extends AbstractGenerator
             return;
         }
 
-        $modelNameCamelCase = $this->table->variableNaming();
-        $idVariable = $this->table->idVariable();
         $controllerPath = $this->table->getWebControllerPath();
-
-        if ($controllerPath->exist()) {
-            $controllerPath->logAlreadyExist("Generating Web Controller For  ({$this->table->modelName}) Model");
-            return;
-        }
-
-        $controllerPath->ensureDirectoryExists();
-
         $routesNames = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $views = $this->getViewsNames($this->table, $this->actor);
+        $loadedRelations = $this->table
+            ->relations()
+            ->filter(fn(CubeRelation $rel) => $rel->exists())
+            ->stringifyEachOne(fn(CubeRelation $rel) => $rel->method())
+            ->implode(',');
 
-        $addColumns = $this->getAdditionalColumns();
+        $linkableAttributes = $this->table->attributes()
+            ->filter(fn(CubeAttribute $attribute) => $attribute instanceof HasYajraDataTableRelationLinkColumnRenderer && $attribute->isKey())
+            ->filter(function (HasYajraDataTableRelationLinkColumnRenderer|CubeAttribute $attribute) {
+                $relatedModel = CubeTable::create($attribute->modelNaming());
+                if (!$relatedModel->getWebControllerPath()->exist() || !$relatedModel->getModelPath()->exist()) {
+                    return false;
+                }
+                if (ClassUtils::isMethodDefined($relatedModel->getWebControllerPath(), 'show')) {
+                    return false;
+                }
+                return true;
+            });
 
-        $loadedRelations = $this->table->relations()
-            ->filter(fn (CubeRelation $rel) => $rel->exists())
-            ->map(fn (CubeRelation $rel) => $rel->method())
-            ->toJson();
+        ControllerStubBuilder::make()
+            ->modelName($this->table->modelNaming())
+            ->modelNameCamelCase($this->table->variableNaming())
+            ->idVariable($this->table->idVariable())
+            ->tableName($this->table->tableNaming())
+            ->indexRoute($routesNames['index'])
+            ->createView($views['create'])
+            ->indexView($views['index'])
+            ->showView($views['show'])
+            ->updateView($views['edit'])
+            ->namespace($this->table->getWebControllerNameSpace(false, true))
+            ->requestNamespace($this->table->getRequestNameSpace(false))
+            ->traitsNamespace(config('cubeta-starter.trait_namespace'))
+            ->modelNamespace($this->table->getModelNameSpace(false))
+            ->serviceNamespace($this->table->getServiceNamespace(false))
+            ->loadedRelations($loadedRelations)
+            ->baseRouteName($routesNames['resource'])
+            ->additionalColumn(
+                $linkableAttributes
+                    ->map(
+                        fn(HasYajraDataTableRelationLinkColumnRenderer $attribute) => $attribute
+                            ->yajraDataTableAdditionalColumnRenderer($this->actor)
+                    )->toArray()
+            )->rawColumns($linkableAttributes->stringifyEachOne()->implode(","))
+            ->translatableOrderQueries($this->generateOrderingQueriesForTranslatableColumns())
+            ->generate($controllerPath, $this->override);
 
-        $stubProperties = [
-            '{modelName}'               => $this->table->modelName,
-            '{modelNameCamelCase}'      => $modelNameCamelCase,
-            '{idVariable}'              => $idVariable,
-            '{tableName}'               => $this->table->tableName,
-            '{addColumns}'              => $addColumns,
-            '{rawColumns}'              => $this->rawColumns ?? '',
-            '{indexRoute}'              => $routesNames['index'],
-            '{createForm}'              => $views['create'],
-            '{indexView}'               => $views['index'],
-            '{showView}'                => $views['show'],
-            '{editForm}'                => $views['edit'],
-            '{namespace}'               => $this->table->getWebControllerNameSpace(false, true),
-            '{requestNamespace}'        => $this->table->getRequestNameSpace(false),
-            '{modelNamespace}'          => $this->table->getModelNameSpace(false),
-            '{serviceNamespace}'        => $this->table->getServiceNamespace(false),
-            '{translationOrderQueries}' => $this->generateOrderingQueriesForTranslatableColumns(),
-            '{additionalMethods}'       => $this->additionalControllerMethods(),
-            '{loadedRelations}'         => $loadedRelations,
-            '{baseRouteName}'           => $routesNames['resource'],
-        ];
-
-        $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
-        $this->addRoute($this->table, $this->actor, ContainerType::WEB, $this->additionalRoutes);
-        $controllerPath->format();
+        $this->addRoute($this->table, $this->actor, ContainerType::WEB);
 
         (new BladeViewsGenerator(
             fileName: $this->fileName,
@@ -101,59 +105,21 @@ class BladeControllerGenerator extends AbstractGenerator
             );
     }
 
-    private function getAdditionalColumns(): string
-    {
-        $dataColumn = '';
-        foreach ($this->table->attributes as $attribute) {
-            if ($attribute->isKey()) {
-                $relatedModel = CubeTable::create(str_replace('_id', '', $attribute->name));
-
-                if (!$relatedModel->getWebControllerPath()->exist() || !$relatedModel->getModelPath()->exist()) {
-                    continue;
-                }
-
-                if (ClassUtils::isMethodDefined($relatedModel->getWebControllerPath(), 'show')) {
-                    continue;
-                }
-
-                $showRouteName = $this->getRouteNames($relatedModel, ContainerType::WEB, $this->actor)['show'];
-
-                if (!Route::has($showRouteName)) {
-                    continue;
-                }
-
-                $relatedTable = Settings::make()->getTable($relatedModel->modelName);
-                $columnName = $relatedTable->relationMethodNaming() . '.' . $relatedTable->titleable()->name;
-                $columnCalling = "\$row->" . $relatedTable->relationMethodNaming() . "->" . $relatedTable->titleable()->name;
-                $dataColumn .= "
-                    ->editColumn('{$columnName}', function (\$row) {
-                    //TODO::check on the used show route of the related model key
-                        return \"<a href='\" . route('{$showRouteName}', \$row->{$attribute->name}) . \"'>{$columnCalling}</a>\";
-                    })";
-                $this->rawColumns .= "'{$columnName}' ,";
-            }
-        }
-
-        return $dataColumn;
-    }
-
     private function generateOrderingQueriesForTranslatableColumns(): string
     {
         $translatableColumns = $this->getJQueryDataTablesTranslatableColumnsIndexes();
-        $queries = '';
 
         if (count($translatableColumns) <= 0) {
-            return $queries;
+            return "";
         }
 
-        $queries .= "\$query = \$this->orderTranslatableColumns(\$query, [\n";
+        $config = [];
+
         foreach ($translatableColumns as $col => $index) {
-            $queries .= "['orderIndex' => 0, 'columnIndex' => $index, 'columnName' => '$col'],\n";
+            $config[] = new TranslatableColumnDataTableColumnOrderingOptionsArrayString($index, $col);
         }
 
-        $queries .= "\n]);";
-
-        return $queries;
+        return new YajraDataTableTranslatableColumnOrderingHandler($config);
     }
 
     private function getJQueryDataTablesTranslatableColumnsIndexes(): array
@@ -174,31 +140,26 @@ class BladeControllerGenerator extends AbstractGenerator
         return $translatableColumnsIndexes;
     }
 
-    private function additionalControllerMethods(): string
-    {
-        $methods = '';
-        $variableName = $this->table->variableNaming();
-
-        if ($this->table->hasRelationOfType(RelationsTypeEnum::HasMany)) {
-            $methods .= "public function allPaginatedJson()\n{\n\t\${$variableName} = \$this->{$variableName}Service->indexWithPagination([], 7);\n\treturn response()->json(\${$variableName} , 200);\n}";
-            $this->additionalRoutes[] = 'allPaginatedJson';
-        }
-
-        return $methods;
-    }
-
     private function addSidebarItem(string $routeName): void
     {
         $sidebarPath = CubePath::make("resources/views/includes/sidebar.blade.php");
         if (!$sidebarPath->exist()) {
             return;
         }
-
-        $sidebarItem = "\t\t<li class=\"nav-item\">\n\t\t\t<a class=\"nav-link collapsed @if(str_contains(request()->fullUrl() , route('{$routeName}'))) active-sidebar-item @endif\" href=\"{{route('{$routeName}')}}\">\n\t\t\t\t<i class=\"bi bi-circle\"></i><span>{$this->table->modelNaming()}</span>\n\t\t\t</a>\n\t\t</li>\n</ul>";
-
+        $sidebarItem = new SidebarItemString($this->table->modelNaming(), $routeName);
         $sidebar = $sidebarPath->getContent();
-        $sidebar = str_replace("</ul>", $sidebarItem, $sidebar);
-        $sidebarPath->putContent($sidebar);
+        $pattern = '/<aside(.*?)>(.*?)<ul(.*?)>(.*?)<\/ul>(.*?)<\/aside>/s';
+        if (preg_match($pattern, $sidebar, $matches)) {
+            $exactMatch = $matches[4] ?? null;
+            if (empty($exactMatch)) {
+                return;
+            }
+            $sidebar = str_replace($exactMatch, "$exactMatch\n$sidebarItem", $sidebar);
+            $sidebarPath->putContent($sidebar);
+            CubeLog::contentAppended($sidebarItem, $sidebarPath->fullPath);
+        } else {
+            CubeLog::failedAppending($sidebarItem, $sidebarPath->fullPath, "Adding sidebar item");
+        }
     }
 
     /**
@@ -211,23 +172,18 @@ class BladeControllerGenerator extends AbstractGenerator
         $viewName = $model->viewNaming();
         if (!isset($actor) || $actor == '' || $actor = 'none') {
             return [
-                'index'  => 'dashboard.' . $viewName . '.index',
-                'edit'   => 'dashboard.' . $viewName . '.edit',
+                'index' => 'dashboard.' . $viewName . '.index',
+                'edit' => 'dashboard.' . $viewName . '.edit',
                 'create' => 'dashboard.' . $viewName . '.create',
-                'show'   => 'dashboard.' . $viewName . '.show',
+                'show' => 'dashboard.' . $viewName . '.show',
             ];
         }
         return [
-            'index'  => 'dashboard.' . $actor . '.' . $viewName . '.index',
-            'edit'   => 'dashboard.' . $actor . '.' . $viewName . '.edit',
+            'index' => 'dashboard.' . $actor . '.' . $viewName . '.index',
+            'edit' => 'dashboard.' . $actor . '.' . $viewName . '.edit',
             'create' => 'dashboard.' . $actor . '.' . $viewName . '.create',
-            'show'   => 'dashboard.' . $actor . '.' . $viewName . '.show',
+            'show' => 'dashboard.' . $actor . '.' . $viewName . '.show',
         ];
 
-    }
-
-    protected function stubsPath(): string
-    {
-        return CubePath::stubPath('controller.web.stub');
     }
 }

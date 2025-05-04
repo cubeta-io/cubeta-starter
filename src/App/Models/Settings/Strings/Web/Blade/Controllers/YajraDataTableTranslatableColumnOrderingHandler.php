@@ -24,6 +24,6 @@ class YajraDataTableTranslatableColumnOrderingHandler
         } else {
             $columns = implode(",\n", $this->config);
         }
-        return "\$query = \$this->orderTranslatableColumns(\$query, [\n$columns\n])";
+        return "\$query = \$this->orderTranslatableColumns(\$query, [\n$columns\n]);";
     }
 }
