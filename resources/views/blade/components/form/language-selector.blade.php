@@ -11,30 +11,37 @@
 @push('scripts')
 
     <script type="module">
-        const radioButtons = document.querySelectorAll('input[name="selected-language"]');
-        if (radioButtons) {
-            const translatableInputs = document.querySelectorAll('.translatable');
-            if (translatableInputs.length > 0) {
-                radioButtons.forEach(function (radioButton) {
-                    radioButton.addEventListener('change', function () {
-                        const selectedLanguage = this.value; // Get the value of the selected radio button
+        const handleLocalizedForm = () => {
+            const radioButtons = document.querySelectorAll("input[name=\"selected-language\"]");
+            if (radioButtons.length <= 0) {
+                return;
+            }
+            const translatableInputs = document.querySelectorAll(".translatable");
+            if (translatableInputs.length <= 0) {
+                return;
+            }
 
-                        translatableInputs.forEach(function (input) {
-                            const inputName = input.name;
-                            const languageCode = inputName.match(/\[(.*?)]/)[1]; // Extract language code from input name
+            radioButtons.forEach(function(radioButton) {
+                radioButton.addEventListener("change", function() {
+                    const selectedLanguage = this.value; // Get the value of the selected radio button
 
-                            if (languageCode === selectedLanguage) {
-                                input.style.display =
-                                    'block'; // Show input for selected language
-                                input.labels[0].style.display = 'block';
-                            } else {
-                                input.style.display = "none"; // Hide input for other languages
-                                input.labels[0].style.display = "none";
-                            }
-                        });
+                    translatableInputs.forEach(function(input) {
+                        const inputName = input.name;
+                        const languageCode = inputName.match(/\[(.*?)]/)[1]; // Extract language code from the input name
+
+                        if (languageCode === selectedLanguage) {
+                            input.style.display =
+                                "block"; // Show input for the selected language
+                            input.labels[0].style.display = "block";
+                        } else {
+                            input.style.display = "none"; // Hide input for other languages
+                            input.labels[0].style.display = "none";
+                        }
                     });
                 });
-            }
-        }
+            });
+        };
+
+        handleLocalizedForm();
     </script>
 @endpush

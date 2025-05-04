@@ -105,7 +105,7 @@ trait HasPathAndNamespace
     public function getRequestNameSpace(bool $withStart = true, bool $prefixOnly = false): string
     {
         return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\$this->modelNaming()"
+            ? ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}"
             : ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getRequestName()}";
     }
 

@@ -76,7 +76,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/cubeta-starter.php'                             => base_path('config/cubeta-starter.php'),
-            __DIR__ . '/stubs/WebController.stub'                                 => app_path('Http/Controllers/WebController.php'),
+            __DIR__ . '/../src/Stub/stubs/WebController.stub'                     => app_path('Http/Controllers/WebController.php'),
             __DIR__ . '/../pint.json'                                             => base_path('pint.json'),
             __DIR__ . '/../lang/site.php'                                         => lang_path('en/site.php'),
             __DIR__ . '/../resources/views/blade/components'                      => resource_path('views/components'),
