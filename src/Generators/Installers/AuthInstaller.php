@@ -572,13 +572,12 @@ class AuthInstaller extends AbstractGenerator
         $pattern = '#<\s*\ba\s*(.*?)\s*\bid=[\'"]\b' . $tagId . '[\'"]\s*(.*?)\s*>#';
         $navbarContent = preg_replace_callback($pattern, function ($matches) use ($navbarPath, $routeName, $tagId) {
             $hrefPattern = '/href\s*=\s*[\'"](.*?)[\'"]/s';
+            CubeLog::add(new ContentAppended("href=\"{{route('$routeName')}}\"", $navbarPath->fullPath));
             if (isset($matches[0]) && preg_match($hrefPattern, $matches[0])) {
-                CubeLog::add(new ContentAppended("href=\"{{route('$routeName')}}\"", $navbarPath->fullPath));
                 return preg_replace_callback($hrefPattern, function () use ($routeName) {
                     return "href=\"{{route('$routeName')}}\"";
                 }, $matches[0]);
             } else {
-                CubeLog::add(new ContentAppended("href=\"{{route('$routeName')}}\"", $navbarPath->fullPath));
                 return "<a $matches[1] id=\"$tagId\" $matches[2] href=\"{{route('$routeName')}}\"";
             }
         }, $navbarContent);
@@ -599,23 +598,22 @@ class AuthInstaller extends AbstractGenerator
         if (preg_match($pattern, $dropDownContent, $matches)) {
             $linkTag = $matches[0];
             $hrefPattern = '#' . FileUtils::getReactComponentPropPatterns('href') . '#s';
-            if (preg_match($hrefPattern, $linkTag, $hrefMatches)) {
+            if (preg_match($hrefPattern, $linkTag)) {
                 $linkTag = preg_replace_callback($hrefPattern, function () use ($routeName) {
                     return " href={route('$routeName')} ";
                 }, $linkTag);
                 $dropDownContent = str_replace($matches[0], $linkTag, $dropDownContent);
                 $dropDownPath->putContent($dropDownContent);
                 CubeLog::add(new ContentAppended("route('$routeName')", $dropDownPath->fullPath));
-                return;
             } else {
                 $dropDownContent = str_replace($linkTag, str_replace('>', " href={route('$routeName')} >", $linkTag), $dropDownContent);
                 $dropDownPath->putContent($dropDownContent);
                 CubeLog::add(new ContentAppended("href={route('$routeName')}", $dropDownPath->fullPath));
-                return;
             }
+            return;
         }
 
-        CubeLog::add(new FailedAppendContent("href={route('$routeName')}", $dropDownPath->fullPath), "Adding auth routes to navbar dropdown");
+        CubeLog::add(new FailedAppendContent("href={route('$routeName')}", $dropDownPath->fullPath, "Adding auth routes to navbar dropdown"));
     }
 
     private function initializeJwt(bool $override = false): void

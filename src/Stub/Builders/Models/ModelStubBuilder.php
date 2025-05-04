@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Models;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 

@@ -1,6 +1,8 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Settings\Strings;
+namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources;
+
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 
 class ResourcePropertyString
 {

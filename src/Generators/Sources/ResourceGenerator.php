@@ -2,12 +2,12 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\HasResourcePropertyString;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
-use Cubeta\CubetaStarter\Stub\Builders\ResourceStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Resources\ResourceStubBuilder;
 
 class ResourceGenerator extends AbstractGenerator
 {

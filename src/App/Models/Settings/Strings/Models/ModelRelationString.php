@@ -1,8 +1,10 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Settings\Strings;
+namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Models;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MethodString;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
 

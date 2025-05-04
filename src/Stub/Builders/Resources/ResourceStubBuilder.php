@@ -1,9 +1,9 @@
 <?php
 
-namespace Cubeta\CubetaStarter\Stub\Builders;
+namespace Cubeta\CubetaStarter\Stub\Builders\Resources;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 use Illuminate\Support\Arr;

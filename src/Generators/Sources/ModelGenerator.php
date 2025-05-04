@@ -3,9 +3,9 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelRelationMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelScopeMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelScopeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;

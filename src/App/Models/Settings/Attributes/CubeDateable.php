@@ -2,23 +2,23 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasTestAdditionalFactoryData;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Tests\HasTestAdditionalFactoryData;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\HasResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ResourcePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\TestAdditionalFactoryDataString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
 
 class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData
 {

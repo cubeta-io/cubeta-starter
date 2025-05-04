@@ -2,20 +2,20 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasMigrationColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelCastColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelScopeMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasPropertyValidationRule;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelScopeMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MigrationColumnString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ModelScopeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\ModelScopeMethodString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 
 class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasModelScopeMethod, HasPropertyValidationRule
 {

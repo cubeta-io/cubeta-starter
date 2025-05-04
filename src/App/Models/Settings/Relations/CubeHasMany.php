@@ -2,19 +2,19 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Relations;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFactoryRelationMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFactoryRelationMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasModelRelationMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\FactoryRelationMethodStringString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\HasResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FactoryRelationMethodStringString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ModelRelationString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\ModelRelationString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 
-class CubeHasMany extends CubeRelation implements HasFactoryRelationMethod, HasModelRelationMethod, HasDocBlockProperty, HasResourcePropertyString
+class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDocBlockProperty, HasResourcePropertyString, HasFactoryRelationMethod
 {
     public function factoryRelationMethod(): FactoryRelationMethodStringString
     {

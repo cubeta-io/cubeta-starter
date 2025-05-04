@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFactoryRelationMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasFakeMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFactoryRelationMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;

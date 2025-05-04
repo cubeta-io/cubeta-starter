@@ -1,8 +1,10 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Settings\Strings;
+namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\MethodString;
 
 class FactoryRelationMethodStringString extends MethodString
 {

@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Tests;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\TestAdditionalFactoryDataString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 

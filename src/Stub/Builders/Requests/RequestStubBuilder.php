@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Requests;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 use Illuminate\Support\Arr;
