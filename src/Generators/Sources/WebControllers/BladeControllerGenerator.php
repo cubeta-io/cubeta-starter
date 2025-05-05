@@ -8,12 +8,14 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\SidebarItemString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Controllers\AllPaginatedJsonMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Controllers\TranslatableColumnDataTableColumnOrderingOptionsArrayString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Controllers\YajraDataTableTranslatableColumnOrderingHandler;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
+use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\BladeViewsGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
@@ -85,9 +87,17 @@ class BladeControllerGenerator extends AbstractGenerator
                     )->toArray()
             )->rawColumns($linkableAttributes->stringifyEachOne()->implode(","))
             ->translatableOrderQueries($this->generateOrderingQueriesForTranslatableColumns())
-            ->generate($controllerPath, $this->override);
+            ->when(
+                $this->table->hasRelationOfType(RelationsTypeEnum::HasMany),
+                fn($builder) => $builder->method(new AllPaginatedJsonMethodString($this->table->modelNaming()))
+            )->generate($controllerPath, $this->override);
 
-        $this->addRoute($this->table, $this->actor, ContainerType::WEB);
+        $this->addRoute(
+            $this->table,
+            $this->actor,
+            ContainerType::WEB,
+            $this->table->hasRelationOfType(RelationsTypeEnum::HasMany) ? ["allPaginatedJson"] : []
+        );
 
         (new BladeViewsGenerator(
             fileName: $this->fileName,

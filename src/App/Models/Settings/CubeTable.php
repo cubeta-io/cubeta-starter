@@ -252,18 +252,18 @@ class CubeTable
             ->filter(fn(CubeAttribute $attr) => $attr->isTranslatable());
     }
 
-    public function hasRelationOfType(string|RelationsTypeEnum $type): int
+    public function hasRelationOfType(string|RelationsTypeEnum $type): bool
     {
         return $this->relations()
-            ->filter(function (CubeRelation $rel) use ($type) {
-                if ($type instanceof RelationsTypeEnum) {
-                    return $rel->type == $type->value;
-                } else {
-                    return $rel->type == $type;
-                }
+                ->filter(function (CubeRelation $rel) use ($type) {
+                    if ($type instanceof RelationsTypeEnum) {
+                        return $rel->type == $type->value;
+                    } else {
+                        return $rel->type == $type;
+                    }
 
-            })
-            ->count();
+                })
+                ->count() > 0;
     }
 
     /**

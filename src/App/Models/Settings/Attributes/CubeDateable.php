@@ -9,7 +9,9 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Tests\HasTestAdditionalFactoryData;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
@@ -19,8 +21,9 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidation
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 
-class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData
+class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -71,7 +74,7 @@ class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationC
     {
         return new ResourcePropertyString(
             $this->name,
-            "\$this->{$this->name}?->format('Y-m-d H:i')"
+            "\$this->{$this->name}?->format('Y-m-d')"
         );
     }
 
@@ -81,6 +84,29 @@ class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationC
             $this->name,
             'now()->format("Y-m-d")',
             []
+        );
+    }
+
+
+    public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
+    {
+        $attributes = [];
+        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+
+        if ($formType == "update") {
+            $attributes[] = [
+                'key' => ':value',
+                'value' => "\${$table?->variableNaming()}->{$this->name}"
+            ];
+        }
+
+        return new InputComponentString(
+            "date",
+            "x-input",
+            $this->name,
+            $this->isRequired,
+            $this->titleNaming(),
+            $attributes,
         );
     }
 }

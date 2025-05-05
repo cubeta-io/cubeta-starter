@@ -54,6 +54,8 @@ class CubeAttribute implements HasResourcePropertyString
      */
     public bool $unique;
 
+    public bool $isRequired;
+
     /**
      * @param string      $name
      * @param string      $type
@@ -69,6 +71,7 @@ class CubeAttribute implements HasResourcePropertyString
         $this->unique = $unique;
         $this->usedString = $this->name;
         $this->parentTableName = $parentTableName;
+        $this->isRequired = !$this->nullable;
     }
 
     /**
@@ -187,7 +190,8 @@ class CubeAttribute implements HasResourcePropertyString
      */
     public function isTextable(): bool
     {
-        return in_array($this->name, ['desc', 'description', 'summary', 'post', 'note', 'message', 'body']);
+        return str($this->name)->contains(['body', 'content', 'description', 'summary', 'post', 'note', 'message'])
+            && $this->isString();
     }
 
     /**

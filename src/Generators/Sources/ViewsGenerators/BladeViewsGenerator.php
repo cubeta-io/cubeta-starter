@@ -2,9 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\FormLocalSelectorString;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
@@ -12,13 +14,13 @@ use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenera
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Views\FormViewStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 use JetBrains\PhpStorm\ArrayShape;
@@ -117,137 +119,57 @@ class BladeViewsGenerator extends BladeControllerGenerator
 
         $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
 
-        $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
-        $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
+        $viewsName = $this->table->viewNaming();
+        $modelVariable = $this->table->variableNaming();
+        $createFormPath = CubePath::make("resources/views/dashboard/{$viewsName}/create.blade.php");
+
+        $hasTranslatableFields = $this->table->hasTranslatableAttribute();
+
+        $createInputs = $this->table
+            ->attributes()
+            ->filter(fn(CubeAttribute $attribute) => $attribute instanceof HasBladeInputComponent)
+            ->map(fn(HasBladeInputComponent $attr) => $attr->bladeInputComponent("store", $this->actor)->__toString())
+            ->implode("\n");
+
+        FormViewStubBuilder::make()
+            ->method("POST")
+            ->title("Create {$this->table->modelName}")
+            ->localizationSelector($hasTranslatableFields ? new FormLocalSelectorString() : "")
+            ->submitRoute($routes['store'])
+            ->updateParameters("")
+            ->inputs($createInputs)
+            ->generate($createFormPath, $this->override);
+
+        $updateFormPath = CubePath::make("resources/views/dashboard/{$viewsName}/edit.blade.php");
+        $updateInputs = $this->table
+            ->attributes()
+            ->filter(fn(CubeAttribute $attribute) => $attribute instanceof HasBladeInputComponent)
+            ->filter(function (CubeAttribute $attribute) {
+                if ($attribute->isKey()) {
+                    $model = CubeTable::create($attribute->modelNaming());
+                    if (!$model->getModelPath()->exist() || !$model->getWebControllerPath()->exist()) {
+                        return false;
+                    }
+                    if (!ClassUtils::isMethodDefined($model->getWebControllerPath(), 'allPaginatedJson')) {
+                        return false;
+                    }
+                }
+                return true;
+            })->map(fn(HasBladeInputComponent $attr) => $attr->bladeInputComponent("update", $this->actor)->__toString())
+            ->implode("\n");
+
+        FormViewStubBuilder::make()
+            ->method("PUT")
+            ->title("Update {$this->table->modelName}")
+            ->localizationSelector($hasTranslatableFields ? new FormLocalSelectorString() : "")
+            ->submitRoute($routes['update'])
+            ->updateParameters(", \${$modelVariable}->id")
+            ->inputs($updateInputs)
+            ->type($modelVariable , $this->table->getModelClassString())
+            ->generate($updateFormPath, $this->override);
 
         $this->generateShowView($routes['edit'], $override);
         $this->generateIndexView($routes['create'], $routes['data'], $override);
-    }
-
-    /**
-     * @param string|null $storeRoute
-     * @param string|null $updateRoute
-     * @param bool        $override
-     * @return void
-     */
-    public function generateCreateOrUpdateForm(?string $storeRoute = null, ?string $updateRoute = null, bool $override = false): void
-    {
-        $viewsName = $this->table->viewNaming();
-        $modelVariable = $this->table->variableNaming();
-        $inputs = $storeRoute
-            ? $this->generateInputs()
-            : $this->generateInputs($modelVariable, true);
-
-        $createdForm = $storeRoute ? 'Create' : 'Edit';
-
-        $stubProperties = [
-            '{title}' => "{$createdForm} {$this->table->modelName}",
-            '{submitRoute}' => $storeRoute ?? $updateRoute,
-            '{components}' => $inputs,
-            '{method}' => $updateRoute ? 'PUT' : 'POST',
-            '{updateParameter}' => $updateRoute ? ", \${$modelVariable}" . '->id' : '',
-            '{translationSelector}' => $this->table->hasTranslatableAttribute() ? "<div class=\"m-2 d-flex justify-content-end\">\n<x-language-selector/>\n</div>" : "",
-        ];
-
-        $formPath = CubePath::make("resources/views/dashboard/{$viewsName}/" . strtolower($createdForm) . '.blade.php');
-
-        if ($formPath->exist()) {
-            $formPath->logAlreadyExist("When Generating $createdForm Form For ({$this->table->modelName}) Model");
-            return;
-        }
-
-        $formPath->ensureDirectoryExists();
-
-        $this->generateFileFromStub(
-            $stubProperties,
-            $formPath->fullPath,
-            $override,
-            CubePath::stubPath('views/form.stub')
-        );
-    }
-
-    /**
-     * @param string|null $modelVariable
-     * @param bool        $updateInput
-     * @return string
-     */
-    private function generateInputs(?string $modelVariable = null, bool $updateInput = false): string
-    {
-        $inputs = '';
-
-        $this->table->attributes()->each(function (CubeAttribute $attribute) use ($updateInput, $modelVariable, &$inputs) {
-            $label = $this->getLabelName($attribute->name);
-            $isRequired = 'required';
-            if ($attribute->nullable || $updateInput) {
-                $isRequired = '';
-            }
-            $value = $updateInput
-                ? ($attribute->isTranslatable()
-                    ? ":value=\"\${$modelVariable}->getRawOriginal('{$attribute->name}')\""
-                    : ":value=\"\${$modelVariable}->{$attribute->name}\"")
-                : null;
-
-            if ($attribute->isFile()) {
-                $value = "";
-            }
-
-            $checked = $updateInput
-                ? ":checked=\"\${$modelVariable}->{$attribute->name}\""
-                : 'checked';
-            switch ($attribute->type) {
-                case ColumnTypeEnum::KEY->value:
-                {
-                    $model = CubeTable::create(Naming::model(str_replace('_id', '', $attribute->name)));
-                    $relatedTable = Settings::make()->getTable($model->modelName);
-                    $value = str_replace('_id', '', $value);
-                    $select2Route = $this->getRouteNames($model, ContainerType::WEB, $this->actor)["all_paginated_json"];
-                    if (!$model->getModelPath()->exist() || !$model->getWebControllerPath()->exist()) break;
-                    if (!ClassUtils::isMethodDefined($model->getWebControllerPath(), 'allPaginatedJson')) break;
-                    $inputs .=
-                        "<div class=\"col-sm-12 col-md-6\">\n" .
-                        "<x-select2 label=\"{$label}\" name=\"{$attribute->name}\" api=\"{{route('{$select2Route}')}}\" option-value=\"id\" option-inner-text=\"{$relatedTable->titleable()->name}\" {$value} {$isRequired}/>\n" .
-                        "</div>\n";
-                    break;
-                }
-                case ColumnTypeEnum::TRANSLATABLE->value:
-                {
-                    $inputs .=
-                        "<div class=\"col-sm-12 col-md-6\">\n" .
-                        "<x-translatable-input label=\"{$label}\" name=\"{$attribute->name}\" type='text' {$value} {$isRequired}/>\n" .
-                        "</div>\n";
-                    break;
-                }
-                case ColumnTypeEnum::BOOLEAN->value:
-                {
-                    $inputs .=
-                        "<div class=\"col-sm-12 col-md-6\">\n" .
-                        "<label class=\"form-label\">{$attribute->labelNaming()}</label>\n" .
-                        "<div class=\"d-flex gap-5\">\n" .
-                        "<x-form-check-radio name=\"{$attribute->name}\" :value=\"false\" {$checked} {$isRequired}/>\n" .
-                        "<x-form-check-radio name=\"{$attribute->name}\" :value=\"true\" {$checked} {$isRequired}/>\n" .
-                        "</div>\n</div> \n";
-                    break;
-                }
-                case ColumnTypeEnum::TEXT->value:
-                {
-                    $inputs .=
-                        "<div class=\"col-sm-12 col-md-12\">\n" .
-                        "<x-text-editor label=\"{$label}\" name=\"{$attribute->name}\" {$value} {$isRequired}/>\n" .
-                        "</div>\n";
-                    break;
-                }
-                default:
-                {
-                    $fieldType = $this->getInputTagType($attribute);
-                    $inputs .=
-                        "<div class=\"col-sm-12 col-md-6\">\n" .
-                        "<x-input label=\"{$label}\" name=\"{$attribute->name}\" type=\"{$fieldType}\" {$value} {$isRequired}/>\n" .
-                        "</div>\n";
-                    break;
-                }
-            }
-        });
-        return $inputs;
     }
 
     /**

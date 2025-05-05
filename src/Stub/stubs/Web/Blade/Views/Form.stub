@@ -1,0 +1,17 @@
+{{types}}
+@extends('layout')
+@section('content')
+
+<x-page-card>
+    <h2 class="card-title mt-2">
+        {{title}}
+    </h2>
+    <x-form action="{{route('{{submit_route}}' {{update_parameters}})}}" method="{{method}}">
+        {{localization_selector}}
+        <div class="row">
+            {{inputs}}
+        </div>
+    </x-form>
+</x-page-card>
+
+@endsection

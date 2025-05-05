@@ -11,7 +11,6 @@ use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Traits\Makable;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\HigherOrderTapProxy;
 use Mockery\Exception;
 
 abstract class StubBuilder
@@ -120,13 +119,18 @@ abstract class StubBuilder
     }
 
     /**
-     * @template TValue
-     * @param TValue                         $value
-     * @param (callable(TValue): mixed)|null $callback
-     * @return ($callback is null ? HigherOrderTapProxy : TValue)
+     * change the calling chain target to another object
+     * @template VALUE
+     * @param VALUE|Closure($this):VALUE $value
+     * @return VALUE
+     * @noinspection PhpMissingParamTypeInspection
      */
-    public function tap($value, callable $callback = null)
+    public function tap($value)
     {
-        return tap($value, $callback);
+        if (is_callable($value)) {
+            return $value($this);
+        }
+
+        return $value;
     }
 }
