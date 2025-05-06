@@ -19,6 +19,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 
 class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent
@@ -108,6 +109,21 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
             $this->name,
             $this->isRequired,
             $this->titleNaming(),
+        );
+    }
+
+    public function bladeDisplayComponent(): DisplayComponentString
+    {
+        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $modelVariable = $table->variableNaming();
+        return new DisplayComponentString(
+            "x-image-preview",
+            [
+                [
+                    "key" => ":imagePath",
+                    "value" => "\${$modelVariable}->{$this->name}['url'] ?? ''"
+                ]
+            ]
         );
     }
 }

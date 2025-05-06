@@ -21,6 +21,7 @@ use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Views\FormViewStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Views\ShowViewStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 use JetBrains\PhpStorm\ArrayShape;
@@ -165,10 +166,23 @@ class BladeViewsGenerator extends BladeControllerGenerator
             ->submitRoute($routes['update'])
             ->updateParameters(", \${$modelVariable}->id")
             ->inputs($updateInputs)
-            ->type($modelVariable , $this->table->getModelClassString())
+            ->type($modelVariable, $this->table->getModelClassString())
             ->generate($updateFormPath, $this->override);
 
-        $this->generateShowView($routes['edit'], $override);
+        $viewsName = $this->table->viewNaming();
+        $showPath = CubePath::make("resources/views/dashboard/{$viewsName}/show.blade.php");
+        ShowViewStubBuilder::make()
+            ->modelClassString($this->table->getModelClassString())
+            ->modelVariable($this->table->variableNaming())
+            ->modelName($this->table->modelNaming())
+            ->titleable($this->table->titleable()->name)
+            ->editRoute($routes['edit'])
+            ->components(
+                $this->table->attributes()
+                    ->map(fn(CubeAttribute $attribute) => $attribute->bladeDisplayComponent()?->__toString())
+                    ->implode("\n")
+            )->generate($showPath, $this->override);
+
         $this->generateIndexView($routes['create'], $routes['data'], $override);
     }
 
@@ -188,62 +202,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
      */
     public function generateShowView(string $editRoute, bool $override = false): void
     {
-        $viewsName = $this->table->viewNaming();
-        $stubProperties = [
-            '{modelName}' => $this->table->modelName,
-            '{editRoute}' => $editRoute,
-            '{components}' => $this->generateShowViewComponents(),
-            '{modelVariable}' => $this->table->variableNaming(),
-        ];
 
-        $showPath = CubePath::make("resources/views/dashboard/{$viewsName}/show.blade.php");
-
-        if ($showPath->exist()) {
-            $showPath->logAlreadyExist("When Generating Show Page For  ({$this->table->modelName}) Model");
-        }
-
-        $showPath->ensureDirectoryExists();
-
-        $this->generateFileFromStub($stubProperties,
-            $showPath->fullPath,
-            $override,
-            CubePath::stubPath('views/show.stub')
-        );
-    }
-
-    /**
-     * @return string
-     */
-    private function generateShowViewComponents(): string
-    {
-        $modelVariable = $this->table->variableNaming();
-        $components = '';
-        foreach ($this->table->attributes as $attribute) {
-            $label = $this->getLabelName($attribute->name);
-            if ($attribute->type == ColumnTypeEnum::TEXT->value) {
-                $components .=
-                    "<div class=\"col-md-12 col-sm-12\">\n" .
-                    "<x-long-text-field :value=\"\${$modelVariable}->{$attribute->name}\" label=\"{$label}\"/>\n" .
-                    "</div>";
-            } elseif ($attribute->isFile()) {
-                $components .=
-                    "<div class=\"col-md-12 col-sm-12\">\n" .
-                    "<x-image-preview :imagePath=\"\${$modelVariable}->{$attribute->name}['url']\"/> \n" .
-                    "</div>";
-            } elseif ($attribute->isTranslatable()) {
-                $components .=
-                    "<div class=\"col-sm-12 col-md-6\">\n" .
-                    "<x-translatable-small-text-field :value=\"\${$modelVariable}->getRawOriginal('{$attribute->name}')\" label=\"{$label}\"/>\n" .
-                    "</div>";
-            } else {
-                $components .=
-                    "<div class=\"col-sm-12 col-md-6\">\n" .
-                    "<x-small-text-field :value=\"\${$modelVariable}->{$attribute->name}\" label=\"{$label}\"/> \n" .
-                    "</div>";
-            }
-        }
-
-        return $components;
     }
 
     /**

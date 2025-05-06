@@ -16,6 +16,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnS
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 
 class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasBladeInputComponent
@@ -96,6 +97,26 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
             $this->isRequired,
             $this->titleNaming(),
             $attributes,
+        );
+    }
+
+    public function bladeDisplayComponent(): DisplayComponentString
+    {
+        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $modelVariable = $table->variableNaming();
+        $label = $this->labelNaming();
+        return new DisplayComponentString(
+            $this->isTextable() ? "x-translatable-text-editor" : "x-translatable-small-text-field",
+            [
+                [
+                    "key" => ":value",
+                    "value" => "\${$modelVariable}->{$this->name}?->toJson()"
+                ],
+                [
+                    "key" => 'label',
+                    'value' => $label
+                ]
+            ]
         );
     }
 }

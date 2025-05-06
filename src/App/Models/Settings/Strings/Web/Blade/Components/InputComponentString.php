@@ -36,7 +36,7 @@ class InputComponentString
 
     public function __toString(): string
     {
-        if (in_array($this->tag, ["x-translatable-input", "x-text-editor"])) {
+        if (in_array($this->tag, ["x-translatable-text-editor", "x-text-editor"])) {
             $grid = "col-sm-12 col-md-12";
         } else {
             $grid = "col-sm-12 col-md-6";

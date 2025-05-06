@@ -18,9 +18,11 @@ use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTimestamp;
 use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTranslatable;
 use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeUnsignedBigInteger;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
@@ -28,7 +30,7 @@ use Cubeta\CubetaStarter\Traits\NamingConventions;
 /**
  *
  */
-class CubeAttribute implements HasResourcePropertyString
+class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayComponent
 {
     use NamingConventions;
 
@@ -258,6 +260,26 @@ class CubeAttribute implements HasResourcePropertyString
     {
         return new ResourcePropertyString(
             $this->name
+        );
+    }
+
+    public function bladeDisplayComponent(): DisplayComponentString
+    {
+        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $modelVariable = $table->variableNaming();
+        $label = $this->labelNaming();
+        return new DisplayComponentString(
+            "x-small-text-field",
+            [
+                [
+                    "key" => ":value",
+                    "value" => "\${$modelVariable}->{$this->name}"
+                ],
+                [
+                    "key" => 'label' ,
+                    'value' => $label
+                ]
+            ]
         );
     }
 }

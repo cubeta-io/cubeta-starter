@@ -12,6 +12,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 
 class CubeText extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasBladeInputComponent
@@ -66,6 +67,26 @@ class CubeText extends CubeStringable implements HasFakeMethod, HasMigrationColu
             $this->isRequired,
             $this->titleNaming(),
             $attributes
+        );
+    }
+
+    public function bladeDisplayComponent(): DisplayComponentString
+    {
+        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $modelVariable = $table->variableNaming();
+        $label = $this->labelNaming();
+        return new DisplayComponentString(
+            "x-long-text-field",
+            [
+                [
+                    "key" => ":value",
+                    "value" => "\${$modelVariable}->{$this->name}"
+                ],
+                [
+                    "key" => 'label' ,
+                    'value' => $label
+                ]
+            ]
         );
     }
 }
