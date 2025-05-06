@@ -13,7 +13,7 @@
             data-placeholder="Chose A {{$label}}"
             name="{{$name}}"
             onchange="disableSubmitUntilFillRequiredFields()"
-        {{$attributes->merge()}}
+            {{$attributes->merge()}}
     >
         @if(old($name))
             <option value="{{ old($name) }}">{{old($name)}}</option>
@@ -30,39 +30,39 @@
 
 @push('scripts')
     <script type="module">
-        $(document).ready(function () {
+        $(document).ready(function() {
             const select2Element = $("#{{$name}}_select2");
             select2Element.select2({
-                theme: 'bootstrap-5',
+                theme: "bootstrap-5",
                 containerCssClass: "bg-dark",
-                placeholder: $(this).data('placeholder'),
+                placeholder: $(this).data("placeholder"),
                 ajax: {
                     url: "{{$api}}",
                     method: "GET",
-                    dataType: 'json',
+                    dataType: "json",
                     delay: 250,
-                    data: function (params) {
+                    data: function(params) {
                         return {
                             _token: "{{csrf_token()}}",
                             search: params.term,// search term
                             page: params.page || 1 // current page
                         };
                     },
-                    processResults: function (data, params) {
+                    processResults: function(data, params) {
                         params.page = params.page || 1;
                         return {
-                            results: data.data.map(function (data) {
+                            results: data?.data?.map(function(data) {
                                 return {
                                     id: data.{{$optionValue}},
                                     text: @if($translatable)
                                     JSON.parse(data.{{$optionInnerText}} ?? "{}")?.{{app()->getLocale()}}
-                                        @else
+                                            @else
                                         data.{{$optionInnerText}}
-                                        @endif
+                                            @endif
                                 };
                             }),
                             pagination: {
-                                more: !data.pagination_data.is_last
+                                more: !data.pagination_data.is_last_page
                             }
                         };
                     },
@@ -72,7 +72,7 @@
                 multiple: false,
                 closeOnSelect: false,
                 allowClear: true,
-                escapeMarkup: function (markup) {
+                escapeMarkup: function(markup) {
                     return markup;
                 }
             });

@@ -40,7 +40,7 @@ class ModelRelationString extends MethodString
     {
         return $this->relatedModel
             ->relationMethodNaming(
-                singular: in_array($this->type, [RelationsTypeEnum::HasMany, RelationsTypeEnum::ManyToMany])
+                singular: in_array($this->type, [RelationsTypeEnum::HasOne, RelationsTypeEnum::BelongsTo])
             );
     }
 

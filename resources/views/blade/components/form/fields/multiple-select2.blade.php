@@ -84,7 +84,7 @@
                                 };
                             }),
                             pagination: {
-                                more: data.data.current_page < data.data.last_page
+                                more: !data.pagination_data.is_last_page
                             }
                         };
                     },

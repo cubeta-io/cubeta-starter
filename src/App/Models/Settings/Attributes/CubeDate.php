@@ -74,7 +74,7 @@ class CubeDate extends CubeDateable implements HasFakeMethod, HasMigrationColumn
         if ($formType == "update") {
             $attributes[] = [
                 'key' => ':value',
-                'value' => "\${$table?->variableNaming()}->{$this->name}"
+                'value' => "\${$table?->variableNaming()}->{$this->name}?->format('Y-m-d')"
             ];
         }
 

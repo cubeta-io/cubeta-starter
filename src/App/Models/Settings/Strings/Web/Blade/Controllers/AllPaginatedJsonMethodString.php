@@ -15,7 +15,10 @@ class AllPaginatedJsonMethodString extends MethodString
         parent::__construct("allPaginatedJson", [],
             [
                 "\${$variableName} = \$this->{$serviceName}->indexWithPagination([], 7);",
-                "return response()->json(\${$variableName}, 200);"
+                "return response()->json([
+                    'data' => \${$variableName}?->items(),
+                    'pagination_data' => \$this->paginationData(\${$variableName})
+                ], 200);"
             ]
         );
     }

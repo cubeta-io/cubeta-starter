@@ -196,16 +196,6 @@ class BladeViewsGenerator extends BladeControllerGenerator
     }
 
     /**
-     * @param string $editRoute
-     * @param bool   $override
-     * @return void
-     */
-    public function generateShowView(string $editRoute, bool $override = false): void
-    {
-
-    }
-
-    /**
      * @param string $creatRoute
      * @param string $dataRoute
      * @param bool   $override

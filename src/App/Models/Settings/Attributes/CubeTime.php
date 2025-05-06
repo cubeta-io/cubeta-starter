@@ -66,7 +66,6 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
     }
 
 
-
     public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
     {
         $attributes = [];
@@ -75,7 +74,7 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
         if ($formType == "update") {
             $attributes[] = [
                 'key' => ':value',
-                'value' => "\${$table?->variableNaming()}->{$this->name}"
+                'value' => "\${$table?->variableNaming()}->{$this->name}?->format('H:i')"
             ];
         }
 
