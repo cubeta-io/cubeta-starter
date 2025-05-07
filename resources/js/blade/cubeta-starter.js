@@ -41,3 +41,35 @@ import 'tinymce/icons/default/icons.js';
 
 window.tinymce = tinymce;
 
+(function initDataTable() {
+    $.extend($?.fn?.dataTable?.defaults, {
+        pagingType: "simple_numbers",
+        processing: true,
+        serverSide: true,
+        scrollX: true,
+        autoWidth: false,
+        dom: "Blfrtip",
+        buttons: [],
+        lengthMenu: [
+            [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]
+        ]
+    });
+
+    $(document).on("init.dt", function (e, settings) {
+        initPluginsByClass();
+
+        const api = new $.fn.dataTable.Api(settings);
+
+        api.table().on("click", ".remove-item-from-table-btn", function () {
+            let $this = $(this);
+            let url = $this.data("deleteurl");
+            handelDeletionOfItemFromDataTable($this, _CSRF_TOKEN, {
+                deleteMessage: "Do You Want To Delete This Item",
+                successMessage: "Deleted Successfully",
+                confirmMessage: "Yes",
+                denyMessage: "No"
+            });
+        });
+    });
+})();
+

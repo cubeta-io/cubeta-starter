@@ -1,7 +1,7 @@
 @props(['cols', 'route'])
 
 <div>
-    <button type="button" class="btn btn-primary {{ $attributes->merge() }}" data-bs-toggle="modal"
+    <button type="button" class="btn btn-success {{ $attributes->merge() }}" data-bs-toggle="modal"
             data-bs-target="#export-modal">
         <i class="bi bi-file-earmark-arrow-down"></i>
     </button>

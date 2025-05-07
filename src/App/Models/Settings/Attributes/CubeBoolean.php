@@ -9,6 +9,8 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelScopeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
@@ -18,9 +20,11 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\ModelScopeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
 
-class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasModelScopeMethod, HasPropertyValidationRule, HasBladeInputComponent
+class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasModelScopeMethod, HasPropertyValidationRule, HasBladeInputComponent, HasHtmlTableHeader, HasDatatableColumnString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -90,6 +94,21 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationCo
             $this->isRequired,
             $this->titleNaming(),
             $attributes,
+        );
+    }
+
+    public function dataTableColumnString(): DataTableColumnString
+    {
+        return new DataTableColumnString(
+            $this->name,
+            "if(data){return \"<i class='bi bi-check-circle-fill text-success'></i>\";}return \"<i class='bi bi-x-circle-fill text-danger'></i>\";"
+        );
+    }
+
+    public function htmlTableHeader(): HtmlTableHeaderString
+    {
+        return new HtmlTableHeaderString(
+            $this->labelNaming(),
         );
     }
 }

@@ -194,6 +194,5 @@ class BladeControllerGenerator extends AbstractGenerator
             'create' => 'dashboard.' . $actor . '.' . $viewName . '.create',
             'show' => 'dashboard.' . $actor . '.' . $viewName . '.show',
         ];
-
     }
 }

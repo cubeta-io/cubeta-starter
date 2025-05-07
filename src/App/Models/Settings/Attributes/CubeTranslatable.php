@@ -8,6 +8,8 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationCo
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
@@ -17,9 +19,11 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
 
-class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasBladeInputComponent
+class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -117,6 +121,22 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
                     'value' => $label
                 ]
             ]
+        );
+    }
+
+    public function dataTableColumnString(): DataTableColumnString
+    {
+        return new DataTableColumnString(
+            $this->name,
+            "return translate(data);"
+        );
+    }
+
+    public function htmlTableHeader(): HtmlTableHeaderString
+
+    {
+        return new HtmlTableHeaderString(
+            $this->labelNaming(),
         );
     }
 }

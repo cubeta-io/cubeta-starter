@@ -1,0 +1,47 @@
+@extends('layout')
+@section('content')
+   <x-page-card>
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="card-title">Manage {{table_name}}</h1>
+            <div class="d-flex gap-1">
+                <a class="btn btn-primary" href="{{route('{{create_route}}')}}">
+                    <i class="bi bi-file-earmark-plus"></i>
+                </a>
+                <x-export-button
+                    route="{{route('{{export_route}}')}}"
+                    :cols="{{model_class_string}}::getModel()->exportable()"
+                />
+
+                <x-import-button
+                    route="{{route('{{import_route}}')}}"
+                    exroute="{{route('{{example_route}}')}}"
+                />
+            </div>
+        </div>
+
+        <table class="table" id="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    {{html_columns}}
+                    <th>Action</th>
+                </tr>
+            </thead>
+        </table>
+   </x-page-card>
+
+    @push('scripts')
+        <script type="module">
+            $(document).ready(function () {
+                $('#table').DataTable({
+                   ajax:dataTableAjax("{{ route('{{data_route}}') }}" , "{{ app()->getLocale() }}"),
+                   columns: [
+                       {"data": 'id', searchable: true, orderable: true},
+                       {{data_table_object_columns}}
+                       {"data": 'action', searchable: false, orderable: false}
+                   ]
+                });
+            });
+        </script>
+    @endpush
+@endsection

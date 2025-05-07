@@ -10,6 +10,8 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValid
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Tests\HasTestAdditionalFactoryData;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
@@ -21,9 +23,11 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidation
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
 
-class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent
+class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent,HasDatatableColumnString,HasHtmlTableHeader
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -107,6 +111,21 @@ class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationC
             $this->isRequired,
             $this->titleNaming(),
             $attributes,
+        );
+    }
+
+    public function dataTableColumnString(): DataTableColumnString
+    {
+        return new DataTableColumnString(
+            $this->name,
+        );
+    }
+
+    public function htmlTableHeader(): HtmlTableHeaderString
+
+    {
+        return new HtmlTableHeaderString(
+            $this->labelNaming(),
         );
     }
 }

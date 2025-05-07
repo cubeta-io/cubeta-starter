@@ -240,4 +240,45 @@ function translate(data, locale = undefined) {
     return Object.values(data).pop()[locale];
 }
 
+/**
+ * @returns {[{extend: string, className: string, init: *},{text: string, action: *, className: string, init: *}]}
+ * @param {string} createPageRoute
+ */
+function dataTableButtons(createPageRoute) {
+    return [
+        {
+            extend: 'csvHtml5',
+            className: 'btn btn-primary mt-2 mb-2',
+            init: function (api, node, config) {
+                $(node).removeClass('btn-secondary')
+            },
+        },
+        {
+            text: '<i class="bi bi-file-earmark-plus"></i>',
+            action: function (e, dt, node, config) {
+                window.location.href = createPageRoute;
+            },
+            className: 'btn-primary mt-2 mb-2',
+            init: function (api, node, config) {
+                $(node).removeClass('btn-secondary')
+            }
+        }
+    ]
+}
 
+/**
+ *
+ * @param {string} url
+ * @param {string} locale
+ * @returns {{url, headers: {Accept: string, "Content-Type": string, "Accept-language": string}}}
+ */
+function dataTableAjax(url, locale) {
+    return {
+        url: url,
+        headers: {
+            "Accept": "application/html",
+            "Content-Type": "application/html",
+            "Accept-language": locale
+        }
+    };
+}

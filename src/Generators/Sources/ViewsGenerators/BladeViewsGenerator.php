@@ -3,11 +3,12 @@
 namespace Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\FormLocalSelectorString;
-use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
@@ -21,10 +22,10 @@ use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Views\FormViewStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Views\IndexViewStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Views\ShowViewStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
-use JetBrains\PhpStorm\ArrayShape;
 
 class BladeViewsGenerator extends BladeControllerGenerator
 {
@@ -66,7 +67,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             return false;
         }
 
-        // Find the columns array
+        // Find the column array
         $pattern = '/\bcolumns\s*:\s*\[\s*([^]]*)\s*]/';
 
         preg_match($pattern, $fileContent, $matches);
@@ -88,7 +89,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             CubeLog::add(new ContentAppended($newColumn, $filePath->fullPath));
             return true;
         }
-        // If the columns array is not found, try to find an empty array
+        // If the column array is not found, try to find an empty array
         $emptyArrayPattern = '/\bcolumns\s*:\s*\[\s*]\s*/';
 
         preg_match($emptyArrayPattern, $fileContent, $emptyArrayMatches);
@@ -119,32 +120,24 @@ class BladeViewsGenerator extends BladeControllerGenerator
         }
 
         $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
-
         $viewsName = $this->table->viewNaming();
         $modelVariable = $this->table->variableNaming();
-        $createFormPath = CubePath::make("resources/views/dashboard/{$viewsName}/create.blade.php");
-
         $hasTranslatableFields = $this->table->hasTranslatableAttribute();
+
+        $indexPath = CubePath::make("resources/views/dashboard/{$this->table->viewNaming()}/index.blade.php");
+        $showPath = CubePath::make("resources/views/dashboard/{$viewsName}/show.blade.php");
+        $createFormPath = CubePath::make("resources/views/dashboard/{$viewsName}/create.blade.php");
+        $updateFormPath = CubePath::make("resources/views/dashboard/{$viewsName}/edit.blade.php");
 
         $createInputs = $this->table
             ->attributes()
-            ->filter(fn(CubeAttribute $attribute) => $attribute instanceof HasBladeInputComponent)
+            ->whereInstanceOf(HasBladeInputComponent::class)
             ->map(fn(HasBladeInputComponent $attr) => $attr->bladeInputComponent("store", $this->actor)->__toString())
             ->implode("\n");
 
-        FormViewStubBuilder::make()
-            ->method("POST")
-            ->title("Create {$this->table->modelName}")
-            ->localizationSelector($hasTranslatableFields ? new FormLocalSelectorString() : "")
-            ->submitRoute($routes['store'])
-            ->updateParameters("")
-            ->inputs($createInputs)
-            ->generate($createFormPath, $this->override);
-
-        $updateFormPath = CubePath::make("resources/views/dashboard/{$viewsName}/edit.blade.php");
         $updateInputs = $this->table
             ->attributes()
-            ->filter(fn(CubeAttribute $attribute) => $attribute instanceof HasBladeInputComponent)
+            ->whereInstanceOf(HasBladeInputComponent::class)
             ->filter(function (CubeAttribute $attribute) {
                 if ($attribute->isKey()) {
                     $model = CubeTable::create($attribute->modelNaming());
@@ -159,6 +152,17 @@ class BladeViewsGenerator extends BladeControllerGenerator
             })->map(fn(HasBladeInputComponent $attr) => $attr->bladeInputComponent("update", $this->actor)->__toString())
             ->implode("\n");
 
+        // create view
+        FormViewStubBuilder::make()
+            ->method("POST")
+            ->title("Create {$this->table->modelName}")
+            ->localizationSelector($hasTranslatableFields ? new FormLocalSelectorString() : "")
+            ->submitRoute($routes['store'])
+            ->updateParameters("")
+            ->inputs($createInputs)
+            ->generate($createFormPath, $this->override);
+
+        // update view
         FormViewStubBuilder::make()
             ->method("PUT")
             ->title("Update {$this->table->modelName}")
@@ -169,8 +173,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             ->type($modelVariable, $this->table->getModelClassString())
             ->generate($updateFormPath, $this->override);
 
-        $viewsName = $this->table->viewNaming();
-        $showPath = CubePath::make("resources/views/dashboard/{$viewsName}/show.blade.php");
+        // show view
         ShowViewStubBuilder::make()
             ->modelClassString($this->table->getModelClassString())
             ->modelVariable($this->table->variableNaming())
@@ -183,99 +186,25 @@ class BladeViewsGenerator extends BladeControllerGenerator
                     ->implode("\n")
             )->generate($showPath, $this->override);
 
-        $this->generateIndexView($routes['create'], $routes['data'], $override);
-    }
-
-    /**
-     * @param string $attribute
-     * @return array|string
-     */
-    private function getLabelName(string $attribute): array|string
-    {
-        return str_replace('_id', ' ', ucfirst($attribute));
-    }
-
-    /**
-     * @param string $creatRoute
-     * @param string $dataRoute
-     * @param bool   $override
-     * @return void
-     */
-    public function generateIndexView(string $creatRoute, string $dataRoute, bool $override = false): void
-    {
-        $dataColumns = $this->generateDataTableColumns();
-        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
-
-        $stubProperties = [
-            '{modelName}' => $this->table->modelName,
-            '{createRouteName}' => $creatRoute,
-            '{htmlColumns}' => $dataColumns['html'],
-            '{dataTableColumns}' => $dataColumns['json'],
-            '{dataTableDataRouteName}' => $dataRoute,
-            '{exportRoute}' => $routes['export'],
-            '{importRoute}' => $routes['import'],
-            '{exampleRoute}' => $routes['import_example'],
-            '{modelClassName}' => $this->table->getModelClassString(),
-        ];
-
-        $indexPath = CubePath::make("resources/views/dashboard/{$this->table->viewNaming()}/index.blade.php");
-
-        if ($indexPath->exist()) {
-            $indexPath->logAlreadyExist("Generating Index Page For ({$this->table->modelName}) Model");
-        }
-
-        $indexPath->ensureDirectoryExists();
-
-        $this->generateFileFromStub(
-            $stubProperties,
-            $indexPath->fullPath,
-            $override,
-            CubePath::stubPath('views/index.stub')
-        );
-    }
-
-    /**
-     * @return string[]
-     */
-    #[ArrayShape(['html' => "string", 'json' => "string"])]
-    private function generateDataTableColumns(): array
-    {
-        $html = '';
-        $json = '';
-
-        foreach ($this->table->attributes as $attribute) {
-            $label = $this->getLabelName($attribute->name);
-
-            if ($attribute->type == ColumnTypeEnum::TEXT->value) {
-                continue;
-            }
-
-            if ($attribute->isFile()) {
-                $json .= "{\n\t\"data\": '{$attribute->name}',render:function (data) {const filePath = data?.url; return `<div class=\"gallery\"><a href=\"\${filePath}\"><img class=\"img-fluid\" style=\"max-width: 80px\" src=\"\${filePath}\" alt=\"\"/></a>`;}}, \n";
-                $html .= "\n<th>{$label}</th>\n";
-                continue;
-            }
-
-            if ($attribute->isKey()) {
-                $relatedModelName = str_replace('_id', "", $attribute->name);
-                $relatedTable = Settings::make()->getTable($relatedModelName);
-                $usedName = $relatedTable
-                    ? $relatedTable->relationMethodNaming() . "." . $relatedTable->titleable()->name
-                    : $relatedModelName . ".id";
-                $json .= "{\"data\": '{$usedName}', searchable: true, orderable: true}, \n";
-            }
-
-            if ($attribute->isTranslatable()) {
-                $render = ",render: (data) => translate(data)";
-            } else {
-                $render = "";
-            }
-
-            $json .= "{\"data\": '{$attribute->name}', searchable: true, orderable: true $render}, \n";
-
-            $html .= "\n<th>{$label}</th>\n";
-        }
-
-        return ['html' => $html, 'json' => $json];
+        // index view
+        IndexViewStubBuilder::make()
+            ->tableName(ucfirst($this->table->tableNaming()))
+            ->createRoute($routes['create'])
+            ->dataRoute($routes['data'])
+            ->exportRoute($routes['export'])
+            ->importRoute($routes['import'])
+            ->exampleRoute($routes['import_example'])
+            ->modelClassString($this->table->getModelClassString())
+            ->htmlColumns(
+                $this->table->attributes()
+                    ->whereInstanceOf(HasHtmlTableHeader::class)
+                    ->map(fn(HasHtmlTableHeader $attribute) => $attribute->htmlTableHeader()->__toString())
+                    ->implode("\n")
+            )->dataTableObjectColumns(
+                $this->table->attributes()
+                    ->whereInstanceOf(HasDatatableColumnString::class)
+                    ->map(fn(HasDatatableColumnString $attribute) => $attribute->datatableColumnString()->__toString())
+                    ->implode("\n")
+            )->generate($indexPath, $this->override);
     }
 }

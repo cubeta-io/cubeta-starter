@@ -9,6 +9,8 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Tests\HasTestAdditionalFactoryData;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
@@ -20,9 +22,11 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidation
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
 
-class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent
+class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent,HasDatatableColumnString,HasHtmlTableHeader
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -124,6 +128,31 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
                     "value" => "\${$modelVariable}->{$this->name}['url'] ?? ''"
                 ]
             ]
+        );
+    }
+
+    public function dataTableColumnString(): DataTableColumnString
+    {
+        return new DataTableColumnString(
+            $this->name,
+            <<<JS
+                const filePath = data?.url;
+                return `<div class="gallery">
+                            <a href="\${filePath}">
+                                <img class="img-fluid" style="max-width: 80px" src="\${filePath}" alt=""/>
+                            </a>
+                        </div>`
+            JS,
+            false,
+            false,
+        );
+    }
+
+    public function htmlTableHeader(): HtmlTableHeaderString
+
+    {
+        return new HtmlTableHeaderString(
+            $this->labelNaming(),
         );
     }
 }
