@@ -78,6 +78,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
             __DIR__ . '/../src/Stub/stubs/WebController.stub' => app_path('Http/Controllers/WebController.php'),
             __DIR__ . '/../pint.json' => base_path('pint.json'),
+            __DIR__ . '/../.prettierignore' => base_path('.prettierignore'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
             __DIR__ . '/../resources/views/blade/components' => resource_path('views/components'),
             __DIR__ . '/../resources/views/blade/includes' => resource_path('views/includes'),
@@ -193,6 +194,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->publishes([
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
             __DIR__ . '/../pint.json' => base_path('pint.json'),
+            __DIR__ . '/../.prettierignore' => base_path('.prettierignore'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
             __DIR__ . '/../src/Stub/stubs/Inertia/configurations/tsconfig.stub' => base_path('/tsconfig.json'),
             __DIR__ . '/../src/Stub/stubs/Inertia/configurations/vite.config.stub' => base_path('/vite.config.js'),
