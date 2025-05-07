@@ -10,6 +10,8 @@ use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\PackageManager;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class ReactTsPackagesInstaller extends AbstractGenerator
 {
@@ -17,6 +19,10 @@ class ReactTsPackagesInstaller extends AbstractGenerator
 
     public string $type = 'installer';
 
+    /**
+     * @throws FileNotFoundException
+     * @throws BindingResolutionException
+     */
     public function run(bool $override = false): void
     {
         $this->preparePackageJson();
@@ -52,9 +58,7 @@ class ReactTsPackagesInstaller extends AbstractGenerator
             "vite"
         ]);
 
-        PackageManager::npmInstall("prettier", true);
-        FileUtils::executeCommandInTheBaseDirectory("node --eval \"fs.writeFileSync('.prettierrc','{}\\n')\"");
-
+        $this->configurePrettier();
         Settings::make()->setInstalledWeb();
         Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
         Settings::make()->setInstalledWebPackages();
@@ -71,6 +75,29 @@ class ReactTsPackagesInstaller extends AbstractGenerator
             $jsonArray['type'] = "module";
             $packageJsonPath->putContent(json_encode($jsonArray, JSON_PRETTY_PRINT + JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE));
             CubeLog::add(new ContentAppended('"type":"module"', $packageJsonPath->fullPath));
+        }
+    }
+
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    private function configurePrettier(): void
+    {
+        PackageManager::npmInstall([
+            "prettier",
+            "prettier-plugin-blade",
+            "prettier-plugin-tailwindcss"
+        ], true);
+
+        $prettierConfigPath = CubePath::make(".prettierrc");
+        if ($prettierConfigPath->exist() && !$this->override) {
+            $prettierConfigPath->logAlreadyExist("Installing web inertia react stack packages");
+        } else {
+            FileUtils::generateFileFromStub([], $prettierConfigPath->fullPath, CubePath::stubPath("Web/InertiaReact/Config/PrettierConfig.stub"), $this->override);
+            CubeLog::generatedSuccessfully($prettierConfigPath->fileName, $prettierConfigPath->fullPath, "Installing web inertia react stack packages");
+            $prettierConfigPath->format();
         }
     }
 }

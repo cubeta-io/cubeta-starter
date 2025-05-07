@@ -55,10 +55,14 @@ class CubePath
 
     public function format(): void
     {
+        if (str($this->fileName)->contains('.blade.php')) {
+            FileUtils::formatWithPrettier($this->fullPath);
+        }
+
         if ($this->getFileExtension() == "php") {
-            FileUtils::formatPhpFile($this->fullPath);
+            FileUtils::formatWithPint($this->fullPath);
         } else {
-            FileUtils::formatJsFile($this->fullPath);
+            FileUtils::formatWithPrettier($this->fullPath);
         }
     }
 
@@ -102,5 +106,10 @@ class CubePath
                 )
             )
         );
+    }
+
+    public function __toString(): string
+    {
+        return $this->fullPath;
     }
 }

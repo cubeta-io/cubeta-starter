@@ -166,6 +166,7 @@ class BladeControllerGenerator extends AbstractGenerator
             }
             $sidebar = str_replace($exactMatch, "$exactMatch\n$sidebarItem", $sidebar);
             $sidebarPath->putContent($sidebar);
+            $sidebarPath->format();
             CubeLog::contentAppended($sidebarItem, $sidebarPath->fullPath);
         } else {
             CubeLog::failedAppending($sidebarItem, $sidebarPath->fullPath, "Adding sidebar item");

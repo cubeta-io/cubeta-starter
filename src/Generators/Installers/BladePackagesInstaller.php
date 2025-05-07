@@ -5,7 +5,12 @@ namespace Cubeta\CubetaStarter\Generators\Installers;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\PackageManager;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Artisan;
 
 class BladePackagesInstaller extends AbstractGenerator
@@ -14,12 +19,18 @@ class BladePackagesInstaller extends AbstractGenerator
 
     public string $type = 'installer';
 
+    /**
+     * @throws FileNotFoundException
+     * @throws BindingResolutionException
+     */
     public function run(bool $override = false): void
     {
         PackageManager::composerInstall([
             "yajra/laravel-datatables",
-            "maatwebsite/excel"
+            "maatwebsite/excel",
         ]);
+
+        $this->configurePrettier();
 
         Artisan::call('vendor:publish', [
             '--tag' => 'datatables'
@@ -50,5 +61,27 @@ class BladePackagesInstaller extends AbstractGenerator
 
         Settings::make()->setInstalledWeb();
         Settings::make()->setFrontendType(FrontendTypeEnum::BLADE);
+    }
+
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     * @throws FileNotFoundException
+     */
+    private function configurePrettier(): void
+    {
+        PackageManager::npmInstall([
+            "prettier",
+            "prettier-plugin-blade"
+        ], true);
+
+        $prettierConfigPath = CubePath::make(".prettierrc");
+        if ($prettierConfigPath->exist() && !$this->override) {
+            $prettierConfigPath->logAlreadyExist("Installing web blade stack packages");
+        } else {
+            FileUtils::generateFileFromStub([], $prettierConfigPath->fullPath, CubePath::stubPath("Web/Blade/Config/PrettierConfig.stub"), $this->override);
+            CubeLog::generatedSuccessfully($prettierConfigPath->fileName, $prettierConfigPath->fullPath, "Installing web blade stack packages");
+            $prettierConfigPath->format();
+        }
     }
 }

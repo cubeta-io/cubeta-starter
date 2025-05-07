@@ -55,7 +55,7 @@ class FileUtils
      * @param $filePath string the project path of the file eg:app/Models/MyModel.php
      * @return void
      */
-    public static function formatPhpFile(string $filePath): void
+    public static function formatWithPint(string $filePath): void
     {
         $command = base_path("/vendor/bin/pint") . " {$filePath}";
         self::executeCommandInTheBaseDirectory($command, false);
@@ -67,7 +67,7 @@ class FileUtils
      * @param $filePath string the project path of the file eg:resources/js/Pages/page.tsx
      * @return void
      */
-    public static function formatJsFile(string $filePath): void
+    public static function formatWithPrettier(string $filePath): void
     {
         $command = "npx prettier {$filePath} --write";
         self::executeCommandInTheBaseDirectory($command, false);
