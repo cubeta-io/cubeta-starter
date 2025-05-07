@@ -40,6 +40,31 @@ class CubeTable
      */
     public string $version;
 
+    private function sortAttributes(): void
+    {
+        usort($this->attributes, function (CubeAttribute $a, CubeAttribute $b) {
+            // Helper function to get priority (0: normal, 1: textable, 2: file)
+            $getPriority = function (CubeAttribute $attr) {
+                if ($attr->isFile()) {
+                    return 2; // Highest priority (will be at end)
+                }
+                if ($attr->isText() || ($attr->isTranslatable() && $attr->isTextable())) {
+                    return 1; // Medium priority (will be in middle)
+                }
+                return 0; // Lowest priority (will be at start)
+            };
+
+            $priorityA = $getPriority($a);
+            $priorityB = $getPriority($b);
+
+            if ($priorityA === $priorityB) {
+                return 0;
+            }
+
+            return $priorityA <=> $priorityB;
+        });
+    }
+
     /**
      * @param string          $modelName
      * @param string          $tableName
@@ -52,6 +77,9 @@ class CubeTable
         $this->modelName = Naming::model($modelName);
         $this->tableName = Naming::table($tableName);
         $this->attributes = $attributes;
+
+        $this->sortAttributes();
+
         $this->relations = $relations;
         $this->usedString = $this->modelName;
         $this->version = $version;

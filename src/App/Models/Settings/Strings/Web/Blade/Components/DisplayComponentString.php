@@ -19,7 +19,7 @@ class DisplayComponentString
 
     public function __toString(): string
     {
-        if (in_array($this->tag, ["x-long-text-field", "x-image-preview"])) {
+        if (in_array($this->tag, ["x-long-text-field", "x-image-preview", "x-translatable-text-editor"])) {
             $grid = "col-sm-12 col-md-12";
         } else {
             $grid = "col-sm-12 col-md-6";

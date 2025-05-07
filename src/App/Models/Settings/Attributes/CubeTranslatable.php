@@ -28,6 +28,10 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
     public function fakeMethod(): FakeMethodString
     {
         $method = $this->guessStringMethod();
+        if ($this->isTextable()) {
+            $method = "text";
+        }
+
         return new FakeMethodString(
             $this->name,
             "Translatable::fake('$method')",

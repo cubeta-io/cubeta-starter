@@ -7,7 +7,6 @@
     {{ $label }}
     <div
         class="form-control"
-        style="white-space: pre-wrap"
         id="{{ strtolower(Str::snake($label)) }}-textarea"
         {{ $attributes->merge() }}
     >

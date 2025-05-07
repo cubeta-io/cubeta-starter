@@ -16,6 +16,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidation
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 
 class CubeDate extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent
@@ -85,6 +86,26 @@ class CubeDate extends CubeDateable implements HasFakeMethod, HasMigrationColumn
             $this->isRequired,
             $this->titleNaming(),
             $attributes,
+        );
+    }
+
+    public function bladeDisplayComponent(): DisplayComponentString
+    {
+        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $modelVariable = $table->variableNaming();
+        $label = $this->labelNaming();
+        return new DisplayComponentString(
+            "x-small-text-field",
+            [
+                [
+                    "key" => ":value",
+                    "value" => "\${$modelVariable}->{$this->name}?->format('Y-m-d')"
+                ],
+                [
+                    "key" => 'label' ,
+                    'value' => $label
+                ]
+            ]
         );
     }
 }

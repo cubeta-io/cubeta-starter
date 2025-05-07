@@ -1,7 +1,10 @@
 <aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item">
-            <a class="nav-link collapsed" href="{{route('{{index-route}}')}}">
+            <a
+                class="nav-link collapsed"
+                href="{{ route("v1.web.public.index") }}"
+            >
                 <i class="bi bi-house"></i>
                 <span>Home</span>
             </a>

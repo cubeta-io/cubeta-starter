@@ -4,25 +4,20 @@
     "classes" => "",
 ])
 
-<div class="row">
-    <label
-        {{ $attributes->merge(["class" => "col-lg-3 col-md-4 label" . $classes]) }}
-        style="font-weight: bolder"
-    >
-        {{ $label }} :
-    </label>
-
-    <p
-        {{ $attributes->merge(["class" => "col-lg-9 col-md-8 label" . $classes]) }}
-    >
+<label
+    {{ $attributes->merge(["class" => "d-flex align-items-center w-100 justify-content-between " . $classes]) }}
+    style="font-weight: bolder"
+>
+    {{ $label }} :
+    <span class="fw-normal">
         @if (is_bool($value))
             @if ($value)
-                <i class="bi bi-check-circle text-success"></i>
+                <i class="bi bi-check-circle-fill text-success"></i>
             @else
-                <i class="bi bi-x-circle text-danger"></i>
+                <i class="bi bi-x-circle-fill text-danger"></i>
             @endif
         @else
             {{ $value }}
         @endif
-    </p>
-</div>
+    </span>
+</label>

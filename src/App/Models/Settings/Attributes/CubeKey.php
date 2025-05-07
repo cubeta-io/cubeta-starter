@@ -19,11 +19,13 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Controllers\YajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Str;
@@ -144,6 +146,13 @@ class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
                 [
                     'key' => 'option-inner-text',
                     'value' => $model->titleable()->name,
+                ],
+                $model->titleable()->isTranslatable() ? [
+                    'key' => 'translatable',
+                    'value' => null
+                ] : [
+                    'key' => '',
+                    'value' => null
                 ]
             ]
         );
@@ -171,5 +180,34 @@ class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
         return new HtmlTableHeaderString(
             $this->labelNaming(),
         );
+    }
+
+    public function bladeDisplayComponent(): DisplayComponentString
+    {
+        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $modelVariable = $table->variableNaming();
+        $label = $this->labelNaming();
+        $related = Settings::make()->getTable($this->modelNaming()) ?? CubeTable::create($this->modelNaming());
+        $column = $related->titleable();
+        $relationName = $related->relationMethodNaming();
+        if (ClassUtils::isMethodDefined($table->getModelPath(), $relationName)) {
+            return new DisplayComponentString(
+                $column->isTranslatable() ? "x-translatable-small-text-field" : "x-small-text-field",
+                [
+                    [
+                        "key" => ":value",
+                        "value" => $column->isTranslatable()
+                            ? "\${$modelVariable}->{$relationName}?->{$column->name}?->toJson()"
+                            : "\${$modelVariable}->{$relationName}?->{$column->name}"
+                    ],
+                    [
+                        "key" => 'label',
+                        'value' => $label
+                    ]
+                ]
+            );
+        } else {
+            return parent::bladeDisplayComponent();
+        }
     }
 }
