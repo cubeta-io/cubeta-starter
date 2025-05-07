@@ -1,38 +1,36 @@
 import { ReactNode } from "react";
 
 const PageCard = ({
-                      children,
-                      title,
-                      actions,
-                  }: {
-    children?: ReactNode;
-    title?: string;
-    actions?: ReactNode;
+  children,
+  title,
+  actions,
+}: {
+  children?: ReactNode;
+  title?: string;
+  actions?: ReactNode;
 }) => {
-    return (
+  return (
+    <div
+      className={
+        "bg-white-secondary dark:bg-dark-secondary w-full rounded-md p-8"
+      }
+      style={{
+        boxShadow: "0 35px 60px 15px rgba(0, 0, 0, 0.2)",
+      }}
+    >
+      {title || actions ? (
         <div
-            className={
-                "p-8 bg-white-secondary dark:bg-dark-secondary rounded-md w-full"
-            }
-            style={{
-                boxShadow:"0 35px 60px 15px rgba(0, 0, 0, 0.2)"
-            }}
+          className={`dark:bg-dark mb-5 flex w-full items-center justify-between rounded-md bg-white p-4 shadow-md`}
         >
-            {title || actions ? (
-                <div
-                    className={`rounded-md p-4 bg-white dark:bg-dark mb-5 flex items-center w-full shadow-md justify-between`}
-                >
-                    <h2 className="font-bold text-xl dark:text-white">
-                        {title}
-                    </h2>
-                    <div>{actions ? actions : ""}</div>
-                </div>
-            ) : (
-                ""
-            )}
-            {children}
+          <h2 className="text-xl font-bold dark:text-white">{title}</h2>
+          <div>{actions ? actions : ""}</div>
         </div>
-    );
+      ) : (
+        ""
+      )}
+      {children}
+    </div>
+  );
 };
 
 export default PageCard;

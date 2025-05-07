@@ -2,63 +2,59 @@ import React from "react";
 import { usePage } from "@inertiajs/react";
 
 interface IRadioProps {
-    name: string;
-    items: { label?: string; value: any }[];
-    checked?: ((value: any) => boolean) | any;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    label?: string;
+  name: string;
+  items: { label?: string; value: any }[];
+  checked?: ((value: any) => boolean) | any;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  label?: string;
 }
 
 const Radio: React.FC<IRadioProps> = ({
-                                          name,
-                                          items = [],
-                                          checked = undefined,
-                                          onChange = undefined,
-                                          label = undefined,
-                                      }) => {
-    const errors = usePage().props.errors;
-    const error = name && errors[name] ? errors[name] : undefined;
+  name,
+  items = [],
+  checked = undefined,
+  onChange = undefined,
+  label = undefined,
+}) => {
+  const errors = usePage().props.errors;
+  const error = name && errors[name] ? errors[name] : undefined;
 
-    return (
-        <label
-            className={
-                "flex justify-between flex-col items-start dark:text-white"
+  return (
+    <label
+      className={"flex flex-col items-start justify-between dark:text-white"}
+    >
+      {label ?? ""}
+      <div className="flex w-full flex-wrap gap-2">
+        {items.map((item, index) => {
+          let isChecked = false;
+          if (checked !== undefined) {
+            if (typeof checked == "function") {
+              isChecked = checked(item.value);
+            } else {
+              isChecked = item.value == checked;
             }
-        >
-            {label ?? ""}
-            <div className="flex flex-wrap gap-2 w-full">
-                {items.map((item, index) => {
-                    let isChecked = false;
-                    if (checked !== undefined) {
-                        if (typeof checked == "function") {
-                            isChecked = checked(item.value);
-                        } else {
-                            isChecked = item.value == checked;
-                        }
-                    }
+          }
 
-                    return (
-                        <div key={index} className="flex items-center gap-2">
-                            <label className="font-medium dark:text-white ms-2">
-                                {item?.label}
-                            </label>
-                            <input
-                                type="radio"
-                                value={item.value}
-                                className="border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 w-4 h-4 text-primary focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2"
-                                defaultChecked={isChecked}
-                                name={name}
-                                onChange={
-                                    onChange ? (e) => onChange(e) : undefined
-                                }
-                            />
-                        </div>
-                    );
-                })}
+          return (
+            <div key={index} className="flex items-center gap-2">
+              <label className="ms-2 font-medium dark:text-white">
+                {item?.label}
+              </label>
+              <input
+                type="radio"
+                value={item.value}
+                className="text-primary focus:ring-primary dark:focus:ring-primary h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+                defaultChecked={isChecked}
+                name={name}
+                onChange={onChange ? (e) => onChange(e) : undefined}
+              />
             </div>
-            {error ? <p className={"text-red-700 text-sm"}>{error}</p> : ""}
-        </label>
-    );
+          );
+        })}
+      </div>
+      {error ? <p className={"text-sm text-red-700"}>{error}</p> : ""}
+    </label>
+  );
 };
 
 export default Radio;
