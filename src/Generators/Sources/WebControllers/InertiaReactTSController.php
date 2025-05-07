@@ -15,6 +15,7 @@ use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Controllers\ControllerStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 
@@ -32,41 +33,33 @@ class InertiaReactTSController extends AbstractGenerator
         $modelNameCamelCase = $this->table->variableNaming();
         $routesNames = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $controllerPath = $this->table->getWebControllerPath();
-
-        if ($controllerPath->exist()) {
-            $controllerPath->logAlreadyExist("Generating Web Controller For  ({$this->table->modelName}) Model");
-            return;
-        }
-
         $loadedRelations = $this->table
             ->relations()
-            ->filter(fn (CubeRelation $rel) => $rel->getModelPath()->exist())
-            ->map(fn (CubeRelation $rel) => "'{$rel->method()}'")
-            ->implode(',');
+            ->filter(fn(CubeRelation $rel) => $rel->getModelPath()->exist())
+            ->stringifyEachOne()
+            ->implode(",");
 
         $controllerPath->ensureDirectoryExists();
         $pagesPaths = $this->getTsxPagesPath();
 
-        $stubProperties = [
-            '{{namespace}}'          => $this->table->getWebControllerNameSpace(false, true),
-            '{{modelName}}'          => $this->table->modelName,
-            '{{modelNameCamelCase}}' => $modelNameCamelCase,
-            '{{createForm}}'         => $pagesPaths['create'],
-            '{{updateForm}}'         => $pagesPaths['edit'],
-            '{{indexRoute}}'         => $routesNames['index'],
-            '{{showPage}}'           => $pagesPaths['show'],
-            '{{indexPage}}'          => $pagesPaths['index'],
-            "{{relations}}"          => $loadedRelations,
-            '{{serviceNamespace}}'   => $this->table->getServiceNamespace(false),
-            '{{requestNamespace}}'   => $this->table->getRequestNameSpace(),
-            '{{modelNamespace}}'     => $this->table->getModelNameSpace(false),
-            '{{serviceName}}'        => $this->table->getServiceName(),
-        ];
 
-        $this->generateFileFromStub($stubProperties, $controllerPath->fullPath);
+        ControllerStubBuilder::make()
+            ->namespace($this->table->getWebControllerNameSpace(false, true))
+            ->modelName($this->table->modelNaming())
+            ->modelNameCamelCase($modelNameCamelCase)
+            ->createPage($pagesPaths['create'])
+            ->updatePage($pagesPaths['edit'])
+            ->showPage($pagesPaths['show'])
+            ->indexPage($pagesPaths['index'])
+            ->indexRoute($routesNames['index'])
+            ->relations($loadedRelations)
+            ->serviceNamespace($this->table->getServiceNamespace(false))
+            ->requestNamespace($this->table->getRequestNameSpace(false))
+            ->modelNamespace($this->table->getModelNameSpace(false))
+            ->serviceName($this->table->getServiceName())
+            ->generate($controllerPath, $this->override);
+
         $this->addRoute($this->table, $this->actor, ContainerType::WEB);
-        $controllerPath->format();
-
         $this->addSidebarItem($routesNames['index'], $this->table->modelName);
 
         (new ReactTSPagesGenerator(
@@ -87,16 +80,11 @@ class InertiaReactTSController extends AbstractGenerator
     {
         $viewName = $this->table->viewNaming();
         return [
-            'index'  => 'dashboard/' . $viewName . '/Index',
-            'edit'   => 'dashboard/' . $viewName . '/Edit',
+            'index' => 'dashboard/' . $viewName . '/Index',
+            'edit' => 'dashboard/' . $viewName . '/Edit',
             'create' => 'dashboard/' . $viewName . '/Create',
-            'show'   => 'dashboard/' . $viewName . '/Show',
+            'show' => 'dashboard/' . $viewName . '/Show',
         ];
-    }
-
-    public function stubsPath(): string
-    {
-        return CubePath::stubPath('Inertia/php/controller.stub');
     }
 
     public function addSidebarItem(string $indexRoute, string $title): void
@@ -125,12 +113,13 @@ class InertiaReactTSController extends AbstractGenerator
         }
 
         $callback = function ($matches) use ($newSidebarItem) {
-            return FileUtils::fixArrayOrObjectCommas($matches[1] . $matches[2] . "\n                " . $newSidebarItem . "\n            " . $matches[3]);
+            return FileUtils::fixArrayOrObjectCommas($matches[1] . $matches[2] . "\n" . $newSidebarItem . "\n" . $matches[3]);
         };
 
         $updatedContent = preg_replace_callback($pattern, $callback, $fileContent);
 
         $sidebarPath->putContent($updatedContent);
+        //TODO:: fix the import to use the alias
         FileUtils::tsAddImportStatement('import TableCells from "../icons/TableCells";', $sidebarPath);
         $sidebarPath->format();
         CubeLog::add(new ContentAppended($newSidebarItem, $sidebarPath->fullPath));

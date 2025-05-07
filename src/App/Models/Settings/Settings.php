@@ -200,8 +200,6 @@ class Settings
 
         self::$tables[] = $new->toArray();
         $json = self::getJsonSettings();
-        //TODO:CHECK HERE
-//        $json[self::$version] = ["tables" => array_values(self::$tables)];
         $json['tables'] = collect(self::$tables)->values()->toArray();
         self::storeJsonSettings($json);
         return $this;
