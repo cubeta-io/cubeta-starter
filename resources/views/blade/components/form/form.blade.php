@@ -1,4 +1,8 @@
-@props(['action', 'method' => 'POST', 'validationErrorsFromHere' => false])
+@props([
+    "action",
+    "method" => "POST",
+    "validationErrorsFromHere" => false,
+])
 @if ($validationErrorsFromHere)
     @if ($errors->any())
         <div class="card p-1">
@@ -14,16 +18,27 @@
         </div>
     @endif
 @endif
+
 <!--end of validation errors-->
-<form id="form" action="{{ $action }}" method="POST" enctype="multipart/form-data">
+<form
+    id="form"
+    action="{{ $action }}"
+    method="POST"
+    enctype="multipart/form-data"
+>
     @csrf
 
-    @if ($method == 'PUT' || $method == 'put')
-        @method('PUT')
+    @if ($method == "PUT" || $method == "put")
+        @method("PUT")
     @endif
+
     {{ $slot }}
-    <div class="text-center my-2">
-        <button id="submit-btn" type="submit" class="btn btn-primary btn-lg btn-block">
+    <div class="my-2 text-center">
+        <button
+            id="submit-btn"
+            type="submit"
+            class="btn btn-primary btn-lg btn-block"
+        >
             Submit
         </button>
     </div>
