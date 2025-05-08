@@ -1,9 +1,9 @@
 import React, { ReactNode } from "react";
 import { asset } from "@/helper";
 import { Link } from "@inertiajs/react";
-import XMark from "../icons/XMark";
-import TableCells from "../icons/TableCells";
-import PresentationChart from "../icons/PresentationChart";
+import XMark from "@/Components/icons/XMark";
+import TableCells from "@/Components/icons/TableCells";
+import PresentationChart from "@/Components/icons/PresentationChart";
 
 const sidebarItems = [
     {
