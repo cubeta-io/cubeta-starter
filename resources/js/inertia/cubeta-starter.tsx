@@ -5,7 +5,7 @@ import { createInertiaApp } from "@inertiajs/react";
 import React, { Suspense } from "react";
 import Layout from "@/Components/layouts/Layout";
 
-const appName = import.meta.env.VITE_APP_NAME || "Laravel";
+const appName = import.meta.env.APP_NAME || "Laravel";
 
 const authPages = [
   "Login",
