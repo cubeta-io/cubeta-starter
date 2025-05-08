@@ -9,7 +9,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourceProp
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FactoryRelationMethodStringString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\ModelRelationString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
@@ -36,7 +36,7 @@ class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDoc
         return new DocBlockPropertyString(
             str($this->modelName)->plural()->lower()->toString(),
             "\Illuminate\Support\Collection<$this->modelName>|null",
-            imports: new ImportString($this->getModelNameSpace())
+            imports: new PhpImportString($this->getModelNameSpace())
         );
     }
 
@@ -46,7 +46,7 @@ class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDoc
             str($this->modelName)->plural()->snake()->lower()->toString(),
             "{$this->getResourceName()}::collection(\$this->whenLoaded('{$this->relationMethodNaming(singular: false)}'))",
             [
-                new ImportString($this->getResourceNameSpace(false))
+                new PhpImportString($this->getResourceNameSpace(false))
             ]
         );
     }

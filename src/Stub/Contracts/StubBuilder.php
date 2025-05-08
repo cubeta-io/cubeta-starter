@@ -4,7 +4,7 @@ namespace Cubeta\CubetaStarter\Stub\Contracts;
 
 use BadMethodCallException;
 use Closure;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
@@ -39,10 +39,10 @@ abstract class StubBuilder
     /**
      * when providing a string or an array of strings,
      * it must be a full import string like this "use Illuminate\Http\UploadedFile ;"
-     * @param string|array|ImportString|ImportString[] $import
+     * @param string|array|PhpImportString|PhpImportString[] $import
      * @return $this
      */
-    public function import(string|array|ImportString $import): static
+    public function import(string|array|PhpImportString $import): static
     {
         if (is_array($import)) {
             $this->imports = array_merge($import, $this->imports);
@@ -51,8 +51,8 @@ abstract class StubBuilder
         }
 
         $this->stubProperties["{{imports}}"] = collect($this->imports)
-            ->map(fn($import) => $import instanceof ImportString ? trim($import->__toString()) : trim($import))
-            ->unique(fn($import) => $import instanceof ImportString ? $import->__toString() : $import)
+            ->map(fn($import) => $import instanceof PhpImportString ? trim($import->__toString()) : trim($import))
+            ->unique(fn($import) => $import instanceof PhpImportString ? $import->__toString() : $import)
             ->implode("\n");
 
         return $this;

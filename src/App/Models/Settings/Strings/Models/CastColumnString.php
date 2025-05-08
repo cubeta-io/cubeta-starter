@@ -2,20 +2,20 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Models;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 
 class CastColumnString
 {
     public string $keyName;
     public string $type;
-    public ?ImportString $import = null;
+    public ?PhpImportString $import = null;
 
     /**
-     * @param string            $keyName
-     * @param string            $type
-     * @param ImportString|null $import
+     * @param string               $keyName
+     * @param string               $type
+     * @param PhpImportString|null $import
      */
-    public function __construct(string $keyName, string $type, ?ImportString $import = null)
+    public function __construct(string $keyName, string $type, ?PhpImportString $import = null)
     {
         $this->keyName = $keyName;
         $this->type = $type;

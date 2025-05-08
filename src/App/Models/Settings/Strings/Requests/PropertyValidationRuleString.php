@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 
 class PropertyValidationRuleString
 {
@@ -17,14 +17,14 @@ class PropertyValidationRuleString
     public array $rules = [];
 
     /**
-     * @var ImportString[]
+     * @var PhpImportString[]
      */
     public ?array $imports = null;
 
     /**
      * @param string                 $name
      * @param ValidationRuleString[] $rules
-     * @param ImportString[]         $imports
+     * @param PhpImportString[]      $imports
      */
     public function __construct(string $name, array $rules, ?array $imports = null)
     {

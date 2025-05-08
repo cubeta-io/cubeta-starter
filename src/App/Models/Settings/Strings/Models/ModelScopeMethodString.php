@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Models;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MethodString;
 
 class ModelScopeMethodString extends MethodString
@@ -22,7 +22,7 @@ class ModelScopeMethodString extends MethodString
             "public",
             "Builder",
             [
-                new ImportString("Illuminate\\Database\\Eloquent\\Builder")
+                new PhpImportString("Illuminate\\Database\\Eloquent\\Builder")
             ]
         );
     }

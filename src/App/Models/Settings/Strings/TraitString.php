@@ -4,14 +4,14 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Strings;
 
 class TraitString
 {
-    public ?ImportString $import;
+    public ?PhpImportString $import;
     public string $traitName;
 
     /**
-     * @param ImportString|null $import
-     * @param string            $traitName
+     * @param PhpImportString|null $import
+     * @param string               $traitName
      */
-    public function __construct(string $traitName, ?ImportString $import = null)
+    public function __construct(string $traitName, ?PhpImportString $import = null)
     {
         $this->import = $import;
         $this->traitName = $traitName;

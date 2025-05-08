@@ -8,7 +8,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMe
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelScopeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\TraitString;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
@@ -63,7 +63,7 @@ class ModelGenerator extends AbstractGenerator
                     $attribute->isFile(),
                     fn($builder) => $builder->trait(new TraitString(
                         "HasMedia",
-                        new ImportString("App\\Traits\\HasMedia")
+                        new PhpImportString("App\\Traits\\HasMedia")
                     ))
                 )->when(
                     $attribute instanceof HasModelScopeMethod,

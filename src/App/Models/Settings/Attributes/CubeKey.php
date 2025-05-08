@@ -15,7 +15,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
@@ -66,7 +66,7 @@ class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
         return new FakeMethodString(
             $this->name,
             "{$relatedModel->modelName}::factory()",
-            new ImportString($relatedModel->getModelNameSpace(false))
+            new PhpImportString($relatedModel->getModelNameSpace(false))
         );
     }
 
@@ -79,7 +79,7 @@ class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
             $this->nullable,
             $this->unique,
             true,
-            new ImportString($relatedModel->getModelNameSpace(false))
+            new PhpImportString($relatedModel->getModelNameSpace(false))
         );
     }
 
@@ -93,7 +93,7 @@ class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
                 new ValidationRuleString(
                     "Rule::exists('{$this->tableNaming()}' , 'id')",
                     [
-                        new ImportString('Illuminate\Validation\Rule')
+                        new PhpImportString('Illuminate\Validation\Rule')
                     ]
                 ),
             ]

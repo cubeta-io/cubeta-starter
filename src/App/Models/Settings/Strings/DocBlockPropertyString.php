@@ -12,12 +12,12 @@ class DocBlockPropertyString
     public ?array $imports = null;
 
     /**
-     * @param string                           $name
-     * @param string|null                      $type
-     * @param string                           $tag
-     * @param ImportString[]|ImportString|null $imports
+     * @param string                                 $name
+     * @param string|null                            $type
+     * @param string                                 $tag
+     * @param PhpImportString[]|PhpImportString|null $imports
      */
-    public function __construct(string $name, ?string $type = null, string $tag = "property", null|array|ImportString $imports = null)
+    public function __construct(string $name, ?string $type = null, string $tag = "property", null|array|PhpImportString $imports = null)
     {
         $this->name = $name;
         $this->type = $type;

@@ -3,7 +3,7 @@
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MethodString;
 
 class FactoryRelationMethodStringString extends MethodString
@@ -20,7 +20,7 @@ class FactoryRelationMethodStringString extends MethodString
             "return \$this->has({$model->modelName}::factory(\$count));",
             returnType: "self",
             imports: [
-                new ImportString($model->getModelNameSpace(false))
+                new PhpImportString($model->getModelNameSpace(false))
             ],
         );
     }

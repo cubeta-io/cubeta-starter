@@ -16,7 +16,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
@@ -53,7 +53,7 @@ class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationC
             $this->name,
             "Carbon",
             "property",
-            new ImportString("Carbon\Carbon")
+            new PhpImportString("Carbon\Carbon")
         );
     }
 

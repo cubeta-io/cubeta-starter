@@ -19,7 +19,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTranslatable;
 use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeUnsignedBigInteger;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
@@ -249,7 +249,7 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
             $routeParameter = str($this->name)->lower()->singular()->toString();
             $rules[] = new ValidationRuleString(
                 "Rule::unique('{$this->parentTableName}','{$this->name}')->when(\$this->method() == 'PUT', fn(\$rule) => \$rule->ignore(\$this->route('$routeParameter')))",
-                [new ImportString("Illuminate\Validation\Rule")]
+                [new PhpImportString("Illuminate\Validation\Rule")]
             );
         }
 

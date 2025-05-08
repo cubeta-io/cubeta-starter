@@ -2,18 +2,18 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 
 class MigrationColumnString
 {
-    public ?ImportString $import;
+    public ?PhpImportString $import;
     public string $name;
     public string $method;
     public bool $nullable;
     public bool $unique;
     public bool $isKey;
 
-    public function __construct(string $name, string $method, bool $nullable, bool $unique, bool $isKey = false, ?ImportString $import = null)
+    public function __construct(string $name, string $method, bool $nullable, bool $unique, bool $isKey = false, ?PhpImportString $import = null)
     {
         $this->import = $import;
         $this->name = $name;

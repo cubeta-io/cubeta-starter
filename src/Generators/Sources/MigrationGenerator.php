@@ -5,7 +5,7 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -109,8 +109,8 @@ class MigrationGenerator extends AbstractGenerator
             ->pivotTableName($pivotTableName)
             ->firstModelName($firstModel->modelName)
             ->secondModelName($secondModel->modelName)
-            ->import(new ImportString($firstModel->getModelNameSpace(false)))
-            ->import(new ImportString($secondModel->getModelNameSpace(false)))
+            ->import(new PhpImportString($firstModel->getModelNameSpace(false)))
+            ->import(new PhpImportString($secondModel->getModelNameSpace(false)))
             ->generate($migrationPath, $this->override);
     }
 }

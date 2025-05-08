@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings;
 
-class ImportString
+class PhpImportString
 {
     private string $classFullName;
 

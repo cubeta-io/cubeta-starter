@@ -3,7 +3,7 @@
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Models;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MethodString;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
@@ -30,7 +30,7 @@ class ModelRelationString extends MethodString
             ],
             returnType: $this->getReturnType(),
             imports: [
-                new ImportString($relatedModelNamespace),
+                new PhpImportString($relatedModelNamespace),
                 $this->getRelationImportString()
             ]
         );
@@ -64,13 +64,13 @@ class ModelRelationString extends MethodString
         };
     }
 
-    private function getRelationImportString(): ImportString
+    private function getRelationImportString(): PhpImportString
     {
         return match ($this->type) {
-            RelationsTypeEnum::ManyToMany => new ImportString("Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany"),
-            RelationsTypeEnum::BelongsTo => new ImportString("Illuminate\\Database\\Eloquent\\Relations\\BelongsTo"),
-            RelationsTypeEnum::HasMany => new ImportString("Illuminate\\Database\\Eloquent\\Relations\\HasMany"),
-            RelationsTypeEnum::HasOne => new ImportString("Illuminate\\Database\\Eloquent\\Relations\\HasOne")
+            RelationsTypeEnum::ManyToMany => new PhpImportString("Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany"),
+            RelationsTypeEnum::BelongsTo => new PhpImportString("Illuminate\\Database\\Eloquent\\Relations\\BelongsTo"),
+            RelationsTypeEnum::HasMany => new PhpImportString("Illuminate\\Database\\Eloquent\\Relations\\HasMany"),
+            RelationsTypeEnum::HasOne => new PhpImportString("Illuminate\\Database\\Eloquent\\Relations\\HasOne")
         };
     }
 }

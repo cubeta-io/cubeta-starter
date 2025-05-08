@@ -13,7 +13,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasD
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
@@ -35,7 +35,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
         return new FakeMethodString(
             $this->name,
             "Translatable::fake('$method')",
-            new ImportString("App\\Serializers\\Translatable")
+            new PhpImportString("App\\Serializers\\Translatable")
         );
     }
 
@@ -55,7 +55,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
             $this->name,
             "TranslatableSerializer",
             imports: [
-                new ImportString("\\App\\Serializers\\Translatable as TranslatableSerializer"),
+                new PhpImportString("\\App\\Serializers\\Translatable as TranslatableSerializer"),
             ]
         );
     }
@@ -65,7 +65,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
         return new CastColumnString(
             $this->name,
             "Translatable::class",
-            new ImportString("App\\Casts\\Translatable")
+            new PhpImportString("App\\Casts\\Translatable")
         );
     }
 
@@ -78,7 +78,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
                 new ValidationRuleString(
                     'new ValidTranslatableJson',
                     [
-                        new ImportString('App\Rules\ValidTranslatableJson'),
+                        new PhpImportString('App\Rules\ValidTranslatableJson'),
                     ]
                 )
             ],

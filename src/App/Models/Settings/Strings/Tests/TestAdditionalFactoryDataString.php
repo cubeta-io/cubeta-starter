@@ -2,20 +2,20 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 
 class TestAdditionalFactoryDataString
 {
     public string $key;
     public string $value;
 
-    /** @var ImportString[]|null */
+    /** @var PhpImportString[]|null */
     public ?array $imports = null;
 
     /**
-     * @param string              $key
-     * @param string              $value
-     * @param ImportString[]|null $imports
+     * @param string                 $key
+     * @param string                 $value
+     * @param PhpImportString[]|null $imports
      */
     public function __construct(string $key, string $value, ?array $imports = null)
     {

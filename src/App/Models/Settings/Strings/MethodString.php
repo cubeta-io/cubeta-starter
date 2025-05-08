@@ -14,12 +14,12 @@ class MethodString
     public array $imports = [];
 
     /**
-     * @param string         $name
-     * @param array          $parameters
-     * @param array|string   $body
-     * @param string         $visibility
-     * @param string|null    $returnType
-     * @param ImportString[] $imports
+     * @param string            $name
+     * @param array             $parameters
+     * @param array|string      $body
+     * @param string            $visibility
+     * @param string|null       $returnType
+     * @param PhpImportString[] $imports
      */
     public function __construct(string $name, array $parameters, array|string $body, string $visibility = 'public', ?string $returnType = null, array $imports = [])
     {

@@ -15,7 +15,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\ImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
@@ -33,7 +33,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
         return new FakeMethodString(
             $this->name,
             "UploadedFile::fake()->image(\"image.png\")",
-            new ImportString("Illuminate\\Http\\UploadedFile")
+            new PhpImportString("Illuminate\\Http\\UploadedFile")
         );
     }
 
@@ -60,7 +60,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
         return new CastColumnString(
             $this->name,
             "MediaCast::class",
-            new ImportString("App\\Casts\\MediaCast")
+            new PhpImportString("App\\Casts\\MediaCast")
         );
     }
 
@@ -100,7 +100,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
             $this->name,
             'UploadedFile::fake()->image("image.png")',
             [
-                new ImportString("Illuminate\\Http\\UploadedFile"),
+                new PhpImportString("Illuminate\\Http\\UploadedFile"),
             ]
         );
     }
