@@ -10,6 +10,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValid
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
@@ -21,8 +22,9 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleStri
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 
-class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule,HasBladeInputComponent,HasDatatableColumnString,HasHtmlTableHeader
+class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule,HasBladeInputComponent,HasDatatableColumnString,HasHtmlTableHeader,HasInterfacePropertyString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -94,10 +96,18 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationCo
     }
 
     public function htmlTableHeader(): HtmlTableHeaderString
-
     {
         return new HtmlTableHeaderString(
             $this->labelNaming(),
+        );
+    }
+
+    public function interfacePropertyString(): InterfacePropertyString
+    {
+        return new InterfacePropertyString(
+            $this->name ,
+            "number",
+            $this->nullable,
         );
     }
 }

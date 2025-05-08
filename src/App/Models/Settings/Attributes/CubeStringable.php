@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
@@ -15,9 +16,10 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnS
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Illuminate\Support\Str;
 
-class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasPropertyValidationRule,HasBladeInputComponent
+class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasPropertyValidationRule,HasBladeInputComponent,HasInterfacePropertyString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -118,6 +120,15 @@ class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigratio
             $this->isRequired,
             $this->titleNaming(),
             $attributes
+        );
+    }
+
+    public function interfacePropertyString(): InterfacePropertyString
+    {
+        return new InterfacePropertyString(
+            $this->name ,
+            "string",
+            $this->nullable,
         );
     }
 }

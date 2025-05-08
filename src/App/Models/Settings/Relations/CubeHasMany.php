@@ -6,15 +6,18 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFactoryRelat
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FactoryRelationMethodStringString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\ModelRelationString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 
-class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDocBlockProperty, HasResourcePropertyString, HasFactoryRelationMethod
+class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDocBlockProperty, HasResourcePropertyString, HasFactoryRelationMethod,HasInterfacePropertyString
 {
     public function factoryRelationMethod(): FactoryRelationMethodStringString
     {
@@ -48,6 +51,20 @@ class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDoc
             [
                 new PhpImportString($this->getResourceNameSpace(false))
             ]
+        );
+    }
+
+    public function interfacePropertyString(): InterfacePropertyString
+    {
+        $modelName = $this->modelNaming();
+        return new InterfacePropertyString(
+            $this->relationMethodNaming(singular: false),
+            "{$modelName}[]",
+            true,
+            new TsImportString(
+                $modelName,
+                "@/Models/{$modelName}"
+            )
         );
     }
 }

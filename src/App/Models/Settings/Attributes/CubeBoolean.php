@@ -11,6 +11,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValid
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
@@ -23,8 +24,9 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleStri
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 
-class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasModelScopeMethod, HasPropertyValidationRule, HasBladeInputComponent, HasHtmlTableHeader, HasDatatableColumnString
+class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasModelScopeMethod, HasPropertyValidationRule, HasBladeInputComponent, HasHtmlTableHeader, HasDatatableColumnString,HasInterfacePropertyString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -109,6 +111,15 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationCo
     {
         return new HtmlTableHeaderString(
             $this->labelNaming(),
+        );
+    }
+
+    public function interfacePropertyString(): InterfacePropertyString
+    {
+        return new InterfacePropertyString(
+            $this->name ,
+            "boolean",
+            $this->nullable,
         );
     }
 }

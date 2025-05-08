@@ -5,12 +5,14 @@ namespace Cubeta\CubetaStarter\Stub\Contracts;
 use BadMethodCallException;
 use Closure;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Traits\Makable;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Arr;
 use Mockery\Exception;
 
 abstract class StubBuilder
@@ -39,21 +41,20 @@ abstract class StubBuilder
     /**
      * when providing a string or an array of strings,
      * it must be a full import string like this "use Illuminate\Http\UploadedFile ;"
-     * @param string|array|PhpImportString|PhpImportString[] $import
+     * @param string|string[]|TsImportString[]|PhpImportString|PhpImportString[] $import
      * @return $this
      */
-    public function import(string|array|PhpImportString $import): static
+    public function import(string|array|PhpImportString|TsImportString $import): static
     {
-        if (is_array($import)) {
-            $this->imports = array_merge($import, $this->imports);
-        } else {
-            $this->imports[] = $import;
-        }
-
+        $this->imports = array_merge($import, Arr::wrap($this->imports));
         $this->stubProperties["{{imports}}"] = collect($this->imports)
-            ->map(fn($import) => $import instanceof PhpImportString ? trim($import->__toString()) : trim($import))
-            ->unique(fn($import) => $import instanceof PhpImportString ? $import->__toString() : $import)
-            ->implode("\n");
+            ->map(fn($import) => $import instanceof PhpImportString || $import instanceof TsImportString
+                ? trim($import->__toString())
+                : trim($import)
+            )->unique(fn($import) => $import instanceof PhpImportString || $import instanceof TsImportString
+                ? $import->__toString()
+                : $import
+            )->implode("\n");
 
         return $this;
     }

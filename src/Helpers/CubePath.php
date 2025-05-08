@@ -81,6 +81,10 @@ class CubePath
         return pathinfo($this->fullPath, PATHINFO_EXTENSION) ?: null;
     }
 
+    /**
+     * @param non-empty-string $stubPath
+     * @return string
+     */
     public static function stubPath(string $stubPath): string
     {
         return realpath(

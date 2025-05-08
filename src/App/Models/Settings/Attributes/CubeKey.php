@@ -10,6 +10,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasB
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
@@ -24,13 +25,14 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTa
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Controllers\YajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Str;
 
-class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasDocBlockProperty, HasYajraDataTableRelationLinkColumnRenderer, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader
+class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasDocBlockProperty, HasYajraDataTableRelationLinkColumnRenderer, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader,HasInterfacePropertyString
 {
     use RouteBinding;
 
@@ -209,5 +211,14 @@ class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
         } else {
             return parent::bladeDisplayComponent();
         }
+    }
+
+    public function interfacePropertyString(): InterfacePropertyString
+    {
+        return new InterfacePropertyString(
+            $this->name ,
+            "number",
+            $this->nullable,
+        );
     }
 }

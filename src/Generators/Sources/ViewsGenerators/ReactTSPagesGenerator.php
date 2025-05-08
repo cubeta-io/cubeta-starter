@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
@@ -16,6 +17,7 @@ use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Typescript\TsInterfaceStubBuilder;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 
@@ -35,7 +37,16 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
 
-        $this->generateTypeScriptInterface($override);
+        $interfacePath = $this->table->getTSModelPath();
+        TsInterfaceStubBuilder::make()
+            ->properties(
+                $this->table
+                    ->attributes()
+                    ->merge($this->table->relations())
+                    ->whereInstanceOf(HasInterfacePropertyString::class)
+                    ->map(fn(HasInterfacePropertyString $item) => $item->interfacePropertyString()->__toString())
+                    ->implode("\n")
+            )->generate($interfacePath);
 
         $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
         $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
@@ -226,60 +237,6 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             $this->addImport("import Input from \"@/Components/form/fields/Input\";");
             return $this->inertiaInputComponent($attribute, $this->currentForm == "Edit");
         }
-    }
-
-    public function generateTypeScriptInterface(?bool $override = false): void
-    {
-        $this->imports = "";
-        $properties = "id?:number,\n";
-        $this->table->attributes()->each(function (CubeAttribute $attr) use (&$properties) {
-            $properties .= $this->getAttributeInterfaceProperty($attr);
-        });
-
-        $relations = "";
-
-        $this->table->relations()->each(function (CubeRelation $rel) use (&$relations, &$imports) {
-            if (!$rel->getTSModelPath()->exist()) {
-                return true;
-            }
-
-            if ($rel->isHasOne() || $rel->isBelongsTo()) {
-                $relations .= "{$rel->variableNaming()}?:{$rel->modelName},\n";
-            }
-
-            if ($rel->isHasMany() || $rel->isManyToMany()) {
-                $relations .= "{$rel->variableNaming()}?:{$rel->modelName}[],\n";
-            }
-
-            $this->addImport("import { {$rel->modelName} } from \"./{$rel->modelName}\";");
-
-            return true;
-        });
-
-        $stubProperties = [
-            '{{modelName}}' => $this->table->modelName,
-            '{{properties}}' => $properties,
-            "{{relations}}" => $relations,
-            "{{imports}}" => $this->imports,
-        ];
-
-        $interfacePath = $this->table->getTSModelPath();
-
-        if ($interfacePath->exist()) {
-            $interfacePath->logAlreadyExist("When Generating {$this->table->modelName} Typescript Interface");
-            return;
-        }
-
-        $interfacePath->ensureDirectoryExists();
-
-        $this->generateFileFromStub(
-            stubProperties: $stubProperties,
-            path: $interfacePath->fullPath,
-            override: $override,
-            otherStubsPath: CubePath::stubPath('Inertia/ts/interface.stub')
-        );
-
-        $interfacePath->format();
     }
 
     public function addImport($import): void

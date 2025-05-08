@@ -1,0 +1,6 @@
+{{imports}}
+interface {{model_name}} {
+    {{properties}}
+}
+
+export default {{model_name}};

@@ -5,15 +5,18 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Relations;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\ModelRelationString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 
 
-class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod, HasDocBlockProperty, HasResourcePropertyString
+class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod, HasDocBlockProperty, HasResourcePropertyString, HasInterfacePropertyString
 {
     public function modelRelationMethod(): ModelRelationString
     {
@@ -40,6 +43,20 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod, HasD
             [
                 new PhpImportString($this->getResourceNameSpace(false))
             ]
+        );
+    }
+
+    public function interfacePropertyString(): InterfacePropertyString
+    {
+        $modelName = $this->modelNaming();
+        return new InterfacePropertyString(
+            $this->relationMethodNaming(),
+            $modelName,
+            true,
+            new TsImportString(
+                $modelName,
+                "@/Models/{$modelName}"
+            )
         );
     }
 }
