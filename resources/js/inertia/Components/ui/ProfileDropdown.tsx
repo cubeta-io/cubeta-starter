@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { User } from "@/Models/User";
 import { asset } from "@/helper";
-import ChevronDown from "../icons/ChevronDown";
+import ChevronDown from "@/Components/icons/ChevronDown";
 
 const ProfileDropdown = () => {
   const [open, setOpen] = useState(false);

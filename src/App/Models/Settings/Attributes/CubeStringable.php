@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
@@ -16,10 +17,12 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnS
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\InputComponentString as TsxInputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Illuminate\Support\Str;
 
-class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasPropertyValidationRule,HasBladeInputComponent,HasInterfacePropertyString
+class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasPropertyValidationRule, HasBladeInputComponent, HasInterfacePropertyString, HasInputString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -113,8 +116,10 @@ class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigratio
             ];
         }
 
+        $type = $this->getInputType();
+
         return new InputComponentString(
-            "text",
+            $type,
             "x-input",
             $this->name,
             $this->isRequired,
@@ -126,9 +131,57 @@ class CubeStringable extends CubeAttribute implements HasFakeMethod, HasMigratio
     public function interfacePropertyString(): InterfacePropertyString
     {
         return new InterfacePropertyString(
-            $this->name ,
+            $this->name,
             "string",
             $this->nullable,
         );
+    }
+
+    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    {
+        $attributes = [
+            [
+                'key' => 'type',
+                'value' => "'{$this->getInputType()}'",
+            ],
+            [
+                'key' => 'onChange',
+                'value' => "(e) => setData(\"{$this->name}\", e.target?.value)"
+            ]
+        ];
+
+        if ($formType == "update") {
+            $attributes[] = [
+                'key' => 'defaultValue',
+                'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
+            ];
+        }
+
+        return new TsxInputComponentString(
+            "Input",
+            $this->name,
+            $this->labelNaming(),
+            $this->isRequired,
+            $attributes,
+            [
+                new TsImportString("Input", "@/Components/form/fields/Input")
+            ]
+        );
+    }
+
+    protected function getInputType(): string
+    {
+        if (str_contains($this->name, "email")) {
+            $type = "email";
+        } elseif (str_contains($this->name, "password")) {
+            $type = "password";
+        } elseif (str($this->name)->contains(['phone', 'phone_number', 'home_number', 'work_number', 'tel', 'telephone'])) {
+            $type = "tel";
+        } elseif (str_contains($this->name, "url")) {
+            $type = "url";
+        } else {
+            $type = "text";
+        }
+        return $type;
     }
 }

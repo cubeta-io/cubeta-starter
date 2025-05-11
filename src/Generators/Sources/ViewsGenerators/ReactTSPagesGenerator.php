@@ -2,11 +2,14 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
@@ -14,9 +17,9 @@ use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSControl
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\FormPageStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Typescript\TsInterfaceStubBuilder;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
@@ -37,19 +40,11 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
 
-        $interfacePath = $this->table->getTSModelPath();
-        TsInterfaceStubBuilder::make()
-            ->properties(
-                $this->table
-                    ->attributes()
-                    ->merge($this->table->relations())
-                    ->whereInstanceOf(HasInterfacePropertyString::class)
-                    ->map(fn(HasInterfacePropertyString $item) => $item->interfacePropertyString()->__toString())
-                    ->implode("\n")
-            )->generate($interfacePath);
+        $this->generateTypescriptModel();
 
-        $this->generateCreateOrUpdateForm(storeRoute: $routes['store'], override: $override);
-        $this->generateCreateOrUpdateForm(updateRoute: $routes['update'], override: $override);
+        $this->generateUpdateFormPage($routes['update']);
+        $this->generateCreateFormPage($routes['store']);
+
         $this->generateShowPage($override);
         $this->generateIndexPage($override);
 
@@ -57,186 +52,6 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->setModel($this->table)
             ->checkForTsInterfaces()
             ->checkForReactTSPagesAndControllerRelations($this->actor);
-    }
-
-    /**
-     * @param string|null $storeRoute
-     * @param string|null $updateRoute
-     * @param bool        $override
-     * @return void
-     */
-    public function generateCreateOrUpdateForm(?string $storeRoute = null, ?string $updateRoute = null, bool $override = false): void
-    {
-        $this->imports = '';
-        $this->currentForm = $storeRoute ? 'Create' : 'Edit';
-
-        $pageName = $this->table->viewNaming();
-
-        $formPath = CubePath::make("resources/js/Pages/dashboard/$pageName/" . $this->currentForm . '.tsx');
-
-        if ($formPath->exist()) {
-            $formPath->logAlreadyExist("When Generating {$this->currentForm} Form For ({$this->table->modelName}) Model");
-            return;
-        }
-
-        [$formInterface, $translatableContext, $smallFields, $bigFields, $defaultValues] = $this->getFormProperties();
-
-        if ($this->currentForm == "Edit") {
-            $this->addImport("import { {$this->table->modelName} } from \"@/Models/{$this->table->modelName}\";");
-        }
-
-        if ($this->currentForm == "Edit" && $updateRoute) {
-            $action = "post(route(\"{$updateRoute}\" , {$this->table->variableNaming()}.id));";
-        } else {
-            $action = "post(route(\"{$storeRoute}\"));";
-        }
-
-        if ($this->currentForm == "Create") {
-            $defaultValues = "";
-        }
-
-        $stubProperties = [
-            '{{imports}}' => $this->imports,
-            '{{formFieldsInterface}}' => $formInterface,
-            '{{setPut}}' => $this->currentForm == "Create" ? "" : "setData(\"_method\" , 'PUT');",
-            '{{action}}' => $action,
-            '{{translatableContext}}' => $translatableContext['open'] ?? "",
-            '{{closeTranslatableContext}}' => $translatableContext['close'] ?? "",
-            '{{bigFields}}' => $bigFields,
-            '{{smallFields}}' => $smallFields,
-            "{{formType}}" => $this->currentForm,
-            "{{modelName}}" => $this->table->modelName,
-            "{{componentName}}" => $this->currentForm,
-            "{{componentProps}}" => $this->currentForm == "Edit" ? "{{$this->table->variableNaming()}}:{{$this->table->variableNaming()}:{$this->table->modelName}}" : "",
-            "{{defaultValues}}" => $defaultValues,
-        ];
-
-        $formPath->ensureDirectoryExists();
-
-        $this->generateFileFromStub(
-            $stubProperties,
-            $formPath->fullPath,
-            $override,
-            CubePath::stubPath('Inertia/pages/form.stub')
-        );
-
-        $formPath->format();
-    }
-
-    private function getFormProperties(): array
-    {
-        $formInterface = "";
-        $translatableContext = [];
-
-        if ($this->table->translatables()->count()) {
-            $translatableContext = [
-                'open' => '<TranslatableInputsContext>',
-                'close' => '</TranslatableInputsContext>',
-            ];
-            $this->imports .= "\n import TranslatableInputsContext from \"@/Contexts/TranslatableInputsContext\";\n";
-        }
-
-        $smallFields = "";
-        $bigFields = "";
-        $defaultValues = "{";
-
-        $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$bigFields, &$smallFields, &$formInterface, &$defaultValues) {
-            $formInterface .= $this->getAttributeInterfaceProperty($attribute);
-
-            if (!$attribute->isFile()) {
-                $defaultValues .= "{$attribute->name} : {$this->table->variableNaming()}.{$attribute->name},\n";
-            }
-
-            if ($attribute->isTextable() || $attribute->isText()) {
-                $bigFields .= $this->getInputField($attribute);
-            } else {
-                $smallFields .= $this->getInputField($attribute);
-            }
-        });
-
-        $formInterface .= "\"_method\"?:\"PUT\"|\"POST\"\n";
-        $defaultValues .= " _method: \"PUT\",\n}";
-
-        return [
-            $formInterface,
-            $translatableContext,
-            $smallFields,
-            $bigFields,
-            $defaultValues,
-        ];
-    }
-
-    public function getAttributeInterfaceProperty(CubeAttribute $attribute): string
-    {
-        $nullable = ($attribute->nullable || $attribute->isFile()) ? "?" : "";
-        $base = "{$attribute->name}{$nullable}:";
-        if ($attribute->isString() || $attribute->isDateable()) {
-            return "{$base}string;\n";
-        } elseif ($attribute->isNumeric()) {
-            return "{$base}number;\n";
-        } elseif ($attribute->isBoolean()) {
-            return "{$base}boolean;\n";
-        } elseif ($attribute->isFile()) {
-            $this->addImport("import { Media } from \"@/Models/Media\";");
-            return "{$base}string|undefined|File;\n";
-        } elseif ($attribute->isKey()) {
-            $relatedModelName = Naming::model(str_replace('_id', '', $attribute->name));
-            $relatedModelTable = CubeTable::create($relatedModelName);
-            if ($relatedModelTable->getModelPath()->exist()) {
-                return "{$base}number;\n";
-            }
-            return "";
-        } else {
-            return "{$base}any;\n";
-        }
-    }
-
-    public function getInputField(CubeAttribute $attribute): string
-    {
-        if ($attribute->isTranslatable()) {
-            if ($attribute->isTextable()) {
-                $this->addImport("import TranslatableTextEditor from \"@/Components/form/fields/TranslatableEditor\";");
-                return $this->inertiaTranslatableTextEditor($attribute, $this->currentForm == "Edit");
-            } else {
-                $this->addImport("import TranslatableInput from \"@/Components/form/fields/TranslatableInput\";");
-                return $this->inertiaTranslatableInputComponent($attribute, $this->currentForm == "Edit");
-            }
-        } elseif ($attribute->isBoolean()) {
-            $this->addImport("import Radio from \"@/Components/form/fields/Radio\";");
-            $labels = $attribute->booleanLabels();
-            return $this->inertiaRadioButtonComponent($attribute, $labels, $this->currentForm == "Edit");
-        } elseif ($attribute->isKey()) {
-            $relatedModel =
-                Settings::make()->getTable(Naming::model(str_replace('_id', '', $attribute->name)))
-                ?? CubeTable::create(Naming::model(str_replace('_id', '', $attribute->name)));
-
-            $dataRoute = $this->getRouteNames($relatedModel, ContainerType::WEB, $this->actor)["data"];
-
-            if (
-                !$relatedModel?->getModelPath()->exist() //Category Path
-                || !$relatedModel?->getWebControllerPath()->exist() // Category Controller
-                || !ClassUtils::isMethodDefined($relatedModel?->getWebControllerPath(), 'data') // exist
-                || !$relatedModel->getTSModelPath()->exist() // Category.ts
-            ) {
-                return "";
-            }
-
-            $this->addImport("import { PaginatedResponse } from \"@/Models/Response\";");
-            $this->addImport("import ApiSelect from \"@/Components/form/fields/Select/ApiSelect\";");
-            $this->addImport("import { {$relatedModel->modelName} } from \"@/Models/{$relatedModel->modelName}\"");
-            $this->addImport("import { translate } from \"@/Models/Translatable\";");
-
-            return $this->inertiaApiSelectComponent($relatedModel, $dataRoute, $attribute, $this->currentForm == "Edit");
-        } elseif ($attribute->isFile()) {
-            $this->addImport("import Input from \"@/Components/form/fields/Input\";");
-            return $this->inertiaFileInputComponent($attribute, $this->currentForm == "Edit");
-        } elseif ($attribute->isText()) {
-            $this->addImport("import TextEditor from \"@/Components/form/fields/TextEditor\";");
-            return $this->inertiaTextEditorComponent($attribute, $this->currentForm == "Edit");
-        } else {
-            $this->addImport("import Input from \"@/Components/form/fields/Input\";");
-            return $this->inertiaInputComponent($attribute, $this->currentForm == "Edit");
-        }
     }
 
     public function addImport($import): void
@@ -425,5 +240,126 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         });
 
         return $columns;
+    }
+
+    private function generateTypescriptModel(): void
+    {
+        $interfacePath = $this->table->getTSModelPath();
+        $builder = TsInterfaceStubBuilder::make()
+            ->modelName($this->table->modelNaming());
+
+        $this->table
+            ->attributes()
+            ->merge($this->table->relations())
+            ->whereInstanceOf(HasInterfacePropertyString::class)
+            ->each(function (HasInterfacePropertyString|CubeAttribute|CubeRelation $item) use ($builder) {
+                if ($item instanceof CubeRelation) {
+                    $model = Settings::make()->getTable($item->modelNaming()) ?? CubeTable::create($item->modelNaming());
+                    if (!$model->getTSModelPath()->exist()) {
+                        return true;
+                    } else {
+                        $string = $item->interfacePropertyString();
+                    }
+                } else {
+                    $string = $item->interfacePropertyString();
+                }
+
+                $builder->property($string);
+                if ($string->import) {
+                    $builder->import($string->import);
+                }
+                return true;
+            });
+
+        $builder->generate($interfacePath);
+    }
+
+    /**
+     * @param string $updateRoute
+     * @return void
+     */
+    private function generateUpdateFormPage(string $updateRoute): void
+    {
+        $pageName = $this->table->viewNaming();
+        $formPath = CubePath::make("resources/js/Pages/dashboard/$pageName/Edit.tsx");
+        $builder = FormPageStubBuilder::make()
+            ->componentName("Edit")
+            ->formTitle("Edit {$this->table->modelNaming()}")
+            ->componentProps("{{$this->table->variableNaming()}}:{{$this->table->variableNaming()}:{$this->table->modelNaming()}}")
+            ->import(new TsImportString($this->table->modelNaming(), "@/Models/{$this->table->modelNaming()}"))
+            ->setPut("setData(\"_method\" , 'PUT');")
+            ->action("post(route(\"{$updateRoute}\" , {$this->table->variableNaming()}.id));")
+            ->when(
+                $this->table->hasTranslatableAttribute(),
+                fn($builder) => $builder->translatableContextOpenTag("<TranslatableInputsContext>")
+                    ->translatableContextCloseTag("</TranslatableInputsContext>")
+                    ->import(new TsImportString("TranslatableInputsContext", "@/Contexts/TranslatableInputsContext"))
+            )->formFieldInterface(new InterfacePropertyString("_method", "'PUT'|'POST'", true));
+
+        $this->table->attributes()
+            ->each(function (CubeAttribute $attr) use ($builder) {
+                if (!$attr->isFile()) {
+                    $builder->defaultValue($attr->name, "{$this->table->variableNaming()}?.{$attr->name}");
+                }
+
+                if ($attr instanceof HasInputString) {
+                    if ($attr->isText() || $attr->isTextable()) {
+                        $builder->bigField($attr->inputComponent("update", $this->actor));
+                    } else {
+                        $builder->smallField($attr->inputComponent("update", $this->actor));
+                    }
+                }
+
+                if ($attr instanceof HasInterfacePropertyString) {
+                    $interfaceProperty = $attr->interfacePropertyString();
+                    if ($interfaceProperty->import) {
+                        $builder->import($interfaceProperty->import);
+                    }
+                    $builder->formFieldInterface($interfaceProperty);
+                }
+            });
+
+        $builder->generate($formPath, $this->override);
+    }
+
+    /**
+     * @param string $storeRoute
+     * @return void
+     */
+    private function generateCreateFormPage(string $storeRoute): void
+    {
+        $pageName = $this->table->viewNaming();
+        $formPath = CubePath::make("resources/js/Pages/dashboard/$pageName/Create.tsx");
+        $builder = FormPageStubBuilder::make()
+            ->componentName("Create")
+            ->formTitle("Add New {$this->table->modelNaming()}")
+            ->action("post(route(\"{$storeRoute}\"));")
+            ->when(
+                $this->table->hasTranslatableAttribute(),
+                fn($builder) => $builder->translatableContextOpenTag("<TranslatableInputsContext>")
+                    ->translatableContextCloseTag("</TranslatableInputsContext>")
+                    ->import(new TsImportString("TranslatableInputsContext", "@/Contexts/TranslatableInputsContext"))
+            )->formFieldInterface(new InterfacePropertyString("_method", "'PUT'|'POST'", true));
+
+        $this->table->attributes()
+            ->each(function (CubeAttribute $attr) use ($builder) {
+                if ($attr instanceof HasInputString) {
+                    if ($attr->isText() || $attr->isTextable()) {
+                        $builder->bigField($attr->inputComponent("store", $this->actor));
+                    } else {
+                        $builder->smallField($attr->inputComponent("store", $this->actor));
+                    }
+                }
+
+                if ($attr instanceof HasInterfacePropertyString) {
+                    $interfaceProperty = $attr->interfacePropertyString();
+                    if ($interfaceProperty->import) {
+                        $builder->import($interfaceProperty->import);
+                    }
+                    $builder->formFieldInterface($interfaceProperty);
+                }
+            });
+
+        $builder->generate($formPath, $this->override);
     }
 }

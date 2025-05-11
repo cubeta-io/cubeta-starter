@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
@@ -14,8 +15,10 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidation
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\InputComponentString as TsxInputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 
-class CubeText extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasBladeInputComponent
+class CubeText extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasBladeInputComponent, HasInputString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -83,9 +86,37 @@ class CubeText extends CubeStringable implements HasFakeMethod, HasMigrationColu
                     "value" => "\${$modelVariable}->{$this->name}"
                 ],
                 [
-                    "key" => 'label' ,
+                    "key" => 'label',
                     'value' => $label
                 ]
+            ]
+        );
+    }
+
+    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    {
+        $attributes = [
+            [
+                'key' => 'onChange',
+                'value' => "(e:ChangeEvent<HTMLTextAreaElement>) => setData(\"{$this->name}\", e.target.value)"
+            ],
+        ];
+        if ($formType == "update") {
+            $attributes[] = [
+                'key' => 'defaultValue',
+                'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
+            ];
+        }
+
+        return new TsxInputComponentString(
+            "TextEditor",
+            $this->name,
+            $this->labelNaming(),
+            $this->isRequired,
+            $attributes,
+            [
+                new TsImportString("TextEditor", "@/Components/form/fields/TextEditor"),
+                new TsImportString("ChangeEvent", "react", false)
             ]
         );
     }

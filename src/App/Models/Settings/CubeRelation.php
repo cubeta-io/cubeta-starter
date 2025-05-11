@@ -206,4 +206,9 @@ class CubeRelation
             default => new self($type->value, $modelName, $relatedModel, $version)
         };
     }
+
+    public function getRelatedModel(): CubeTable
+    {
+        return Settings::make()->getTable($this->relatedModel) ?? CubeTable::create($this->relatedModel);
+    }
 }

@@ -9,6 +9,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValid
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Tests\HasTestAdditionalFactoryData;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
@@ -16,8 +17,10 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyS
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\InputComponentString as TsxInputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 
-class CubeDateTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent
+class CubeDateTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent,HasInputString
 {
     public function propertyValidationRule(): PropertyValidationRuleString
     {
@@ -86,6 +89,38 @@ class CubeDateTime extends CubeDateable implements HasFakeMethod, HasMigrationCo
                     "key" => 'label' ,
                     'value' => $label
                 ]
+            ]
+        );
+    }
+
+    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    {
+        $attributes = [
+            [
+                'key' => 'type',
+                'value' => '"datetime-local"'
+            ],
+            [
+                'key' => 'onChange',
+                'value' => "(e) => setData(\"{$this->name}\", e.target?.value)"
+            ]
+        ];
+
+        if ($formType == "update") {
+            $attributes[] = [
+                'key' => 'defaultValue',
+                'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
+            ];
+        }
+
+        return new TsxInputComponentString(
+            "Input",
+            $this->name,
+            $this->labelNaming(),
+            $this->isRequired,
+            $attributes,
+            [
+                new TsImportString("Input", "@/Components/form/fields/Input")
             ]
         );
     }

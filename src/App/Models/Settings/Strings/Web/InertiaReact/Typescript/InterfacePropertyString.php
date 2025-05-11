@@ -6,10 +6,10 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportSt
 
 class InterfacePropertyString
 {
-    private string $name;
-    private string $type;
+    public string $name;
+    public string $type;
     public ?TsImportString $import = null;
-    private bool $isNullable;
+    public bool $isNullable;
 
     /**
      * @param string              $name

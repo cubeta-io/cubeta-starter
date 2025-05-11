@@ -88,7 +88,8 @@ class ReactTsPackagesInstaller extends AbstractGenerator
         PackageManager::npmInstall([
             "prettier",
             "prettier-plugin-blade",
-            "prettier-plugin-tailwindcss"
+            "prettier-plugin-tailwindcss",
+            "prettier-plugin-organize-imports"
         ], true);
 
         $prettierConfigPath = CubePath::make(".prettierrc");

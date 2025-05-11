@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import XMark from "../icons/XMark";
+import XMark from "@/Components/icons/XMark";
 
 const Modal = ({
   isOpen,

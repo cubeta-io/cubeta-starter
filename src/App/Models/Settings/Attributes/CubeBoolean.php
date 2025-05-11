@@ -11,6 +11,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValid
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
@@ -24,9 +25,11 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleStri
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\InputComponentString as TsInputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 
-class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasModelScopeMethod, HasPropertyValidationRule, HasBladeInputComponent, HasHtmlTableHeader, HasDatatableColumnString,HasInterfacePropertyString
+class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasModelScopeMethod, HasPropertyValidationRule, HasBladeInputComponent, HasHtmlTableHeader, HasDatatableColumnString,HasInterfacePropertyString,HasInputString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -120,6 +123,41 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod, HasMigrationCo
             $this->name ,
             "boolean",
             $this->nullable,
+        );
+    }
+
+    public function inputComponent(string $formType = "store", ?string $actor = null): TsInputComponentString
+    {
+        $labels = $this->booleanLabels();
+        $attributes = [
+           [
+               'key' => 'items' ,
+               'value' => "[{label:\"{$labels['true']}\" , value:true}, {label:\"{$labels['false']}\" , value:false}]"
+           ],
+           [
+               'key' => 'onChange' ,
+               'value' => "(e) => setData(\"{$this->name}\" , e.target.value == \"true\")"
+           ]
+        ];
+
+        if ($formType == "update") {
+            $attributes[] = [
+                'key' => 'checked',
+                'value' => "(val: any) => val"
+            ];
+        }
+
+        return new TsInputComponentString(
+            "Radio" ,
+            $this->name,
+            required: false ,
+            attributes:$attributes,
+            imports: [
+                new TsImportString(
+                    "Radio" ,
+                    "@/Components/form/fields/Radio"
+                )
+            ]
         );
     }
 }

@@ -11,6 +11,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Tests\HasTestAdditionalFa
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
@@ -26,10 +27,11 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\Displa
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\InputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 
-class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInterfacePropertyString
+class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInterfacePropertyString, HasInputString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -162,9 +164,32 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         return new InterfacePropertyString(
             $this->name,
-            "Media",
-            $this->nullable,
+            "Media|File|undefined",
+            true,
             new TsImportString("Media", "@/Models/Media")
+        );
+    }
+
+    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    {
+        return new TsxInputComponentString(
+            "Input",
+            $this->name,
+            $this->titleNaming(),
+            $this->isRequired,
+            [
+                [
+                    'key' => 'onChange',
+                    'value' => "(e) => setData(\"{$this->name}\", e.target.files?.[0])"
+                ],
+                [
+                    'key' => 'type',
+                    'value' => "'file'"
+                ]
+            ],
+            [
+                new TsImportString("Input" , "@/Components/form/fields/Input")
+            ]
         );
     }
 }

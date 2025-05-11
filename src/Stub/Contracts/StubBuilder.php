@@ -24,6 +24,11 @@ abstract class StubBuilder
     ];
     public array $imports = [];
 
+    public function init(): void
+    {
+        $this->stubProperties = [];
+    }
+
     public function __call(string $name, array $arguments)
     {
         if (method_exists($this, $name)) {
@@ -46,7 +51,7 @@ abstract class StubBuilder
      */
     public function import(string|array|PhpImportString|TsImportString $import): static
     {
-        $this->imports = array_merge($import, Arr::wrap($this->imports));
+        $this->imports = array_merge(Arr::wrap($import), $this->imports);
         $this->stubProperties["{{imports}}"] = collect($this->imports)
             ->map(fn($import) => $import instanceof PhpImportString || $import instanceof TsImportString
                 ? trim($import->__toString())
@@ -82,7 +87,7 @@ abstract class StubBuilder
 
         try {
             FileUtils::generateFileFromStub(
-                $this->getStubPropertyArray(),
+                $this->fillUnFilledStubProperties(),
                 $path->fullPath,
                 $this->stubPath(),
                 $override
@@ -133,5 +138,24 @@ abstract class StubBuilder
         }
 
         return $value;
+    }
+
+    private function fillUnFilledStubProperties(): array
+    {
+        $stubProperties = $this->getStubPropertyArray();
+        $stubPath = $this->stubPath();
+        $content = file_get_contents($stubPath);
+        preg_match_all('/\{\{(.*?)}}/s', $content, $matches);
+        if (empty($matches[0])) {
+            return $stubProperties;
+        }
+
+        foreach ($matches[0] as $stubProperty) {
+            if (!isset($stubProperties[$stubProperty])) {
+                $stubProperties[$stubProperty] = "";
+            }
+        }
+
+        return $stubProperties;
     }
 }

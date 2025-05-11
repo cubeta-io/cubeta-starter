@@ -1,7 +1,7 @@
 import { Link, usePage } from "@inertiajs/react";
-import Eye from "../icons/Eye";
-import Pencil from "../icons/Pencil";
-import Trash from "../icons/Trash";
+import Eye from "@/Components/icons/Eye";
+import Pencil from "@/Components/icons/Pencil";
+import Trash from "@/Components/icons/Trash";
 import { swal } from "@/helper";
 import { toast } from "react-toastify";
 import { MiddlewareProps } from "@/types";

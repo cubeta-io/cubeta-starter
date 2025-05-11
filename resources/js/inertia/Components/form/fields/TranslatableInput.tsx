@@ -1,7 +1,7 @@
 import { LocaleContext } from "@/Contexts/TranslatableInputsContext";
 import { usePage } from "@inertiajs/react";
 import React, { ChangeEvent, useContext, useRef, useState } from "react";
-import Input, { InputProps } from "./Input";
+import Input, { InputProps } from "@/Components/form/fields/Input";
 import { MiddlewareProps } from "@/types";
 import { Translatable, translate } from "@/Models/Translatable";
 

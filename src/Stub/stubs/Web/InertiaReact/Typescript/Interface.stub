@@ -1,5 +1,6 @@
 {{imports}}
 interface {{model_name}} {
+    id: number;
     {{properties}}
 }
 

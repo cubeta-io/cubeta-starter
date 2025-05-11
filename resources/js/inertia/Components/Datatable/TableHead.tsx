@@ -1,6 +1,6 @@
-import ChevronUp from "../icons/ChevronUp";
-import ChevronDown from "../icons/ChevronDown";
-import { TableHeadProps } from "./DataTableUtils";
+import ChevronUp from "@/Components/icons/ChevronUp";
+import ChevronDown from "@/Components/icons/ChevronDown";
+import { TableHeadProps } from "@/Components/Datatable/DataTableUtils";
 
 function TableHead<Data>({
   schema,

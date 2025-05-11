@@ -1,9 +1,9 @@
 import { usePage } from "@inertiajs/react";
-import Modal from "../ui/Modal";
-import { DataTableSchema } from "./DataTableUtils";
+import Modal from "@/Components/ui/Modal";
+import { DataTableSchema } from "@/Components/Datatable/DataTableUtils";
 import DownloadFile from "@/Hooks/DownloadFile";
 import { FormEvent, useState } from "react";
-import Button from "../ui/Button";
+import Button from "@/Components/ui/Button";
 import { MiddlewareProps } from "@/types";
 
 const ExportModal = ({

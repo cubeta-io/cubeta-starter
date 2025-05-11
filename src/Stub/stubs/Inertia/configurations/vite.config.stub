@@ -17,4 +17,5 @@ export default defineConfig({
             '@': '/resources/js',
         },
     },
+    envPrefix: ['VITE_', 'APP_'], // Expose APP_URL along with any VITE_ variables
 });

@@ -10,20 +10,23 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValid
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\InputComponentString as TsxInputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 
-class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader
+class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInputString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -137,10 +140,53 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
     }
 
     public function htmlTableHeader(): HtmlTableHeaderString
-
     {
         return new HtmlTableHeaderString(
             $this->labelNaming(),
+        );
+    }
+
+    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    {
+       if ($this->isTextable()) {
+            $attributes = [
+                [
+                    'key' => 'onChange',
+                    'value' => "(e: ChangeEvent<HTMLTextAreaElement>) => setData(\"{$this->name}\", e.target.value)"
+                ]
+            ];
+            $tag = "TranslatableEditor";
+            $imports = [
+                new TsImportString("ChangeEvent", "react", false),
+                new TsImportString("TranslatableEditor", "@/Components/form/fields/TranslatableEditor")
+            ];
+        } else {
+            $attributes = [
+                [
+                    'key' => 'onChange',
+                    'value' => "(e) => setData(\"{$this->name}\", e.target.value)"
+                ]
+            ];
+            $tag = "TranslatableInput";
+            $imports = [
+                new TsImportString("TranslatableInput", "@/Components/form/fields/TranslatableInput")
+            ];
+        }
+
+        if ($formType == "update") {
+            $attributes[] = [
+                'key' => 'defaultValue',
+                'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
+            ];
+        }
+        
+        return new TsxInputComponentString(
+            $tag,
+            $this->name,
+            $this->labelNaming(),
+            $this->isRequired,
+            $attributes,
+            $imports
         );
     }
 }

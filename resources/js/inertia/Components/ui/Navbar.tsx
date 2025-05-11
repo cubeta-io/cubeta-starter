@@ -1,6 +1,6 @@
 import LanguageDropdown from "@/Components/ui/LanguageDropDown";
 import ProfileDropdown from "@/Components/ui/ProfileDropdown";
-import Menu from "../icons/Menu";
+import Menu from "@/Components/icons/Menu";
 import DarkModeToggle from "@/Components/ui/DarkModeToggle";
 
 const Navbar = ({
