@@ -4,7 +4,7 @@ namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Comp
 
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 
-class InputComponentString
+class ReactTsInputComponentString
 {
     private string $tag;
     private string $name;

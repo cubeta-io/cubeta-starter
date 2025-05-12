@@ -197,11 +197,11 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
     }
 
     /**
-     * @return CubeTable|null
+     * @return CubeTable
      */
-    public function getOwnerTable(): ?CubeTable
+    public function getOwnerTable(): CubeTable
     {
-        return Settings::make()->getTable($this->parentTableName);
+        return Settings::make()->getTable($this->parentTableName) ?? CubeTable::create($this->parentTableName);
     }
 
     public function labelNaming(): string
@@ -276,7 +276,7 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
                     "value" => "\${$modelVariable}->{$this->name}"
                 ],
                 [
-                    "key" => 'label' ,
+                    "key" => 'label',
                     'value' => $label
                 ]
             ]

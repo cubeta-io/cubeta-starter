@@ -10,7 +10,8 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValid
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasInputString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
@@ -23,10 +24,20 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\Displa
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\InputComponentString as TsxInputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 
-class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInputString
+class CubeTranslatable extends CubeStringable implements HasFakeMethod,
+    HasMigrationColumn,
+    HasDocBlockProperty,
+    HasModelCastColumn,
+    HasPropertyValidationRule,
+    HasBladeInputComponent,
+    HasDatatableColumnString,
+    HasHtmlTableHeader,
+    HasReactTsInputString,
+    HasReactTsDisplayComponentString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -148,7 +159,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
 
     public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
-       if ($this->isTextable()) {
+        if ($this->isTextable()) {
             $attributes = [
                 [
                     'key' => 'onChange',
@@ -179,7 +190,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
                 'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
             ];
         }
-        
+
         return new TsxInputComponentString(
             $tag,
             $this->name,
@@ -187,6 +198,23 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod, HasMigra
             $this->isRequired,
             $attributes,
             $imports
+        );
+    }
+
+    public function displayComponentString(): ReactTsDisplayComponentString
+    {
+        $modelVariable = $this->getOwnerTable()->variableNaming();
+        $nullable = $this->nullable ? "?" : "";
+        return new ReactTsDisplayComponentString(
+            $this->isTextable() ? "LongTextField" : "SmallTextField",
+            $this->labelNaming(),
+            "translate({$modelVariable}{$nullable}.{$this->name})",
+            [
+                $this->isTextable()
+                    ? new TsImportString("LongTextField", "@/Components/Show/LongTextField")
+                    : new TsImportString("SmallTextField", "@/Components/Show/SmallTextField"),
+                new TsImportString("translate", "@/Models/Translatable", false),
+            ]
         );
     }
 }

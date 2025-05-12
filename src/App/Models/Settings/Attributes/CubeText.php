@@ -7,7 +7,8 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasInputString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
@@ -15,10 +16,16 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidation
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\InputComponentString as TsxInputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 
-class CubeText extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasBladeInputComponent, HasInputString
+class CubeText extends CubeStringable implements HasFakeMethod,
+    HasMigrationColumn,
+    HasPropertyValidationRule,
+    HasBladeInputComponent,
+    HasReactTsInputString,
+    HasReactTsDisplayComponentString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -117,6 +124,20 @@ class CubeText extends CubeStringable implements HasFakeMethod, HasMigrationColu
             [
                 new TsImportString("TextEditor", "@/Components/form/fields/TextEditor"),
                 new TsImportString("ChangeEvent", "react", false)
+            ]
+        );
+    }
+
+    public function displayComponentString(): ReactTsDisplayComponentString
+    {
+        $modelVariable = $this->getOwnerTable()->variableNaming();
+        $nullable = $this->nullable ? "?" : "";
+        return new ReactTsDisplayComponentString(
+            "LongTextField",
+            $this->labelNaming(),
+            "{$modelVariable}{$nullable}.{$this->name}",
+            [
+                new TsImportString("LongTextField", "@/Components/Show/LongTextField")
             ]
         );
     }

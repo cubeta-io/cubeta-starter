@@ -6,7 +6,8 @@ use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeKey;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasInputString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
@@ -14,7 +15,8 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\ModelRelationString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\InputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
@@ -23,7 +25,12 @@ use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 
 
-class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod, HasDocBlockProperty, HasResourcePropertyString, HasInterfacePropertyString, HasInputString
+class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
+    HasDocBlockProperty,
+    HasResourcePropertyString,
+    HasInterfacePropertyString,
+    HasReactTsInputString,
+    HasReactTsDisplayComponentString
 {
     use RouteBinding;
 
@@ -69,7 +76,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod, HasD
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): InputComponentString
+    public function inputComponent(string $formType = "store", ?string $actor = null): ReactTsInputComponentString
     {
         $modelName = $this->modelNaming();
         $relatedModel = $this->getRelatedModel();
@@ -132,13 +139,37 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod, HasD
             ];
         }
 
-        return new InputComponentString(
+        return new ReactTsInputComponentString(
             "ApiSelect",
             $this->key,
             $modelName,
             $column->isRequired,
             $attributes,
             $imports
+        );
+    }
+
+    public function displayComponentString(): ReactTsDisplayComponentString
+    {
+        $parentModel = $this->getRelatedModel();
+        $column = $this->getTable()->titleable();
+        $imports = [
+            new TsImportString("SmallTextField", "@/Components/Show/SmallTextField"),
+        ];
+
+        if ($column->isTranslatable()) {
+            $imports[] = [
+                new TsImportString("translate", "@/Models/Translatable"),
+            ];
+        }
+
+        return new ReactTsDisplayComponentString(
+            "SmallTextField",
+            $this->titleNaming(),
+            $column->isTranslatable()
+                ? "translate(" . $parentModel->variableNaming() . "." . $this->relationMethodNaming() . "." . $column->name . ")"
+                : $parentModel->variableNaming() . "?." . $this->relationMethodNaming() . "?." . $column->name,
+            $imports,
         );
     }
 }

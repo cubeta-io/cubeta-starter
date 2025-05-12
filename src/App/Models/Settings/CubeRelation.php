@@ -166,11 +166,11 @@ class CubeRelation
     }
 
     /**
-     * @return CubeTable|null
+     * @return CubeTable
      */
-    public function getTable(): ?CubeTable
+    public function getTable(): CubeTable
     {
-        return Settings::make()->getTable($this->modelName);
+        return Settings::make()->getTable($this->modelName) ?? CubeTable::create($this->relatedModel);
     }
 
     public function getPivotTableName(): string

@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\InputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Stub\Contracts\TypescriptFileBuilder;
@@ -20,12 +20,12 @@ use Illuminate\Support\Stringable;
 class FormPageStubBuilder extends TypescriptFileBuilder
 {
     /**
-     * @var InputComponentString[]
+     * @var ReactTsInputComponentString[]
      */
     private array $smallFields = [];
 
     /**
-     * @var InputComponentString[]
+     * @var ReactTsInputComponentString[]
      */
     private array $bigFields = [];
 
@@ -64,10 +64,10 @@ class FormPageStubBuilder extends TypescriptFileBuilder
     }
 
     /**
-     * @param InputComponentString $field
+     * @param ReactTsInputComponentString $field
      * @return $this
      */
-    public function smallField(InputComponentString $field): static
+    public function smallField(ReactTsInputComponentString $field): static
     {
         $this->smallFields[] = $field;
         if (count($field->imports) > 0) {
@@ -77,7 +77,7 @@ class FormPageStubBuilder extends TypescriptFileBuilder
         return $this;
     }
 
-    public function bigField(InputComponentString $field): static
+    public function bigField(ReactTsInputComponentString $field): static
     {
         $this->bigFields[] = $field;
         if (count($field->imports) > 0) {
@@ -101,7 +101,8 @@ class FormPageStubBuilder extends TypescriptFileBuilder
             ),
             "{{small_fields}}" => implode("\n", $this->smallFields),
             '{{big_fields}}' => implode("\n", $this->bigFields),
-            '{{form_field_interface}}' => str(implode("\n", $this->formFieldsInterface))->replaceMatches('/Media\s*\|/', ''),
+            '{{form_field_interface}}' => str(implode("\n", $this->formFieldsInterface))
+                ->replaceMatches('/Media\s*\|/', 'File|'),
         ];
     }
 }

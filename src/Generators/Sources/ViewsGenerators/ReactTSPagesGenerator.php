@@ -2,7 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasInputString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
@@ -20,6 +21,7 @@ use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\FormPageStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\ShowPageStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Typescript\TsInterfaceStubBuilder;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
@@ -68,68 +70,34 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
     public function generateShowPage(bool $override = false): void
     {
-        $this->imports = "";
-
-        $modelVariable = $this->table->variableNaming();
-
-        $smallFields = "";
-        $bigFields = "";
-
         $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $pageName = $this->table->viewNaming();
-
         $showPagePath = CubePath::make("resources/js/Pages/dashboard/$pageName/Show.tsx");
 
-        if ($showPagePath->exist()) {
-            $showPagePath->logAlreadyExist("When Generating Show Page For ({$this->table->modelName}) Model");
-            return;
-        }
+        $builder = ShowPageStubBuilder::make()
+            ->modelName($this->table->modelNaming())
+            ->modelVariable($this->table->variableNaming())
+            ->editRouteName($routes['edit']);
 
-        $this->table->attributes()->each(function (CubeAttribute $attr) use (&$smallFields, &$bigFields, $modelVariable) {
-            $nullable = $attr->nullable ? "?" : "";
-            if ($attr->isText() || $attr->isTextable()) {
-                $this->addImport("import LongTextField from \"@/Components/Show/LongTextField\";");
-                if ($attr->isTranslatable()) {
-                    $this->addImport("import { translate } from \"@/Models/Translatable\";");
-                    $bigFields .= "\n<LongTextField label={\"{$attr->titleNaming()}\"} value={translate({$modelVariable}{$nullable}.{$attr->name})} />\n";
+        $this->table->attributes()
+            ->whereInstanceOf(HasReactTsDisplayComponentString::class)
+            ->each(function (CubeAttribute|HasReactTsDisplayComponentString $attr) use ($builder) {
+                if ($attr->isText() || $attr->isTextable()) {
+                    $builder->bigField($attr->displayComponentString());
                 } else {
-                    $bigFields .= "\n<LongTextField label={\"{$attr->titleNaming()}\"} value={{$modelVariable}{$nullable}.{$attr->name}} />\n";
+                    $builder->smallField($attr->displayComponentString());
                 }
-            } elseif ($attr->isFile()) {
-                $this->addImport("import Gallery from \"@/Components/Show/Gallery\";");
-                $bigFields .= "<div className=\"bg-gray-50 my-2 mb-5 p-4 rounded-md font-bold text-xl dark:bg-dark dark:text-white\">
-                                    <label className=\"font-semibold text-lg\">{$attr->titleNaming()} :</label>
-                                    <Gallery
-                                        sources={[{$modelVariable}{$nullable}.{$attr->name}?.url]}
-                                    />
-                                </div>";
-            } elseif ($attr->isTranslatable()) {
-                $this->addImport("import { translate } from \"@/Models/Translatable\";");
-                $this->addImport("import SmallTextField from \"@/Components/Show/SmallTextField\";");
-                $smallFields .= "\n<SmallTextField label=\"{$attr->titleNaming()} \" value={translate({$modelVariable}{$nullable}.{$attr->name})} />\n";
-            } elseif ($attr->isBoolean()) {
-                $this->addImport("import SmallTextField from \"@/Components/Show/SmallTextField\";");
-                $smallFields .= "<SmallTextField label=\"{$attr->titleNaming()} ? \" value={{$modelVariable}{$nullable}.{$attr->name} ? 'Yes' : 'No'} />";
-            } else {
-                $this->addImport("import SmallTextField from \"@/Components/Show/SmallTextField\";");
-                $smallFields .= "<SmallTextField label=\"{$attr->titleNaming()} \" value={{$modelVariable}{$nullable}.{$attr->name}} />";
-            }
-        });
+            });
 
-        $stubProperties = [
-            '{{modelName}}' => $this->table->modelName,
-            "{{imports}}" => $this->imports,
-            "{{variableName}}" => $modelVariable,
-            "{{editRoute}}" => $routes['edit'],
-            "{{smallFields}}" => $smallFields,
-            "{{bigFields}}" => $bigFields,
-        ];
+        $this->table->relations()
+            ->whereInstanceOf(HasReactTsDisplayComponentString::class)
+            ->each(function (CubeRelation|HasReactTsDisplayComponentString $rel) use ($builder) {
+                if ($rel->exists() && $rel->getTSModelPath()->exist()) {
+                    $builder->smallField($rel->displayComponentString());
+                }
+            });
 
-        $showPagePath->ensureDirectoryExists();
-
-        $this->generateFileFromStub($stubProperties, $showPagePath->fullPath, $override, CubePath::stubPath('Inertia/pages/show.stub'));
-
-        $showPagePath->format();
+        $builder->generate($showPagePath, $this->override);
     }
 
     public function generateIndexPage(bool $override = false): void
@@ -302,7 +270,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                     $builder->defaultValue($attr->name, "{$this->table->variableNaming()}?.{$attr->name}");
                 }
 
-                if ($attr instanceof HasInputString) {
+                if ($attr instanceof HasReactTsInputString) {
                     if ($attr->isText() || $attr->isTextable()) {
                         $builder->bigField($attr->inputComponent("update", $this->actor));
                     } else {
@@ -316,6 +284,13 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                         $builder->import($interfaceProperty->import);
                     }
                     $builder->formFieldInterface($interfaceProperty);
+                }
+            });
+
+        $this->table->relations()
+            ->each(function (CubeRelation $relation) use ($builder) {
+                if ($relation->getTable()->getTSModelPath()->exist() && $relation instanceof HasReactTsInputString) {
+                    $builder->formFieldInterface($relation->inputComponent("update", $this->actor));
                 }
             });
 
@@ -343,7 +318,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $this->table->attributes()
             ->each(function (CubeAttribute $attr) use ($builder) {
-                if ($attr instanceof HasInputString) {
+                if ($attr instanceof HasReactTsInputString) {
                     if ($attr->isText() || $attr->isTextable()) {
                         $builder->bigField($attr->inputComponent("store", $this->actor));
                     } else {
@@ -357,6 +332,13 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                         $builder->import($interfaceProperty->import);
                     }
                     $builder->formFieldInterface($interfaceProperty);
+                }
+            });
+
+        $this->table->relations()
+            ->each(function (CubeRelation $relation) use ($builder) {
+                if ($relation->getTable()->getTSModelPath()->exist() && $relation instanceof HasReactTsInputString) {
+                    $builder->formFieldInterface($relation->inputComponent("store", $this->actor));
                 }
             });
 
