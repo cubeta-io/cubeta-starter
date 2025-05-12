@@ -207,6 +207,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../resources/js/inertia/types' => resource_path('/js/types'),
             __DIR__ . '/../resources/js/inertia/cubeta-starter.tsx' => resource_path('/js/cubeta-starter.tsx'),
             __DIR__ . '/../resources/js/inertia/helper.ts' => resource_path('/js/helper.ts'),
+            __DIR__ . '/../resources/js/inertia/Modules' => resource_path('/js/Modules'),
             __DIR__ . '/../resources/css/inertia' => resource_path('/css'),
             __DIR__ . '/../public/images' => public_path('/images'),
 
