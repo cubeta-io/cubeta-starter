@@ -100,7 +100,7 @@ class HTTP {
         resData.status,
         resData.code,
         resData.message,
-        resData.paginate,
+        resData.pagination_data,
       );
     } catch (e) {
       console.error(e);

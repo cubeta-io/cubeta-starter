@@ -3,18 +3,22 @@
 namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 
-class CubeJson extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule,HasBladeInputComponent
+class CubeJson extends CubeStringable implements HasFakeMethod,
+    HasMigrationColumn,
+    HasPropertyValidationRule,
+    HasBladeInputComponent,
+    HasDocBlockProperty,
+    HasResourcePropertyString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -35,21 +39,13 @@ class CubeJson extends CubeStringable implements HasFakeMethod, HasMigrationColu
         );
     }
 
-    public function modelCastColumn(): CastColumnString
-    {
-        return new CastColumnString(
-            $this->name,
-            "array"
-        );
-    }
-
     public function propertyValidationRule(): PropertyValidationRuleString
     {
         return new PropertyValidationRuleString(
             $this->name,
             [
                 ...$this->uniqueOrNullableValidationRules(),
-                new ValidationRuleString('array'),
+                new ValidationRuleString('json'),
             ]
         );
     }
