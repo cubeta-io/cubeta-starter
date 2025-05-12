@@ -178,8 +178,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 }
 
                 if ($attr instanceof HasInterfacePropertyString) {
-                    $interfaceProperty = $attr->interfacePropertyString();
-                    $builder->formFieldInterface($interfaceProperty);
+                    $builder->formFieldInterface($attr->interfacePropertyString());
                 }
             });
 
@@ -187,7 +186,10 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->whereInstanceOf(HasReactTsInputString::class)
             ->filter(fn(CubeRelation $relation) => $relation->getTable()->getTSModelPath()->exist())
             ->each(function (CubeRelation|HasReactTsInputString $relation) use ($builder) {
-                $builder->formFieldInterface($relation->inputComponent("update", $this->actor));
+                $builder->smallField($relation->inputComponent("update", $this->actor));
+                if ($relation instanceof HasInterfacePropertyString) {
+                    $builder->formFieldInterface($relation->interfacePropertyString());
+                }
             });
 
         $builder->generate($formPath, $this->override);
@@ -222,8 +224,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 }
 
                 if ($attr instanceof HasInterfacePropertyString) {
-                    $interfaceProperty = $attr->interfacePropertyString();
-                    $builder->formFieldInterface($interfaceProperty);
+                    $builder->formFieldInterface($attr->interfacePropertyString());
                 }
             });
 
@@ -231,7 +232,10 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->whereInstanceOf(HasReactTsInputString::class)
             ->filter(fn(CubeRelation $relation) => $relation->getTable()->getTSModelPath()->exist())
             ->each(function (CubeRelation|HasReactTsInputString $relation) use ($builder) {
-                $builder->formFieldInterface($relation->inputComponent("store", $this->actor));
+                $builder->smallField($relation->inputComponent("store", $this->actor));
+                if ($relation instanceof HasInterfacePropertyString) {
+                    $builder->formFieldInterface($relation->interfacePropertyString());
+                }
             });
 
         $builder->generate($formPath, $this->override);

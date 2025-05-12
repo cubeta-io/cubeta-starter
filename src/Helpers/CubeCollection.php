@@ -21,7 +21,7 @@ class CubeCollection extends Collection
             if ($callable) {
                 return "'{$callable($attribute)}'";
             }
-            return "'{$attribute->name}'";
+            return "'{$attribute->usedString}'";
         });
     }
 }

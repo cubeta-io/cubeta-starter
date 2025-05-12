@@ -24,7 +24,6 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
-use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 
 
@@ -135,12 +134,12 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         $imports = [
             new TsImportString("ApiResponse", "@/Modules/Http/ApiResponse"),
             new TsImportString("Http", "@/Modules/Http/Http"),
+            new TsImportString($modelName, "@/Modules/{$modelName}"),
+            new TsImportString("ApiSelect", "@/Components/form/fields/Select"),
         ];
 
         if ($relatedModel->titleable()->isTranslatable()) {
-            $imports[] = [
-                new TsImportString("translate", "@/Models/Translatable", false)
-            ];
+            $imports[] = new TsImportString("translate", "@/Models/Translatable", false);
         }
 
         return new ReactTsInputComponentString(
@@ -162,9 +161,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         ];
 
         if ($column->isTranslatable()) {
-            $imports[] = [
-                new TsImportString("translate", "@/Models/Translatable"),
-            ];
+            $imports[] = new TsImportString("translate", "@/Models/Translatable");
         }
 
         return new ReactTsDisplayComponentString(
