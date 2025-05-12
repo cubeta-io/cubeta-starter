@@ -144,6 +144,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
 
     public function inputComponent(string $formType = "store", ?string $actor = null): TsInputComponentString
     {
+        $variableName = $this->getOwnerTable()->variableNaming();
         $labels = $this->booleanLabels();
         $attributes = [
             [
@@ -159,7 +160,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
         if ($formType == "update") {
             $attributes[] = [
                 'key' => 'checked',
-                'value' => "(val: any) => val"
+                'value' => "(val: any) => val == $variableName.{$this->name}"
             ];
         }
 

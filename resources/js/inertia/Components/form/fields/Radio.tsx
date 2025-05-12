@@ -43,7 +43,6 @@ const Radio: React.FC<IRadioProps> = ({
               <input
                 type="radio"
                 value={item.value}
-                className="text-primary focus:ring-primary dark:focus:ring-primary h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
                 defaultChecked={isChecked}
                 name={name}
                 onChange={onChange ? (e) => onChange(e) : undefined}
