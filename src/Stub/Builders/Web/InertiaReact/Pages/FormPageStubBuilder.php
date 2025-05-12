@@ -57,6 +57,9 @@ class FormPageStubBuilder extends TypescriptFileBuilder
     public function formFieldInterface(InterfacePropertyString $property): static
     {
         $this->formFieldsInterface[] = $property;
+        if ($property->import) {
+            $this->import($property->import);
+        }
         $this->formFieldsInterface = collect($this->formFieldsInterface)
             ->unique(fn(InterfacePropertyString $item) => $item->name)
             ->toArray();

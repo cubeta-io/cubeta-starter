@@ -19,6 +19,9 @@ class TsInterfaceStubBuilder extends TypescriptFileBuilder
     public function property(InterfacePropertyString $property): static
     {
         $this->properties[] = $property;
+        if ($property->import) {
+            $this->import($property->import);
+        }
         $this->properties = collect($this->properties)->unique(fn(InterfacePropertyString $item) => $item->name)->toArray();
         return $this;
     }

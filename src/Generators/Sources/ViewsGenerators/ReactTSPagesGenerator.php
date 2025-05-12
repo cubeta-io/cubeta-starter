@@ -7,7 +7,6 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Componen
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
@@ -47,7 +46,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $this->generateUpdateFormPage($routes['update']);
         $this->generateCreateFormPage($routes['store']);
 
-        $this->generateShowPage($override);
+        $this->generateShowPage();
         $this->generateIndexPage($override);
 
         CodeSniffer::make()
@@ -68,7 +67,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $this->imports .= "\n$import\n";
     }
 
-    public function generateShowPage(bool $override = false): void
+    public function generateShowPage(): void
     {
         $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $pageName = $this->table->viewNaming();
@@ -222,8 +221,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->whereInstanceOf(HasInterfacePropertyString::class)
             ->each(function (HasInterfacePropertyString|CubeAttribute|CubeRelation $item) use ($builder) {
                 if ($item instanceof CubeRelation) {
-                    $model = Settings::make()->getTable($item->modelNaming()) ?? CubeTable::create($item->modelNaming());
-                    if (!$model->getTSModelPath()->exist()) {
+                    if (!$item->getTable()->getTSModelPath()->exist()) {
                         return true;
                     } else {
                         $string = $item->interfacePropertyString();
@@ -231,11 +229,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 } else {
                     $string = $item->interfacePropertyString();
                 }
-
                 $builder->property($string);
-                if ($string->import) {
-                    $builder->import($string->import);
-                }
                 return true;
             });
 
@@ -265,33 +259,29 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             )->formFieldInterface(new InterfacePropertyString("_method", "'PUT'|'POST'", true));
 
         $this->table->attributes()
-            ->each(function (CubeAttribute $attr) use ($builder) {
+            ->whereInstanceOf(HasReactTsInputString::class)
+            ->each(function (CubeAttribute|HasReactTsInputString $attr) use ($builder) {
                 if (!$attr->isFile()) {
                     $builder->defaultValue($attr->name, "{$this->table->variableNaming()}?.{$attr->name}");
                 }
 
-                if ($attr instanceof HasReactTsInputString) {
-                    if ($attr->isText() || $attr->isTextable()) {
-                        $builder->bigField($attr->inputComponent("update", $this->actor));
-                    } else {
-                        $builder->smallField($attr->inputComponent("update", $this->actor));
-                    }
+                if ($attr->isText() || $attr->isTextable()) {
+                    $builder->bigField($attr->inputComponent("update", $this->actor));
+                } else {
+                    $builder->smallField($attr->inputComponent("update", $this->actor));
                 }
 
                 if ($attr instanceof HasInterfacePropertyString) {
                     $interfaceProperty = $attr->interfacePropertyString();
-                    if ($interfaceProperty->import) {
-                        $builder->import($interfaceProperty->import);
-                    }
                     $builder->formFieldInterface($interfaceProperty);
                 }
             });
 
         $this->table->relations()
-            ->each(function (CubeRelation $relation) use ($builder) {
-                if ($relation->getTable()->getTSModelPath()->exist() && $relation instanceof HasReactTsInputString) {
-                    $builder->formFieldInterface($relation->inputComponent("update", $this->actor));
-                }
+            ->whereInstanceOf(HasReactTsInputString::class)
+            ->filter(fn(CubeRelation $relation) => $relation->getTable()->getTSModelPath()->exist())
+            ->each(function (CubeRelation|HasReactTsInputString $relation) use ($builder) {
+                $builder->formFieldInterface($relation->inputComponent("update", $this->actor));
             });
 
         $builder->generate($formPath, $this->override);
@@ -317,29 +307,25 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             )->formFieldInterface(new InterfacePropertyString("_method", "'PUT'|'POST'", true));
 
         $this->table->attributes()
-            ->each(function (CubeAttribute $attr) use ($builder) {
-                if ($attr instanceof HasReactTsInputString) {
-                    if ($attr->isText() || $attr->isTextable()) {
-                        $builder->bigField($attr->inputComponent("store", $this->actor));
-                    } else {
-                        $builder->smallField($attr->inputComponent("store", $this->actor));
-                    }
+            ->whereInstanceOf(HasReactTsInputString::class)
+            ->each(function (CubeAttribute|HasReactTsInputString $attr) use ($builder) {
+                if ($attr->isText() || $attr->isTextable()) {
+                    $builder->bigField($attr->inputComponent("store", $this->actor));
+                } else {
+                    $builder->smallField($attr->inputComponent("store", $this->actor));
                 }
 
                 if ($attr instanceof HasInterfacePropertyString) {
                     $interfaceProperty = $attr->interfacePropertyString();
-                    if ($interfaceProperty->import) {
-                        $builder->import($interfaceProperty->import);
-                    }
                     $builder->formFieldInterface($interfaceProperty);
                 }
             });
 
         $this->table->relations()
-            ->each(function (CubeRelation $relation) use ($builder) {
-                if ($relation->getTable()->getTSModelPath()->exist() && $relation instanceof HasReactTsInputString) {
-                    $builder->formFieldInterface($relation->inputComponent("store", $this->actor));
-                }
+            ->whereInstanceOf(HasReactTsInputString::class)
+            ->filter(fn(CubeRelation $relation) => $relation->getTable()->getTSModelPath()->exist())
+            ->each(function (CubeRelation|HasReactTsInputString $relation) use ($builder) {
+                $builder->formFieldInterface($relation->inputComponent("store", $this->actor));
             });
 
         $builder->generate($formPath, $this->override);
