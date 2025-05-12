@@ -13,7 +13,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasB
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
@@ -30,11 +30,23 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTa
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 
-class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInterfacePropertyString,HasReactTsDisplayComponentString
+class CubeDateable extends CubeAttribute implements HasFakeMethod,
+    HasMigrationColumn,
+    HasDocBlockProperty,
+    HasModelCastColumn,
+    HasPropertyValidationRule,
+    HasResourcePropertyString,
+    HasTestAdditionalFactoryData,
+    HasBladeInputComponent,
+    HasDatatableColumnString,
+    HasHtmlTableHeader,
+    HasInterfacePropertyString,
+    HasReactTsDisplayComponentString,
+    HasDataTableColumnObjectString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -155,6 +167,16 @@ class CubeDateable extends CubeAttribute implements HasFakeMethod, HasMigrationC
             [
                 new TsImportString("SmallTextField", "@/Components/Show/SmallTextField")
             ]
+        );
+    }
+
+    public function datatableColumnObject(string $actor): DataTableColumnObjectString
+    {
+        return new DataTableColumnObjectString(
+            $this->name,
+            $this->labelNaming(),
+            false,
+            true,
         );
     }
 }

@@ -22,7 +22,14 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputC
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 
-class CubeDate extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent, HasReactTsInputString
+class CubeDate extends CubeDateable implements HasFakeMethod,
+    HasMigrationColumn,
+    HasModelCastColumn,
+    HasPropertyValidationRule,
+    HasResourcePropertyString,
+    HasTestAdditionalFactoryData,
+    HasBladeInputComponent,
+    HasReactTsInputString
 {
     public function fakeMethod(): FakeMethodString
     {

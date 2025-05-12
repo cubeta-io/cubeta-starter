@@ -3,8 +3,9 @@ import ApiResponse from "@/Modules/Http/ApiResponse";
 class HTTP {
   private static instance: HTTP | undefined = undefined;
   private baseHeaders = {
-    Accept: "application/html",
-    "Content-Type": "application/html",
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    "Accept-Language": "en",
   };
 
   private constructor() {}
@@ -15,10 +16,6 @@ class HTTP {
     }
 
     return this.instance;
-  }
-
-  public getBaseUrl = () => {
-    return import.meta.env.APP_URL;
   }
 
   public headers = (headers: Record<string, string>) => {
@@ -61,46 +58,60 @@ class HTTP {
     params?: string | string[][] | Record<string, string> | URLSearchParams,
     data?: Record<string, any> | undefined,
   ): Promise<ApiResponse<any>> => {
-    if (params) {
-      url = url + new URLSearchParams(params);
-    }
-    url = this.getUrl(url);
-    const request = async () =>
-      await fetch(url, {
-        method: method,
-        headers: {
-          ...headers,
-          ...this.baseHeaders,
-        },
-        body: JSON.stringify(data),
-      });
-    let response = await request();
-    let resData = await response.json();
+    try {
+      if (
+        params &&
+        typeof params === "object" &&
+        !(params instanceof URLSearchParams)
+      ) {
+        params = Object.fromEntries(
+          Object.entries(params).filter(([_, value]) => value !== undefined),
+        );
+        url = url + "?" + new URLSearchParams(params as Record<string, string>);
+      }
 
-    if (!response.ok) {
-      console.log("Error : " + resData.message);
-      console.log("Data : ", resData.data);
+      url = this.getUrl(url);
+      const request = async () =>
+        await fetch(url, {
+          method: method,
+          headers: {
+            ...headers,
+            ...this.baseHeaders,
+          },
+          body: JSON.stringify(data),
+        });
+      let response = await request();
+      let resData = await response.json();
+
+      if (!response.ok) {
+        console.log("Error : " + resData.message);
+        console.log("Data : ", resData.data);
+        return new ApiResponse(
+          undefined,
+          false,
+          response.status,
+          resData.message,
+          undefined,
+        );
+      }
+
       return new ApiResponse(
-        undefined,
-        false,
-        response.status,
+        resData.data,
+        resData.status,
+        resData.code,
         resData.message,
-        undefined,
+        resData.paginate,
       );
+    } catch (e) {
+      console.error(e);
+      console.error("Happened while requesting this url : " + url);
+      return new ApiResponse(undefined, false, 500, "Client error", undefined);
     }
-
-    return new ApiResponse(
-      resData.data,
-      resData.status,
-      resData.code,
-      resData.message,
-      resData.paginate,
-    );
   };
 
   private getUrl = (url: string) => {
     try {
-      const parsedUrl = new URL(this.getBaseUrl() + url);
+      const parsedUrl = new URL(url);
       parsedUrl.pathname = parsedUrl.pathname.replace(/\/{2,}/g, "/");
       return parsedUrl.toString();
     } catch (e) {

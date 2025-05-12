@@ -12,6 +12,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasH
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
@@ -27,9 +28,21 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTa
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 
-class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule,HasBladeInputComponent,HasDatatableColumnString,HasHtmlTableHeader,HasInterfacePropertyString,HasReactTsInputString,HasReactTsDisplayComponentString
+class CubeNumeric extends CubeAttribute implements HasFakeMethod,
+    HasMigrationColumn,
+    HasDocBlockProperty,
+    HasModelCastColumn,
+    HasPropertyValidationRule,
+    HasBladeInputComponent,
+    HasDatatableColumnString,
+    HasHtmlTableHeader,
+    HasInterfacePropertyString,
+    HasReactTsInputString,
+    HasReactTsDisplayComponentString,
+    HasDataTableColumnObjectString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -110,7 +123,7 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationCo
     public function interfacePropertyString(): InterfacePropertyString
     {
         return new InterfacePropertyString(
-            $this->name ,
+            $this->name,
             "number",
             $this->nullable,
         );
@@ -159,6 +172,16 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod, HasMigrationCo
             [
                 new TsImportString("SmallTextField", "@/Components/Show/SmallTextField")
             ]
+        );
+    }
+
+    public function datatableColumnObject(string $actor): DataTableColumnObjectString
+    {
+        return new DataTableColumnObjectString(
+            $this->name,
+            $this->labelNaming(),
+            false,
+            true,
         );
     }
 }

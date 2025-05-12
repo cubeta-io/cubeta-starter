@@ -57,7 +57,7 @@ function DataTable<ApiResponse, Data>({
 
     const res = await api(page, s, sortC, sortD, perPage, params);
     setApiResponse(res);
-    setItems(getDataArray(res));
+    setItems(getDataArray(res) ?? []);
     setIsPending(false);
   };
 

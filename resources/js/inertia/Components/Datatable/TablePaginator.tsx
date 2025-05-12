@@ -31,6 +31,14 @@ function TablePaginator<ApiResponse>({
     }
   };
 
+  const isFirstPage = () => {
+    return isFirst ? isFirst(response) : page <= 1;
+  };
+
+  const isLastPage = () => {
+    return isLast ? isLast(response) : getTotalPages(response) <= page;
+  };
+
   return (
     <div className="flex justify-between px-4 py-2">
       {getTotalRecords && (
@@ -42,7 +50,7 @@ function TablePaginator<ApiResponse>({
         <li className={`border-0`}>
           <button
             onClick={() => setPrevPage()}
-            disabled={isFirst ? isFirst(response) : page <= 1}
+            disabled={isFirstPage()}
             className="bg-secondary inline-flex size-8 cursor-pointer items-center justify-center rounded-md border-0 text-white outline-0 rtl:rotate-180"
           >
             <span className="sr-only">Prev Page</span>
@@ -99,9 +107,7 @@ function TablePaginator<ApiResponse>({
             onClick={() => {
               setNextPage();
             }}
-            disabled={
-              isLast ? isLast(response) : getTotalPages(response) == page
-            }
+            disabled={isLastPage()}
             className="bg-secondary inline-flex size-8 cursor-pointer items-center justify-center rounded-md border-0 text-white outline-0 rtl:rotate-180"
           >
             <span className="sr-only">Next Page</span>

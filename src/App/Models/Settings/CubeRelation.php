@@ -99,11 +99,25 @@ class CubeRelation
 
     /**
      * the relation is existing if its model class is defined
+     * @param bool $withTypescriptChecking
      * @return bool
      */
-    public function exists(): bool
+    public function exists(bool $withTypescriptChecking = false): bool
     {
-        return $this->getModelPath()->exist();
+        $model = $this->getTable(); // product
+        $relatedModel = $this->getRelatedModel(); // category
+        $exist = $model->getModelPath()->exist()
+            && $relatedModel->getModelPath()->exist()
+            && ClassUtils::isMethodDefined( // category model has "product" method
+                $relatedModel->getModelPath(),
+                $this->method()
+            );
+
+        if (!$withTypescriptChecking) {
+            return $exist;
+        }
+
+        return $exist && $model->getTSModelPath()->exist() && $relatedModel->getTSModelPath()->exist();
     }
 
     /**

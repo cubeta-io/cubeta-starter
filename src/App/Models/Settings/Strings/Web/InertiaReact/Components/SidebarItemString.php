@@ -19,6 +19,6 @@ class SidebarItemString
 
     public function __toString(): string
     {
-        return "{title:$this->title , href:route(\"$this->routeName\") , icon: <TableCells />}";
+        return "{title:$this->title , href:route(\"$this->routeName\") , icon: () => <TableCells />}";
     }
 }

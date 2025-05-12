@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMe
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
@@ -18,10 +19,12 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyS
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 
 
@@ -30,7 +33,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     HasResourcePropertyString,
     HasInterfacePropertyString,
     HasReactTsInputString,
-    HasReactTsDisplayComponentString
+    HasReactTsDisplayComponentString,
+    HasDataTableColumnObjectString
 {
     use RouteBinding;
 
@@ -89,7 +93,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         $attributes = [
             [
                 'key' => 'api',
-                'value' => "(page, search): Promise<ApiResponse<{$modelName}>> => Http.make().get(\"$dataRoute\",{page:page,search:search})"
+                'value' => "(page, search): Promise<ApiResponse<{$modelName}[]>> => Http.make().get(\"$dataRoute\",{page:page,search:search})"
             ],
             [
                 'key' => 'getDataArray',
@@ -97,11 +101,11 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             ],
             [
                 'key' => 'getIsLast',
-                'value' => '(data) => data.pagination_data?.is_last_page ?? false',
+                'value' => '(data) => data.paginate?.is_last_page ?? false',
             ],
             [
                 'key' => 'getTotalPages',
-                'value' => '(data) => data.pagination_data?.total_pages ?? 0',
+                'value' => '(data) => data.paginate?.total_pages ?? 0',
             ],
             [
                 'key' => 'onChange',
@@ -169,6 +173,33 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             $column->isTranslatable()
                 ? "translate(" . $parentModel->variableNaming() . "." . $this->relationMethodNaming() . "." . $column->name . ")"
                 : $parentModel->variableNaming() . "?." . $this->relationMethodNaming() . "?." . $column->name,
+            $imports,
+        );
+    }
+
+    public function datatableColumnObject(string $actor): DataTableColumnObjectString
+    {
+        $column = $this->getTable()->titleable();
+        $showRoute = $this->getRouteNames($this->getRelatedModel(), ContainerType::WEB, $actor)['show'];
+        $viewValue = $column->isTranslatable() ? "translate(record?.{$column->name})" : "record?.{$column->name}";
+
+        $imports = [
+            new TsImportString("Link", "@inertiajs/react", false)
+        ];
+
+        if ($column->isTranslatable()) {
+            $imports[] = new TsImportString("translate", "@/Models/Translatable", false);
+        }
+
+        return new DataTableColumnObjectString(
+            $this->relationMethodNaming() . "." . $column->name,
+            "{$this->modelNaming()} {$column->titleNaming()}",
+            $column->isTranslatable(),
+            true,
+            "return (<Link className=\"hover:text-primary underline\"
+                        href={route(\"$showRoute\" , record.id)}>
+                        {{$viewValue}}
+                    </Link>)",
             $imports,
         );
     }

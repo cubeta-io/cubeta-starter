@@ -2,10 +2,10 @@ import PaginationData from "@/Modules/Http/Contracts/PaginationData";
 
 class ApiResponse<T> {
   private readonly _data: T | undefined;
-  private readonly _message: string;
+  private readonly _message: string | undefined;
   private readonly _code: number;
   private readonly _status: boolean;
-  private readonly _paginate: PaginationData;
+  private readonly _paginate: PaginationData | undefined;
 
   constructor(
     data: T | undefined,
@@ -25,7 +25,7 @@ class ApiResponse<T> {
     return this._data;
   }
 
-  get message(): string {
+  get message(): string | undefined {
     return this._message;
   }
 
@@ -37,7 +37,7 @@ class ApiResponse<T> {
     return this._status;
   }
 
-  get paginate(): PaginationData {
+  get paginate(): PaginationData | undefined {
     return this._paginate;
   }
 

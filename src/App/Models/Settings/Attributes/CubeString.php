@@ -9,14 +9,22 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValid
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 
-class CubeString extends CubeStringable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader
+class CubeString extends CubeStringable implements HasFakeMethod,
+    HasMigrationColumn,
+    HasPropertyValidationRule,
+    HasBladeInputComponent,
+    HasDatatableColumnString,
+    HasHtmlTableHeader,
+    HasDataTableColumnObjectString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -70,10 +78,19 @@ class CubeString extends CubeStringable implements HasFakeMethod, HasMigrationCo
     }
 
     public function htmlTableHeader(): HtmlTableHeaderString
-
     {
         return new HtmlTableHeaderString(
             $this->labelNaming(),
+        );
+    }
+
+    public function datatableColumnObject(string $actor): DataTableColumnObjectString
+    {
+        return new DataTableColumnObjectString(
+            $this->name,
+            $this->labelNaming(),
+            false,
+            true,
         );
     }
 }

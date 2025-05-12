@@ -27,7 +27,7 @@ export interface DataTableData<ApiResponse, Data> {
   importExampleRoute?: string;
   exportRoute?: string;
   exportables?: string[];
-  getDataArray: (res: ApiResponse) => Data[];
+  getDataArray: (res: ApiResponse) => Data[]|undefined;
   getTotalPages: (res: ApiResponse) => number;
   getNextPage?: (res: ApiResponse) => number;
   getPreviousPage?: (res: ApiResponse) => number;

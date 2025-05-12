@@ -12,6 +12,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasH
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
@@ -27,6 +28,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTa
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 
 class CubeTranslatable extends CubeStringable implements HasFakeMethod,
     HasMigrationColumn,
@@ -37,7 +39,8 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
     HasDatatableColumnString,
     HasHtmlTableHeader,
     HasReactTsInputString,
-    HasReactTsDisplayComponentString
+    HasReactTsDisplayComponentString,
+    HasDataTableColumnObjectString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -215,6 +218,16 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
                     : new TsImportString("SmallTextField", "@/Components/Show/SmallTextField"),
                 new TsImportString("translate", "@/Models/Translatable", false),
             ]
+        );
+    }
+
+    public function datatableColumnObject(string $actor): DataTableColumnObjectString
+    {
+        return new DataTableColumnObjectString(
+            $this->name,
+            $this->labelNaming(),
+            true,
+            true,
         );
     }
 }
