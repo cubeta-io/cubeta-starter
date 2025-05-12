@@ -58,6 +58,8 @@ class InertiaReactTSController extends AbstractGenerator
             ->requestNamespace($this->table->getRequestNameSpace(false))
             ->modelNamespace($this->table->getModelNameSpace(false))
             ->serviceName($this->table->getServiceName())
+            ->resourceName($this->table->getResourceName())
+            ->resourceNamespace($this->table->getResourceNameSpace(false))
             ->generate($controllerPath, $this->override);
 
         $this->addRoute($this->table, $this->actor, ContainerType::WEB);

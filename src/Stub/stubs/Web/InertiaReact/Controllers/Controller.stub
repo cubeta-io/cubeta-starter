@@ -4,6 +4,7 @@ namespace {{namespace}};
 use {{request_namespace}};
 use {{model_namespace}};
 use {{service_namespace}};
+use {{resource_namespace}};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\WebController;
@@ -24,17 +25,11 @@ class {{model_name}}Controller extends WebController
     public function data()
     {
         $items = $this->{{model_name_camel_case}}Service->indexWithPagination($this->relations);
-        if($items){
-            return response()->json([
-                'data' => $items->items(),
-                'pagination_data' => $this->paginationData($items),
-            ], 200);
-        }
-
-        return response()->json([
-            'data' => [],
-            'pagination_data' => null,
-        ], 200);
+        return rest()
+           ->ok()
+           ->getSuccess()
+           ->data($items)
+           ->send();
     }
 
     public function index()
@@ -49,7 +44,7 @@ class {{model_name}}Controller extends WebController
     {
         ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->view(${{model_name_camel_case}}Id , $this->relations);
         return Inertia::render('{{show_page}}', [
-            '{{model_name_camel_case}}' => ${{model_name_camel_case}},
+            '{{model_name_camel_case}}' => {{resource_name}}::make(${{model_name_camel_case}}),
         ]);
     }
 
@@ -80,7 +75,7 @@ class {{model_name}}Controller extends WebController
             abort(404);
         }
         return Inertia::render('{{update_page}}' , [
-            '{{model_name_camel_case}}' => ${{model_name_camel_case}}
+            '{{model_name_camel_case}}' => {{resource_name}}::make(${{model_name_camel_case}})
         ]);
     }
 
@@ -103,13 +98,12 @@ class {{model_name}}Controller extends WebController
     {
         $result = $this->{{model_name_camel_case}}Service->delete(${{model_name_camel_case}}Id);
 
-        if ($result) {
-            return response()
-                ->json(['success' => trans("site.delete_successfully")], 200);
-        }
-
-        return response()
-            ->json(['error' => trans('site.there_is_no_data')], 404);
+        return rest()
+            ->when(
+                $result,
+                fn($rest) => $rest->ok()->deleteSuccess(),
+                fn($rest) => $rest->noData(),
+            )->send();
     }
 
     public function export(Request $request)
@@ -120,7 +114,7 @@ class {{model_name}}Controller extends WebController
             $result = $this->{{model_name_camel_case}}Service->export($ids);
             session()->flash('success' , trans('site.success'));
             return $result;
-        } catch(Exception $e){
+        } catch(Exception){
             return redirect()
                 ->back()
                 ->with('error' , trans('site.something_went_wrong'));
@@ -133,7 +127,7 @@ class {{model_name}}Controller extends WebController
             $result = $this->{{model_name_camel_case}}Service->getImportExample();
             session()->flash('success' , trans('site.success'));
             return $result;
-        } catch(Exception $e){
+        } catch(Exception){
             return redirect()
                 ->back()
                 ->with('error' , trans('site.something_went_wrong'));

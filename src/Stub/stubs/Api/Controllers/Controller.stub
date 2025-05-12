@@ -19,7 +19,7 @@ class {{model_name}}Controller extends ApiController{
         $this->relations = [] ;
     }
 
-     public function index()
+    public function index()
     {
         $items = $this->{{service_name}}Service->indexWithPagination($this->relations);
         return rest()

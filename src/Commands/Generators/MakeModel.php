@@ -2,8 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeModel extends BaseCommand
@@ -90,8 +92,13 @@ class MakeModel extends BaseCommand
             $this->call('create:repository', ['name' => $name]);
             $this->call('create:service', ['name' => $name]);
 
-            if (ContainerType::isApi($container)) {
+            if ((ContainerType::isWeb($container) && Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS)
+                || ContainerType::isApi($container)
+            ) {
                 $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'container' => $container]);
+            }
+
+            if (ContainerType::isApi($container)) {
                 $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
                 $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
             }

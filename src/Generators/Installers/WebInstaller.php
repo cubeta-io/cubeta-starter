@@ -50,9 +50,14 @@ class WebInstaller extends AbstractGenerator
         $this->generateSidebar($override);
 
         FileUtils::registerProvider("App\\Providers\\CubetaStarterServiceProvider::class");
+
+        $this->registerHelpersFile();
+
         CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::BLADE->value));
+
         Settings::make()->setInstalledWeb();
         Settings::make()->setFrontendType(FrontendTypeEnum::BLADE);
+
         CubeLog::add(new CubeInfo("Don't forgot to install web packages by the GUI or by running [php artisan cubeta:install web-packages]"));
     }
 

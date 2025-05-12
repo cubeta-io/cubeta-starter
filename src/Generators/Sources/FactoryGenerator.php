@@ -46,8 +46,6 @@ class FactoryGenerator extends AbstractGenerator
             ->modelName($this->table->modelName)
             ->generate($factoryPath, $this->override);
 
-        $factoryPath->format();
-
         CodeSniffer::make()->setModel($this->table)->checkForFactoryRelations();
     }
 

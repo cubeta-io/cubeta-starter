@@ -10,6 +10,8 @@ use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Logs\CubeError;
+use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
@@ -95,11 +97,6 @@ abstract class AbstractGenerator
         }
     }
 
-    protected function stubsPath(): string
-    {
-        return "";
-    }
-
     protected function publishBaseService(bool $override = false): void
     {
         $publishPath = CubePath::make(config('cubeta-starter.service_path') . "/Contracts/BaseService.php");
@@ -137,5 +134,36 @@ abstract class AbstractGenerator
         $this->generateFileFromStub([
             "{namespace}" => config('cubeta-starter.trait_namespace'),
         ], $mediaTraitPath->fullPath, $override, CubePath::stubPath("traits/HasMedia.stub"));
+    }
+
+    protected function registerHelpersFile(): void
+    {
+        $composerPath = CubePath::make("composer.json");
+        $json = json_decode($composerPath->getContent(), true);
+        if (!$json) {
+            CubeLog::add(new CubeError("Failed to register helpers file in the composer.json file", $composerPath->fullPath, "Installing api tools"));
+            return;
+        }
+
+        if (isset($json['autoload-dev']['files'])) {
+            if (!in_array("app/Helpers/helpers.php", $json['autoload-dev']['files'])) {
+                $json['autoload-dev']['files'][] = "app/Helpers/helpers.php";
+            }
+        } else {
+            $json['autoload-dev']['files'] = [
+                "app/Helpers/helpers.php"
+            ];
+        }
+
+        $composerPath->putContent(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+        FileUtils::executeCommandInTheBaseDirectory("composer dump-autoload");
+
+        CubeLog::add(
+            new CubeInfo(
+                "Helpers file registered successfully",
+                "Installing api tools"
+            ),
+        );
     }
 }

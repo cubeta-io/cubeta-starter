@@ -56,6 +56,8 @@ class ReactTSInertiaInstaller extends AbstractGenerator
         $this->addIndexPageRoute($this->version, FrontendTypeEnum::REACT_TS);
         $this->generateSidebar($override);
 
+        $this->registerHelpersFile();
+
         Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
         Settings::make()->setInstalledWeb();
     }

@@ -5,8 +5,11 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
+use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Stub\Builders\Resources\ResourceStubBuilder;
 
 class ResourceGenerator extends AbstractGenerator
@@ -15,6 +18,11 @@ class ResourceGenerator extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
+        if (Settings::make()->installedWeb() && Settings::make()->getFrontendType() != FrontendTypeEnum::REACT_TS){
+            CubeLog::error("Resource is available when generating for api or react frontend stack");
+            return;
+        }
+
         $resourcePath = $this->table->getResourcePath();
 
         ResourceStubBuilder::make()

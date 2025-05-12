@@ -18,6 +18,8 @@ use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
  * @method self indexRoute(string $indexRouteName)
  * @method self updatePage (string $updatePageRouteName)
  * @method self relations (string $relations)
+ * @method self resourceNamespace(string $namespace)
+ * @method self resourceName(string $name)
  */
 class ControllerStubBuilder extends ClassStubBuilder
 {

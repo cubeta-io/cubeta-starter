@@ -52,8 +52,6 @@ class ApiInstaller extends AbstractGenerator
         );
         $this->registerHelpersFile();
 
-        FileUtils::executeCommandInTheBaseDirectory("composer dump-autoload");
-
         Settings::make()->setInstalledApi();
     }
 
@@ -177,32 +175,5 @@ class ApiInstaller extends AbstractGenerator
         } catch (Exception $exception) {
             CubeLog::add($exception);
         }
-    }
-
-    private function registerHelpersFile(): void
-    {
-        $composerPath = CubePath::make("composer.json");
-        $json = json_decode($composerPath->getContent(), true);
-        if (!$json) {
-            CubeLog::add(new CubeError("Failed to register helpers file in the composer.json file", $composerPath->fullPath, "Installing api tools"));
-            return;
-        }
-
-        if (isset($json['autoload-dev']['files'])) {
-            $json['autoload-dev']['files'][] = "app/Helpers/helpers.php";
-        } else {
-            $json['autoload-dev']['files'] = [
-                "app/Helpers/helpers.php"
-            ];
-        }
-
-        $composerPath->putContent(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-
-        CubeLog::add(
-            new CubeInfo(
-                "Helpers file registered successfully",
-                "Installing api tools"
-            ),
-        );
     }
 }

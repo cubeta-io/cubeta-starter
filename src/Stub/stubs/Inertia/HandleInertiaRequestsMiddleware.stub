@@ -3,9 +3,12 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Inertia\Middleware;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -30,18 +33,21 @@ class HandleInertiaRequests extends Middleware
 
     /**
      * Define the props that are shared by default.
-     *
      * @see https://inertiajs.com/shared-data
-     *
+     * @param Request $request
      * @return array<string, mixed>
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function share(Request $request): array
     {
+        JsonResource::withoutWrapping();
+
         return array_merge(parent::share($request), [
             'availableLocales' => config('cubeta-starter.available_locales'),
             'currentLocale'    => Session::get('locale') ?? "en",
             'authUser'         => auth()->user(),
-            'currentRoute'     => Str::replace(env('APP_URL'), "", $request->fullUrl()),
+            'currentRoute'     => Str::replace(config('app.url'), "", $request->fullUrl()),
             'asset'            => asset('/'),
             'baseUrl'          => (config('cubeta-starter.project_url') ?? config('app.url')) ?? '/',
             'csrfToken'        => csrf_token(),

@@ -24,6 +24,7 @@ class GeneratorFactory
             Sources\SeederGenerator::$key,
             Sources\RepositoryGenerator::$key,
             Sources\ServiceGenerator::$key,
+            Sources\ResourceGenerator::$key,
             Installers\BladePackagesInstaller::$key,
             Installers\PermissionsInstaller::$key,
             Installers\ReactTSInertiaInstaller::$key,
