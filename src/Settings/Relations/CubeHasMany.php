@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Settings\Relations;
+namespace Cubeta\CubetaStarter\Settings\Relations;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFactoryRelationMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
@@ -10,8 +10,8 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescri
 use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FactoryRelationMethodStringString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\ModelRelationString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;

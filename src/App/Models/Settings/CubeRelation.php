@@ -2,12 +2,12 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Relations\CubeBelongsTo;
-use Cubeta\CubetaStarter\App\Models\Settings\Relations\CubeHasMany;
-use Cubeta\CubetaStarter\App\Models\Settings\Relations\CubeManyToMany;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Settings\Relations\CubeBelongsTo;
+use Cubeta\CubetaStarter\Settings\Relations\CubeHasMany;
+use Cubeta\CubetaStarter\Settings\Relations\CubeManyToMany;
 use Cubeta\CubetaStarter\Traits\HasPathAndNamespace;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
 use Illuminate\Support\Str;

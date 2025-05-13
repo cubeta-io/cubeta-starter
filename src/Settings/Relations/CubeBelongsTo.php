@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Settings\Relations;
+namespace Cubeta\CubetaStarter\Settings\Relations;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMethod;
