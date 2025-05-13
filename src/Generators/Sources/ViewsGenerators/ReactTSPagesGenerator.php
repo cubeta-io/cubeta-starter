@@ -164,6 +164,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                     ->import(new TsImportString("TranslatableInputsContext", "@/Contexts/TranslatableInputsContext"))
             )->formFieldInterface(new InterfacePropertyString("_method", "'PUT'|'POST'", true));
 
+        $builder->defaultValue("__method", "'PUT'");
+
         $this->table->attributes()
             ->whereInstanceOf(HasReactTsInputString::class)
             ->each(function (CubeAttribute|HasReactTsInputString $attr) use ($builder) {
