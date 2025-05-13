@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\Stub\Contracts\TypescriptFileBuilder;
 
 /**

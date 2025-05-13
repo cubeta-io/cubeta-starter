@@ -15,24 +15,24 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasD
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
+use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
+use Cubeta\CubetaStarter\StringValues\Strings\Models\CastColumnString;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Tests\TestAdditionalFactoryDataString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript\DataTableColumnString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 
 class CubeDateable extends CubeAttribute implements HasFakeMethod,
     HasMigrationColumn,

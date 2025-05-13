@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Factories;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 
 /**

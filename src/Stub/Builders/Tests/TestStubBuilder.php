@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Tests;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\StringValues\Strings\Tests\TestAdditionalFactoryDataString;
 use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 
 /**

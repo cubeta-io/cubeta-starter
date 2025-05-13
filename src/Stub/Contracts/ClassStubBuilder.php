@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Stub\Contracts;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\MethodString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\TraitString;
+use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\MethodString;
+use Cubeta\CubetaStarter\StringValues\Strings\TraitString;
 
 abstract class ClassStubBuilder extends StubBuilder
 {

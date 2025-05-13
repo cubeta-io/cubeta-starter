@@ -8,10 +8,10 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationCo
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
+use Cubeta\CubetaStarter\StringValues\Strings\Models\CastColumnString;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
 
 class CubeInteger extends CubeNumeric implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn, HasPropertyValidationRule, HasBladeInputComponent
 {

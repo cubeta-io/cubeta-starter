@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FactoryRelationMethodStringString;
+use Cubeta\CubetaStarter\StringValues\Strings\Factories\FactoryRelationMethodStringString;
 
 interface HasFactoryRelationMethod
 {

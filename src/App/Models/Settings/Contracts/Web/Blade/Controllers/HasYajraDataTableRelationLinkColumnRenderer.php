@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Controllers;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Controllers\YajraDataTableRelationLinkColumnRenderer;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\YajraDataTableRelationLinkColumnRenderer;
 
 interface HasYajraDataTableRelationLinkColumnRenderer
 {

@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Contracts\Tests;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
+use Cubeta\CubetaStarter\StringValues\Strings\Tests\TestAdditionalFactoryDataString;
 
 interface HasTestAdditionalFactoryData
 {

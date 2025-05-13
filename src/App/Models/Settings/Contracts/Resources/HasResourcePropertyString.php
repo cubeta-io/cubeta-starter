@@ -3,7 +3,7 @@
 namespace Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources;
 
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
 
 interface HasResourcePropertyString
 {

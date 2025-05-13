@@ -4,10 +4,6 @@ namespace Cubeta\CubetaStarter\Settings;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeBoolean;
@@ -25,6 +21,10 @@ use Cubeta\CubetaStarter\Settings\Attributes\CubeTime;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeTimestamp;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeTranslatable;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeUnsignedBigInteger;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
 
 /**

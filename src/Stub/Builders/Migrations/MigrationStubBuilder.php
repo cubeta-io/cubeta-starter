@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Migrations;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\Stub\Contracts\PhpFileStubBuilder;
 
 /**

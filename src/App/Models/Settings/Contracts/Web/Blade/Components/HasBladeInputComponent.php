@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
 
 interface HasBladeInputComponent
 {

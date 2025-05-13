@@ -2,7 +2,7 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
+use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
 
 interface HasMigrationColumn
 {
