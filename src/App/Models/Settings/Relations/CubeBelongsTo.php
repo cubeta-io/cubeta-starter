@@ -161,7 +161,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         ];
 
         if ($column->isTranslatable()) {
-            $imports[] = new TsImportString("translate", "@/Models/Translatable");
+            $imports[] = new TsImportString("translate", "@/Models/Translatable" , false);
         }
 
         return new ReactTsDisplayComponentString(
@@ -177,7 +177,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     public function datatableColumnObject(string $actor): DataTableColumnObjectString
     {
         $column = $this->getTable()->titleable();
-        $showRoute = $this->getRouteNames($this->getRelatedModel(), ContainerType::WEB, $actor)['show'];
+        $showRoute = $this->getRouteNames($this->getTable(), ContainerType::WEB, $actor)['show'];
         $viewValue = $column->isTranslatable() ? "translate(record?.{$column->name})" : "record?.{$column->name}";
 
         $imports = [
@@ -194,7 +194,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             $column->isTranslatable(),
             true,
             "return (<Link className=\"hover:text-primary underline\"
-                        href={route(\"$showRoute\" , record.id)}>
+                        href={route(\"$showRoute\" , record?.{$this->key})}>
                         {{$viewValue}}
                     </Link>)",
             $imports,
