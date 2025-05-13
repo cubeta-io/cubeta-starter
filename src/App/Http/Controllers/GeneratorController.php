@@ -3,7 +3,6 @@
 namespace Cubeta\CubetaStarter\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
@@ -11,12 +10,13 @@ use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 use Cubeta\CubetaStarter\Generators\Installers\ApiInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\AuthInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\BladePackagesInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\PermissionsInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\ReactTSInertiaInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\ReactTsPackagesInstaller;
-use Cubeta\CubetaStarter\Generators\Installers\PermissionsInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\WebInstaller;
 use Cubeta\CubetaStarter\Generators\Sources\ActorFilesGenerator;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Settings\Settings;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;

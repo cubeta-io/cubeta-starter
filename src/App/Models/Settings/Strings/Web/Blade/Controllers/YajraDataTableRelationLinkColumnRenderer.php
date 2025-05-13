@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Controllers;
 
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 
 class YajraDataTableRelationLinkColumnRenderer

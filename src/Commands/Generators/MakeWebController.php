@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
+use Cubeta\CubetaStarter\Settings\CubeTable;
 
 class MakeWebController extends BaseCommand
 {

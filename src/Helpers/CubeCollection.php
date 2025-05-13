@@ -3,8 +3,8 @@
 namespace Cubeta\CubetaStarter\Helpers;
 
 use Closure;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Illuminate\Support\Collection;
 
 /**

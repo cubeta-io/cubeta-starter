@@ -11,9 +11,6 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasH
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
@@ -29,6 +26,9 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Str;
 

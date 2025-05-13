@@ -8,11 +8,11 @@
         }else{
             $actors = [];
         }
-        $installedApi = \Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedApi();
-        $installedWeb = \Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedWeb();
-        $installedRoles = \Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedRoles();
-        $installedApiAuth = \Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedApiAuth();
-        $installedWebAuth = \Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedWebAuth();
+        $installedApi = \Cubeta\CubetaStarter\Settings\Settings::make()->installedApi();
+        $installedWeb = \Cubeta\CubetaStarter\Settings\Settings::make()->installedWeb();
+        $installedRoles = \Cubeta\CubetaStarter\Settings\Settings::make()->installedRoles();
+        $installedApiAuth = \Cubeta\CubetaStarter\Settings\Settings::make()->installedApiAuth();
+        $installedWebAuth = \Cubeta\CubetaStarter\Settings\Settings::make()->installedWebAuth();
     @endphp
 
     <div class="d-flex align-items-center justify-content-start flex-column w-100">
@@ -45,8 +45,8 @@
                             <div class="col-md-3 my-2">
                                 <input class="form-check-input" name="web" type="checkbox" value="true"
                                        id="ask_dashboard"
-                                    @disabled($installedWeb)
-                                    @checked(!$installedWeb)
+                                        @disabled($installedWeb)
+                                        @checked(!$installedWeb)
                                 >
                             </div>
 
@@ -58,7 +58,7 @@
                                     @foreach($stacks as $stack)
                                         @if($stack != \Cubeta\CubetaStarter\Enums\FrontendTypeEnum::NONE->value)
                                             <option
-                                                value="{{$stack}}" @disabled(\Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->getFrontendType() == \Cubeta\CubetaStarter\Enums\FrontendTypeEnum::tryFrom($stack))>
+                                                    value="{{$stack}}" @disabled(\Cubeta\CubetaStarter\Settings\Settings::make()->getFrontendType() == \Cubeta\CubetaStarter\Enums\FrontendTypeEnum::tryFrom($stack))>
                                                 {{$stack}}
                                             </option>
                                         @endif
@@ -97,7 +97,7 @@
                             <div class="col-md-3 my-2">
                                 <input class="form-check-input" name="permissions" type="checkbox" value="true"
                                        id="ask_permissions"
-                                    @disabled($installedRoles)
+                                        @disabled($installedRoles)
                                 >
                             </div>
 
@@ -110,7 +110,7 @@
                                        id="ask_overrid">
                             </div>
                         </div>
-                        @if(\Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedRoles())
+                        @if(\Cubeta\CubetaStarter\Settings\Settings::make()->installedRoles())
                             <div class="d-flex flex-column align-items-start justify-content-start my-3">
                                 <h2 class="text-white">Actors : </h2>
                                 <p class="text-white">{{implode(' , ',array_filter($actors , fn ($actor) => $actor != 'none'))}}</p>
@@ -127,7 +127,7 @@
         </div>
 
 
-        @if(\Cubeta\CubetaStarter\App\Models\Settings\Settings::make()->installedRoles())
+        @if(\Cubeta\CubetaStarter\Settings\Settings::make()->installedRoles())
             <div class="w-100 d-flex justify-content-center align-items-center my-4"
                  style="margin-bottom: 200px!important; max-width: 60%;">
                 <div class="card w-100">

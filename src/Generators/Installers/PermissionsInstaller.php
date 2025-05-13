@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\MigrationGenerator;
@@ -13,6 +12,7 @@ use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
+use Cubeta\CubetaStarter\Settings\Settings;
 
 class PermissionsInstaller extends AbstractGenerator
 {

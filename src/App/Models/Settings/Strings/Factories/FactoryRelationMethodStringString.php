@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories;
 
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MethodString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
+use Cubeta\CubetaStarter\Settings\CubeTable;
 
 class FactoryRelationMethodStringString extends MethodString
 {

@@ -2,8 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources\WebControllers;
 
-use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
-use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\SidebarItemString;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
@@ -13,6 +11,8 @@ use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
+use Cubeta\CubetaStarter\Settings\CubeRelation;
+use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Controllers\ControllerStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;

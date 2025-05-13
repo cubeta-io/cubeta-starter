@@ -3,10 +3,10 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Carbon\Carbon;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\Settings\CubeRelation;
+use Cubeta\CubetaStarter\Settings\CubeTable;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 

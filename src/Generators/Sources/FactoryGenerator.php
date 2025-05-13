@@ -4,10 +4,10 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFactoryRelationMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Stub\Builders\Factories\FactoryStubBuilder;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 

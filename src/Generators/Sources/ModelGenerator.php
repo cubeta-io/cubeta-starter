@@ -6,12 +6,12 @@ use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelScopeMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\TraitString;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Stub\Builders\Models\ModelStubBuilder;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 

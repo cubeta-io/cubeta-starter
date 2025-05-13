@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Helpers;
 
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
@@ -10,6 +9,7 @@ use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
+use Cubeta\CubetaStarter\Settings\CubeTable;
 
 class ClassUtils
 {

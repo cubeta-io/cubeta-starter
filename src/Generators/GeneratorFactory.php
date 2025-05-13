@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Generators;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Settings\Settings;
 use Error;
 use Mockery\Exception;
 use Throwable;

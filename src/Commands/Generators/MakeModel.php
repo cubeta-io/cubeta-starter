@@ -2,11 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
+use Cubeta\CubetaStarter\Settings\Settings;
 
 class MakeModel extends BaseCommand
 {
