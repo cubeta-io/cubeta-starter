@@ -36,11 +36,11 @@ const Index = ({exportables}:{exportables:string[]}) => {
                 {{columns}}
                 {
                     label: "Options",
-                    render: (_data, {{model_variable}}, setHidden, revalidate) => (
+                    render: (_data, record, setHidden, revalidate) => (
                         <ActionsButtons
                             buttons={["delete", "edit", "show"]}
                             baseUrl={route("{{index_route}}")}
-                            id={{{model_variable}}?.id ?? 0}
+                            id={record?.id ?? 0}
                             setHidden={setHidden}
                         />
                     ),
