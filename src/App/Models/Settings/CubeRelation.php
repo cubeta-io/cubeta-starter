@@ -99,25 +99,29 @@ class CubeRelation
 
     /**
      * the relation is existing if its model class is defined
-     * @param bool $withTypescriptChecking
+     * @param bool $withTypescriptChecking when true this mean check for the TypeScript model if exist
+     * @param bool $withMethodChecking     when true this mean check for the relation method within the model if exists
      * @return bool
      */
-    public function exists(bool $withTypescriptChecking = false): bool
+    public function exists(bool $withTypescriptChecking = false, bool $withMethodChecking = false): bool
     {
-        $model = $this->getTable(); // product
-        $relatedModel = $this->getRelatedModel(); // category
-        $exist = $model->getModelPath()->exist()
-            && $relatedModel->getModelPath()->exist()
-            && ClassUtils::isMethodDefined( // category model has "product" method
-                $relatedModel->getModelPath(),
-                $this->method()
-            );
+        // assuming that this relation is the products relation of
+        // the category has many products
+        $relatedModel = $this->getTable(); // category model
+        $exist = $relatedModel->getModelPath()->exist();
 
-        if (!$withTypescriptChecking) {
-            return $exist;
+        if ($withMethodChecking) {
+            $exist = $exist && ClassUtils::isMethodDefined( // category model has a "product" method
+                    $relatedModel->getModelPath(),
+                    $this->method()
+                );
         }
 
-        return $exist && $model->getTSModelPath()->exist() && $relatedModel->getTSModelPath()->exist();
+        if ($withTypescriptChecking) {
+            $exist = $exist && $relatedModel->getTSModelPath()->exist();
+        }
+
+        return $exist;
     }
 
     /**
@@ -128,13 +132,15 @@ class CubeRelation
      */
     public function loadable(): bool
     {
-        $related = CubeTable::create($this->relatedModel);
+        // assuming that this relation is the products relation of
+        // the category has many products
+        $related = CubeTable::create($this->relatedModel); // category model
         $relatedModelPath = $related->getModelPath();
 
-        return $relatedModelPath->exist()
-            && $this->getModelPath()->exist()
-            && ClassUtils::isMethodDefined($relatedModelPath, $this->method())
-            && ClassUtils::isMethodDefined($this->getModelPath(), $related->relationMethodNaming(singular: $this->isHasMany() || $this->isHasOne()));
+        return $relatedModelPath->exist() // category model exists
+            && $this->getModelPath()->exist() // product model exists
+            && ClassUtils::isMethodDefined($relatedModelPath, $this->method()) // the category model has the products method
+            && ClassUtils::isMethodDefined($this->getModelPath(), $related->relationMethodNaming(singular: $this->isHasMany() || $this->isHasOne())); // the product model has the category method
     }
 
     /**
