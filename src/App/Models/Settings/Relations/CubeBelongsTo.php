@@ -168,7 +168,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             "SmallTextField",
             $this->titleNaming(),
             $column->isTranslatable()
-                ? "translate(" . $parentModel->variableNaming() . "." . $this->relationMethodNaming() . "." . $column->name . ")"
+                ? "translate(" . $parentModel->variableNaming() . "?." . $this->relationMethodNaming() . "?." . $column->name . ")"
                 : $parentModel->variableNaming() . "?." . $this->relationMethodNaming() . "?." . $column->name,
             $imports,
         );
