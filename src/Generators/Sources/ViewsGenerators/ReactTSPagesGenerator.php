@@ -155,7 +155,6 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->formTitle("Edit {$this->table->modelNaming()}")
             ->componentProps("{{$this->table->variableNaming()}}:{{$this->table->variableNaming()}:{$this->table->modelNaming()}}")
             ->import(new TsImportString($this->table->modelNaming(), "@/Models/{$this->table->modelNaming()}"))
-            ->setPut("setData(\"_method\" , 'PUT');")
             ->action("post(route(\"{$updateRoute}\" , {$this->table->variableNaming()}.id));")
             ->when(
                 $this->table->hasTranslatableAttribute(),
@@ -164,7 +163,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                     ->import(new TsImportString("TranslatableInputsContext", "@/Contexts/TranslatableInputsContext"))
             )->formFieldInterface(new InterfacePropertyString("_method", "'PUT'|'POST'", true));
 
-        $builder->defaultValue("__method", "'PUT'");
+        $builder->defaultValue("_method", "'PUT'");
 
         $this->table->attributes()
             ->whereInstanceOf(HasReactTsInputString::class)
