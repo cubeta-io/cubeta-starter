@@ -1,13 +1,11 @@
 import ActionsButtons from "@/Components/Datatable/ActionsButtons";
 import DataTable from "@/Components/Datatable/DataTable";
 import {{model_name}} from "@/Models/{{model_name}}";
-import { getLocale } from "@/helper";
 import ApiResponse from "@/Modules/Http/ApiResponse";
 import Http from "@/Modules/Http/Http";
 {{imports}}
 
 const Index = ({exportables}:{exportables:string[]}) => {
-    const locale = getLocale();
     return (
         <DataTable
             title="{{model_name}} Table"
