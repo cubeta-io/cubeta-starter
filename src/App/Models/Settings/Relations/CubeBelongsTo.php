@@ -178,7 +178,9 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     {
         $column = $this->getTable()->titleable();
         $showRoute = $this->getRouteNames($this->getTable(), ContainerType::WEB, $actor)['show'];
-        $viewValue = $column->isTranslatable() ? "translate(record?.{$column->name})" : "record?.{$column->name}";
+        $viewValue = $column->isTranslatable()
+            ? "translate(record?.{$this->method()}?.{$column->name})"
+            : "record?.{$this->method()}?.{$column->name}";
 
         $imports = [
             new TsImportString("Link", "@inertiajs/react", false)
