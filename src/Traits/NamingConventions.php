@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 
 /**
  * Provides naming conventions for various components such as variables, routes, models, tables, etc.
@@ -240,5 +241,10 @@ trait NamingConventions
             'true' => Str::title($this->name),
             'false' => 'Not' . Str::title($this->name),
         ];
+    }
+
+    public function routeParameterNaming(): Stringable
+    {
+        return str($this->usedString)->snake()->singular()->lower();
     }
 }
