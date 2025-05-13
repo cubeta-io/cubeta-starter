@@ -36,8 +36,8 @@ class InertiaReactTSController extends AbstractGenerator
         $controllerPath = $this->table->getWebControllerPath();
         $loadedRelations = $this->table
             ->relations()
-            ->filter(fn(CubeRelation $rel) => $rel->getModelPath()->exist())
-            ->stringifyEachOne()
+            ->filter(fn(CubeRelation $rel) => $rel->loadable())
+            ->stringifyEachOne(fn(CubeRelation $relation) => $relation->method())
             ->implode(",");
 
         $controllerPath->ensureDirectoryExists();
