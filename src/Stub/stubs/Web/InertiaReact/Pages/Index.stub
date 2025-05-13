@@ -18,14 +18,13 @@ const Index = ({exportables}:{exportables:string[]}) => {
             getTotalPages={(res) => res?.paginate?.total_pages ?? 0}
             getTotalRecords={(res) => res.paginate?.total ?? 0}
             api={(
-                page?: number | undefined,
-                search?: string | undefined,
-                sortCol?: string | undefined,
-                sortDir?: string | undefined,
-                perPage?: number | undefined,
-                params?: object | undefined
-            ): Promise<ApiResponse<{{model_name}}[]>> =>
-                Http.make().get(route("{{data_route}}"),{page:page,search:search,sort_col:sortCol,sort_dir:sortDir,limit:perPage,...params})
+                    page?: number | undefined,
+                    search?: string | undefined,
+                    sortCol?: string | undefined,
+                    sortDir?: string | undefined,
+                    perPage?: number | undefined,
+                    params?: object | undefined
+                ) => Http.make<{{model_name}}[]>().get(route("{{data_route}}"),{page:page,search:search,sort_col:sortCol,sort_dir:sortDir,limit:perPage,...params})
             }
             schema={[
                 {

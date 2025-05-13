@@ -92,7 +92,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         $attributes = [
             [
                 'key' => 'api',
-                'value' => "(page, search): Promise<ApiResponse<{$modelName}[]>> => Http.make().get(route(\"$dataRoute\"),{page:page,search:search})"
+                'value' => "(page, search) => Http.make<{$modelName}[]>().get(route(\"$dataRoute\"),{page:page,search:search})"
             ],
             [
                 'key' => 'getDataArray',

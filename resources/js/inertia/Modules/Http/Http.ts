@@ -1,6 +1,6 @@
 import ApiResponse from "@/Modules/Http/ApiResponse";
 
-class HTTP {
+class HTTP<RESPONSE extends any = any> {
   private static instance: HTTP | undefined = undefined;
   private baseHeaders = {
     Accept: "application/json",
@@ -10,12 +10,14 @@ class HTTP {
 
   private constructor() {}
 
-  public static make() {
+  public static make<
+    T extends any = any,
+  >(): HTTP<T> {
     if (!this.instance) {
-      this.instance = new HTTP();
+      this.instance = new HTTP<T>();
     }
 
-    return this.instance;
+    return this.instance as HTTP<T>;
   }
 
   public headers = (headers: Record<string, string>) => {
@@ -23,23 +25,26 @@ class HTTP {
     return this;
   };
 
-  public get = async <RESPONSE>(
+  public get = async (
     url: string,
     params?: Record<string, any>,
     headers?: Record<string, string>,
-  ): Promise<ApiResponse<RESPONSE>> => {
+  ): Promise<ApiResponse<RESPONSE | undefined>> => {
     return await this.run("GET", url, headers, params, undefined);
   };
 
-  public post = async <RESPONSE>(
+  public post = async (
     url: string,
     data: Record<string, any> = {},
     headers?: Record<string, string>,
-  ): Promise<ApiResponse<RESPONSE>> => {
+  ): Promise<ApiResponse<RESPONSE | undefined>> => {
     return await this.run("POST", url, headers, undefined, data);
   };
 
-  public delete = async (url: string, headers?: Record<string, string>) => {
+  public delete = async (
+    url: string,
+    headers?: Record<string, string>,
+  ): Promise<ApiResponse<RESPONSE | undefined>> => {
     return await this.run("DELETE", url, headers, undefined);
   };
 
@@ -47,7 +52,8 @@ class HTTP {
     url: string,
     data: Record<string, any> = {},
     headers?: Record<string, string>,
-  ) => {
+  ): Promise<ApiResponse<RESPONSE | undefined>> => {
+    data = { ...data, _method: "PUT" };
     return await this.run("PUT", url, headers, undefined, data);
   };
 
@@ -65,9 +71,14 @@ class HTTP {
         !(params instanceof URLSearchParams)
       ) {
         params = Object.fromEntries(
-          Object.entries(params).filter(([_, value]) => value !== undefined),
+          Object.entries(params).filter(
+            ([_, value]) => value !== undefined,
+          ),
         );
-        url = url + "?" + new URLSearchParams(params as Record<string, string>);
+        url =
+          url +
+          "?" +
+          new URLSearchParams(params as Record<string, string>);
       }
 
       url = this.getUrl(url);
@@ -105,7 +116,13 @@ class HTTP {
     } catch (e) {
       console.error(e);
       console.error("Happened while requesting this url : " + url);
-      return new ApiResponse(undefined, false, 500, "Client error", undefined);
+      return new ApiResponse(
+        undefined,
+        false,
+        500,
+        "Client error",
+        undefined,
+      );
     }
   };
 
