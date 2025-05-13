@@ -3,6 +3,8 @@
 namespace Cubeta\CubetaStarter\Helpers;
 
 use Closure;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
 use Illuminate\Support\Collection;
 
 /**
@@ -21,7 +23,11 @@ class CubeCollection extends Collection
             if ($callable) {
                 return "'{$callable($attribute)}'";
             }
-            return "'{$attribute->usedString}'";
+            if ($attribute instanceof CubeRelation | $attribute instanceof CubeAttribute) {
+                return "'{$attribute->usedString}'";
+            } else {
+                return "'$attribute'";
+            }
         });
     }
 }
