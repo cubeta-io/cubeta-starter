@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\App\Models\Postman\Postman;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Postman\Postman;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\ApiControllerStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Exception;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Postman;
+namespace Cubeta\CubetaStarter\Postman;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;

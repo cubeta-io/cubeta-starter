@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\App\Models\Postman\Postman;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -12,6 +11,7 @@ use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Cubeta\CubetaStarter\Postman\Postman;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\RoleAuthControllerStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Routes\RoleProtectedAuthRoutesStubBuilder;

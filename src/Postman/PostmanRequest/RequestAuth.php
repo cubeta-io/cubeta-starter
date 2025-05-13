@@ -1,8 +1,8 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest;
+namespace Cubeta\CubetaStarter\Postman\PostmanRequest;
 
-use Cubeta\CubetaStarter\App\Models\Postman\PostmanObject;
+use Cubeta\CubetaStarter\Postman\PostmanObject;
 use Illuminate\Support\Collection;
 
 class RequestAuth implements PostmanObject

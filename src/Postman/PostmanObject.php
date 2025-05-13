@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Postman;
+namespace Cubeta\CubetaStarter\Postman;
 
 /**
  * @template T

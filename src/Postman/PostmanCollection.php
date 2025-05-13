@@ -1,17 +1,17 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Postman;
+namespace Cubeta\CubetaStarter\Postman;
 
-use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\FormDataField;
-use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\PostmanRequest;
-use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestAuth;
-use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestBody;
-use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestHeader;
-use Cubeta\CubetaStarter\App\Models\Postman\PostmanRequest\RequestUrl;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Postman\PostmanRequest\FormDataField;
+use Cubeta\CubetaStarter\Postman\PostmanRequest\PostmanRequest;
+use Cubeta\CubetaStarter\Postman\PostmanRequest\RequestAuth;
+use Cubeta\CubetaStarter\Postman\PostmanRequest\RequestBody;
+use Cubeta\CubetaStarter\Postman\PostmanRequest\RequestHeader;
+use Cubeta\CubetaStarter\Postman\PostmanRequest\RequestUrl;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
