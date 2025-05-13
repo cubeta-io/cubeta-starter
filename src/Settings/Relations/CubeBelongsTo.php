@@ -2,19 +2,19 @@
 
 namespace Cubeta\CubetaStarter\Settings\Relations;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeKey;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
+use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelRelationMethod;
+use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Models\ModelRelationString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;

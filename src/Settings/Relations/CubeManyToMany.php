@@ -2,13 +2,13 @@
 
 namespace Cubeta\CubetaStarter\Settings\Relations;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFactoryRelationMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
+use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFactoryRelationMethod;
+use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
+use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelRelationMethod;
+use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Factories\FactoryRelationMethodStringString;
 use Cubeta\CubetaStarter\StringValues\Strings\Models\ModelRelationString;

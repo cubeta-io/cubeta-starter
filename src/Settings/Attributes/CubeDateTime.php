@@ -2,15 +2,15 @@
 
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Tests\HasTestAdditionalFactoryData;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
+use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
+use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelCastColumn;
+use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
+use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Tests\HasTestAdditionalFactoryData;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;

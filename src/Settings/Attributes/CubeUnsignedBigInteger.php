@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn;
+use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
+use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
+use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelCastColumn;
 use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;

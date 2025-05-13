@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Tests\HasTestAdditionalFactoryData;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\StringValues\Contracts\Tests\HasTestAdditionalFactoryData;
 use Cubeta\CubetaStarter\Stub\Builders\Tests\TestStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Str;

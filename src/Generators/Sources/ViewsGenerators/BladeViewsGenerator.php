@@ -2,9 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
@@ -20,6 +17,9 @@ use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\FormLocalSelectorString;
 use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Views\FormViewStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Views\IndexViewStubBuilder;

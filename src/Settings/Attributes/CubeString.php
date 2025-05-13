@@ -3,13 +3,13 @@
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
 
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
+use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
+use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;

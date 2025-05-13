@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources\WebControllers;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
@@ -18,6 +17,7 @@ use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\SidebarItemString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\AllPaginatedJsonMethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\TranslatableColumnDataTableColumnOrderingOptionsArrayString;

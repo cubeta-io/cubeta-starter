@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\Stub\Builders\Requests\RequestStubBuilder;
 
 class RequestGenerator extends AbstractGenerator
