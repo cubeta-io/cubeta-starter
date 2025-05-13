@@ -8,7 +8,7 @@ import { MiddlewareProps } from "@/types";
 
 type Buttons = "delete" | "edit" | "show";
 
-export interface ActionsButtonsProps<Data> {
+export interface ActionsButtonsProps<Data extends Record<string, any>> {
   data?: Data;
   id?: number | string;
   buttons: Buttons[];
@@ -20,7 +20,7 @@ export interface ActionsButtonsProps<Data> {
   setHidden?: (value: ((prevState: number[]) => number[]) | number[]) => void;
 }
 
-function ActionsButtons<Data>({
+function ActionsButtons<Data extends Record<string, any>>({
   data,
   id,
   buttons,

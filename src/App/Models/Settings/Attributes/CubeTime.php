@@ -47,7 +47,7 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
             $this->name,
             [
                 ...$this->uniqueOrNullableValidationRules(),
-                new ValidationRuleString('date_format:H:i:s'),
+                new ValidationRuleString('date_format:H:i'),
             ]
         );
     }
@@ -56,7 +56,7 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
     {
         return new ResourcePropertyString(
             $this->name,
-            "\$this->{$this->name}?->format('H:i:s')"
+            "\$this->{$this->name}?->format('H:i')"
         );
     }
 
@@ -64,7 +64,7 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
     {
         return new TestAdditionalFactoryDataString(
             $this->name,
-            "now()->format('H:i:s')",
+            "now()->format('H:i')",
             [],
         );
     }
@@ -78,7 +78,7 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
         if ($formType == "update") {
             $attributes[] = [
                 'key' => ':value',
-                'value' => "\${$table?->variableNaming()}->{$this->name}?->format('H:i:s')"
+                'value' => "\${$table?->variableNaming()}->{$this->name}?->format('H:i')"
             ];
         }
 
@@ -102,7 +102,7 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
             [
                 [
                     "key" => ":value",
-                    "value" => "\${$modelVariable}->{$this->name}?->format('H:i:s')"
+                    "value" => "\${$modelVariable}->{$this->name}?->format('H:i')"
                 ],
                 [
                     "key" => 'label' ,
