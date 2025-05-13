@@ -32,7 +32,7 @@ export interface IApiSelectProps<TResponse, TData> {
     setSelected?: React.Dispatch<React.SetStateAction<Option[]>>,
     event?: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => void;
-  defaultValues?: TData[] | Option[];
+  defaultValue?: TData[] | Option[] | TData | Option;
   placeHolder?: string;
   label?: string;
   name?: string;
@@ -73,7 +73,7 @@ export interface ISelectProps<TData> {
     setSelected?: React.Dispatch<React.SetStateAction<Option[]>>,
     event?: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => void;
-  defaultValues?: TData[] | Option[];
+  defaultValue?: TData[] | Option[] | TData | Option;
   placeHolder?: string;
   label?: string;
   name?: string;

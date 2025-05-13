@@ -1,15 +1,15 @@
-import ChevronDown from "@/Components/icons/ChevronDown";
-import LoadingSpinner from "@/Components/icons/LoadingSpinner";
-import XMark from "@/Components/icons/XMark";
-import { getNestedPropertyValue } from "@/helper";
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   IApiSelectProps,
   isEqual,
   isOption,
   Option,
 } from "@/Components/form/fields/Select/SelectUtils";
+import ChevronDown from "@/Components/icons/ChevronDown";
+import LoadingSpinner from "@/Components/icons/LoadingSpinner";
+import XMark from "@/Components/icons/XMark";
+import { getNestedPropertyValue } from "@/helper";
 import { usePage } from "@inertiajs/react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 
 function ApiSelect<TResponse, TData>({
   api,
@@ -28,7 +28,7 @@ function ApiSelect<TResponse, TData>({
   getOptionValue = undefined,
   onSelect = undefined,
   placeHolder = "Select An Item",
-  defaultValues = undefined,
+  defaultValue = undefined,
   onChange = undefined,
   revalidateOnOpen = false,
   inputProps = {},
@@ -49,12 +49,16 @@ function ApiSelect<TResponse, TData>({
 
   let df: Option[] = [];
 
-  if (defaultValues) {
-    df = defaultValues.map((val) => {
-      if (isOption(val)) {
-        return val;
-      } else return getOption(val);
-    });
+  if (defaultValue) {
+    if (!Array.isArray(defaultValue)) {
+      df = [isOption(defaultValue) ? defaultValue : getOption(defaultValue)];
+    } else {
+      df = defaultValue.map((val) => {
+        if (isOption(val)) {
+          return val;
+        } else return getOption(val);
+      });
+    }
   }
 
   const [isOpen, setIsOpen] = useState(false);

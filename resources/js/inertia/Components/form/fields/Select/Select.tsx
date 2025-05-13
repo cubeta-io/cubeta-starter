@@ -25,7 +25,7 @@ function Select<TData>({
   getOptionValue = undefined,
   onSelect = undefined,
   placeHolder = "Select An Item",
-  defaultValues = undefined,
+  defaultValue = undefined,
   onChange = undefined,
   required = false,
   inputProps = {},
@@ -44,12 +44,16 @@ function Select<TData>({
 
   let df: Option[] = [];
 
-  if (defaultValues) {
-    df = defaultValues.map((val) => {
-      if (isOption(val)) {
-        return val;
-      } else return getOption(val);
-    });
+  if (defaultValue) {
+    if (!Array.isArray(defaultValue)) {
+      df = [isOption(defaultValue) ? defaultValue : getOption(defaultValue)];
+    } else {
+      df = defaultValue.map((val) => {
+        if (isOption(val)) {
+          return val;
+        } else return getOption(val);
+      });
+    }
   }
 
   const [isOpen, setIsOpen] = useState(false);
