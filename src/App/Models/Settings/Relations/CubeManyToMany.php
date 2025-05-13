@@ -22,17 +22,17 @@ class CubeManyToMany extends CubeRelation implements HasFactoryRelationMethod, H
     public function factoryRelationMethod(): FactoryRelationMethodStringString
     {
         return new FactoryRelationMethodStringString(
-            $this->modelName,
+            $this->relationModel,
         );
     }
 
     public function modelRelationMethod(): ModelRelationString
     {
         return new ModelRelationString(
-            $this->modelName,
+            $this->relationModel,
             RelationsTypeEnum::ManyToMany,
             [
-                "'{$this->getPivotTableName()}'",
+                "'{$this->pivotTableName()}'",
             ]
         );
     }
@@ -40,8 +40,8 @@ class CubeManyToMany extends CubeRelation implements HasFactoryRelationMethod, H
     public function docBlockProperty(): DocBlockPropertyString
     {
         return new DocBlockPropertyString(
-            str($this->modelName)->plural()->lower()->toString(),
-            "Collection<$this->modelName>|null",
+            str($this->relationModel)->plural()->lower()->toString(),
+            "Collection<$this->relationModel>|null",
             imports: [
                 new PhpImportString($this->getModelNameSpace()),
                 new PhpImportString("\Illuminate\Support\Collection")
@@ -52,7 +52,7 @@ class CubeManyToMany extends CubeRelation implements HasFactoryRelationMethod, H
     public function resourcePropertyString(): ResourcePropertyString
     {
         return new ResourcePropertyString(
-            str($this->modelName)->plural()->snake()->lower()->toString(),
+            str($this->relationModel)->plural()->snake()->lower()->toString(),
             "{$this->getResourceName()}::collection(\$this->whenLoaded('{$this->relationMethodNaming(singular: false)}'))",
             [
                 new PhpImportString($this->getResourceNameSpace(false))

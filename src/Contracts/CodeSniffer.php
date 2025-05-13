@@ -70,7 +70,7 @@ class CodeSniffer
                 ClassUtils::addMethodToClass(
                     $relatedPath,
                     $this->table->relationMethodNaming(singular: false),
-                    $this->manyToManyFunction($this->table, $relation->getPivotTableName())
+                    $this->manyToManyFunction($this->table, $relation->pivotTableName())
                 );
             }
 
@@ -146,7 +146,7 @@ class CodeSniffer
                     CubeLog::add(new ContentNotFound(
                         "$relationName method",
                         $relatedModelPath->fullPath,
-                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->modelName} Resource"
+                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->relationModel} Resource"
                     ));
                 }
             }
@@ -162,7 +162,7 @@ class CodeSniffer
                     CubeLog::add(new ContentNotFound(
                         "$relationName method",
                         $relatedModelPath->fullPath,
-                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->modelName} Resource"
+                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->relationModel} Resource"
                     ));
                 }
             }
@@ -178,7 +178,7 @@ class CodeSniffer
                     CubeLog::add(new ContentNotFound(
                         "$relationName method",
                         $relatedModelPath->fullPath,
-                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->modelName} Resource"
+                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->relationModel} Resource"
                     ));
                 }
             }
@@ -197,7 +197,7 @@ class CodeSniffer
 
         $this->table->relations()->each(function (CubeRelation $relation) use ($select2RouteName) {
             $relatedControllerPath = $relation->getWebControllerPath();
-            $relatedTable = Settings::make()->getTable($relation->modelName);
+            $relatedTable = Settings::make()->getTable($relation->relationModel);
 
             if (!$relatedTable) {
                 return true;
@@ -480,7 +480,7 @@ class CodeSniffer
 
                 $this->addRelationsToReactTSController($rel->getWebControllerPath(), [$this->table->relationMethodNaming()]);
 
-                $relatedKeyAttribute = $rel->getTable()->getAttribute($this->table->keyName());
+                $relatedKeyAttribute = $rel->relationModel()->getAttribute($this->table->keyName());
                 if ($relatedKeyAttribute) {
                     $apiSelectImport = "import ApiSelect from \"@/Components/form/fields/Select/ApiSelect\";";
                     FileUtils::tsAddImportStatement($apiSelectImport, $rel->getReactTSPagesPaths('create'));

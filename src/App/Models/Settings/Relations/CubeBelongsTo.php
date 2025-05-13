@@ -40,7 +40,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     public function modelRelationMethod(): ModelRelationString
     {
         return new ModelRelationString(
-            $this->modelName,
+            $this->relationModel,
             RelationsTypeEnum::BelongsTo,
         );
     }
@@ -48,8 +48,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     public function docBlockProperty(): DocBlockPropertyString
     {
         return new DocBlockPropertyString(
-            str($this->modelName)->singular()->lower()->toString(),
-            "$this->modelName|null",
+            str($this->relationModel)->singular()->lower()->toString(),
+            "$this->relationModel|null",
             imports: new PhpImportString($this->getModelNameSpace())
         );
     }
@@ -57,7 +57,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     public function resourcePropertyString(): ResourcePropertyString
     {
         return new ResourcePropertyString(
-            str($this->modelName)->singular()->snake()->lower()->toString(),
+            str($this->relationModel)->singular()->snake()->lower()->toString(),
             "{$this->getResourceName()}::make(\$this->whenLoaded('{$this->relationMethodNaming()}'))",
             [
                 new PhpImportString($this->getResourceNameSpace(false))
@@ -82,7 +82,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     public function inputComponent(string $formType = "store", ?string $actor = null): ReactTsInputComponentString
     {
         $modelName = $this->modelNaming();
-        $relatedModel = $this->getRelatedModel();
+        $relatedModel = $this->parentModel();
         $column = $relatedModel
             ->attributes()
             ->filter(fn($att) => $att->isKey() && $att->modelNaming() == $modelName)
@@ -154,8 +154,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
 
     public function displayComponentString(): ReactTsDisplayComponentString
     {
-        $parentModel = $this->getRelatedModel();
-        $column = $this->getTable()->titleable();
+        $parentModel = $this->parentModel();
+        $column = $this->relationModel()->titleable();
         $imports = [
             new TsImportString("SmallTextField", "@/Components/Show/SmallTextField"),
         ];
@@ -176,8 +176,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
 
     public function datatableColumnObject(string $actor): DataTableColumnObjectString
     {
-        $column = $this->getTable()->titleable();
-        $showRoute = $this->getRouteNames($this->getTable(), ContainerType::WEB, $actor)['show'];
+        $column = $this->relationModel()->titleable();
+        $showRoute = $this->getRouteNames($this->relationModel(), ContainerType::WEB, $actor)['show'];
         $viewValue = $column->isTranslatable()
             ? "translate(record?.{$this->method()}?.{$column->name})"
             : "record?.{$this->method()}?.{$column->name}";

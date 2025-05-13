@@ -72,7 +72,7 @@ class ModelGenerator extends AbstractGenerator
         });
 
         $this->table->relations()->each(function (CubeRelation $relation) use (&$relationsFunctions, &$relationsSearchable, &$exportables, &$properties) {
-            $relatedTable = $relation->getTable();
+            $relatedTable = $relation->relationModel();
 
             $this->builder->when(
                 $relation instanceof HasModelRelationMethod && $relation->exists(),
@@ -82,7 +82,7 @@ class ModelGenerator extends AbstractGenerator
                 fn($builder) => $builder->dockBlock($relation->docBlockProperty())
             )->when(
                 $relation->isBelongsTo() && $relation->exists() && $relatedTable,
-                fn($builder) => $builder->exportable("{$relation->method()}." . $relation->getTable()->titleable()->name),
+                fn($builder) => $builder->exportable("{$relation->method()}." . $relation->relationModel()->titleable()->name),
                 fn($builder) => $builder->exportable($relation->keyName())
             )->when(
                 $relation->getModelPath()->exist(),

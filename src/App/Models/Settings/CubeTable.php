@@ -210,10 +210,10 @@ class CubeTable
         return (bool)collect($this->relations)
             ->filter(function (CubeRelation $rel) use ($type, $modelName) {
                 if ($type) {
-                    return ($rel->modelName == $modelName && $rel->type == $type);
+                    return ($rel->relationModel == $modelName && $rel->type == $type);
                 }
 
-                return $rel->modelName == $modelName;
+                return $rel->relationModel == $modelName;
             })
             ->count();
     }

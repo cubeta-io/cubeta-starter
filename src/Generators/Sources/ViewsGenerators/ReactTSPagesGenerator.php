@@ -111,7 +111,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->whereInstanceOf(HasDataTableColumnObjectString::class)
             ->filter(fn(CubeRelation $relation) => $relation->exists())
             ->each(function (HasDataTableColumnObjectString|CubeRelation $rel) use ($builder) {
-                if ($rel->exists() && $rel->getTSModelPath()->exist() && !$rel->getTable()->titleable()->isTextable()) {
+                if ($rel->exists() && $rel->getTSModelPath()->exist() && !$rel->relationModel()->titleable()->isTextable()) {
                     $builder->column($rel->datatableColumnObject($this->actor));
                 }
             });
@@ -131,7 +131,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->whereInstanceOf(HasInterfacePropertyString::class)
             ->each(function (HasInterfacePropertyString|CubeAttribute|CubeRelation $item) use ($builder) {
                 if ($item instanceof CubeRelation) {
-                    if (!$item->getTable()->getTSModelPath()->exist()) {
+                    if (!$item->relationModel()->getTSModelPath()->exist()) {
                         return true;
                     } else {
                         $string = $item->interfacePropertyString();
@@ -190,7 +190,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $this->table->relations()
             ->whereInstanceOf(HasReactTsInputString::class)
-            ->filter(fn(CubeRelation $relation) => $relation->getTable()->getTSModelPath()->exist())
+            ->filter(fn(CubeRelation $relation) => $relation->relationModel()->getTSModelPath()->exist())
             ->each(function (CubeRelation|HasReactTsInputString $relation) use ($builder) {
                 $builder->smallField($relation->inputComponent("update", $this->actor));
             });
@@ -234,7 +234,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $this->table->relations()
             ->whereInstanceOf(HasReactTsInputString::class)
-            ->filter(fn(CubeRelation $relation) => $relation->getTable()->getTSModelPath()->exist())
+            ->filter(fn(CubeRelation $relation) => $relation->relationModel()->getTSModelPath()->exist())
             ->each(function (CubeRelation|HasReactTsInputString $relation) use ($builder) {
                 $builder->smallField($relation->inputComponent("store", $this->actor));
             });

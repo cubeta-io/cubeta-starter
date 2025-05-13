@@ -22,14 +22,14 @@ class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDoc
     public function factoryRelationMethod(): FactoryRelationMethodStringString
     {
         return new FactoryRelationMethodStringString(
-            $this->modelName,
+            $this->relationModel,
         );
     }
 
     public function modelRelationMethod(): ModelRelationString
     {
         return new ModelRelationString(
-            $this->modelName,
+            $this->relationModel,
             RelationsTypeEnum::HasMany,
         );
     }
@@ -37,8 +37,8 @@ class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDoc
     public function docBlockProperty(): DocBlockPropertyString
     {
         return new DocBlockPropertyString(
-            str($this->modelName)->plural()->lower()->toString(),
-            "\Illuminate\Support\Collection<$this->modelName>|null",
+            str($this->relationModel)->plural()->lower()->toString(),
+            "\Illuminate\Support\Collection<$this->relationModel>|null",
             imports: new PhpImportString($this->getModelNameSpace())
         );
     }
@@ -46,7 +46,7 @@ class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDoc
     public function resourcePropertyString(): ResourcePropertyString
     {
         return new ResourcePropertyString(
-            str($this->modelName)->plural()->snake()->lower()->toString(),
+            str($this->relationModel)->plural()->snake()->lower()->toString(),
             "{$this->getResourceName()}::collection(\$this->whenLoaded('{$this->relationMethodNaming(singular: false)}'))",
             [
                 new PhpImportString($this->getResourceNameSpace(false))

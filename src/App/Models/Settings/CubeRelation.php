@@ -24,7 +24,7 @@ class CubeRelation
     /**
      * @var string
      */
-    public string $modelName;
+    public string $relationModel;
 
     /**
      * @var string|null
@@ -39,25 +39,25 @@ class CubeRelation
     /**
      * @var string
      */
-    public string $relatedModel;
+    public string $parentModel;
 
     /**
      * @param string $type
-     * @param string $modelName
+     * @param string $relationModel
      * @param string $relatedModel
      * @param string $version
      */
-    public function __construct(string $type, string $modelName, string $relatedModel, string $version = 'v1')
+    public function __construct(string $type, string $relationModel, string $relatedModel, string $version = 'v1')
     {
         $this->type = $type;
-        $this->modelName = Naming::model($modelName);
-        $this->relatedModel = Naming::model($relatedModel);
+        $this->relationModel = Naming::model($relationModel);
+        $this->parentModel = Naming::model($relatedModel);
 
         if ($this->type == RelationsTypeEnum::BelongsTo->value) {
-            $this->key = Str::singular(strtolower($this->modelName)) . '_id';
+            $this->key = Str::singular(strtolower($this->relationModel)) . '_id';
         }
 
-        $this->usedString = $this->modelName;
+        $this->usedString = $this->relationModel;
         $this->version = $version;
     }
 
@@ -69,13 +69,13 @@ class CubeRelation
         if ($this->key) {
             return json_encode([
                 "type" => $this->type,
-                "model_name" => $this->modelName,
+                "model_name" => $this->relationModel,
                 "key" => $this->key,
             ], JSON_PRETTY_PRINT);
         }
         return json_encode([
             "type" => $this->type,
-            "model_name" => $this->modelName,
+            "model_name" => $this->relationModel,
         ], JSON_PRETTY_PRINT);
     }
 
@@ -87,13 +87,13 @@ class CubeRelation
         if ($this->key) {
             return [
                 "type" => $this->type,
-                "model_name" => $this->modelName,
+                "model_name" => $this->relationModel,
                 "key" => $this->key,
             ];
         }
         return [
             "type" => $this->type,
-            "model_name" => $this->modelName,
+            "model_name" => $this->relationModel,
         ];
     }
 
@@ -107,7 +107,7 @@ class CubeRelation
     {
         // assuming that this relation is the products relation of
         // the category has many products
-        $relatedModel = $this->getTable(); // category model
+        $relatedModel = $this->relationModel(); // category model
         $exist = $relatedModel->getModelPath()->exist();
 
         if ($withMethodChecking) {
@@ -134,7 +134,7 @@ class CubeRelation
     {
         // assuming that this relation is the products relation of
         // the category has many products
-        $related = CubeTable::create($this->relatedModel); // category model
+        $related = CubeTable::create($this->parentModel); // category model
         $relatedModelPath = $related->getModelPath();
 
         return $relatedModelPath->exist() // category model exists
@@ -188,31 +188,14 @@ class CubeRelation
     /**
      * @return CubeTable
      */
-    public function getTable(): CubeTable
+    public function relationModel(): CubeTable
     {
-        return Settings::make()->getTable($this->modelName) ?? CubeTable::create($this->relatedModel);
+        return Settings::make()->getTable($this->relationModel) ?? CubeTable::create($this->parentModel);
     }
 
-    public function getPivotTableName(): string
+    public function pivotTableName(): string
     {
-        return Naming::pivotTableNaming($this->modelName, $this->relatedModel);
-    }
-
-    public function loadableFromCurrentSide(): bool
-    {
-        $related = CubeTable::create($this->relatedModel);
-
-        return $this->getModelPath()->exist()
-            && ClassUtils::isMethodDefined($this->getModelPath(), $related->relationMethodNaming(singular: $this->isHasMany() || $this->isHasOne()));
-    }
-
-    public function loadableFromOtherSide(): bool
-    {
-        $related = CubeTable::create($this->relatedModel);
-        $relatedModelPath = $related->getModelPath();
-
-        return $relatedModelPath->exist()
-            && ClassUtils::isMethodDefined($relatedModelPath, $this->method());
+        return Naming::pivotTableNaming($this->relationModel, $this->parentModel);
     }
 
     public static function factory(string $type, string $modelName, string $relatedModel, string $version = 'v1'): CubeRelation|CubeHasMany|CubeManyToMany
@@ -227,8 +210,8 @@ class CubeRelation
         };
     }
 
-    public function getRelatedModel(): CubeTable
+    public function parentModel(): CubeTable
     {
-        return Settings::make()->getTable($this->relatedModel) ?? CubeTable::create($this->relatedModel);
+        return Settings::make()->getTable($this->parentModel) ?? CubeTable::create($this->parentModel);
     }
 }
