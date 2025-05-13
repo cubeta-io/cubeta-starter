@@ -2,21 +2,6 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeBoolean;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeDate;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeDateTime;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeDouble;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeFile;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeFloat;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeInteger;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeJson;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeKey;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeString;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeText;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTime;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTimestamp;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeTranslatable;
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeUnsignedBigInteger;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
@@ -25,6 +10,21 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyS
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeBoolean;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeDate;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeDateTime;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeDouble;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeFile;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeFloat;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeInteger;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeJson;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeKey;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeString;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeText;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeTime;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeTimestamp;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeTranslatable;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeUnsignedBigInteger;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
 
 /**

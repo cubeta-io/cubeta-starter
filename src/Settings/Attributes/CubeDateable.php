@@ -1,18 +1,21 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
+namespace Cubeta\CubetaStarter\Settings\Attributes;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Tests\HasTestAdditionalFactoryData;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
@@ -21,38 +24,35 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Javascript\DataTableColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 
-class CubeTranslatable extends CubeStringable implements HasFakeMethod,
+class CubeDateable extends CubeAttribute implements HasFakeMethod,
     HasMigrationColumn,
     HasDocBlockProperty,
     HasModelCastColumn,
     HasPropertyValidationRule,
+    HasResourcePropertyString,
+    HasTestAdditionalFactoryData,
     HasBladeInputComponent,
     HasDatatableColumnString,
     HasHtmlTableHeader,
-    HasReactTsInputString,
+    HasInterfacePropertyString,
     HasReactTsDisplayComponentString,
     HasDataTableColumnObjectString
 {
     public function fakeMethod(): FakeMethodString
     {
-        $method = $this->guessStringMethod();
-        if ($this->isTextable()) {
-            $method = "text";
-        }
-
         return new FakeMethodString(
             $this->name,
-            "Translatable::fake('$method')",
-            new PhpImportString("App\\Serializers\\Translatable")
+            "fake()->dateTime()",
         );
     }
 
@@ -60,7 +60,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
     {
         return new MigrationColumnString(
             $this->columnNaming(),
-            "json",
+            "dateTime",
             $this->nullable,
             $this->unique
         );
@@ -70,20 +70,15 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
     {
         return new DocBlockPropertyString(
             $this->name,
-            "TranslatableSerializer",
-            imports: [
-                new PhpImportString("\\App\\Serializers\\Translatable as TranslatableSerializer"),
-            ]
+            "Carbon",
+            "property",
+            new PhpImportString("Carbon\Carbon")
         );
     }
 
     public function modelCastColumn(): CastColumnString
     {
-        return new CastColumnString(
-            $this->name,
-            "Translatable::class",
-            new PhpImportString("App\\Casts\\Translatable")
-        );
+        return new CastColumnString($this->name, "datetime");
     }
 
     public function propertyValidationRule(): PropertyValidationRuleString
@@ -91,14 +86,27 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
         return new PropertyValidationRuleString(
             $this->name,
             [
-                new ValidationRuleString('json'),
-                new ValidationRuleString(
-                    'new ValidTranslatableJson',
-                    [
-                        new PhpImportString('App\Rules\ValidTranslatableJson'),
-                    ]
-                )
-            ],
+                ...$this->uniqueOrNullableValidationRules(),
+                new ValidationRuleString('date'),
+                new ValidationRuleString('date_format:Y-m-d'),
+            ]
+        );
+    }
+
+    public function resourcePropertyString(): ResourcePropertyString
+    {
+        return new ResourcePropertyString(
+            $this->name,
+            "\$this->{$this->name}?->format('Y-m-d')"
+        );
+    }
+
+    public function testAdditionalFactoryData(): TestAdditionalFactoryDataString
+    {
+        return new TestAdditionalFactoryDataString(
+            $this->name,
+            'now()->format("Y-m-d")',
+            []
         );
     }
 
@@ -111,13 +119,13 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
         if ($formType == "update") {
             $attributes[] = [
                 'key' => ':value',
-                'value' => "\${$table?->variableNaming()}->{$this->name}?->toJson()"
+                'value' => "\${$table?->variableNaming()}->{$this->name}"
             ];
         }
 
         return new InputComponentString(
-            "text",
-            $this->isTextable() ? "x-translatable-text-editor" : "x-translatable-input",
+            "date",
+            "x-input",
             $this->name,
             $this->isRequired,
             $this->titleNaming(),
@@ -125,31 +133,10 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
         );
     }
 
-    public function bladeDisplayComponent(): DisplayComponentString
-    {
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
-        $modelVariable = $table->variableNaming();
-        $label = $this->labelNaming();
-        return new DisplayComponentString(
-            $this->isTextable() ? "x-translatable-text-editor" : "x-translatable-small-text-field",
-            [
-                [
-                    "key" => ":value",
-                    "value" => "\${$modelVariable}->{$this->name}?->toJson()"
-                ],
-                [
-                    "key" => 'label',
-                    'value' => $label
-                ]
-            ]
-        );
-    }
-
     public function dataTableColumnString(): DataTableColumnString
     {
         return new DataTableColumnString(
             $this->name,
-            "return translate(data);"
         );
     }
 
@@ -160,47 +147,12 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    public function interfacePropertyString(): InterfacePropertyString
     {
-        if ($this->isTextable()) {
-            $attributes = [
-                [
-                    'key' => 'onChange',
-                    'value' => "(e: ChangeEvent<HTMLTextAreaElement>) => setData(\"{$this->name}\", e.target.value)"
-                ]
-            ];
-            $tag = "TranslatableEditor";
-            $imports = [
-                new TsImportString("ChangeEvent", "react", false),
-                new TsImportString("TranslatableEditor", "@/Components/form/fields/TranslatableEditor")
-            ];
-        } else {
-            $attributes = [
-                [
-                    'key' => 'onChange',
-                    'value' => "(e) => setData(\"{$this->name}\", e.target.value)"
-                ]
-            ];
-            $tag = "TranslatableInput";
-            $imports = [
-                new TsImportString("TranslatableInput", "@/Components/form/fields/TranslatableInput")
-            ];
-        }
-
-        if ($formType == "update") {
-            $attributes[] = [
-                'key' => 'defaultValue',
-                'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
-            ];
-        }
-
-        return new TsxInputComponentString(
-            $tag,
+        return new InterfacePropertyString(
             $this->name,
-            $this->labelNaming(),
-            $this->isRequired,
-            $attributes,
-            $imports
+            "string",
+            $this->nullable,
         );
     }
 
@@ -209,14 +161,11 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
         $modelVariable = $this->getOwnerTable()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            $this->isTextable() ? "LongTextField" : "SmallTextField",
+            "SmallTextField",
             $this->labelNaming(),
-            "translate({$modelVariable}{$nullable}.{$this->name})",
+            "{$modelVariable}{$nullable}.{$this->name}",
             [
-                $this->isTextable()
-                    ? new TsImportString("LongTextField", "@/Components/Show/LongTextField")
-                    : new TsImportString("SmallTextField", "@/Components/Show/SmallTextField"),
-                new TsImportString("translate", "@/Models/Translatable", false),
+                new TsImportString("SmallTextField", "@/Components/Show/SmallTextField")
             ]
         );
     }
@@ -226,7 +175,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
         return new DataTableColumnObjectString(
             $this->name,
             $this->labelNaming(),
-            true,
+            false,
             true,
         );
     }

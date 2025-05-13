@@ -1,41 +1,38 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
+namespace Cubeta\CubetaStarter\Settings\Attributes;
+
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Tests\HasTestAdditionalFactoryData;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Resources\ResourcePropertyString;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\Tests\TestAdditionalFactoryDataString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\TsImportString;
 
-class CubeDate extends CubeDateable implements HasFakeMethod,
+class CubeText extends CubeStringable implements HasFakeMethod,
     HasMigrationColumn,
-    HasModelCastColumn,
     HasPropertyValidationRule,
-    HasResourcePropertyString,
-    HasTestAdditionalFactoryData,
     HasBladeInputComponent,
-    HasReactTsInputString
+    HasReactTsInputString,
+    HasReactTsDisplayComponentString
 {
     public function fakeMethod(): FakeMethodString
     {
+        $isUnique = $this->unique ? "->unique()" : "";
         return new FakeMethodString(
             $this->name,
-            "fake()->date()"
+            "fake(){$isUnique}->text()"
         );
     }
 
@@ -43,9 +40,9 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
     {
         return new MigrationColumnString(
             $this->columnNaming(),
-            "date",
+            "text",
             $this->nullable,
-            $this->unique,
+            $this->unique
         );
     }
 
@@ -55,26 +52,9 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
             $this->name,
             [
                 ...$this->uniqueOrNullableValidationRules(),
-                new ValidationRuleString('date'),
-                new ValidationRuleString('date_format:Y-m-d'),
+                new ValidationRuleString('max:5000'),
+                new ValidationRuleString('min:0')
             ]
-        );
-    }
-
-    public function resourcePropertyString(): ResourcePropertyString
-    {
-        return new ResourcePropertyString(
-            $this->name,
-            "\$this->{$this->name}?->format('Y-m-d')"
-        );
-    }
-
-    public function testAdditionalFactoryData(): TestAdditionalFactoryDataString
-    {
-        return new TestAdditionalFactoryDataString(
-            $this->name,
-            "now()->format('Y-m-d')",
-            [],
         );
     }
 
@@ -82,20 +62,21 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
     {
         $attributes = [];
         $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+
         if ($formType == "update") {
             $attributes[] = [
                 'key' => ':value',
-                'value' => "\${$table?->variableNaming()}->{$this->name}?->format('Y-m-d')"
+                'value' => "\${$table?->variableNaming()}->{$this->name}"
             ];
         }
 
         return new InputComponentString(
-            "date",
-            "x-input",
+            "number",
+            "x-text-editor",
             $this->name,
             $this->isRequired,
             $this->titleNaming(),
-            $attributes,
+            $attributes
         );
     }
 
@@ -105,11 +86,11 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
         $modelVariable = $table->variableNaming();
         $label = $this->labelNaming();
         return new DisplayComponentString(
-            "x-small-text-field",
+            "x-long-text-field",
             [
                 [
                     "key" => ":value",
-                    "value" => "\${$modelVariable}->{$this->name}?->format('Y-m-d')"
+                    "value" => "\${$modelVariable}->{$this->name}"
                 ],
                 [
                     "key" => 'label',
@@ -123,15 +104,10 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
     {
         $attributes = [
             [
-                'key' => 'type',
-                'value' => '"date"'
-            ],
-            [
                 'key' => 'onChange',
-                'value' => "(e) => setData(\"{$this->name}\", e.target?.value)"
-            ]
+                'value' => "(e:ChangeEvent<HTMLTextAreaElement>) => setData(\"{$this->name}\", e.target.value)"
+            ],
         ];
-
         if ($formType == "update") {
             $attributes[] = [
                 'key' => 'defaultValue',
@@ -140,15 +116,29 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
         }
 
         return new TsxInputComponentString(
-            "Input",
+            "TextEditor",
             $this->name,
             $this->labelNaming(),
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("Input", "@/Components/form/fields/Input")
+                new TsImportString("TextEditor", "@/Components/form/fields/TextEditor"),
+                new TsImportString("ChangeEvent", "react", false)
             ]
         );
     }
 
+    public function displayComponentString(): ReactTsDisplayComponentString
+    {
+        $modelVariable = $this->getOwnerTable()->variableNaming();
+        $nullable = $this->nullable ? "?" : "";
+        return new ReactTsDisplayComponentString(
+            "LongTextField",
+            $this->labelNaming(),
+            "{$modelVariable}{$nullable}.{$this->name}",
+            [
+                new TsImportString("LongTextField", "@/Components/Show/LongTextField")
+            ]
+        );
+    }
 }

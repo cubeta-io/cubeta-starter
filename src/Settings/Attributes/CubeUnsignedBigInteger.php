@@ -1,25 +1,22 @@
 <?php
 
-namespace Cubeta\CubetaStarter\App\Models\Settings\Attributes;
-
+namespace Cubeta\CubetaStarter\Settings\Attributes;
 
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelCastColumn;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Requests\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\Requests\ValidationRuleString;
 
-class CubeDouble extends CubeNumeric implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn, HasPropertyValidationRule, HasBladeInputComponent
+class CubeUnsignedBigInteger extends CubeNumeric implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn
 {
     public function migrationColumn(): MigrationColumnString
     {
         return new MigrationColumnString(
             $this->columnNaming(),
-            "double",
+            "unsignedBigInteger",
             $this->nullable,
             $this->unique
         );
@@ -27,7 +24,10 @@ class CubeDouble extends CubeNumeric implements HasFakeMethod, HasMigrationColum
 
     public function modelCastColumn(): CastColumnString
     {
-        return new CastColumnString($this->name, "double");
+        return new CastColumnString(
+            $this->name,
+            "integer"
+        );
     }
 
     public function propertyValidationRule(): PropertyValidationRuleString
@@ -36,8 +36,8 @@ class CubeDouble extends CubeNumeric implements HasFakeMethod, HasMigrationColum
             $this->name,
             [
                 ...$this->uniqueOrNullableValidationRules(),
-                new ValidationRuleString('numeric'),
-                new ValidationRuleString('between:-1.7976931348623157E+308,1.7976931348623157E+308')
+                new ValidationRuleString('integer'),
+                new ValidationRuleString('min:0'),
             ]
         );
     }

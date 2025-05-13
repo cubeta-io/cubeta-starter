@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\App\Models\Settings\Relations;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Attributes\CubeKey;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\App\Models\Settings\Contracts\Resources\HasResourcePropertyString;
@@ -24,6 +23,7 @@ use Cubeta\CubetaStarter\App\Models\Settings\Strings\Web\InertiaReact\Typescript
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeKey;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 
 
