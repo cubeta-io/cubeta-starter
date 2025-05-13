@@ -92,19 +92,19 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         $attributes = [
             [
                 'key' => 'api',
-                'value' => "(page, search): Promise<ApiResponse<{$modelName}[]>> => Http.make().get(\"$dataRoute\",{page:page,search:search})"
+                'value' => "(page, search): Promise<ApiResponse<{$modelName}[]>> => Http.make().get(route(\"$dataRoute\"),{page:page,search:search})"
             ],
             [
                 'key' => 'getDataArray',
-                'value' => '(response) => response.data ?? []',
+                'value' => '(response) => response?.data ?? []',
             ],
             [
                 'key' => 'getIsLast',
-                'value' => '(data) => data.paginate?.is_last_page ?? false',
+                'value' => '(data) => data?.paginate?.is_last_page ?? false',
             ],
             [
                 'key' => 'getTotalPages',
-                'value' => '(data) => data.paginate?.total_pages ?? 0',
+                'value' => '(data) => data?.paginate?.total_pages ?? 0',
             ],
             [
                 'key' => 'onChange',
@@ -126,8 +126,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
 
         if ($formType == "update") {
             $attributes[] = [
-                'key' => 'defaultValue',
-                'value' => "{$relatedModel->variableNaming()}.{$this->key}"
+                'key' => 'defaultValues',
+                'value' => "{$relatedModel->variableNaming()}?.{$this->method()} ? [{$relatedModel->variableNaming()}?.{$this->method()}] : []"
             ];
         }
 

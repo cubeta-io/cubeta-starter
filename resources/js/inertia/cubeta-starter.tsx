@@ -1,9 +1,9 @@
-import "./bootstrap";
-import "../css/cubeta-starter.css";
-import { createRoot } from "react-dom/client";
-import { createInertiaApp } from "@inertiajs/react";
-import React, { Suspense } from "react";
 import Layout from "@/Components/layouts/Layout";
+import { createInertiaApp } from "@inertiajs/react";
+import { Suspense } from "react";
+import { createRoot } from "react-dom/client";
+import "../css/cubeta-starter.css";
+import "./bootstrap";
 
 const appName = import.meta.env.APP_NAME || "Laravel";
 
@@ -20,13 +20,15 @@ createInertiaApp({
   resolve: async (name: any) => {
     // @ts-ignore
     const pages = import.meta.glob("./Pages/**/*.tsx");
+    // @ts-ignore
     let page = (await pages[`./Pages/${name}.tsx`]()).default;
 
     // Assign layout conditionally
     page.layout =
       page.layout ||
       (!authPages.includes(page.name ?? "undefined")
-        ? (page) => <Layout children={page} />
+        ? // @ts-ignore
+        (page) => <Layout children={page} />
         : null);
 
     return page;

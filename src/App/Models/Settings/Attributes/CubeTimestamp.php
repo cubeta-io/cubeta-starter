@@ -38,7 +38,7 @@ class CubeTimestamp extends CubeDateable implements HasFakeMethod, HasMigrationC
             $this->name,
             [
                 new ValidationRuleString('date'),
-                new ValidationRuleString('date_format:Y-m-d H:i:s'),
+                new ValidationRuleString('date_format:Y-m-d H:i'),
             ]
         );
     }
@@ -47,7 +47,7 @@ class CubeTimestamp extends CubeDateable implements HasFakeMethod, HasMigrationC
     {
         return new ResourcePropertyString(
             $this->name,
-            "\$this->{$this->name}?->format('Y-m-d H:i:s')"
+            "\$this->{$this->name}?->format('Y-m-d H:i')"
         );
     }
 
@@ -55,7 +55,7 @@ class CubeTimestamp extends CubeDateable implements HasFakeMethod, HasMigrationC
     {
         return new TestAdditionalFactoryDataString(
             $this->name,
-            'now()->format("Y-m-d H:i:s")',
+            'now()->format("Y-m-d H:i")',
             []
         );
     }
@@ -92,7 +92,7 @@ class CubeTimestamp extends CubeDateable implements HasFakeMethod, HasMigrationC
             [
                 [
                     "key" => ":value",
-                    "value" => "\${$modelVariable}->{$this->name}?->format('Y-m-d H:i:s')"
+                    "value" => "\${$modelVariable}->{$this->name}?->format('Y-m-d H:i')"
                 ],
                 [
                     "key" => 'label' ,
@@ -111,7 +111,7 @@ class CubeTimestamp extends CubeDateable implements HasFakeMethod, HasMigrationC
             ],
             [
                 'key' => 'onChange',
-                'value' => "(e) => setData(\"{$this->name}\", e.target?.value)"
+                'value' => "(e) => setData(\"{$this->name}\", e.target?.value?.replace('T', ' '))"
             ]
         ];
 
