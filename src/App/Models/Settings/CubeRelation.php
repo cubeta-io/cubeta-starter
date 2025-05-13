@@ -148,9 +148,22 @@ class CubeRelation
      */
     public function method(): string
     {
+        // relationModel = "Product"
+        // parentModel = "Category"
+        // relation type = "has many"
+        // return will be "products"
         if ($this->isHasMany() || $this->isManyToMany()) {
             return $this->relationMethodNaming(singular: false);
         } else return $this->relationMethodNaming();
+    }
+
+    public function reverseMethod(): string
+    {
+        // relationModel = "Product"
+        // parentModel = "Category"
+        // relation type = "has many"
+        // return will be "category"
+        return $this->relationMethodNaming($this->parentModel, $this->isHasMany() || $this->isHasOne());
     }
 
     /**
