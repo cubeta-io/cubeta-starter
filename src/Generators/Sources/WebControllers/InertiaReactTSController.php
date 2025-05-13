@@ -111,6 +111,11 @@ class InertiaReactTSController extends AbstractGenerator
             return;
         }
 
+        if (FileUtils::contentExistInFile($sidebarPath, $newSidebarItem)) {
+            CubeLog::contentAlreadyExists($newSidebarItem, $sidebarPath->fullPath, "Adding new sidebar item to the sidebar component");
+            return;
+        }
+
         $callback = function ($matches) use ($newSidebarItem) {
             return FileUtils::fixArrayOrObjectCommas($matches[1] . $matches[2] . "\n" . ",$newSidebarItem," . "\n" . $matches[3]);
         };
