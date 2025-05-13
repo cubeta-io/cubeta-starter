@@ -1,9 +1,9 @@
-import React, { ReactNode } from "react";
+import PresentationChart from "@/Components/icons/PresentationChart";
+import TableCells from "@/Components/icons/TableCells";
+import XMark from "@/Components/icons/XMark";
 import { asset } from "@/helper";
 import { Link } from "@inertiajs/react";
-import XMark from "@/Components/icons/XMark";
-import TableCells from "@/Components/icons/TableCells";
-import PresentationChart from "@/Components/icons/PresentationChart";
+import React, { ReactNode } from "react";
 
 const sidebarItems = [
     {
@@ -14,9 +14,9 @@ const sidebarItems = [
 ];
 
 export const Sidebar = ({
-                            toggleSidebar,
-                            isOpen,
-                        }: {
+    toggleSidebar,
+    isOpen,
+}: {
     toggleSidebar: () => void;
     isOpen: boolean;
 }) => {
@@ -44,7 +44,7 @@ export const Sidebar = ({
                 </div>
 
                 {isOpen && (
-                    <button type={"button"} onClick={() => toggleSidebar()}>
+                    <button className="cursor-pointer" type={"button"} onClick={() => toggleSidebar()}>
                         <XMark className="w-8 h-8 text-brand dark:text-white" />
                     </button>
                 )}
@@ -52,9 +52,7 @@ export const Sidebar = ({
 
             <div
                 id="sidebar-list"
-                className={
-                    "bg-white-secondary dark:bg-dark-secondary w-full mt-6 gap-1 px-4"
-                }
+                className={`bg-white-secondary dark:bg-dark-secondary w-full mt-6 gap-1 px-4 flex flex-col ${isOpen ? "items-start" : "items-center"}`}
             >
                 {sidebarItems.map((item, index) => (
                     <SidebarItem
@@ -71,11 +69,11 @@ export const Sidebar = ({
 };
 
 export const SidebarItem = ({
-                                href,
-                                title,
-                                isOpen = false,
-                                icon = undefined,
-                            }: {
+    href,
+    title,
+    isOpen = false,
+    icon = undefined,
+}: {
     href: string;
     title: string;
     isOpen: boolean;
@@ -84,27 +82,25 @@ export const SidebarItem = ({
     const selected = window.location.href.startsWith(href);
 
     return (
-        <div className="mb-3">
-            <Link
-                className={`flex text-lg gap-5 items-center px-4 py-2 hover:bg-white text-brand hover:text-gray-700 rounded-lg ${
-                    selected
-                        ? "bg-sky-100 dark:bg-white-secondary dark:text-black"
-                        : " dark:text-white"
-                }`}
-                href={href}
-            >
-                {icon ? icon() : ""}
-                {isOpen && <span>{title}</span>}
-            </Link>
-        </div>
+        <Link
+            className={`flex text-lg gap-5 w-full items-center px-4 py-2 hover:bg-white text-brand hover:text-gray-700 rounded-lg ${
+                selected
+                    ? "bg-sky-100 dark:bg-white-secondary dark:text-black"
+                    : " dark:text-white"
+            } ${!isOpen && "justify-center"}`}
+            href={href}
+        >
+            {icon ? icon() : ""}
+            {isOpen && <span>{title}</span>}
+        </Link>
     );
 };
 
 export const CompactSidebarItem = ({
-                                       title,
-                                       children,
-                                       baseRouteName,
-                                   }: {
+    title,
+    children,
+    baseRouteName,
+}: {
     title: string;
     children?: React.ReactNode;
     baseRouteName?: string;
