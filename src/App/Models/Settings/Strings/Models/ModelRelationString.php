@@ -3,8 +3,8 @@
 namespace Cubeta\CubetaStarter\App\Models\Settings\Strings\Models;
 
 use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
-use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\App\Models\Settings\Strings\MethodString;
+use Cubeta\CubetaStarter\App\Models\Settings\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
 
@@ -12,8 +12,9 @@ class ModelRelationString extends MethodString
 {
     private CubeTable $relatedModel;
     private RelationsTypeEnum $type;
+    private array $otherParams = [];
 
-    public function __construct(string $relatedModelName, RelationsTypeEnum $relationsType)
+    public function __construct(string $relatedModelName, RelationsTypeEnum $relationsType , array $otherParams = [])
     {
         $this->relatedModel = CubeTable::create(Naming::model($relatedModelName));
         $this->type = $relationsType;
@@ -21,12 +22,15 @@ class ModelRelationString extends MethodString
         $relationsFunction = $this->relationFunction();
         $relatedModelNamespace = $this->relatedModel->getModelNameSpace(false);
         $modelName = $this->relatedModel->modelName;
+        $this->otherParams = $otherParams;
+
+        $methodOtherParams = implode(",", $this->otherParams);
 
         parent::__construct(
             $this->methodName(),
             [],
             [
-                "return \$this->{$relationsFunction}($modelName::class)"
+                "return \$this->{$relationsFunction}($modelName::class , $methodOtherParams)"
             ],
             returnType: $this->getReturnType(),
             imports: [

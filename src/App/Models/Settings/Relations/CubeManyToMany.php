@@ -31,6 +31,9 @@ class CubeManyToMany extends CubeRelation implements HasFactoryRelationMethod, H
         return new ModelRelationString(
             $this->modelName,
             RelationsTypeEnum::ManyToMany,
+            [
+                "'{$this->getPivotTableName()}'",
+            ]
         );
     }
 
