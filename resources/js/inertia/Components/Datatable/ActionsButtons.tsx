@@ -1,10 +1,11 @@
-import { Link, usePage } from "@inertiajs/react";
 import Eye from "@/Components/icons/Eye";
 import Pencil from "@/Components/icons/Pencil";
 import Trash from "@/Components/icons/Trash";
 import { swal } from "@/helper";
-import { toast } from "react-toastify";
+import Http from "@/Modules/Http/Http";
 import { MiddlewareProps } from "@/types";
+import { Link, usePage } from "@inertiajs/react";
+import { toast } from "react-toastify";
 
 type Buttons = "delete" | "edit" | "show";
 
@@ -39,24 +40,41 @@ function ActionsButtons<Data extends Record<string, any>>({
 
   const csrf = usePage<MiddlewareProps>().props.csrfToken;
 
+  const handleDelete = () => {
+    Http.make<boolean>()
+      .delete(dUrl, {
+        "X-CSRF-TOKEN": csrf,
+      })
+      .then((res) => {
+        if (res.ok()) {
+          toast.success("Deleted !");
+          if (setHidden) {
+            setHidden((prevState) => [dataId, ...prevState]);
+          }
+        } else {
+          toast.error("There Is Been An Error In Deleting");
+        }
+      })
+      .catch((e) => {
+        toast.error("There Is Been An Error In Deleting");
+        console.error(e);
+      });
+  };
+
   return (
     <div className={`flex items-center justify-start gap-3`}>
-      {buttons.includes("show") ? (
+      {buttons.includes("show") && (
         <Link href={sUrl} className="hover:bg-white-secondary rounded-md p-0.5">
           <Eye className="text-info h-5 w-5" />
         </Link>
-      ) : (
-        ""
       )}
-      {buttons.includes("edit") ? (
+      {buttons.includes("edit") && (
         <Link href={eUrl} className="hover:bg-white-secondary rounded-md p-0.5">
           <Pencil className="text-success h-5 w-5" />
         </Link>
-      ) : (
-        ""
       )}
 
-      {buttons.includes("delete") ? (
+      {buttons.includes("delete") && (
         <button className="hover:bg-white-secondary rounded-md p-0.5">
           <Trash
             className="text-danger h-5 w-5 cursor-pointer"
@@ -71,24 +89,8 @@ function ActionsButtons<Data extends Record<string, any>>({
                   confirmButtonColor: "#007BFF",
                 })
                 .then((result) => {
-                  if (result.isConfirmed) {
-                    if (dataId) {
-                      fetch(dUrl, {
-                        method: "DELETE",
-                        headers: {
-                          "X-CSRF-TOKEN": csrf,
-                        },
-                      })
-                        .then(() => {
-                          toast.success("Deleted !");
-                          if (setHidden) {
-                            setHidden((prevState) => [dataId, ...prevState]);
-                          }
-                        })
-                        .catch(() => {
-                          toast.error("There Is Been An Error In Deleting");
-                        });
-                    }
+                  if (result.isConfirmed && dataId) {
+                    handleDelete();
                   } else if (result.isDenied) {
                     toast.info("Didn't Delete");
                   }
@@ -96,8 +98,6 @@ function ActionsButtons<Data extends Record<string, any>>({
             }}
           />
         </button>
-      ) : (
-        ""
       )}
       {children}
     </div>
