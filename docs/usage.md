@@ -13,7 +13,7 @@ The most elements in the config array are for the generated files directories an
 3. `available_locales` : the package provides a way to store your table columns with their
    translations [(read more about it here)](translatable-serializer.md#translatable-attributes-handling) so in this case this situation you'll need to
    define your project available locales here
-4. `defaultLocale` : here define your default project locales.
+4. `default_locale` : here define your default project locales.
 5. `version` : here you'll define the version of the generated code so your files we'll be structured based on it .
 
 ## The Package GUI

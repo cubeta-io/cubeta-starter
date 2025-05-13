@@ -112,5 +112,5 @@ return [
     /**
      * your project default locale
      */
-    'defaultLocale' => 'en', // consider making all values corresponding to this locale not null; it is better
+    'default_locale' => 'en', // consider making all values corresponding to this locale not null; it is better
 ];

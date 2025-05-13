@@ -40,7 +40,7 @@ class Translatable implements JsonSerializable
         if (is_string($value) && Str::isJson($value)) {
             $this->data = json_decode($value, true);
         } elseif (is_string($value) && !Str::isJson($value)){
-            $this->data[config('cubeta-starter.defaultLocale')] = $value;
+            $this->data[config('cubeta-starter.default_locale')] = $value;
         } else {
             $this->data = $value;
         }
