@@ -13,6 +13,7 @@ use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
@@ -22,6 +23,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Models\ModelRelationString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript\DataTableColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
@@ -40,7 +42,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     HasReactTsDisplayComponentString,
     HasDataTableColumnObjectString,
     HasBladeInputComponent,
-    HasDatatableColumnString
+    HasDatatableColumnString,
+    HasHtmlTableHeader
 {
     use RouteBinding;
 
@@ -269,6 +272,13 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         return new DataTableColumnString(
             $usedName,
             $render ?? null
+        );
+    }
+
+    public function htmlTableHeader(): HtmlTableHeaderString
+    {
+        return new HtmlTableHeaderString(
+            $this->titleNaming(),
         );
     }
 }

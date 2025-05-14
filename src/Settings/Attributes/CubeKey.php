@@ -11,9 +11,7 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
@@ -22,7 +20,6 @@ use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\YajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
@@ -33,7 +30,6 @@ class CubeKey extends CubeAttribute implements HasFakeMethod,
     HasPropertyValidationRule,
     HasDocBlockProperty,
     HasYajraDataTableRelationLinkColumnRenderer,
-    HasHtmlTableHeader,
     HasInterfacePropertyString
 {
     use RouteBinding;
@@ -115,13 +111,6 @@ class CubeKey extends CubeAttribute implements HasFakeMethod,
     public function yajraDataTableAdditionalColumnRenderer(string $actor): YajraDataTableRelationLinkColumnRenderer
     {
         return new YajraDataTableRelationLinkColumnRenderer($this->name, $actor);
-    }
-
-    public function htmlTableHeader(): HtmlTableHeaderString
-    {
-        return new HtmlTableHeaderString(
-            $this->labelNaming(),
-        );
     }
 
     public function bladeDisplayComponent(): DisplayComponentString

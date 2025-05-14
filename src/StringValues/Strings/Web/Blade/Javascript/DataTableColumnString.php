@@ -4,10 +4,10 @@ namespace Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript;
 
 class DataTableColumnString
 {
-    private string $name;
-    private ?string $render = null;
-    private bool $sortable = true;
-    private bool $searchable = true;
+    public string $name;
+    public ?string $render = null;
+    public bool $sortable = true;
+    public bool $searchable = true;
 
     /**
      * @param string      $name
