@@ -12,7 +12,6 @@ use Illuminate\Support\Stringable;
 
 /**
  * Provides naming conventions for various components such as variables, routes, models, tables, etc.
- * @property CubeRelation|CubeAttribute|CubeTable $this
  */
 trait NamingConventions
 {

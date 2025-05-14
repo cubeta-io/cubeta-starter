@@ -26,6 +26,8 @@ class CubeRelation
      */
     public string $relationModel;
 
+    private ?CubeTable $relationModelTableObject = null;
+
     /**
      * @var string|null
      */
@@ -40,6 +42,10 @@ class CubeRelation
      * @var string
      */
     public string $parentModel;
+
+    private ?CubeTable $parentModelTableObject = null;
+
+    private ?CubeRelation $reverseRelation = null;
 
     /**
      * @param string $type
@@ -134,7 +140,7 @@ class CubeRelation
     {
         // assuming that this relation is the products relation of
         // the category has many products
-        $related = CubeTable::create($this->parentModel); // category model
+        $related = $this->parentModel(); // category model
         $relatedModelPath = $related->getModelPath();
 
         return $relatedModelPath->exist() // category model exists
@@ -203,7 +209,12 @@ class CubeRelation
      */
     public function relationModel(): CubeTable
     {
-        return Settings::make()->getTable($this->relationModel) ?? CubeTable::create($this->parentModel);
+        if ($this->relationModelTableObject) {
+            return $this->relationModelTableObject;
+        }
+        $this->relationModelTableObject = Settings::make()->getTable($this->relationModel) ?? CubeTable::create($this->parentModel);
+
+        return $this->relationModelTableObject;
     }
 
     public function pivotTableName(): string
@@ -225,6 +236,36 @@ class CubeRelation
 
     public function parentModel(): CubeTable
     {
-        return Settings::make()->getTable($this->parentModel) ?? CubeTable::create($this->parentModel);
+        if ($this->parentModelTableObject) {
+            return $this->parentModelTableObject;
+        }
+
+        $this->parentModelTableObject = Settings::make()->getTable($this->parentModel) ?? CubeTable::create($this->parentModel);
+        return $this->parentModelTableObject;
+    }
+
+    public function reverseType(): string
+    {
+        return match ($this->type) {
+            RelationsTypeEnum::HasMany->value => RelationsTypeEnum::BelongsTo->value,
+            RelationsTypeEnum::ManyToMany->value => RelationsTypeEnum::ManyToMany->value,
+            RelationsTypeEnum::BelongsTo->value => RelationsTypeEnum::HasMany->value,
+            RelationsTypeEnum::HasOne->value => RelationsTypeEnum::HasOne->value,
+        };
+    }
+
+    public function reverseRelation(): CubeRelation
+    {
+        if ($this->reverseRelation) {
+            return $this->reverseRelation;
+        }
+
+        $this->reverseRelation = $this->relationModel()
+            ->relations()
+            ->filter(fn(CubeRelation $rel) => $rel->modelNaming() == $this->parentModel()->modelNaming())
+            ->first()
+            ?? CubeRelation::factory($this->reverseType(), $this->relationModel()->modelNaming(), $this->parentModel()->modelNaming());
+
+        return $this->reverseRelation;
     }
 }

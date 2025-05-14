@@ -38,8 +38,11 @@ class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDoc
     {
         return new DocBlockPropertyString(
             str($this->relationModel)->plural()->lower()->toString(),
-            "\Illuminate\Support\Collection<$this->relationModel>|null",
-            imports: new PhpImportString($this->getModelNameSpace())
+            "EloquentCollection<$this->relationModel>|null",
+            imports: [
+                new PhpImportString($this->getModelNameSpace()),
+                new PhpImportString("Illuminate\Database\Eloquent\Collection as EloquentCollection"),
+            ]
         );
     }
 
