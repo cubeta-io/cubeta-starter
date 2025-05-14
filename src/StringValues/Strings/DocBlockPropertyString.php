@@ -9,7 +9,7 @@ class DocBlockPropertyString
     public string $name;
     public string $type;
     public string $tag;
-    public ?array $imports = null;
+    public array $imports = [];
 
     /**
      * @param string                                 $name
@@ -17,11 +17,11 @@ class DocBlockPropertyString
      * @param string                                 $tag
      * @param PhpImportString[]|PhpImportString|null $imports
      */
-    public function __construct(string $name, ?string $type = null, string $tag = "property", null|array|PhpImportString $imports = null)
+    public function __construct(string $name, ?string $type = null, string $tag = "property", null|array|PhpImportString $imports = [])
     {
         $this->name = $name;
         $this->type = $type;
-        $this->imports = $imports ? Arr::wrap($imports) : null;
+        $this->imports = Arr::wrap($imports);
         $this->tag = $tag;
     }
 

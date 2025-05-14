@@ -19,12 +19,10 @@ class ResourceStubBuilder extends ClassStubBuilder
 
     public function resourceField(array|ResourcePropertyString $resourceField): static
     {
-        /** @var PropertyValidationRuleString[] $resourceField */
+        /** @var ResourcePropertyString[] $resourceField */
         $resourceField = Arr::wrap($resourceField);
         foreach ($resourceField as $item) {
-            if ($item->imports) {
-                $this->import($item->imports);
-            }
+            $this->import($item->imports);
         }
 
         $this->resourceFields = array_merge($resourceField, $this->resourceFields);

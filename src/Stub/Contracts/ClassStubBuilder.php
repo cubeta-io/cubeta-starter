@@ -88,9 +88,7 @@ abstract class ClassStubBuilder extends StubBuilder
     public function dockBlock(DocBlockPropertyString $property): static
     {
         $this->dockBlock[] = $property;
-        if ($property->imports) {
-            $this->import($property->imports);
-        }
+        $this->import($property->imports);
 
         $this->dockBlock = collect($this->dockBlock)
             ->unique(fn(DocBlockPropertyString $property) => $property->name)

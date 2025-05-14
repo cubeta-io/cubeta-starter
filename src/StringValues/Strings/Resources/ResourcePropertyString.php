@@ -9,16 +9,16 @@ class ResourcePropertyString
     public string $key;
     public string $value;
     /**
-     * @var PhpImportString[]|null
+     * @var PhpImportString[]
      */
-    public ?array $imports = [];
+    public array $imports = [];
 
     /**
      * @param string                 $key
      * @param string|null            $value
      * @param PhpImportString[]|null $imports
      */
-    public function __construct(string $key, ?string $value = null, ?array $imports = null)
+    public function __construct(string $key, ?string $value = null, array $imports = [])
     {
         $this->key = $key;
         $this->value = $value ?? "\$this->$key";
