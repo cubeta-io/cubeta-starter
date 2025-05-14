@@ -32,7 +32,14 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\Interf
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Str;
 
-class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasDocBlockProperty, HasYajraDataTableRelationLinkColumnRenderer, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader,HasInterfacePropertyString
+class CubeKey extends CubeAttribute implements HasFakeMethod,
+    HasMigrationColumn,
+    HasPropertyValidationRule,
+    HasDocBlockProperty,
+    HasYajraDataTableRelationLinkColumnRenderer,
+    HasDatatableColumnString,
+    HasHtmlTableHeader,
+    HasInterfacePropertyString
 {
     use RouteBinding;
 
@@ -113,51 +120,6 @@ class CubeKey extends CubeAttribute implements HasFakeMethod, HasMigrationColumn
     public function yajraDataTableAdditionalColumnRenderer(string $actor): YajraDataTableRelationLinkColumnRenderer
     {
         return new YajraDataTableRelationLinkColumnRenderer($this->name, $actor);
-    }
-
-    public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
-    {
-        $attributes = [];
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
-
-        if ($formType == "update") {
-            $attributes[] = [
-                'key' => ':value',
-                'value' => "\${$table?->variableNaming()}->{$this->name}"
-            ];
-        }
-        $model = Settings::make()->getTable($this->modelNaming()) ?? CubeTable::create($this->modelNaming());
-        $select2Route = $this->getRouteNames($model, ContainerType::WEB, $actor)["all_paginated_json"];
-
-        return new InputComponentString(
-            "number",
-            "x-select2",
-            $this->name,
-            $this->isRequired,
-            $this->titleNaming(),
-            [
-                ...$attributes,
-                [
-                    'key' => 'api',
-                    'value' => "{{route('{$select2Route}')}}"
-                ],
-                [
-                    'key' => 'option-value',
-                    'value' => 'id'
-                ],
-                [
-                    'key' => 'option-inner-text',
-                    'value' => $model->titleable()->name,
-                ],
-                $model->titleable()->isTranslatable() ? [
-                    'key' => 'translatable',
-                    'value' => null
-                ] : [
-                    'key' => '',
-                    'value' => null
-                ]
-            ]
-        );
     }
 
     public function dataTableColumnString(): DataTableColumnString

@@ -8,9 +8,11 @@ use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeKey;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
@@ -19,6 +21,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Models\ModelRelationString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
@@ -33,7 +36,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     HasInterfacePropertyString,
     HasReactTsInputString,
     HasReactTsDisplayComponentString,
-    HasDataTableColumnObjectString
+    HasDataTableColumnObjectString,
+    HasBladeInputComponent
 {
     use RouteBinding;
 
@@ -200,6 +204,52 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
                         {{$viewValue}}
                     </Link>)",
             $imports,
+        );
+    }
+
+    public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
+    {
+        $attributes = [];
+        $table = $this->parentModel(); // product model
+
+        if ($formType == "update") {
+            $attributes[] = [
+                'key' => ':value',
+                'value' => "\${$table?->variableNaming()}->{$this->keyName()}"
+            ];
+        }
+
+        $relatedMode = $this->relationModel(); //category model
+        $select2Route = $this->getRouteNames($relatedMode, ContainerType::WEB, $actor)["all_paginated_json"];
+
+        return new InputComponentString(
+            "number",
+            "x-select2",
+            $this->keyName(),
+            !($table->getAttribute($this->keyName())?->nullable === true),
+            $relatedMode->titleNaming(),
+            [
+                ...$attributes,
+                [
+                    'key' => 'api',
+                    'value' => "{{route('{$select2Route}')}}"
+                ],
+                [
+                    'key' => 'option-value',
+                    'value' => 'id'
+                ],
+                [
+                    'key' => 'option-inner-text',
+                    'value' => $relatedMode->titleable()->name,
+                ],
+                $relatedMode->titleable()->isTranslatable() ? [
+                    'key' => 'translatable',
+                    'value' => null
+                ] : [
+                    'key' => '',
+                    'value' => null
+                ]
+            ]
         );
     }
 }
