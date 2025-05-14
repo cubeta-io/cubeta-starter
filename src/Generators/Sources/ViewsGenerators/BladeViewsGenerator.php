@@ -183,6 +183,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             )->dataTableObjectColumns(
                 $this->table->attributes()
                     ->filter(fn(CubeAttribute $attribute) => !$attribute->isTextable())
+                    ->merge($this->table->relations())
                     ->whereInstanceOf(HasDatatableColumnString::class)
                     ->map(fn(HasDatatableColumnString $attribute) => $attribute->datatableColumnString()->__toString())
                     ->implode("\n")

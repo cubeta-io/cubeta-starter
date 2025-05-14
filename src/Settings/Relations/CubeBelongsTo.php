@@ -13,6 +13,7 @@ use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
@@ -22,6 +23,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Models\ModelRelationString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript\DataTableColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
@@ -37,7 +39,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     HasReactTsInputString,
     HasReactTsDisplayComponentString,
     HasDataTableColumnObjectString,
-    HasBladeInputComponent
+    HasBladeInputComponent,
+    HasDatatableColumnString
 {
     use RouteBinding;
 
@@ -250,6 +253,22 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
                     'value' => null
                 ]
             ]
+        );
+    }
+
+    public function dataTableColumnString(): DataTableColumnString
+    {
+        $relatedTable = $this->relationModel();
+        $column = $relatedTable->titleable();
+
+        if ($column->isTranslatable()) {
+            $render = "return translate(data);";
+        }
+
+        $usedName = $this->method() . "." . $column->name;
+        return new DataTableColumnString(
+            $usedName,
+            $render ?? null
         );
     }
 }

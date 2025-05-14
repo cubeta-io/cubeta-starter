@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
-use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
@@ -12,7 +11,6 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
@@ -25,9 +23,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleStr
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\YajraDataTableRelationLinkColumnRenderer;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript\DataTableColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Str;
@@ -37,7 +33,6 @@ class CubeKey extends CubeAttribute implements HasFakeMethod,
     HasPropertyValidationRule,
     HasDocBlockProperty,
     HasYajraDataTableRelationLinkColumnRenderer,
-    HasDatatableColumnString,
     HasHtmlTableHeader,
     HasInterfacePropertyString
 {
@@ -122,23 +117,6 @@ class CubeKey extends CubeAttribute implements HasFakeMethod,
         return new YajraDataTableRelationLinkColumnRenderer($this->name, $actor);
     }
 
-    public function dataTableColumnString(): DataTableColumnString
-    {
-        $relatedModelName = $this->modelNaming();
-        $relatedTable = Settings::make()->getTable($relatedModelName) ?? CubeTable::create($relatedModelName);
-        $column = $relatedTable->titleable();
-
-        if ($column->isTranslatable()) {
-            $render = "return translate(data);";
-        }
-
-        $usedName = $relatedTable->relationMethodNaming() . "." . $column->name;
-        return new DataTableColumnString(
-            $usedName,
-            $render ?? null
-        );
-    }
-
     public function htmlTableHeader(): HtmlTableHeaderString
     {
         return new HtmlTableHeaderString(
@@ -178,7 +156,7 @@ class CubeKey extends CubeAttribute implements HasFakeMethod,
     public function interfacePropertyString(): InterfacePropertyString
     {
         return new InterfacePropertyString(
-            $this->name ,
+            $this->name,
             "number",
             $this->nullable,
         );
