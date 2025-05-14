@@ -12,10 +12,13 @@ use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
-use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFactoryRelationMethod;
+use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
+use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelRelationMethod;
+use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Illuminate\Support\Str;
@@ -51,42 +54,46 @@ class CodeSniffer
             return $this;
         }
 
-        $this->table->relations()->each(function (CubeRelation $relation) {
-            $relatedPath = $relation->getModelPath();
+        $this->table->relations()
+            ->filter(fn(CubeRelation $relation) => $relation->getModelPath()->exist())
+            ->each(function (CubeRelation|HasModelRelationMethod $relation) {
+                // Product model
+                $model = $relation->relationModel();
 
-            if (!$relatedPath->exist()) {
-                return true;
-            }
+                // category relation of the product model in this case it will be product belongs to a category
+                $reverseRelation = $relation->reverseRelation();
+                $relatedPath = $model->getModelPath();
 
-            if ($relation->isHasMany()) {
-                ClassUtils::addMethodToClass(
-                    $relatedPath,
-                    $this->table->relationMethodNaming(),
-                    $this->belongsToFunction($this->table)
-                );
-            }
+                if ($reverseRelation instanceof HasModelRelationMethod) {
+                    $method = $reverseRelation->modelRelationMethod();
+                    $imports = $method->imports;
+                    ClassUtils::addMethodToClass(
+                        $relatedPath,
+                        $method->name,
+                        $method
+                    );
 
-            if ($relation->isManyToMany()) {
-                ClassUtils::addMethodToClass(
-                    $relatedPath,
-                    $this->table->relationMethodNaming(singular: false),
-                    $this->manyToManyFunction($this->table, $relation->pivotTableName())
-                );
-            }
+                    if ($reverseRelation instanceof HasDocBlockProperty) {
+                        $property = $reverseRelation->docBlockProperty();
+                        ClassUtils::addToClassDocBlock(
+                            $property,
+                            $relatedPath
+                        );
+                        $imports = array_merge($imports, $property->imports);
+                    }
 
-            if ($relation->isBelongsTo() || $relation->isHasOne()) {
-                ClassUtils::addMethodToClass(
-                    $relatedPath,
-                    $this->table->relationMethodNaming(singular: false),
-                    $this->hasManyFunction($this->table)
-                );
-            }
+                    foreach ($imports as $import) {
+                        FileUtils::addImportStatement($import, $relatedPath);
+                    }
 
-            $relationSearchableArray = "'{$this->table->relationMethodNaming(singular:$relation->isHasMany())}' => [\n{$this->table->searchableColsAsString()}\n]\n,";
-            ClassUtils::addToMethodReturnArray($relatedPath, $relation->getModelClassString(), 'relationsSearchableArray', $relationSearchableArray);
-
-            return true;
-        });
+                    $relationSearchableArray = "'{$reverseRelation->method()}' => [\n{$this->table->searchableColsAsString()}\n]\n,";
+                    ClassUtils::addToMethodReturnArray(
+                        $relatedPath,
+                        'relationsSearchableArray',
+                        $relationSearchableArray
+                    );
+                }
+            });
 
         return $this;
     }
@@ -97,24 +104,28 @@ class CodeSniffer
             return $this;
         }
 
-        $this->table->relations()->each(function (CubeRelation $relation) {
-            $relatedPath = $relation->getFactoryPath();
+        $this->table->relations()
+            ->filter(fn(CubeRelation $relation) => $relation->getModelPath()->exist() && $relation->loadable())
+            ->each(function (CubeRelation|HasFactoryRelationMethod $relation) {
+                // Category model
+                $model = $relation->relationModel();
 
-            if (!$relation->loadable() or !$relatedPath->exist()) {
-                return true;
-            }
+                // products relation of the category model in this case it will be category has many products
+                $reverseRelation = $relation->reverseRelation();
 
-            if ($relation->isBelongsTo() || $relation->isHasOne() || $relation->isManyToMany()) {
-                $methodName = "with" . Str::plural($this->table->modelName);
-                ClassUtils::addMethodToClass(
-                    $relatedPath,
-                    $methodName,
-                    $this->factoryRelationMethod($this->table)
-                );
-            }
-
-            return true;
-        });
+                if ($reverseRelation instanceof HasFactoryRelationMethod) {
+                    $method = $reverseRelation->factoryRelationMethod();
+                    $relatedPath = $model->getFactoryPath();
+                    ClassUtils::addMethodToClass(
+                        $model->getFactoryPath(),
+                        $method->name,
+                        "$method"
+                    );
+                    foreach ($method->imports as $import) {
+                        FileUtils::addImportStatement($import, $relatedPath);
+                    }
+                }
+            });
 
         return $this;
     }
@@ -125,66 +136,24 @@ class CodeSniffer
             return $this;
         }
 
-        $this->table->relations()->each(function (CubeRelation $relation) {
-            $relatedClassName = $relation->getResourceClassString();
-            $relatedResourcePath = $relation->getResourcePath();
-            $currentResourceClass = $this->table->getResourceClassString();
-            $relatedModelPath = $relation->getModelPath();
+        $this->table->relations()
+            ->filter(fn(CubeRelation $relation) => $relation->getResourcePath()->exist() && $relation->loadable())
+            ->each(function (CubeRelation $relation) {
+                // Category model
+                $model = $relation->relationModel();
 
-            if (!$relatedResourcePath->exist() or !$relation->loadable()) {
-                return true;
-            }
+                // products relation of the category model in this case it will be category has many products
+                $reverseRelation = $relation->reverseRelation();
 
-            if ($relation->isHasMany()) {
-                $relationName = $this->table->relationMethodNaming();
-                $key = Str::snake($relationName);
-
-                if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
-                    $content = "'$key' => new $currentResourceClass(\$this->whenLoaded('$relationName')) , \n";
-                    ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
-                } else {
-                    CubeLog::add(new ContentNotFound(
-                        "$relationName method",
-                        $relatedModelPath->fullPath,
-                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->relationModel} Resource"
-                    ));
+                if ($reverseRelation instanceof HasResourcePropertyString) {
+                    $property = $reverseRelation->resourcePropertyString();
+                    $relatedPath = $model->getResourcePath();
+                    ClassUtils::addToMethodReturnArray($model->getResourcePath(), 'toArray', $reverseRelation->resourcePropertyString());
+                    foreach ($property->imports as $import) {
+                        FileUtils::addImportStatement($import, $relatedPath);
+                    }
                 }
-            }
-
-            if ($relation->isManyToMany()) {
-                $relationName = $this->table->relationMethodNaming(singular: false);
-                $key = Str::snake($relationName);
-
-                if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
-                    $content = "'$key' => $currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
-                    ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
-                } else {
-                    CubeLog::add(new ContentNotFound(
-                        "$relationName method",
-                        $relatedModelPath->fullPath,
-                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->relationModel} Resource"
-                    ));
-                }
-            }
-
-            if ($relation->isBelongsTo() || $relation->isHasOne()) {
-                $relationName = $this->table->relationMethodNaming(singular: false);
-                $key = Str::snake($relationName);
-                $content = "'$key' => $currentResourceClass::collection(\$this->whenLoaded('$relationName')) , \n";
-
-                if ($relatedModelPath->exist() and ClassUtils::isMethodDefined($relatedModelPath, $relationName)) {
-                    ClassUtils::addToMethodReturnArray($relatedResourcePath, $relatedClassName, 'toArray', $content);
-                } else {
-                    CubeLog::add(new ContentNotFound(
-                        "$relationName method",
-                        $relatedModelPath->fullPath,
-                        "Sniffing The Resource Code To Add The {$this->table->modelName} Resource To {$relation->relationModel} Resource"
-                    ));
-                }
-            }
-
-            return true;
-        });
+            });
 
         return $this;
     }

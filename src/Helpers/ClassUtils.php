@@ -10,6 +10,7 @@ use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 
 class ClassUtils
 {
@@ -100,7 +101,7 @@ class ClassUtils
         }
     }
 
-    public static function addToMethodReturnArray(CubePath $classPath, string $className, string $methodName, string $content): bool
+    public static function addToMethodReturnArray(CubePath $classPath, string $methodName, string $content): bool
     {
         if (!$classPath->exist()) {
             CubeLog::add(new NotFound(
@@ -126,7 +127,7 @@ class ClassUtils
 
         if (preg_match($pattern, $fileContent, $matches)) {
 
-            if (!isset($matches[5]) ) {
+            if (!isset($matches[5])) {
                 CubeLog::add(new FailedAppendContent($content,
                     $classPath->fullPath,
                     "Adding The Following Content\n$content\nTo The Returned Array Of The Method : [$methodName]"
@@ -212,6 +213,30 @@ class ClassUtils
 
         $filePath->format();
 
+        return true;
+    }
+
+    public static function addToClassDocBlock(DocBlockPropertyString $property, CubePath $classPath): bool
+    {
+        if (!$classPath->exist()) {
+            return false;
+        }
+
+        $pattern = '#/\*\s*\*(.*?)\*/\s*class\s*#s';
+        $fileContent = $classPath->getContent();
+
+        if (!preg_match($pattern, $fileContent, $matches)) {
+            return false;
+        }
+
+        if (empty($matches[1])) {
+            return false;
+        }
+
+        $newBlock = trim($matches[1]) . "\n * $property \n";
+        $fileContent = str_replace($matches[1], $newBlock, $fileContent);
+        $classPath->putContent($fileContent);
+        CubeLog::contentAppended($property, $classPath);
         return true;
     }
 }
