@@ -155,4 +155,9 @@ class CubeLog
             $happenedWhen
         ));
     }
+
+    public static function warning(string $message, ?string $context = null): void
+    {
+        self::add(new CubeWarning($message, $context));
+    }
 }
