@@ -4,24 +4,22 @@ namespace {{namespace}};
 
 use {{request_namespace}};
 use {{service_namespace}};
-use {{resource_namespace}};
-use {{model_namespace}};
 use App\Http\Controllers\ApiController;
 use Illuminate\Http\Request;
 
 class {{model_name}}Controller extends ApiController{
 
-    private {{model_name}}Service ${{service_name}}Service;
+    private {{model_name}}Service ${{model_variable}}Service;
 
     public function __construct() {
-        $this->{{service_name}}Service = {{model_name}}Service::make();
+        $this->{{model_variable}}Service = {{model_name}}Service::make();
         // place the relations you want to return them within the response
         $this->relations = [] ;
     }
 
     public function index()
     {
-        $items = $this->{{service_name}}Service->indexWithPagination($this->relations);
+        $items = $this->{{model_variable}}Service->indexWithPagination($this->relations);
         return rest()
            ->ok()
            ->getSuccess()
@@ -31,7 +29,7 @@ class {{model_name}}Controller extends ApiController{
 
     public function show(${{id_variable}})
     {
-        $item = $this->{{service_name}}Service->view(${{id_variable}}, $this->relations);
+        $item = $this->{{model_variable}}Service->view(${{id_variable}}, $this->relations);
         return rest()
            ->when(
                 $item,
@@ -42,7 +40,7 @@ class {{model_name}}Controller extends ApiController{
 
     public function store(StoreUpdate{{model_name}}Request $request)
     {
-        $item = $this->{{service_name}}Service->store($request->validated() , $this->relations);
+        $item = $this->{{model_variable}}Service->store($request->validated() , $this->relations);
         return rest()
            ->when(
                 $item,
@@ -53,7 +51,7 @@ class {{model_name}}Controller extends ApiController{
 
     public function update(${{id_variable}}, StoreUpdate{{model_name}}Request $request)
     {
-        $item = $this->{{service_name}}Service->update($request->validated(), ${{id_variable}} , $this->relations);
+        $item = $this->{{model_variable}}Service->update($request->validated(), ${{id_variable}} , $this->relations);
         return rest()
            ->when(
                 $item,
@@ -64,7 +62,7 @@ class {{model_name}}Controller extends ApiController{
 
     public function destroy(${{id_variable}})
     {
-        $item = $this->{{service_name}}Service->delete(${{id_variable}});
+        $item = $this->{{model_variable}}Service->delete(${{id_variable}});
         return rest()
             ->when(
                 $item,
@@ -77,12 +75,12 @@ class {{model_name}}Controller extends ApiController{
     {
         $ids = $request->ids ?? [];
 
-        return $this->{{service_name}}Service->export($ids);
+        return $this->{{model_variable}}Service->export($ids);
     }
 
     public function getImportExample()
     {
-        return $this->{{service_name}}Service->getImportExample();
+        return $this->{{model_variable}}Service->getImportExample();
     }
 
     public function import(Request $request)
@@ -91,6 +89,6 @@ class {{model_name}}Controller extends ApiController{
             'excel_file' => 'required|mimes:xls,xlsx',
         ]);
 
-        $this->{{service_name}}Service->import();
+        $this->{{model_variable}}Service->import();
     }
 }

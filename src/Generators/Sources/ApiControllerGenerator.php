@@ -20,12 +20,11 @@ class ApiControllerGenerator extends AbstractGenerator
         ApiControllerStubBuilder::make()
             ->namespace($this->table->getApiControllerNameSpace(false))
             ->modelName($this->table->modelName)
-            ->modelNamespace($this->table->getModelNameSpace(false))
-            ->resourceNamespace($this->table->getResourceNameSpace(false))
             ->serviceNamespace($this->table->getServiceNamespace(false))
             ->idVariable($this->table->idVariable())
             ->requestNamespace($this->table->getRequestNameSpace(false))
-            ->serviceName($this->table->modelName)
+            ->serviceName($this->table->modelNaming())
+            ->modelVariable($this->table->variableNaming())
             ->generate($controllerPath, $this->override);
 
 
