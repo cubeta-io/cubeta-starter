@@ -12,7 +12,7 @@
             ->toString();
     }
     if (old($name)) {
-        $value = old($name);
+        $value = json_decode(old($name) , true);
     } elseif ($value) {
         $value = json_decode($value, true);
     }

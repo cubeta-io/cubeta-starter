@@ -218,16 +218,16 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
     {
         $attributes = [];
-        $table = $this->parentModel(); // product model
+        $table = $this->parentModel();
 
         if ($formType == "update") {
             $attributes[] = [
                 'key' => ':value',
-                'value' => "\${$table?->variableNaming()}->{$this->keyName()}"
+                ':selected' => "\${$table->variableNaming()}->{$this->method()}"
             ];
         }
 
-        $relatedMode = $this->relationModel(); //category model
+        $relatedMode = $this->relationModel();
         $select2Route = $this->getRouteNames($relatedMode, ContainerType::WEB, $actor)["all_paginated_json"];
 
         return new InputComponentString(
