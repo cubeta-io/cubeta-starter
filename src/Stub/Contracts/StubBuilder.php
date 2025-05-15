@@ -151,6 +151,11 @@ abstract class StubBuilder
         }
 
         foreach ($matches[0] as $stubProperty) {
+            // this means that this is a blade statement like {{ app()->getLocale() }}
+            if (str($stubProperty)->contains(['(', ')', '$', '[', ']', '->', ';', ','])) {
+                continue;
+            }
+
             if (!isset($stubProperties[$stubProperty])) {
                 $stubProperties[$stubProperty] = "";
             }

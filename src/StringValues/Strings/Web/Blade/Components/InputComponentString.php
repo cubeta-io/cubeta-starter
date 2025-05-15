@@ -1,7 +1,7 @@
 <?php
 
 namespace Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components;
-
+// TODO: change class name to BladeInputComponentString
 class InputComponentString
 {
     private string $type;

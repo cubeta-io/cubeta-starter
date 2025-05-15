@@ -19,5 +19,11 @@ trait Makable
 
     public function init(): void
     {
+        //
+    }
+
+    public static function destroy(): void
+    {
+        self::$instance = null;
     }
 }

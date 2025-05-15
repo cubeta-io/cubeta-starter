@@ -110,9 +110,8 @@ class BladeControllerGenerator extends AbstractGenerator
 
         CodeSniffer::make()
             ->setModel($this->table)
-            ->checkForWebRelations(
-                $this->getRouteNames($this->table, ContainerType::WEB, $this->actor)["all_paginated_json"]
-            );
+            ->setActor($this->actor)
+            ->checkForWebRelations();
     }
 
     private function generateOrderingQueriesForTranslatableColumns(): string

@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Logs\CubeLog;
@@ -18,7 +19,10 @@ class ResourceGenerator extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
-        if (Settings::make()->installedWeb() && Settings::make()->getFrontendType() != FrontendTypeEnum::REACT_TS){
+        if (Settings::make()->installedWeb()
+            && Settings::make()->getFrontendType() != FrontendTypeEnum::REACT_TS
+            && !ContainerType::isApi($this->generatedFor)
+        ) {
             CubeLog::error("Resource is available when generating for api or react frontend stack");
             return;
         }

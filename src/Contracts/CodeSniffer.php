@@ -3,7 +3,7 @@
 namespace Cubeta\CubetaStarter\Contracts;
 
 use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\BladeViewsGenerator;
+use Cubeta\CubetaStarter\Helpers\BladeFileUtils;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
@@ -14,11 +14,15 @@ use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\CubeTable;
-use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFactoryRelationMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
+use Cubeta\CubetaStarter\Traits\Makable;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
 use Illuminate\Support\Str;
@@ -27,24 +31,26 @@ class CodeSniffer
 {
     use StringsGenerator;
     use RouteBinding;
-
-    private static $instance;
+    use Makable;
 
     private ?CubeTable $table = null;
+
+    private ?string $actor = null;
 
     private function __construct()
     {
         //
     }
 
-    public static function destroy(): void
-    {
-        self::$instance = null;
-    }
-
     public function setModel(CubeTable $table): static
     {
         $this->table = $table;
+        return $this;
+    }
+
+    public function setActor(?string $actor = null): static
+    {
+        $this->actor = $actor;
         return $this;
     }
 
@@ -158,124 +164,48 @@ class CodeSniffer
         return $this;
     }
 
-    public function checkForWebRelations(string $select2RouteName): static
+    public function checkForWebRelations(): static
     {
         if (!$this->table) {
             return $this;
         }
 
-        $this->table->relations()->each(function (CubeRelation $relation) use ($select2RouteName) {
-            $relatedControllerPath = $relation->getWebControllerPath();
-            $relatedTable = Settings::make()->getTable($relation->relationModel);
+        $this->table->relations()
+            ->filter(fn(CubeRelation $rel) => $rel->loadable() && $rel->getWebControllerPath()->exist())
+            ->each(function (CubeRelation $relation) {
+                $controllerPath = $this->table->getWebControllerPath();
+                $relatedControllerPath = $relation->getWebControllerPath();
+                $relatedTable = $relation->relationModel();
+                $reversedRelation = $relation->reverseRelation();
 
-            if (!$relatedTable) {
+                $relatedCreateView = $relation->getViewPath("create");
+                $relatedUpdateView = $relation->getViewPath("update");
+                $relatedIndexView = $relation->getViewPath("index");
+                $relatedShowView = $relation->getViewPath("show");
+
+                if ($reversedRelation instanceof HasBladeInputComponent
+                    && (!$reversedRelation->isBelongsTo() || ClassUtils::isMethodDefined($controllerPath, 'allPaginatedJson'))
+                ) {
+                    BladeFileUtils::addToNewInputToForm($reversedRelation->bladeInputComponent("store", $this->actor), $relatedCreateView);
+                    BladeFileUtils::addToNewInputToForm($reversedRelation->bladeInputComponent("update", $this->actor), $relatedUpdateView);
+                }
+
+                if ($reversedRelation instanceof HasDatatableColumnString
+                    && $reversedRelation instanceof HasHtmlTableHeader
+                    && ClassUtils::isMethodDefined($relatedControllerPath, 'data')
+                ) {
+                    BladeFileUtils::addColumnToDataTable($relatedIndexView, $reversedRelation->dataTableColumnString(), $reversedRelation->htmlTableHeader());
+                    ClassUtils::addNewRelationsToWithMethod($relatedControllerPath, $relatedTable, [$reversedRelation->method()]);
+                }
+
+                if ($reversedRelation instanceof HasBladeDisplayComponent) {
+                    BladeFileUtils::addNewDisplayComponentToShowView($reversedRelation->bladeDisplayComponent(), $relatedShowView);
+                }
+
                 return true;
-            }
-
-            $relatedCreateView = $relation->getViewPath("create");
-            $relatedUpdateView = $relation->getViewPath("update");
-            $relatedIndexView = $relation->getViewPath("index");
-            $relatedShowView = $relation->getViewPath("show");
-
-            if ($relation->isHasMany()) {
-
-                if (!$relation->loadable() and !$relatedControllerPath->exist()) {
-                    return true;
-                }
-
-                $keyName = $this->table->keyName();
-                $keyAttribute = $relatedTable->getAttribute($keyName);
-
-                if (!$keyAttribute) {
-                    return true;
-                }
-
-                if ($relatedCreateView->exist() and ClassUtils::isMethodDefined($relatedControllerPath, 'allPaginatedJson')) {
-                    if ($keyAttribute->nullable) {
-                        $required = "required";
-                    } else {
-                        $required = "";
-                    }
-
-                    $this->addSelect2ToForm($keyName, $select2RouteName, $required, $relatedCreateView);
-                }
-
-                if ($relatedUpdateView->exist() and ClassUtils::isMethodDefined($relatedControllerPath, 'allPaginatedJson')) {
-                    $value = ":value=\"\$" . $relation->variableNaming() . "->$keyName\"";
-                    $this->addSelect2ToForm($keyName, $select2RouteName, $value, $relatedUpdateView);
-                }
-
-                if ($relatedIndexView->exist() and ClassUtils::isMethodDefined($relatedControllerPath, 'data')) {
-                    $titleable = $this->table->titleable()->name;
-                    $attributeName = $this->table->relationMethodNaming() . "." . $titleable;
-                    $oldColName = strtolower(Str::singular($this->table->modelName)) . "_id";
-                    $relatedIndexViewContent = $relatedIndexView->getContent();
-
-                    // checking that if the user remove the key column from the view : like if he removed category_id
-                    // if he didn't remove it then we can replace it with the relation column
-                    if (str_contains($relatedIndexViewContent, $oldColName)) {
-                        $relatedIndexViewContent = str_replace($oldColName, $attributeName, $relatedIndexViewContent);
-                        $relatedIndexViewContent = preg_replace('/<th>\s*' . preg_quote($this->table->modelName, '/') . '\s*id\s*<\/th>/', "<th>{$this->table->modelName}</th>", $relatedIndexViewContent);
-                        $relatedIndexView->putContent($relatedIndexViewContent);
-                    } else { // or add new column to the view
-                        $content = "\n\"data\":'$attributeName' , searchable:true , orderable:true";
-                        BladeViewsGenerator::addColumnToDataTable($relatedIndexView, $content, $this->table->modelName);
-                    }
-                }
-
-                if ($relatedShowView->exist() and ClassUtils::isMethodDefined($relatedControllerPath, "show")) {
-                    $relationName = $this->table->relationMethodNaming();
-                    $showViewContent = $relatedShowView->getContent();
-                    $value = "\${$relatedTable->variableNaming()}->{$relationName}->{$this->table->titleable()->name}";
-
-                    if (str_contains($showViewContent, "\${$relatedTable->variableNaming()}->{$this->table->keyName()}")) {
-                        $showViewContent = str_replace("\${$relatedTable->variableNaming()}->{$this->table->keyName()}", $value, $showViewContent);
-                        $oldLabel = ucfirst(str_replace("_", ' ', $this->table->keyName()));
-                        $showViewContent = str_replace($oldLabel, $this->table->modelName, $showViewContent);
-                    } else {
-                        $item = "\t\t<x-small-text-field :value=\"$value\" label=\"{$this->table->modelName}\" />\n\t</x-show-layout>";
-                        $showViewContent = str_replace("</x-show-layout>", $item, $showViewContent);
-                    }
-
-                    $relatedShowView->putContent($showViewContent);
-                }
-
-                ClassUtils::addNewRelationsToWithMethod($relatedControllerPath, $relatedTable, [$this->table->relationMethodNaming()]);
-            }
-
-            return true;
-        });
+            });
 
         return $this;
-    }
-
-    public static function make(): CodeSniffer
-    {
-        if (self::$instance == null) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
-
-    /**
-     * @param string   $keyName
-     * @param string   $select2RouteName
-     * @param string   $tagAttributes
-     * @param CubePath $relatedFormView
-     * @return void
-     */
-    public function addSelect2ToForm(string $keyName, string $select2RouteName, string $tagAttributes, CubePath $relatedFormView): void
-    {
-        $inputField = "<x-select2 label=\"{$this->table->modelName}\" name=\"{$keyName}\" api=\"{{route('{$select2RouteName}')}}\" option-value=\"id\" option-inner-text=\"{$this->table->titleable()->name}\" $tagAttributes/> \n";
-
-        $createView = $relatedFormView->getContent();
-
-        $createView = str_replace("</x-form>", "\n \t $inputField\n</x-form>", $createView);
-
-        $relatedFormView->putContent($createView);
-
-        CubeLog::add(new ContentAppended($inputField, $relatedFormView->fullPath));
     }
 
     public function checkForTsInterfaces(): static
@@ -489,11 +419,6 @@ class CodeSniffer
         return $this;
     }
 
-    /**
-     * @param CubePath $controllerPath
-     * @param string[] $relations
-     * @return void
-     */
     private function addRelationsToReactTSController(CubePath $controllerPath, array $relations = []): void
     {
         if (!$controllerPath->exist()) {

@@ -2,11 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
-use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeTable;
-use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
@@ -19,7 +17,6 @@ use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\YajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
@@ -111,35 +108,6 @@ class CubeKey extends CubeAttribute implements HasFakeMethod,
     public function yajraDataTableAdditionalColumnRenderer(string $actor): YajraDataTableRelationLinkColumnRenderer
     {
         return new YajraDataTableRelationLinkColumnRenderer($this->name, $actor);
-    }
-
-    public function bladeDisplayComponent(): DisplayComponentString
-    {
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
-        $modelVariable = $table->variableNaming();
-        $label = $this->labelNaming();
-        $related = Settings::make()->getTable($this->modelNaming()) ?? CubeTable::create($this->modelNaming());
-        $column = $related->titleable();
-        $relationName = $related->relationMethodNaming();
-        if (ClassUtils::isMethodDefined($table->getModelPath(), $relationName)) {
-            return new DisplayComponentString(
-                $column->isTranslatable() ? "x-translatable-small-text-field" : "x-small-text-field",
-                [
-                    [
-                        "key" => ":value",
-                        "value" => $column->isTranslatable()
-                            ? "\${$modelVariable}->{$relationName}?->{$column->name}?->toJson()"
-                            : "\${$modelVariable}->{$relationName}?->{$column->name}"
-                    ],
-                    [
-                        "key" => 'label',
-                        'value' => $label
-                    ]
-                ]
-            );
-        } else {
-            return parent::bladeDisplayComponent();
-        }
     }
 
     public function interfacePropertyString(): InterfacePropertyString

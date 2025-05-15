@@ -54,7 +54,7 @@ class Postman
                     "{project-url}" => self::getProjectUrl()
                 ],
                 self::$path->fullPath,
-                __DIR__ . "/../../../Stub/stubs/postman-collection.stub"
+                CubePath::stubPath('/postman-collection.stub')
             );
         } catch (BindingResolutionException|FileNotFoundException|Throwable|Exception $e) {
             CubeLog::add($e);

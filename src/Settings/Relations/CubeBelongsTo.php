@@ -8,10 +8,10 @@ use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeKey;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\CubeTable;
-use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
@@ -23,6 +23,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Models\ModelRelationString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript\DataTableColumnString;
@@ -43,7 +44,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     HasDataTableColumnObjectString,
     HasBladeInputComponent,
     HasDatatableColumnString,
-    HasHtmlTableHeader
+    HasHtmlTableHeader,
+    HasBladeDisplayComponent
 {
     use RouteBinding;
 
@@ -171,7 +173,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         ];
 
         if ($column->isTranslatable()) {
-            $imports[] = new TsImportString("translate", "@/Models/Translatable" , false);
+            $imports[] = new TsImportString("translate", "@/Models/Translatable", false);
         }
 
         return new ReactTsDisplayComponentString(
@@ -279,6 +281,34 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     {
         return new HtmlTableHeaderString(
             $this->titleNaming(),
+        );
+    }
+
+    public function bladeDisplayComponent(): DisplayComponentString
+    {
+        $table = $this->parentModel();
+        $related = $this->relationModel();
+
+        $label = $this->titleNaming();
+        $column = $related->titleable();
+        $relationName = $related->relationMethodNaming();
+
+        $modelVariable = $table->variableNaming();
+
+        return new DisplayComponentString(
+            $column->isTranslatable() ? "x-translatable-small-text-field" : "x-small-text-field",
+            [
+                [
+                    "key" => ":value",
+                    "value" => $column->isTranslatable()
+                        ? "\${$modelVariable}->{$relationName}?->{$column->name}?->toJson()"
+                        : "\${$modelVariable}->{$relationName}?->{$column->name}"
+                ],
+                [
+                    "key" => 'label',
+                    'value' => $label
+                ]
+            ]
         );
     }
 }

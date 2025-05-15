@@ -464,4 +464,17 @@ class FileUtils
             . $propName . '\s*=\s*\'\s*' . $value . '\s*\'\s*)|('
             . $propName . '\s*=\s*"\s*' . $value . '\s*"\s*))';
     }
+
+    public static function formatCodeString(string $code): string
+    {
+        $prettier = shell_exec("echo " . escapeshellarg($code) . " | prettier --parser babel");
+        if (isset($prettier) && str(self::extraTrim($prettier))->length() >= str(self::extraTrim($code))->length()) {
+            $code = $prettier;
+        }
+
+        ob_start();
+        highlight_string($code);
+        $highlight = ob_get_clean();
+        return strip_tags(str_replace(['<br />', '&nbsp;'], ["\n", ' '], $highlight));
+    }
 }

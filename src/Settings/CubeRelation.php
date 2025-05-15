@@ -212,7 +212,7 @@ class CubeRelation
         if ($this->relationModelTableObject) {
             return $this->relationModelTableObject;
         }
-        $this->relationModelTableObject = Settings::make()->getTable($this->relationModel) ?? CubeTable::create($this->parentModel);
+        $this->relationModelTableObject = Settings::make()->getTable($this->relationModel) ?? CubeTable::create($this->relationModel);
 
         return $this->relationModelTableObject;
     }
