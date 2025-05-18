@@ -392,9 +392,9 @@ class FileUtils
         return false;
     }
 
-    public static function removeRepeatedCommas(string $string): array|string|null
+    public static function removeRepeatedCommas(string $string, bool $newLine = true): array|string|null
     {
-        return preg_replace('/(,\s*)+/', ",\n", $string);
+        return preg_replace('/(,\s*)+/', $newLine ? ",\n" : ",", $string);
     }
 
     public static function registerProvider(string $provider): void

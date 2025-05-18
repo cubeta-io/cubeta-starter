@@ -21,6 +21,7 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyStr
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\Traits\Makable;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
@@ -194,6 +195,14 @@ class CodeSniffer
                     && $reversedRelation instanceof HasHtmlTableHeader
                     && ClassUtils::isMethodDefined($relatedControllerPath, 'data')
                 ) {
+                    if ($reversedRelation instanceof HasYajraDataTableRelationLinkColumnRenderer) {
+                        $col = $reversedRelation->yajraDataTableAdditionalColumnRenderer($this->actor);
+                        ClassUtils::addNewColumnToTheReturnedYajraColumns(
+                            $col,
+                            $relatedControllerPath
+                        );
+                        ClassUtils::addNewColumnToYajraRawColumnsInController($col->returnColName, $relatedControllerPath);
+                    }
                     BladeFileUtils::addColumnToDataTable($relatedIndexView, $reversedRelation->dataTableColumnString(), $reversedRelation->htmlTableHeader());
                     ClassUtils::addNewRelationsToWithMethod($relatedControllerPath, $relatedTable, [$reversedRelation->method()]);
                 }

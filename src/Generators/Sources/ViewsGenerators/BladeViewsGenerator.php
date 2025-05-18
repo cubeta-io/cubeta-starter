@@ -99,14 +99,14 @@ class BladeViewsGenerator extends BladeControllerGenerator
             ->htmlColumns(
                 $this->table->attributes()
                     ->filter(fn(CubeAttribute $attribute) => !$attribute->isTextable())
-                    ->merge($this->table->relations())
+                    ->merge($this->table->relations()->filter(fn(CubeRelation $relation) => $relation->exists()))
                     ->whereInstanceOf(HasHtmlTableHeader::class)
                     ->map(fn(HasHtmlTableHeader $attribute) => $attribute->htmlTableHeader()->__toString())
                     ->implode("\n")
             )->dataTableObjectColumns(
                 $this->table->attributes()
                     ->filter(fn(CubeAttribute $attribute) => !$attribute->isTextable())
-                    ->merge($this->table->relations())
+                    ->merge($this->table->relations()->filter(fn(CubeRelation $relation) => $relation->exists()))
                     ->whereInstanceOf(HasDatatableColumnString::class)
                     ->map(fn(HasDatatableColumnString $attribute) => $attribute->datatableColumnString()->__toString())
                     ->implode("\n")

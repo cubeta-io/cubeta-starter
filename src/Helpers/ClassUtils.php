@@ -240,4 +240,68 @@ class ClassUtils
         CubeLog::contentAppended($property, $classPath);
         return true;
     }
+
+    /**
+     * this method adds code to the data method of the BladeController to add new column to it
+     */
+    public static function addNewColumnToTheReturnedYajraColumns(string $code, CubePath $controllerPath): bool
+    {
+        if (!$controllerPath->exist()) {
+            return false;
+        }
+
+        if (FileUtils::contentExistInFile($controllerPath, $code)) {
+            return false;
+        }
+
+        $content = $controllerPath->getContent();
+
+        $pattern = '/public\s*function\s*data\s*\(\s*\)\s*\{\s*(.*?)DataTables\s*::\s*eloquent\((.*?)\)(.*?)\s*}/s';
+
+        if (!preg_match($pattern, $content, $matches)) {
+            return false;
+        }
+
+        if (empty($matches[3])) {
+            return false;
+        }
+
+        $content = str_replace($matches[3], "\n$code{$matches[3]}", $content);
+        $controllerPath->putContent($content);
+        $controllerPath->format();
+        return true;
+    }
+
+    public static function addNewColumnToYajraRawColumnsInController(string $colName, CubePath $controllerPath): bool
+    {
+        if (!$controllerPath->exist()) {
+            return false;
+        }
+
+        $pattern = '/return (.*?)->\s*rawColumns\s*\(\s*\[(.*?)]\s*\)/s';
+
+        $content = $controllerPath->getContent();
+
+        if (!preg_match($pattern, $content, $matches)) {
+            return false;
+        }
+
+        if (!isset($matches[2])) {
+            return false;
+        }
+
+        $colName = "'$colName'";
+
+        if (FileUtils::contentExistsInString($matches[2], $colName)) {
+            return false;
+        }
+
+        $newCols = FileUtils::removeRepeatedCommas($matches[2] . ",$colName", false);
+        $content = preg_replace_callback($pattern, function ($matches) use ($newCols) {
+            return "return $matches[1]->rawColumns([$newCols])";
+        }, $content);
+        $controllerPath->putContent($content);
+        $controllerPath->format();
+        return true;
+    }
 }

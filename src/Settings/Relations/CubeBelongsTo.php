@@ -14,6 +14,7 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyStr
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
@@ -26,6 +27,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\YajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript\DataTableColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString;
@@ -45,7 +47,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     HasBladeInputComponent,
     HasDatatableColumnString,
     HasHtmlTableHeader,
-    HasBladeDisplayComponent
+    HasBladeDisplayComponent,
+    HasYajraDataTableRelationLinkColumnRenderer
 {
     use RouteBinding;
 
@@ -266,14 +269,9 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         $relatedTable = $this->relationModel();
         $column = $relatedTable->titleable();
 
-        if ($column->isTranslatable()) {
-            $render = "return translate(data);";
-        }
-
         $usedName = $this->method() . "." . $column->name;
         return new DataTableColumnString(
             $usedName,
-            $render ?? null
         );
     }
 
@@ -310,5 +308,10 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
                 ]
             ]
         );
+    }
+
+    public function yajraDataTableAdditionalColumnRenderer(string $actor): YajraDataTableRelationLinkColumnRenderer
+    {
+        return new YajraDataTableRelationLinkColumnRenderer($this->key, $actor);
     }
 }

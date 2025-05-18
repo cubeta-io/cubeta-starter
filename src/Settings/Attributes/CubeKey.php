@@ -9,7 +9,6 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
@@ -17,7 +16,6 @@ use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\YajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Str;
@@ -26,7 +24,6 @@ class CubeKey extends CubeAttribute implements HasFakeMethod,
     HasMigrationColumn,
     HasPropertyValidationRule,
     HasDocBlockProperty,
-    HasYajraDataTableRelationLinkColumnRenderer,
     HasInterfacePropertyString
 {
     use RouteBinding;
@@ -103,11 +100,6 @@ class CubeKey extends CubeAttribute implements HasFakeMethod,
             $this->name,
             'integer',
         );
-    }
-
-    public function yajraDataTableAdditionalColumnRenderer(string $actor): YajraDataTableRelationLinkColumnRenderer
-    {
-        return new YajraDataTableRelationLinkColumnRenderer($this->name, $actor);
     }
 
     public function interfacePropertyString(): InterfacePropertyString

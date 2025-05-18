@@ -12,28 +12,30 @@ class YajraDataTableRelationLinkColumnRenderer
 {
     use RouteBinding;
 
-    public string $columnName;
-    private string $actorName;
+    readonly public string $columnName;
+    readonly public string $actorName;
+    readonly public string $returnColName;
+
+    private CubeTable $relatedModel;
 
     public function __construct(string $columnName, string $actorName)
     {
         $this->columnName = $columnName;
         $this->actorName = $actorName;
+
+        $relatedModelName = Naming::model(str_replace('_id', '', $this->columnName));
+        $this->relatedModel = Settings::make()->getTable($relatedModelName) ?? CubeTable::create($relatedModelName);
+        $this->returnColName = $this->relatedModel->relationMethodNaming() . '.' . $this->relatedModel->titleable()->name;
     }
 
     public function __toString(): string
     {
-        $relatedModelName = Naming::model(str_replace('_id', '', $this->columnName));
-        $relatedModel = Settings::make()->getTable($relatedModelName);
-        if (!$relatedModel) {
-            $relatedModel = CubeTable::create($relatedModelName);
-        }
-        $showRouteName = $this->getRouteNames($relatedModel, ContainerType::WEB, $this->actorName)['show'];
-        $relationColumnName = $relatedModel->relationMethodNaming() . '.' . $relatedModel->titleable()->name;
-        $columnCalling = "\$row->" . $relatedModel->relationMethodNaming() . "->" . $relatedModel->titleable()->name;
+        $showRouteName = $this->getRouteNames($this->relatedModel, ContainerType::WEB, $this->actorName)['show'];
+        $relationColumnName = $this->relatedModel->relationMethodNaming() . '.' . $this->relatedModel->titleable()->name;
+        $columnCalling = "\$row->" . $this->relatedModel->relationMethodNaming() . "->" . $this->relatedModel->titleable()->name;
 
         return "->editColumn('$relationColumnName' , function (\$row) {
-                    return \"<a href='\" . route('{$showRouteName}', \$row->{$this->columnName}) . \"'>{$columnCalling}</a>\"
+                    return \"<a href='\" . route('{$showRouteName}', \$row->{$this->columnName}) . \"'>{{$columnCalling}}</a>\";
                 })";
     }
 }

@@ -9,11 +9,9 @@ use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators\BladeViewsGenerator;
-use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
@@ -49,18 +47,8 @@ class BladeControllerGenerator extends AbstractGenerator
             ->stringifyEachOne(fn(CubeRelation $rel) => $rel->method())
             ->implode(',');
 
-        $linkableAttributes = $this->table->attributes()
-            ->filter(fn(CubeAttribute $attribute) => $attribute instanceof HasYajraDataTableRelationLinkColumnRenderer && $attribute->isKey())
-            ->filter(function (HasYajraDataTableRelationLinkColumnRenderer|CubeAttribute $attribute) {
-                $relatedModel = CubeTable::create($attribute->modelNaming());
-                if (!$relatedModel->getWebControllerPath()->exist() || !$relatedModel->getModelPath()->exist()) {
-                    return false;
-                }
-                if (ClassUtils::isMethodDefined($relatedModel->getWebControllerPath(), 'show')) {
-                    return false;
-                }
-                return true;
-            });
+        $linkableAttributes = $this->table->relations()
+            ->filter(fn(CubeRelation $rel) => $rel->exists() && $rel instanceof HasYajraDataTableRelationLinkColumnRenderer);
 
         ControllerStubBuilder::make()
             ->modelName($this->table->modelNaming())
@@ -80,12 +68,10 @@ class BladeControllerGenerator extends AbstractGenerator
             ->loadedRelations($loadedRelations)
             ->baseRouteName($routesNames['resource'])
             ->additionalColumn(
-                $linkableAttributes
-                    ->map(
-                        fn(HasYajraDataTableRelationLinkColumnRenderer $attribute) => $attribute
-                            ->yajraDataTableAdditionalColumnRenderer($this->actor)
-                    )->toArray()
-            )->rawColumns($linkableAttributes->stringifyEachOne()->implode(","))
+                $linkableAttributes->map(
+                    fn(HasYajraDataTableRelationLinkColumnRenderer $link) => $link->yajraDataTableAdditionalColumnRenderer($this->actor)
+                )->toArray()
+            )->rawColumns($linkableAttributes->stringifyEachOne(fn(CubeRelation $item) => $item->method())->implode(","))
             ->translatableOrderQueries($this->generateOrderingQueriesForTranslatableColumns())
             ->when(
                 $this->table->hasRelationOfType(RelationsTypeEnum::HasMany),

@@ -21,12 +21,12 @@ class BladeFileUtils
         $pattern = '#<x-form(.*?)>(.*?)<div(.*?)class\s*=\s*([\'"])row([\'"])(.*?)>(.*?)</x-form>#s';
 
         if (!preg_match($pattern, $content, $matches)) {
-            CubeLog::failedAppending($inputComponentString , $pagePath);
+            CubeLog::failedAppending($inputComponentString, $pagePath);
             return false;
         }
 
         if (!isset($matches[0])) {
-            CubeLog::failedAppending($inputComponentString , $pagePath);
+            CubeLog::failedAppending($inputComponentString, $pagePath);
             return false;
         }
 
@@ -39,7 +39,7 @@ class BladeFileUtils
         $content = str_replace($matches[7], $newContent, $content);
         $pagePath->putContent($content);
         $pagePath->format();
-        CubeLog::contentAppended($inputComponentString , $pagePath);
+        CubeLog::contentAppended($inputComponentString, $pagePath);
         return true;
     }
 
@@ -56,7 +56,7 @@ class BladeFileUtils
             return false;
         }
 
-        if (FileUtils::contentExistInFile($filePath, $columnObject) || FileUtils::contentExistInFile($filePath, $columnHeader)) {
+        if (FileUtils::contentExistInFile($filePath, $columnObject)) {
             CubeLog::contentAlreadyExists($columnObject, $filePath->fullPath, "Trying To Add $columnObject->name column object To The Datatable Columns in : [$filePath->fullPath]");
             return false;
         }
@@ -64,30 +64,30 @@ class BladeFileUtils
         $fileContent = $filePath->getContent();
 
         // adding html column
-        $pattern = '#<table(.*?)>(.*?)<thead(.*?)>(.*?)<tr(.*?)>(.*?)</tr>(.*?)</thead>(.*?)</table>#s';
-        if (!preg_match($pattern, $fileContent, $htmlMatches)) {
-            CubeLog::warning(
-                "We Couldn't find the Proper Place To Add New Column In The HTML Of [$filePath->fullPath]",
-                "Trying To Add $columnObject->name column object To The Datatable Columns in : [$filePath->fullPath]"
-            );
-            return false;
-        }
 
-        if (empty($htmlMatches[6])) {
-            CubeLog::warning(
-                "We Couldn't find the Proper Place To Add New Column In The HTML Of [$filePath->fullPath]",
-                "Trying To Add $columnObject->name column object To The Datatable Columns in : [$filePath->fullPath]"
-            );
-            return false;
+        if (!FileUtils::contentExistInFile($filePath, $columnHeader)) {
+            $pattern = '#<table(.*?)>(.*?)<thead(.*?)>(.*?)<tr(.*?)>(.*?)</tr>(.*?)</thead>(.*?)</table>#s';
+            if (!preg_match($pattern, $fileContent, $htmlMatches)) {
+                CubeLog::warning(
+                    "We Couldn't find the Proper Place To Add New Column In The HTML Of [$filePath->fullPath]",
+                    "Trying To Add $columnObject->name column object To The Datatable Columns in : [$filePath->fullPath]"
+                );
+                return false;
+            }
+            if (empty($htmlMatches[6])) {
+                CubeLog::warning(
+                    "We Couldn't find the Proper Place To Add New Column In The HTML Of [$filePath->fullPath]",
+                    "Trying To Add $columnObject->name column object To The Datatable Columns in : [$filePath->fullPath]"
+                );
+                return false;
+            }
+            if (preg_match('#<th(.*?)>\s*Action\s*</th>#', $htmlMatches[6])) {
+                $newHeaders = preg_replace('#<th(.*?)>\s*Action\s*</th>#', "$columnHeader\n" . '${0}', $htmlMatches[6]);
+            } else {
+                $newHeaders = $htmlMatches[6] . "\n" . $columnHeader;
+            }
+            $fileContent = str_replace($htmlMatches[6], $newHeaders, $fileContent);
         }
-
-        if (preg_match('#<th(.*?)>\s*Action\s*</th>#', $htmlMatches[6])) {
-            $newHeaders = preg_replace('#<th(.*?)>\s*Action\s*</th>#', "$columnHeader\n" . '${0}', $htmlMatches[6]);
-        } else {
-            $newHeaders = $htmlMatches[6] . "\n" . $columnHeader;
-        }
-        $fileContent = str_replace($htmlMatches[6], $newHeaders, $fileContent);
-
 
         // Find the column array
         $pattern = '/DataTable\s*\(\s*\{(.*?)columns\s*:\s*\[(.*?)](.*)}\)/s';
