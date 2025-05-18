@@ -48,6 +48,9 @@ class ResourceGenerator extends AbstractGenerator
                     ->toArray()
             )->generate($resourcePath, $this->override);
 
-        CodeSniffer::make()->setModel($this->table)->checkForResourceRelations();
+        CodeSniffer::make()
+            ->setModel($this->table)
+            ->setActor($this->actor)
+            ->checkForResourceRelations();
     }
 }

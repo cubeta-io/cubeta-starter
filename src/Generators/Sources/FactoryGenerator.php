@@ -46,7 +46,10 @@ class FactoryGenerator extends AbstractGenerator
             ->modelName($this->table->modelName)
             ->generate($factoryPath, $this->override);
 
-        CodeSniffer::make()->setModel($this->table)->checkForFactoryRelations();
+        CodeSniffer::make()
+            ->setModel($this->table)
+            ->setActor($this->actor)
+            ->checkForFactoryRelations();
     }
 
     private function generateFields(): void

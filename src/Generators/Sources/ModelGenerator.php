@@ -38,7 +38,10 @@ class ModelGenerator extends AbstractGenerator
             ->modelName($this->table->modelName)
             ->generate($modelPath, $this->override);
 
-        CodeSniffer::make()->setModel($this->table)->checkForModelsRelations();
+        CodeSniffer::make()
+            ->setModel($this->table)
+            ->setActor($this->actor)
+            ->checkForModelsRelations();
     }
 
 

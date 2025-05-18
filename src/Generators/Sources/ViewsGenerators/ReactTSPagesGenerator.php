@@ -48,6 +48,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         CodeSniffer::make()
             ->setModel($this->table)
+            ->setActor($this->actor)
             ->checkForTsInterfaces()
             ->checkForReactTSPagesAndControllerRelations($this->actor);
     }
