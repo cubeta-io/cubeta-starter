@@ -116,4 +116,11 @@ class CubePath
     {
         return $this->fullPath;
     }
+
+    public function getFileNameWithoutExtension(): string
+    {
+        return str($this->fileName)
+            ->replace('.' . $this->getFileExtension(), '')
+            ->toString();
+    }
 }
