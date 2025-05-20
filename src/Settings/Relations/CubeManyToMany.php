@@ -73,4 +73,13 @@ class CubeManyToMany extends CubeRelation implements HasFactoryRelationMethod, H
             )
         );
     }
+
+    public function keyName(): string
+    {
+        return str($this->usedString)
+            ->singular()
+            ->kebab()
+            ->append("_ids")
+            ->toString();
+    }
 }

@@ -17,7 +17,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 
-class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDocBlockProperty, HasResourcePropertyString, HasFactoryRelationMethod,HasInterfacePropertyString
+class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDocBlockProperty, HasResourcePropertyString, HasFactoryRelationMethod, HasInterfacePropertyString
 {
     public function factoryRelationMethod(): FactoryRelationMethodStringString
     {
@@ -69,5 +69,14 @@ class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDoc
                 "@/Models/{$modelName}"
             )
         );
+    }
+
+    public function keyName(): string
+    {
+        return str($this->usedString)
+            ->singular()
+            ->kebab()
+            ->append("_ids")
+            ->toString();
     }
 }

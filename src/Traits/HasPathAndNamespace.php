@@ -283,7 +283,8 @@ trait HasPathAndNamespace
     }
 
     /**
-     * @param "show"|"index"|"create"|"update" $type
+     * $type must be one of "show"|"index"|"create"|"update"
+     * @param string $type
      * @return CubePath
      */
     public function getReactTSPagesPaths(string $type): CubePath

@@ -6,12 +6,13 @@ use Carbon\Carbon;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
-use Cubeta\CubetaStarter\Settings\CubeTable;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 
 /**
  * Provides naming conventions for various components such as variables, routes, models, tables, etc.
+ * @mixin CubeRelation
+ * @mixin CubeAttribute
  */
 trait NamingConventions
 {

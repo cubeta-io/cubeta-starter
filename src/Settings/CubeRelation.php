@@ -268,4 +268,9 @@ class CubeRelation
 
         return $this->reverseRelation;
     }
+
+    public function singularRelation(): bool
+    {
+        return $this->isBelongsTo() || $this->isHasOne();
+    }
 }

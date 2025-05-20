@@ -194,6 +194,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->filter(fn(CubeRelation $relation) => $relation->relationModel()->getTSModelPath()->exist())
             ->each(function (CubeRelation|HasReactTsInputString $relation) use ($builder) {
                 $builder->smallField($relation->inputComponent("update", $this->actor));
+                $builder->defaultValue($relation->keyName(), "{$this->table->variableNaming()}?.{$relation->keyName()}");
             });
 
         $builder->generate($formPath, $this->override);

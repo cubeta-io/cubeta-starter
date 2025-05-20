@@ -13,7 +13,6 @@ use Cubeta\CubetaStarter\Logs\Errors\WrongEnvironment;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -21,7 +20,7 @@ use Illuminate\Support\Str;
 class FileUtils
 {
     /**
-     * check if the directory exist if not create it
+     * check if the directory exists if not create it
      * @param string $directory
      * @return void
      */
@@ -38,7 +37,6 @@ class FileUtils
      * @param string $stubPath
      * @param bool   $override
      * @return void
-     * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
     public static function generateFileFromStub(array $stubProperties, string $path, string $stubPath, bool $override = false): void
@@ -51,7 +49,7 @@ class FileUtils
     }
 
     /**
-     * format the php file on the given path
+     * format the PHP file on the given path
      * @param $filePath string the project path of the file eg:app/Models/MyModel.php
      * @return void
      */
@@ -145,15 +143,15 @@ class FileUtils
 
 
     /**
-     * check if content exist in a file
+     * check if content exists in a file
      * @param CubePath $filePath
-     * @param string   $content
+     * @param string   $needle
      * @return bool
      */
-    public static function contentExistInFile(CubePath $filePath, string $content): bool
+    public static function contentExistInFile(CubePath $filePath, string $needle): bool
     {
         if (!$filePath->exist()) {
-            CubeLog::add(new NotFound($filePath->fullPath, "Checking If $content Exists In it"));
+            CubeLog::add(new NotFound($filePath->fullPath, "Checking If $needle Exists In it"));
         }
 
         $fileContent = $filePath->getContent();
@@ -162,16 +160,16 @@ class FileUtils
             return false;
         }
 
-        return self::contentExistsInString($fileContent, $content);
+        return self::contentExistsInString($fileContent, $needle);
     }
 
-    public static function contentExistsInString(string $string, string $content): bool
+    public static function contentExistsInString(string $haystack, string $needle): bool
     {
-        $string = self::extraTrim($string);
+        $haystack = self::extraTrim($haystack);
 
-        $content = self::extraTrim($content);
+        $needle = self::extraTrim($needle);
 
-        if (str_contains(strtolower($string), strtolower($content))) {
+        if (str_contains(strtolower($haystack), strtolower($needle))) {
             return true;
         }
 
@@ -195,7 +193,7 @@ class FileUtils
     }
 
     /**
-     * this function check for a php file syntax error by running php -l command on the file
+     * this function check for a PHP file syntax error by running php -l command on the file
      * @param CubePath $path
      * @return bool
      */

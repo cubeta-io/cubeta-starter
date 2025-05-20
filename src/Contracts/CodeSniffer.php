@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Contracts;
 
-use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Helpers\BladeFileUtils;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -24,7 +23,11 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInp
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Traits\Makable;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
@@ -240,7 +243,7 @@ class CodeSniffer
                     );
 
                     if ($interfaceProperty->import) {
-                        TsFileUtils::addImportStatement([$interfaceProperty->import], $relatedInterfacePath);
+                        TsFileUtils::addImportStatement($interfaceProperty->import, $relatedInterfacePath);
                     }
                 }
             });
@@ -298,80 +301,67 @@ class CodeSniffer
             return $this;
         }
 
-        $this->table->relations()->each(function (CubeRelation $rel) use ($actor) {
-            if (!$rel->getTSModelPath()->exist()) {
-                return true;
-            }
+        $this->table->relations()
+            ->filter(fn(CubeRelation $rel) => $rel->getTSModelPath()->exist() && $rel->loadable())
+            ->each(function (CubeRelation $rel) use ($actor) {
+                $relatedIndexPagePath = $rel->getReactTSPagesPaths("index");
+                $relatedCreatePagePath = $rel->getReactTSPagesPaths('create');
+                $relatedUpdatePagePath = $rel->getReactTSPagesPaths('update');
+                $relatedShowPagePath = $rel->getReactTSPagesPaths('show');
 
-            $relatedModelPath = $rel->getModelPath();
-            $relatedViewNaming = $rel->viewNaming();
-            $relatedIndexPagePath = CubePath::make("resources/js/Pages/dashboard/$relatedViewNaming/Index.tsx");
+                $reversedRelation = $rel->reverseRelation();
+                if ($reversedRelation instanceof HasDataTableColumnObjectString && $relatedIndexPagePath->exist()) {
+                    $object = $reversedRelation->datatableColumnObject($this->actor);
+                    TsFileUtils::addColumnToDataTable($relatedIndexPagePath, $object);
+                    TsFileUtils::addImportStatement($object->imports, $relatedIndexPagePath);
+                }
 
-            if (!$relatedIndexPagePath->exist()) {
-                return true;
-            }
-
-            if ($rel->isHasMany()) {
-                if (!ClassUtils::isMethodDefined($relatedModelPath, $this->table->relationMethodNaming())) {
+                if ($rel->isBelongsTo()
+                    && !ClassUtils::isMethodDefined($reversedRelation->getWebControllerPath(), "data")
+                ) {
                     return true;
                 }
-                $calledAttribute = $this->table->variableNaming() . "." . $this->table->titleable()->name;
-                $columnLabel = $this->table->modelName . " " . $this->table->titleable()->titleNaming();
-                $currentModelShowRoute = $this->getRouteNames($this->table, ContainerType::WEB, $actor)["show"];
-                $translatable = $this->table->titleable()->isTranslatable() ? "translatable:true," : "";
-                $newColumn = "{
-                                 name:\"$calledAttribute\" ,
-                                 sortable:true ,
-                                 label:\"$columnLabel\" ,
-                                 {$translatable}
-                                 render:({$this->table->titleable()->name} , {$this->table->variableNaming()}) => (
-                                                <Link
-                                                    className=\"hover:text-primary underline\"
-                                                    href={route(\"$currentModelShowRoute\" , {$this->table->variableNaming()}.id)}>
-                                                    {{$this->table->titleable()->name}}
-                                                </Link>)}";
-                $this->addColumnToReactTSDataTable($relatedIndexPagePath, $newColumn);
 
-                FileUtils::tsAddImportStatement('import { Link } from "@inertiajs/react";', $rel->getReactTSPagesPaths('index'));
-
-                $this->addRelationsToReactTSController($rel->getWebControllerPath(), [$this->table->relationMethodNaming()]);
-
-                $relatedKeyAttribute = $rel->relationModel()->getAttribute($this->table->keyName());
-                if ($relatedKeyAttribute) {
-                    $apiSelectImport = "import ApiSelect from \"@/Components/form/fields/Select/ApiSelect\";";
-                    FileUtils::tsAddImportStatement($apiSelectImport, $rel->getReactTSPagesPaths('create'));
-                    FileUtils::tsAddImportStatement("import { translate } from \"@/Models/Translatable\";", $rel->getReactTSPagesPaths('create'));
-
-                    $this->addNewInputToReactTSForm(
-                        $this->inertiaApiSelectComponent(
-                            $this->table,
-                            $this->getRouteNames($this->table, ContainerType::WEB, $actor)["data"],
-                            $relatedKeyAttribute
-                        ),
-                        $this->table->keyName() . ":" . "number;",
-                        $rel->getReactTSPagesPaths('create')
+                if ($reversedRelation instanceof HasReactTsInputString
+                    && $reversedRelation instanceof HasInterfacePropertyString
+                    && $relatedCreatePagePath->exist()
+                ) {
+                    $input = $reversedRelation->inputComponent("store", $this->actor);
+                    $interfaceProperty = new InterfacePropertyString(
+                        $reversedRelation->keyName(),
+                        $reversedRelation->singularRelation() ? "numeric" : "numeric[]",
+                        $rel->relationModel()->getAttribute($reversedRelation->keyName())?->nullable ?? false
                     );
-
-                    FileUtils::tsAddImportStatement($apiSelectImport, $rel->getReactTSPagesPaths('update'));
-                    FileUtils::tsAddImportStatement("import { translate } from \"@/Models/Translatable\";", $rel->getReactTSPagesPaths('create'));
-
-                    $this->addNewInputToReactTSForm(
-                        $this->inertiaApiSelectComponent(
-                            $this->table,
-                            $this->getRouteNames($this->table, ContainerType::WEB, $actor)["data"],
-                            $relatedKeyAttribute,
-                            true
-                        ),
-                        $this->table->keyName() . "?:" . "number;",
-                        $rel->getReactTSPagesPaths('update')
-                    );
+                    TsFileUtils::addNewInputToReactTSForm($input, $interfaceProperty, $relatedCreatePagePath);
+                    TsFileUtils::addImportStatement($input->imports, $relatedCreatePagePath);
                 }
-            } elseif ($rel->isManyToMany() || $rel->isBelongsTo()) {
-                $this->addRelationsToReactTSController($rel->getWebControllerPath(), [$this->table->relationMethodNaming(singular: false)]);
-            }
 
-            return true;
-        });
+                if ($reversedRelation instanceof HasReactTsInputString
+                    && $reversedRelation instanceof HasInterfacePropertyString
+                    && $relatedUpdatePagePath->exist()
+                ) {
+                    $input = $reversedRelation->inputComponent("update", $this->actor);
+                    $interfaceProperty = new InterfacePropertyString(
+                        $reversedRelation->keyName(),
+                        $reversedRelation->singularRelation() ? "numeric" : "numeric[]",
+                        $rel->relationModel()->getAttribute($reversedRelation->keyName())?->nullable ?? false
+                    );
+                    TsFileUtils::addNewInputToReactTSForm($input, $interfaceProperty, $relatedUpdatePagePath, [
+                        'key' => $reversedRelation->keyName(),
+                        'value' => $rel->variableNaming() . "?." . $reversedRelation->keyName()
+                    ]);
+                    TsFileUtils::addImportStatement($input->imports, $relatedUpdatePagePath);
+                }
+
+                if ($reversedRelation instanceof HasReactTsDisplayComponentString){
+                    $component = $reversedRelation->displayComponentString();
+                    TsFileUtils::addComponentToShowPage($component , $relatedShowPagePath);
+                    TsFileUtils::addImportStatement($component->imports , $relatedShowPagePath);
+                }
+
+                $this->addRelationsToReactTSController($rel->getWebControllerPath(), [$reversedRelation->method()]);
+                return true;
+            });
 
         return $this;
     }
@@ -408,66 +398,5 @@ class CodeSniffer
                 "Adding new relations to the loaded relation in the controller"
             ));
         }
-    }
-
-    public function addNewInputToReactTSForm(string $inputElement, string $formInterfaceProperty, CubePath $filePath): void
-    {
-        $operationContext = "Trying To Add New ApiSelect Component To The Form";
-        if (!$filePath->exist()) {
-            CubeLog::add(new NotFound(
-                $filePath->fullPath,
-                $operationContext
-            ));
-            return;
-        }
-
-        $fileContent = $filePath->getContent();
-
-        if (FileUtils::contentExistInFile($filePath, $inputElement)) {
-            CubeLog::add(new ContentAlreadyExist($inputElement, $filePath->fullPath, $operationContext));
-            return;
-        }
-
-        $firstPattern = '#<Form\s*(.*?)\s*>\s*<div\s*(.*?)\s*>\s*(.*?)\s*</div>#s';
-        $secondPattern = '#<Form\s*(.*?)\s*>\s*(.*?)\s*</Form>#s';
-
-        if (preg_match($firstPattern, $fileContent, $matches)) {
-            $formContent = $matches[3];
-            $substitute = $matches[3];
-        } elseif (preg_match($secondPattern, $fileContent, $matches)) {
-            $formContent = $matches[2];
-            $substitute = $matches[2];
-        } else {
-            CubeLog::add(new FailedAppendContent(
-                $inputElement,
-                $filePath->fullPath,
-                $operationContext
-            ));
-            return;
-        }
-
-        $formContent .= "\n$inputElement\n";
-        $fileContent = str_replace($substitute, $formContent, $fileContent);
-
-        // adding new interface property
-        $formInterfacePattern = '#useForm\s*<\s*\{\s*(.*?)\s*}\s*>#s';
-        if (preg_match($formInterfacePattern, $fileContent, $matches)
-            && !FileUtils::contentExistInFile($filePath, $formInterfaceProperty)
-        ) {
-            $interfaceProperties = $matches[1];
-            $interfaceProperties .= "\n$formInterfaceProperty\n";
-            $fileContent = str_replace($matches[1], $interfaceProperties, $fileContent);
-        } else {
-            CubeLog::add(new FailedAppendContent(
-                $formInterfaceProperty,
-                $filePath->fullPath,
-                $operationContext
-            ));
-        }
-
-
-        $filePath->putContent($fileContent);
-        CubeLog::add(new ContentAppended($inputElement, $filePath->fullPath));
-        $filePath->format();
     }
 }

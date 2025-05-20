@@ -314,4 +314,9 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     {
         return new YajraDataTableRelationLinkColumnRenderer($this->key, $actor);
     }
+
+    public function keyName(): string
+    {
+        return $this->key;
+    }
 }

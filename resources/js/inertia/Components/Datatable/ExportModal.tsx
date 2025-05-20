@@ -58,7 +58,7 @@ const ExportModal = ({
           {exportables
             ? exportables.map((exp, index) => (
                 <label
-                  className="flex items-center gap-2 dark:text-white"
+                  className="flex w-full items-center justify-between gap-2 dark:text-white"
                   key={index}
                 >
                   {exp}
@@ -82,7 +82,10 @@ const ExportModal = ({
               ))
             : schema.map((item, index) =>
                 item.name && item.name != "id" ? (
-                  <label className="flex items-center gap-2" key={index}>
+                  <label
+                    className="flex w-full items-center justify-between gap-2 dark:text-white"
+                    key={index}
+                  >
                     {item.label ?? item.name}
                     <input
                       type="checkbox"
