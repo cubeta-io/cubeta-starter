@@ -132,7 +132,7 @@ class CubeRelation
 
     /**
      * a relation is loadable when the current table model exists,
-     * and it has the relation method and the related model exists
+     * and it has the relation method, and the related model exists
      * and has the current table method
      * @return bool
      */

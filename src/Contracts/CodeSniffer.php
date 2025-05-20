@@ -4,14 +4,8 @@ namespace Cubeta\CubetaStarter\Contracts;
 
 use Cubeta\CubetaStarter\Helpers\BladeFileUtils;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
-use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\TsFileUtils;
-use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
-use Cubeta\CubetaStarter\Logs\Errors\NotFound;
-use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
-use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFactoryRelationMethod;
@@ -31,7 +25,6 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\Interf
 use Cubeta\CubetaStarter\Traits\Makable;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
-use Illuminate\Support\Str;
 
 class CodeSniffer
 {
@@ -72,7 +65,7 @@ class CodeSniffer
                 // Product model
                 $model = $relation->relationModel();
 
-                // category relation of the product model in this case it will be product belongs to a category
+                // category relation of the product model in this case, it will be product belongs to a category
                 $reverseRelation = $relation->reverseRelation();
                 $relatedPath = $model->getModelPath();
 
@@ -122,7 +115,7 @@ class CodeSniffer
                 // Category model
                 $model = $relation->relationModel();
 
-                // products relation of the category model in this case it will be category has many products
+                // products relation of the category model in this case it will be a category has many products
                 $reverseRelation = $relation->reverseRelation();
 
                 if ($reverseRelation instanceof HasFactoryRelationMethod) {
@@ -154,7 +147,7 @@ class CodeSniffer
                 // Category model
                 $model = $relation->relationModel();
 
-                // products relation of the category model in this case it will be category has many products
+                // products relation of the category model in this case it will be a category has many products
                 $reverseRelation = $relation->reverseRelation();
 
                 if ($reverseRelation instanceof HasResourcePropertyString) {
@@ -251,50 +244,6 @@ class CodeSniffer
         return $this;
     }
 
-    public function addColumnToReactTSDataTable(CubePath $filePath, string $newColumnString): void
-    {
-        if (!$filePath->exist()) {
-            CubeLog::add(new NotFound($filePath->fullPath, "Adding new column to the data table inside the file"));
-        }
-
-        $fileContent = $filePath->getContent();
-
-        $pattern = '/schema\s*=\s*\{\s*\[(.*?)\s*]\s*}/s';
-
-        if (preg_match($pattern, $fileContent, $matches)) {
-            $schemaContent = $matches[1];
-
-            if (FileUtils::contentExistInFile($filePath, $newColumnString)) {
-                CubeLog::add(new ContentAlreadyExist(
-                    $newColumnString,
-                    $filePath->fullPath,
-                    "Adding new column to the data table inside the file"
-                ));
-            }
-
-            $pattern = '/\s*}\s*,\s*\{\s*/';
-            $modifiedSchemaContent = preg_replace($pattern, "},$newColumnString,{", $schemaContent, 1);
-            $modifiedSchemaArray = "schema = {[" . $modifiedSchemaContent . "]}";
-            $modifiedFileContent = str_replace($matches[0], $modifiedSchemaArray, $fileContent);
-
-            $filePath->putContent($modifiedFileContent);
-            CubeLog::add(new ContentAppended($newColumnString, $filePath->fullPath));
-            $filePath->format();
-        } else {
-            $pattern = '/schema\s*=\s*\{\s*\[\s*/';
-            if (preg_match($pattern, $fileContent)) {
-                $fileContent = preg_replace($pattern, "schema={[$newColumnString,", $fileContent, 1);
-                $filePath->putContent($fileContent);
-                $filePath->format();
-                CubeLog::add(new ContentAppended($newColumnString, $filePath->fullPath));
-            } else {
-                CubeLog::add(new FailedAppendContent($newColumnString,
-                    $filePath->fullPath,
-                    "Adding new column to the data table inside the file"));
-            }
-        }
-    }
-
     public function checkForReactTSPagesAndControllerRelations(?string $actor = null): static
     {
         if (!$this->table) {
@@ -353,50 +302,17 @@ class CodeSniffer
                     TsFileUtils::addImportStatement($input->imports, $relatedUpdatePagePath);
                 }
 
-                if ($reversedRelation instanceof HasReactTsDisplayComponentString){
+                if ($reversedRelation instanceof HasReactTsDisplayComponentString) {
                     $component = $reversedRelation->displayComponentString();
-                    TsFileUtils::addComponentToShowPage($component , $relatedShowPagePath);
-                    TsFileUtils::addImportStatement($component->imports , $relatedShowPagePath);
+                    TsFileUtils::addComponentToShowPage($component, $relatedShowPagePath);
+                    TsFileUtils::addImportStatement($component->imports, $relatedShowPagePath);
                 }
 
-                $this->addRelationsToReactTSController($rel->getWebControllerPath(), [$reversedRelation->method()]);
+                ClassUtils::addRelationsToControllerRelationsProperty($rel->getWebControllerPath(), [$reversedRelation->method()]);
                 return true;
             });
 
         return $this;
     }
 
-    private function addRelationsToReactTSController(CubePath $controllerPath, array $relations = []): void
-    {
-        if (!$controllerPath->exist()) {
-            CubeLog::add(new NotFound($controllerPath->fullPath, "Adding new relations to the loaded relation in the controller"));
-            return;
-        }
-
-        $fileContent = $controllerPath->getContent();
-
-        $pattern = '/relations\s*=\s*\[(.*?)]/s';
-        if (preg_match($pattern, $fileContent, $matches)) {
-            $loadedRelations = $matches[1];
-            foreach ($relations as $relation) {
-                if (!FileUtils::isInPhpArrayString($loadedRelations, $relation)) {
-                    $loadedRelations .= ",\"$relation\",";
-                }
-            }
-            $loadedRelations = preg_replace('/\s*,\s*,\s*/', ',', $loadedRelations);
-            if (Str::startsWith($loadedRelations, ',')) {
-                $loadedRelations = FileUtils::replaceFirstMatch($loadedRelations, ',', '');
-            }
-            $newContent = preg_replace($pattern, 'relations = [' . $loadedRelations . ']', $fileContent);
-            $controllerPath->putContent($newContent);
-            CubeLog::add(new ContentAppended(implode(",", $relations), $controllerPath->fullPath));
-            $controllerPath->format();
-        } else {
-            CubeLog::add(new FailedAppendContent(
-                "[]",
-                $controllerPath->fullPath,
-                "Adding new relations to the loaded relation in the controller"
-            ));
-        }
-    }
 }

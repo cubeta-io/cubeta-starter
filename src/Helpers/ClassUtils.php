@@ -11,6 +11,7 @@ use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
+use Illuminate\Support\Str;
 
 class ClassUtils
 {
@@ -52,11 +53,11 @@ class ClassUtils
                 if ($currentFunctionName == $functionName) {
                     return true; // Function is defined in the file
                 }
-                $isFunction = false; // Reset flag after checking this function
+                $isFunction = false; // Reset a flag after checking this function
             }
         }
 
-        return false; // Function not found in the file
+        return false; // Function isn't found in the file
     }
 
     /**
@@ -302,6 +303,43 @@ class ClassUtils
         }, $content);
         $controllerPath->putContent($content);
         $controllerPath->format();
+        return true;
+    }
+
+    public static function addRelationsToControllerRelationsProperty(CubePath $controllerPath, array $relations = []): bool
+    {
+        if (!$controllerPath->exist()) {
+            CubeLog::notFound($controllerPath->fullPath, "Adding new relations to the loaded relation in the controller");
+            return false;
+        }
+
+        $fileContent = $controllerPath->getContent();
+
+        $pattern = '/relations\s*=\s*\[(.*?)]/s';
+        if (!preg_match($pattern, $fileContent, $matches)) {
+            CubeLog::failedAppending(
+                "[]",
+                $controllerPath->fullPath,
+                "Adding new relations to the loaded relation in the controller"
+            );
+            return false;
+        }
+
+        $loadedRelations = $matches[1];
+        foreach ($relations as $relation) {
+            if (!FileUtils::isInPhpArrayString($loadedRelations, $relation)) {
+                $loadedRelations .= ",\"$relation\",";
+            }
+        }
+        $loadedRelations = preg_replace('/\s*,\s*,\s*/', ',', $loadedRelations);
+        if (Str::startsWith($loadedRelations, ',')) {
+            $loadedRelations = FileUtils::replaceFirstMatch($loadedRelations, ',', '');
+        }
+        $newContent = preg_replace($pattern, 'relations = [' . $loadedRelations . ']', $fileContent);
+        $controllerPath->putContent($newContent);
+        CubeLog::contentAppended(implode(",", $relations), $controllerPath->fullPath);
+        $controllerPath->format();
+
         return true;
     }
 }

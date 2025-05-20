@@ -11,8 +11,6 @@ use Illuminate\Support\Stringable;
 
 /**
  * Provides naming conventions for various components such as variables, routes, models, tables, etc.
- * @mixin CubeRelation
- * @mixin CubeAttribute
  */
 trait NamingConventions
 {
