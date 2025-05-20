@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use App\Http\Controllers\ApiController;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -75,6 +74,6 @@ class Handler
             }
         }
 
-            return rest()->noData()->send();
+        return rest()->noData()->send();
     }
 }

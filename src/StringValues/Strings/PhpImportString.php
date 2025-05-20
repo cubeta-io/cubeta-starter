@@ -7,7 +7,7 @@ class PhpImportString
     private string $classFullName;
 
     /**
-     * @param string $classFullName
+     * @param string|class-string $classFullName
      */
     public function __construct(string $classFullName)
     {

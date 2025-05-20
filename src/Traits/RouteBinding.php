@@ -15,6 +15,8 @@ use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\Stub\Builders\Middlewares\AuthMiddlewareStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Routes\RoutesFileStubBuilder;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -50,12 +52,10 @@ trait RouteBinding
      */
     public function addAndRegisterAuthenticateMiddleware(bool $override = false): void
     {
-        $this->generateFileFromStub(
-            ['{{web-login-page-route}}' => $this->getAuthRouteNames(ContainerType::WEB, null, true)['login-page']],
-            CubePath::make('/app/Http/Middleware/Authenticate.php')->fullPath,
-            $override,
-            CubePath::stubPath('middlewares/Authenticate.stub')
-        );
+        $middlewarePath = CubePath::make('/app/Http/Middleware/Authenticate.php');
+        AuthMiddlewareStubBuilder::make()
+            ->webLoginPageRoute($this->getAuthRouteNames(ContainerType::WEB, null, true)['login-page'])
+            ->generate($middlewarePath, $override);
 
         FileUtils::registerMiddleware(
             "'authenticated' => Authenticate::class",
@@ -162,9 +162,10 @@ trait RouteBinding
      * @param string      $container
      * @param string      $version
      * @param array       $middlewares
+     * @param bool        $override
      * @return void
      */
-    public function addRouteFile(?string $actor = null, string $container = ContainerType::API, string $version = 'v1', array $middlewares = []): void
+    public function addRouteFile(?string $actor = null, string $container = ContainerType::API, string $version = 'v1', array $middlewares = [] , bool $override = false): void
     {
         $actor = $this->actorFileNaming($actor);
 
@@ -172,17 +173,8 @@ trait RouteBinding
 
         $filePath->ensureDirectoryExists();
 
-        try {
-            FileUtils::generateFileFromStub(
-                ['{route}' => '//add-your-routes-here'],
-                $filePath->fullPath,
-                CubePath::stubPath('api.stub')
-            );
-            CubeLog::add(new SuccessGenerating($filePath->fileName, $filePath->fullPath, "Adding [$actor.php] Route File"));
-        } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
-            CubeLog::add($e);
-            return;
-        }
+        RoutesFileStubBuilder::make()
+            ->generate($filePath , $override);
         $this->registerRouteFile($filePath, $container, $middlewares);
     }
 
@@ -410,38 +402,38 @@ trait RouteBinding
         if ($container == ContainerType::API) {
             if ($public) {
                 return [
-                    'register'               => "$version.api.public" . $actor == null ? '.' : ".$actor." . "register",
-                    'login'                  => "$version.api.public" . $actor == null ? '.' : ".$actor." . "login",
+                    'register' => "$version.api.public" . $actor == null ? '.' : ".$actor." . "register",
+                    'login' => "$version.api.public" . $actor == null ? '.' : ".$actor." . "login",
                     "password-reset-request" => "$version.api.public" . $actor == null ? '.' : ".$actor." . "reset.password.request",
-                    "validate-reset-code"    => "$version.api.public" . $actor == null ? '.' : ".$actor." . "check.reset.password.code",
-                    'password-reset'         => "$version.api.public" . $actor == null ? '.' : ".$actor." . "password.reset",
+                    "validate-reset-code" => "$version.api.public" . $actor == null ? '.' : ".$actor." . "check.reset.password.code",
+                    'password-reset' => "$version.api.public" . $actor == null ? '.' : ".$actor." . "password.reset",
                 ];
             } else {
                 return [
-                    'refresh'             => "$version.api.$actor.refresh.token",
-                    'logout'              => "$version.api.$actor.logout",
+                    'refresh' => "$version.api.$actor.refresh.token",
+                    'logout' => "$version.api.$actor.logout",
                     'update-user-details' => "$version.api.$actor.update.user.data",
-                    'user-details'        => "$version.api.$actor.user.details",
+                    'user-details' => "$version.api.$actor.user.details",
                 ];
             }
         } else {
             if ($public) {
                 return [
-                    'login'                       => "$version.web.public.login",
-                    'login-page'                  => "$version.web.public.login.page",
-                    'register'                    => "$version.web.public.register",
-                    "register-page"               => "$version.web.public.register.page",
-                    'password-reset-request'      => "$version.web.public.request.reset.password.code",
+                    'login' => "$version.web.public.login",
+                    'login-page' => "$version.web.public.login.page",
+                    'register' => "$version.web.public.register",
+                    "register-page" => "$version.web.public.register.page",
+                    'password-reset-request' => "$version.web.public.request.reset.password.code",
                     'password-reset-request-page' => "$version.web.public.request.reset.password.code-page",
-                    'validate-reset-code'         => "$version.web.public.validate.reset.password.code",
-                    'password-reset'              => "$version.web.public.change.password",
-                    'password-reset-page'         => "$version.web.public.reset.password.page",
+                    'validate-reset-code' => "$version.web.public.validate.reset.password.code",
+                    'password-reset' => "$version.web.public.change.password",
+                    'password-reset-page' => "$version.web.public.reset.password.page",
                 ];
             } else {
                 return [
                     'update-user-details' => "$version.web.$actor.update.user.data",
-                    'user-details'        => "$version.web.$actor.user.details",
-                    'logout'              => "$version.web.$actor.logout",
+                    'user-details' => "$version.web.$actor.user.details",
+                    'logout' => "$version.web.$actor.logout",
                 ];
             }
         }
@@ -484,31 +476,31 @@ trait RouteBinding
 
         if (ContainerType::isWeb($container)) {
             return [
-                'data_table'         => "/$version/dashboard$actor/$modelRouteName/data",
-                'export'             => "/$version/dashboard$actor/$modelRouteName/export",
-                'import_example'     => "/$version/dashboard$actor/$modelRouteName/get-import-example",
-                'import'             => "/$version/dashboard$actor/$modelRouteName/import",
-                'resource'           => "/$version/dashboard$actor/$modelRouteName",
-                "store"              => "/$version/dashboard$actor/$modelRouteName",
-                "create"             => "/$version/dashboard$actor/$modelRouteName/create",
-                "update"             => "/$version/dashboard$actor/$modelRouteName/$idVariable",
-                'edit'               => "/$version/dashboard$actor/$modelRouteName/$idVariable/edit",
-                'show'               => "/$version/dashboard$actor/$modelRouteName/$idVariable",
-                'delete'             => "/$version/dashboard$actor/$modelRouteName/$idVariable/delete",
-                "index"              => "/$version/dashboard$actor/$modelRouteName",
+                'data_table' => "/$version/dashboard$actor/$modelRouteName/data",
+                'export' => "/$version/dashboard$actor/$modelRouteName/export",
+                'import_example' => "/$version/dashboard$actor/$modelRouteName/get-import-example",
+                'import' => "/$version/dashboard$actor/$modelRouteName/import",
+                'resource' => "/$version/dashboard$actor/$modelRouteName",
+                "store" => "/$version/dashboard$actor/$modelRouteName",
+                "create" => "/$version/dashboard$actor/$modelRouteName/create",
+                "update" => "/$version/dashboard$actor/$modelRouteName/$idVariable",
+                'edit' => "/$version/dashboard$actor/$modelRouteName/$idVariable/edit",
+                'show' => "/$version/dashboard$actor/$modelRouteName/$idVariable",
+                'delete' => "/$version/dashboard$actor/$modelRouteName/$idVariable/delete",
+                "index" => "/$version/dashboard$actor/$modelRouteName",
                 "all_paginated_json" => "/$version/dashboard$actor/{$modelRouteName}/all-paginated-json",
             ];
         } else {
             return [
-                'export'         => "/{$version}{$actor}/$modelRouteName/export",
+                'export' => "/{$version}{$actor}/$modelRouteName/export",
                 'import_example' => "/{$version}{$actor}/$modelRouteName/get-import-example",
-                'import'         => "/{$version}{$actor}/$modelRouteName/import",
-                'resource'       => "/{$version}{$actor}/$modelRouteName",
-                "store"          => "/{$version}{$actor}/$modelRouteName",
-                "update"         => "/{$version}{$actor}/$modelRouteName/$idVariable",
-                'show'           => "/{$version}{$actor}/$modelRouteName/$idVariable",
-                'delete'         => "/{$version}{$actor}/$modelRouteName/$idVariable/delete",
-                "index"          => "/{$version}{$actor}/$modelRouteName",
+                'import' => "/{$version}{$actor}/$modelRouteName/import",
+                'resource' => "/{$version}{$actor}/$modelRouteName",
+                "store" => "/{$version}{$actor}/$modelRouteName",
+                "update" => "/{$version}{$actor}/$modelRouteName/$idVariable",
+                'show' => "/{$version}{$actor}/$modelRouteName/$idVariable",
+                'delete' => "/{$version}{$actor}/$modelRouteName/$idVariable/delete",
+                "index" => "/{$version}{$actor}/$modelRouteName",
             ];
         }
     }
@@ -528,31 +520,31 @@ trait RouteBinding
         $base = $this->getRouteName($table, $container, $actor);
         if (ContainerType::isApi($container)) {
             return [
-                'export'         => "$base.export",
-                'import'         => "$base.import",
+                'export' => "$base.export",
+                'import' => "$base.import",
                 'import_example' => "$base.import.get.example",
-                "index"          => "$base.index",
-                "store"          => "$base.store",
-                "update"         => "$base.update",
-                "show"           => "$base.show",
-                "delete"         => "$base.destroy",
-                "resource"       => $base,
+                "index" => "$base.index",
+                "store" => "$base.store",
+                "update" => "$base.update",
+                "show" => "$base.show",
+                "delete" => "$base.destroy",
+                "resource" => $base,
             ];
         } else {
             return [
-                "data"               => "$base.data",
-                'export'             => "$base.export",
-                'import'             => "$base.import",
-                'import_example'     => "$base.get.example",
-                "index"              => "$base.index",
-                "store"              => "$base.store",
-                "create"             => "$base.create",
-                "update"             => "$base.update",
-                "edit"               => "$base.edit",
-                "show"               => "$base.show",
-                "delete"             => "$base.destroy",
+                "data" => "$base.data",
+                'export' => "$base.export",
+                'import' => "$base.import",
+                'import_example' => "$base.get.example",
+                "index" => "$base.index",
+                "store" => "$base.store",
+                "create" => "$base.create",
+                "update" => "$base.update",
+                "edit" => "$base.edit",
+                "show" => "$base.show",
+                "delete" => "$base.destroy",
                 "all_paginated_json" => "$base.allPaginatedJson",
-                "resource"           => $base,
+                "resource" => $base,
             ];
         }
     }

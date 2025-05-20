@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\Http\Controllers\ApiController;
 use Symfony\Component\HttpFoundation\Response;
 
 class Authenticate
@@ -18,15 +17,12 @@ class Authenticate
     {
         if ($request->acceptsJson() && $request->expectsJson()) {
             if (!auth('api')?->user()) {
-                return response()->json([
-                    'data'      => null,
-                    'status'    => false,
-                    'code'      => 401,
-                    'message'   => __('site.unauthorized_user')
-                ]);
+                return rest()->notAuthorized()
+                             ->message(trans('site.unauthorized_user'))
+                             ->send();
             }
         } elseif ($request->acceptsHtml() && !auth('web')?->user()) {
-            return redirect()->route('{{web-login-page-route}}');
+            return redirect()->route('{{web_login_page_route}}');
         }
 
         return $next($request);

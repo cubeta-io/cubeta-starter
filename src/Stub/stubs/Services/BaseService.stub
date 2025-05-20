@@ -1,13 +1,14 @@
 <?php
 
-namespace {namespace}\Contracts;
+namespace {{namespace}}\Contracts;
 
-use {repository_namespace}\Contracts\BaseRepository;
+use {{repository_namespace}}\Contracts\BaseRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection as RegularCollection;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+{{imports}}
 
 /**
  * @template MODEL of Model

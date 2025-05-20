@@ -15,6 +15,10 @@ use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\Stub\Builders\Repositories\BaseRepositoryStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Services\BaseServiceStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Traits\HasMediaTraitStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Traits\MakableTraitStubBuilder;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Mockery\Exception;
@@ -97,43 +101,37 @@ abstract class AbstractGenerator
         }
     }
 
-    protected function publishBaseService(bool $override = false): void
+    protected function publishBaseService(): void
     {
         $publishPath = CubePath::make(config('cubeta-starter.service_path') . "/Contracts/BaseService.php");
-        $stubPath = CubePath::stubPath("BaseService.stub");
-
-        $this->generateFileFromStub([
-            "{namespace}" => config('cubeta-starter.service_namespace'),
-            "{repository_namespace}" => config("cubeta-starter.repository_namespace"),
-        ], $publishPath->fullPath, $override, $stubPath);
+        BaseServiceStubBuilder::make()
+            ->namespace(config('cubeta-starter.service_namespace'))
+            ->repositoryNamespace(config('cubeta-starter.repository_namespace'))
+            ->generate($publishPath, $this->override);
     }
 
-    protected function publishBaseRepository(bool $override = false): void
+    protected function publishBaseRepository(): void
     {
         $publishPath = CubePath::make(config('cubeta-starter.repository_path') . "/Contracts/BaseRepository.php");
-        $stubPath = CubePath::stubPath("BaseRepository.stub");
-
-        $this->generateFileFromStub([
-            "{namespace}" => config('cubeta-starter.repository_namespace'),
-        ], $publishPath->fullPath, $override, $stubPath);
+        BaseRepositoryStubBuilder::make()
+            ->namespace(config('cubeta-starter.repository_namespace'))
+            ->generate($publishPath, $this->override);
     }
 
-    protected function publishMakableTrait(bool $override = false): void
+    protected function publishMakableTrait(): void
     {
         $publishPath = CubePath::make(config('cubeta-starter.trait_path') . "/Makable.php");
-        $stubPath = CubePath::stubPath("traits/Makable.stub");
-
-        $this->generateFileFromStub([
-            "{namespace}" => config('cubeta-starter.trait_namespace'),
-        ], $publishPath->fullPath, $override, $stubPath);
+        MakableTraitStubBuilder::make()
+            ->namespace(config('cubeta-starter.trait_namespace'))
+            ->generate($publishPath, $this->override);
     }
 
-    protected function publishHasMediaTrait(bool $override = false): void
+    protected function publishHasMediaTrait(): void
     {
         $mediaTraitPath = CubePath::make(config('cubeta-starter.trait_path') . '/HasMedia.php');
-        $this->generateFileFromStub([
-            "{namespace}" => config('cubeta-starter.trait_namespace'),
-        ], $mediaTraitPath->fullPath, $override, CubePath::stubPath("traits/HasMedia.stub"));
+        HasMediaTraitStubBuilder::make()
+            ->namespace(config('cubeta-starter.trait_namespace'))
+            ->generate($mediaTraitPath, $this->override);
     }
 
     protected function registerHelpersFile(): void

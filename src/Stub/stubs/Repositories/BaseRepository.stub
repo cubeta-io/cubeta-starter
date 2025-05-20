@@ -1,6 +1,6 @@
 <?php
 
-namespace {namespace}\Contracts;
+namespace {{namespace}}\Contracts;
 
 use App\Excel\BaseExporter;
 use App\Excel\BaseImporter;
@@ -13,6 +13,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Exception as SpreadSheetException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+{{imports}}
 
 /**
  * @template MODEL of Model

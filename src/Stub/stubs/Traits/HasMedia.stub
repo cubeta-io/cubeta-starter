@@ -1,6 +1,6 @@
 <?php
 
-namespace {namespace};
+namespace {{namespace}};
 
 use App\Casts\MediaCast;
 use Illuminate\Database\Eloquent\Model;
