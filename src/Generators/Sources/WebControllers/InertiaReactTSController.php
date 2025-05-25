@@ -83,10 +83,10 @@ class InertiaReactTSController extends AbstractGenerator
     {
         $viewName = $this->table->viewNaming();
         return [
-            'index' => 'dashboard/' . $viewName . '/Index',
-            'edit' => 'dashboard/' . $viewName . '/Edit',
-            'create' => 'dashboard/' . $viewName . '/Create',
-            'show' => 'dashboard/' . $viewName . '/Show',
+            'index' => 'dashboard/' . $viewName . '/' . config('views-names.index'),
+            'edit' => 'dashboard/' . $viewName . '/' . config('views-names.edit'),
+            'create' => 'dashboard/' . $viewName . '/' . config('views-names.create'),
+            'show' => 'dashboard/' . $viewName . '/' . config('views-names.show'),
         ];
     }
 

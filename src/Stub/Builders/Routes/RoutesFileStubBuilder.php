@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Stub\Builders\Routes;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Modules\Routes;
 use Cubeta\CubetaStarter\Stub\Contracts\PhpFileStubBuilder;
 use Illuminate\Support\Arr;
 
@@ -10,18 +11,21 @@ class RoutesFileStubBuilder extends PhpFileStubBuilder
 {
     private array $routes = [];
 
+    public function init(): void
+    {
+        $this->routes = [];
+        $this->stubProperties = [];
+    }
+
     /**
-     * @param string|string[] $route
+     * @param Routes|Routes[] $route
      * @return $this
      */
-    public function route(string|array $route): static
+    public function route(Routes|array $route): static
     {
         $this->routes = array_merge($this->routes, Arr::wrap($route));
-        $this->routes = array_map(function (string $route) {
-            if (!str_ends_with($route, ";")) {
-                return "$route;";
-            }
-            return $route;
+        $this->routes = array_map(function (Routes $route) {
+            return $route->toString();
         }, $this->routes);
         return $this;
     }

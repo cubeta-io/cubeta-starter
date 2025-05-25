@@ -4,7 +4,7 @@ namespace Cubeta\CubetaStarter\StringValues\Strings;
 
 class PhpImportString
 {
-    private string $classFullName;
+    public readonly string $classFullName;
 
     /**
      * @param string|class-string $classFullName

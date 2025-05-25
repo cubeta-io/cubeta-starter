@@ -3,11 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\ApiController;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 
@@ -24,8 +21,6 @@ class JWTAuthMiddleware
             $user = JWTAuth::parseToken()->authenticate();
         } catch (TokenExpiredException $exception) {
             return rest()->tokenExpiration()->send();
-        } catch (Exception $exception) {
-            Log::info($exception->getMessage());
         }
 
         return $next($request);

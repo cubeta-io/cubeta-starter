@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { User } from "@/Models/User";
+import User from "@/Models/User";
 import { asset } from "@/helper";
 import ChevronDown from "@/Components/icons/ChevronDown";
 

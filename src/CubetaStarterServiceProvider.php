@@ -171,7 +171,10 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('cubeta-starter')
-            ->hasConfigFile()
+            ->hasConfigFile([
+                'cubeta-starter',
+                'views-names'
+            ])
             ->hasCommand(MakeController::class)
             ->hasCommand(MakeResource::class)
             ->hasCommand(MakeModel::class)

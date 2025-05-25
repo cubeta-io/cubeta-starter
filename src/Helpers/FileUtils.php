@@ -13,6 +13,7 @@ use Cubeta\CubetaStarter\Logs\Errors\WrongEnvironment;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -110,8 +111,8 @@ class FileUtils
     {
         $contents = $filePath->getContent();
 
-        if (self::contentExistInFile($filePath, $importStatement)) {
-            CubeLog::add(new ContentAlreadyExist($importStatement, $filePath->fullPath, "Adding Import Statement"));
+        if (self::importExistsInFile($importStatement, $filePath)) {
+            CubeLog::contentAlreadyExists($importStatement, $filePath->fullPath, "Adding Import Statement");
             return;
         }
 
@@ -151,7 +152,8 @@ class FileUtils
     public static function contentExistInFile(CubePath $filePath, string $needle): bool
     {
         if (!$filePath->exist()) {
-            CubeLog::add(new NotFound($filePath->fullPath, "Checking If $needle Exists In it"));
+            CubeLog::notFound($filePath->fullPath, "Checking If $needle Exists In it");
+            return false;
         }
 
         $fileContent = $filePath->getContent();
@@ -474,5 +476,29 @@ class FileUtils
         highlight_string($code);
         $highlight = ob_get_clean();
         return strip_tags(str_replace(['<br />', '&nbsp;'], ["\n", ' '], $highlight));
+    }
+
+    public static function importExistsInFile(string|PhpImportString $importString, CubePath $file): bool
+    {
+        if (!$file->exist()) {
+            throw new \Exception("File Doesn't Exists : [$file->fullPath] while checking if an import exists in it");
+        }
+
+        $content = $file->getContent();
+
+        if ($importString instanceof PhpImportString) {
+            $importedClass = trim($importString->classFullName, "\\");
+        } else {
+            if (!preg_match('/use\s*(.*?);/s', $importString, $matches)) {
+                throw new \Exception("Invalid import string [$importString] while checking if an import exists in file [$file->fullPath]");
+            }
+            $importedClass = trim($matches[1], "\\");
+        }
+
+
+        return (bool)preg_match(
+            '/use\s*' . preg_quote($importedClass, '/') . '\s*;/s',
+            $content,
+        );
     }
 }

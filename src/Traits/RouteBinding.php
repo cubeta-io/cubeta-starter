@@ -17,9 +17,6 @@ use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Stub\Builders\Middlewares\AuthMiddlewareStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Routes\RoutesFileStubBuilder;
-use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 

@@ -69,7 +69,7 @@ class WebInstaller extends AbstractGenerator
             [],
             $viewPath->fullPath,
             $override,
-            CubePath::stubPath('views/home.stub')
+            CubePath::stubPath('Views/home.stub')
         );
     }
 
@@ -87,7 +87,7 @@ class WebInstaller extends AbstractGenerator
             ],
             CubePath::make('resources/views/includes/sidebar.blade.php')->fullPath,
             $override,
-            CubePath::stubPath('views/sidebar.stub')
+            CubePath::stubPath('Views/sidebar.stub')
         );
     }
 }

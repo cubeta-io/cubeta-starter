@@ -111,7 +111,7 @@ this command will initialize your project with the following :
 1. BaseAuthController ( _Controller_ )
 2. AuthLoginRequest ( _Form Request_ )
 3. AuthRegisterRequest ( _Form Request_ )
-4. CheckPasswordResetRequest ( _Form Request_ )
+4. CheckPasswordResetCodeRequest ( _Form Request_ )
 5. RequestResetPasswordRequest ( _Form Request_ )
 6. ResetPasswordRequest ( _Form Request_ )
 7. UpdateUserRequest ( _Form Request_ )

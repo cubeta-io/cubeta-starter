@@ -4,12 +4,13 @@ namespace {{namespace}};
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 {{imports}}
 
 /**
- * {{model_name}} Model class
  * @property integer id
  * {{doc_block}}
+ * @mixin Builder
  */
 class {{model_name}} extends Model
 {

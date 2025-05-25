@@ -53,13 +53,13 @@ abstract class StubBuilder
     {
         $this->imports = array_merge(Arr::wrap($import), $this->imports);
         $this->stubProperties["{{imports}}"] = collect($this->imports)
+            ->unique(fn(PhpImportString|TsImportString|string $i) => FileUtils::extraTrim("$i"))
             ->map(fn($import) => $import instanceof PhpImportString || $import instanceof TsImportString
                 ? trim($import->__toString())
                 : trim($import)
-            )->unique(fn($import) => $import instanceof PhpImportString || $import instanceof TsImportString
-                ? $import->__toString()
-                : $import
-            )->implode("\n");
+            )
+            ->filter(fn(string $import) => !FileUtils::contentExistsInString(file_get_contents($this->stubPath()) , $import))
+            ->implode("\n");
 
         return $this;
     }
@@ -145,14 +145,14 @@ abstract class StubBuilder
         $stubProperties = $this->getStubPropertyArray();
         $stubPath = $this->stubPath();
         $content = file_get_contents($stubPath);
-        preg_match_all('/\{\{(.*?)}}/s', $content, $matches);
+        preg_match_all('/\{\{([a-z0-9_]+)}}/', $content, $matches);
         if (empty($matches[0])) {
             return $stubProperties;
         }
 
         foreach ($matches[0] as $stubProperty) {
             // this means that this is a blade statement like {{ app()->getLocale() }}
-            if (str($stubProperty)->contains(['(', ')', '$', '[', ']', '->', ';', ','])) {
+            if (str($stubProperty)->contains(['(', ')', '$', '[', ']', '->', ';', ',', "'", '"'])) {
                 continue;
             }
 

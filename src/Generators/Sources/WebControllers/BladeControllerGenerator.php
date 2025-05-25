@@ -168,17 +168,17 @@ class BladeControllerGenerator extends AbstractGenerator
         $viewName = $model->viewNaming();
         if (!isset($actor) || $actor == '' || $actor = 'none') {
             return [
-                'index' => 'dashboard.' . $viewName . '.index',
-                'edit' => 'dashboard.' . $viewName . '.edit',
-                'create' => 'dashboard.' . $viewName . '.create',
-                'show' => 'dashboard.' . $viewName . '.show',
+                'index' => 'dashboard.' . $viewName . '.' . config('views-names.index'),
+                'edit' => 'dashboard.' . $viewName . '.' . config('views-names.edit'),
+                'create' => 'dashboard.' . $viewName . '.' . config('views-names.create'),
+                'show' => 'dashboard.' . $viewName . '.' . config('views-names.show'),
             ];
         }
         return [
-            'index' => 'dashboard.' . $actor . '.' . $viewName . '.index',
-            'edit' => 'dashboard.' . $actor . '.' . $viewName . '.edit',
-            'create' => 'dashboard.' . $actor . '.' . $viewName . '.create',
-            'show' => 'dashboard.' . $actor . '.' . $viewName . '.show',
+            'index' => 'dashboard.' . $actor . '.' . $viewName . '.' . config('views-names.index'),
+            'edit' => 'dashboard.' . $actor . '.' . $viewName . '.' . config('views-names.edit'),
+            'create' => 'dashboard.' . $actor . '.' . $viewName . '.' . config('views-names.create'),
+            'show' => 'dashboard.' . $actor . '.' . $viewName . '.' . config('views-names.show'),
         ];
     }
 }

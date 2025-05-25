@@ -30,7 +30,7 @@ class CubePath
         $this->fullPath = base_path($this->inProjectPath);
         $this->fullDirectory = dirname($this->fullPath);
         $this->inProjectDirectory = dirname($this->inProjectPath);
-        $this->fileName = pathinfo($this->fullPath, PATHINFO_BASENAME) ?? null;
+        $this->fileName = pathinfo($this->fullPath, PATHINFO_BASENAME) ?? "";
     }
 
     public static function make(string $inProjectFilePath): CubePath
@@ -122,5 +122,17 @@ class CubePath
         return str($this->fileName)
             ->replace('.' . $this->getFileExtension(), '')
             ->toString();
+    }
+
+    public function append(string $path): CubePath
+    {
+        return new self(
+            str($this->inProjectPath)
+                ->when(
+                    str_ends_with($this->inProjectPath , DIRECTORY_SEPARATOR),
+                    fn($s) => $s->append($path),
+                    fn($s) => $s->append(DIRECTORY_SEPARATOR . $path)
+                )->toString()
+        );
     }
 }

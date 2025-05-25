@@ -1,0 +1,218 @@
+<?php
+
+namespace {{namespace}}\User;
+
+use App\Mail\ResetPasswordCodeEmail;
+use Illuminate\Support\Facades\Mail;
+use {{repository_namespace}}\UserRepository;
+use {{service_namespace}}\Contracts\BaseService;
+use {{model_namespace}}\User;
+use {{traits_namespace}}\Makable;
+use Exception;
+
+/**
+ * @extends BaseService<User>
+ * @property UserRepository $repository
+ */
+class UserService extends BaseService
+{
+    use Makable;
+    private string $guard = 'web';
+
+    protected string $repositoryClass = UserRepository::class;
+
+    /**
+     * @param string $guard
+     * @return void
+     * @throws Exception
+     */
+    public function setGuard(string $guard = 'api'): void
+    {
+        if (!in_array($guard, array_keys(config('auth.guards')))) {
+            throw new Exception("Undefined Guard : [$guard]");
+        }
+
+        $this->guard = $guard;
+    }
+
+    /**
+     * @param array $data
+     * @param string|null $role
+     * @return array{User , string , string}|User|null
+     */
+    public function updateUserDetails(array $data, ?string $role = null , array $relations = []): array|User|null
+    {
+        $user = auth($this->guard)->user();
+
+        if (!$user) {
+            return null;
+        }
+
+        if ($role && !$user->hasRole($role)) {
+            return null;
+        }
+
+        /** @var User $user */
+        $user = $this->repository->update($data, $user->id);
+
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $token = auth($this->guard)->login($user);
+
+        if (!request()->acceptsHtml()) {
+            $refreshToken = auth($this->guard)->setTTL(ttl: config('jwt.refresh_ttl'))->refresh();
+
+            return [$user->load($relations), $token, $refreshToken,];
+        }
+
+        return $user->load($relations);
+    }
+
+    /**
+     * @param array $data
+     * @param string|null $role
+     * @return User|array{User , string , string}|null
+     */
+    public function login(array $data, ?string $role = null , array $relations = []): User|array|null
+    {
+        $token = auth($this->guard)->attempt([
+            'email' => $data['email'],
+            'password' => $data['password'],
+        ]);
+
+        if (!$token) {
+            return null;
+        }
+
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $user = auth($this->guard)->user();
+
+        if ($role && !$user->hasRole($role)) {
+            return null;
+        }
+
+        if (!request()->acceptsHtml()) {
+            $refreshToken = auth($this->guard)->setTTL(ttl: config('jwt.refresh_|ttl'))->refresh();
+
+            return [$user->load($relations), $token, $refreshToken,];
+        }
+
+        return $user->load($relations);
+    }
+
+    /**
+     * @return void
+     */
+    public function logout(): void
+    {
+        auth($this->guard)->logout();
+    }
+
+    /**
+     * @return array{User , string , string}|null
+     */
+    public function refreshToken(array $relations = []): ?array
+    {
+        $user = auth($this->guard)->user();
+        $token = auth($this->guard)->setTTL(config('jwt.ttl'))->refresh();
+        $refreshToken = auth($this->guard)->setTTL(config('jwt.refresh_ttl'))->refresh();
+
+        return [$user->load($relations), $token, $refreshToken];
+    }
+
+    /**
+     * @param array $data
+     * @param string|null $role
+     * @return array{User , string , string}|User
+     */
+    public function register(array $data, ?string $role = null , array $relations = []): array|User
+    {
+        $user = $this->repository->create($data);
+
+        if ($role) {
+            $user->assignRole($role);
+        }
+
+        /** @noinspection PhpVoidFunctionResultUsedInspection */
+        $token = auth($this->guard)->login($user);
+
+        if (!request()->acceptsHtml()) {
+            $refreshToken = auth($this->guard)->setTTL(ttl: config('jwt.refresh_ttl'))->refresh();
+
+            return [$user->load($relations), $token, $refreshToken];
+        }
+
+        return $user->load($relations);
+    }
+
+    private function generateVerificationCode(): string
+    {
+         do {
+                $code = sprintf('%06d', mt_rand(1, 999999));
+                $user = $this->repository->getUserByPasswordResetCode($code);
+            } while ($user != null);
+         return $code;
+    }
+
+    /**
+     * @param string $email
+     * @return bool
+     */
+    public function passwordResetRequest(string $email): bool
+    {
+        $user = $this->repository->getUserByEmail($email);
+
+        if (!$user) {
+            return false;
+        }
+
+        $user->reset_password_code = $this->generateVerificationCode();
+        $user->save();
+
+        Mail::to($user)
+            ->send(new ResetPasswordCodeEmail(
+                $user->reset_password_code,
+                $user->email
+            ));
+
+        return true;
+    }
+
+    /**
+     * @param string $verificationCode
+     * @param string $password
+     * @return bool
+     */
+    public function passwordReset(string $verificationCode, string $password): bool
+    {
+        $user = $this->repository->getUserByPasswordResetCode($verificationCode);
+
+        if ($user) {
+            $user->password = $password;
+            $user->reset_password_code = null;
+            $user->save();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string|null $role
+     * @return User|null
+     */
+    public function userDetails(?string $role = null , array $relations = []): User|null
+    {
+        $user = auth($this->guard)->user();
+
+        if (!$user) {
+            return null;
+        }
+
+        if ($role && !$user->hasRole($role)) {
+            return null;
+        }
+
+        return $user->load($relations);
+    }
+}
