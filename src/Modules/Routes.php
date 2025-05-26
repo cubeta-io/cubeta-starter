@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Modules;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Exception;
 use Illuminate\Support\Collection;
@@ -326,7 +327,7 @@ class Routes implements Stringable
             actionName: null,
             method: $frontType == FrontendTypeEnum::REACT_TS ? "inertia" : "view",
             name: "$version.web.public.login.page",
-            viewName: config('views-names.login')
+            viewName: Views::login()->name
         );
     }
 
@@ -342,7 +343,7 @@ class Routes implements Stringable
             actionName: null,
             method: $frontType == FrontendTypeEnum::REACT_TS ? "inertia" : "view",
             name: "$version.web.public.register.page",
-            viewName: config('views-names.register')
+            viewName: Views::register()->name
         );
     }
 
@@ -358,7 +359,7 @@ class Routes implements Stringable
             actionName: null,
             method: $frontType == FrontendTypeEnum::REACT_TS ? "inertia" : "view",
             name: "$version.web.public.request.reset.password.page",
-            viewName: config('views-names.forget-password')
+            viewName: Views::forgetPassword()->name
         );
     }
 
@@ -374,7 +375,7 @@ class Routes implements Stringable
             actionName: null,
             method: $frontType == FrontendTypeEnum::REACT_TS ? "inertia" : "view",
             name: "$version.web.public.reset.password.page",
-            viewName: config('views-names.reset-password')
+            viewName: Views::resetPassword()->name
         );
     }
 
@@ -436,5 +437,258 @@ class Routes implements Stringable
                 self::logout(ContainerType::WEB, null),
             ]
         );
+    }
+
+    public static function resource(CubeTable $model, string $container = ContainerType::API, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, $container, $model);
+        return new self(
+            actor: $actor,
+            pathname: $model->routeUrlNaming(),
+            controllerName: $model->getControllerName(),
+            actionName: null,
+            method: $container == ContainerType::API ? "apiResource" : "resource",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    private static function getResourceRouteName(?string $actor, string $container, CubeTable $model): string
+    {
+        $version = config('cubeta-starter.version');
+        if (!isset($actor) || $actor == '' || $actor == 'none') {
+            if (
+                (ContainerType::isApi($container) && Settings::make()->installedApiAuth())
+                || (ContainerType::isWeb($container) && Settings::make()->installedWebAuth())
+            ) {
+                $name = "$version.{$container}.protected.{$model->routeNameNaming()}";
+            } else {
+                $name = "$version.{$container}.public.{$model->routeNameNaming()}";
+            }
+        } else {
+            $name = "$version.{$container}.{" . self::actorRouteNameNaming($actor) . "}.{$model->routeNameNaming()}";
+        }
+        return $name;
+    }
+
+    public static function index(CubeTable $model, string $container = ContainerType::API, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, $container, $model) . ".index";
+        return new self(
+            $actor,
+            pathname: $model->routeUrlNaming(),
+            controllerName: $model->getControllerName(),
+            actionName: "index",
+            method: "get",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    public static function show(CubeTable $model, string $container = ContainerType::API, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, $container, $model) . ".show";
+        return new self(
+            $actor,
+            pathname: $model->routeUrlNaming() . "/{{$model->idVariable()}}",
+            controllerName: $model->getControllerName(),
+            actionName: "show",
+            method: "get",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    public static function create(CubeTable $model, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, ContainerType::WEB, $model) . ".create";
+
+        return new self(
+            $actor,
+            pathname: $model->routeUrlNaming() . "/create",
+            controllerName: $model->getControllerName(),
+            actionName: "create",
+            method: "get",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    public static function store(CubeTable $model, string $container = ContainerType::API, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, $container, $model) . ".store";
+
+        return new self(
+            $actor,
+            pathname: $model->routeUrlNaming(),
+            controllerName: $model->getControllerName(),
+            actionName: "store",
+            method: "post",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    public static function edit(CubeTable $model, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, ContainerType::WEB, $model) . ".edit";
+
+        return new self(
+            $actor,
+            pathname: $model->routeUrlNaming() . "/{{$model->idVariable()}}/edit",
+            controllerName: $model->getControllerName(),
+            actionName: "edit",
+            method: "get",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    public static function update(CubeTable $model, string $container = ContainerType::API, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, $container, $model) . ".update";
+
+        return new self(
+            $actor,
+            pathname: $model->routeUrlNaming() . "/{{$model->idVariable()}}",
+            controllerName: $model->getControllerName(),
+            actionName: "update",
+            method: "put",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    public static function delete(CubeTable $model, string $container = ContainerType::API, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, $container, $model) . ".destroy";
+
+        return new self(
+            $actor,
+            pathname: $model->routeUrlNaming() . "/{{$model->idVariable()}}",
+            controllerName: $model->getControllerName(),
+            actionName: "destroy",
+            method: "delete",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    public static function data(CubeTable $model, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, ContainerType::WEB, $model) . ".data";
+
+        return new self(
+            $actor,
+            pathname: $model->routeUrlNaming() . "/data",
+            controllerName: $model->getControllerName(),
+            actionName: "data",
+            method: "get",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    public static function import(CubeTable $model, string $container = ContainerType::API, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, $container, $model) . ".import";
+
+        return new self(
+            $actor,
+            pathname: $model->routeUrlNaming() . "/import",
+            controllerName: $model->getControllerName(),
+            actionName: "import",
+            method: "post",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    public static function export(CubeTable $model, string $container = ContainerType::API, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, $container, $model) . ".export";
+
+        return new self(
+            $actor,
+            pathname: $model->routeUrlNaming() . "/export",
+            controllerName: $model->getControllerName(),
+            actionName: "export",
+            method: "get",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    public static function importExample(CubeTable $model, string $container = ContainerType::API, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, $container, $model) . ".import.example";
+
+        return new self(
+            $actor,
+            pathname: $model->routeUrlNaming() . "/get-import-example",
+            controllerName: $model->getControllerName(),
+            actionName: "getImportExample",
+            method: "get",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    public static function dashboardPage(?string $actor = null): Routes
+    {
+        $actor = self::actorRouteNameNaming($actor);
+        $version = config('cubeta-starter.version');
+        $name = "$version.web.$actor.index";
+        $frontendType = Settings::make()->getFrontendType();
+
+        return new self(
+            actor: "dashboard",
+            pathname: "/",
+            controllerName: null,
+            actionName: null,
+            method: $frontendType == FrontendTypeEnum::REACT_TS ? "inertia" : "view",
+            name: $name,
+            viewName: Views::dashboard()->name,
+        );
+    }
+
+    public static function allPaginatedJson(CubeTable $model, ?string $actor = null): Routes
+    {
+        $name = self::getResourceRouteName($actor, ContainerType::WEB, $model) . ".all.paginated.json";
+        return new self(
+            actor: "dashboard",
+            pathname: $model->routeUrlNaming() . "/all-paginated-json",
+            controllerName: $model->getControllerName(),
+            actionName: "allPaginatedJson",
+            method: "get",
+            name: $name,
+            viewName: null
+        );
+    }
+
+    /**
+     * @param CubeTable   $model
+     * @param string      $container
+     * @param string|null $actor
+     * @return Collection<Routes>|Routes[]
+     */
+    public static function crudRoutes(CubeTable $model, string $container = ContainerType::API, ?string $actor = null): Collection|array
+    {
+        if (ContainerType::isApi($container)) {
+            return collect([
+                self::export($model, ContainerType::API, $actor),
+                self::import($model, ContainerType::API, $actor),
+                self::importExample($model, ContainerType::API, $actor),
+                self::resource($model, ContainerType::API, $actor),
+            ]);
+        }
+
+        return collect([
+            self::export($model, ContainerType::WEB, $actor),
+            self::import($model, ContainerType::WEB, $actor),
+            self::importExample($model, ContainerType::WEB, $actor),
+            self::data($model, $actor),
+            self::resource($model, ContainerType::WEB, $actor),
+        ]);
     }
 }

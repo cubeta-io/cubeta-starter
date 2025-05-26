@@ -17,6 +17,7 @@ use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Modules\Routes;
+use Cubeta\CubetaStarter\Modules\Views;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\MethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
@@ -466,28 +467,28 @@ class AuthInstaller extends AbstractGenerator
             ->loginRoute(Routes::login(ContainerType::WEB, null)->name)
             ->registerPageRoute(Routes::registerPage()->name)
             ->passwordResetRequestPageRoute(Routes::forgetPasswordPage()->name)
-            ->generate(CubePath::make('resources/js/Pages/' . config('views-names.login') . '.tsx'), $this->override);
+            ->generate(Views::login()->path, $this->override);
 
         ReactTsRegisterPageStubBuilderAlias::make()
             ->loginPageRoute(Routes::loginPage()->name)
             ->registerRoute(Routes::register(ContainerType::WEB, null)->name)
-            ->generate(CubePath::make('resources/js/Pages/' . config('views-names.register') . '.tsx'), $this->override);
+            ->generate(Views::register()->path, $this->override);
 
         ReactTsUserDetailsPageStubBuilderAlias::make()
             ->updateUserDataRoute(Routes::updateUser(ContainerType::WEB, null)->name)
-            ->generate(CubePath::make('resources/js/Pages/' . config('views-names.user-details') . '.tsx'), $this->override);
+            ->generate(Views::userDetails()->path, $this->override);
 
         ReactTsForgetPasswordPageStubBuilderAlias::make()
             ->passwordResetRequestRoute(Routes::requestResetPassword(ContainerType::WEB, null)->name)
-            ->generate(CubePath::make('resources/js/Pages/' . config('views-names.forget-password') . '.tsx'), $this->override);
+            ->generate(Views::forgetPassword()->path, $this->override);
 
         ReactTsResetPasswordCodeFormPageStubBuilderAlias::make()
             ->validateResetCodeRoute(Routes::validateResetCode(ContainerType::WEB, null)->name)
-            ->generate(CubePath::make('resources/js/Pages/' . config('views-names.reset-password-code-form') . '.tsx'), $this->override);
+            ->generate(Views::resetPasswordCodeForm()->path, $this->override);
 
         ReactTsResetPasswordPageStubBuilderAlias::make()
             ->passwordResetRoute(Routes::resetPassword(ContainerType::WEB, null)->name)
-            ->generate(CubePath::make('resources/js/Pages/' . config('views-names.reset-password') . '.tsx'), $this->override);
+            ->generate(Views::resetPassword()->path, $this->override);
 
         UserModelInterfaceStubBuilder::make()
             ->generate(CubePath::make('resources/js/Models/User.ts'), $this->override);

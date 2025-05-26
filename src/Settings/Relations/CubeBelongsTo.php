@@ -102,7 +102,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             ->attributes()
             ->filter(fn($att) => $att->isKey() && $att->modelNaming() == $modelName)
             ->first() ?? CubeKey::factory($this->key, ColumnTypeEnum::KEY->value, parentTableName: $relatedModel->tableNaming());
-        $dataRoute = $this->getRouteNames(CubeTable::create($modelName), ContainerType::WEB, $actor)["data"];
+        $dataRoute = CubeTable::create($modelName)->dataRoute($actor)->name;
 
         $attributes = [
             [
@@ -192,7 +192,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     public function datatableColumnObject(string $actor): DataTableColumnObjectString
     {
         $column = $this->relationModel()->titleable();
-        $showRoute = $this->getRouteNames($this->relationModel(), ContainerType::WEB, $actor)['show'];
+        $showRoute = $this->relationModel()->showRoute($actor, ContainerType::WEB)->name;
         $viewValue = $column->isTranslatable()
             ? "translate(record?.{$this->method()}?.{$column->name})"
             : "record?.{$this->method()}?.{$column->name}";
@@ -231,7 +231,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         }
 
         $relatedMode = $this->relationModel();
-        $select2Route = $this->getRouteNames($relatedMode, ContainerType::WEB, $actor)["all_paginated_json"];
+        $select2Route = $relatedMode->allPaginatedJson($actor)->name;
 
         return new InputComponentString(
             "number",

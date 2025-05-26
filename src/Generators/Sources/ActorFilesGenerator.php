@@ -11,8 +11,10 @@ use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Cubeta\CubetaStarter\Modules\Routes;
 use Cubeta\CubetaStarter\Postman\Postman;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\RoleAuthControllerStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Routes\RoleProtectedAuthRoutesStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Routes\RolePublicAuthRoutesStubBuilder;
@@ -204,15 +206,14 @@ class ActorFilesGenerator extends AbstractGenerator
     private function generateProtectedAuthRoutes(): void
     {
         $apiRouteFile = CubePath::make("routes/{$this->version}/api/{$this->actorFileNaming($this->role)}.php");
-        $protectedAuthRoutesNames = $this->getAuthRouteNames(ContainerType::API, $this->role);
         $routes = RoleProtectedAuthRoutesStubBuilder::make()
             ->version($this->version)
             ->role($this->role)
             ->controllerName(str($this->role)->studly()->singular()->toString())
-            ->refreshRouteName($protectedAuthRoutesNames['refresh_route_name'])
-            ->logoutRouteName($protectedAuthRoutesNames['logout'])
-            ->updateUserRouteName($protectedAuthRoutesNames['update-user-details'])
-            ->userDetailsRouteName($protectedAuthRoutesNames['user-details'])
+            ->refreshRouteName(Routes::refreshToken($this->role)->name)
+            ->logoutRouteName(Routes::logout(ContainerType::API, $this->role)->name)
+            ->updateUserRouteName(Routes::updateUser(ContainerType::API, $this->role)->name)
+            ->userDetailsRouteName(Routes::me(ContainerType::API, $this->role)->name)
             ->toString();
 
         $apiRouteFile->putContent($routes, FILE_APPEND);
@@ -224,19 +225,18 @@ class ActorFilesGenerator extends AbstractGenerator
 
     private function generatePublicAuthRoutes(): void
     {
-        $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . "\\$this->version;";
-        $publicAuthRoutesNames = $this->getAuthRouteNames(ContainerType::API, $this->role, true);
+        $importStatement = new PhpImportString(config('cubeta-starter.api_controller_namespace') . "\\$this->version;");
         $publicApiRouteFile = CubePath::make("/routes/{$this->version}/api/public.php");
 
         $publicAuthRoutes = RolePublicAuthRoutesStubBuilder::make()
             ->version($this->version)
             ->role($this->role)
             ->controllerName(str($this->role)->singular()->studly()->toString())
-            ->registerRouteName($publicAuthRoutesNames['register'])
-            ->loginRouteName($publicAuthRoutesNames['login'])
-            ->passwordResetRequestRouteName($publicAuthRoutesNames['password-reset-request'])
-            ->validatePasswordResetCodeRouteName($publicAuthRoutesNames['validate-reset-code'])
-            ->passwordResetRouteName($publicAuthRoutesNames['reset-password'])
+            ->registerRouteName(Routes::register(ContainerType::API, $this->role)->name)
+            ->loginRouteName(Routes::login(ContainerType::API, $this->role)->name)
+            ->passwordResetRequestRouteName(Routes::requestResetPassword(ContainerType::API, $this->role)->name)
+            ->validatePasswordResetCodeRouteName(Routes::validateResetCode(ContainerType::API, $this->role)->name)
+            ->passwordResetRouteName(Routes::resetPassword(ContainerType::API, $this->role)->name)
             ->toString();
 
         if (!$publicApiRouteFile->exist()) {

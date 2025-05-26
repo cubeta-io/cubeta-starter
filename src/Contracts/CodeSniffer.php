@@ -65,7 +65,7 @@ class CodeSniffer
                 // Product model
                 $model = $relation->relationModel();
 
-                // category relation of the product model in this case, it will be product belongs to a category
+                // category relation of the product model in this case, it will be the product belongs to a category
                 $reverseRelation = $relation->reverseRelation();
                 $relatedPath = $model->getModelPath();
 
@@ -177,10 +177,10 @@ class CodeSniffer
                 $relatedTable = $relation->relationModel();
                 $reversedRelation = $relation->reverseRelation();
 
-                $relatedCreateView = $relation->getViewPath("create");
-                $relatedUpdateView = $relation->getViewPath("update");
-                $relatedIndexView = $relation->getViewPath("index");
-                $relatedShowView = $relation->getViewPath("show");
+                $relatedCreateView = $relation->relationModel()->createView($this->actor)->path;
+                $relatedUpdateView = $relation->relationModel()->editView($this->actor)->path;
+                $relatedIndexView = $relation->relationModel()->indexView($this->actor)->path;
+                $relatedShowView = $relation->relationModel()->showView($this->actor)->path;
 
                 if ($reversedRelation instanceof HasBladeInputComponent
                     && (!$reversedRelation->isBelongsTo() || ClassUtils::isMethodDefined($controllerPath, 'allPaginatedJson'))
@@ -253,10 +253,10 @@ class CodeSniffer
         $this->table->relations()
             ->filter(fn(CubeRelation $rel) => $rel->getTSModelPath()->exist() && $rel->loadable())
             ->each(function (CubeRelation $rel) use ($actor) {
-                $relatedIndexPagePath = $rel->getReactTSPagesPaths("index");
-                $relatedCreatePagePath = $rel->getReactTSPagesPaths('create');
-                $relatedUpdatePagePath = $rel->getReactTSPagesPaths('update');
-                $relatedShowPagePath = $rel->getReactTSPagesPaths('show');
+                $relatedIndexPagePath = $rel->relationModel()->indexView($this->actor)->path;
+                $relatedCreatePagePath = $rel->relationModel()->createView($this->actor)->path;
+                $relatedUpdatePagePath = $rel->relationModel()->editView($this->actor)->path;
+                $relatedShowPagePath = $rel->relationModel()->showView($this->actor)->path;
 
                 $reversedRelation = $rel->reverseRelation();
                 if ($reversedRelation instanceof HasDataTableColumnObjectString && $relatedIndexPagePath->exist()) {

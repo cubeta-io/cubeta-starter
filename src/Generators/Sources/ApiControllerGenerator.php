@@ -32,7 +32,7 @@ class ApiControllerGenerator extends AbstractGenerator
         $controllerPath->format();
 
         try {
-            Postman::make()->getCollection()->newCrud($this->table, $this->version, $this->actor)->save();
+            Postman::make()->getCollection()->newCrud($this->table, $this->actor)->save();
             CubeLog::success("Postman Collection Now Has Folder For The Generated Controller [{$this->table->getControllerName()}] \nRe-Import It In Postman");
         } catch (Exception $e) {
             CubeLog::add($e);

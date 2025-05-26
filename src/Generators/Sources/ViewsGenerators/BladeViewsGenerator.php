@@ -7,13 +7,8 @@ use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\CubeWarning;
-use Cubeta\CubetaStarter\Logs\Errors\NotFound;
-use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
-use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\Settings;
@@ -41,15 +36,13 @@ class BladeViewsGenerator extends BladeControllerGenerator
             return;
         }
 
-        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
-        $viewsName = $this->table->viewNaming();
         $modelVariable = $this->table->variableNaming();
         $hasTranslatableFields = $this->table->hasTranslatableAttribute();
 
-        $indexPath = CubePath::make("resources/views/dashboard/{$this->table->viewNaming()}/index.blade.php");
-        $showPath = CubePath::make("resources/views/dashboard/{$viewsName}/show.blade.php");
-        $createFormPath = CubePath::make("resources/views/dashboard/{$viewsName}/create.blade.php");
-        $updateFormPath = CubePath::make("resources/views/dashboard/{$viewsName}/edit.blade.php");
+        $indexPath = $this->table->indexView($this->actor)->path;
+        $showPath = $this->table->showView($this->actor)->path;
+        $createFormPath = $this->table->createView($this->actor)->path;
+        $updateFormPath = $this->table->editView($this->actor)->path;
 
         $createInputs = $this->getInputsFields();
         $updateInputs = $this->getInputsFields("update");
@@ -59,7 +52,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             ->method("POST")
             ->title("Create {$this->table->modelName}")
             ->localizationSelector($hasTranslatableFields ? new FormLocalSelectorString() : "")
-            ->submitRoute($routes['store'])
+            ->submitRoute($this->table->storeRoute($this->actor, ContainerType::WEB)->name)
             ->inputs($createInputs)
             ->generate($createFormPath, $this->override);
 
@@ -68,7 +61,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             ->method("PUT")
             ->title("Update {$this->table->modelName}")
             ->localizationSelector($hasTranslatableFields ? new FormLocalSelectorString() : "")
-            ->submitRoute($routes['update'])
+            ->submitRoute($this->table->updateRoute($this->actor, ContainerType::WEB)->name)
             ->updateParameters(", \${$modelVariable}->id")
             ->inputs($updateInputs)
             ->type($modelVariable, $this->table->getModelClassString())
@@ -80,7 +73,7 @@ class BladeViewsGenerator extends BladeControllerGenerator
             ->modelVariable($this->table->variableNaming())
             ->modelName($this->table->modelNaming())
             ->titleable($this->table->titleable()->name)
-            ->editRoute($routes['edit'])
+            ->editRoute($this->table->editRoute($this->actor)->name)
             ->components(
                 $this->table->attributes()
                     ->map(fn(CubeAttribute $attribute) => $attribute->bladeDisplayComponent()?->__toString())
@@ -90,11 +83,11 @@ class BladeViewsGenerator extends BladeControllerGenerator
         // index view
         IndexViewStubBuilder::make()
             ->tableName(ucfirst($this->table->tableNaming()))
-            ->createRoute($routes['create'])
-            ->dataRoute($routes['data'])
-            ->exportRoute($routes['export'])
-            ->importRoute($routes['import'])
-            ->exampleRoute($routes['import_example'])
+            ->createRoute($this->table->createRoute($this->actor)->name)
+            ->dataRoute($this->table->dataRoute($this->actor)->name)
+            ->exportRoute($this->table->exportRoute($this->actor, ContainerType::WEB)->name)
+            ->importRoute($this->table->importRoute($this->actor, ContainerType::WEB)->name)
+            ->exampleRoute($this->table->importExampleRoute($this->actor, ContainerType::WEB)->name)
             ->modelClassString($this->table->getModelClassString())
             ->htmlColumns(
                 $this->table->attributes()

@@ -30,7 +30,7 @@ class YajraDataTableRelationLinkColumnRenderer
 
     public function __toString(): string
     {
-        $showRouteName = $this->getRouteNames($this->relatedModel, ContainerType::WEB, $this->actorName)['show'];
+        $showRouteName = $this->relatedModel->showRoute($this->actorName , ContainerType::WEB)->name;
         $relationColumnName = $this->relatedModel->relationMethodNaming() . '.' . $this->relatedModel->titleable()->name;
         $columnCalling = "\$row->" . $this->relatedModel->relationMethodNaming() . "->" . $this->relatedModel->titleable()->name;
 

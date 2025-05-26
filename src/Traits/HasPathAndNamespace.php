@@ -3,8 +3,6 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\Settings\CubeRelation;
 
 /**
  * A trait providing methods to generate paths, namespaces, and class strings
@@ -256,22 +254,6 @@ trait HasPathAndNamespace
     public function getMigrationPath(): CubePath
     {
         return CubePath::make(config('cubeta-starter.migration_path') . "/{$this->getMigrationName()}.php");
-    }
-
-    /**
-     * @param string $type
-     * @return CubePath
-     */
-    public function getViewPath(string $type): CubePath
-    {
-        $viewsPath = 'resources/views/dashboard/' . $this->viewNaming();
-
-        return match ($type) {
-            'show' => CubePath::make("$viewsPath/show.blade.php"),
-            "create" => CubePath::make("$viewsPath/create.blade.php"),
-            "update", "edit" => CubePath::make("$viewsPath/edit.blade.php"),
-            "index" => CubePath::make("$viewsPath/index.blade.php"),
-        };
     }
 
     /**

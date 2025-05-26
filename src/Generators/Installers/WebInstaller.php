@@ -11,6 +11,7 @@ use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
+use Cubeta\CubetaStarter\Modules\Routes;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Artisan;
@@ -46,8 +47,8 @@ class WebInstaller extends AbstractGenerator
             "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware;"
         );
         $this->generateHomePage($override);
-        $this->addIndexPageRoute($this->version, FrontendTypeEnum::BLADE);
-        $this->generateSidebar($override);
+        $this->addIndexPageRoute();
+        $this->generateSidebar();
 
         FileUtils::registerProvider("App\\Providers\\CubetaStarterServiceProvider::class");
 
@@ -73,20 +74,16 @@ class WebInstaller extends AbstractGenerator
         );
     }
 
-    private function generateSidebar(bool $override): void
+    private function generateSidebar(): void
     {
-        if (Settings::make()->installedApiAuth()) {
-            $route = $this->getWebIndexPageRoute(actor: "protected", justName: true);
-        } else {
-            $route = $this->getWebIndexPageRoute(actor: "public", justName: true);
-        }
-
+        $routeActor = Settings::make()->installedWebAuth() ? "protected" : "public";
+        $route = Routes::dashboardPage($routeActor)->name;
         $this->generateFileFromStub(
             [
                 '{{index-route}}' => $route,
             ],
             CubePath::make('resources/views/includes/sidebar.blade.php')->fullPath,
-            $override,
+            $this->override,
             CubePath::stubPath('Views/sidebar.stub')
         );
     }

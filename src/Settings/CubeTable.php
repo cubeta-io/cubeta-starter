@@ -7,13 +7,14 @@ use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\CubeCollection;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Traits\HasPathAndNamespace;
+use Cubeta\CubetaStarter\Traits\HasViewsAndRoutes;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class CubeTable
 {
-    use NamingConventions, HasPathAndNamespace;
+    use NamingConventions, HasPathAndNamespace , HasViewsAndRoutes;
 
     /**
      * @var string

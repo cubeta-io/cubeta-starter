@@ -13,7 +13,6 @@ use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
-use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\SidebarItemString;
@@ -23,7 +22,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\YajraDataTab
 use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Controllers\ControllerStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
-use JetBrains\PhpStorm\ArrayShape;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class BladeControllerGenerator extends AbstractGenerator
 {
@@ -31,6 +30,9 @@ class BladeControllerGenerator extends AbstractGenerator
 
     public static string $key = 'web-controller';
 
+    /**
+     * @throws FileNotFoundException
+     */
     public function run(bool $override = false): void
     {
         if (!Settings::make()->getFrontendType() == FrontendTypeEnum::BLADE) {
@@ -39,8 +41,6 @@ class BladeControllerGenerator extends AbstractGenerator
         }
 
         $controllerPath = $this->table->getWebControllerPath();
-        $routesNames = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
-        $views = $this->getViewsNames($this->table, $this->actor);
         $loadedRelations = $this->table
             ->relations()
             ->filter(fn(CubeRelation $rel) => $rel->exists())
@@ -50,23 +50,25 @@ class BladeControllerGenerator extends AbstractGenerator
         $linkableAttributes = $this->table->relations()
             ->filter(fn(CubeRelation $rel) => $rel->exists() && $rel instanceof HasYajraDataTableRelationLinkColumnRenderer);
 
+        $indexRoute = $this->table->indexRoute($this->actor, ContainerType::WEB);
+
         ControllerStubBuilder::make()
             ->modelName($this->table->modelNaming())
             ->modelNameCamelCase($this->table->variableNaming())
             ->idVariable($this->table->idVariable())
             ->tableName($this->table->tableNaming())
-            ->indexRoute($routesNames['index'])
-            ->createView($views['create'])
-            ->indexView($views['index'])
-            ->showView($views['show'])
-            ->updateView($views['edit'])
+            ->indexRoute($indexRoute->name)
+            ->createView($this->table->createView($this->actor)->name)
+            ->updateView($this->table->editView($this->actor)->name)
+            ->indexView($this->table->indexView($this->actor)->name)
+            ->showView($this->table->showView($this->actor)->name)
             ->namespace($this->table->getWebControllerNameSpace(false, true))
             ->requestNamespace($this->table->getRequestNameSpace(false))
             ->traitsNamespace(config('cubeta-starter.trait_namespace'))
             ->modelNamespace($this->table->getModelNameSpace(false))
             ->serviceNamespace($this->table->getServiceNamespace(false))
             ->loadedRelations($loadedRelations)
-            ->baseRouteName($routesNames['resource'])
+            ->baseRouteName($this->table->resourceRoute($this->actor, ContainerType::WEB)->name)
             ->additionalColumn(
                 $linkableAttributes->map(
                     fn(HasYajraDataTableRelationLinkColumnRenderer $link) => $link->yajraDataTableAdditionalColumnRenderer($this->actor)
@@ -92,7 +94,7 @@ class BladeControllerGenerator extends AbstractGenerator
             actor: $this->actor
         ))->run();
 
-        $this->addSidebarItem($routesNames['index']);
+        $this->addSidebarItem($indexRoute->name);
 
         CodeSniffer::make()
             ->setModel($this->table)
@@ -156,29 +158,5 @@ class BladeControllerGenerator extends AbstractGenerator
         } else {
             CubeLog::failedAppending($sidebarItem, $sidebarPath->fullPath, "Adding sidebar item");
         }
-    }
-
-    /**
-     * @param null $actor
-     * @return string[]
-     */
-    #[ArrayShape(['index' => 'string', 'edit' => 'string', 'create' => 'string', 'show' => 'string'])]
-    private function getViewsNames(CubeTable $model, $actor = null): array
-    {
-        $viewName = $model->viewNaming();
-        if (!isset($actor) || $actor == '' || $actor = 'none') {
-            return [
-                'index' => 'dashboard.' . $viewName . '.' . config('views-names.index'),
-                'edit' => 'dashboard.' . $viewName . '.' . config('views-names.edit'),
-                'create' => 'dashboard.' . $viewName . '.' . config('views-names.create'),
-                'show' => 'dashboard.' . $viewName . '.' . config('views-names.show'),
-            ];
-        }
-        return [
-            'index' => 'dashboard.' . $actor . '.' . $viewName . '.' . config('views-names.index'),
-            'edit' => 'dashboard.' . $actor . '.' . $viewName . '.' . config('views-names.edit'),
-            'create' => 'dashboard.' . $actor . '.' . $viewName . '.' . config('views-names.create'),
-            'show' => 'dashboard.' . $actor . '.' . $viewName . '.' . config('views-names.show'),
-        ];
     }
 }

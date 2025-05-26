@@ -16,11 +16,15 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\Sideba
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Controllers\ControllerStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class InertiaReactTSController extends AbstractGenerator
 {
     use RouteBinding, WebGeneratorHelper;
 
+    /**
+     * @throws FileNotFoundException
+     */
     public function run(bool $override = false): void
     {
         if (!Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
@@ -32,7 +36,6 @@ class InertiaReactTSController extends AbstractGenerator
         }
 
         $modelNameCamelCase = $this->table->variableNaming();
-        $routesNames = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
         $controllerPath = $this->table->getWebControllerPath();
         $loadedRelations = $this->table
             ->relations()
@@ -41,18 +44,18 @@ class InertiaReactTSController extends AbstractGenerator
             ->implode(",");
 
         $controllerPath->ensureDirectoryExists();
-        $pagesPaths = $this->getTsxPagesPath();
+        $indexRoute = $this->table->indexRoute($this->actor, ContainerType::WEB);
 
 
         ControllerStubBuilder::make()
             ->namespace($this->table->getWebControllerNameSpace(false, true))
             ->modelName($this->table->modelNaming())
             ->modelNameCamelCase($modelNameCamelCase)
-            ->createPage($pagesPaths['create'])
-            ->updatePage($pagesPaths['edit'])
-            ->showPage($pagesPaths['show'])
-            ->indexPage($pagesPaths['index'])
-            ->indexRoute($routesNames['index'])
+            ->createPage($this->table->createView($this->actor)->name)
+            ->updatePage($this->table->editView($this->actor)->name)
+            ->showPage($this->table->showView($this->actor)->name)
+            ->indexPage($this->table->indexView($this->actor)->name)
+            ->indexRoute($indexRoute->name)
             ->relations($loadedRelations)
             ->serviceNamespace($this->table->getServiceNamespace(false))
             ->requestNamespace($this->table->getRequestNameSpace(false))
@@ -63,7 +66,7 @@ class InertiaReactTSController extends AbstractGenerator
             ->generate($controllerPath, $this->override);
 
         $this->addRoute($this->table, $this->actor, ContainerType::WEB);
-        $this->addSidebarItem($routesNames['index'], $this->table->modelName);
+        $this->addSidebarItem($indexRoute->name, $this->table->modelName);
 
         (new ReactTSPagesGenerator(
             fileName: $this->fileName,
@@ -74,20 +77,6 @@ class InertiaReactTSController extends AbstractGenerator
             actor: $this->actor,
             generatedFor: $this->generatedFor
         ))->run();
-    }
-
-    /**
-     * @return array{index:string , edit:string , create:string , show:string}
-     */
-    public function getTsxPagesPath(): array
-    {
-        $viewName = $this->table->viewNaming();
-        return [
-            'index' => 'dashboard/' . $viewName . '/' . config('views-names.index'),
-            'edit' => 'dashboard/' . $viewName . '/' . config('views-names.edit'),
-            'create' => 'dashboard/' . $viewName . '/' . config('views-names.create'),
-            'show' => 'dashboard/' . $viewName . '/' . config('views-names.show'),
-        ];
     }
 
     public function addSidebarItem(string $indexRoute, string $title): void

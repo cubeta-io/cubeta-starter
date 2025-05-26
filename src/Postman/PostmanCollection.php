@@ -3,7 +3,6 @@
 namespace Cubeta\CubetaStarter\Postman;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
-use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Postman\PostmanRequest\FormDataField;
@@ -57,25 +56,25 @@ class PostmanCollection implements PostmanObject
     public function toArray(): array
     {
         return [
-            'info'     => ["name" => $this->name, "schema" => $this->scheme],
-            'item'     => array_map(fn (PostmanItem $item) => $item->toArray(), $this->items ?? []),
-            'event'    => array_map(fn ($event) => $event->toArray(), $this->events),
-            'variable' => array_map(fn ($var) => $var->toArray(), $this->variables),
+            'info' => ["name" => $this->name, "schema" => $this->scheme],
+            'item' => array_map(fn(PostmanItem $item) => $item->toArray(), $this->items ?? []),
+            'event' => array_map(fn($event) => $event->toArray(), $this->events),
+            'variable' => array_map(fn($var) => $var->toArray(), $this->variables),
         ];
     }
 
-    public function newCrud(CubeTable $table, string $version = "v1", ?string $actor = null): static
+    public function newCrud(CubeTable $table, ?string $actor = null): static
     {
         if ($this->checkIfCollectionExist($table->modelName)) {
             return $this;
         }
 
-        $baseUrl = $this->getRouteUrls($table->modelName, ContainerType::API, $actor)["resource"];
+        $baseUrl = $table->resourceRoute($actor);
 
         $index = new PostmanRequest(
             name: "index",
             method: PostmanRequest::GET,
-            url: RequestUrl::getUrlFromRoute($baseUrl),
+            url: RequestUrl::getUrlFromRoute($baseUrl->url),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer(),
         );
@@ -191,7 +190,7 @@ class PostmanCollection implements PostmanObject
         }
 
         $api = FileUtils::generateStringFromStub(CubePath::stubPath('Auth/auth-postman-entity.stub'), [
-            '{{role}}'    => $role,
+            '{{role}}' => $role,
             "{{version}}" => config('cubeta-starter.version'),
         ]);
         $this->items[] = PostmanItem::serialize(json_decode($api, true));
@@ -206,9 +205,9 @@ class PostmanCollection implements PostmanObject
     {
         return new self(
             $data['info']['name'] ?? '',
-            array_map(fn ($item) => PostmanItem::serialize($item), $data['item']),
-            array_map(fn ($variable) => PostmanVariable::serialize($variable), $data['variable'] ?? []),
-            array_map(fn ($event) => PostmanEvent::serialize($event), $data['event'] ?? [])
+            array_map(fn($item) => PostmanItem::serialize($item), $data['item']),
+            array_map(fn($variable) => PostmanVariable::serialize($variable), $data['variable'] ?? []),
+            array_map(fn($event) => PostmanEvent::serialize($event), $data['event'] ?? [])
         );
     }
 

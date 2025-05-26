@@ -11,6 +11,7 @@ use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
+use Cubeta\CubetaStarter\Modules\Routes;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Artisan;
@@ -31,10 +32,10 @@ class ReactTSInertiaInstaller extends AbstractGenerator
 
         $this->installInertia($override);
 
-        $this->publishBaseRepository($override);
-        $this->publishBaseService($override);
-        $this->publishMakableTrait($override);
-        $this->publishHasMediaTrait($override);
+        $this->publishBaseRepository();
+        $this->publishBaseService();
+        $this->publishMakableTrait();
+        $this->publishHasMediaTrait();
 
         $this->addAndRegisterAuthenticateMiddleware($override);
 
@@ -53,7 +54,7 @@ class ReactTSInertiaInstaller extends AbstractGenerator
         );
 
         $this->generateHomePage($override);
-        $this->addIndexPageRoute($this->version, FrontendTypeEnum::REACT_TS);
+        $this->addIndexPageRoute();
         $this->generateSidebar($override);
 
         $this->registerHelpersFile();
@@ -106,7 +107,7 @@ class ReactTSInertiaInstaller extends AbstractGenerator
     {
         $routeActor = Settings::make()->installedWebAuth() ? "protected" : "public";
         $this->generateFileFromStub(
-            ['{{index-route}}' => $this->getWebIndexPageRoute(actor: $routeActor, justName: true)],
+            ['{{index-route}}' => Routes::dashboardPage($routeActor)->name],
             CubePath::make('resources/js/Components/ui/Sidebar.tsx')->fullPath,
             $override,
             CubePath::stubPath('Inertia/components/Sidebar.stub')

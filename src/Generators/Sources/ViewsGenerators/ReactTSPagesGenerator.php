@@ -6,7 +6,6 @@ use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSController;
-use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
@@ -36,12 +35,10 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             return;
         }
 
-        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
-
         $this->generateTypescriptModel();
 
-        $this->generateUpdateFormPage($routes['update']);
-        $this->generateCreateFormPage($routes['store']);
+        $this->generateUpdateFormPage();
+        $this->generateCreateFormPage();
 
         $this->generateShowPage();
         $this->generateIndexPage();
@@ -55,14 +52,12 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
     public function generateShowPage(): void
     {
-        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
-        $pageName = $this->table->viewNaming();
-        $showPagePath = CubePath::make("resources/js/Pages/dashboard/$pageName/Show.tsx");
+        $showPagePath = $this->table->showView($this->actor)->path;
 
         $builder = ShowPageStubBuilder::make()
             ->modelName($this->table->modelNaming())
             ->modelVariable($this->table->variableNaming())
-            ->editRouteName($routes['edit']);
+            ->editRouteName($this->table->editRoute($this->actor)->name);
 
         $this->table->attributes()
             ->whereInstanceOf(HasReactTsDisplayComponentString::class)
@@ -87,18 +82,16 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
     public function generateIndexPage(): void
     {
-        $pageName = $this->table->viewNaming();
-        $indexPagePath = CubePath::make("resources/js/Pages/dashboard/$pageName/Index.tsx");
-        $routes = $this->getRouteNames($this->table, ContainerType::WEB, $this->actor);
+        $indexPagePath = $this->table->indexView($this->actor)->path;
         $builder = IndexPageStubBuilder::make()
             ->modelName($this->table->modelNaming())
             ->modelVariable($this->table->variableNaming())
-            ->createRoute($routes['create'])
-            ->dataRoute($routes['data'])
-            ->indexRoute($routes['index'])
-            ->importRoute($routes['import'])
-            ->exportRoute($routes['export'])
-            ->importExampleRoute($routes['import_example']);
+            ->createRoute($this->table->createRoute($this->actor)->name)
+            ->dataRoute($this->table->dataRoute($this->actor)->name)
+            ->indexRoute($this->table->indexRoute($this->actor, ContainerType::WEB)->name)
+            ->importRoute($this->table->importRoute($this->actor, ContainerType::WEB)->name)
+            ->exportRoute($this->table->exportRoute($this->actor, ContainerType::WEB)->name)
+            ->importExampleRoute($this->table->importExampleRoute($this->actor, ContainerType::WEB)->name);
 
         $this->table->attributes()
             ->whereInstanceOf(HasDataTableColumnObjectString::class)
@@ -148,13 +141,12 @@ class ReactTSPagesGenerator extends InertiaReactTSController
     }
 
     /**
-     * @param string $updateRoute
      * @return void
      */
-    private function generateUpdateFormPage(string $updateRoute): void
+    private function generateUpdateFormPage(): void
     {
-        $pageName = $this->table->viewNaming();
-        $formPath = CubePath::make("resources/js/Pages/dashboard/$pageName/Edit.tsx");
+        $updateRoute = $this->table->updateRoute($this->actor, ContainerType::WEB)->name;
+        $formPath = $this->table->editView($this->actor)->path;
         $builder = FormPageStubBuilder::make()
             ->componentName("Edit")
             ->formTitle("Edit {$this->table->modelNaming()}")
@@ -201,13 +193,12 @@ class ReactTSPagesGenerator extends InertiaReactTSController
     }
 
     /**
-     * @param string $storeRoute
      * @return void
      */
-    private function generateCreateFormPage(string $storeRoute): void
+    private function generateCreateFormPage(): void
     {
-        $pageName = $this->table->viewNaming();
-        $formPath = CubePath::make("resources/js/Pages/dashboard/$pageName/Create.tsx");
+        $storeRoute = $this->table->storeRoute($this->actor , ContainerType::WEB)->name;
+        $formPath = $this->table->createView($this->actor)->path;
         $builder = FormPageStubBuilder::make()
             ->componentName("Create")
             ->formTitle("Add New {$this->table->modelNaming()}")
