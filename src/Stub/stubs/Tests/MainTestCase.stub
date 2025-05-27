@@ -5,6 +5,7 @@ namespace Tests\Contracts;
 use App\Models\User;
 use App\Traits\TestHelpers;
 use Tests\TestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 class MainTestCase extends TestCase
 {

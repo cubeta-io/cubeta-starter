@@ -13,6 +13,7 @@ use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Modules\Routes;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Artisan;
 
@@ -45,12 +46,12 @@ class ReactTSInertiaInstaller extends AbstractGenerator
         FileUtils::registerMiddleware(
             "'locale' => AcceptedLanguagesMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,
-            "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware ;"
+            new PhpImportString("App\\Http\\Middleware\\AcceptedLanguagesMiddleware")
         );
         FileUtils::registerMiddleware(
             "HandleInertiaRequests::class",
             MiddlewareArrayGroupEnum::WEB,
-            "use App\\Http\\Middleware\\HandleInertiaRequests ;"
+            new PhpImportString("App\\Http\\Middleware\\HandleInertiaRequests")
         );
 
         $this->generateHomePage($override);

@@ -49,7 +49,7 @@ trait RouteBinding
         FileUtils::registerMiddleware(
             "'authenticated' => Authenticate::class",
             MiddlewareArrayGroupEnum::ALIAS,
-            'use App\Http\Middleware\Authenticate;'
+            new PhpImportString('App\Http\Middleware\Authenticate')
         );
     }
 

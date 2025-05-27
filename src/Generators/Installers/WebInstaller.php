@@ -13,6 +13,7 @@ use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Modules\Routes;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Artisan;
 
@@ -44,7 +45,7 @@ class WebInstaller extends AbstractGenerator
         FileUtils::registerMiddleware(
             "'locale' => AcceptedLanguagesMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,
-            "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware;"
+            new PhpImportString("App\\Http\\Middleware\\AcceptedLanguagesMiddleware")
         );
         $this->generateHomePage($override);
         $this->addIndexPageRoute();

@@ -241,7 +241,7 @@ class FileUtils
         return $haystack;
     }
 
-    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type, string $importStatement): bool
+    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type, PhpImportString $importStatement): bool
     {
         $bootstrapPath = CubePath::make("/bootstrap/app.php");
         if (!$bootstrapPath->exist()) {

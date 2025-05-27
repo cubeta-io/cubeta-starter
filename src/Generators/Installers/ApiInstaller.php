@@ -46,7 +46,7 @@ class ApiInstaller extends AbstractGenerator
         FileUtils::registerMiddleware(
             "'locale' => AcceptedLanguagesMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,
-            "use App\\Http\\Middleware\\AcceptedLanguagesMiddleware ;"
+            new PhpImportString("App\\Http\\Middleware\\AcceptedLanguagesMiddleware")
         );
 
         $this->registerHelpersFile();
@@ -113,6 +113,7 @@ class ApiInstaller extends AbstractGenerator
             CubeLog::notFound($bootstrapPath->fullPath, "Registering Exception Handler");
             return false;
         }
+
         FileUtils::addImportStatement(new PhpImportString("App\Exceptions\Handler"), $bootstrapPath);
         FileUtils::addImportStatement(new PhpImportString(Exceptions::class), $bootstrapPath);
         FileUtils::addImportStatement(new PhpImportString(Request::class), $bootstrapPath);
@@ -126,41 +127,23 @@ class ApiInstaller extends AbstractGenerator
             });
         }';
 
-        $pattern = '/->\s*withExceptions\s*\(\s*function\s*\(\s*Exceptions\s*\$exceptions\s*\)\s*\{\s*(.*?)\s*}\s*\)/';
-        $withExceptionsCalled = true;
+
+        $pattern = '/->\s*withExceptions\s*\(\s*function\s*\(\s*Exceptions\s*\$exceptions\s*\)\s*\{\s*(.*)\s*\}\)/s';
         if (!preg_match($pattern, $bootstrapContent, $matches)) {
-            $pattern = '/Application\s*::\s*configure\s*\((.*?)\)(.*?)\s*->create\s*\(\s*\)/s';
-            $withExceptionsCalled = false;
-            if (!preg_match($pattern, $bootstrapContent, $matches)) {
-                CubeLog::failedAppending($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
-                return false;
-            }
-        }
-
-        if (!isset($matches[1])) {
             CubeLog::failedAppending($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
             return false;
         }
 
-        if (!isset($matches[2]) && !$withExceptionsCalled) {
+        if (empty($matches[1])) {
             CubeLog::failedAppending($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
             return false;
         }
 
-        if ($withExceptionsCalled) {
-            $handlers = $matches[1];
-            if (FileUtils::contentExistsInString($handlers, $handler)) {
-                CubeLog::contentAlreadyExists($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
-                return false;
-            }
-            $handlers .= "\n$handler\n";
-            $bootstrapContent = preg_replace_callback($pattern, function () use ($handlers) {
-                return "->withExceptions(function (Exceptions \$exceptions) {\n$handlers\n})";
-            }, $bootstrapContent);
-        } else {
-            $newChain = "{$matches[2]}\n->withExceptions(function Exceptions \$exceptions) {{$handler}})";
-            $bootstrapContent = str_replace($matches[2], $newChain, $bootstrapContent);
+        if (FileUtils::contentExistsInString($matches[1], $handler)) {
+            CubeLog::contentAlreadyExists($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
+            return false;
         }
+        $bootstrapContent = str_replace($matches[1], $handler, $bootstrapContent);
 
         $bootstrapPath->putContent($bootstrapContent);
         CubeLog::contentAppended($handler, $bootstrapPath->fullPath);

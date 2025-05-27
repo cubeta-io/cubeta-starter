@@ -427,7 +427,7 @@ class AuthInstaller extends AbstractGenerator
         FileUtils::registerMiddleware(
             "'jwt-auth' => JWTAuthMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,
-            'use App\Http\Middleware\JWTAuthMiddleware;'
+            new PhpImportString('App\Http\Middleware\JWTAuthMiddleware')
         );
     }
 

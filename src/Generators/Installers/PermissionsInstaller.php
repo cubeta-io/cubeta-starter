@@ -13,6 +13,7 @@ use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 
 class PermissionsInstaller extends AbstractGenerator
 {
@@ -39,13 +40,13 @@ class PermissionsInstaller extends AbstractGenerator
         FileUtils::registerMiddleware(
             "'has-role' => HasRoleMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,
-            "use App\\Http\\Middleware\\HasRoleMiddleware;"
+            new PhpImportString("App\\Http\\Middleware\\HasRoleMiddleware")
         );
 
         FileUtils::registerMiddleware(
             "'has-permission' => HasPermissionMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,
-            "use App\\Http\\Middleware\\HasPermissionMiddleware;"
+            new PhpImportString("App\\Http\\Middleware\\HasPermissionMiddleware")
         );
 
         Settings::make()->setInstalledRoles();
