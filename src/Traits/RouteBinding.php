@@ -321,7 +321,7 @@ trait RouteBinding
         $version = config('cubeta-starter.version');
         $routeActor = Settings::make()->installedWebAuth() ? "protected" : "public";
         $routeFile = $this->getRouteFilePath(ContainerType::WEB, $routeActor, $version);
-        $route = Routes::dashboardPage($routeActor);
+        $route = Routes::dashboardPage(Settings::make()->installedWebAuth());
         $content = $routeFile->getContent();
 
         if (!FileUtils::contentExistInFile($routeFile, $route)) {

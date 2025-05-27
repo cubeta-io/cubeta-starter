@@ -103,6 +103,9 @@ class AuthInstaller extends AbstractGenerator
             if ($envParser && !$envParser->hasValue("APP_KEY")) {
                 FileUtils::executeCommandInTheBaseDirectory("php artisan key:generate");
             }
+
+            $this->moveDashboardIndexRouteToProtectedRouteFile();
+
             Settings::make()->setInstalledWebAuth();
         }
 
@@ -304,8 +307,8 @@ class AuthInstaller extends AbstractGenerator
     {
         $publicRoutes = Routes::webPublicAuthRoutes();
         $protectedRoutes = Routes::webProtectedAuthRoutes();
-        $publicRouteFile = CubePath::make("routes/{$this->version}/web/public.php");
-        $protectedRouteFile = CubePath::make("routes/{$this->version}/web/protected.php");
+        $publicRouteFile = $this->getRouteFilePath(ContainerType::WEB, "public");
+        $protectedRouteFile = $this->getRouteFilePath(ContainerType::WEB, "protected");
         $publicRouteFile->ensureDirectoryExists();
         $protectedRouteFile->ensureDirectoryExists();
         $this->generateAuthWebRouteFileOrAppendRoutes($publicRouteFile, $publicRoutes);
@@ -525,5 +528,45 @@ class AuthInstaller extends AbstractGenerator
         BladeResetPasswordPageStubBuilderAlias::make()
             ->passwordResetRoute(Routes::resetPassword(ContainerType::WEB, null)->name)
             ->generate(CubePath::make('resources/views/' . config('views-names.reset-password') . '.blade.php'), $this->override);
+    }
+
+    public function moveDashboardIndexRouteToProtectedRouteFile(): void
+    {
+        $publicRouteFile = $this->getRouteFilePath(ContainerType::WEB, "public");
+        $protectedRouteFile = $this->getRouteFilePath(ContainerType::WEB, "protected");
+
+        $publicRoute = Routes::dashboardPage();
+        $protectedRoute = Routes::dashboardPage(true);
+
+        if (FileUtils::contentExistInFile($publicRouteFile, $publicRoute->toString())) {
+            $content = $publicRouteFile->getContent();
+            $content = str_replace($publicRoute, "", $content);
+            $publicRouteFile->putContent($content);
+            $publicRouteFile->format();
+            CubeLog::contentRemoved($publicRoute, $publicRouteFile);
+        }
+
+        if (!FileUtils::contentExistInFile($protectedRouteFile, $protectedRoute)) {
+            $content = $protectedRouteFile->getContent();
+            $content = "$content\n$protectedRoute";
+            $protectedRouteFile->putContent($content);
+            $protectedRouteFile->format();
+            CubeLog::contentAppended($protectedRoute, $protectedRouteFile);
+        }
+
+        if (Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
+            $sidebarPath = CubePath::make('resources/js/Components/ui/Sidebar.tsx');
+        } else {
+            $sidebarPath = CubePath::make('resources/views/includes/sidebar.blade.php');
+        }
+
+        if (FileUtils::contentExistInFile($sidebarPath, $publicRoute->name)) {
+            $content = $sidebarPath->getContent();
+            $content = str_replace($publicRoute->name, $protectedRoute->name, $content);
+            $sidebarPath->putContent($content);
+            $sidebarPath->format();
+            CubeLog::contentRemoved("route('$publicRoute->name')", $sidebarPath);
+            CubeLog::contentAppended("route('$protectedRoute->name')", $sidebarPath);
+        }
     }
 }

@@ -106,9 +106,8 @@ class ReactTSInertiaInstaller extends AbstractGenerator
 
     private function generateSidebar(bool $override): void
     {
-        $routeActor = Settings::make()->installedWebAuth() ? "protected" : "public";
         $this->generateFileFromStub(
-            ['{{index-route}}' => Routes::dashboardPage($routeActor)->name],
+            ['{{index-route}}' => Routes::dashboardPage(Settings::make()->installedWebAuth())->name],
             CubePath::make('resources/js/Components/ui/Sidebar.tsx')->fullPath,
             $override,
             CubePath::stubPath('Inertia/components/Sidebar.stub')

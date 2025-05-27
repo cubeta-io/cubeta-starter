@@ -77,8 +77,7 @@ class WebInstaller extends AbstractGenerator
 
     private function generateSidebar(): void
     {
-        $routeActor = Settings::make()->installedWebAuth() ? "protected" : "public";
-        $route = Routes::dashboardPage($routeActor)->name;
+        $route = Routes::dashboardPage(Settings::make()->installedWebAuth())->name;
         $this->generateFileFromStub(
             [
                 '{{index-route}}' => $route,

@@ -171,7 +171,7 @@ class FileUtils
 
         $needle = self::extraTrim($needle);
 
-        if (str_contains(strtolower($haystack), strtolower($needle))) {
+        if (str_contains(strtolower($haystack), strtolower($needle)) || $haystack == $needle) {
             return true;
         }
 

@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\WrongEnvironment;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Logs\Info\ContentRemoved;
 use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
@@ -67,6 +68,16 @@ class CubeLog
     public static function contentAppended(string $content, string|CubePath $path): void
     {
         self::add(new ContentAppended(
+            $content,
+            $path instanceof CubePath
+                ? $path->fullPath
+                : $path
+        ));
+    }
+
+    public static function contentRemoved(string $content, string|CubePath $path): void
+    {
+        self::add(new ContentRemoved(
             $content,
             $path instanceof CubePath
                 ? $path->fullPath

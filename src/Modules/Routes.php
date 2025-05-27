@@ -638,11 +638,10 @@ class Routes implements Stringable
         );
     }
 
-    public static function dashboardPage(?string $actor = null): Routes
+    public static function dashboardPage(bool $protected = false): Routes
     {
-        $actor = self::actorRouteNameNaming($actor);
         $version = config('cubeta-starter.version');
-        $name = "$version.web.$actor.index";
+        $name = "$version.web." . ($protected ? "protected" : "public") . ".index";
         $frontendType = Settings::make()->getFrontendType();
 
         return new self(
