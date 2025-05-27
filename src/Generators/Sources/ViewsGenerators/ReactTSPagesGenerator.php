@@ -164,7 +164,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $this->table->attributes()
             ->each(function (CubeAttribute|HasReactTsInputString $attr) use ($builder) {
-                if (!$attr->isFile()) {
+                if (!$attr->isFile() && !$attr->isKey()) {
                     $builder->defaultValue($attr->name, "{$this->table->variableNaming()}?.{$attr->name}");
                 }
 
@@ -197,7 +197,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
      */
     private function generateCreateFormPage(): void
     {
-        $storeRoute = $this->table->storeRoute($this->actor , ContainerType::WEB)->name;
+        $storeRoute = $this->table->storeRoute($this->actor, ContainerType::WEB)->name;
         $formPath = $this->table->createView($this->actor)->path;
         $builder = FormPageStubBuilder::make()
             ->componentName("Create")

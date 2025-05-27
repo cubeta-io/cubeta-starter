@@ -174,6 +174,7 @@ class TsFileUtils
             if ($defaultValue
                 && !empty($matches[2])
                 && !FileUtils::contentExistsInString($matches[2], "{$defaultValue['key']}:{$defaultValue['value']}")
+                && !FileUtils::contentExistsInString($matches[2], "{$defaultValue['key']}?:{$defaultValue['value']}")
             ) {
                 $newDefaultValues = "{$matches[2]},\n{$defaultValue['key']}:{$defaultValue['value']},";
                 $newDefaultValues = FileUtils::fixArrayOrObjectCommas($newDefaultValues);

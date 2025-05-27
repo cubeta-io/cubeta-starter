@@ -3,9 +3,9 @@ import Pencil from "@/Components/icons/Pencil";
 import Trash from "@/Components/icons/Trash";
 import { swal } from "@/helper";
 import Http from "@/Modules/Http/Http";
-import { MiddlewareProps } from "@/types";
-import { Link, usePage } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 import { toast } from "react-toastify";
+import React from "react";
 
 type Buttons = "delete" | "edit" | "show";
 
@@ -38,13 +38,9 @@ function ActionsButtons<Data extends Record<string, any>>({
   const sUrl = showUrl ?? `${baseUrl}/${dataId ?? ""}`; // show url
   const eUrl = editUrl ?? `${baseUrl}/${dataId ?? ""}/edit` + ""; // edit url
 
-  const csrf = usePage<MiddlewareProps>().props.csrfToken;
-
   const handleDelete = () => {
     Http.make<boolean>()
-      .delete(dUrl, {
-        "X-CSRF-TOKEN": csrf,
-      })
+      .delete(dUrl)
       .then((res) => {
         if (res.ok()) {
           toast.success("Deleted !");

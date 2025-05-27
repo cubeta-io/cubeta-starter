@@ -21,7 +21,7 @@ class TestGenerator extends AbstractGenerator
         if ($this->generatedFor == ContainerType::API) {
             return;
         }
-        $baseRouteName = $this->table->resourceRoute($this->actor) . '.';
+        $baseRouteName = $this->table->resourceRoute($this->actor)->name . '.';
         $testPath = $this->table->getTestPath();
 
         $actor = str($this->actor ?? "none")->lower()->singular()->toString();

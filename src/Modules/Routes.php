@@ -130,7 +130,7 @@ class Routes implements Stringable
 
     public function isResourceRoute(): bool
     {
-        return $this->method == "Resource"
+        return $this->method == "resource"
             || $this->method == "apiResource";
     }
 
@@ -142,13 +142,17 @@ class Routes implements Stringable
                 fn($r) => $r->append("'$this->viewName'"),
             )->when(
                 $this->isResourceRoute(),
-                fn($s) => $s->append("$this->version\\$this->controllerName")
+                fn($s) => $s->append("$this->version\\$this->controllerName::class")
             )->when(
                 !$this->isViewRoute() && !$this->isResourceRoute(),
                 fn($s) => $s->append("[$this->version\\$this->controllerName::class , '$this->actionName']")
             )
             ->append(")")
-            ->append("->name('$this->name');");
+            ->when(
+                $this->isResourceRoute(),
+                fn($s) => $s->append("->names('$this->name');"),
+                fn($s) => $s->append("->name('$this->name');")
+            );
     }
 
     public function toString(): string
@@ -613,7 +617,7 @@ class Routes implements Stringable
             pathname: $model->routeUrlNaming() . "/export",
             controllerName: $model->getControllerName(),
             actionName: "export",
-            method: "get",
+            method: "post",
             name: $name,
             viewName: null
         );

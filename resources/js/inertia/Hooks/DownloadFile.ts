@@ -3,7 +3,7 @@ import { useState } from "react";
 const DownloadFile = () => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const downloadFile = async (api: () => Promise<Response>) => {
+  const downloadFile = async (api: () => Promise<Response | any>) => {
     setIsLoading(true);
     try {
       const response = await api();

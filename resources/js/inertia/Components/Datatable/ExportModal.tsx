@@ -1,10 +1,9 @@
-import { usePage } from "@inertiajs/react";
-import Modal from "@/Components/ui/Modal";
 import { DataTableSchema } from "@/Components/Datatable/DataTableUtils";
-import DownloadFile from "@/Hooks/DownloadFile";
-import { FormEvent, useState } from "react";
 import Button from "@/Components/ui/Button";
-import { MiddlewareProps } from "@/types";
+import Modal from "@/Components/ui/Modal";
+import DownloadFile from "@/Hooks/DownloadFile";
+import Http from "@/Modules/Http/Http";
+import { FormEvent, useState } from "react";
 
 const ExportModal = ({
   openExport,
@@ -19,7 +18,6 @@ const ExportModal = ({
   exportRoute?: string;
   exportables?: string[];
 }) => {
-  const csrf = usePage<MiddlewareProps>().props.csrfToken;
   const [cols, setCols] = useState<string[]>(
     exportables
       ? exportables
@@ -32,18 +30,14 @@ const ExportModal = ({
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     downloadFile(() =>
-      fetch(exportRoute ?? "", {
-        method: "POST",
-        headers: {
-          "X-CSRF-TOKEN": csrf,
-          "Content-Type": "application/html",
-        },
-        body: JSON.stringify({ columns: cols }),
-      }),
-    );
-    if (!isLoading) {
+      Http.make()
+        .file()
+        .post(exportRoute ?? "", {
+          columns: cols,
+        }),
+    ).then(() => {
       setOpenExport(false);
-    }
+    });
   };
 
   return (
@@ -54,11 +48,11 @@ const ExportModal = ({
       }}
     >
       <form onSubmit={onSubmit}>
-        <div className="grid grid-cols-2">
+        <div className="grid grid-cols-2 gap-x-2 gap-y-1">
           {exportables
             ? exportables.map((exp, index) => (
                 <label
-                  className="flex w-full items-center justify-between gap-2 dark:text-white"
+                  className="flex items-center justify-between gap-2 dark:text-white"
                   key={index}
                 >
                   {exp}
@@ -83,7 +77,7 @@ const ExportModal = ({
             : schema.map((item, index) =>
                 item.name && item.name != "id" ? (
                   <label
-                    className="flex w-full items-center justify-between gap-2 dark:text-white"
+                    className="flex items-center justify-between gap-2"
                     key={index}
                   >
                     {item.label ?? item.name}

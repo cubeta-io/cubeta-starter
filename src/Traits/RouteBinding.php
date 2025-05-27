@@ -93,7 +93,7 @@ trait RouteBinding
             return;
         }
 
-        $route = implode("\n", $routes);
+        $route = $routes->map(fn($r) => $r->toString())->implode("\n");
 
         FileUtils::addImportStatement($importStatement, $routePath);
 

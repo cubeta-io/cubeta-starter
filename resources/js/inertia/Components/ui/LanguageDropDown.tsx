@@ -6,8 +6,7 @@ import { usePage } from "@inertiajs/react";
 import { useEffect, useRef, useState } from "react";
 
 const LanguageDropdown = () => {
-  const { currentLocale, availableLocales, csrfToken } =
-    usePage<MiddlewareProps>().props;
+  const { currentLocale, availableLocales } = usePage<MiddlewareProps>().props;
   const [open, setOpen] = useState(false);
   const [selectedLocale, setSelectedLocale] = useState<
     string | AvailableLocales
@@ -36,15 +35,9 @@ const LanguageDropdown = () => {
   const handleLocalChange = (locale: string) => {
     setLoading(true);
     Http.make()
-      .post(
-        route("set-locale"),
-        {
-          lang: locale,
-        },
-        {
-          "X-CSRF-TOKEN": `${csrfToken}`,
-        },
-      )
+      .post(route("set-locale"), {
+        lang: locale,
+      })
       .then(() => {
         setLoading(false);
         window.localStorage.setItem("locale", locale);
