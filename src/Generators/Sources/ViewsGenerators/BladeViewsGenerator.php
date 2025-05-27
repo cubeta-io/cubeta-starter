@@ -6,7 +6,6 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
-use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
@@ -20,11 +19,9 @@ use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Views\FormViewStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Views\IndexViewStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Views\ShowViewStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 
 class BladeViewsGenerator extends BladeControllerGenerator
 {
-    use WebGeneratorHelper;
     use RouteBinding;
 
     public static string $key = "views";

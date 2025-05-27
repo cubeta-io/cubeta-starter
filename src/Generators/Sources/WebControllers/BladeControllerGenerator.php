@@ -21,12 +21,11 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\Translatable
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\YajraDataTableTranslatableColumnOrderingHandler;
 use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Controllers\ControllerStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class BladeControllerGenerator extends AbstractGenerator
 {
-    use RouteBinding, WebGeneratorHelper;
+    use RouteBinding;
 
     public static string $key = 'web-controller';
 

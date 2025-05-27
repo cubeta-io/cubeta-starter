@@ -22,11 +22,10 @@ use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\IndexPageStubBuild
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\ShowPageStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Typescript\TsInterfaceStubBuilder;
 use Cubeta\CubetaStarter\Traits\StringsGenerator;
-use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 
 class ReactTSPagesGenerator extends InertiaReactTSController
 {
-    use WebGeneratorHelper, StringsGenerator;
+    use StringsGenerator;
 
     public function run(bool $override = false): void
     {

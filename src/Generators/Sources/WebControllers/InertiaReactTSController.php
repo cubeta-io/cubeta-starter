@@ -15,12 +15,11 @@ use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\SidebarItemString;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Controllers\ControllerStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Cubeta\CubetaStarter\Traits\WebGeneratorHelper;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class InertiaReactTSController extends AbstractGenerator
 {
-    use RouteBinding, WebGeneratorHelper;
+    use RouteBinding;
 
     /**
      * @throws FileNotFoundException
