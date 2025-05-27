@@ -21,12 +21,9 @@ use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\FormPageStubBuilde
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\IndexPageStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\ShowPageStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Typescript\TsInterfaceStubBuilder;
-use Cubeta\CubetaStarter\Traits\StringsGenerator;
 
 class ReactTSPagesGenerator extends InertiaReactTSController
 {
-    use StringsGenerator;
-
     public function run(bool $override = false): void
     {
         if (!Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {

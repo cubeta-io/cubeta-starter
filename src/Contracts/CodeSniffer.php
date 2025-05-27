@@ -24,11 +24,9 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasI
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Traits\Makable;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Cubeta\CubetaStarter\Traits\StringsGenerator;
 
 class CodeSniffer
 {
-    use StringsGenerator;
     use RouteBinding;
     use Makable;
 

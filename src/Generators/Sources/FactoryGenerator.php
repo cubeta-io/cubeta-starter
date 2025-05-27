@@ -9,12 +9,9 @@ use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFactoryRelationMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\Stub\Builders\Factories\FactoryStubBuilder;
-use Cubeta\CubetaStarter\Traits\StringsGenerator;
 
 class FactoryGenerator extends AbstractGenerator
 {
-    use StringsGenerator;
-
     public static string $key = 'factory';
     private FactoryStubBuilder $builder;
 

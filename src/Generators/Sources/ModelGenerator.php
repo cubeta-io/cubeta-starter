@@ -13,7 +13,6 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelScopeMethod;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\TraitString;
 use Cubeta\CubetaStarter\Stub\Builders\Models\ModelStubBuilder;
-use Cubeta\CubetaStarter\Traits\StringsGenerator;
 
 class ModelGenerator extends AbstractGenerator
 {
@@ -25,8 +24,6 @@ class ModelGenerator extends AbstractGenerator
         parent::__construct($fileName, $attributes, $relations, $nullables, $uniques, $actor, $generatedFor, $version, $override);
         $this->builder = ModelStubBuilder::make();
     }
-
-    use StringsGenerator;
 
     public function run(bool $override = false): void
     {
