@@ -16,6 +16,11 @@ trait HasRoles
     use HasPermissions;
 
     /**
+     * @var array|null
+     */
+    private ?array $roleCache = null;
+
+    /**
      * @param string $roleName
      * @return $this
      * @throws RoleDoesNotExistException
