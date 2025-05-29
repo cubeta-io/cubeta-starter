@@ -71,7 +71,7 @@ class ReactTsPackagesInstaller extends AbstractGenerator
         } else {
             $jsonArray['type'] = "module";
             $packageJsonPath->putContent(json_encode($jsonArray, JSON_PRETTY_PRINT + JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE));
-            CubeLog::add(new ContentAppended('"type":"module"', $packageJsonPath->fullPath));
+            CubeLog::contentAppended('"type":"module"', $packageJsonPath->fullPath);
         }
     }
 
