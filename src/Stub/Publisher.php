@@ -54,10 +54,26 @@ class Publisher
             );
 
             CubeLog::generatedSuccessfully(pathinfo($this->destination, PATHINFO_BASENAME), $this->destination);
+            $this->formatDestination();
             return true;
         } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
             CubeLog::add($e);
             return false;
+        }
+    }
+
+    private function formatDestination(): void
+    {
+        if (!file_exists($this->destination)) {
+            return;
+        }
+
+        if (str($this->destination)->endsWith('.blade.php')) {
+            FileUtils::formatWithPrettier($this->destination);
+        } elseif (str($this->destination)->endsWith(".php")) {
+            FileUtils::formatWithPint($this->destination);
+        } else {
+            FileUtils::formatWithPrettier($this->destination);
         }
     }
 }
