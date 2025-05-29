@@ -11,8 +11,6 @@ use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Stub\Publisher;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class ReactTsPackagesInstaller extends AbstractGenerator
 {
@@ -21,10 +19,8 @@ class ReactTsPackagesInstaller extends AbstractGenerator
     public string $type = 'installer';
 
     /**
-     * @throws FileNotFoundException
-     * @throws BindingResolutionException
      */
-    public function run(bool $override = false): void
+    public function run(): void
     {
         $this->preparePackageJson();
 
@@ -81,8 +77,6 @@ class ReactTsPackagesInstaller extends AbstractGenerator
 
     /**
      * @return void
-     * @throws BindingResolutionException
-     * @throws FileNotFoundException
      */
     private function configurePrettier(): void
     {
