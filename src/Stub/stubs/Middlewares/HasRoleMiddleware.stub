@@ -19,13 +19,12 @@ class HasRoleMiddleware
     public function handle(Request $request, Closure $next, string $role): Response
     {
         if ($request->expectsJson() && !auth('api')?->user()?->hasRole($role)) {
-            return response()->json([
-                                'data'      => null,
-                                'status'    => false,
-                                'code'      => 401,
-                                'message'   => __('site.unauthorized_user')
-                               ]);        } elseif (!$request->expectsJson() && !auth('web')?->user()?->hasRole($role)) {
-            abort(403, __('site.unauthorized_user'));
+            return rest()
+                ->notAuthorized()
+                ->message(trans('site.unauthorized_user'))
+                ->send();
+        } elseif (!$request->expectsJson() && !auth('web')?->user()?->hasRole($role)) {
+            abort(403, trans('site.unauthorized_user'));
         }
 
         return $next($request);

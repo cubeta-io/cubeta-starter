@@ -9,7 +9,6 @@ use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\PackageManager;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Settings\Settings;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Artisan;
 
@@ -21,9 +20,8 @@ class BladePackagesInstaller extends AbstractGenerator
 
     /**
      * @throws FileNotFoundException
-     * @throws BindingResolutionException
      */
-    public function run(bool $override = false): void
+    public function run(): void
     {
         PackageManager::composerInstall([
             "yajra/laravel-datatables",
@@ -65,7 +63,6 @@ class BladePackagesInstaller extends AbstractGenerator
 
     /**
      * @return void
-     * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
     private function configurePrettier(): void

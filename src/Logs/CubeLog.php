@@ -171,4 +171,9 @@ class CubeLog
     {
         self::add(new CubeWarning($message, $context));
     }
+
+    public static function info(string $message, ?string $context = null): void
+    {
+        self::add(new CubeInfo($message, $context));
+    }
 }

@@ -1,9 +1,9 @@
 <?php
 
-namespace {{traitsNamespace}};
+namespace {{namespace}};
 
-use {{modelsNamespace}}\ModelHasPermission;
-use {{modelsNamespace}}\Role;
+use {{models_namespace}}\ModelHasPermission;
+use {{models_namespace}}\Role;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -19,7 +19,7 @@ trait HasPermissions
      * this method assign a permission to access given model
      * it returns true when the permission created successfully
      * and false when the permission is already exist for the current user on this model or in one of the user roles
-     * @param string|array{string} $permission
+     * @param string|string[] $permission
      * @param class-string<Model> $model
      * @return bool
      */

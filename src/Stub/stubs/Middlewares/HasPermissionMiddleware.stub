@@ -20,14 +20,12 @@ class HasPermissionMiddleware
     public function handle(Request $request, Closure $next, string $permission, string $model): Response
     {
         if ($request->expectsJson() && !auth('api')->user()?->hasPermission($permission, $model)) {
-            return response()->json([
-                                    'data'      => null,
-                                    'status'    => false,
-                                    'code'      => 401,
-                                    'message'   => __('site.unauthorized_user')
-                                ]);
+            return rest()
+                ->notAuthorized()
+                ->message(trans('site.unauthorized_user'))
+                ->send();
         } elseif (!$request->expectsJson() && !auth('web')->user()?->hasPermission($permission, $model)) {
-            abort(403, __('site.unauthorized_user'));
+            abort(Response::HTTP_UNAUTHORIZED, trans('site.unauthorized_user'));
         }
         return $next($request);
     }

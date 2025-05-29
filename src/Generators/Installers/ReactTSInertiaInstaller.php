@@ -38,7 +38,7 @@ class ReactTSInertiaInstaller extends AbstractGenerator
         $this->publishMakableTrait();
         $this->publishHasMediaTrait();
 
-        $this->addAndRegisterAuthenticateMiddleware();
+        $this->addAndRegisterAuthenticateMiddleware($override);
 
         $this->addSetLocalRoute();
         $this->addRouteFile(actor: 'public', container: ContainerType::WEB, version: $this->version);

@@ -25,7 +25,7 @@ class ApiInstaller extends AbstractGenerator
 
     public string $type = 'installer';
 
-    public function run(bool $override = false): void
+    public function run(): void
     {
         PackageManager::composerInstall("maatwebsite/excel");
 
@@ -38,7 +38,7 @@ class ApiInstaller extends AbstractGenerator
         CubeLog::add(Artisan::output());
 
         $this->addApiRouteFile();
-        $this->addAndRegisterAuthenticateMiddleware();
+        $this->addAndRegisterAuthenticateMiddleware($this->override);
         $this->addRouteFile('public', version: $this->version, override: $this->override);
         $this->addRouteFile('protected', version: $this->version, middlewares: ["authenticated:api"], override: $this->override);
         $this->registerExceptionsHandler();
@@ -128,7 +128,7 @@ class ApiInstaller extends AbstractGenerator
         }';
 
 
-        $pattern = '/->\s*withExceptions\s*\(\s*function\s*\(\s*Exceptions\s*\$exceptions\s*\)\s*\{\s*(.*)\s*\}\)/s';
+        $pattern = '/->\s*withExceptions\s*\(\s*function\s*\(\s*Exceptions\s*\$exceptions\s*\)\s*\{\s*(.*)\s*}\)/s';
         if (!preg_match($pattern, $bootstrapContent, $matches)) {
             CubeLog::failedAppending($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
             return false;

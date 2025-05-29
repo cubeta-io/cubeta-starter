@@ -1,9 +1,10 @@
 <?php
 
-namespace {{modelNamespace}};
+namespace {{namespace}};
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+{{imports}}
 
 class ModelHasPermission extends Model
 {

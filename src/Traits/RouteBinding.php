@@ -36,14 +36,15 @@ trait RouteBinding
     }
 
     /**
+     * @param bool $override
      * @return void
      */
-    public function addAndRegisterAuthenticateMiddleware(): void
+    public function addAndRegisterAuthenticateMiddleware(bool $override = false): void
     {
         $middlewarePath = CubePath::make('/app/Http/Middleware/Authenticate.php');
         AuthMiddlewareStubBuilder::make()
             ->webLoginPageRoute(Routes::loginPage()->name)
-            ->generate($middlewarePath, $this->override);
+            ->generate($middlewarePath, $override);
 
         FileUtils::registerMiddleware(
             "'authenticated' => Authenticate::class",

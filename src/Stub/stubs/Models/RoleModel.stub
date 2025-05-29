@@ -1,10 +1,11 @@
 <?php
 
-namespace {{modelsNamespace}};
+namespace {{namespace}};
 
-use {{traitsNamespace}}\HasPermissions;
+use {{traits_namespace}}\HasPermissions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+{{imports}}
 
 class Role extends Model
 {

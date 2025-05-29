@@ -32,7 +32,7 @@ class MigrationGenerator extends AbstractGenerator
     {
         $migrationPath = $this->table->getMigrationPath();
 
-        if (self::checkIfMigrationExists($this->table->tableName)) {
+        if (FileUtils::migrationExists($this->table->tableName)) {
             $migrationPath->logAlreadyExist("Generating A migration For ({$this->table->modelName}) Model");
             return;
         }
@@ -53,24 +53,6 @@ class MigrationGenerator extends AbstractGenerator
         }
     }
 
-    public static function checkIfMigrationExists(string $tableName): ?string
-    {
-        $migrationsPath = base_path(config('cubeta-starter.migration_path'));
-
-        FileUtils::ensureDirectoryExists($migrationsPath);
-
-        $allMigrations = File::allFiles($migrationsPath);
-
-        foreach ($allMigrations as $migration) {
-            $migrationName = $migration->getBasename();
-            if (Str::contains($migrationName, "create_{$tableName}_table.php")) {
-                return $migration->getRealPath();
-            }
-        }
-
-        return null;
-    }
-
     private function createPivotTable(string $table1, string $table2): void
     {
         $table1 = Str::singular(Naming::table($table1));
@@ -78,7 +60,7 @@ class MigrationGenerator extends AbstractGenerator
         $tables = [$table1, $table2];
         $pivotTableName = Naming::pivotTableNaming($table1, $table2);
 
-        if (!$this->checkIfMigrationExists(Naming::table($tables[0])) || !$this->checkIfMigrationExists(Naming::table($tables[1]))) {
+        if (!FileUtils::migrationExists(Naming::table($tables[0])) || !$this->checkIfMigrationExists(Naming::table($tables[1]))) {
             CubeLog::error(
                 message: "The Related Table Migration Isn't Defined \n Remember When Creating The Related Model To Mention The Many-To-Many Relation In The Generation Form",
                 context: "Generating Migration For ({$this->table->modelName}) Model"
@@ -92,7 +74,7 @@ class MigrationGenerator extends AbstractGenerator
 
         $migrationPath = CubePath::make(config('cubeta-starter.migration_path') . '/' . $date . '_' . $migrationName . '.php');
 
-        $checkMigrationResult = $this->checkIfMigrationExists($pivotTableName);
+        $checkMigrationResult = FileUtils::migrationExists($pivotTableName);
 
         if ($checkMigrationResult) {
             // this procedure to make the pivot migration get a date after the two tables,

@@ -501,4 +501,22 @@ class FileUtils
             $content,
         );
     }
+
+    public static function migrationExists(string $tableName): ?string
+    {
+        $migrationsPath = base_path(config('cubeta-starter.migration_path'));
+
+        FileUtils::ensureDirectoryExists($migrationsPath);
+
+        $allMigrations = File::allFiles($migrationsPath);
+
+        foreach ($allMigrations as $migration) {
+            $migrationName = $migration->getBasename();
+            if (Str::contains($migrationName, "create_{$tableName}_table.php")) {
+                return $migration->getRealPath();
+            }
+        }
+
+        return null;
+    }
 }
