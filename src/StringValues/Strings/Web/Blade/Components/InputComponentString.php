@@ -60,8 +60,8 @@ class InputComponentString
             return "<div class=\"col-sm-12 col-md-6\">
                         <label class=\"form-label\">{$this->label}</label>
                         <div class=\"d-flex gap-5\">
-                            <x-form-check-radio name=\"{$this->name}\" :value=\"false\" $renderedAttributes/>
-                            <x-form-check-radio name=\"{$this->name}\" :value=\"true\" $renderedAttributes/>
+                            <x-form-check-radio name=\"{$this->name}\" :value=\"0\" $renderedAttributes/>
+                            <x-form-check-radio name=\"{$this->name}\" :value=\"1\" $renderedAttributes/>
                         </div>
                     </div>";
         }

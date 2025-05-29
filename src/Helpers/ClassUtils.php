@@ -315,7 +315,7 @@ class ClassUtils
 
         $fileContent = $controllerPath->getContent();
 
-        $pattern = '/relations\s*=\s*\[(.*?)]/s';
+        $pattern = '/\$this\s*->\s*relations\s*=\s*\[(.*?)]/s';
         if (!preg_match($pattern, $fileContent, $matches)) {
             CubeLog::failedAppending(
                 "[]",
@@ -335,7 +335,7 @@ class ClassUtils
         if (Str::startsWith($loadedRelations, ',')) {
             $loadedRelations = FileUtils::replaceFirstMatch($loadedRelations, ',', '');
         }
-        $newContent = preg_replace($pattern, 'relations = [' . $loadedRelations . ']', $fileContent);
+        $newContent = preg_replace($pattern, '$this->relations = [' . $loadedRelations . ']', $fileContent);
         $controllerPath->putContent($newContent);
         CubeLog::contentAppended(implode(",", $relations), $controllerPath->fullPath);
         $controllerPath->format();

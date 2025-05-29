@@ -72,7 +72,7 @@ class BladeControllerGenerator extends AbstractGenerator
                 $linkableAttributes->map(
                     fn(HasYajraDataTableRelationLinkColumnRenderer $link) => $link->yajraDataTableAdditionalColumnRenderer($this->actor)
                 )->toArray()
-            )->rawColumns($linkableAttributes->stringifyEachOne(fn(CubeRelation $item) => $item->method())->implode(","))
+            )->rawColumns($linkableAttributes->stringifyEachOne(fn(CubeRelation $item) => "{$item->method()}.{$item->relationModel()->titleable()->name}")->implode(","))
             ->translatableOrderQueries($this->generateOrderingQueriesForTranslatableColumns())
             ->when(
                 $this->table->hasRelationOfType(RelationsTypeEnum::HasMany),

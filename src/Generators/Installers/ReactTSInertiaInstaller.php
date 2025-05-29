@@ -38,11 +38,11 @@ class ReactTSInertiaInstaller extends AbstractGenerator
         $this->publishMakableTrait();
         $this->publishHasMediaTrait();
 
-        $this->addAndRegisterAuthenticateMiddleware($override);
+        $this->addAndRegisterAuthenticateMiddleware();
 
         $this->addSetLocalRoute();
         $this->addRouteFile(actor: 'public', container: ContainerType::WEB, version: $this->version);
-        $this->addRouteFile(actor: 'protected', container: ContainerType::WEB, version: $this->version, middlewares: ["authenticated"]);
+        $this->addRouteFile(actor: 'protected', container: ContainerType::WEB, version: $this->version, middlewares: ["authenticated:web"]);
         FileUtils::registerMiddleware(
             "'locale' => AcceptedLanguagesMiddleware::class",
             MiddlewareArrayGroupEnum::ALIAS,

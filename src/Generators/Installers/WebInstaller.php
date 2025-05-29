@@ -37,10 +37,10 @@ class WebInstaller extends AbstractGenerator
         Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-web"]);
         CubeLog::add(Artisan::output());
 
-        $this->addAndRegisterAuthenticateMiddleware($override);
+        $this->addAndRegisterAuthenticateMiddleware();
 
         $this->addRouteFile('public', ContainerType::WEB, $this->version);
-        $this->addRouteFile(actor: 'protected', container: ContainerType::WEB, version: $this->version, middlewares: ["authenticated"]);
+        $this->addRouteFile(actor: 'protected', container: ContainerType::WEB, version: $this->version, middlewares: ["authenticated:web"]);
         $this->addSetLocalRoute();
         FileUtils::registerMiddleware(
             "'locale' => AcceptedLanguagesMiddleware::class",

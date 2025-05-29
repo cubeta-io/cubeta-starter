@@ -38,9 +38,9 @@ class ApiInstaller extends AbstractGenerator
         CubeLog::add(Artisan::output());
 
         $this->addApiRouteFile();
-        $this->addAndRegisterAuthenticateMiddleware($this->override);
+        $this->addAndRegisterAuthenticateMiddleware();
         $this->addRouteFile('public', version: $this->version, override: $this->override);
-        $this->addRouteFile('protected', version: $this->version, middlewares: ["authenticated"], override: $this->override);
+        $this->addRouteFile('protected', version: $this->version, middlewares: ["authenticated:api"], override: $this->override);
         $this->registerExceptionsHandler();
 
         FileUtils::registerMiddleware(

@@ -207,6 +207,8 @@ class CodeSniffer
                     BladeFileUtils::addNewDisplayComponentToShowView($reversedRelation->bladeDisplayComponent(), $relatedShowView);
                 }
 
+                ClassUtils::addRelationsToControllerRelationsProperty($relation->getWebControllerPath(), [$reversedRelation->method()]);
+
                 return true;
             });
 

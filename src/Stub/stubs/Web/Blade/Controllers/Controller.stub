@@ -22,7 +22,7 @@ class {{model_name}}Controller extends WebController
     {
         $this->{{model_name_camel_case}}Service = {{model_name}}Service::make();
         // place the relations you want to return them within the response
-        $this->relations = [];
+        $this->relations = [{{loaded_relations}}];
     }
 
     /**
