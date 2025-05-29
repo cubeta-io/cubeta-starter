@@ -7,7 +7,6 @@
       ],
       "options": {
         "parser": "blade",
-        "embeddedLanguageFormatting": "auto"
       }
     }
   ]

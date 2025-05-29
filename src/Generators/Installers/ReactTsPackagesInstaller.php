@@ -10,6 +10,7 @@ use Cubeta\CubetaStarter\Helpers\PackageManager;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\Stub\Publisher;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
@@ -96,9 +97,10 @@ class ReactTsPackagesInstaller extends AbstractGenerator
         if ($prettierConfigPath->exist() && !$this->override) {
             $prettierConfigPath->logAlreadyExist("Installing web inertia react stack packages");
         } else {
-            FileUtils::generateFileFromStub([], $prettierConfigPath->fullPath, CubePath::stubPath("Web/InertiaReact/Config/PrettierConfig.stub"), $this->override);
-            CubeLog::generatedSuccessfully($prettierConfigPath->fileName, $prettierConfigPath->fullPath, "Installing web inertia react stack packages");
-            $prettierConfigPath->format();
+            Publisher::make()
+                ->source(CubePath::stubPath("Web/InertiaReact/Config/PrettierConfig.stub"))
+                ->destination($prettierConfigPath)
+                ->publish($this->override);
         }
     }
 }
