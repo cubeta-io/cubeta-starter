@@ -3,7 +3,7 @@
         <li class="nav-item">
             <a
                 class="nav-link collapsed"
-                href="{{ route("v1.web.public.index") }}"
+                href="{{ route("{{index_route}}") }}"
             >
                 <i class="bi bi-house"></i>
                 <span>Home</span>

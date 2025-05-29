@@ -8,12 +8,13 @@ use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Modules\Routes;
+use Cubeta\CubetaStarter\Modules\Views;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Components\SidebarStubBuilder;
+use Cubeta\CubetaStarter\Stub\Publisher;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Artisan;
 
@@ -25,16 +26,16 @@ class WebInstaller extends AbstractGenerator
 
     public string $type = 'installer';
 
-    public function run(bool $override = false): void
+    public function run(): void
     {
         Settings::make()->setFrontendType(FrontendTypeEnum::BLADE);
 
-        $this->publishBaseRepository($override);
-        $this->publishBaseService($override);
-        $this->publishMakableTrait($override);
-        $this->publishHasMediaTrait($override);
+        $this->publishBaseRepository();
+        $this->publishBaseService();
+        $this->publishMakableTrait();
+        $this->publishHasMediaTrait();
 
-        Artisan::call("vendor:publish", ['--force' => $override, "--tag" => "cubeta-starter-web"]);
+        Artisan::call("vendor:publish", ['--force' => $this->override, "--tag" => "cubeta-starter-web"]);
         CubeLog::add(Artisan::output());
 
         $this->addAndRegisterAuthenticateMiddleware($this->override);
@@ -47,7 +48,7 @@ class WebInstaller extends AbstractGenerator
             MiddlewareArrayGroupEnum::ALIAS,
             new PhpImportString("App\\Http\\Middleware\\AcceptedLanguagesMiddleware")
         );
-        $this->generateHomePage($override);
+        $this->generateHomePage();
         $this->addIndexPageRoute();
         $this->generateSidebar();
 
@@ -55,36 +56,51 @@ class WebInstaller extends AbstractGenerator
 
         $this->registerHelpersFile();
 
-        CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::BLADE->value));
+        CubeLog::success("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::BLADE->value);
 
         Settings::make()->setInstalledWeb();
         Settings::make()->setFrontendType(FrontendTypeEnum::BLADE);
 
-        CubeLog::add(new CubeInfo("Don't forgot to install web packages by the GUI or by running [php artisan cubeta:install web-packages]"));
+        CubeLog::info("Don't forgot to install web packages by the GUI or by running [php artisan cubeta:install web-packages]");
+
+        $this->removeTailwindCallFromViteConfig();
     }
 
-    public function generateHomePage(bool $override = false): void
+    public function generateHomePage(): void
     {
-        $viewPath = CubePath::make('/resources/views/dashboard/index.blade.php');
-        $viewPath->ensureDirectoryExists();
-        $this->generateFileFromStub(
-            [],
-            $viewPath->fullPath,
-            $override,
-            CubePath::stubPath('Views/home.stub')
-        );
+        Publisher::make()
+            ->source(CubePath::stubPath('Web/Blade/Views/Dashboard.stub'))
+            ->destination(Views::dashboard()->path)
+            ->publish($this->override);
     }
 
     private function generateSidebar(): void
     {
         $route = Routes::dashboardPage(Settings::make()->installedWebAuth())->name;
-        $this->generateFileFromStub(
-            [
-                '{{index-route}}' => $route,
-            ],
-            CubePath::make('resources/views/includes/sidebar.blade.php')->fullPath,
-            $this->override,
-            CubePath::stubPath('Views/sidebar.stub')
-        );
+        SidebarStubBuilder::make()
+            ->indexRoute($route)
+            ->generate(CubePath::make('resources/views/includes/sidebar.blade.php'), $this->override);
+    }
+
+    private function removeTailwindCallFromViteConfig(): void
+    {
+        $vite = CubePath::make("vite.config.js");
+        $content = $vite->getContent();
+        $pattern = '/\s*tailwindcss\s*\((.*?)\)\s*(,)?/s';
+
+        if (!preg_match($pattern, $content, $matches)) {
+            return;
+        }
+        $content = preg_replace($pattern, '', $content);
+        CubeLog::contentRemoved("tailwindcss()" , $vite->fullPath);
+
+        $pattern = '#import\s*tailwindcss\s*from\s*["\']\s*@tailwindcss/vite\s*["\']\s*;#s';
+        if (preg_match($pattern, $content, $matches)) {
+            $content = preg_replace($pattern, '', $content);
+            CubeLog::contentRemoved("import tailwindcss from '@tailwindcss/vite';" , $vite->fullPath);
+        }
+
+        $vite->putContent($content);
+        $vite->format();
     }
 }

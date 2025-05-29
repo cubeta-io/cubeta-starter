@@ -38,7 +38,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
         $this->publishWeb();
         $this->publishApi();
         $this->publishInertiaReactTs();
-        $this->publishAuthBladeViews();
     }
 
     /**
@@ -94,24 +93,12 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
             __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
             __DIR__ . '/../src/Stub/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
-            __DIR__ . '/../src/Stub/stubs/handler.stub' => base_path('/app/Exceptions/Handler.php'),
             __DIR__ . "/../src/Stub/stubs/BulkActions/BaseBulkAction.stub" => app_path("BulkAction/BaseBulkAction.php"),
             __DIR__ . "/../src/Stub/stubs/Excel/BaseExporter.stub" => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Stub/stubs/Excel/BaseImporter.stub' => app_path("Excel/BaseImporter.php"),
             __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
+            __DIR__ . '/../src/Stub/stubs/Helpers/helpers.stub' => app_path('Helpers/helpers.php'),
         ], 'cubeta-starter-web');
-    }
-
-    public function publishAuthBladeViews(): void
-    {
-        $this->publishes([
-            __DIR__ . '/../resources/views/blade/login.blade.php' => resource_path('views/login.blade.php'),
-            __DIR__ . '/../resources/views/blade/register.blade.php' => resource_path('views/register.blade.php'),
-            __DIR__ . '/../resources/views/blade/user-details.blade.php' => resource_path('views/user-details.blade.php'),
-            __DIR__ . '/../resources/views/blade/reset-password-request.blade.php' => resource_path('views/reset-password-request.blade.php'),
-            __DIR__ . '/../resources/views/blade/check-reset-code.blade.php' => resource_path('views/check-reset-code.blade.php'),
-            __DIR__ . '/../resources/views/blade/reset-password.blade.php' => resource_path('views/reset-password.blade.php'),
-        ], 'cubeta-auth-views');
     }
 
     private function publishApi(): void

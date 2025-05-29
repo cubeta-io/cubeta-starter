@@ -134,6 +134,12 @@ abstract class AbstractGenerator
 
     protected function registerHelpersFile(): void
     {
+        $helperPath = CubePath::make('app/Helpers/helpers.php');
+
+        if (!$helperPath->exist()) {
+            return;
+        }
+
         $composerPath = CubePath::make("composer.json");
         $json = json_decode($composerPath->getContent(), true);
         if (!$json) {
