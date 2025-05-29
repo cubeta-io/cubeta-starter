@@ -79,9 +79,14 @@ class AuthInstaller extends AbstractGenerator
         $this->generateResetPasswordMail();
         $this->generateUserFactory();
 
+        if (ContainerType::isApi($this->generatedFor)
+            || (ContainerType::isWeb($this->generatedFor) && $this->frontType == FrontendTypeEnum::REACT_TS)
+        ) {
+            $this->generateUserResource();
+        }
+
         if (ContainerType::isApi($this->generatedFor)) {
             $this->initializeJwt();
-            $this->generateUserResource();
             $this->generateBaseAuthApiController();
             Settings::make()->setInstalledApiAuth();
         }

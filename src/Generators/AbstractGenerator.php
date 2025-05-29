@@ -8,8 +8,6 @@ use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\Logs\CubeError;
-use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
 use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
@@ -139,7 +137,7 @@ abstract class AbstractGenerator
         $composerPath = CubePath::make("composer.json");
         $json = json_decode($composerPath->getContent(), true);
         if (!$json) {
-            CubeLog::add(new CubeError("Failed to register helpers file in the composer.json file", $composerPath->fullPath, "Installing api tools"));
+            CubeLog::error("Failed to register helpers file in the composer.json file", $composerPath->fullPath, "Installing api tools");
             return;
         }
 
@@ -157,11 +155,9 @@ abstract class AbstractGenerator
 
         FileUtils::executeCommandInTheBaseDirectory("composer dump-autoload");
 
-        CubeLog::add(
-            new CubeInfo(
-                "Helpers file registered successfully",
-                "Installing api tools"
-            ),
+        CubeLog::info(
+            "Helpers file registered successfully",
+            "Installing api tools"
         );
     }
 }

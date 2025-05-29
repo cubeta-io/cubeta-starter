@@ -8,12 +8,13 @@ use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Modules\Routes;
+use Cubeta\CubetaStarter\Modules\Views;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Components\SidebarStubBuilder;
+use Cubeta\CubetaStarter\Stub\Publisher;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Artisan;
 
@@ -24,21 +25,21 @@ class ReactTSInertiaInstaller extends AbstractGenerator
     public static string $key = "install-react";
     public string $type = "installer";
 
-    public function run(bool $override = false): void
+    public function run(): void
     {
         if (!Settings::make()->installedWebPackages()) {
-            CubeLog::add(new CubeError("Install React TS and Inertia packages first by running [php artisan cubeta:install react-ts-packages] and try again"));
+            CubeLog::error("Install React TS and Inertia packages first by running [php artisan cubeta:install react-ts-packages] and try again");
             return;
         }
 
-        $this->installInertia($override);
+        $this->installInertia();
 
         $this->publishBaseRepository();
         $this->publishBaseService();
         $this->publishMakableTrait();
         $this->publishHasMediaTrait();
 
-        $this->addAndRegisterAuthenticateMiddleware($override);
+        $this->addAndRegisterAuthenticateMiddleware($this->override);
 
         $this->addSetLocalRoute();
         $this->addRouteFile(actor: 'public', container: ContainerType::WEB, version: $this->version);
@@ -54,9 +55,9 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             new PhpImportString("App\\Http\\Middleware\\HandleInertiaRequests")
         );
 
-        $this->generateHomePage($override);
+        $this->generateHomePage();
         $this->addIndexPageRoute();
-        $this->generateSidebar($override);
+        $this->generateSidebar();
 
         $this->registerHelpersFile();
 
@@ -64,53 +65,39 @@ class ReactTSInertiaInstaller extends AbstractGenerator
         Settings::make()->setInstalledWeb();
     }
 
-    private function installInertia(bool $override = false): void
+    private function installInertia(): void
     {
         Artisan::call('vendor:publish', [
             '--tag' => 'react-ts',
-            '--force' => $override,
+            '--force' => $this->override,
         ]);
 
         CubeLog::add(Artisan::output());
 
-        // adding the app layout blade file
-        $this->generateFileFromStub(
-            stubProperties: [],
-            path: resource_path('/views/app.blade.php'),
-            override: $override,
-            otherStubsPath: CubePath::stubPath('Inertia/views/app-view.stub')
-        );
+        Publisher::make()
+            ->source(CubePath::stubPath('/Web/InertiaReact/Views/App.stub'))
+            ->destination(CubePath::make("/resources/views/app.blade.php"))
+            ->publish($this->override);
 
-        // adding inertia middleware
-        $this->generateFileFromStub(
-            stubProperties: [],
-            path: app_path('/Http/Middleware/HandleInertiaRequests.php'),
-            override: $override,
-            otherStubsPath: CubePath::stubPath('Inertia/HandleInertiaRequestsMiddleware.stub')
-        );
-
-        CubeLog::add(new SuccessMessage("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::REACT_TS->value));
+        Publisher::make()
+            ->source(CubePath::stubPath('Middlewares/HandleInertiaRequestsMiddleware.stub'))
+            ->destination(CubePath::make('app/Http/Middleware/HandleInertiaRequests.php'))
+            ->publish($this->override);
+        CubeLog::success("Your Frontend Stack Has Been Set To " . FrontendTypeEnum::REACT_TS->value);
     }
 
-    public function generateHomePage(bool $override = false): void
+    public function generateHomePage(): void
     {
-        $pagePath = CubePath::make('/resources/js/Pages/dashboard/Index.tsx');
-        $pagePath->ensureDirectoryExists();
-        $this->generateFileFromStub(
-            [],
-            $pagePath->fullPath,
-            $override,
-            CubePath::stubPath('Inertia/pages/dashboard.stub')
-        );
+        Publisher::make()
+            ->source(CubePath::stubPath('Web/InertiaReact/Pages/Dashboard.stub'))
+            ->destination(Views::dashboard()->path)
+            ->publish($this->override);
     }
 
-    private function generateSidebar(bool $override): void
+    private function generateSidebar(): void
     {
-        $this->generateFileFromStub(
-            ['{{index-route}}' => Routes::dashboardPage(Settings::make()->installedWebAuth())->name],
-            CubePath::make('resources/js/Components/ui/Sidebar.tsx')->fullPath,
-            $override,
-            CubePath::stubPath('Inertia/components/Sidebar.stub')
-        );
+        SidebarStubBuilder::make()
+            ->indexRoute(Routes::dashboardPage(Settings::make()->installedWebAuth())->name)
+            ->generate(CubePath::make('resources/js/Components/ui/Sidebar.tsx'), $this->override);
     }
 }

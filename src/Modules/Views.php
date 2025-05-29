@@ -164,9 +164,9 @@ class Views
             ? "resources/js/Pages"
             : "resources/views";
         return new self(
-            name: "dashboard.index",
-            fileName: "dashboard.$extension",
-            path: CubePath::make("$resourcePath/dashboard.$extension"),
+            name: "index",
+            fileName: "index.$extension",
+            path: CubePath::make("$resourcePath/index.$extension"),
         );
     }
 }
