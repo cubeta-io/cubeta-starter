@@ -189,7 +189,7 @@ class PostmanCollection implements PostmanObject
             return $this;
         }
 
-        $api = FileUtils::generateStringFromStub(CubePath::stubPath('PostmanAuthEntity.stub'), [
+        $api = FileUtils::generateStringFromStub(CubePath::stubPath('/PostmanCollection/PostmanAuthEntity.stub'), [
             '{{role}}' => $role,
             "{{version}}" => config('cubeta-starter.version'),
         ]);

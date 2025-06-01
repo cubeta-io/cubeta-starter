@@ -31,6 +31,13 @@ class ApiControllerGenerator extends AbstractGenerator
         $this->addRoute($this->table, $this->actor);
         $controllerPath->format();
 
+        if (config('cubeta-starter.generate_postman_collection_for_api_routes')) {
+            $this->addToPostman();
+        }
+    }
+
+    public function addToPostman(): void
+    {
         try {
             Postman::make()->getCollection()->newCrud($this->table, $this->actor)->save();
             CubeLog::success("Postman Collection Now Has Folder For The Generated Controller [{$this->table->getControllerName()}] \nRe-Import It In Postman");

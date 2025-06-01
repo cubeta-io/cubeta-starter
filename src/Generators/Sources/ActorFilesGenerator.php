@@ -182,11 +182,9 @@ class ActorFilesGenerator extends AbstractGenerator
             ->role(str($this->role)->studly()->ucfirst())
             ->roleEnumName($this->roleEnumNaming($this->role))
             ->generate($controllerPath, $this->override);
-        try {
-            Postman::make()->getCollection()->newAuthApi($this->role)->save();
-            CubeLog::success("Postman Collection Now Has Folder For The Generated {$this->role} Auth Controller  \nRe-Import It In Postman");
-        } catch (Exception $e) {
-            CubeLog::add($e);
+
+        if (config('cubeta-starter.generate_postman_collection_for_api_routes')) {
+            $this->addToPostman();
         }
     }
 
@@ -221,5 +219,18 @@ class ActorFilesGenerator extends AbstractGenerator
         CubeLog::contentAppended($publicAuthRoutes, $publicApiRouteFile->fullPath);
 
         FileUtils::addImportStatement($importStatement, $publicApiRouteFile);
+    }
+
+    /**
+     * @return void
+     */
+    private function addToPostman(): void
+    {
+        try {
+            Postman::make()->getCollection()->newAuthApi($this->role)->save();
+            CubeLog::success("Postman Collection Now Has Folder For The Generated {$this->role} Auth Controller  \nRe-Import It In Postman");
+        } catch (Exception $e) {
+            CubeLog::add($e);
+        }
     }
 }
