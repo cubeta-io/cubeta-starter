@@ -7,18 +7,14 @@ use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
-use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
-use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Modules\Routes;
 use Cubeta\CubetaStarter\Postman\Postman;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\RoleAuthControllerStubBuilder;
-use Cubeta\CubetaStarter\Stub\Builders\Api\Routes\RoleProtectedAuthRoutesStubBuilder;
-use Cubeta\CubetaStarter\Stub\Builders\Api\Routes\RolePublicAuthRoutesStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Seeders\RoleSeederStubBuilder;
+use Cubeta\CubetaStarter\Stub\Publisher;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Exception;
 use Illuminate\Support\Str;
@@ -49,6 +45,7 @@ class ActorFilesGenerator extends AbstractGenerator
             CubeLog::error("Install permissions by running [php artisan cubeta:install permissions] then try again");
             return;
         }
+
         if (
             (!$settings->installedApiAuth() && !$settings->installedWebAuth())
             || (!$settings->installedWebAuth() && ContainerType::isWeb($this->generatedFor))
@@ -59,21 +56,21 @@ class ActorFilesGenerator extends AbstractGenerator
         }
 
         $this->createRolesEnum();
+
+        $routeFile = $this->getRouteFilePath($this->generatedFor, $this->role, $this->version);
         if (ContainerType::isWeb($this->generatedFor)) {
-            $routeFile = CubePath::make("routes/{$this->version}/web/{$this->role}.php");
             if (!$routeFile->exist()) {
                 $this->addRouteFile($this->role, ContainerType::WEB, $this->version, [
-                    'authenticated',
+                    'authenticated:web',
                     'has-role:' . $this->role,
                 ]);
             }
         }
 
         if (ContainerType::isApi($this->generatedFor)) {
-            $routeFile = CubePath::make("routes/{$this->version}/api/{$this->role}.php");
             if (!$routeFile->exist()) {
                 $this->addRouteFile($this->role, ContainerType::API, $this->version, [
-                    'authenticated',
+                    'authenticated:api',
                     'has-role:' . $this->role,
                     'jwt-auth',
                 ]);
@@ -88,81 +85,71 @@ class ActorFilesGenerator extends AbstractGenerator
             $this->generateProtectedAuthRoutes();
         }
 
-        CubeLog::add(new CubeInfo("Don't forget to run [php artisan db:seed RoleSeeder]"));
+        CubeLog::info("Don't forget to run [php artisan db:seed RoleSeeder]");
     }
 
     public function createRolesEnum(): void
     {
-        $enum = file_get_contents(CubePath::stubPath('RolesPermissionEnum-entity.stub'));
         $roleEnum = $this->roleEnumNaming($this->role);
-        $roleEnumValue = Str::singular(Str::lower($this->role));
+        $roleEnumValue = str($this->role)->lower()->singular();
+        $placedPermission = collect($this->permissions)
+            ->map(fn($s) => str($s)->lower()->kebab()->toString())
+            ->implode(",");
 
-        if ($this->permissions) {
-            for ($i = 0; $i < count($this->permissions); $i++) {
-                $this->permissions[$i] = Str::lower($this->permissions[$i]);
-            }
-        }
-
-        $placedPermission = $this->permissions ? json_encode($this->permissions, JSON_PRETTY_PRINT) : '[]';
-
-        $enum = str_replace(
-            ['{enum}', '{roleValue}', '{permissions}'],
-            [$roleEnum, $roleEnumValue, $placedPermission],
-            $enum
-        );
+        $enum = "const $roleEnum = ['role' => '$roleEnumValue' , 'permissions' => [$placedPermission]];";
 
         $enumPath = CubePath::make("/app/Enums/RolesPermissionEnum.php");
 
-        if ($enumPath->exist()) {
-            $enumFileContent = $enumPath->getContent();
-            if (!str_contains($enumFileContent, $this->role)) {
-                // If the new code does not exist, add it to the end of the class definition
-                $pattern = '/}\s*$/';
-                $replacement = "{$enum}}";
-
-                $enumFileContent = preg_replace($pattern, $replacement, $enumFileContent, 1);
-                $enumFileContent = str_replace(
-                    [
-                        '//add-your-roles',
-                        '//add-all-your-enums-roles-here',
-                        '//add-all-your-enums-here',
-                    ],
-                    [
-                        $enum,
-                        'self::' . $roleEnum . "['role'], \n //add-all-your-enums-roles-here \n",
-                        'self::' . $roleEnum . ", \n //add-all-your-enums-here \n",
-                    ],
-                    $enumFileContent
-                );
-
-                // Write the modified contents back to the file
-                $enumPath->putContent($enumFileContent);
-            } else {
-                CubeLog::add(new ContentAlreadyExist("The Role ({$this->role})", $enumPath->fullPath, "Adding New Role Enum To RolesPermissions Enum"));
-                return;
-            }
-        } else {
-            $enumStub = file_get_contents(CubePath::stubPath('RolesPermissionEnum.stub'));
-
-            $enumStub = str_replace(
-                [
-                    '//add-your-roles',
-                    '//add-all-your-enums-roles-here',
-                    '//add-all-your-enums-here',
-                ],
-                [
-                    $enum,
-                    'self::' . $roleEnum . "['role'], \n //add-all-your-enums-roles-here \n",
-                    'self::' . $roleEnum . ", \n //add-all-your-enums-here \n",
-                ],
-                $enumStub
-            );
-            $enumPath->ensureDirectoryExists();
-            $enumPath->putContent($enumStub);
+        if (FileUtils::contentExistInFile($enumPath, $enum)) {
+            CubeLog::contentAlreadyExists("The Role ({$this->role})", $enumPath->fullPath, "Adding New Role Enum To RolesPermissions Enum");
+            return;
         }
+
+        if (!$enumPath->exist()) {
+            Publisher::make()
+                ->source(CubePath::stubPath('Enums/RolesPermissionEnum.stub'))
+                ->destination($enumPath)
+                ->publish($this->override);
+        }
+
+        $pattern = '#class\s*RolesPermissionEnum\s*\{(.*)}#s';
+        $content = $enumPath->getContent();
+
+        if (!preg_match($pattern, $content, $matches)) {
+            CubeLog::failedAppending($enum, $enumPath, "Adding new actor");
+            return;
+        }
+
+        $content = str_replace($matches[1], "$enum\n{$matches[1]}", $content);
+
+        $pattern = '#const\s*ALL_ROLES\s*=\s*\[(.*?)]\s*;#s';
+
+        if (!preg_match($pattern, $content, $matches)) {
+            CubeLog::failedAppending($enum, "self::{$roleEnum}['role'],", "Adding new actor");
+        }
+
+        $content = preg_replace(
+            $pattern,
+            "const ALL_ROLES = [\n" . FileUtils::fixArrayOrObjectCommas("$matches[1],self::{$roleEnum}['role'],") . "\n];",
+            $content
+        );
+
+        $pattern = '#const\s*ALL\s*=\s*\[(.*?)]\s*;#s';
+
+        if (!preg_match($pattern, $content, $matches)) {
+            CubeLog::failedAppending($enum, "self::{$roleEnum},", "Adding new actor");
+        }
+
+        $content = preg_replace(
+            $pattern,
+            "const ALL = [\n" . FileUtils::fixArrayOrObjectCommas("$matches[1],self::{$roleEnum},") . "\n];",
+            $content
+        );
+
+        $enumPath->putContent($content);
         $enumPath->format();
 
-        CubeLog::add(new ContentAppended("The Role ($this->role) Enum Declaration", $enumPath->fullPath));
+        CubeLog::contentAppended("The Role ($this->role) Enum Declaration", $enumPath->fullPath);
     }
 
     /**
@@ -192,7 +179,7 @@ class ActorFilesGenerator extends AbstractGenerator
         RoleAuthControllerStubBuilder::make()
             ->namespace("$apiControllerNamespace\\$this->version")
             ->serviceNamespace("$apiServiceNamespace\\$this->version")
-            ->role($this->role)
+            ->role(str($this->role)->studly()->ucfirst())
             ->roleEnumName($this->roleEnumNaming($this->role))
             ->generate($controllerPath, $this->override);
         try {
@@ -205,39 +192,26 @@ class ActorFilesGenerator extends AbstractGenerator
 
     private function generateProtectedAuthRoutes(): void
     {
-        $apiRouteFile = CubePath::make("routes/{$this->version}/api/{$this->actorFileNaming($this->role)}.php");
-        $routes = RoleProtectedAuthRoutesStubBuilder::make()
-            ->version($this->version)
-            ->role($this->role)
-            ->controllerName(str($this->role)->studly()->singular()->toString())
-            ->refreshRouteName(Routes::refreshToken($this->role)->name)
-            ->logoutRouteName(Routes::logout(ContainerType::API, $this->role)->name)
-            ->updateUserRouteName(Routes::updateUser(ContainerType::API, $this->role)->name)
-            ->userDetailsRouteName(Routes::me(ContainerType::API, $this->role)->name)
-            ->toString();
+        $apiRouteFile = $this->getRouteFilePath(ContainerType::API, $this->role, $this->version);
+        $routes = Routes::apiProtectedAuthRoutes($this->role)
+            ->map(fn(Routes $route) => $route->toString())
+            ->implode("\n");
 
         $apiRouteFile->putContent($routes, FILE_APPEND);
         CubeLog::contentAppended($routes, $apiRouteFile->fullPath);
 
-        $importStatement = "use " . config('cubeta-starter.api_controller_namespace') . "\\$this->version;";
+        $importStatement = new PhpImportString(config('cubeta-starter.api_controller_namespace') . "\\$this->version");
         FileUtils::addImportStatement($importStatement, $apiRouteFile);
     }
 
     private function generatePublicAuthRoutes(): void
     {
         $importStatement = new PhpImportString(config('cubeta-starter.api_controller_namespace') . "\\$this->version;");
-        $publicApiRouteFile = CubePath::make("/routes/{$this->version}/api/public.php");
+        $publicApiRouteFile = $this->getRouteFilePath(ContainerType::API, "public", $this->version);
 
-        $publicAuthRoutes = RolePublicAuthRoutesStubBuilder::make()
-            ->version($this->version)
-            ->role($this->role)
-            ->controllerName(str($this->role)->singular()->studly()->toString())
-            ->registerRouteName(Routes::register(ContainerType::API, $this->role)->name)
-            ->loginRouteName(Routes::login(ContainerType::API, $this->role)->name)
-            ->passwordResetRequestRouteName(Routes::requestResetPassword(ContainerType::API, $this->role)->name)
-            ->validatePasswordResetCodeRouteName(Routes::validateResetCode(ContainerType::API, $this->role)->name)
-            ->passwordResetRouteName(Routes::resetPassword(ContainerType::API, $this->role)->name)
-            ->toString();
+        $publicAuthRoutes = Routes::apiPublicAuthRoutes($this->role)
+            ->map(fn(Routes $route) => $route->toString())
+            ->implode("\n");
 
         if (!$publicApiRouteFile->exist()) {
             $this->addRouteFile(actor: 'public', version: $this->version);

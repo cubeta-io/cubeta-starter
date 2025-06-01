@@ -6,9 +6,7 @@ use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Traits\Makable;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Mockery\Exception;
+use Exception;
 
 class Publisher
 {
@@ -43,9 +41,13 @@ class Publisher
             return false;
         }
 
-        FileUtils::ensureDirectoryExists(dirname($this->destination));
-
         try {
+            if (!file_exists($this->source)) {
+                throw new Exception("File doesn't exists : [$this->source]");
+            }
+
+            FileUtils::ensureDirectoryExists(dirname($this->destination));
+
             FileUtils::generateFileFromStub(
                 [],
                 $this->destination,
@@ -56,7 +58,7 @@ class Publisher
             CubeLog::generatedSuccessfully(pathinfo($this->destination, PATHINFO_BASENAME), $this->destination);
             $this->formatDestination();
             return true;
-        } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
+        } catch (Exception $e) {
             CubeLog::add($e);
             return false;
         }
@@ -68,9 +70,9 @@ class Publisher
             return;
         }
 
-        if (str($this->destination)->endsWith('.blade.php')) {
+        if (str($this->destination)->contains('.blade.php')) {
             FileUtils::formatWithPrettier($this->destination);
-        } elseif (str($this->destination)->endsWith(".php")) {
+        } elseif (str($this->destination)->contains(".php")) {
             FileUtils::formatWithPint($this->destination);
         } else {
             FileUtils::formatWithPrettier($this->destination);

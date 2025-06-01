@@ -144,6 +144,11 @@ class ApiInstaller extends AbstractGenerator
             return false;
         }
         $bootstrapContent = str_replace($matches[1], $handler, $bootstrapContent);
+        $bootstrapContent = preg_replace(
+            '/function\s*\(\s*Exceptions\s*\$exceptions\s*\)\s*\{\s*(.*)\s*}/s',
+            "function (Exceptions \$exceptions) {\$1 \n $handler}",
+            $bootstrapContent
+        );
 
         $bootstrapPath->putContent($bootstrapContent);
         CubeLog::contentAppended($handler, $bootstrapPath->fullPath);

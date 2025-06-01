@@ -3,7 +3,7 @@
     @php
         $roleEnumPath = \Cubeta\CubetaStarter\Helpers\CubePath::make("app/Enums/RolesPermissionEnum.php");
         if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RolesPermissionEnum")) {
-            $actors = [ ...\App\Enums\RolesPermissionEnum::ALLROLES];
+            $actors = [ ...\App\Enums\RolesPermissionEnum::ALL_ROLES];
         }else{
             $actors = [];
         }

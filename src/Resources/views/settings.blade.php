@@ -4,7 +4,7 @@
         $stacks = array_reverse(\Cubeta\CubetaStarter\Enums\FrontendTypeEnum::getAllValues());
         $roleEnumPath = \Cubeta\CubetaStarter\Helpers\CubePath::make("app/Enums/RolesPermissionEnum.php");
         if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RolesPermissionEnum")) {
-            $actors = ['none', ...\App\Enums\RolesPermissionEnum::ALLROLES];
+            $actors = ['none', ...\App\Enums\RolesPermissionEnum::ALL_ROLES];
         }else{
             $actors = [];
         }

@@ -5,11 +5,9 @@ namespace Cubeta\CubetaStarter\Helpers;
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
-use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
-use Cubeta\CubetaStarter\Logs\Errors\WrongEnvironment;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
@@ -17,6 +15,8 @@ use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use function Laravel\Prompts\info;
+
 
 class FileUtils
 {
@@ -84,9 +84,12 @@ class FileUtils
             $rootDirectory = base_path();
             $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
 
-            if ($withLog) {
-                CubeLog::add(new CubeInfo("Running command : [$command]"));
+            if (php_sapi_name() == "cli") {
+                info("Running command [$command]");
+            } elseif ($withLog) {
+                CubeLog::info("Running command : [$command]");
             }
+
             $output = shell_exec($fullCommand);
 
             if (is_string($output) && $withLog) {
@@ -96,7 +99,7 @@ class FileUtils
             return $output;
         }
 
-        CubeLog::add(new WrongEnvironment("Running Command : $command"));
+        CubeLog::wrongEnvironment("Running Command : [$command]");
 
         return false;
     }

@@ -134,7 +134,7 @@ class BaseCommand extends Command
         if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RolesPermissionEnum")) {
             return select(
                 "Who Is The Actor For This $class ?",
-                ['none', ...\App\Enums\RolesPermissionEnum::ALLROLES],
+                ['none', ...\App\Enums\RolesPermissionEnum::ALL_ROLES],
                 default: "none",
             );
         }
