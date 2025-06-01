@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 
-/**
- * Class ApiController
- */
 class WebController extends Controller
 {
     public array $relations = [];

@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-/**
- * Class ApiController
- */
 class ApiController extends Controller
 {
     public array $relations = [];

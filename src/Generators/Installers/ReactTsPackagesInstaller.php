@@ -63,6 +63,11 @@ class ReactTsPackagesInstaller extends AbstractGenerator
     public function preparePackageJson(): void
     {
         $packageJsonPath = CubePath::make('/package.json');
+
+        if (!$packageJsonPath->exist()){
+            FileUtils::executeCommandInTheBaseDirectory("npm init -y");
+        }
+
         $jsonArray = json_decode($packageJsonPath->getContent(), true);
 
         if (isset($jsonArray['type']) && $jsonArray['type'] == "module") {

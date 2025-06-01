@@ -75,7 +75,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
-            __DIR__ . '/../src/Stub/stubs/WebController.stub' => app_path('Http/Controllers/WebController.php'),
+            __DIR__ . '/../src/Stub/stubs/Controllers/WebController.stub' => app_path('Http/Controllers/WebController.php'),
             __DIR__ . '/../pint.json' => base_path('pint.json'),
             __DIR__ . '/../.prettierignore' => base_path('.prettierignore'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
@@ -92,7 +92,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
 
             __DIR__ . "/../src/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
             __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
-            __DIR__ . '/../src/Stub/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
+            __DIR__ . '/../src/Stub/stubs/Controllers/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
             __DIR__ . "/../src/Stub/stubs/BulkActions/BaseBulkAction.stub" => app_path("BulkAction/BaseBulkAction.php"),
             __DIR__ . "/../src/Stub/stubs/Excel/BaseExporter.stub" => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Stub/stubs/Excel/BaseImporter.stub' => app_path("Excel/BaseImporter.php"),
@@ -104,7 +104,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     private function publishApi(): void
     {
         $this->publishes([
-            __DIR__ . "/../src/Stub/stubs/ApiController.stub" => app_path("Http/Controllers/ApiController.php"),
+            __DIR__ . "/../src/Stub/stubs/Controllers/ApiController.stub" => app_path("Http/Controllers/ApiController.php"),
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
             __DIR__ . '/../pint.json' => base_path('pint.json'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
@@ -185,9 +185,9 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../pint.json' => base_path('pint.json'),
             __DIR__ . '/../.prettierignore' => base_path('.prettierignore'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
-            __DIR__ . '/../src/Stub/stubs/Inertia/configurations/tsconfig.stub' => base_path('/tsconfig.json'),
-            __DIR__ . '/../src/Stub/stubs/Inertia/configurations/vite.config.stub' => base_path('/vite.config.js'),
-            __DIR__ . '/../src/Stub/stubs/WebController.stub' => app_path('/Http/Controllers/WebController.php'),
+            __DIR__ . '/../src/Stub/stubs/Web/InertiaReact/Config/TsConfig.stub' => base_path('/tsconfig.json'),
+            __DIR__ . '/../src/Stub/stubs/Web/InertiaReact/Config/ViteConfig.stub' => base_path('/vite.config.js'),
+            __DIR__ . '/../src/Stub/stubs/Controllers/WebController.stub' => app_path('/Http/Controllers/WebController.php'),
 
             __DIR__ . '/../resources/js/inertia/Components' => resource_path('/js/Components'),
             __DIR__ . '/../resources/js/inertia/Hooks' => resource_path('/js/Hooks'),
@@ -200,7 +200,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../resources/css/inertia' => resource_path('/css'),
             __DIR__ . '/../public/images' => public_path('/images'),
 
-            __DIR__ . '/../src/Stub/stubs/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
+            __DIR__ . '/../src/Stub/stubs/Controllers/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
             __DIR__ . "/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
             __DIR__ . '/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
             __DIR__ . "/../src/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),

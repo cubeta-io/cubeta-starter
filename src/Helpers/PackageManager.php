@@ -105,9 +105,9 @@ class PackageManager
         $packageJson = CubePath::make('package.json');
 
         if (!$packageJson->exist()) {
-            return null;
+            FileUtils::executeCommandInTheBaseDirectory("npm init -y");
         }
-
+        
         return json_decode($packageJson->getContent(), true);
     }
 
