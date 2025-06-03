@@ -63,7 +63,8 @@ class MakeExample extends Command
                     'uniques' => [
                         'slug',
                     ],
-                    ...$validOptions
+                    '--force' => true,
+                    ...$validOptions ,
                 ]);
 
                 $output = Artisan::output();
@@ -103,6 +104,7 @@ class MakeExample extends Command
                     'uniques' => [
                         'slug',
                     ],
+                    '--force' => true,
                     ...$validOptions
                 ]);
                 $output = Artisan::output();
@@ -152,6 +154,7 @@ class MakeExample extends Command
                     'uniques' => [
                         'slug'
                     ],
+                    '--force' => true,
                     ...$validOptions
                 ]);
                 $output = Artisan::output();

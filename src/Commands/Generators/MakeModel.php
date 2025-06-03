@@ -78,9 +78,9 @@ class MakeModel extends BaseCommand
      */
     public function callAppropriateCommand(string $name, $options, string $actor, array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], string $container = ContainerType::API, bool $override = false): void
     {
-        $options = array_filter($options, function ($value) {
-            return $value !== false && $value !== null;
-        });
+        $options = array_filter($options, function ($value, $index) {
+            return $value !== false && $value !== null && $index != "force";
+        }, ARRAY_FILTER_USE_BOTH);
 
         if (!count($options)) {
             $result = 'all';
