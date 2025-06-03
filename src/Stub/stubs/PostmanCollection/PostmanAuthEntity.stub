@@ -70,13 +70,7 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{{version}}/{{role}}/register",
-							"host": [
-								"{{local}}/{{version}}/{{role}}"
-							],
-							"path": [
-								"register"
-							]
+							"raw": "{{local}}/{{register_url}}"
 						}
 					},
 					"response": []
@@ -155,13 +149,7 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{{version}}/{{role}}/update-user-data",
-							"host": [
-								"{{local}}/{{version}}/{{role}}"
-							],
-							"path": [
-								"update-user-data"
-							]
+							"raw": "{{local}}/{{update_user_details_url}}"
 						}
 					},
 					"response": []
@@ -213,13 +201,7 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{{version}}/{{role}}/login",
-							"host": [
-								"{{local}}/{{version}}/{{role}}"
-							],
-							"path": [
-								"login"
-							]
+							"raw": "{{local}}/{{login_url}}"
 						}
 					},
 					"response": []
@@ -250,13 +232,7 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{local}}/{{version}}/{{role}}/refresh",
-							"host": [
-								"{{local}}/{{version}}/{{role}}"
-							],
-							"path": [
-								"refresh"
-							]
+							"raw": "{{local}}/{{refresh_token_url}}"
 						}
 					},
 					"response": []
@@ -293,13 +269,7 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{{version}}/{{role}}/password-reset-request",
-							"host": [
-								"{{local}}/{{version}}/{{role}}"
-							],
-							"path": [
-								"password-reset-request"
-							]
+							"raw": "{{local}}/{{request_reset_password_url}}"
 						}
 					},
 					"response": []
@@ -335,13 +305,7 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{{version}}/{{role}}/check-reset-password-code",
-							"host": [
-								"{{local}}/{{version}}/{{role}}"
-							],
-							"path": [
-								"check-reset-password-code"
-							]
+							"raw": "{{local}}/{{validate_reset_code_url}}"
 						}
 					},
 					"response": []
@@ -388,13 +352,7 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/{{version}}/{{role}}/reset-password",
-							"host": [
-								"{{local}}/{{version}}/{{role}}"
-							],
-							"path": [
-								"reset-password"
-							]
+							"raw": "{{local}}/{{reset_password_url}}"
 						}
 					},
 					"response": []
@@ -425,13 +383,7 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{local}}/{{version}}/{{role}}/logout",
-							"host": [
-								"{{local}}/{{version}}/{{role}}"
-							],
-							"path": [
-								"logout"
-							]
+							"raw": "{{local}}/{{logout_url}}"
 						}
 					},
 					"response": []
@@ -458,13 +410,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{local}}/{{version}}/{{role}}/user-details",
-                            "host": [
-                                "{{local}}v1"
-                            ],
-                            "path": [
-                                "user-details"
-                            ]
+                            "raw": "{{local}}/{{user_details_url}}"
                         }
                     },
                     "response": []

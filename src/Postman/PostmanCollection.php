@@ -3,8 +3,10 @@
 namespace Cubeta\CubetaStarter\Postman;
 
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Modules\Routes;
 use Cubeta\CubetaStarter\Postman\PostmanRequest\FormDataField;
 use Cubeta\CubetaStarter\Postman\PostmanRequest\PostmanRequest;
 use Cubeta\CubetaStarter\Postman\PostmanRequest\RequestAuth;
@@ -69,12 +71,12 @@ class PostmanCollection implements PostmanObject
             return $this;
         }
 
-        $baseUrl = $table->resourceRoute($actor);
+        $baseUrl = $table->resourceRoute($actor)->url;
 
         $index = new PostmanRequest(
             name: "index",
             method: PostmanRequest::GET,
-            url: RequestUrl::getUrlFromRoute($baseUrl->url),
+            url: RequestUrl::getUrlFromRoute($baseUrl),
             header: [RequestHeader::setAcceptJson()],
             auth: RequestAuth::bearer(),
         );
@@ -192,6 +194,15 @@ class PostmanCollection implements PostmanObject
         $api = FileUtils::generateStringFromStub(CubePath::stubPath('/PostmanCollection/PostmanAuthEntity.stub'), [
             '{{role}}' => $role,
             "{{version}}" => config('cubeta-starter.version'),
+            "{{register_url}}" => Routes::register(ContainerType::API, $role)->url,
+            '{{update_user_details_url}}' => Routes::updateUser(ContainerType::API, $role)->url,
+            '{{login_url}}' => Routes::login(ContainerType::API, $role)->url,
+            '{{refresh_token_url}}' => Routes::refreshToken($role)->url,
+            '{{request_reset_password_url}}' => Routes::requestResetPassword(ContainerType::API, $role)->url,
+            '{{validate_reset_code_url}}' => Routes::validateResetCode(ContainerType::API, $role)->url,
+            '{{reset_password_url}}' => Routes::resetPassword(ContainerType::API, $role)->url,
+            '{{logout_url}}' => Routes::logout(ContainerType::API, $role)->url,
+            '{{user_details_url}}' => Routes::me(ContainerType::API, $role)->url,
         ]);
         $this->items[] = PostmanItem::serialize(json_decode($api, true));
         return $this;
