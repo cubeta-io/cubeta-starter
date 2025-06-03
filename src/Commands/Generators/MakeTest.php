@@ -15,7 +15,8 @@ class MakeTest extends BaseCommand
     public $signature = 'create:test
         {name? : The name of the model }
         {attributes? : model attributes}
-        {actor? : The actor of the endpoint }';
+        {actor? : The actor of the endpoint }
+        {--force}';
 
     public function handle(): void
     {
@@ -29,8 +30,7 @@ class MakeTest extends BaseCommand
         $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors("Model"));
 
         $generator = new GeneratorFactory("test");
-        $generator->make(fileName: $modelName, attributes: $attributes, actor: $actor);
-
-        $this->handleCommandLogsAndErrors();
+        $override = $this->askForOverride();
+        $generator->make(fileName: $modelName, attributes: $attributes, actor: $actor , override: $override);
     }
 }

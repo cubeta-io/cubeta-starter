@@ -12,14 +12,13 @@ class MakeController extends BaseCommand
 
     protected $signature = 'create:controller
         {name? : The name of the model }
-        {actor? : The actor of the endpoint of this model }';
+        {actor? : The actor of the endpoint of this model } {--force}';
 
     public function handle(): void
     {
         $modelName = $this->argument("name") ?? $this->askForModelName("Controller");
 
         if (file_exists(base_path('app/Enums/RolesPermissionEnum.php')) && class_exists('\App\Enums\RolesPermissionEnum')) {
-            /** @noinspection PhpFullyQualifiedNameUsageInspection */
             if ($this->argument('actor')) {
                 $actor = $this->argument('actor');
             } else {
@@ -27,10 +26,10 @@ class MakeController extends BaseCommand
             }
         }
 
+        $override = $this->askForOverride();
+
         $gen = new GeneratorFactory("controller");
 
-        $gen->make(fileName: $modelName, actor: $actor ?? null, generatedFor: ContainerType::API);
-
-        $this->handleCommandLogsAndErrors();
+        $gen->make(fileName: $modelName, actor: $actor ?? null, generatedFor: ContainerType::API , override: $override);
     }
 }

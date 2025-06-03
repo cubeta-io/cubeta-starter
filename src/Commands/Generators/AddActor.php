@@ -13,7 +13,7 @@ class AddActor extends BaseCommand
     use RouteBinding;
 
     protected $description = 'Add New Actor To The Project';
-    protected $signature = 'create:actor';
+    protected $signature = 'create:actor {--force}';
 
     public function handle(): void
     {
@@ -22,14 +22,12 @@ class AddActor extends BaseCommand
 
         $authenticated = false;
         if (ContainerType::isApi($container)) {
-            $authenticated = confirm("Do You Want To Create Authentication Api Controller For This Actor ?", true);
+            $authenticated = confirm("Do You Want To Create Authentication Api Controller For This Actor ?");
         }
 
         $override = $this->askForOverride();
 
-        $generator = new ActorFilesGenerator($actor, $permissions, $authenticated, $container);
-        $generator->run($override);
-
-        $this->handleCommandLogsAndErrors();
+        $generator = new ActorFilesGenerator($actor, $permissions, $authenticated, $container , override: $override);
+        $generator->run();
     }
 }

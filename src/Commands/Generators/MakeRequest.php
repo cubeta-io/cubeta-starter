@@ -16,7 +16,8 @@ class MakeRequest extends BaseCommand
         {attributes? : columns with data types}
         {nullables? : nullable columns}
         {uniques? : uniques columns}
-        {container? : web or api}';
+        {container? : web or api}
+        {--force}';
 
     public function handle(): void
     {
@@ -32,14 +33,16 @@ class MakeRequest extends BaseCommand
 
         $nulls = $this->argument("nullables") ?? ($nullables ?? []);
 
+        $override = $this->askForOverride();
+
         $generator = new GeneratorFactory("request");
         $generator->make(
             fileName: $modelName,
             attributes: $attributes,
             nullables: $nulls,
             uniques: $unique,
-            generatedFor: $container
+            generatedFor: $container,
+            override: $override
         );
-        $this->handleCommandLogsAndErrors();
     }
 }

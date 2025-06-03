@@ -7,6 +7,7 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use function Laravel\Prompts\select;
 
 class MakeExample extends Command
 {
@@ -18,12 +19,11 @@ class MakeExample extends Command
 
     public function handle(): void
     {
-        $choice = $this->choice("Which One To Create", ["Category", "Product", "Brand"]);
-        $output = null;
+        $choice = select("Which One To Create", ["Category", "Product", "Brand"]);
         $options = $this->options();
-        $validOptions= [];
+        $validOptions = [];
         foreach ($options as $key => $value) {
-            if ($value){
+            if ($value) {
                 $validOptions["--$key"] = $value;
             }
         }
@@ -160,7 +160,5 @@ class MakeExample extends Command
             default:
                 $this->info("Undefined Value");
         }
-
-        $this->info("\n $output \n");
     }
 }

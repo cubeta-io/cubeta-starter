@@ -8,63 +8,15 @@ use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\Naming;
-use Cubeta\CubetaStarter\Logs\CubeError;
-use Cubeta\CubetaStarter\Logs\CubeInfo;
-use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\CubeWarning;
 use Cubeta\CubetaStarter\Settings\Settings;
-use Exception;
 use Illuminate\Console\Command;
-use Throwable;
 use function Laravel\Prompts\confirm;
-use function Laravel\Prompts\error;
-use function Laravel\Prompts\info;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\suggest;
 use function Laravel\Prompts\text;
-use function Laravel\Prompts\warning;
 
 class BaseCommand extends Command
 {
-    public function handleCommandLogsAndErrors(): void
-    {
-        foreach (CubeLog::logs() as $log) {
-            if ($log instanceof Exception or $log instanceof Throwable) {
-                $this->newLine();
-                error("Message : {$log->getMessage()} \nFile: {$log->getFile()}\nLine: {$log->getLine()}\n");
-                $this->newLine();
-            } elseif ($log instanceof CubeError) {
-                $this->newLine();
-                error("Error : {$log->message}");
-                if ($log->affectedFilePath) {
-                    $this->newLine();
-                    $this->line("Affected Path : {$log->affectedFilePath}");
-                    $this->newLine();
-                }
-                if ($log->happenedWhen) {
-                    $this->newLine();
-                    $this->line("Happened When : {$log->happenedWhen}");
-                    $this->newLine();
-                }
-                $this->newLine();
-            } else if ($log instanceof CubeInfo) {
-                $this->newLine();
-                info($log->getMessage());
-                $this->newLine();
-            } elseif ($log instanceof CubeWarning) {
-                $this->newLine();
-                warning($log->getMessage());
-                $this->newLine();
-            } elseif (is_string($log)) {
-                $this->newLine();
-                $this->line($log);
-                $this->newLine();
-            }
-        }
-
-        CubeLog::flush();
-    }
-
     public function askForContainer(): array|string
     {
         return select(
@@ -76,15 +28,19 @@ class BaseCommand extends Command
 
     public function askForOverride(): bool
     {
-        return confirm(
-            label: "Do You Want The Generated Files To Override Any Files Of The Same Name ?",
-        );
+        if (!$this->option('force')) {
+            return confirm(
+                label: "Do You Want The Generated Files To Override Any Files Of The Same Name ?",
+            );
+        } else {
+            return $this->option('force');
+        }
     }
 
     public function askForActorsAndPermissions(): array
     {
         $actor = $this->askWithoutEmptyAnswer("What Is The Actor Name ?", placeholder: "i.e:admin , customer , ...");
-        $hasPermissions = $this->confirm("Does This Actor Has A Specific Permissions You Want o Specify ? ({$actor})", false);
+        $hasPermissions = confirm("Does This Actor Has A Specific Permissions You Want o Specify ? ({$actor})", false);
         if ($hasPermissions) {
             $permissions = $this->askWithoutEmptyAnswer(
                 "What Are ($actor) Permissions ?",
@@ -132,6 +88,9 @@ class BaseCommand extends Command
         $roleEnumPath = CubePath::make("app/Enums/RolesPermissionEnum.php");
 
         if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RolesPermissionEnum")) {
+            /** @noinspection PhpUndefinedClassInspection */
+            /** @noinspection PhpFullyQualifiedNameUsageInspection */
+            /** @noinspection PhpUndefinedNamespaceInspection */
             return select(
                 "Who Is The Actor For This $class ?",
                 ['none', ...\App\Enums\RolesPermissionEnum::ALL_ROLES],
@@ -217,7 +176,7 @@ class BaseCommand extends Command
             $attributes[$field] = $type;
 
             if ($getNullables) {
-                if (confirm("Is This Column Nullable ?" , false)) {
+                if (confirm("Is This Column Nullable ?", false)) {
                     $nullables[] = $field;
                 }
             }
