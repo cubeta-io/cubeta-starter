@@ -74,6 +74,10 @@ class Handler
             }
         }
 
-        return rest()->noData()->send();
+        if (!app()->environment('local')) {
+            return rest()->noData()->send();
+        }
+
+        throw $exception;
     }
 }
