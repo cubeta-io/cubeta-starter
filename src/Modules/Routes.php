@@ -408,6 +408,7 @@ class Routes implements Stringable
             self::me(ContainerType::API, $actor),
             self::updateUser(ContainerType::API, $actor),
             self::refreshToken($actor),
+            self::logout(ContainerType::API, $actor),
         ]);
     }
 

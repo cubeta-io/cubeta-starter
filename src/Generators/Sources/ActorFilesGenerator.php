@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
@@ -11,6 +12,7 @@ use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Modules\Routes;
 use Cubeta\CubetaStarter\Postman\Postman;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\StringValues\Strings\Factories\RoleFactoryMethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\RoleAuthControllerStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Seeders\RoleSeederStubBuilder;
@@ -78,6 +80,8 @@ class ActorFilesGenerator extends AbstractGenerator
         }
 
         $this->createRoleSeeder();
+
+        $this->addRoleMethodToUserFactory();
 
         if ($this->authenticated && ContainerType::isApi($this->generatedFor)) {
             $this->generateAuthControllers();
@@ -168,6 +172,11 @@ class ActorFilesGenerator extends AbstractGenerator
 
         RoleSeederStubBuilder::make()
             ->generate($seederPath, $this->override);
+
+        ClassUtils::callInDatabaseSeeder(
+            "RoleSeeder",
+            "\\" . config('cubeta-starter.seeder_namespace') . "\RoleSeeder::class",
+        );
     }
 
     private function generateAuthControllers(): void
@@ -231,6 +240,16 @@ class ActorFilesGenerator extends AbstractGenerator
             CubeLog::success("Postman Collection Now Has Folder For The Generated {$this->role} Auth Controller  \nRe-Import It In Postman");
         } catch (Exception $e) {
             CubeLog::add($e);
+        }
+    }
+
+    private function addRoleMethodToUserFactory(): void
+    {
+        $method = new RoleFactoryMethodString($this->role);
+        $userFactoryPath = CubePath::make(config('cubeta-starter.factory_path') . "/UserFactory.php");
+        ClassUtils::addMethodToClass($userFactoryPath, $method->name, $method);
+        foreach ($method->imports as $import) {
+            FileUtils::addImportStatement($import, $userFactoryPath);
         }
     }
 }

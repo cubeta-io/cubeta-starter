@@ -6,7 +6,7 @@
         "*.blade.php"
       ],
       "options": {
-        "parser": "blade",
+        "parser": "blade"
       }
     }
   ]

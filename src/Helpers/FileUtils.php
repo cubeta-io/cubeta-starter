@@ -12,6 +12,7 @@ use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -85,8 +86,8 @@ class FileUtils
             $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
 
             if (php_sapi_name() == "cli") {
-                info("Running command [$command]");
-            } elseif ($withLog) {
+                info("Running command : [$command]");
+            }elseif ($withLog) {
                 CubeLog::info("Running command : [$command]");
             }
 
@@ -484,7 +485,7 @@ class FileUtils
     public static function importExistsInFile(string|PhpImportString $importString, CubePath $file): bool
     {
         if (!$file->exist()) {
-            throw new \Exception("File Doesn't Exists : [$file->fullPath] while checking if an import exists in it");
+            throw new Exception("File Doesn't Exists : [$file->fullPath] while checking if an import exists in it");
         }
 
         $content = $file->getContent();
@@ -493,7 +494,7 @@ class FileUtils
             $importedClass = trim($importString->classFullName, "\\");
         } else {
             if (!preg_match('/use\s*(.*?);/s', $importString, $matches)) {
-                throw new \Exception("Invalid import string [$importString] while checking if an import exists in file [$file->fullPath]");
+                throw new Exception("Invalid import string [$importString] while checking if an import exists in file [$file->fullPath]");
             }
             $importedClass = trim($matches[1], "\\");
         }
