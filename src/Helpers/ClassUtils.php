@@ -18,12 +18,12 @@ class ClassUtils
     public static function addMethodToClass(CubePath $classPath, string $methodName, string $methodDeclaration): void
     {
         if (!$classPath->exist()) {
-            CubeLog::add(new NotFound($classPath->fullPath, "Trying To Add The Method : ($methodName) To $classPath->fileName"));
+            CubeLog::notFound($classPath->fullPath, "Trying To Add The Method : ($methodName) To $classPath->fileName");
             return;
         }
 
         if (ClassUtils::isMethodDefined($classPath, $methodName)) {
-            CubeLog::add(new ContentAlreadyExist("$methodName Method", $classPath->fullPath, "Trying To Add The Method : ($methodName) To $classPath->fileName"));
+            CubeLog::contentAlreadyExists("$methodName Method", $classPath->fullPath, "Trying To Add The Method : ($methodName) To $classPath->fileName");
             return;
         }
 
@@ -341,5 +341,57 @@ class ClassUtils
         $controllerPath->format();
 
         return true;
+    }
+
+    /**
+     * Ensures that a specific seeder class call is added to the `DatabaseSeeder` file within the `run` method.
+     * If it does not already exist, it appends the seeder class call to the list of existing seeders or creates the
+     * seeder call if it's missing entirely.
+     * @param string $seederName
+     * @param string $seederCall
+     * @return void
+     */
+    public static function callInDatabaseSeeder(string $seederName, string $seederCall): void
+    {
+        $dbSeederPath = CubePath::make('database/seeders/DatabaseSeeder.php');
+
+        if (!$dbSeederPath->exist()) {
+            return;
+        }
+        $seederContent = $dbSeederPath->getContent();
+        $pattern = '/public\s*function\s*run\s*\(\s*\)\s*(?::\s*void)?\s*\{(.*?)\$this\s*->\s*call\(\s*\[(.*?)]\s*\);(.*?)}/s';
+        if (preg_match($pattern, $seederContent, $matches)) {
+            $exactMatch = $matches[2] ?? null;
+            if (str($exactMatch)->contains($seederName)) {
+                return;
+            }
+
+            if (!empty($exactMatch)) {
+                if (str($exactMatch)->trim()->endsWith(',')) {
+                    $replace = "$exactMatch\n$seederCall,\n";
+                } else {
+                    $replace = "$exactMatch,\n$seederCall,\n";
+                }
+
+                $seederContent = str_replace($exactMatch, $replace, $seederContent);
+                $dbSeederPath->putContent($seederContent);
+                CubeLog::contentAppended($seederCall, $dbSeederPath->fullPath);
+                $dbSeederPath->format();
+                return;
+            }
+        }
+
+        $pattern = '/public\s*function\s*run\s*\(\s*\)\s*(?::\s*void)?\s*\{(.*?)}/s';
+        if (preg_match($pattern, $seederContent, $matches)) {
+            $exactMatch = $matches[1] ?? null;
+            if (!empty($exactMatch)) {
+                $newContent = "\$this->call([\n$seederCall,\n]);\n";
+                $replace = "$exactMatch\n$newContent";
+                $seederContent = str_replace($exactMatch, $replace, $seederContent);
+                $dbSeederPath->putContent($seederContent);
+                CubeLog::contentAppended($newContent, $dbSeederPath->fullPath);
+                $dbSeederPath->format();
+            }
+        }
     }
 }
