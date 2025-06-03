@@ -9,8 +9,8 @@ use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Modules\Postman;
 use Cubeta\CubetaStarter\Modules\Routes;
-use Cubeta\CubetaStarter\Postman\Postman;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\Factories\RoleFactoryMethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
@@ -236,7 +236,7 @@ class ActorFilesGenerator extends AbstractGenerator
     private function addToPostman(): void
     {
         try {
-            Postman::make()->getCollection()->newAuthApi($this->role)->save();
+            Postman::make()->addAuthApi($this->role)->save();
             CubeLog::success("Postman Collection Now Has Folder For The Generated {$this->role} Auth Controller  \nRe-Import It In Postman");
         } catch (Exception $e) {
             CubeLog::add($e);
