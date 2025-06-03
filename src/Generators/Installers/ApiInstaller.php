@@ -114,21 +114,17 @@ class ApiInstaller extends AbstractGenerator
             return false;
         }
 
-        FileUtils::addImportStatement(new PhpImportString("App\Exceptions\Handler"), $bootstrapPath);
-        FileUtils::addImportStatement(new PhpImportString(Exceptions::class), $bootstrapPath);
-        FileUtils::addImportStatement(new PhpImportString(Request::class), $bootstrapPath);
-
         $bootstrapContent = $bootstrapPath->getContent();
         $handler = '
         if(!request()->acceptsHtml()){
             $exceptions->render(function (Exception $exception, Request $request) {
-                $handler = new Handler();
+                $handler = new Handler;
                 return $handler->handleException($request, $exception);
             });
         }';
 
 
-        $pattern = '/->\s*withExceptions\s*\(\s*function\s*\(\s*Exceptions\s*\$exceptions\s*\)\s*\{\s*(.*)\s*}\)/s';
+        $pattern = '/->\s*withExceptions\s*\((.*?)\)->(.*?)create\(\)\s*;/s';
         if (!preg_match($pattern, $bootstrapContent, $matches)) {
             CubeLog::failedAppending($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
             return false;
@@ -139,20 +135,29 @@ class ApiInstaller extends AbstractGenerator
             return false;
         }
 
-        if (FileUtils::contentExistsInString($matches[1], $handler)) {
+        $exceptionsFunction = $matches[1];
+
+        if (FileUtils::contentExistsInString($exceptionsFunction , $handler)){
             CubeLog::contentAlreadyExists($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
             return false;
         }
-        $bootstrapContent = str_replace($matches[1], $handler, $bootstrapContent);
-        $bootstrapContent = preg_replace(
-            '/function\s*\(\s*Exceptions\s*\$exceptions\s*\)\s*\{\s*(.*)\s*}/s',
-            "function (Exceptions \$exceptions) {\$1 \n $handler}",
-            $bootstrapContent
+
+        $newExceptionsFunction = preg_replace(
+            '/function\s*\(\s*Exceptions\s*\$exceptions\s*\)\s*\{(.*?)}/s',
+            "function (Exceptions \$exceptions) {\n$1\n$handler}",
+            $exceptionsFunction
         );
 
+        $bootstrapContent = str_replace($matches[1], $newExceptionsFunction, $bootstrapContent);
         $bootstrapPath->putContent($bootstrapContent);
         CubeLog::contentAppended($handler, $bootstrapPath->fullPath);
         $bootstrapPath->format();
+
+
+        FileUtils::addImportStatement(new PhpImportString("App\Exceptions\Handler"), $bootstrapPath);
+        FileUtils::addImportStatement(new PhpImportString(Exceptions::class), $bootstrapPath);
+        FileUtils::addImportStatement(new PhpImportString(Request::class), $bootstrapPath);
+
         return true;
     }
 }
