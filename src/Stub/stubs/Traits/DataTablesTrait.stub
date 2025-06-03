@@ -1,4 +1,3 @@
-<?php
 
 namespace App\Traits;
 
@@ -9,8 +8,7 @@ trait DataTablesTrait
 {
     /**
      * @param Model  $item      this for sending the id or whatever identifier for the routes
-     * @param string $routeName this will be suffixed with (.show, .edit, .delete), so just provide the base name for
-     *                          the route
+     * @param string $routeName this will be suffixed with (.show, .edit, .delete), so just provide the base name for the route
      */
     public function crudButtons(Model $item, string $routeName, array $exceptActions = [], string $additionalActions = ''): string
     {
