@@ -13,7 +13,7 @@ class SuccessGenerating extends CubeInfo
         $this->fileName = $fileName;
         $this->filePath = $filePath;
         parent::__construct(
-            "($fileName) Generated Successfully \nPath : [$filePath]\n"
+            "($fileName) Generated Successfully\n\rPath : [$filePath]"
             , $context
         );
     }

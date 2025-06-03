@@ -20,9 +20,9 @@ class CubeInfo
     public function getMessage(): string
     {
         if ($this->context) {
-            return "Info : {$this->message} \nContext : {$this->context} \n";
+            return "Info : {$this->message} \n\rContext : {$this->context}";
         }
-        return "Info : {$this->message} \n";
+        return "Info : {$this->message}";
     }
 
     public function info(): string

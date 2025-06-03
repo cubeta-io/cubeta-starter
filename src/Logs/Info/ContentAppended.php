@@ -16,7 +16,7 @@ class ContentAppended extends CubeInfo
         $this->filePath = $filePath;
 
         parent::__construct(
-            "The Content :\n```\n{$content}\n```\nHas Been Appended Successfully To : [{$filePath}] \n"
+            "The Content :\n\r```\n\r{$content}\n\r```\n\rHas Been Appended Successfully To : [{$filePath}] \n"
         );
     }
 

@@ -20,7 +20,7 @@ class ContentNotFound extends CubeWarning
         $this->content = FileUtils::formatCodeString($content);
         $this->filePath = $filePath;
 
-        parent::__construct("Content :\n```\n{$content}\n```\nCouldn't Be Found In [$filePath]", $context);
+        parent::__construct("Content :\n\r```\n\r{$content}\n\r```\n\rCouldn't Be Found In [$filePath]", $context);
     }
 
     public function getHtml(): string

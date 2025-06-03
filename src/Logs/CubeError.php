@@ -22,9 +22,9 @@ class CubeError
 
     public function getMessage(): string
     {
-        $msg = "Error : " . $this->message . "\n";
-        if ($this->affectedFilePath) $msg .= "Affected : {$this->affectedFilePath} \n";
-        if ($this->happenedWhen) $msg .= "Happened When : {$this->happenedWhen} \n";
+        $msg = "Error : " . $this->message;
+        if ($this->affectedFilePath) $msg .= "\n\rAffected : {$this->affectedFilePath}";
+        if ($this->happenedWhen) $msg .= "\n\rHappened When : {$this->happenedWhen}";
 
         return $msg;
     }

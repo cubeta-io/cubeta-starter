@@ -14,6 +14,10 @@ use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 use Exception;
 use Throwable;
+use function Laravel\Prompts\error;
+use function Laravel\Prompts\info;
+use function Laravel\Prompts\note;
+use function Laravel\Prompts\warning;
 
 class CubeLog
 {
@@ -22,6 +26,26 @@ class CubeLog
     public static function add(Exception|CubeError|CubeInfo|CubeWarning|string $log): void
     {
         self::$logs[] = $log;
+
+        if ($log instanceof Exception or $log instanceof Throwable) {
+            error("Message : {$log->getMessage()} \nFile: {$log->getFile()}\nLine: {$log->getLine()}\n");
+        } elseif ($log instanceof CubeError) {
+
+            error("Error : {$log->message}");
+            if ($log->affectedFilePath) {
+                note("Affected Path : {$log->affectedFilePath}");
+            }
+            if ($log->happenedWhen) {
+                note("Happened When : {$log->happenedWhen}");
+            }
+
+        } else if ($log instanceof CubeInfo) {
+            info($log->getMessage());
+        } elseif ($log instanceof CubeWarning) {
+            warning($log->getMessage());
+        } elseif (is_string($log)) {
+            note(trim($log));
+        }
     }
 
     public static function logs(): array
@@ -44,7 +68,7 @@ class CubeLog
 
     public static function getExceptionMessage(Exception|Throwable $exception): string
     {
-        return "Message : {$exception->getMessage()} \nFile: {$exception->getFile()}\nLine: {$exception->getLine()}\n";
+        return "Message : {$exception->getMessage()} \n\rFile: {$exception->getFile()}\n\rLine: {$exception->getLine()}\n";
     }
 
     public static function exceptionToHtml(Exception|Throwable $exception): string

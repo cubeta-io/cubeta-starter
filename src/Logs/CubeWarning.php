@@ -19,9 +19,9 @@ class CubeWarning
 
     public function getMessage(): string
     {
-        $msg = "Warning : {$this->message} \n";
+        $msg = "Warning : {$this->message}";
 
-        if ($this->context) $msg .= "Context : {$this->context} \n";
+        if ($this->context) $msg .= "\n\rContext : {$this->context}";
 
         return $msg;
     }
