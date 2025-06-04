@@ -14,7 +14,6 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Migrations\MigrationStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Migrations\PivotMigrationStubBuilder;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 class MigrationGenerator extends AbstractGenerator
@@ -60,7 +59,7 @@ class MigrationGenerator extends AbstractGenerator
         $tables = [$table1, $table2];
         $pivotTableName = Naming::pivotTableNaming($table1, $table2);
 
-        if (!FileUtils::migrationExists(Naming::table($tables[0])) || !$this->checkIfMigrationExists(Naming::table($tables[1]))) {
+        if (!FileUtils::migrationExists(Naming::table($tables[0])) || !FileUtils::migrationExists(Naming::table($tables[1]))) {
             CubeLog::error(
                 message: "The Related Table Migration Isn't Defined \n Remember When Creating The Related Model To Mention The Many-To-Many Relation In The Generation Form",
                 context: "Generating Migration For ({$this->table->modelName}) Model"

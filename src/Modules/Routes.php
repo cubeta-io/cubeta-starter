@@ -37,13 +37,6 @@ class Routes implements Stringable
             : null;
     }
 
-    public static function actorRouteFileNaming(string|null $actor): Stringable|null
-    {
-        return $actor
-            ? str($actor)->singular()->lower()->snake()->replace('_', '-')
-            : null;
-    }
-
     /**
      * @param string|null $actor
      * @param string      $pathname

@@ -9,17 +9,12 @@ use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
-use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Stub\Builders\Repositories\BaseRepositoryStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Services\BaseServiceStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Traits\HasMediaTraitStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Traits\MakableTraitStubBuilder;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Mockery\Exception;
 
 abstract class AbstractGenerator
 {
@@ -72,31 +67,6 @@ abstract class AbstractGenerator
     public function run(): void
     {
 
-    }
-
-    /**
-     * @param array       $stubProperties
-     * @param string      $path
-     * @param bool        $override
-     * @param string|null $otherStubsPath
-     * @return void
-     */
-    protected function generateFileFromStub(array $stubProperties, string $path, bool $override = false, string $otherStubsPath = null): void
-    {
-        if (file_exists($path) and !$override) {
-            CubeLog::add(new AlreadyExist($path, "Trying To Generate : [" . pathinfo($path, PATHINFO_BASENAME) . "]"));
-            return;
-        }
-
-        CubePath::make($path)->ensureDirectoryExists();
-
-        try {
-            FileUtils::generateFileFromStub($stubProperties, $path, $otherStubsPath ?? $this->stubsPath(), $override);
-            CubeLog::add(new SuccessGenerating(pathinfo($path, PATHINFO_BASENAME), $path));
-        } catch (Exception|BindingResolutionException|FileNotFoundException $e) {
-            CubeLog::add($e);
-            return;
-        }
     }
 
     protected function publishBaseService(): void

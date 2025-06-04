@@ -81,7 +81,7 @@ class ModelGenerator extends AbstractGenerator
                 $relation instanceof HasDocBlockProperty && $relation->exists(),
                 fn($builder) => $builder->dockBlock($relation->docBlockProperty())
             )->when(
-                $relation->isBelongsTo() && $relation->exists() && $relatedTable,
+                $relation->isBelongsTo() && $relation->exists(),
                 fn($builder) => $builder->exportable("{$relation->method()}." . $relation->relationModel()->titleable()->name),
                 fn($builder) => $builder->exportable($relation->keyName())
             )->when(

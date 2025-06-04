@@ -10,7 +10,7 @@ use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 class EnvParser
 {
     private static $instance;
-    public $environmentKeys = [];
+    public array $environmentKeys = [];
     public CubePath $envPath;
 
     public function __construct()

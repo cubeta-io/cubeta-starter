@@ -187,53 +187,12 @@ class FileUtils
         return trim(preg_replace('/\s+/', '', $string));
     }
 
-    /**
-     * @param string $subject
-     * @param string $contentToAdd
-     * @param string $pattern
-     * @return array|string|null
-     */
-    public static function appendToFirstMatch(string $subject, string $contentToAdd, string $pattern): array|string|null
-    {
-        return preg_replace($pattern, '$0' . $contentToAdd, $subject);
-    }
-
-    /**
-     * this function check for a PHP file syntax error by running php -l command on the file
-     * @param CubePath $path
-     * @return bool
-     */
-    public static function checkForSyntaxErrors(CubePath $path): bool
-    {
-        // PHP interpreter with the '-l' flag to check for syntax errors
-        $output = shell_exec("php -l {$path->fullPath}");
-
-        return str_contains($output, 'No syntax errors detected');
-    }
-
     public static function isInPhpArrayString(string $arrayString, string $needle): bool
     {
         return Str::contains($arrayString, "\"$needle\"")
             || Str::contains($arrayString, "'$needle'")
             || preg_match('/\'\s*' . $needle . '\s*\'/', $arrayString)
             || preg_match('/\"\s*' . $needle . '\s*\"/', $arrayString);
-    }
-
-    /**
-     * @param string $pattern
-     * @param string $replacement
-     * @param string $subject
-     * @return string
-     */
-    public static function prependLastMatch(string $pattern, string $replacement, string $subject): string
-    {
-        preg_match_all($pattern, $subject, $matches, PREG_OFFSET_CAPTURE);
-
-        // Get the offset of the last match
-        $lastMatchOffset = end($matches[0])[1];
-
-        // Replace the last match with the new content
-        return substr_replace($subject, $replacement, $lastMatchOffset, 0);
     }
 
     public static function replaceFirstMatch($haystack, $needle, $replace)

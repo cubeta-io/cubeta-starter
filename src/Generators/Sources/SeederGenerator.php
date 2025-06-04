@@ -4,8 +4,6 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
-use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Stub\Builders\Seeders\SeederStubBuilder;
 
 class SeederGenerator extends AbstractGenerator

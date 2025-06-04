@@ -212,9 +212,9 @@ class CubeRelation
         if ($this->relationModelTableObject) {
             return $this->relationModelTableObject;
         }
-        $this->relationModelTableObject = Settings::make()->getTable($this->relationModel) ?? CubeTable::create($this->relationModel);
+        $this->relationModelTableObject = Settings::make()->getTable($this->relationModel);
 
-        return $this->relationModelTableObject;
+        return $this->relationModelTableObject ?? CubeTable::create($this->relationModel);
     }
 
     public function pivotTableName(): string
