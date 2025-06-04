@@ -51,7 +51,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
 
         return new FakeMethodString(
             $this->name,
-            "Translatable::fake('$method')",
+            "Translatable::fake('$method')->toJson()",
             new PhpImportString("App\\Serializers\\Translatable")
         );
     }
