@@ -75,28 +75,38 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
-            __DIR__ . '/../src/Stub/stubs/Controllers/WebController.stub' => app_path('Http/Controllers/WebController.php'),
             __DIR__ . '/../pint.json' => base_path('pint.json'),
             __DIR__ . '/../.prettierignore' => base_path('.prettierignore'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
+
             __DIR__ . '/../resources/views/blade/components' => resource_path('views/components'),
             __DIR__ . '/../resources/views/blade/includes' => resource_path('views/includes'),
             __DIR__ . '/../resources/views/blade/layout.blade.php' => resource_path('views/layout.blade.php'),
             __DIR__ . '/../resources/js/blade' => resource_path('js'),
             __DIR__ . '/../resources/css/blade' => resource_path('css'),
             __DIR__ . '/../public' => public_path(),
+
             __DIR__ . '/../src/Stub/stubs/Traits/DataTablesTrait.stub' => app_path("Traits/DataTablesTrait.php"),
+
             __DIR__ . '/../src/Stub/stubs/Web/Blade/Providers/CubetaStarterServiceProvider.stub' => app_path('/Providers/CubetaStarterServiceProvider.php'),
+
             __DIR__ . "/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
+
             __DIR__ . '/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
-            __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
+            __DIR__ . '/../src/Stub/stubs/Controllers/WebController.stub' => app_path('Http/Controllers/WebController.php'),
             __DIR__ . '/../src/Stub/stubs/Controllers/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
+
+            __DIR__ . "/../src/Stub/stubs/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
+            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
+
+            __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
+
             __DIR__ . "/../src/Stub/stubs/BulkActions/BaseBulkAction.stub" => app_path("BulkAction/BaseBulkAction.php"),
+
             __DIR__ . "/../src/Stub/stubs/Excel/BaseExporter.stub" => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Stub/stubs/Excel/BaseImporter.stub' => app_path("Excel/BaseImporter.php"),
-            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
+
             __DIR__ . '/../src/Stub/stubs/Helpers/helpers.stub' => app_path('Helpers/helpers.php'),
         ], 'cubeta-starter-web');
     }
@@ -104,24 +114,30 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     private function publishApi(): void
     {
         $this->publishes([
-            __DIR__ . "/../src/Stub/stubs/Controllers/ApiController.stub" => app_path("Http/Controllers/ApiController.php"),
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
             __DIR__ . '/../pint.json' => base_path('pint.json'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
+
+            __DIR__ . "/../src/Stub/stubs/Controllers/ApiController.stub" => app_path("Http/Controllers/ApiController.php"),
+
             __DIR__ . "/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
+
             __DIR__ . '/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
 
             __DIR__ . "/../src/Stub/stubs/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
+            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
+
             __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
-            __DIR__ . '/../src/Stub/stubs/Tests/MainTestCase.stub' => base_path("/tests/Contracts/MainTestCase.php"),
-            __DIR__ . '/../src/Stub/stubs/Traits/TestHelpers.stub' => app_path('/Traits/TestHelpers.php'),
             __DIR__ . "/../src/Stub/stubs/BulkActions/BaseBulkAction.stub" => app_path("BulkAction/BaseBulkAction.php"),
+
             __DIR__ . "/../src/Stub/stubs/Excel/BaseExporter.stub" => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Stub/stubs/Excel/BaseImporter.stub' => app_path("Excel/BaseImporter.php"),
+
             __DIR__ . '/../src/Stub/stubs/Resources/BaseResource.stub' => app_path('Http/Resources/BaseResource/BaseResource.php'),
             __DIR__ . '/../src/Stub/stubs/Resources/AnonymousResourceCollection.stub' => app_path('Http/Resources/BaseResource/AnonymousResourceCollection.php'),
-            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
+
             __DIR__ . '/../src/Stub/stubs/Modules/ApiResponse.stub' => app_path('Modules/ApiResponse.php'),
+
             __DIR__ . '/../src/Stub/stubs/Helpers/helpers.stub' => app_path('Helpers/helpers.php'),
         ], 'cubeta-starter-api');
     }
@@ -187,7 +203,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
             __DIR__ . '/../src/Stub/stubs/Web/InertiaReact/Config/TsConfig.stub' => base_path('/tsconfig.json'),
             __DIR__ . '/../src/Stub/stubs/Web/InertiaReact/Config/ViteConfig.stub' => base_path('/vite.config.js'),
-            __DIR__ . '/../src/Stub/stubs/Controllers/WebController.stub' => app_path('/Http/Controllers/WebController.php'),
 
             __DIR__ . '/../resources/js/inertia/Components' => resource_path('/js/Components'),
             __DIR__ . '/../resources/js/inertia/Hooks' => resource_path('/js/Hooks'),
@@ -200,15 +215,22 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../resources/css/inertia' => resource_path('/css'),
             __DIR__ . '/../public/images' => public_path('/images'),
 
+            __DIR__ . '/../src/Stub/stubs/Controllers/WebController.stub' => app_path('/Http/Controllers/WebController.php'),
             __DIR__ . '/../src/Stub/stubs/Controllers/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
+
             __DIR__ . "/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
+
             __DIR__ . '/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
+
             __DIR__ . "/../src/Stub/stubs/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
+            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
+
             __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
+
             __DIR__ . "/../src/Stub/stubs/BulkActions/BaseBulkAction.stub" => app_path("BulkAction/BaseBulkAction.php"),
+
             __DIR__ . "/../src/Stub/stubs/Excel/BaseExporter.stub" => app_path("Excel/BaseExporter.php"),
             __DIR__ . '/../src/Stub/stubs/Excel/BaseImporter.stub' => app_path("Excel/BaseImporter.php"),
-            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
 
             __DIR__ . '/../src/Stub/stubs/Resources/BaseResource.stub' => app_path('Http/Resources/BaseResource/BaseResource.php'),
             __DIR__ . '/../src/Stub/stubs/Resources/AnonymousResourceCollection.stub' => app_path('Http/Resources/BaseResource/AnonymousResourceCollection.php'),
