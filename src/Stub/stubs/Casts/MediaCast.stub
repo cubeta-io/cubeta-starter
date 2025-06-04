@@ -13,6 +13,8 @@ use Illuminate\Support\Str;
 
 class MediaCast implements CastsAttributes
 {
+    public bool $withoutObjectCaching = true;
+
     /**
      * Cast the given value.
      * @param array<string, mixed> $attributes
