@@ -1,56 +1,147 @@
 <?php
 
-namespace App\Traits;
+namespace {{traits_namespace}};
 
-use App\Models\User;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use {{resources_namespace}}\BaseResource\BaseResource;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Testing\TestResponse;
+use Illuminate\Support\Collection;
+use {{models_namespace}}\User;
+use ReflectionMethod;
+use ReflectionClass;
 
 trait TestHelpers
 {
     use RefreshDatabase;
 
-    /** @var class-string */
+    /**
+     * @var class-string<Model>
+     */
     protected string $model;
 
-    protected array $relations = [];
-
-    protected string $requestPath;
-
-    /** @var class-string */
+    /**
+     * @var class-string<BaseResource>
+     */
     protected string $resource;
 
+    /**
+     * @var array
+     */
+    protected array $relations = [];
+
+    /**
+     * @var array
+     */
+    protected array $withoutRelations = [];
+
+    /**
+     * @var bool
+     */
+    protected bool $isMultiple = false;
+
+    /**
+     * @var string
+     */
+    protected string $requestPath;
+
+    /**
+     * @var User
+     */
     protected User $user;
 
+    /**
+     * @var string
+     */
     protected string $userType;
 
+    /**
+     * @var array{
+     *     current_page:int,
+     *     from:int,
+     *     is_first_page:bool,
+     *     is_last_page:bool,
+     *     per_page:int,
+     *     to:int,
+     *     total:int,
+     *     total_pages:int
+     * }
+     */
     protected array $pagination = [
-        "current_page"     => 1,
-        "from"             => 1,
-        "is_first_page"    => true,
-        "is_last_page"     => true,
-        "per_page"         => 10,
-        "to"               => 5,
-        "total"            => 5,
-        "total_pages"      => 1
+        "current_page" => 1,
+        "from" => 1,
+        "is_first_page" => true,
+        "is_last_page" => true,
+        "per_page" => 10,
+        "to" => 5,
+        "total" => 5,
+        "total_pages" => 1
     ];
 
+    /**
+     * @var array{
+     *     data:mixed,
+     *     code:int,
+     *     pagination_data:array
+     *      {
+     *          current_page:int,
+     *          from:int,
+     *          is_first_page:bool,
+     *          is_last_page:bool,
+     *          per_page:int,
+     *          to:int,
+     *          total:int,
+     *          total_pages:int
+     *      }|null
+     * }
+     */
     protected array $responseBody = [
-        'data'     => null,
-        'code'     => 200,
+        'data' => null,
+        'code' => 200,
         'pagination_data' => null,
     ];
 
+    /**
+     * @var array
+     */
     protected array $headers = [
         'Accept' => 'application/json',
         'Accept-Language' => 'en',
     ];
 
+    /**
+     * @return void
+     */
+    protected function init(): void
+    {
+        $response = function () {
+            return $this->responseBody;
+        };
+
+        TestResponse::macro(
+            'assertMatchRest',
+            function () use ($response): TestResponse {
+                return $this->assertExactJson($response())
+                    ->assertStatus($response()['code']);
+            });
+    }
+
+    /**
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->init();
 
         if (isset($this->userType) && $this->userType != 'none') {
             Artisan::call('db:seed RoleSeeder');
@@ -61,79 +152,399 @@ trait TestHelpers
 
     /**
      * check if the model can soft-delete
+     * @return bool
      */
     public function checkSoftDeleteColumn(): bool
     {
         $tableName = (new $this->model())->getTable();
         $columns = Schema::getColumnListing($tableName);
 
-        return (bool)(in_array('deleted_at', $columns));
+        return in_array('deleted_at', $columns);
+    }
+
+    /**
+     * @param array $relations
+     * @return $this
+     */
+    public function relations(array $relations = []): static
+    {
+        $this->relations = $relations;
+        return $this;
+    }
+
+    /**
+     * @param Model $model
+     * @return array
+     */
+    function getModelRelations(Model $model): array
+    {
+        $relations = [];
+        $class = new ReflectionClass($model);
+
+        foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            // Check if the method returns a relation
+            $returnType = $method->getReturnType();
+
+            if ($returnType && in_array($method->getReturnType(), [
+                    HasMany::class,
+                    BelongsTo::class,
+                    BelongsToMany::class,
+                    HasOne::class,
+                ])) {
+                $relations[] = $method->getName();
+            }
+        }
+
+        return $relations;
+    }
+
+
+    /**
+     * this method is to populate the without relations array which makes sure to not load unwanted relation during the
+     * test
+     * @return $this
+     */
+    public function initWithoutRelations(): static
+    {
+        $allRelations = $this->getModelRelations(new $this->model());
+        $this->withoutRelations = array_filter(
+            $allRelations,
+            fn($relation) => !in_array($relation, collect($this->relations)->map(fn($value, $key) => is_string($key) ? $key : $value)->toArray())
+        );
+
+        return $this;
     }
 
     /**
      * this function is for converting the return value of a resource as an array
-     * @param mixed $data     the data that  has to be converted
-     * @param bool  $multiple if you want to return an array of data
+     * @param Model|Collection<Model> $data     the data that has to be converted
+     * @param bool                    $multiple if you want to return an array of data
+     * @return array|null
      */
-    public function convertResourceToArray(mixed $data, bool $multiple = false): array
+    public function convertResourceToArray(mixed $data, bool $multiple = false): array|null
     {
-        if (!$multiple) {
-            return json_decode(
-                json_encode(new $this->resource($data)),
-                JSON_PRETTY_PRINT
-            );
+        $this->initWithoutRelations();
+
+        if ($multiple) {
+            foreach ($this->withoutRelations as $withoutRelation) {
+                $data->each->unsetRelation($withoutRelation);
+            }
+            $data = $data->map->load($this->relations);
+
+            $resource = $this->resource::collection($data);
+        } else {
+            foreach ($this->withoutRelations as $withoutRelation) {
+                $data?->unsetRelation($withoutRelation);
+            }
+            $data = $data?->load($this->relations);
+
+            $resource = $this->resource::make($data);
         }
 
-        return json_decode(
-            json_encode($this->resource::collection($data)),
-            JSON_PRETTY_PRINT
-        );
+        return $data ? $resource->jsonSerialize() : null;
     }
 
     /**
-     * data = false ||| message  = there is no data
+     * this function for login using an email address
+     * @param string $email
+     * @param string $password
+     * @return static
      */
-    public function failedFalseResponse(): void
-    {
-        $this->responseBody['data'] = false;
-        $this->responseBody['message'] = __('site.there_is_no_data');
-    }
-
-    /**
-     * data = [] ||| message = there is no data
-     * @return void
-     */
-    public function failedMultiResponse()
-    {
-        $this->responseBody['data'] = [];
-        $this->responseBody['message'] = __('site.there_is_no_data');
-    }
-
-    /**
-     * this function for login using email address and default password is 12345678
-     */
-    public function login(string $email, string $password = '12345678'): void
+    public function login(string $email, string $password = '123456789'): static
     {
         auth('api')->attempt([
-            'email'    => $email,
+            'email' => $email,
             'password' => $password,
         ]);
+
+        return $this;
     }
 
     /**
      * @param string $routeName the route name
+     * @return static
      */
-    public function requestPathHook(string $routeName = ''): void
+    public function requestPathHook(string $routeName = ''): static
     {
         $this->requestPath = $routeName;
+        return $this;
     }
 
-    public function signIn($type = null): void
+    /**
+     * @param null $type
+     * @return static
+     */
+    public function signIn($type = null): static
     {
         $this->user = User::factory()->create();
         if (isset($type) && $type != 'none') {
             $this->user->assignRole($type);
         }
-        $this->be($this->user , 'api');
+        $this->be($this->user, 'api');
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function multiple(): static
+    {
+        $this->isMultiple = true;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function single(): static
+    {
+        $this->isMultiple = false;
+        return $this;
+    }
+
+    /**
+     * @param int $total
+     * @return $this
+     */
+    public function paginate(int $total = 5): static
+    {
+        $this->pagination['from'] = 1;
+        $this->pagination['to'] = $total;
+        $this->pagination['total'] = $total;
+        $this->responseBody['pagination_data'] = $this->pagination;
+        return $this;
+    }
+
+    /**
+     * @param string $message
+     * @return $this
+     */
+    public function message(string $message): static
+    {
+        $this->responseBody['message'] = $message;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function getSuccess(): static
+    {
+        $this->message(trans('site.get_successfully'));
+        $this->statusOk();
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function updateSuccess(): static
+    {
+        $this->message(trans('site.update_successfully'));
+        $this->statusOk();
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function deleteSuccess(): static
+    {
+        $this->message(trans('site.delete_successfully'));
+        $this->statusOk();
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function storeSuccess(): static
+    {
+        $this->message(trans('site.stored_successfully'));
+        $this->statusOk();
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function noData(): static
+    {
+        return $this->message(trans('site.there_is_no_data'))
+            ->statusNotFound();
+    }
+
+    /**
+     * @return $this
+     */
+    public function statusOk(): static
+    {
+        $this->responseBody['code'] = Response::HTTP_OK;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function statusNotFound(): static
+    {
+        $this->responseBody['code'] = Response::HTTP_NOT_FOUND;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function statusServerError(): static
+    {
+        $this->responseBody['code'] = Response::HTTP_INTERNAL_SERVER_ERROR;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function statusBadRequest(): static
+    {
+        $this->responseBody['code'] = Response::HTTP_BAD_REQUEST;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function statusForbidden(): static
+    {
+        $this->responseBody['code'] = Response::HTTP_FORBIDDEN;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function statusNotAuthorized(): static
+    {
+        $this->responseBody['code'] = Response::HTTP_UNAUTHORIZED;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function statusValidationError(): static
+    {
+        $this->responseBody['code'] = Response::HTTP_UNPROCESSABLE_ENTITY;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function statusTokenExpiration(): static
+    {
+        $this->responseBody['code'] = Response::HTTP_NOT_ACCEPTABLE;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function statusUnverifiedEmail(): static
+    {
+        $this->responseBody['code'] = 407;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function unPaginate(): static
+    {
+        $this->responseBody['paginate'] = null;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function emptyPagination(): static
+    {
+        $this->pagination = [
+            "current_page" => 1,
+            "from" => null,
+            "is_first_page" => true,
+            "is_last_page" => true,
+            "per_page" => 10,
+            "to" => null,
+            "total" => 0,
+            "total_pages" => 1
+        ];
+
+        $this->responseBody['pagination_data'] = $this->pagination;
+        return $this;
+    }
+
+    /**
+     * @param Model|Collection<Model>|EloquentCollection<Model> $data
+     * @return $this
+     */
+    public function dataResource(mixed $data): static
+    {
+        $this->responseBody['data'] = $this->convertResourceToArray($data, $this->isMultiple);
+        return $this;
+    }
+
+    /**
+     * @param mixed|null $data
+     * @return $this
+     */
+    public function data(mixed $data = null): static
+    {
+        $this->responseBody['data'] = $data;
+        return $this;
+    }
+
+    /**
+     * @param       $uri
+     * @param array $data
+     * @param array $headers
+     * @return TestResponse
+     */
+    public function delete($uri, array $data = [], array $headers = []): TestResponse
+    {
+        return parent::delete($uri, $data, [...$this->headers, ...$headers]);
+    }
+
+    /**
+     * @param       $uri
+     * @param array $headers
+     * @return TestResponse
+     */
+    public function get($uri, array $headers = []): TestResponse
+    {
+        return parent::get($uri, [...$this->headers, ...$headers]);
+    }
+
+    /**
+     * @param       $uri
+     * @param array $data
+     * @param array $headers
+     * @return TestResponse
+     */
+    public function post($uri, array $data = [], array $headers = []): TestResponse
+    {
+        return parent::post($uri, $data, [...$this->headers, ...$headers]);
+    }
+
+    /**
+     * @param       $uri
+     * @param array $data
+     * @param array $headers
+     * @return TestResponse
+     */
+    public function put($uri, array $data = [], array $headers = []): TestResponse
+    {
+        return parent::put($uri, $data, [...$this->headers, ...$headers]);
     }
 }

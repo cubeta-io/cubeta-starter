@@ -12,6 +12,8 @@ use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Exceptions\ExceptionHandlerStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Routes\RoutesFileStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Tests\MainTestCaseStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Traits\TestHelpersStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Http\Request;
@@ -36,6 +38,8 @@ class ApiInstaller extends AbstractGenerator
 
         Artisan::call("vendor:publish", ['--force' => $this->override, "--tag" => "cubeta-starter-api"]);
         CubeLog::add(Artisan::output());
+
+        $this->publishTestTools();
 
         $this->addApiRouteFile();
         $this->addAndRegisterAuthenticateMiddleware($this->override);
@@ -137,7 +141,7 @@ class ApiInstaller extends AbstractGenerator
 
         $exceptionsFunction = $matches[1];
 
-        if (FileUtils::contentExistsInString($exceptionsFunction , $handler)){
+        if (FileUtils::contentExistsInString($exceptionsFunction, $handler)) {
             CubeLog::contentAlreadyExists($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
             return false;
         }
@@ -159,5 +163,21 @@ class ApiInstaller extends AbstractGenerator
         FileUtils::addImportStatement(new PhpImportString(Request::class), $bootstrapPath);
 
         return true;
+    }
+
+    private function publishTestTools(): void
+    {
+        $testHelpersPath = CubePath::make(config('cubeta-starter.trait_path') . '/TestHelpers.php');
+        TestHelpersStubBuilder::make()
+            ->traitsNamespace(config('cubeta-starter.trait_namespace'))
+            ->modelsNamespace(config('cubeta-starter.model_namespace'))
+            ->resourcesNamespace(config('cubeta-starter.resource_namespace'))
+            ->generate($testHelpersPath, $this->override);
+
+        $mainTestCasePath = CubePath::make('/tests/Contracts/MainTestCase.php');
+        MainTestCaseStubBuilder::make()
+            ->modelsNamespace(config('cubeta-starter.model_namespace'))
+            ->traitsNamespace(config('cubeta-starter.trait_namespace'))
+            ->generate($mainTestCasePath, $this->override);
     }
 }
