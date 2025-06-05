@@ -6,7 +6,7 @@ dependency. With a user-friendly GUI accessible via your project's route, cubeta
 making your development experience smooth and efficient. Say goodbye to repetitive tasks and hello to productivity with
 cubeta-starter!
 
-it is using Repository and Service design pattern so every model created there will be a corresponding repository
+it is using Repository and Service design pattern, so every model created there will be a corresponding repository
 class and service class
 
 You can look at the documentation from [here](https://cubeta-io.github.io/cubeta-starter)

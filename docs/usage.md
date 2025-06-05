@@ -1,21 +1,5 @@
 # Usage
 
-## Config
-First I need you to take a look on the `cubeta-starter.php` file in the `config` directory and see the options
-there .
-The most elements in the config array are for the generated files directories and namespaces **except** :
-
-1. `project_name` : the created postman collection will be named corresponding to it
-2. `project_url` : here define your project public url, so we can add it to the postman collection
-   if you let it **_null_** we will place it in the collection as like you're using xampp
-   e.g :`http://localhost/example-project/public/` [read more about the generated postman
-   collection](created-files#postman-collection)
-3. `available_locales` : the package provides a way to store your table columns with their
-   translations [(read more about it here)](translatable-serializer.md#translatable-attributes-handling) so in this case this situation you'll need to
-   define your project available locales here
-4. `default_locale` : here define your default project locales.
-5. `version` : here you'll define the version of the generated code so your files we'll be structured based on it .
-
 ## The Package GUI
 
 It is easy when you don't have to deal with the command line, so we've created an elegant interface to make your
@@ -130,10 +114,6 @@ this command will initialize your project with the following :
 18. a set of pages to handle your authentication flow based on your frontend stack
 
 Now as you see you are now ready to create your authentication endpoints powered up by those files and classes
-
-> [!warning]
-> Notice that running this command will ask you about overriding existing files this mean that any file has the same
-> path and name as the generated files will be lost
 
 Looking at the generated files you should focus on two files the first is : `UserService.php`
 and `BaseAuthController.php` as you will notice that the **UserService** class handle the authentication logic for both

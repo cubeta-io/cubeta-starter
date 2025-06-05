@@ -48,11 +48,8 @@ the corresponding created migration will match the types of the columns you ente
 
 ## Controllers
 
-the created controller contains the five basic methods `(index , show , store , update , delete)`
-
-it extends the ApiController class
-<br>
-<br>
+the created controller contains the five basic methods `(index , show , store , update , delete)` in addition to excel
+files exporting and importing methods `(export , import , importExample)`
 
 ## Requests
 
@@ -78,9 +75,8 @@ each model property will have this rules : `required|PropertyType` unless this :
 
 ## Resources
 
-if you have checked on the created controllers you should notice that their return value is a resource named after the
-model name
-this resource will structure your json response to be in a united structure across your application .
+Fore each created model there will be a corresponding Json Resource class which extends the `BaseResource` class , this
+class extends the functionality of the JsonResource class and allows you to extend it more [BaseResource class is explained here](base-resource.md#baseresource).
 
 > [!warning]
 > this resource will return the relations of this model also
@@ -181,6 +177,7 @@ foreach created model there will be a corresponding test class which extends `Ma
 the `tests/Feature` directory , this test class will test the CRUD endpoints , in the created test
 you'll see the following variables : `$model , $resource , $userType , $baseUrl` and you'll see that
 there is two of them have a value , but if we go to the others you need to know the following:
+
 1. `$userType` : if your application use multi actors by this package so in this variable just give it the actor role
    for those endpoints if there is not just leave it as `'none'`.
 2. `$baseUrl` : if you've checked on the appended rout of your model you'll notice that this route is named so here you
@@ -190,6 +187,7 @@ maybe you want to check on [`MainTestCase`](main-test.md#maintestcase-class) cla
 work and see if they are good for you, or you have to create another ones .
 
 ## Postman Collection
+
 the generated postman collection will have HTTP requests grouped by your model name .
 it has two variables for the whole collection :
 

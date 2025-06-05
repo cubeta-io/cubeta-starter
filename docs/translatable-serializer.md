@@ -150,7 +150,7 @@ $post->save();
 when searching it is convenient to use the `LIKE` operator in where clauses but for a deterministic results you have to
 use `JSON_CONTAINS` as an operator in where clauses.
 
-## Last thing
+## Testing
 
 the translatable serializer class provide a faker method, so you could use it like this :
 

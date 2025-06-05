@@ -21,31 +21,31 @@ class {{model_name}}Test extends MainTestCase
 
     public function test_{{method_actor}}_can_index_{{method_model_name}}()
     {
-        $this->requestPathHook($this->baseUrl.'index');
-        $this->indexTest();
+        $this->requestPathHook($this->baseUrl.'index')
+            ->indexTest();
     }
 
     public function test_{{method_actor}}_can_show_a_{{method_model_name}}()
     {
-        $this->requestPathHook($this->baseUrl.'show');
-        $this->showTest();
+        $this->requestPathHook($this->baseUrl.'show')
+            ->showTest();
     }
 
     public function test_{{method_actor}}_can_create_a_{{method_model_name}}()
     {
-        $this->requestPathHook($this->baseUrl.'store');
-        $this->storeTest([{{additional_factory_data}}]);
+        $this->requestPathHook($this->baseUrl.'store')
+            ->storeTest([{{additional_factory_data}}]);
     }
 
     public function test_{{method_actor}}_can_update_{{method_model_name}}()
     {
-        $this->requestPathHook($this->baseUrl.'update');
-        $this->updateTest([{{additional_factory_data}}]);
+        $this->requestPathHook($this->baseUrl.'update')
+            ->updateTest([{{additional_factory_data}}]);
     }
 
     public function test_{{method_actor}}_can_delete_a_{{method_model_name}}()
     {
-        $this->requestPathHook($this->baseUrl.'destroy');
-        $this->deleteTest();
+        $this->requestPathHook($this->baseUrl.'destroy')
+            ->deleteTest();
     }
 }

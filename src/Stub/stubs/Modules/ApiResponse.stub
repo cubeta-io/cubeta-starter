@@ -100,10 +100,10 @@ class ApiResponse implements JsonSerializable
         }
 
         if ($data instanceof LengthAwarePaginator) {
+            $this->paginationData = $this->formatPaginateData($data);
             $item = $data->first();
             if (!$item) {
                 $this->data = [];
-                $this->paginationData = $this->formatPaginateData($data);
                 return $this;
             } elseif ($item instanceof Model) {
                 $modelName = class_basename(get_class($item));
@@ -113,7 +113,6 @@ class ApiResponse implements JsonSerializable
                     . "\\{$modelName}Resource";
                 if (class_exists($resourceName)) {
                     $this->data = $resourceName::collection($data);
-                    $this->paginationData = $this->formatPaginateData($data);
                     return $this;
                 }
             }
