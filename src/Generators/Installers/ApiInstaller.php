@@ -147,8 +147,8 @@ class ApiInstaller extends AbstractGenerator
         }
 
         $newExceptionsFunction = preg_replace(
-            '/function\s*\(\s*Exceptions\s*\$exceptions\s*\)\s*\{(.*?)}/s',
-            "function (Exceptions \$exceptions) {\n$1\n$handler}",
+            '/function\s*\(\s*Exceptions\s*\$exceptions\s*\)(.*?)\{(.*?)}/s',
+            "function (Exceptions \$exceptions)$1{\n$2\n$handler}",
             $exceptionsFunction
         );
 

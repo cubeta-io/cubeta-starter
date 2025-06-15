@@ -87,7 +87,7 @@ class FileUtils
 
             if (php_sapi_name() == "cli") {
                 info("Running command : [$command]");
-            }elseif ($withLog) {
+            } elseif ($withLog) {
                 CubeLog::info("Running command : [$command]");
             }
 
@@ -231,21 +231,21 @@ class FileUtils
         $bootstrapContent = $bootstrapPath->getContent();
 
         $patternWithMethodExists = '/->\s*withMiddleware\s*\(' .
-            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)' .
-            '\$middleware\s*->\s*' . $methodName . '\s*\(\s*(.*?)\s*append\s*:\s*\[\s*(.*?)\s*]\s*(.*?)\)\s*;' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)(.*?)\{\s*(.*?)' .
+            '\$middleware\s*->\s*' . $methodName . '\s*\(\s*(.*?)\s*append\s*:\s*\[\s*(.*?)\s*](.*?)\)\s*;' .
             '(.*?)\s*}\s*\)/s';
         if (preg_match($patternWithMethodExists, $bootstrapContent, $matches)) {
-            if (isset($matches[3])) {
-                if (FileUtils::contentExistsInString($matches[3], $middleware)) {
+            if (isset($matches[4])) {
+                if (FileUtils::contentExistsInString($matches[4], $middleware)) {
                     CubeLog::add(new ContentAlreadyExist($middleware, $bootstrapPath->fullPath, "Registering $middleware middleware in the $container middlewares group"));
                     return false;
                 }
                 $bootstrapContent = preg_replace_callback($patternWithMethodExists, function ($matches) use ($methodName, $middleware) {
-                    $middlewaresArray = $matches[3];
+                    $middlewaresArray = $matches[4];
                     $middlewaresArray .= ",\n$middleware,\n";
                     $middlewaresArray = FileUtils::fixArrayOrObjectCommas($middlewaresArray);
-                    return "->withMiddleware(function (Middleware \$middleware)" .
-                        " {\n{$matches[1]}\$middleware->$methodName({$matches[2]}append: [\n{$middlewaresArray}\n]{$matches[4]});\n{$matches[5]}\n})";
+                    return "->withMiddleware(function (Middleware \$middleware){$matches[1]}" .
+                        " {\n{$matches[2]}\$middleware->$methodName({$matches[3]}append: [\n{$middlewaresArray}\n]{$matches[5]});\n{$matches[6]}\n})";
                 }, $bootstrapContent);
                 $bootstrapPath->putContent($bootstrapContent);
                 CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
@@ -258,14 +258,14 @@ class FileUtils
         }
 
         $patternWithoutMethodExists = '/->\s*withMiddleware\s*\(' .
-            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)\s*}' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)(.*?)\{\s*(.*?)\s*}' .
             '\s*\)\s*/s';
         if (preg_match($patternWithoutMethodExists, $bootstrapContent, $matches)) {
-            if (isset($matches[1])) {
+            if (isset($matches[2])) {
                 $bootstrapContent = preg_replace_callback($patternWithoutMethodExists, function ($matches) use ($methodName, $middleware) {
-                    $registered = $matches[1];
+                    $registered = $matches[2];
                     $registered .= "\n\$middleware->$methodName(append: [\n$middleware,\n]);\n";
-                    return "->withMiddleware(function(Middleware \$middleware) {\n$registered\n})";
+                    return "->withMiddleware(function(Middleware \$middleware){$matches[1]} {\n$registered\n})";
                 }, $bootstrapContent);
                 $bootstrapPath->putContent($bootstrapContent);
                 CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
@@ -305,21 +305,21 @@ class FileUtils
         $bootstrapContent = $bootstrapPath->getContent();
 
         $patternWithMethodExists = '/->\s*withMiddleware\s*\(' .
-            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)(.*?)\{\s*(.*?)' .
             '\$middleware\s*->\s*' . $methodName . '\s*\(\s*\[\s*(.*?)\s*]\s*\)\s*;' .
             '(.*?)\s*}\s*\)/s';
         if (preg_match($patternWithMethodExists, $bootstrapContent, $matches)) {
-            if (isset($matches[2])) {
-                if (FileUtils::contentExistsInString($matches[2], $middleware)) {
+            if (isset($matches[3])) {
+                if (FileUtils::contentExistsInString($matches[3], $middleware)) {
                     CubeLog::add(new ContentAlreadyExist($middleware, $bootstrapPath->fullPath, $context));
                     return false;
                 }
                 $bootstrapContent = preg_replace_callback($patternWithMethodExists, function ($matches) use ($methodName, $middleware) {
-                    $middlewaresArray = $matches[2];
+                    $middlewaresArray = $matches[3];
                     $middlewaresArray .= "\n,$middleware,\n";
                     $middlewaresArray = FileUtils::fixArrayOrObjectCommas($middlewaresArray);
-                    return "->withMiddleware(function (Middleware \$middleware)" .
-                        " {\n{$matches[1]}\$middleware->{$methodName}([\n{$middlewaresArray}\n]);\n{$matches[3]}\n})";
+                    return "->withMiddleware(function (Middleware \$middleware){$matches[1]}" .
+                        " {\n{$matches[2]}\$middleware->{$methodName}([\n{$middlewaresArray}\n]);\n{$matches[4]}\n})";
                 }, $bootstrapContent);
                 $bootstrapPath->putContent($bootstrapContent);
                 CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
@@ -332,14 +332,14 @@ class FileUtils
         }
 
         $patternWithoutMethodExists = '/->\s*withMiddleware\s*\(' .
-            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)\s*}' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)(.*?)\{\s*(.*?)\s*}' .
             '\s*\)\s*/s';
         if (preg_match($patternWithoutMethodExists, $bootstrapContent, $matches)) {
-            if (isset($matches[1])) {
+            if (isset($matches[2])) {
                 $bootstrapContent = preg_replace_callback($patternWithoutMethodExists, function ($matches) use ($methodName, $middleware) {
-                    $registered = $matches[1];
+                    $registered = $matches[2];
                     $registered .= "\n\$middleware->{$methodName}([\n$middleware,\n]);\n";
-                    return "->withMiddleware(function(Middleware \$middleware) {\n$registered\n})";
+                    return "->withMiddleware(function(Middleware \$middleware){$matches[1]}{\n$registered\n})";
                 }, $bootstrapContent);
                 $bootstrapPath->putContent($bootstrapContent);
                 CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
