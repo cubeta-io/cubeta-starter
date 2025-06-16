@@ -464,7 +464,7 @@ class Routes implements Stringable
                 $name = "$version.{$container}.public.{$model->routeNameNaming()}";
             }
         } else {
-            $name = "$version.{$container}.{" . self::actorRouteNameNaming($actor) . "}.{$model->routeNameNaming()}";
+            $name = "$version.{$container}." . self::actorRouteNameNaming($actor) . ".{$model->routeNameNaming()}";
         }
         return $name;
     }
