@@ -105,7 +105,7 @@ class InertiaReactTSController extends AbstractGenerator
         }
 
         $callback = function ($matches) use ($newSidebarItem) {
-            return FileUtils::fixArrayOrObjectCommas($matches[1] . $matches[2] . "\n" . ",$newSidebarItem," . "\n" . $matches[3]);
+            return FileUtils::fixArrayOrObjectCommas($matches[2] . $matches[3] . "\n" . ",$newSidebarItem," . "\n" . $matches[4]);
         };
 
         $updatedContent = preg_replace_callback($pattern, $callback, $fileContent);
