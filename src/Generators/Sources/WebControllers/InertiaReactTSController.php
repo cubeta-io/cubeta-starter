@@ -92,7 +92,7 @@ class InertiaReactTSController extends AbstractGenerator
         $newSidebarItem = new SidebarItemString($title, $indexRoute);
 
         // Regex pattern to match the sidebarItems array
-        $pattern = '/(const\s+sidebarItems\s*=\s*\[\s*)(.*?)(\s*];)/si';
+        $pattern = '/(const\s+sidebarItems(.*?)=\s*\[\s*)(.*?)(\s*];)/si';
 
         if (!preg_match($pattern, $fileContent)) {
             CubeLog::failedAppending($newSidebarItem, $sidebarPath->fullPath, "adding the route : {$indexRoute} to the sidebar page");
