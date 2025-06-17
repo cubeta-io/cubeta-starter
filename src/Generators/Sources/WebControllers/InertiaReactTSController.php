@@ -92,9 +92,14 @@ class InertiaReactTSController extends AbstractGenerator
         $newSidebarItem = new SidebarItemString($title, $indexRoute);
 
         // Regex pattern to match the sidebarItems array
-        $pattern = '/(const\s+sidebarItems(.*?)=\s*\[\s*)(.*?)(\s*];)/si';
+        $pattern = '/const\s*sidebarItems(.*)=\s*\[(.*?)]\s*(;?)/s';
 
-        if (!preg_match($pattern, $fileContent)) {
+        if (!preg_match($pattern, $fileContent, $matches)) {
+            CubeLog::failedAppending($newSidebarItem, $sidebarPath->fullPath, "adding the route : {$indexRoute} to the sidebar page");
+            return;
+        }
+
+        if (!isset($matches[2])) {
             CubeLog::failedAppending($newSidebarItem, $sidebarPath->fullPath, "adding the route : {$indexRoute} to the sidebar page");
             return;
         }
@@ -105,7 +110,7 @@ class InertiaReactTSController extends AbstractGenerator
         }
 
         $callback = function ($matches) use ($newSidebarItem) {
-            return FileUtils::fixArrayOrObjectCommas($matches[2] . $matches[3] . "\n" . ",$newSidebarItem," . "\n" . $matches[4]);
+            return "const sidebarItems{$matches[1]} = [" . FileUtils::fixArrayOrObjectCommas("$matches[2],$newSidebarItem,") . "];";
         };
 
         $updatedContent = preg_replace_callback($pattern, $callback, $fileContent);
