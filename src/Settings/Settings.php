@@ -86,7 +86,7 @@ class Settings
     }
 
     /**
-     * get the package (cubeta-starter)  json file settings as an array
+     * get the package (cubeta-starter) JSON file settings as an array
      * @return array
      */
     public static function getJsonSettings(): array
@@ -112,7 +112,7 @@ class Settings
 
     public function getAllModels(): array
     {
-        return array_map(fn($table) => $table['model_name'], self::$tables);
+        return array_map(fn($table) => $table['model_name'] ?? "UNDEFINED_TABLE_MODEL", self::$tables);
     }
 
     public function getTable(string $modelName): ?CubeTable
@@ -121,29 +121,48 @@ class Settings
         $tableName = Naming::table($modelName);
 
         foreach (self::$tables as $table) {
-            if ($table["model_name"] == $modelName || $table['model_name'] == $tableName) {
-                $attributes = [];
-
-                foreach ($table['attributes'] as $attribute) {
-                    $attributes[] = CubeAttribute::factory($attribute['name'], $attribute['type'], $attribute['nullable'], $attribute['unique'], $tableName);
-                }
-
-                $relations = [];
-
-                foreach ($table['relations'] as $type => $relationships) {
-                    foreach ($relationships as $relationship) {
-                        $relations[] = CubeRelation::factory($type, $relationship['model_name'], $table['model_name'], self::$version);
-                    }
-                }
-
-                return new CubeTable(
-                    $table['model_name'],
-                    $table['table_name'],
-                    $attributes,
-                    $relations,
-                    self::$version
-                );
+            if (!isset($table['model_name']) || ($table['model_name'] != $modelName && $table['model_name'] != $tableName)) {
+                continue;
             }
+
+            $tableAttributes = $table['attributes'] ?? [];
+            $tableRelations = $table['relations'] ?? [];
+
+            $attributes = [];
+
+            foreach ($tableAttributes as $attribute) {
+                $name = $attribute['name'] ?? null;
+                $type = $attribute['type'] ?? null;
+                $nullable = $attribute['nullable'] ?? false;
+                $unique = $attribute['unique'] ?? false;
+
+                if (!isset($name, $type)) {
+                    continue;
+                }
+
+                $attributes[] = CubeAttribute::factory($name, $type, $nullable, $unique, $tableName);
+            }
+
+            $relations = [];
+
+            foreach ($tableRelations as $type => $relationships) {
+                foreach ($relationships as $relationship) {
+                    $modelName = $relationship['model_name'] ?? null;
+                    if (!$modelName) {
+                        continue;
+                    }
+
+                    $relations[] = CubeRelation::factory($type, $modelName, $modelName, self::$version);
+                }
+            }
+
+            return new CubeTable(
+                $modelName,
+                $tableName,
+                $attributes,
+                $relations,
+                self::$version
+            );
         }
 
         return null;
@@ -206,7 +225,7 @@ class Settings
     }
 
     /**
-     * store the provided array in the package (cubeta-starter) json file settings as an array
+     * store the provided array in the package (cubeta-starter) JSON file settings as an array
      * @param array $data
      * @return void
      */
