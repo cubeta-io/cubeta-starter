@@ -96,8 +96,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
 
     public function inputComponent(string $formType = "store", ?string $actor = null): ReactTsInputComponentString
     {
-        $modelName = $this->modelNaming();
-        $relatedModel = $this->parentModel();
+        $modelName = $this->modelNaming(); // User
+        $relatedModel = $this->parentModel(); // Author
         $column = $relatedModel
             ->attributes()
             ->filter(fn($att) => $att->isKey() && $att->modelNaming() == $modelName)
@@ -125,13 +125,13 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
                 'key' => 'onChange',
                 'value' => "(e) => setData(\"$this->key\", Number(e.target.value))",
             ],
-            $relatedModel->titleable()->isTranslatable()
+            $this->relationModel()->titleable()->isTranslatable()
                 ? [
                 'key' => 'getOptionLabel',
-                'value' => "(data) => translate(data.{$relatedModel->titleable()->name})"
+                'value' => "(data) => translate(data.{$this->relationModel()->titleable()->name})"
             ] : [
                 'key' => 'optionLabel',
-                'value' => "{$relatedModel->titleable()->name}"
+                'value' => "{$this->relationModel()->titleable()->name}"
             ],
             [
                 'key' => 'optionValue',
