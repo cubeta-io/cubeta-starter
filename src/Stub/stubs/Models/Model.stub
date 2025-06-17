@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * @property integer id
  * {{doc_block}}
- * @mixin Builder
+ * @mixin Builder<{{model_name}}>
  */
 class {{model_name}} extends Model
 {
