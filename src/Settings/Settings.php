@@ -121,7 +121,7 @@ class Settings
         $tableName = Naming::table($modelName);
 
         foreach (self::$tables as $table) {
-            if (!isset($table['model_name']) || ($table['model_name'] != $modelName && $table['model_name'] != $tableName)) {
+            if (!isset($table['model_name']) || $table['model_name'] != $modelName) {
                 continue;
             }
 
@@ -147,12 +147,12 @@ class Settings
 
             foreach ($tableRelations as $type => $relationships) {
                 foreach ($relationships as $relationship) {
-                    $modelName = $relationship['model_name'] ?? null;
-                    if (!$modelName) {
+                    $relationModelName = $relationship['model_name'] ?? null;
+                    if (!$relationModelName) {
                         continue;
                     }
 
-                    $relations[] = CubeRelation::factory($type, $modelName, $modelName, self::$version);
+                    $relations[] = CubeRelation::factory($type, $relationModelName, $modelName, self::$version);
                 }
             }
 

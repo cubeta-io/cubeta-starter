@@ -18,7 +18,7 @@ class FactoryRelationMethodStringString extends MethodString
                 'count = 1' => 'int'
             ],
             "return \$this->has({$model->modelName}::factory(\$count));",
-            returnType: "self",
+            returnType: "static",
             imports: [
                 new PhpImportString($model->getModelNameSpace(false))
             ],

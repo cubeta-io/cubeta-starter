@@ -263,9 +263,15 @@ class CubeRelation
         $this->reverseRelation = $this->relationModel()
             ->relations()
             ->filter(fn(CubeRelation $rel) => $rel->modelNaming() == $this->parentModel()->modelNaming())
-            ->first()
-            ?? CubeRelation::factory($this->reverseType(), $this->relationModel()->modelNaming(), $this->parentModel()->modelNaming());
+            ->first();
 
+        if (!$this->reverseRelation) {
+            $this->reverseRelation = CubeRelation::factory(
+                $this->reverseType(),
+                $this->parentModel()->modelNaming(),
+                $this->relationModel()->modelNaming()
+            );
+        }
         return $this->reverseRelation;
     }
 
