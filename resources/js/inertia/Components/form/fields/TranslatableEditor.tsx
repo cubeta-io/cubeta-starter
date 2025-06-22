@@ -16,7 +16,7 @@ interface TranslatableProps
   defaultValue?: string | object | Translatable | undefined;
 }
 
-const TranslatableTextEditor: React.FC<TranslatableProps> = ({
+const TranslatableEditor: React.FC<TranslatableProps> = ({
   label,
   className,
   defaultValue,
@@ -108,4 +108,4 @@ const TranslatableTextEditor: React.FC<TranslatableProps> = ({
   );
 };
 
-export default TranslatableTextEditor;
+export default TranslatableEditor;

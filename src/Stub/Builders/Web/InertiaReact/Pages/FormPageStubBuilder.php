@@ -96,14 +96,20 @@ class FormPageStubBuilder extends TypescriptFileBuilder
 
     protected function getStubPropertyArray(): array
     {
+        $fields = implode("\n", $this->smallFields) .
+            "\n" .
+            implode(
+                "\n",
+                array_map(fn($field) => "<div className=\"md:col-span-2\">$field</div>", $this->bigFields)
+            );
+
         return [
             ...parent::getStubPropertyArray(),
             "{{default_values}}" => str(implode("\n,", $this->defaultValues))->when(
                 fn(Stringable $str) => !$str->isEmpty(),
                 fn(Stringable $str) => $str->wrap("{", "}")
             ),
-            "{{small_fields}}" => implode("\n", $this->smallFields),
-            '{{big_fields}}' => implode("\n", $this->bigFields),
+            "{{fields}}" => $fields,
             '{{form_field_interface}}' => str(implode("\n", $this->formFieldsInterface))
                 ->replaceMatches('/Media\s*\|/', 'File|'),
         ];

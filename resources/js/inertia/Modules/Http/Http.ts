@@ -34,13 +34,13 @@ class HTTP<RESPONSE extends any = any> {
 
   public async get(
     url: string,
-    data: Record<string, any>,
+    params?: Record<string, any>,
     headers?: Record<string, string>,
   ): Promise<ApiResponse<RESPONSE | undefined>>;
 
   public async get(
     url: string,
-    data: Record<string, any>,
+    params?: Record<string, any>,
     headers?: Record<string, string>,
   ): Promise<Response>;
 
