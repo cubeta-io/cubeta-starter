@@ -88,18 +88,23 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
 
     public function propertyValidationRule(): PropertyValidationRuleString
     {
-        return new PropertyValidationRuleString(
-            $this->name,
-            [
-                new ValidationRuleString('json'),
-                new ValidationRuleString(
-                    'new ValidTranslatableJson',
-                    [
-                        new PhpImportString('App\Rules\ValidTranslatableJson'),
-                    ]
-                )
-            ],
-        );
+        $rules = [
+            new ValidationRuleString('json'),
+            new ValidationRuleString(
+                'new ValidTranslatableJson',
+                [
+                    new PhpImportString('App\Rules\ValidTranslatableJson'),
+                ]
+            )
+        ];
+
+        if ($this->isRequired) {
+            $rules[] = new ValidationRuleString("required");
+        } else {
+            $rules[] = new ValidationRuleString("nullable");
+        }
+
+        return new PropertyValidationRuleString($this->name, $rules);
     }
 
 
