@@ -70,7 +70,9 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
     {
         return new DocBlockPropertyString(
             $this->name,
-            "TranslatableSerializer",
+            str("TranslatableSerializer")
+                ->when($this->nullable, fn($str) => $str->append("|null"))
+                ->toString(),
             imports: [
                 new PhpImportString("\\App\\Serializers\\Translatable as TranslatableSerializer"),
             ]

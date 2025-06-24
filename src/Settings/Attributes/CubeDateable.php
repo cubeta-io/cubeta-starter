@@ -70,7 +70,9 @@ class CubeDateable extends CubeAttribute implements HasFakeMethod,
     {
         return new DocBlockPropertyString(
             $this->name,
-            "Carbon",
+            str("Carbon")
+                ->when($this->nullable, fn($str) => $str->append("|null"))
+                ->toString(),
             "property",
             new PhpImportString("Carbon\Carbon")
         );

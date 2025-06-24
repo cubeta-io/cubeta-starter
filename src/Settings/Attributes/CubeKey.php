@@ -98,7 +98,9 @@ class CubeKey extends CubeAttribute implements HasFakeMethod,
     {
         return new DocBlockPropertyString(
             $this->name,
-            'integer',
+            str("integer")
+                ->when($this->nullable, fn($str) => $str->append("|null"))
+                ->toString(),
         );
     }
 

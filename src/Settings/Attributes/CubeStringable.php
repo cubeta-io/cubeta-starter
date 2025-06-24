@@ -90,7 +90,10 @@ class CubeStringable extends CubeAttribute implements
 
     public function docBlockProperty(): DocBlockPropertyString
     {
-        return new DocBlockPropertyString($this->name, "string");
+        return new DocBlockPropertyString($this->name, str("string")
+            ->when($this->nullable, fn($str) => $str->append("|null"))
+            ->toString()
+        );
     }
 
     public function propertyValidationRule(): PropertyValidationRuleString

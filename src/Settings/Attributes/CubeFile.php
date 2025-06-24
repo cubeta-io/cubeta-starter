@@ -33,7 +33,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactT
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 
-class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInterfacePropertyString, HasReactTsInputString,HasReactTsDisplayComponentString
+class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInterfacePropertyString, HasReactTsInputString, HasReactTsDisplayComponentString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -58,7 +58,9 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         return new DocBlockPropertyString(
             $this->name,
-            "array{url:string,size:string,extension:string,mime_type:string}"
+            str("array{url:string,size:string,extension:string,mime_type:string}")
+                ->when($this->nullable, fn($str) => $str->append("|null"))
+                ->toString()
         );
     }
 
@@ -190,7 +192,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
                 ]
             ],
             [
-                new TsImportString("Input" , "@/Components/form/fields/Input")
+                new TsImportString("Input", "@/Components/form/fields/Input")
             ]
         );
     }

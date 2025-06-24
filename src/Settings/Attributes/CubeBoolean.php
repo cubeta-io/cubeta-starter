@@ -67,7 +67,12 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
 
     public function docBlockProperty(): DocBlockPropertyString
     {
-        return new DocBlockPropertyString($this->name, "boolean");
+        return new DocBlockPropertyString(
+            $this->name,
+            str("boolean")
+                ->when($this->nullable, fn($str) => $str->append("|null"))
+                ->toString()
+        );
     }
 
     public function modelCastColumn(): CastColumnString

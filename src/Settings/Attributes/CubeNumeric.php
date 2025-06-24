@@ -62,7 +62,10 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod,
 
     public function docBlockProperty(): DocBlockPropertyString
     {
-        return new DocBlockPropertyString($this->name, "numeric");
+        return new DocBlockPropertyString($this->name, str("numeric")
+            ->when($this->nullable, fn($str) => $str->append("|null"))
+            ->toString()
+        );
     }
 
     public function modelCastColumn(): CastColumnString
