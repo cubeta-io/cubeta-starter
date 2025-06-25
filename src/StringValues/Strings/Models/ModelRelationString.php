@@ -5,8 +5,13 @@ namespace Cubeta\CubetaStarter\StringValues\Strings\Models;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\MethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ModelRelationString extends MethodString
 {
@@ -14,7 +19,7 @@ class ModelRelationString extends MethodString
     private RelationsTypeEnum $type;
     private array $otherParams = [];
 
-    public function __construct(string $relatedModelName, RelationsTypeEnum $relationsType , array $otherParams = [])
+    public function __construct(string $relatedModelName, RelationsTypeEnum $relationsType, array $otherParams = [])
     {
         $this->relatedModel = CubeTable::create(Naming::model($relatedModelName));
         $this->type = $relationsType;
@@ -25,6 +30,7 @@ class ModelRelationString extends MethodString
         $this->otherParams = $otherParams;
 
         $methodOtherParams = implode(",", $this->otherParams);
+        $returnType = $this->getReturnType();
 
         parent::__construct(
             $this->methodName(),
@@ -32,10 +38,17 @@ class ModelRelationString extends MethodString
             [
                 "return \$this->{$relationsFunction}($modelName::class , $methodOtherParams)"
             ],
-            returnType: $this->getReturnType(),
+            returnType: $returnType,
             imports: [
                 new PhpImportString($relatedModelNamespace),
                 $this->getRelationImportString()
+            ],
+            docBlocs: [
+                new DocBlockPropertyString(
+                    name: "$returnType<$this->relatedModel, static>",
+                    tag: "return",
+                    imports: $this->getRelationImportString()
+                )
             ]
         );
     }
@@ -71,10 +84,10 @@ class ModelRelationString extends MethodString
     private function getRelationImportString(): PhpImportString
     {
         return match ($this->type) {
-            RelationsTypeEnum::ManyToMany => new PhpImportString("Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany"),
-            RelationsTypeEnum::BelongsTo => new PhpImportString("Illuminate\\Database\\Eloquent\\Relations\\BelongsTo"),
-            RelationsTypeEnum::HasMany => new PhpImportString("Illuminate\\Database\\Eloquent\\Relations\\HasMany"),
-            RelationsTypeEnum::HasOne => new PhpImportString("Illuminate\\Database\\Eloquent\\Relations\\HasOne")
+            RelationsTypeEnum::ManyToMany => new PhpImportString(BelongsToMany::class),
+            RelationsTypeEnum::BelongsTo => new PhpImportString(BelongsTo::class),
+            RelationsTypeEnum::HasMany => new PhpImportString(HasMany::class),
+            RelationsTypeEnum::HasOne => new PhpImportString(HasOne::class)
         };
     }
 }

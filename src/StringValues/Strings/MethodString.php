@@ -11,17 +11,27 @@ class MethodString
     public array $parameters;
     public array $body;
     public ?string $returnType;
+
+    /**
+     * @var PhpImportString[]
+     */
     public array $imports = [];
 
     /**
-     * @param string            $name
-     * @param array             $parameters
-     * @param array|string      $body
-     * @param string            $visibility
-     * @param string|null       $returnType
-     * @param PhpImportString[] $imports
+     * @var DocBlockPropertyString[]
      */
-    public function __construct(string $name, array $parameters, array|string $body, string $visibility = 'public', ?string $returnType = null, array $imports = [])
+    public array $docBlocs = [];
+
+    /**
+     * @param string                   $name
+     * @param array                    $parameters
+     * @param array|string             $body
+     * @param string                   $visibility
+     * @param string|null              $returnType
+     * @param PhpImportString[]        $imports
+     * @param DocBlockPropertyString[] $docBlocs
+     */
+    public function __construct(string $name, array $parameters, array|string $body, string $visibility = 'public', ?string $returnType = null, array $imports = [], array $docBlocs = [])
     {
         $this->name = $name;
         $this->parameters = $parameters;
@@ -29,6 +39,13 @@ class MethodString
         $this->visibility = $visibility;
         $this->returnType = $returnType;
         $this->imports = $imports;
+        $this->docBlocs = $docBlocs;
+
+        if (count($this->docBlocs) > 0) {
+            foreach ($this->docBlocs as $docBloc) {
+                $this->imports = array_merge($this->imports, $docBloc->imports);
+            }
+        }
     }
 
     public function __toString(): string
@@ -48,10 +65,16 @@ class MethodString
             return "$carry\n$item";
         });
 
-        if ($this->returnType) {
-            return "$this->visibility function $this->name($parameters): {$this->returnType}{{$body}}";
+        $comment = "";
+
+        if (count($this->docBlocs) > 0) {
+            $comment = "/**" . implode("\n * ", $this->docBlocs) . "\n*/";
         }
 
-        return "$this->visibility function $this->name($parameters) {{$body}}";
+        if ($this->returnType) {
+            return "{$comment}\n{$this->visibility} function $this->name($parameters): {$this->returnType}{{$body}}";
+        }
+
+        return "{$comment}\n{$this->visibility} function $this->name($parameters) {{$body}}";
     }
 }
