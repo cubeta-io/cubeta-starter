@@ -10,9 +10,11 @@ use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelCastColumn;
 use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelScopeMethod;
+use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\TraitString;
 use Cubeta\CubetaStarter\Stub\Builders\Models\ModelStubBuilder;
+use Illuminate\Database\Eloquent\Builder;
 
 class ModelGenerator extends AbstractGenerator
 {
@@ -67,7 +69,16 @@ class ModelGenerator extends AbstractGenerator
                     ))
                 )->when(
                     $attribute instanceof HasModelScopeMethod,
-                    fn($builder) => $builder->method($attribute->modelScopeMethod())
+                    function ($builder) use ($attribute) {
+                        $scope = $attribute->modelScopeMethod();
+                        $builder->method($scope)
+                            ->dockBlock(new DocBlockPropertyString(
+                                name: str($scope->name)->replace("scope", "")->camel()->append("()"),
+                                type: "Builder",
+                                tag: "method",
+                                imports: new PhpImportString(Builder::class)
+                            ));
+                    }
                 );
         });
 

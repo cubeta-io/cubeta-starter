@@ -7,7 +7,7 @@ use Illuminate\Support\Arr;
 class DocBlockPropertyString
 {
     public string $name;
-    public string $type;
+    public ?string $type;
     public string $tag;
     public array $imports = [];
 

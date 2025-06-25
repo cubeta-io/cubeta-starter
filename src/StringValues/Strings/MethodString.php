@@ -68,7 +68,7 @@ class MethodString
         $comment = "";
 
         if (count($this->docBlocs) > 0) {
-            $comment = "/**" . implode("\n * ", $this->docBlocs) . "\n*/";
+            $comment = "/**\n" . implode("\n * ", $this->docBlocs) . "\n*/";
         }
 
         if ($this->returnType) {

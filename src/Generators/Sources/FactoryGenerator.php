@@ -4,11 +4,15 @@ namespace Cubeta\CubetaStarter\Generators\Sources;
 
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFactoryRelationMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
+use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Factories\FactoryStubBuilder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class FactoryGenerator extends AbstractGenerator
 {
@@ -42,6 +46,14 @@ class FactoryGenerator extends AbstractGenerator
             ->modelNamespace($this->table->getModelNameSpace(false))
             ->modelName($this->table->modelName)
             ->generate($factoryPath, $this->override);
+
+        ClassUtils::addToClassDocBlock(
+            new DocBlockPropertyString("HasFactory<{$this->table->getFactoryName()}>", null, "use", [
+                new PhpImportString($this->table->getFactoryClassString()),
+                new PhpImportString(HasFactory::class)
+            ]),
+            $this->table->getModelPath()
+        );
 
         CodeSniffer::make()
             ->setModel($this->table)

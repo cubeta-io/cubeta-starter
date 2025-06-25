@@ -237,6 +237,11 @@ class ClassUtils
         $newBlock = trim($matches[1]) . "\n * $property \n";
         $fileContent = str_replace($matches[1], $newBlock, $fileContent);
         $classPath->putContent($fileContent);
+
+        foreach ($property->imports as $import) {
+            FileUtils::addImportStatement($import, $classPath);
+        }
+
         $classPath->format();
         CubeLog::contentAppended($property, $classPath);
         return true;

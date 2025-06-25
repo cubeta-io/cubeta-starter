@@ -45,10 +45,10 @@ class ModelRelationString extends MethodString
             ],
             docBlocs: [
                 new DocBlockPropertyString(
-                    name: "$returnType<$this->relatedModel, static>",
+                    name: "$returnType<{$this->relatedModel->modelName}, static>",
                     tag: "return",
-                    imports: $this->getRelationImportString()
-                )
+                    imports: [$this->getRelationImportString(), new PhpImportString($relatedModelNamespace)]
+                ),
             ]
         );
     }
