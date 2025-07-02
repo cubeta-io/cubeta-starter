@@ -131,7 +131,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
                 'value' => "(data) => translate(data.{$this->relationModel()->titleable()->name})"
             ] : [
                 'key' => 'optionLabel',
-                'value' => "{$this->relationModel()->titleable()->name}"
+                'value' => "\"{$this->relationModel()->titleable()->name}\""
             ],
             [
                 'key' => 'optionValue',
