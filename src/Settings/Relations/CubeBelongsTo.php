@@ -210,7 +210,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             "{$this->modelNaming()} {$column->titleNaming()}",
             $column->isTranslatable(),
             false,
-            "return (<Link className=\"hover:text-primary underline\"
+            "return (record?.{$this->key} && <Link className=\"hover:text-primary underline\"
                         href={route(\"$showRoute\" , record?.{$this->key})}>
                         {{$viewValue}}
                     </Link>)",
