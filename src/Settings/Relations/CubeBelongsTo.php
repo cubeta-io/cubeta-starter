@@ -63,7 +63,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     public function docBlockProperty(): DocBlockPropertyString
     {
         return new DocBlockPropertyString(
-            $this->relationMethodNaming(),
+            $this->method(),
             "$this->relationModel|null",
             imports: new PhpImportString($this->getModelNameSpace())
         );
@@ -72,7 +72,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     public function resourcePropertyString(): ResourcePropertyString
     {
         return new ResourcePropertyString(
-            str($this->relationModel)->singular()->snake()->lower()->toString(),
+            str($this->method())->snake()->toString(),
             "{$this->getResourceName()}::make(\$this->whenLoaded('{$this->relationMethodNaming()}'))",
             [
                 new PhpImportString($this->getResourceNameSpace(false))
@@ -84,7 +84,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     {
         $modelName = $this->modelNaming();
         return new InterfacePropertyString(
-            $this->relationMethodNaming(),
+            str($this->method())->snake()->toString(),
             $modelName,
             true,
             new TsImportString(
