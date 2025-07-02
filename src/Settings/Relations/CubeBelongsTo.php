@@ -63,7 +63,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     public function docBlockProperty(): DocBlockPropertyString
     {
         return new DocBlockPropertyString(
-            str($this->relationModel)->singular()->lower()->toString(),
+            $this->relationMethodNaming(),
             "$this->relationModel|null",
             imports: new PhpImportString($this->getModelNameSpace())
         );

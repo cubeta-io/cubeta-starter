@@ -40,7 +40,7 @@ class CubeManyToMany extends CubeRelation implements HasFactoryRelationMethod, H
     public function docBlockProperty(): DocBlockPropertyString
     {
         return new DocBlockPropertyString(
-            str($this->relationModel)->plural()->lower()->toString(),
+            $this->relationMethodNaming(),
             "EloquentCollection<$this->relationModel>|null",
             imports: [
                 new PhpImportString($this->getModelNameSpace()),
