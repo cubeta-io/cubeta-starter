@@ -2,18 +2,18 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSController;
+use Cubeta\CubetaStarter\Settings\Settings;
 
 class ControllerGenerator extends AbstractGenerator
 {
     public static string $key = "controller";
 
-    public function run(bool $override = false): void
+    public function run(): void
     {
         if (ContainerType::isApi($this->generatedFor)) {
             $gen = new ApiControllerGenerator(
@@ -24,10 +24,11 @@ class ControllerGenerator extends AbstractGenerator
                 uniques: $this->uniques,
                 actor: $this->actor,
                 generatedFor: $this->generatedFor,
-                version: $this->version
+                version: $this->version,
+                override: $this->override,
             );
 
-            $gen->run($override);
+            $gen->run();
         }
 
         if (ContainerType::isWeb($this->generatedFor)) {
@@ -40,7 +41,8 @@ class ControllerGenerator extends AbstractGenerator
                     uniques: $this->uniques,
                     actor: $this->actor,
                     generatedFor: $this->generatedFor,
-                    version: $this->version
+                    version: $this->version,
+                    override: $this->override,
                 ),
                 default => new BladeControllerGenerator(
                     fileName: $this->fileName,
@@ -50,7 +52,8 @@ class ControllerGenerator extends AbstractGenerator
                     uniques: $this->uniques,
                     actor: $this->actor,
                     generatedFor: $this->generatedFor,
-                    version: $this->version
+                    version: $this->version,
+                    override: $this->override,
                 )
             };
 

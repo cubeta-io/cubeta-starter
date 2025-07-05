@@ -48,32 +48,25 @@ the corresponding created migration will match the types of the columns you ente
 
 ## Controllers
 
-the created controller contains the five basic methods `(index , show , store , update , delete)`
-
-it is extends the ApiController class which use the RestTrait
-<br>
-<br>
-**RestTrait** : it is a trait with methods that will handle your json response using the following
-methods `(apiResponse , apiValidation , formatPaginateData)`
-
-[you can have a look at it .](rest-trait.md#resttrait)
+the created controller contains the five basic methods `(index , show , store , update , delete)` in addition to excel
+files exporting and importing methods `(export , import , importExample)`
 
 ## Requests
 
 each model property will have this rules : `required|PropertyType` unless this :
 
-| property name	                                                                                         | rules                                      |
-|:-------------------------------------------------------------------------------------------------------|--------------------------------------------|
-| name,first_name ,last_name	                                                                            | required,string ,min:3 ,max:255            |
-| email                                                                                                  | required,string,max:255 ,email             |
-| password                                                                                               | required,string,max:255 ,min:6 ,confirmed  |
-| phone , phone_number , number	                                                                         | required,string,max:255 ,min:6             |
-| any word ends with `_at` (started_at , ends_at , … , any type that seems to be a date type)            | required,date                              |
-| any word starts with `is_` (is_original , is_available , …. , any type that seems to be boolean value) | required,boolean                           |
-| any word ends with `_id` (user_id , product_id , …. , any type that seems to be foreign key)           | required,integer,exists:parent table,id    |
-| columns with file type	                                                                                | nullable,image,mimes:jpeg,png,jpg,max:2048 |
-| columns with text type                                                                                 | nullable ,string                           |
-| columns with translatable type                                                                         | required , json , new LanguageShape        |
+| property name	                                                                                         | rules                                       |
+|:-------------------------------------------------------------------------------------------------------|---------------------------------------------|
+| name,first_name ,last_name	                                                                            | required,string ,min:3 ,max:255             |
+| email                                                                                                  | required,string,max:255 ,email              |
+| password                                                                                               | required,string,max:255 ,min:6 ,confirmed   |
+| phone , phone_number , number	                                                                         | required,string,max:255 ,min:6              |
+| any word ends with `_at` (started_at , ends_at , … , any type that seems to be a date type)            | required,date                               |
+| any word starts with `is_` (is_original , is_available , …. , any type that seems to be boolean value) | required,boolean                            |
+| any word ends with `_id` (user_id , product_id , …. , any type that seems to be foreign key)           | required,integer,exists:parent table,id     |
+| columns with file type	                                                                                | nullable,image,mimes:jpeg,png,jpg,max:2048  |
+| columns with text type                                                                                 | nullable ,string                            |
+| columns with translatable type                                                                         | required , json , new ValidTranslatableJson |
 
 > [!attention]
 > it is important to check on the rules of the created form request after each created model to
@@ -82,9 +75,8 @@ each model property will have this rules : `required|PropertyType` unless this :
 
 ## Resources
 
-if you have checked on the created controllers you should notice that their return value is a resource named after the
-model name
-this resource will structure your json response to be in a united structure across your application .
+Fore each created model there will be a corresponding Json Resource class which extends the `BaseResource` class , this
+class extends the functionality of the JsonResource class and allows you to extend it more [BaseResource class is explained here](base-resource.md#baseresource).
 
 > [!warning]
 > this resource will return the relations of this model also
@@ -185,6 +177,7 @@ foreach created model there will be a corresponding test class which extends `Ma
 the `tests/Feature` directory , this test class will test the CRUD endpoints , in the created test
 you'll see the following variables : `$model , $resource , $userType , $baseUrl` and you'll see that
 there is two of them have a value , but if we go to the others you need to know the following:
+
 1. `$userType` : if your application use multi actors by this package so in this variable just give it the actor role
    for those endpoints if there is not just leave it as `'none'`.
 2. `$baseUrl` : if you've checked on the appended rout of your model you'll notice that this route is named so here you
@@ -194,6 +187,7 @@ maybe you want to check on [`MainTestCase`](main-test.md#maintestcase-class) cla
 work and see if they are good for you, or you have to create another ones .
 
 ## Postman Collection
+
 the generated postman collection will have HTTP requests grouped by your model name .
 it has two variables for the whole collection :
 

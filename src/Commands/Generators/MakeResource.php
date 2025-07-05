@@ -13,7 +13,8 @@ class MakeResource extends BaseCommand
         {name? : The name of the model }
         {attributes? : columns with data types}
         {relations? : the model relations}
-        {container? : web or api}';
+        {container? : web or api}
+        {--force}';
 
     public function handle(): void
     {
@@ -26,8 +27,9 @@ class MakeResource extends BaseCommand
 
         $relations = $this->argument('relations') ?? ($this->askForRelations($modelName) ?? []);
 
+        $override = $this->askForOverride();
+
         $generator = new GeneratorFactory("resource");
-        $generator->make(fileName: $modelName, attributes: $attributes, relations: $relations);
-        $this->handleCommandLogsAndErrors();
+        $generator->make(fileName: $modelName, attributes: $attributes, relations: $relations, override: $override);
     }
 }

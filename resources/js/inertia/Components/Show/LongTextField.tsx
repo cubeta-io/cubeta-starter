@@ -1,22 +1,22 @@
 const LongTextField = ({
-                           label,
-                           value,
-                       }: {
-    label?: string;
-    value?: string;
+  label,
+  value,
+}: {
+  label?: string;
+  value?: string;
 }) => {
-    return (
-        <div className="bg-gray-50 dark:bg-dark dark:text-white mb-5 p-4 rounded-md w-full font-bold text-xl">
-            <label className="font-semibold text-lg">{label} :</label>
-            <div className="border-0 p-4 rounded-md w-full outlin outline-0">
-                <div
-                    dangerouslySetInnerHTML={{
-                        __html: value ?? "",
-                    }}
-                />
-            </div>
-        </div>
-    );
+  return (
+    <div className="dark:bg-dark mb-5 w-full rounded-md bg-gray-50 p-4 text-xl font-bold dark:text-white">
+      <label className="text-lg font-semibold">{label} :</label>
+      <div className="outlin w-full rounded-md border-0 p-4 outline-0">
+        <div
+          dangerouslySetInnerHTML={{
+            __html: value ?? "",
+          }}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default LongTextField;

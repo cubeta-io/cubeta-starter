@@ -1,6 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@source inline("{hover:,focus:,}bg-{brand,primary,secondary,success,info,warning,danger,white,black,white-secondary,dark,dark-secondary}");
+@source inline("{hover:,focus:,}border-{brand,primary,secondary,success,info,warning,danger,white,black,white-secondary,dark,dark-secondary}");
+@source inline("{hover:,focus:,}text-{brand,primary,secondary,success,info,warning,danger,white,black,white-secondary,dark,dark-secondary}");
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@plugin '@tailwindcss/forms';
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
     :root {
@@ -35,6 +46,23 @@
     }
 }
 
+@theme {
+    --color-brand: var(--color-brand);
+    --color-primary: var(--color-primary);
+    --color-secondary: var(--color-secondary);
+    --color-success: var(--color-success);
+    --color-info: var(--color-info);
+    --color-warning: var(--color-warning);
+    --color-danger: var(--color-danger);
+    --color-white: var(--color-white);
+    --color-white-secondary: var(--color-white-secondary);
+    --color-black: var(--color-black);
+    --color-dark: var(--color-dark);
+    --color-dark-secondary: var(--color-dark-secondary);
+
+    --font-sans: "Poppins", sans-serif;
+}
+
 body {
     font-family: "Poppins", sans-serif !important;
 }
@@ -62,19 +90,19 @@ body {
 
 @-webkit-keyframes slide-sidebar-left {
     0% {
-        @apply w-1/4
+        width: 25%
     }
     100% {
-        @apply w-[7%]
+        width: 7%
     }
 }
 
 @keyframes slide-sidebar-left {
     0% {
-        @apply w-1/4
+        width: 25%
     }
     100% {
-        @apply w-[7%]
+        width: 7%
     }
 }
 
@@ -85,19 +113,19 @@ body {
 
 @-webkit-keyframes slide-sidebar-right {
     0% {
-        @apply w-[7%]
+        width: 7%
     }
     100% {
-        @apply w-1/4
+        width: 25%
     }
 }
 
 @keyframes slide-sidebar-right {
     0% {
-        @apply w-[7%]
+        width: 7%
     }
     100% {
-        @apply w-1/4
+        width: 25%
     }
 }
 
@@ -114,5 +142,5 @@ select:-webkit-autofill:focus {
 }
 
 .swal2-popup {
-    @apply dark:!bg-dark-secondary dark:text-white
+    @apply dark:bg-dark-secondary dark:text-white
 }

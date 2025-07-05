@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
-use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\ClassUtils;
+use Cubeta\CubetaStarter\Stub\Builders\Seeders\SeederStubBuilder;
 
 class SeederGenerator extends AbstractGenerator
 {
@@ -12,28 +12,15 @@ class SeederGenerator extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
-
         $seederPath = $this->table->getSeederPath();
+        SeederStubBuilder::make()
+            ->modelNamespace($this->table->getModelNamespace(false))
+            ->modelName($this->table->modelNaming())
+            ->generate($seederPath, $this->override);
 
-        if ($seederPath->exist()) {
-            $seederPath->logAlreadyExist("Generating Seeder For ({$this->table->modelName}) Model");
-            return;
-        }
-
-        $seederPath->ensureDirectoryExists();
-
-        $stubProperties = [
-            '{modelName}'      => $this->table->modelName,
-            '{modelNamespace}' => config('cubeta-starter.model_namespace'),
-        ];
-
-        $this->generateFileFromStub($stubProperties, $seederPath->fullPath);
-
-        $seederPath->format();
-    }
-
-    protected function stubsPath(): string
-    {
-        return CubePath::stubPath('seeder.stub');
+        ClassUtils::callInDatabaseSeeder(
+            $this->table->getSeederName(),
+            $this->table->getSeederClassString() . "::class"
+        );
     }
 }

@@ -1,0 +1,189 @@
+<?php
+
+namespace {{namespace}};
+
+use {{request_namespace}}\AuthRequests\RequestResetPasswordRequest;
+use {{request_namespace}}\AuthRequests\CheckPasswordResetRequest;
+use {{request_namespace}}\AuthRequests\ResetPasswordRequest;
+use {{request_namespace}}\AuthRequests\AuthRegisterRequest;
+use {{request_namespace}}\AuthRequests\UpdateUserRequest;
+use {{request_namespace}}\AuthRequests\AuthLoginRequest;
+use {{service_namespace}}\User\UserService;
+use {{resource_namespace}}\UserResource;
+use App\Http\Controllers\ApiController;
+use Illuminate\Http\Request;
+use Exception;
+
+class BaseAuthController extends ApiController
+{
+    private UserService $userService;
+    private ?string $role = null;
+
+    /**
+     * @throws Exception
+     */
+    public function __construct()
+    {
+        $this->userService = UserService::make();
+        $this->userService->setGuard();
+        $this->relations = [];
+    }
+
+    public function roleHook(string $role)
+    {
+        $this->role = $role;
+    }
+
+    public function login(AuthLoginRequest $request)
+    {
+        $result = $this->userService->login($request->validated(), $this->role, $this->relations);
+        if (!$result || !is_array($result)) {
+            return rest()
+                ->message(trans('site.credentials_not_match_records'))
+                ->send();
+        }
+
+        [$user, $token, $refreshToken] = $result;
+        return rest()
+            ->data([
+               'user'          => UserResource::make($user),
+               'token'         => $token,
+               'refresh_token' => $refreshToken,
+           ])->message(trans('site.successfully_logged_in'))
+           ->ok()
+           ->send();
+    }
+
+    public function logout()
+    {
+        $this->userService->logout();
+
+        return rest()
+            ->ok()
+            ->message(trans('site.logout_success'))
+            ->send();
+    }
+
+    public function refresh(Request $request)
+    {
+        $result = $this->userService->refreshToken($this->relations);
+        if (!$result || !is_array($result)) {
+            return rest()
+                ->notAuthorized()
+                ->message(trans('site.token_refreshed_failed'))
+                ->send();
+        }
+
+        [$user, $token, $refreshToken] = $result;
+        return rest()
+            ->data([
+               'user'          => UserResource::make($user),
+               'token'         => $token,
+               'refresh_token' => $refreshToken,
+           ])->message(trans('site.token_refreshed_successfully'))
+           ->ok()
+           ->send();
+    }
+
+    public function register(AuthRegisterRequest $request)
+    {
+        $result = $this->userService->register($request->validated(), $this->role , $this->relations);
+
+        if (!$result || !is_array($result)) {
+            return rest()
+                ->noData()
+                ->message(trans('site.failed'))
+                ->send();
+        }
+
+        [$user, $token, $refreshToken] = $result;
+        return rest()
+            ->data([
+               'user'          => UserResource::make($user),
+               'token'         => $token,
+               'refresh_token' => $refreshToken,
+           ])->message(__('site.registered_successfully'))
+           ->ok()
+           ->send();
+    }
+
+    public function requestResetPassword(RequestResetPasswordRequest $request)
+    {
+        $result = $this->userService->passwordResetRequest($request->email);
+        if ($result) {
+            return rest()
+                ->ok()
+                ->message(trans('site.password_reset_code_sent'))
+                ->send();
+        }
+
+        return rest()
+            ->notFound()
+            ->message(trans('site.wrong_email'))
+            ->send();
+    }
+
+    public function resetPassword(ResetPasswordRequest $request)
+    {
+        $result = $this->userService->passwordReset($request->reset_password_code, $request->password);
+        if ($result) {
+            return rest()
+                ->ok()
+                ->message(trans('site.password_reset_successful'))
+                ->send();
+        }
+
+        return rest()
+            ->notFound()
+            ->message(trans('site.code_incorrect'))
+            ->send();
+    }
+
+    public function updateUserDetails(UpdateUserRequest $request)
+    {
+        $result = $this->userService->updateUserDetails($request->validated(), $this->role , $this->relations);
+
+        if (!$result || !is_array($result)) {
+            return rest()
+                ->notAuthorized()
+                ->message(trans('site.unauthorized_user'))
+                ->send();
+        }
+
+        [$user, $token, $refreshToken] = $result;
+        return rest()->data([
+            'user'          => UserResource::make($user),
+            'token'         => $token,
+            'refresh_token' => $refreshToken,
+        ])->updateSuccess()
+            ->ok()
+            ->send();
+    }
+
+    public function userDetails()
+    {
+        $user = $this->userService->userDetails($this->role , $this->relations);
+
+        if ($user) {
+            return rest()
+                ->data($user)
+                ->getSuccess()
+                ->ok()
+                ->send();
+        } else {
+            return rest()
+                ->notAuthorized()
+                ->message(trans('site.unauthorized_user'))
+                ->send();
+        }
+    }
+
+    public function validateResetPasswordCode(CheckPasswordResetRequest $request)
+    {
+        return rest()
+            ->ok()
+            ->message(trans('site.code_correct'))
+            ->send();
+    }
+}
+

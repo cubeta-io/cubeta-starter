@@ -14,8 +14,8 @@ return [
 
     /**
      * here define your project public url, so we can add it to the postman collection
-     * if you let it null we will place it in the collection as below :
-     * e.g : http://localhost/project-name-from-this-config/public/
+     * if you let it null, we will place it in the collection as below:
+     * e.g.: http://localhost/project-name-from-this-config/public/
      */
     'project_url' => null,
 
@@ -90,11 +90,23 @@ return [
     'test_namespace' => 'Tests\Feature',
     'test_path' => 'tests/Feature',
 
+    /**
+     * traits path and namespace
+     */
     'trait_namespace' => 'App\Traits',
     'trait_path' => 'app\Traits',
 
+    /**
+     * exception path and namespace
+     */
     'exception_namespace' => 'App\Exceptions',
     'exception_path' => 'app\Exceptions',
+
+    /**
+     * when this is true, then for each generated controller will be a generated postman collection for it
+     * when there is a one already, then it will be appended to it
+     */
+    'generate_postman_collection_for_api_routes' => true,
 
     /**
      * postman collection path
@@ -112,5 +124,5 @@ return [
     /**
      * your project default locale
      */
-    'defaultLocale' => 'en', // consider to make all values corresponding to this locale not null it is better
+    'default_locale' => 'en', // consider making all values corresponding to this locale not null; it is better
 ];

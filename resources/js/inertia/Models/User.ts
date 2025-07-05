@@ -1,4 +1,6 @@
-export interface User {
-    name: string;
-    email: string;
+interface User {
+  name: string;
+  email: string;
 }
+
+export default User;

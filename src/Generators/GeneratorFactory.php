@@ -2,17 +2,17 @@
 
 namespace Cubeta\CubetaStarter\Generators;
 
-use Cubeta\CubetaStarter\App\Models\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Settings\Settings;
 use Error;
 use Mockery\Exception;
 use Throwable;
 
 class GeneratorFactory
 {
-    private ?string $source = null;
+    private ?string $source;
 
     public function independentFromContainer(): array
     {
@@ -24,6 +24,7 @@ class GeneratorFactory
             Sources\SeederGenerator::$key,
             Sources\RepositoryGenerator::$key,
             Sources\ServiceGenerator::$key,
+            Sources\ResourceGenerator::$key,
             Installers\BladePackagesInstaller::$key,
             Installers\PermissionsInstaller::$key,
             Installers\ReactTSInertiaInstaller::$key,
@@ -111,7 +112,7 @@ class GeneratorFactory
             && !$settings->installedApi()
             && !in_array($this->source, $this->independentFromContainer())
         ) {
-            CubeLog::add(new CubeError("Install Web tools by running [php artisan cubeta:install api] and try again"));
+            CubeLog::add(new CubeError("Install Api tools by running [php artisan cubeta:install api] and try again"));
             return;
         }
 
@@ -123,7 +124,8 @@ class GeneratorFactory
                 nullables: $nullables,
                 uniques: $uniques,
                 actor: $actor,
-                generatedFor: $generatedFor
+                generatedFor: $generatedFor,
+                override: $override,
             ),
             Sources\ModelGenerator::$key => new Sources\ModelGenerator(
                 fileName: $fileName,
@@ -132,7 +134,8 @@ class GeneratorFactory
                 nullables: $nullables,
                 uniques: $uniques,
                 actor: $actor,
-                generatedFor: $generatedFor
+                generatedFor: $generatedFor,
+                override: $override,
             ),
             Sources\RequestGenerator::$key => new Sources\RequestGenerator(
                 fileName: $fileName,
@@ -142,7 +145,8 @@ class GeneratorFactory
                 uniques: $uniques,
                 actor: $actor,
                 generatedFor: $generatedFor,
-                version: $version
+                version: $version,
+                override: $override,
             ),
             Sources\ResourceGenerator::$key => new Sources\ResourceGenerator(
                 fileName: $fileName,
@@ -152,7 +156,8 @@ class GeneratorFactory
                 uniques: $uniques,
                 actor: $actor,
                 generatedFor: $generatedFor,
-                version: $version
+                version: $version,
+                override: $override,
             ),
             Sources\FactoryGenerator::$key => new Sources\FactoryGenerator(
                 fileName: $fileName,
@@ -161,7 +166,8 @@ class GeneratorFactory
                 nullables: $nullables,
                 uniques: $uniques,
                 actor: $actor,
-                generatedFor: $generatedFor
+                generatedFor: $generatedFor,
+                override: $override,
             ),
             Sources\SeederGenerator::$key => new Sources\SeederGenerator(
                 fileName: $fileName,
@@ -170,7 +176,8 @@ class GeneratorFactory
                 nullables: $nullables,
                 uniques: $uniques,
                 actor: $actor,
-                generatedFor: $generatedFor
+                generatedFor: $generatedFor,
+                override: $override,
             ),
             Sources\RepositoryGenerator::$key => new Sources\RepositoryGenerator(
                 fileName: $fileName,
@@ -179,7 +186,8 @@ class GeneratorFactory
                 nullables: $nullables,
                 uniques: $uniques,
                 actor: $actor,
-                generatedFor: $generatedFor
+                generatedFor: $generatedFor,
+                override: $override,
             ),
             Sources\ServiceGenerator::$key => new Sources\ServiceGenerator(
                 fileName: $fileName,
@@ -189,7 +197,8 @@ class GeneratorFactory
                 uniques: $uniques,
                 actor: $actor,
                 generatedFor: $generatedFor,
-                version: $version
+                version: $version,
+                override: $override,
             ),
             Sources\ControllerGenerator::$key => new Sources\ControllerGenerator(
                 fileName: $fileName,
@@ -199,24 +208,27 @@ class GeneratorFactory
                 uniques: $uniques,
                 actor: $actor,
                 generatedFor: $generatedFor,
-                version: $version
+                version: $version,
+                override: $override,
             ),
             Sources\TestGenerator::$key => new Sources\TestGenerator(
                 fileName: $fileName,
                 attributes: $attributes,
                 actor: $actor,
-                version: $version
+                version: $version,
+                override: $override,
             ),
             Installers\AuthInstaller::$key => new Installers\AuthInstaller(
                 generatedFor: $generatedFor,
-                version: $version
+                version: $version,
+                override: $override,
             ),
-            Installers\ApiInstaller::$key => new Installers\ApiInstaller(version: $version),
-            Installers\WebInstaller::$key => new Installers\WebInstaller(version: $version),
-            Installers\BladePackagesInstaller::$key => new Installers\BladePackagesInstaller(),
-            Installers\PermissionsInstaller::$key => new Installers\PermissionsInstaller(),
-            Installers\ReactTSInertiaInstaller::$key => new Installers\ReactTSInertiaInstaller(),
-            Installers\ReactTsPackagesInstaller::$key => new Installers\ReactTsPackagesInstaller(),
+            Installers\ApiInstaller::$key => new Installers\ApiInstaller(version: $version , override: $override),
+            Installers\WebInstaller::$key => new Installers\WebInstaller(version: $version, override: $override),
+            Installers\BladePackagesInstaller::$key => new Installers\BladePackagesInstaller(override: $override),
+            Installers\PermissionsInstaller::$key => new Installers\PermissionsInstaller(override: $override),
+            Installers\ReactTSInertiaInstaller::$key => new Installers\ReactTSInertiaInstaller(override: $override),
+            Installers\ReactTsPackagesInstaller::$key => new Installers\ReactTsPackagesInstaller(override: $override),
             default => throw new Error("Not supported generator {$this->source} "),
         };
         try {

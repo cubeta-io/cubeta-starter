@@ -1,0 +1,153 @@
+<?php
+namespace {{namespace}};
+
+use {{request_namespace}};
+use {{model_namespace}};
+use {{service_namespace}};
+use {{resource_namespace}};
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use App\Http\Controllers\WebController;
+use Exception;
+{{imports}}
+
+class {{model_name}}Controller extends WebController
+{
+    private {{service_name}} ${{model_name_camel_case}}Service;
+
+    public function __construct()
+    {
+        $this->{{model_name_camel_case}}Service = {{service_name}}::make();
+        // place the relations you want to return them within the response
+        $this->relations = [{{relations}}];
+    }
+
+    public function data()
+    {
+        $items = $this->{{model_name_camel_case}}Service->indexWithPagination($this->relations);
+        return rest()
+           ->ok()
+           ->getSuccess()
+           ->data($items)
+           ->send();
+    }
+
+    public function index()
+    {
+        $exportables = {{model_name}}::getModel()->exportable();
+        return Inertia::render('{{index_page}}' , [
+            "exportables" => $exportables
+        ]);
+    }
+
+    public function show(${{model_name_camel_case}}Id)
+    {
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->view(${{model_name_camel_case}}Id , $this->relations);
+        return Inertia::render('{{show_page}}', [
+            '{{model_name_camel_case}}' => {{resource_name}}::make(${{model_name_camel_case}}),
+        ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('{{create_page}}');
+    }
+
+    public function store(StoreUpdate{{model_name}}Request $request)
+    {
+        /** @var {{model_name}}|null $item */
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->store($request->validated(), $this->relations);
+        if (${{model_name_camel_case}}) {
+            return redirect()
+                    ->route('{{index_route}}')
+                    ->with('success' , trans('site.stored_successfully'));
+        }
+        return redirect()
+                ->back()
+                ->with('error' , trans('site.something_went_wrong'));
+    }
+
+    public function edit(${{model_name_camel_case}}Id)
+    {
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->view(${{model_name_camel_case}}Id , $this->relations);
+
+        if (!${{model_name_camel_case}}) {
+            abort(404);
+        }
+        return Inertia::render('{{update_page}}' , [
+            '{{model_name_camel_case}}' => {{resource_name}}::make(${{model_name_camel_case}})
+        ]);
+    }
+
+    public function update(StoreUpdate{{model_name}}Request $request, ${{model_name_camel_case}}Id)
+    {
+        /** @var {{model_name}}|null $item */
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->update($request->validated(), ${{model_name_camel_case}}Id, $this->relations);
+        if (${{model_name_camel_case}}) {
+            return redirect()
+                ->route('{{index_route}}')
+                ->with('success' , trans('site.update_successfully'));
+        }
+
+        return redirect()
+            ->back()
+            ->with('error' , trans('site.there_is_no_data'));
+    }
+
+    public function destroy(${{model_name_camel_case}}Id)
+    {
+        $result = $this->{{model_name_camel_case}}Service->delete(${{model_name_camel_case}}Id);
+
+        return rest()
+            ->when(
+                $result,
+                fn($rest) => $rest->ok()->deleteSuccess(),
+                fn($rest) => $rest->noData(),
+            )->send();
+    }
+
+    public function export(Request $request)
+    {
+        $ids = $request->ids ?? [];
+
+        try{
+            $result = $this->{{model_name_camel_case}}Service->export($ids);
+            session()->flash('success' , trans('site.success'));
+            return $result;
+        } catch(Exception){
+            return redirect()
+                ->back()
+                ->with('error' , trans('site.something_went_wrong'));
+        }
+    }
+
+    public function getImportExample()
+    {
+        try{
+            $result = $this->{{model_name_camel_case}}Service->getImportExample();
+            session()->flash('success' , trans('site.success'));
+            return $result;
+        } catch(Exception){
+            return redirect()
+                ->back()
+                ->with('error' , trans('site.something_went_wrong'));
+        }
+    }
+
+    public function import(Request $request)
+    {
+        try{
+            $request->validate(['excel_file' => 'required|mimes:xls,xlsx']);
+            $this->{{model_name_camel_case}}Service->import();
+            return redirect()
+                ->back()
+                ->with('message' , trans('site.success'));
+        }catch (Exception){
+            return redirect()
+                ->back()
+                ->with('message' , trans('site.something_went_wrong'));
+        }
+    }
+
+    {{methods}}
+}

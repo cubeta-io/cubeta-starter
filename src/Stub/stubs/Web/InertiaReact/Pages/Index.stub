@@ -1,0 +1,52 @@
+import ActionsButtons from "@/Components/Datatable/ActionsButtons";
+import DataTable from "@/Components/Datatable/DataTable";
+import {{model_name}} from "@/Models/{{model_name}}";
+import ApiResponse from "@/Modules/Http/ApiResponse";
+import Http from "@/Modules/Http/Http";
+{{imports}}
+
+const Index = ({exportables}:{exportables:string[]}) => {
+    return (
+        <DataTable
+            title="{{model_name}} Table"
+            createUrl={route("{{create_route}}")}
+            importRoute={route("{{import_route}}")}
+            exportRoute={route("{{export_route}}")}
+            importExampleRoute={route("{{import_example_route}}")}
+            exportables={exportables}
+            getDataArray={(res) => res.data}
+            getTotalPages={(res) => res?.paginate?.total_pages ?? 0}
+            getTotalRecords={(res) => res.paginate?.total ?? 0}
+            api={(
+                    page?: number | undefined,
+                    search?: string | undefined,
+                    sortCol?: string | undefined,
+                    sortDir?: string | undefined,
+                    perPage?: number | undefined,
+                    params?: object | undefined
+                ) => Http.make<{{model_name}}[]>().get(route("{{data_route}}"),{page:page,search:search,sort_col:sortCol,sort_dir:sortDir,limit:perPage,...params})
+            }
+            schema={[
+                {
+                    name: "id",
+                    label: "ID",
+                    sortable: true,
+                },
+                {{columns}}
+                {
+                    label: "Options",
+                    render: (_data, record, setHidden, revalidate) => (
+                        <ActionsButtons
+                            buttons={["delete", "edit", "show"]}
+                            baseUrl={route("{{index_route}}")}
+                            id={record?.id ?? 0}
+                            setHidden={setHidden}
+                        />
+                    ),
+                },
+            ]}
+        />
+    );
+};
+
+export default Index;

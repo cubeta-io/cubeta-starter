@@ -1,8 +1,0 @@
-
-    //**********{enum}***********//
-    const {enum} = [
-    	'role' => '{roleValue}' , 
-    	'permissions' => {permissions} ,
-    ] ;
-    //*************************//
-

@@ -25,10 +25,10 @@
     </div>
     <div id="terminal">
         @if(count($logs))
-            <div id="all">
+            <div id="all" class="d-flex flex-column justify-content-between gap-5">
                 @foreach($logs as $log)
                     @if(is_string($log))
-                        <div class='my-5 p-3 w-100 p-2 border border-success rounded-3 border-2'>
+                        <div class='p-3 w-100 p-2 border border-success rounded-3 border-2'>
                             <div class='w-100'>{{$log}}</div>
                         </div>
                     @else
@@ -36,17 +36,17 @@
                     @endif
                 @endforeach
             </div>
-            <div id="info">
+            <div id="info" class="d-flex flex-column justify-content-between gap-5">
                 @foreach($logs->filter(fn ($item) => ($item instanceof \Cubeta\CubetaStarter\Logs\CubeInfo)) as $log)
                     {!! $log->getHtml() !!}
                 @endforeach
             </div>
-            <div id="warnings">
+            <div id="warnings" class="d-flex flex-column justify-content-between gap-5">
                 @foreach($logs->filter(fn ($item) => $item instanceof \Cubeta\CubetaStarter\Logs\CubeWarning) as $log)
                     {!! $log->getHtml() !!}
                 @endforeach
             </div>
-            <div id="errors">
+            <div id="errors" class="d-flex flex-column justify-content-between gap-5">
                 @foreach($logs->filter(fn ($item) => $item instanceof \Cubeta\CubetaStarter\Logs\CubeError) as $log)
                     {!! $log->getHtml() !!}
                 @endforeach

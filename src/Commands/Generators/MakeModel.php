@@ -4,7 +4,9 @@ namespace Cubeta\CubetaStarter\Commands\Generators;
 
 use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
+use Cubeta\CubetaStarter\Settings\Settings;
 
 class MakeModel extends BaseCommand
 {
@@ -21,7 +23,8 @@ class MakeModel extends BaseCommand
         {--migration} {--request} {--resource}
         {--factory} {--seeder} {--repository}
         {--service} {--controller} {--web_controller}
-        {--test}';
+        {--test} 
+        {--force}';
 
     protected bool $useGui = false;
 
@@ -47,57 +50,78 @@ class MakeModel extends BaseCommand
 
         $generator = new GeneratorFactory("model");
 
-        $generator->make(fileName: $modelName, attributes: $attributes, relations: $relations, nullables: $nulls, uniques: $unique, actor: $actor);
+        $override = $this->askForOverride();
 
-        $this->handleCommandLogsAndErrors();
+        $generator->make(
+            fileName: $modelName,
+            attributes: $attributes,
+            relations: $relations, nullables: $nulls,
+            uniques: $unique,
+            actor: $actor,
+            override: $override
+        );
 
-        $this->callAppropriateCommand($modelName, $options, $actor, $attributes, $relations, $nulls, $unique, $container);
+        $this->callAppropriateCommand(
+            $modelName,
+            $options,
+            $actor, $attributes,
+            $relations,
+            $nulls,
+            $unique,
+            $container,
+            $override
+        );
     }
 
     /**
      * call to command base on the option flag
      */
-    public function callAppropriateCommand(string $name, $options, string $actor, array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], string $container = ContainerType::API): void
+    public function callAppropriateCommand(string $name, $options, string $actor, array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], string $container = ContainerType::API, bool $override = false): void
     {
-        $options = array_filter($options, function ($value) {
-            return $value !== false && $value !== null;
-        });
+        $options = array_filter($options, function ($value, $index) {
+            return $value !== false && $value !== null && $index != "force";
+        }, ARRAY_FILTER_USE_BOTH);
 
         if (!count($options)) {
             $result = 'all';
         } else {
             foreach ($options as $key => $option) {
                 $result = match ($key) {
-                    'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, 'uniques' => $uniques]),
-                    'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container]),
-                    'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'container' => $container]),
-                    'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'uniques' => $uniques]),
-                    'seeder' => $this->call('create:seeder', ['name' => $name]),
-                    'repository' => $this->call('create:repository', ['name' => $name]),
-                    'service' => $this->call('create:service', ['name' => $name]),
-                    'controller' => $this->call('create:controller', ['name' => $name, 'actor' => $actor]),
-                    'web_controller' => $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables]),
-                    'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]),
+                    'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, 'uniques' => $uniques, '--force' => $override]),
+                    'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container, '--force' => $override]),
+                    'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'container' => $container, '--force' => $override]),
+                    'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'uniques' => $uniques, '--force' => $override]),
+                    'seeder' => $this->call('create:seeder', ['name' => $name, '--force' => $override]),
+                    'repository' => $this->call('create:repository', ['name' => $name, '--force' => $override]),
+                    'service' => $this->call('create:service', ['name' => $name, '--force' => $override]),
+                    'controller' => $this->call('create:controller', ['name' => $name, 'actor' => $actor, '--force' => $override]),
+                    'web_controller' => $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, '--force' => $override]),
+                    'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, '--force' => $override]),
                 };
             }
         }
 
         if (!isset($result) || $result === 'all') {
-            $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, 'uniques' => $uniques]);
-            $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'uniques' => $uniques]);
-            $this->call('create:seeder', ['name' => $name]);
-            $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container]);
-            $this->call('create:repository', ['name' => $name]);
-            $this->call('create:service', ['name' => $name]);
+            $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, 'uniques' => $uniques, '--force' => $override]);
+            $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'uniques' => $uniques, '--force' => $override]);
+            $this->call('create:seeder', ['name' => $name, '--force' => $override]);
+            $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container, '--force' => $override]);
+            $this->call('create:repository', ['name' => $name, '--force' => $override]);
+            $this->call('create:service', ['name' => $name, '--force' => $override]);
+
+            if ((ContainerType::isWeb($container) && Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS)
+                || ContainerType::isApi($container)
+            ) {
+                $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'container' => $container, '--force' => $override]);
+            }
 
             if (ContainerType::isApi($container)) {
-                $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'container' => $container]);
-                $this->call('create:controller', ['name' => $name, 'actor' => $actor]);
-                $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes]);
+                $this->call('create:controller', ['name' => $name, 'actor' => $actor, '--force' => $override]);
+                $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, '--force' => $override]);
             }
 
             if (ContainerType::isWeb($container)) {
-                $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables]);
+                $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, '--force' => $override]);
             }
         }
     }

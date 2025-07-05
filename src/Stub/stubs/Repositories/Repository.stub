@@ -1,0 +1,14 @@
+<?php
+
+namespace {{repositories_namespace}};
+
+use {{model_namespace}};
+use {{repositories_namespace}}\Contracts\BaseRepository;
+
+/**
+ * @extends  BaseRepository<{{model_name}}>
+ */
+class {{model_name}}Repository extends BaseRepository
+{
+    protected string $modelClass = {{model_name}}::class;
+}

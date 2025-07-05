@@ -2,8 +2,22 @@
 
 namespace Cubeta\CubetaStarter\Logs;
 
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\Logs\Errors\WrongEnvironment;
+use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
+use Cubeta\CubetaStarter\Logs\Info\ContentRemoved;
+use Cubeta\CubetaStarter\Logs\Info\SuccessGenerating;
+use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
 use Exception;
 use Throwable;
+use function Laravel\Prompts\error;
+use function Laravel\Prompts\info;
+use function Laravel\Prompts\note;
+use function Laravel\Prompts\warning;
 
 class CubeLog
 {
@@ -12,6 +26,26 @@ class CubeLog
     public static function add(Exception|CubeError|CubeInfo|CubeWarning|string $log): void
     {
         self::$logs[] = $log;
+
+        if ($log instanceof Exception or $log instanceof Throwable) {
+            error("Message : {$log->getMessage()} \nFile: {$log->getFile()}\nLine: {$log->getLine()}\n");
+        } elseif ($log instanceof CubeError) {
+
+            error("Error : {$log->message}");
+            if ($log->affectedFilePath) {
+                note("Affected Path : {$log->affectedFilePath}");
+            }
+            if ($log->happenedWhen) {
+                note("Happened When : {$log->happenedWhen}");
+            }
+
+        } else if ($log instanceof CubeInfo) {
+            info($log->getMessage());
+        } elseif ($log instanceof CubeWarning) {
+            warning($log->getMessage());
+        } elseif (is_string($log)) {
+            note(trim($log));
+        }
     }
 
     public static function logs(): array
@@ -26,15 +60,15 @@ class CubeLog
 
     public static function splitExceptions(): array
     {
-        $logs = array_filter(self::$logs, fn ($log) => (!$log instanceof Exception and !$log instanceof Throwable));
-        $exceptions = array_filter(self::$logs, fn ($log) => ($log instanceof Exception or $log instanceof Throwable));
+        $logs = array_filter(self::$logs, fn($log) => (!$log instanceof Exception and !$log instanceof Throwable));
+        $exceptions = array_filter(self::$logs, fn($log) => ($log instanceof Exception or $log instanceof Throwable));
 
         return [$logs, $exceptions];
     }
 
     public static function getExceptionMessage(Exception|Throwable $exception): string
     {
-        return "Message : {$exception->getMessage()} \nFile: {$exception->getFile()}\nLine: {$exception->getLine()}\n";
+        return "Message : {$exception->getMessage()} \n\rFile: {$exception->getFile()}\n\rLine: {$exception->getLine()}\n";
     }
 
     public static function exceptionToHtml(Exception|Throwable $exception): string
@@ -53,5 +87,117 @@ class CubeLog
                 self::$logs[$key] = new CubeError($log->getMessage(), $log->getFile());
             }
         }
+    }
+
+    public static function contentAppended(string $content, string|CubePath $path): void
+    {
+        self::add(new ContentAppended(
+            $content,
+            $path instanceof CubePath
+                ? $path->fullPath
+                : $path
+        ));
+    }
+
+    public static function contentRemoved(string $content, string|CubePath $path): void
+    {
+        self::add(new ContentRemoved(
+            $content,
+            $path instanceof CubePath
+                ? $path->fullPath
+                : $path
+        ));
+    }
+
+    public static function contentAlreadyExists(string $content, string|CubePath $path, ?string $context = null): void
+    {
+        self::add(new ContentAlreadyExist(
+            $content,
+            $path instanceof CubePath
+                ? $path->fullPath
+                : $path,
+            $context
+        ));
+    }
+
+    public static function contentNotFound(string $content, string $filePath, ?string $context = null): void
+    {
+        self::add(
+            new ContentNotFound(
+                $content,
+                $filePath,
+                $context
+            )
+        );
+    }
+
+    public static function fileAlreadyExists(string $filePath, ?string $happenedWhen = null): void
+    {
+        self::add(new AlreadyExist(
+            $filePath,
+            $happenedWhen ?? ""
+        ));
+    }
+
+    public static function generatedSuccessfully(string $fileName, ?string $filePath = null, ?string $context = null): void
+    {
+        self::add(new SuccessGenerating(
+            $fileName,
+            $filePath,
+            $context
+        ));
+    }
+
+    public static function success(string $message): void
+    {
+        self::add(
+            new SuccessMessage($message)
+        );
+    }
+
+    public static function error(string $message, ?string $affectedPath = null, ?string $context = null): void
+    {
+        self::add(new CubeError(
+            $message,
+            $affectedPath,
+            $context
+        ));
+    }
+
+    public static function failedAppending(string $content, string $filePath = null, ?string $context = null): void
+    {
+        self::add(
+            new FailedAppendContent(
+                $content,
+                $filePath,
+                $context
+            )
+        );
+    }
+
+    public static function notFound(string $content, string $filePath = null, ?string $context = null): void
+    {
+        self::add(new ContentNotFound(
+            $content,
+            $filePath,
+            $context
+        ));
+    }
+
+    public static function wrongEnvironment(string $happenedWhen): void
+    {
+        self::add(new WrongEnvironment(
+            $happenedWhen
+        ));
+    }
+
+    public static function warning(string $message, ?string $context = null): void
+    {
+        self::add(new CubeWarning($message, $context));
+    }
+
+    public static function info(string $message, ?string $context = null): void
+    {
+        self::add(new CubeInfo($message, $context));
     }
 }

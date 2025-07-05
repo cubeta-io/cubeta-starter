@@ -1,0 +1,51 @@
+<?php
+
+namespace {{namespace}};
+
+use {{resource_namespace}};
+use {{model_namespace}};
+use Tests\Contracts\MainTestCase;
+{{imports}}
+
+class {{model_name}}Test extends MainTestCase
+{
+    /** @var class-string<{{model_name}}> */
+    protected string $model = {{model_name}}::class;
+
+    /** @var class-string<{{model_name}}Resource> */
+    protected string $resource = {{model_name}}Resource::class;
+
+    protected string $userType = "{{actor}}";
+    protected string $baseUrl = '{{base_route_name}}';
+    protected array $relations = [];
+
+    public function test_{{method_actor}}_can_index_{{method_model_name}}()
+    {
+        $this->requestPathHook($this->baseUrl.'index')
+            ->indexTest();
+    }
+
+    public function test_{{method_actor}}_can_show_a_{{method_model_name}}()
+    {
+        $this->requestPathHook($this->baseUrl.'show')
+            ->showTest();
+    }
+
+    public function test_{{method_actor}}_can_create_a_{{method_model_name}}()
+    {
+        $this->requestPathHook($this->baseUrl.'store')
+            ->storeTest([{{additional_factory_data}}]);
+    }
+
+    public function test_{{method_actor}}_can_update_{{method_model_name}}()
+    {
+        $this->requestPathHook($this->baseUrl.'update')
+            ->updateTest([{{additional_factory_data}}]);
+    }
+
+    public function test_{{method_actor}}_can_delete_a_{{method_model_name}}()
+    {
+        $this->requestPathHook($this->baseUrl.'destroy')
+            ->deleteTest();
+    }
+}

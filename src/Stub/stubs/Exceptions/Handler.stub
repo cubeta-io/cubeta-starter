@@ -1,0 +1,83 @@
+<?php
+
+namespace App\Exceptions;
+
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
+use Throwable;
+
+class Handler
+{
+    public function __construct()
+    {
+    }
+
+    public function handleException($request, Throwable $exception): Response|JsonResponse|RedirectResponse|\Symfony\Component\HttpFoundation\Response
+    {
+        if ($exception instanceof AuthenticationException) {
+            return rest()
+                ->notAuthorized()
+                ->message($exception->getMessage())
+                ->send();
+        }
+
+        if ($exception instanceof AuthorizationException) {
+            return rest()
+                ->notAuthorized()
+                ->message($exception->getMessage())
+                ->send();
+        }
+
+        if ($exception instanceof HttpException) {
+            if ($exception->getMessage() == 'Unauthorized Action') {
+                return rest()
+                    ->forbidden()
+                    ->message($exception->getMessage())
+                    ->send();
+            }
+
+            return rest()
+                ->badRequest()
+                ->message($exception->getMessage())
+                ->send();
+        }
+
+        if ($exception instanceof HttpResponseException) {
+            return rest()
+                ->badRequest()
+                ->message($exception->getMessage())
+                ->send();
+        }
+
+        if ($exception instanceof ValidationException) {
+            return rest()
+                ->validationError()
+                ->data($exception->errors())
+                ->send();
+        }
+
+        if ($exception instanceof ModelNotFoundException) {
+            return rest()->noData()->send();
+        }
+
+        if ($exception instanceof RouteNotFoundException) {
+            if ($exception->getMessage() == 'Route [login] not defined.') {
+                return rest()->notAuthorized()->send();
+            }
+        }
+
+        if (!app()->environment('local')) {
+            return rest()->noData()->send();
+        }
+
+        throw $exception;
+    }
+}

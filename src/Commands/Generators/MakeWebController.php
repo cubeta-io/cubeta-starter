@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
+use Cubeta\CubetaStarter\Settings\CubeTable;
 
 class MakeWebController extends BaseCommand
 {
@@ -18,7 +18,8 @@ class MakeWebController extends BaseCommand
         {attributes? : the model attributes}
         {relations? : the model relations}
         {nullables? : the nullables attributes}
-        {actor? : The actor of the endpoint of this model }';
+        {actor? : The actor of the endpoint of this model }
+        {--force}';
 
     protected string $rawColumns = "";
 
@@ -39,8 +40,17 @@ class MakeWebController extends BaseCommand
 
         $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors("Model"));
 
+        $override = $this->askForOverride();
+
         $generator = new GeneratorFactory("controller");
-        $generator->make(fileName: $modelName, attributes: $attributes, relations: $relations, nullables: $nulls, actor: $actor, generatedFor: ContainerType::WEB);
-        $this->handleCommandLogsAndErrors();
+        $generator->make(
+            fileName: $modelName,
+            attributes: $attributes,
+            relations: $relations,
+            nullables: $nulls,
+            actor: $actor,
+            generatedFor: ContainerType::WEB,
+            override: $override
+        );
     }
 }

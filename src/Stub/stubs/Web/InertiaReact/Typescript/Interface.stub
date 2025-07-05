@@ -1,0 +1,7 @@
+{{imports}}
+interface {{model_name}} {
+    id: number;
+    {{properties}}
+}
+
+export default {{model_name}};

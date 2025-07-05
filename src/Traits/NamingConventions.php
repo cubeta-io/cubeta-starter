@@ -3,14 +3,14 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Carbon\Carbon;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Helpers\Naming;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 
 /**
- * @mixin CubeTable|CubeRelation|CubeAttribute
+ * Provides naming conventions for various components such as variables, routes, models, tables, etc.
  */
 trait NamingConventions
 {
@@ -232,12 +232,17 @@ trait NamingConventions
         if (Str::contains($this->name, 'is_')) {
             $base = Str::replace('is_', '', $this->name);
             return [
-                'true'  => Str::title($base),
+                'true' => Str::title($base),
                 'false' => 'Not' . Str::title($base),
             ];
         } else return [
-            'true'  => Str::title($this->name),
+            'true' => Str::title($this->name),
             'false' => 'Not' . Str::title($this->name),
         ];
+    }
+
+    public function routeParameterNaming(): Stringable
+    {
+        return str($this->usedString)->snake()->singular()->lower();
     }
 }

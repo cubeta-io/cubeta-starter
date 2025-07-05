@@ -5,23 +5,24 @@ namespace Cubeta\CubetaStarter\Helpers;
 use Cubeta\CubetaStarter\CreateFile;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
-use Cubeta\CubetaStarter\Logs\CubeInfo;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
-use Cubeta\CubetaStarter\Logs\Errors\WrongEnvironment;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
-use Illuminate\Contracts\Container\BindingResolutionException;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use function Laravel\Prompts\info;
+
 
 class FileUtils
 {
     /**
-     * check if the directory exist if not create it
+     * check if the directory exists if not create it
      * @param string $directory
      * @return void
      */
@@ -38,7 +39,6 @@ class FileUtils
      * @param string $stubPath
      * @param bool   $override
      * @return void
-     * @throws BindingResolutionException
      * @throws FileNotFoundException
      */
     public static function generateFileFromStub(array $stubProperties, string $path, string $stubPath, bool $override = false): void
@@ -51,11 +51,11 @@ class FileUtils
     }
 
     /**
-     * format the php file on the given path
+     * format the PHP file on the given path
      * @param $filePath string the project path of the file eg:app/Models/MyModel.php
      * @return void
      */
-    public static function formatPhpFile(string $filePath): void
+    public static function formatWithPint(string $filePath): void
     {
         $command = base_path("/vendor/bin/pint") . " {$filePath}";
         self::executeCommandInTheBaseDirectory($command, false);
@@ -67,7 +67,7 @@ class FileUtils
      * @param $filePath string the project path of the file eg:resources/js/Pages/page.tsx
      * @return void
      */
-    public static function formatJsFile(string $filePath): void
+    public static function formatWithPrettier(string $filePath): void
     {
         $command = "npx prettier {$filePath} --write";
         self::executeCommandInTheBaseDirectory($command, false);
@@ -85,9 +85,12 @@ class FileUtils
             $rootDirectory = base_path();
             $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
 
-            if ($withLog) {
-                CubeLog::add(new CubeInfo("Running command : [$command]"));
+            if (php_sapi_name() == "cli") {
+                info("Running command : [$command]");
+            } elseif ($withLog) {
+                CubeLog::info("Running command : [$command]");
             }
+
             $output = shell_exec($fullCommand);
 
             if (is_string($output) && $withLog) {
@@ -97,7 +100,7 @@ class FileUtils
             return $output;
         }
 
-        CubeLog::add(new WrongEnvironment("Running Command : $command"));
+        CubeLog::wrongEnvironment("Running Command : [$command]");
 
         return false;
     }
@@ -112,8 +115,8 @@ class FileUtils
     {
         $contents = $filePath->getContent();
 
-        if (self::contentExistInFile($filePath, $importStatement)) {
-            CubeLog::add(new ContentAlreadyExist($importStatement, $filePath->fullPath, "Adding Import Statement"));
+        if (self::importExistsInFile($importStatement, $filePath)) {
+            CubeLog::contentAlreadyExists($importStatement, $filePath->fullPath, "Adding Import Statement");
             return;
         }
 
@@ -145,15 +148,16 @@ class FileUtils
 
 
     /**
-     * check if content exist in a file
+     * check if content exists in a file
      * @param CubePath $filePath
-     * @param string   $content
+     * @param string   $needle
      * @return bool
      */
-    public static function contentExistInFile(CubePath $filePath, string $content): bool
+    public static function contentExistInFile(CubePath $filePath, string $needle): bool
     {
         if (!$filePath->exist()) {
-            CubeLog::add(new NotFound($filePath->fullPath, "Checking If $content Exists In it"));
+            CubeLog::notFound($filePath->fullPath, "Checking If $needle Exists In it");
+            return false;
         }
 
         $fileContent = $filePath->getContent();
@@ -162,16 +166,16 @@ class FileUtils
             return false;
         }
 
-        return self::contentExistsInString($fileContent, $content);
+        return self::contentExistsInString($fileContent, $needle);
     }
 
-    public static function contentExistsInString(string $string, string $content): bool
+    public static function contentExistsInString(string $haystack, string $needle): bool
     {
-        $string = self::extraTrim($string);
+        $haystack = self::extraTrim($haystack);
 
-        $content = self::extraTrim($content);
+        $needle = self::extraTrim($needle);
 
-        if (str_contains(strtolower($string), strtolower($content))) {
+        if (str_contains(strtolower($haystack), strtolower($needle)) || $haystack == $needle) {
             return true;
         }
 
@@ -183,53 +187,12 @@ class FileUtils
         return trim(preg_replace('/\s+/', '', $string));
     }
 
-    /**
-     * @param string $subject
-     * @param string $contentToAdd
-     * @param string $pattern
-     * @return array|string|null
-     */
-    public static function appendToFirstMatch(string $subject, string $contentToAdd, string $pattern): array|string|null
-    {
-        return preg_replace($pattern, '$0' . $contentToAdd, $subject);
-    }
-
-    /**
-     * this function check for a php file syntax error by running php -l command on the file
-     * @param CubePath $path
-     * @return bool
-     */
-    public static function checkForSyntaxErrors(CubePath $path): bool
-    {
-        // PHP interpreter with the '-l' flag to check for syntax errors
-        $output = shell_exec("php -l {$path->fullPath}");
-
-        return str_contains($output, 'No syntax errors detected');
-    }
-
     public static function isInPhpArrayString(string $arrayString, string $needle): bool
     {
         return Str::contains($arrayString, "\"$needle\"")
             || Str::contains($arrayString, "'$needle'")
             || preg_match('/\'\s*' . $needle . '\s*\'/', $arrayString)
             || preg_match('/\"\s*' . $needle . '\s*\"/', $arrayString);
-    }
-
-    /**
-     * @param string $pattern
-     * @param string $replacement
-     * @param string $subject
-     * @return string
-     */
-    public static function prependLastMatch(string $pattern, string $replacement, string $subject): string
-    {
-        preg_match_all($pattern, $subject, $matches, PREG_OFFSET_CAPTURE);
-
-        // Get the offset of the last match
-        $lastMatchOffset = end($matches[0])[1];
-
-        // Replace the last match with the new content
-        return substr_replace($subject, $replacement, $lastMatchOffset, 0);
     }
 
     public static function replaceFirstMatch($haystack, $needle, $replace)
@@ -241,7 +204,7 @@ class FileUtils
         return $haystack;
     }
 
-    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type, string $importStatement): bool
+    public static function registerMiddleware(string $middlewareArrayItem, MiddlewareArrayGroupEnum $type, PhpImportString $importStatement): bool
     {
         $bootstrapPath = CubePath::make("/bootstrap/app.php");
         if (!$bootstrapPath->exist()) {
@@ -268,21 +231,21 @@ class FileUtils
         $bootstrapContent = $bootstrapPath->getContent();
 
         $patternWithMethodExists = '/->\s*withMiddleware\s*\(' .
-            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)' .
-            '\$middleware\s*->\s*' . $methodName . '\s*\(\s*(.*?)\s*append\s*:\s*\[\s*(.*?)\s*]\s*(.*?)\)\s*;' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)(.*?)\{\s*(.*?)' .
+            '\$middleware\s*->\s*' . $methodName . '\s*\(\s*(.*?)\s*append\s*:\s*\[\s*(.*?)\s*](.*?)\)\s*;' .
             '(.*?)\s*}\s*\)/s';
         if (preg_match($patternWithMethodExists, $bootstrapContent, $matches)) {
-            if (isset($matches[3])) {
-                if (FileUtils::contentExistsInString($matches[3], $middleware)) {
+            if (isset($matches[4])) {
+                if (FileUtils::contentExistsInString($matches[4], $middleware)) {
                     CubeLog::add(new ContentAlreadyExist($middleware, $bootstrapPath->fullPath, "Registering $middleware middleware in the $container middlewares group"));
                     return false;
                 }
                 $bootstrapContent = preg_replace_callback($patternWithMethodExists, function ($matches) use ($methodName, $middleware) {
-                    $middlewaresArray = $matches[3];
+                    $middlewaresArray = $matches[4];
                     $middlewaresArray .= ",\n$middleware,\n";
                     $middlewaresArray = FileUtils::fixArrayOrObjectCommas($middlewaresArray);
-                    return "->withMiddleware(function (Middleware \$middleware)" .
-                        " {\n{$matches[1]}\$middleware->$methodName({$matches[2]}append: [\n{$middlewaresArray}\n]{$matches[4]});\n{$matches[5]}\n})";
+                    return "->withMiddleware(function (Middleware \$middleware){$matches[1]}" .
+                        " {\n{$matches[2]}\$middleware->$methodName({$matches[3]}append: [\n{$middlewaresArray}\n]{$matches[5]});\n{$matches[6]}\n})";
                 }, $bootstrapContent);
                 $bootstrapPath->putContent($bootstrapContent);
                 CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
@@ -295,14 +258,14 @@ class FileUtils
         }
 
         $patternWithoutMethodExists = '/->\s*withMiddleware\s*\(' .
-            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)\s*}' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)(.*?)\{\s*(.*?)\s*}' .
             '\s*\)\s*/s';
         if (preg_match($patternWithoutMethodExists, $bootstrapContent, $matches)) {
-            if (isset($matches[1])) {
+            if (isset($matches[2])) {
                 $bootstrapContent = preg_replace_callback($patternWithoutMethodExists, function ($matches) use ($methodName, $middleware) {
-                    $registered = $matches[1];
+                    $registered = $matches[2];
                     $registered .= "\n\$middleware->$methodName(append: [\n$middleware,\n]);\n";
-                    return "->withMiddleware(function(Middleware \$middleware) {\n$registered\n})";
+                    return "->withMiddleware(function(Middleware \$middleware){$matches[1]} {\n$registered\n})";
                 }, $bootstrapContent);
                 $bootstrapPath->putContent($bootstrapContent);
                 CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
@@ -342,21 +305,21 @@ class FileUtils
         $bootstrapContent = $bootstrapPath->getContent();
 
         $patternWithMethodExists = '/->\s*withMiddleware\s*\(' .
-            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)(.*?)\{\s*(.*?)' .
             '\$middleware\s*->\s*' . $methodName . '\s*\(\s*\[\s*(.*?)\s*]\s*\)\s*;' .
             '(.*?)\s*}\s*\)/s';
         if (preg_match($patternWithMethodExists, $bootstrapContent, $matches)) {
-            if (isset($matches[2])) {
-                if (FileUtils::contentExistsInString($matches[2], $middleware)) {
+            if (isset($matches[3])) {
+                if (FileUtils::contentExistsInString($matches[3], $middleware)) {
                     CubeLog::add(new ContentAlreadyExist($middleware, $bootstrapPath->fullPath, $context));
                     return false;
                 }
                 $bootstrapContent = preg_replace_callback($patternWithMethodExists, function ($matches) use ($methodName, $middleware) {
-                    $middlewaresArray = $matches[2];
+                    $middlewaresArray = $matches[3];
                     $middlewaresArray .= "\n,$middleware,\n";
                     $middlewaresArray = FileUtils::fixArrayOrObjectCommas($middlewaresArray);
-                    return "->withMiddleware(function (Middleware \$middleware)" .
-                        " {\n{$matches[1]}\$middleware->{$methodName}([\n{$middlewaresArray}\n]);\n{$matches[3]}\n})";
+                    return "->withMiddleware(function (Middleware \$middleware){$matches[1]}" .
+                        " {\n{$matches[2]}\$middleware->{$methodName}([\n{$middlewaresArray}\n]);\n{$matches[4]}\n})";
                 }, $bootstrapContent);
                 $bootstrapPath->putContent($bootstrapContent);
                 CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
@@ -369,14 +332,14 @@ class FileUtils
         }
 
         $patternWithoutMethodExists = '/->\s*withMiddleware\s*\(' .
-            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)\s*\{\s*(.*?)\s*}' .
+            '\s*function\s*\(\s*Middleware\s*\$middleware\s*\)(.*?)\{\s*(.*?)\s*}' .
             '\s*\)\s*/s';
         if (preg_match($patternWithoutMethodExists, $bootstrapContent, $matches)) {
-            if (isset($matches[1])) {
+            if (isset($matches[2])) {
                 $bootstrapContent = preg_replace_callback($patternWithoutMethodExists, function ($matches) use ($methodName, $middleware) {
-                    $registered = $matches[1];
+                    $registered = $matches[2];
                     $registered .= "\n\$middleware->{$methodName}([\n$middleware,\n]);\n";
-                    return "->withMiddleware(function(Middleware \$middleware) {\n$registered\n})";
+                    return "->withMiddleware(function(Middleware \$middleware){$matches[1]}{\n$registered\n})";
                 }, $bootstrapContent);
                 $bootstrapPath->putContent($bootstrapContent);
                 CubeLog::add(new ContentAppended($middleware, $bootstrapPath->fullPath));
@@ -392,9 +355,9 @@ class FileUtils
         return false;
     }
 
-    public static function removeRepeatedCommas(string $string): array|string|null
+    public static function removeRepeatedCommas(string $string, bool $newLine = true): array|string|null
     {
-        return preg_replace('/(,\s*)+/', ",\n", $string);
+        return preg_replace('/(,\s*)+/', $newLine ? ",\n" : ",", $string);
     }
 
     public static function registerProvider(string $provider): void
@@ -463,5 +426,60 @@ class FileUtils
             . $propName . '\s*=\s*{\s*' . $value . '\s*})|('
             . $propName . '\s*=\s*\'\s*' . $value . '\s*\'\s*)|('
             . $propName . '\s*=\s*"\s*' . $value . '\s*"\s*))';
+    }
+
+    public static function formatCodeString(string $code): string
+    {
+        $prettier = shell_exec("echo " . escapeshellarg($code) . " | prettier --parser babel");
+        if (isset($prettier) && str(self::extraTrim($prettier))->length() >= str(self::extraTrim($code))->length()) {
+            $code = $prettier;
+        }
+
+        ob_start();
+        highlight_string($code);
+        $highlight = ob_get_clean();
+        return strip_tags(str_replace(['<br />', '&nbsp;'], ["\n", ' '], $highlight));
+    }
+
+    public static function importExistsInFile(string|PhpImportString $importString, CubePath $file): bool
+    {
+        if (!$file->exist()) {
+            throw new Exception("File Doesn't Exists : [$file->fullPath] while checking if an import exists in it");
+        }
+
+        $content = $file->getContent();
+
+        if ($importString instanceof PhpImportString) {
+            $importedClass = trim($importString->classFullName, "\\");
+        } else {
+            if (!preg_match('/use\s*(.*?);/s', $importString, $matches)) {
+                throw new Exception("Invalid import string [$importString] while checking if an import exists in file [$file->fullPath]");
+            }
+            $importedClass = trim($matches[1], "\\");
+        }
+
+
+        return (bool)preg_match(
+            '/use\s*' . preg_quote($importedClass, '/') . '\s*;/s',
+            $content,
+        );
+    }
+
+    public static function migrationExists(string $tableName): ?string
+    {
+        $migrationsPath = base_path(config('cubeta-starter.migration_path'));
+
+        FileUtils::ensureDirectoryExists($migrationsPath);
+
+        $allMigrations = File::allFiles($migrationsPath);
+
+        foreach ($allMigrations as $migration) {
+            $migrationName = $migration->getBasename();
+            if (Str::contains($migrationName, "create_{$tableName}_table.php")) {
+                return $migration->getRealPath();
+            }
+        }
+
+        return null;
     }
 }

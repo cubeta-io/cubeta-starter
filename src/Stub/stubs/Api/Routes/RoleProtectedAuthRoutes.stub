@@ -1,0 +1,4 @@
+Route::post('/{{version}}/{{role}}/refresh', [{{version}}\{{controller_name}}AuthController::class, 'refresh'])->name("{{refresh_route_name}}");
+Route::post('/{{version}}/{{role}}/logout', [{{version}}\{{controller_name}}AuthController::class, 'logout'])->name("{{logout_route_name}}");
+Route::post('/{{version}}/{{role}}/update-user-data' , [{{version}}\{{controller_name}}AuthController::class, 'updateUserDetails'])->name("{{update_user_route_name}}");
+Route::get('/{{version}}/{{role}}/user-details', [{{version}}\{{controller_name}}AuthController::class, 'userDetails'])->name('{{user_details_route_name}}');

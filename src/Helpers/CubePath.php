@@ -30,7 +30,7 @@ class CubePath
         $this->fullPath = base_path($this->inProjectPath);
         $this->fullDirectory = dirname($this->fullPath);
         $this->inProjectDirectory = dirname($this->inProjectPath);
-        $this->fileName = pathinfo($this->fullPath, PATHINFO_BASENAME) ?? null;
+        $this->fileName = pathinfo($this->fullPath, PATHINFO_BASENAME) ?? "";
     }
 
     public static function make(string $inProjectFilePath): CubePath
@@ -55,10 +55,14 @@ class CubePath
 
     public function format(): void
     {
+        if (str($this->fileName)->contains('.blade.php')) {
+            FileUtils::formatWithPrettier($this->fullPath);
+        }
+
         if ($this->getFileExtension() == "php") {
-            FileUtils::formatPhpFile($this->fullPath);
+            FileUtils::formatWithPint($this->fullPath);
         } else {
-            FileUtils::formatJsFile($this->fullPath);
+            FileUtils::formatWithPrettier($this->fullPath);
         }
     }
 
@@ -77,6 +81,10 @@ class CubePath
         return pathinfo($this->fullPath, PATHINFO_EXTENSION) ?: null;
     }
 
+    /**
+     * @param non-empty-string $stubPath
+     * @return string
+     */
     public static function stubPath(string $stubPath): string
     {
         return realpath(
@@ -84,13 +92,47 @@ class CubePath
             DIRECTORY_SEPARATOR .
             '..' .
             DIRECTORY_SEPARATOR .
+            'Stub' .
+            DIRECTORY_SEPARATOR .
             'stubs' .
             (
-            str_starts_with(DIRECTORY_SEPARATOR, $stubPath)
+            (str_starts_with($stubPath, "/") || str_starts_with($stubPath, "\\"))
                 ? ''
                 : DIRECTORY_SEPARATOR
             ) .
-            str_replace('/', DIRECTORY_SEPARATOR, $stubPath)
+            str_replace(
+                '/',
+                DIRECTORY_SEPARATOR,
+                str_replace(
+                    '\\',
+                    DIRECTORY_SEPARATOR,
+                    $stubPath
+                )
+            )
+        );
+    }
+
+    public function __toString(): string
+    {
+        return $this->fullPath;
+    }
+
+    public function getFileNameWithoutExtension(): string
+    {
+        return str($this->fileName)
+            ->replace('.' . $this->getFileExtension(), '')
+            ->toString();
+    }
+
+    public function append(string $path): CubePath
+    {
+        return new self(
+            str($this->inProjectPath)
+                ->when(
+                    str_ends_with($this->inProjectPath , DIRECTORY_SEPARATOR),
+                    fn($s) => $s->append($path),
+                    fn($s) => $s->append(DIRECTORY_SEPARATOR . $path)
+                )->toString()
         );
     }
 }

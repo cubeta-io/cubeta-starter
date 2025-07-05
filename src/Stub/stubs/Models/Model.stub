@@ -1,0 +1,52 @@
+<?php
+
+namespace {{namespace}};
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
+{{imports}}
+
+/**
+ * @property integer id
+ * {{doc_block}}
+ * @mixin Builder<{{model_name}}>
+ */
+class {{model_name}} extends Model
+{
+    use HasFactory;
+    {{traits}}
+
+    protected $fillable = [
+       {{fillable}}
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            {{casts}}
+        ];
+    }
+
+    public function exportable(): array {
+        return [
+            {{exportables}}
+        ];
+    }
+
+    public static function searchableArray(): array
+    {
+        return [
+            {{searchable_keys}}
+        ] ;
+    }
+
+    public static function relationsSearchableArray(): array
+    {
+        return [
+            {{searchable_relations}}
+        ];
+    }
+
+    {{methods}}
+}

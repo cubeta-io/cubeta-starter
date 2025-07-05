@@ -22,16 +22,16 @@ class CubeError
 
     public function getMessage(): string
     {
-        $msg = "Error : " . $this->message . "\n";
-        if ($this->affectedFilePath) $msg .= "Affected : {$this->affectedFilePath} \n";
-        if ($this->happenedWhen) $msg .= "Happened When : {$this->happenedWhen} \n";
+        $msg = "Error : " . $this->message;
+        if ($this->affectedFilePath) $msg .= "\n\rAffected : {$this->affectedFilePath}";
+        if ($this->happenedWhen) $msg .= "\n\rHappened When : {$this->happenedWhen}";
 
         return $msg;
     }
 
     public function getHtml(): string
     {
-        $msg = "<div class='my-5 p-3 d-flex gap-1 flex-column justify-content-between p-2 border border-danger rounded-3 border-2 w-100' style='position: relative'>
+        $msg = "<div class='p-3 d-flex gap-1 flex-column justify-content-between p-2 border border-danger rounded-3 border-2 w-100' style='position: relative'>
                 <span style='position: absolute; top: -25%; left: 1%' class='bg-danger rounded-2 p-1 fw-bold'>Error</span>
                     <div class='w-100'>{$this->message}</div>
                 ";

@@ -14,7 +14,8 @@ class MakeMigration extends BaseCommand
         {attributes? : columns with data types}
         {relations?  : related models}
         {nullables? : nullable columns}
-        {uniques? : uniques columns}';
+        {uniques? : uniques columns}
+        {--force}';
 
     public function handle(): void
     {
@@ -33,7 +34,15 @@ class MakeMigration extends BaseCommand
 
         $generator = new GeneratorFactory("migration");
 
-        $generator->make(fileName: $modelName, attributes: $attributes, relations: $relations, nullables: $nulls, uniques: $unique);
-        $this->handleCommandLogsAndErrors();
+        $override = $this->askForOverride();
+
+        $generator->make(
+            fileName: $modelName,
+            attributes: $attributes,
+            relations: $relations,
+            nullables: $nulls,
+            uniques: $unique,
+            override: $override
+        );
     }
 }

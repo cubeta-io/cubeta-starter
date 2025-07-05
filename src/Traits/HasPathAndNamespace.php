@@ -2,26 +2,21 @@
 
 namespace Cubeta\CubetaStarter\Traits;
 
-use Cubeta\CubetaStarter\App\Models\Settings\CubeRelation;
-use Cubeta\CubetaStarter\App\Models\Settings\CubeTable;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 
 /**
- * @mixin CubeTable|CubeRelation
+ * A trait providing methods to generate paths, namespaces, and class strings
+ * for various application components, such as models, controllers, requests,
+ * resources, factories, seeders, repositories, services, tests, migrations, and views.
  */
 trait HasPathAndNamespace
 {
-    /**
-     * @var string
-     */
-    public string $cubetaPath = '';
-
     /**
      * @return CubePath
      */
     public function getModelPath(): CubePath
     {
-        return CubePath::make(config('cubeta-starter.model_path') . "/{$this->modelName}.php");
+        return CubePath::make(config('cubeta-starter.model_path') . "/{$this->modelNaming()}.php");
     }
 
     /**
@@ -29,7 +24,7 @@ trait HasPathAndNamespace
      */
     public function getModelClassString(): string
     {
-        return "\\" . config('cubeta-starter.model_namespace') . "\\{$this->modelName}";
+        return "\\" . config('cubeta-starter.model_namespace') . "\\{$this->modelNaming()}";
     }
 
     public function getModelNameSpace(bool $withStart = true, bool $prefixOnly = false): string
@@ -93,7 +88,7 @@ trait HasPathAndNamespace
      */
     public function getRequestPath(): CubePath
     {
-        return CubePath::make(config('cubeta-starter.request_path') . "/{$this->version}/{$this->modelName}/{$this->getRequestName()}.php");
+        return CubePath::make(config('cubeta-starter.request_path') . "/{$this->version}/{$this->modelNaming()}/{$this->getRequestName()}.php");
     }
 
     /**
@@ -101,14 +96,14 @@ trait HasPathAndNamespace
      */
     public function getRequestClassString(): string
     {
-        return "\\" . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelName}\\{$this->getRequestName()}";
+        return "\\" . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getRequestName()}";
     }
 
     public function getRequestNameSpace(bool $withStart = true, bool $prefixOnly = false): string
     {
         return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\$this->modelName"
-            : ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelName}\\{$this->getRequestName()}";
+            ? ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}"
+            : ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getRequestName()}";
     }
 
     /**
@@ -196,7 +191,7 @@ trait HasPathAndNamespace
      */
     public function getServicePath(): CubePath
     {
-        return CubePath::make(config('cubeta-starter.service_path') . "/{$this->version}/{$this->modelName}/{$this->getServiceName()}.php");
+        return CubePath::make(config('cubeta-starter.service_path') . "/{$this->version}/{$this->modelNaming()}/{$this->getServiceName()}.php");
     }
 
     /**
@@ -207,24 +202,50 @@ trait HasPathAndNamespace
     public function getServiceNamespace(bool $withStart = true, bool $prefixOnly = false): string
     {
         return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelName}"
-            : ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelName}\\{$this->getServiceName()}";
+            ? ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelNaming()}"
+            : ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getServiceName()}";
+    }
+
+    public function getTestNamespace(?string $actor = null, bool $withStart = true, bool $prefixOnly = false): string
+    {
+        if (empty($actor) || $actor == 'none') {
+            return $prefixOnly
+                ? ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace')
+                : ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace') . "\\" . $this->getTestName();
+        }
+
+        $actor = str($actor)->studly()->singular();
+        return $prefixOnly
+            ? ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace') . "\\$actor"
+            : ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace') . "\\$actor\\" . $this->getTestName();
     }
 
     /**
+     * @param string|null $actor
      * @return CubePath
      */
-    public function getTestPath(): CubePath
+    public function getTestPath(?string $actor = null): CubePath
     {
-        return CubePath::make(config('cubeta-starter.test_path') . "/{$this->getTestName()}.php");
+        if (empty($actor) || $actor == 'none') {
+            return CubePath::make(config('cubeta-starter.test_path') . "/{$this->getTestName()}.php");
+        }
+
+        $actor = str($actor)->studly()->singular();
+        return CubePath::make(config('cubeta-starter.test_path') . "/$actor/{$this->getTestName()}.php");
     }
 
     /**
+     * @param string|null $actor
      * @return string
      */
-    public function getTestClassString(): string
+    public function getTestClassString(?string $actor = null): string
     {
-        return "\\" . config('cubeta-starter.test_namespace') . "\\{$this->getTestName()}";
+        if (empty($actor) || $actor == 'none') {
+            return "\\" . config('cubeta-starter.test_namespace') . "\\{$this->getTestName()}";
+        }
+
+        $actor = str($actor)->studly()->singular();
+        return "\\" . config('cubeta-starter.test_namespace') . "\\$actor\\{$this->getTestName()}";
     }
 
     /**
@@ -236,22 +257,6 @@ trait HasPathAndNamespace
     }
 
     /**
-     * @param string $type
-     * @return CubePath
-     */
-    public function getViewPath(string $type): CubePath
-    {
-        $viewsPath = 'resources/views/dashboard/' . $this->viewNaming();
-
-        return match ($type) {
-            'show' => CubePath::make("$viewsPath/show.blade.php"),
-            "create" => CubePath::make("$viewsPath/create.blade.php"),
-            "update", "edit" => CubePath::make("$viewsPath/edit.blade.php"),
-            "index" => CubePath::make("$viewsPath/index.blade.php"),
-        };
-    }
-
-    /**
      * @return CubePath
      */
     public function getTSModelPath(): CubePath
@@ -260,7 +265,8 @@ trait HasPathAndNamespace
     }
 
     /**
-     * @param "show"|"index"|"create"|"update" $type
+     * $type must be one of "show"|"index"|"create"|"update"
+     * @param string $type
      * @return CubePath
      */
     public function getReactTSPagesPaths(string $type): CubePath

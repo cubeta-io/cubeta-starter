@@ -1,3 +1,0 @@
-Route::put('{{version}}/dashboard/update-user-data', [{{version}}\BaseAuthController::class , 'updateUserData'])->name('{{update-user-details}}');
-Route::get('{{version}}/dashboard/user-details', [{{version}}\BaseAuthController::class , 'userDetails'])->name('{{user-details-route}}');
-Route::get('{{version}}/dashboard/logout', [{{version}}\BaseAuthController::class , 'logout'])->name('{{logout-route}}');

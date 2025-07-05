@@ -1,0 +1,14 @@
+@php
+/** @var {{model_class_string}} ${{model_variable}} */
+@endphp
+@extends('layout')
+@section('content')
+    <x-show-layout
+        title="{{model_name}} : {{${{model_variable}}->{{titleable}}}}"
+        editRoute="{{route('{{edit_route}}' , ${{model_variable}}->id)}}"
+    >
+        <div class="row">
+            {{components}}
+        </div>
+    </x-show-layout>
+@endsection

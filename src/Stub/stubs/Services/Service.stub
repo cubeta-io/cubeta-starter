@@ -1,0 +1,19 @@
+<?php
+
+namespace {{namespace}};
+
+use {{model_namespace}};
+use {{service_namespace}}\Contracts\BaseService;
+use {{repository_namespace}};
+use {{traits_namespace}}\Makable;
+
+/**
+ * @extends BaseService<{{model_name}}>
+ * @property {{model_name}}Repository $repository
+ */
+class {{model_name}}Service extends BaseService
+{
+    use Makable;
+
+    protected string $repositoryClass = {{model_name}}Repository::class;
+}

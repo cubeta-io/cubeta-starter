@@ -1,5 +1,5 @@
 import { usePage } from "@inertiajs/react";
-import { MiddlewareProps } from "./types";
+import { MiddlewareProps } from "@/types";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
@@ -25,3 +25,8 @@ export function getNestedPropertyValue(object: any, path: string): any {
 }
 
 export const swal = withReactContent(Swal);
+
+export const getLocale = (): string => {
+  const { currentLocale } = usePage<MiddlewareProps>().props;
+  return currentLocale ?? "en";
+};

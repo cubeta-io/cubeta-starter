@@ -1,0 +1,120 @@
+<?php
+
+namespace {{namespace}};
+
+use Exception;
+use Inertia\Inertia;
+use App\Http\Controllers\WebController;
+use {{service_namespace}}\User\UserService;
+use {{request_namespace}}\AuthRequests\AuthLoginRequest;
+use {{request_namespace}}\AuthRequests\UpdateUserRequest;
+use {{request_namespace}}\AuthRequests\AuthRegisterRequest;
+use {{request_namespace}}\AuthRequests\ResetPasswordRequest;
+use {{request_namespace}}\AuthRequests\CheckPasswordResetRequest;
+use {{request_namespace}}\AuthRequests\RequestResetPasswordRequest;
+use {{resource_namespace}}\UserResource;
+
+class BaseAuthController extends WebController
+{
+    private UserService $userService;
+    private ?string $role = null;
+
+   /**
+    * @throws Exception
+    */
+    public function __construct()
+    {
+        $this->userService = UserService::make();
+        $this->userService->setGuard("web");
+        $this->relations = [];
+    }
+
+    public function roleHook(string $role)
+    {
+        $this->role = $role;
+    }
+
+    public function login(AuthLoginRequest $request)
+    {
+        $user = $this->userService->login($request->validated(), $this->role, $this->relations);
+        if ($user) {
+            return redirect()->route('{{user_details_route}}');
+        } else {
+            session()->flash('error', trans('site.credentials_not_match_records'));
+            return redirect()->back();
+        }
+    }
+
+    public function updateUserDetails(UpdateUserRequest $request)
+    {
+        $user = $this->userService->updateUserDetails($request->validated(), $this->role, $this->relations);
+
+        if ($user) {
+            return redirect()->route('{{user_details_route}}');
+        } else {
+            session()->flash('error', trans('site.something_went_wrong'));
+            return redirect()->back();
+        }
+    }
+
+    public function userDetails()
+    {
+        $user = $this->userService->userDetails($this->role);
+
+        if ($user) {
+            return Inertia::render('{{user_details_page_name}}' , [
+                'user' => UserResource::make($user),
+            ]);
+        } else {
+            session()->flash('error', trans('site.something_went_wrong'));
+            return redirect()->back();
+        }
+    }
+
+    public function requestResetPassword(RequestResetPasswordRequest $request)
+    {
+        $result = $this->userService->passwordResetRequest($request->validated()['email']);
+        if ($result) {
+            return Inertia::render('{{reset_password_code_form_page_name}}');
+        } else {
+            session()->flash('error', trans('site.something_went_wrong'));
+            return redirect()->back();
+        }
+    }
+
+    public function validateResetPasswordCode(CheckPasswordResetRequest $request)
+    {
+        $request->validated();
+        return redirect()->route('{{password_reset_page_route}}');
+    }
+
+    public function resetPassword(ResetPasswordRequest $request)
+    {
+        $data = $request->validated();
+        $result = $this->userService->passwordReset($data['reset_password_code'], $data['password']);
+
+        if ($result) {
+            return redirect()->route('{{login_page_route}}');
+        } else {
+            session()->flash('error', trans('site.something_went_wrong'));
+            return redirect()->back();
+        }
+    }
+
+    public function register(AuthRegisterRequest $request)
+    {
+        $user = $this->userService->register($request->validated(), $this->role);
+        if ($user) {
+            return redirect()->route('{{user_details_route}}');
+        } else {
+            session()->flash('error', trans('site.something_went_wrong'));
+            return redirect()->back();
+        }
+    }
+
+    public function logout()
+    {
+        $this->userService->logout();
+        return redirect()->route("{{login_page_route}}");
+    }
+}

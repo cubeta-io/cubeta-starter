@@ -13,7 +13,8 @@ class MakeFactory extends BaseCommand
         {name?       : The name of the model }
         {attributes? : columns with data types}
         {relations?  : the model relations}
-        {uniques? : unique columns}';
+        {uniques? : unique columns} 
+        {--force}';
 
     public function handle(): void
     {
@@ -28,9 +29,8 @@ class MakeFactory extends BaseCommand
         $uniques = $this->argument('uniques') ?? ($uniques ?? []);
 
         $generator = new GeneratorFactory("factory");
+        $override = $this->askForOverride();
 
-        $generator->make(fileName: $modelName, attributes: $attributes, relations: $relations, uniques: $uniques);
-
-        $this->handleCommandLogsAndErrors();
+        $generator->make(fileName: $modelName, attributes: $attributes, relations: $relations, uniques: $uniques, override: $override);
     }
 }

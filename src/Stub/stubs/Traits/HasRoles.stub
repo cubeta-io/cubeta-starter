@@ -1,0 +1,113 @@
+<?php
+
+namespace {{namespace}};
+
+use {{exceptions_namespace}}\RoleDoesNotExistException;
+use {{models_namespace}}\Role;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+/**
+ * @mixin Model
+ */
+trait HasRoles
+{
+    use HasPermissions;
+
+    /**
+     * @var array|null
+     */
+    private ?array $roleCache = null;
+
+    /**
+     * @param string $roleName
+     * @return $this
+     * @throws RoleDoesNotExistException
+     */
+    public function assignRole(string $roleName): static
+    {
+        $role = Role::where('name', $roleName)->first();
+
+        if (!$role) {
+            throw new RoleDoesNotExistException($roleName);
+        }
+
+        if ($this->hasRole($roleName)) {
+            return $this;
+        }
+
+        $this->roles()->attach($role);
+        $this->clearRoleCache();
+
+        return $this;
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->morphToMany(Role::class, 'model', 'model_has_roles');
+    }
+
+    /**
+     * @param string $roleName
+     * @return $this
+     * @throws RoleDoesNotExistException
+     */
+    public function removeRole(string $roleName): static
+    {
+        $role = Role::where('name', $roleName)->first();
+
+        if (!$role) {
+            throw new RoleDoesNotExistException($roleName);
+        }
+
+        $this->roles()->detach($role);
+        $this->clearRoleCache();
+
+        return $this;
+    }
+
+    /**
+     * @param string $roleName
+     * @return bool
+     */
+    public function hasRole(string $roleName): bool
+    {
+        if ($this->roleCache === null) {
+            $this->loadRoleCache();
+        }
+
+        return in_array($roleName, $this->roleCache);
+    }
+
+    /**
+     * @param Builder $query
+     * @param string $roleName
+     * @return void
+     */
+    public function scopeByRole(Builder $query, string $roleName): void
+    {
+        $query->whereHas('roles', function (Builder $q) use ($roleName) {
+            $q->where('name', $roleName);
+        });
+    }
+
+    /**
+     * Load roles into the cache for the current request.
+     */
+    private function loadRoleCache(): void
+    {
+        $this->roleCache = $this->roles()->pluck('name')->toArray();
+    }
+
+    /**
+     * Clear the role cache.
+     */
+    private function clearRoleCache(): void
+    {
+        $this->roleCache = null;
+    }
+}

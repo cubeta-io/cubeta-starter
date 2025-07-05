@@ -2,10 +2,38 @@
 
 # **Changelog :**
 
+## **V 4.0.0**
+
+This version basically is a rewrite for the package and it was a massive rewrite so for that we make it a major
+
+version update
+
+1. Fixed bugs in blade and react components
+2. Add more type safety to the generated code
+3. Improved class doc blocks
+4. Add prettier to format JSX and Blade files
+5. Introduce the new `Http` class in Inertia React stack to normalize the request handling
+6. Refactor MainTestCase class and TestHelpers trait to be able to chain the calls in your testing
+
+## **V 3.0.0**
+
+1. Adding support for the `Laravel 12` and drop support for previous versions.
+2. Adding support for `inertia.js 2.0` and drop support for previous versions.
+3. Adding support for `tailwindcss 4.0` and drop support for previous versions.
+4. Adding support for `react 19` and drop support for previous versions.
+5. Introduce `ApiResponse` class to replace the `RestTrait` to handle api responses
+6. Introduce the new `MediaCast` mode cast class to replace the usage of the `FileHandler` trait
+7. Bug fixes
+
+## **V 2.2.0**
+
+1. Adding support for the `Laravel 11` and drop support for previous versions.
+2. Bug fixes
+
 ## **V 2.1.0**
 
 1. Introducing The `BaseBulkAction` class to make it easy to define your model available bulk
-   actions [check on it here](bulk-actions.md#basebulkaction-class) .
+   actions .
 2. Removing The BaseService and BaseRepository classes interfaces .
 
 ## **V 2.0.0**
@@ -17,7 +45,8 @@
    remove their dependency injection process
 4. Now just the blade based generation requires a service provider to register the blade components published via the
    package
-5. All required middlewares , exceptions handlers and service providers for a specific stack is being registered via its install command
+5. All required middlewares , exceptions handlers and service providers for a specific stack is being registered via its
+   install command
 
 ## **V 1.1.7**
 

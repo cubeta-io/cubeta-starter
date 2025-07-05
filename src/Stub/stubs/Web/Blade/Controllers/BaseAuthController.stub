@@ -1,0 +1,116 @@
+<?php
+
+namespace {{namespace}};
+
+use Exception;
+use App\Http\Controllers\WebController;
+use {{service_namespace}}\User\UserService;
+use {{request_namespace}}\AuthRequests\AuthLoginRequest;
+use {{request_namespace}}\AuthRequests\UpdateUserRequest;
+use {{request_namespace}}\AuthRequests\AuthRegisterRequest;
+use {{request_namespace}}\AuthRequests\ResetPasswordRequest;
+use {{request_namespace}}\AuthRequests\CheckPasswordResetRequest;
+use {{request_namespace}}\AuthRequests\RequestResetPasswordRequest;
+
+class BaseAuthController extends WebController
+{
+    private UserService $userService;
+    private ?string $role = null;
+
+   /**
+    * @throws Exception
+    */
+    public function __construct()
+    {
+        $this->userService = UserService::make();
+        $this->userService->setGuard("web");
+        $this->relations = [];
+    }
+
+    public function roleHook(string $role)
+    {
+        $this->role = $role;
+    }
+
+    public function login(AuthLoginRequest $request)
+    {
+        $user = $this->userService->login($request->validated(), $this->role, $this->relations);
+        if ($user) {
+            return redirect()->route('{{user_details_route}}');
+        } else {
+            session()->flash('error', trans('site.credentials_not_match_records'));
+            return redirect()->back();
+        }
+    }
+
+    public function register(AuthRegisterRequest $request)
+    {
+        $user = $this->userService->register($request->validated(), $this->role , $this->relations);
+        if ($user) {
+            return redirect()->route('{{user_details_route}}');
+        } else {
+            session()->flash('error', trans('site.something_went_wrong'));
+            return redirect()->back();
+        }
+    }
+
+    public function updateUserDetails(UpdateUserRequest $request)
+    {
+        $user = $this->userService->updateUserDetails($request->validated(), $this->role , $this->relations);
+
+        if ($user) {
+            return redirect()->route('{{user_details_route}}');
+        } else {
+            session()->flash('error', trans('site.something_went_wrong'));
+            return redirect()->back();
+        }
+    }
+
+    public function userDetails()
+    {
+        $user = $this->userService->userDetails($this->role ,$this->relations);
+
+        if ($user) {
+            return view('{{user_details_page_name}}', compact('user'));
+        } else {
+            session()->flash('error', trans('site.something_went_wrong'));
+            return redirect()->back();
+        }
+    }
+
+    public function requestResetPassword(RequestResetPasswordRequest $request)
+    {
+        $result = $this->userService->passwordResetRequest($request->email);
+        if ($result) {
+            return view('{{reset_password_code_form_page_name}}');
+        } else {
+            session()->flash('error', trans('site.something_went_wrong'));
+            return redirect()->back();
+        }
+    }
+
+    public function validateResetPasswordCode(CheckPasswordResetRequest $request)
+    {
+        return redirect()->route('{{password_reset_page_route}}');
+    }
+
+    public function resetPassword(ResetPasswordRequest $request)
+    {
+        $data = $request->validated();
+        $result = $this->userService->passwordReset($data['reset_password_code'], $data['password']);
+
+        if ($result) {
+            session()->flash('success', trans('site.password_changed_successfully'));
+            return redirect()->route('{{login_page_route}}');
+        } else {
+            session()->flash('error', trans('site.credentials_not_match_records'));
+            return redirect()->back();
+        }
+    }
+
+    public function logout()
+    {
+        $this->userService->logout();
+        return redirect()->route("{{login_page_route}}");
+    }
+}

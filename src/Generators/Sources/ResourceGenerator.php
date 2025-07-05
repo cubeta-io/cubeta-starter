@@ -2,11 +2,16 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\App\Models\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Contracts\CodeSniffer;
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
-use Cubeta\CubetaStarter\Helpers\CubePath;
-use Illuminate\Support\Str;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\Settings\CubeRelation;
+use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\Stub\Builders\Resources\ResourceStubBuilder;
 
 class ResourceGenerator extends AbstractGenerator
 {
@@ -14,76 +19,38 @@ class ResourceGenerator extends AbstractGenerator
 
     public function run(bool $override = false): void
     {
-        $resourceName = $this->table->getResourceName();
-
-        $resourcePath = $this->table->getResourcePath();
-
-        if ($resourcePath->exist()) {
-            $resourcePath->logAlreadyExist("Generating Resource For {$this->table->modelName} Model");
+        if (Settings::make()->installedWeb()
+            && Settings::make()->getFrontendType() != FrontendTypeEnum::REACT_TS
+            && !ContainerType::isApi($this->generatedFor)
+        ) {
+            CubeLog::error("Resource is available when generating for api or react frontend stack");
             return;
         }
 
-        $resourcePath->ensureDirectoryExists();
+        $resourcePath = $this->table->getResourcePath();
 
-        $stubProperties = [
-            '{model}'           => $this->table->getModelClassString(),
-            '{namespace}'       => $this->table->getResourceNameSpace(false, true),
-            '{class}'           => $resourceName,
-            '{resource_fields}' => $this->generateFields(),
-        ];
+        ResourceStubBuilder::make()
+            ->namespace($this->table->getResourceNameSpace(false, true))
+            ->modelNamespace($this->table->getModelClassString())
+            ->modelName($this->table->modelName)
+            ->resourceField(
+                $this->table->attributes()
+                    ->filter(fn(CubeAttribute $attribute) => $attribute instanceof HasResourcePropertyString)
+                    ->map(fn(HasResourcePropertyString $attribute) => $attribute->resourcePropertyString())
+                    ->toArray()
+            )->resourceField(
+                $this->table->relations()
+                    ->filter(
+                        fn(CubeRelation $rel) => $rel instanceof HasResourcePropertyString
+                            && $rel->getModelPath()->exist()
+                            && $rel->getResourcePath()->exist()
+                    )->map(fn(HasResourcePropertyString $attribute) => $attribute->resourcePropertyString())
+                    ->toArray()
+            )->generate($resourcePath, $this->override);
 
-        $this->generateFileFromStub($stubProperties, $resourcePath->fullPath);
-
-        $resourcePath->format();
-
-        CodeSniffer::make()->setModel($this->table)->checkForResourceRelations();
-    }
-
-    private function generateFields(): string
-    {
-        $fields = "'id' => \$this->id, \n\t\t\t";
-        $this->table->attributes()->each(function (CubeAttribute $attribute) use (&$fields) {
-            $key = Str::snake($attribute->name);
-            $fields .= "'{$key}' => \$this->{$attribute->name},\n\t\t\t";
-        });
-
-        foreach ($this->table->relations() as $rel) {
-
-            if (!$rel->getModelPath()->exist() or !$rel->getResourcePath()->exist()) {
-                continue;
-            }
-
-            if ($rel->isHasOne() || $rel->isBelongsTo()) {
-                $relation = $rel->method();
-                $key = Str::snake($relation);
-                $relatedModelResource = $rel->getResourceName();
-
-                // check that the resource model has the relation method
-                if (!method_exists($this->table->getModelClassString(), $relation)) {
-                    continue;
-                }
-
-                $fields .= "'{$key}' =>  new {$relatedModelResource}(\$this->whenLoaded('{$relation}')) , \n\t\t\t";
-
-            } elseif ($rel->isManyToMany() || $rel->isHasMany()) {
-                $relation = $rel->method();
-                $key = Str::snake($relation);
-                $relatedModelResource = $rel->getResourceName();
-
-                // check that the resource model has the relation method
-                if (!method_exists($this->table->getModelClassString(), $relation)) {
-                    continue;
-                }
-
-                $fields .= "'{$key}' =>  {$relatedModelResource}::collection(\$this->whenLoaded('{$relation}')) , \n\t\t\t";
-            }
-        }
-
-        return $fields;
-    }
-
-    protected function stubsPath(): string
-    {
-        return CubePath::stubPath('resource.stub');
+        CodeSniffer::make()
+            ->setModel($this->table)
+            ->setActor($this->actor)
+            ->checkForResourceRelations();
     }
 }

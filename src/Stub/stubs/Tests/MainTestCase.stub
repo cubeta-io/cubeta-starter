@@ -1,0 +1,190 @@
+<?php
+
+namespace Tests\Contracts;
+
+use {{traits_namespace}}\TestHelpers;
+use {{models_namespace}}\User;
+use Tests\TestCase;
+
+class MainTestCase extends TestCase
+{
+    use TestHelpers;
+
+    /**
+     * @param array $additionalFactoryData optional data to the factories
+     * @param bool  $ownership             determine if the action has to be on the authenticated user data
+     */
+    public function deleteTest(array $additionalFactoryData = [], bool $ownership = false): static
+    {
+        // the user provided undefined ID
+        $this->data()
+            ->noData()
+            ->delete(route($this->requestPath, fake()->uuid()), [], $this->headers)
+            ->assertMatchRest();
+
+        if ($ownership) {
+            // the user tried to delete another user data
+            $array = array_merge($additionalFactoryData, ['user_id' => User::factory()->create()->id]);
+            $factoryData = $this->model::factory()->create($array);
+
+            $this->delete(route($this->requestPath, $factoryData->id), [], $this->headers)
+                ->assertMatchRest();
+
+            // the user tried to delete his data
+            $array = array_merge($additionalFactoryData, ['user_id' => auth()->user()->id]);
+            $factoryData = $this->model::factory()->create($array);
+        } else {
+            $factoryData = $this->model::factory()->create($additionalFactoryData);
+        }
+
+        $this->data()
+            ->deleteSuccess()
+            ->delete(route($this->requestPath, $factoryData->id), [], $this->headers)
+            ->assertMatchRest();
+
+        if ($this->checkSoftDeleteColumn()) {
+            $this->assertSoftDeleted($factoryData);
+        } else {
+            $this->assertModelMissing($factoryData);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array $additionalFactoryData optional data to the factories
+     * @param bool  $ownership             determine if the action has to be on the authenticated user data
+     */
+    public function indexTest(array $additionalFactoryData = [], bool $ownership = false): static
+    {
+        // there is no data
+        $this->data([])
+            ->getSuccess()
+            ->emptyPagination()
+            ->get(route($this->requestPath), $this->headers)
+            ->assertMatchRest();
+
+        if ($ownership) {
+            // the user tried to index another user data
+            $array = array_merge($additionalFactoryData, ['user_id' => User::factory()->create()->id]);
+            $this->model::factory(5)->create($array);
+
+            $this->get(route($this->requestPath), $this->headers)
+                ->assertMatchRest();
+
+            // the user tried to index his own data
+            $array = array_merge($additionalFactoryData, ['user_id' => auth()->user()->id]);
+            $factoryData = $this->model::factory(5)->create($array);
+        } else {
+            // data exists
+            $factoryData = $this->model::factory(5)->create($additionalFactoryData);
+        }
+
+        $this->getSuccess()
+            ->paginate()
+            ->multiple()
+            ->dataResource($factoryData)
+            ->get(route($this->requestPath), $this->headers)
+            ->assertMatchRest();
+
+        return $this;
+    }
+
+    /**
+     * @param array $additionalFactoryData optional data to the factories
+     * @param bool  $ownership             determine if the action has to be on the authenticated user data
+     */
+    public function showTest(array $additionalFactoryData = [], bool $ownership = false): static
+    {
+        // the user provided invalid id
+        $this->noData()
+            ->get(route($this->requestPath, fake()->uuid()), $this->headers)
+            ->assertMatchRest();
+
+        if ($ownership) {
+            // the user tried to show another user data
+            $array = array_merge($additionalFactoryData, ['user_id' => User::factory()->create()->id]);
+            $factoryData = $this->model::factory()->create($array);
+
+            $this->get(route($this->requestPath, $factoryData->id), $this->headers)
+                ->assertMatchRest();
+
+            // the user tried to show his own data
+            $array = array_merge($additionalFactoryData, ['user_id' => auth()->user()->id]);
+            $factoryData = $this->model::factory()->create($array);
+        } else {
+            $factoryData = $this->model::factory()->create($additionalFactoryData);
+        }
+
+        $this->single()
+            ->getSuccess()
+            ->dataResource($factoryData)
+            ->get(route($this->requestPath, $factoryData->id), $this->headers)
+            ->assertMatchRest();
+
+        return $this;
+    }
+
+    /**
+     * @param array $additionalAttributes optional data to the factories
+     */
+    public function storeTest(array $additionalAttributes = [], mixed $requestParams = null): static
+    {
+        $attributes = $this->model::factory()->raw($additionalAttributes);
+        $response = $this->post(route($this->requestPath, $requestParams), $attributes, $this->headers);
+        $createdModel = $this->model::orderByDesc('id')->first();
+
+        $this->dataResource($createdModel)
+            ->storeSuccess();
+
+        $response->assertMatchRest();
+
+        $this->assertModelExists($createdModel);
+
+        return $this;
+    }
+
+    /**
+     * @param array $attributes            if you are trying to send a custom attribute to the update request, send an
+     * @param array $additionalFactoryData optional data to the factories
+     *                                     array of it
+     * @param bool  $ownership             determine if the action has to be on the authenticated user data
+     *                                     record to the database
+     */
+    public function updateTest(array $attributes = [], array $additionalFactoryData = [], bool $ownership = false): static
+    {
+        $attributes = $this->model::factory()->raw($attributes);
+
+        //the user provided invalid ID
+        $this->noData()
+            ->put(route($this->requestPath, fake()->uuid), $attributes, $this->headers)
+            ->assertMatchRest();
+
+        if ($ownership) {
+            // the user tried to update another user data
+            $array = array_merge($additionalFactoryData, ['user_id' => User::factory()->create()->id]);
+            $factoryData = $this->model::factory()->create($array);
+
+            $this->get(route($this->requestPath, $factoryData->id), $this->headers)
+                ->assertMatchRest();
+
+            // the user tried to update his data
+            $array = array_merge($additionalFactoryData, ['user_id' => auth()->user()->id]);
+            $factoryData = $this->model::factory()->create($array);
+        } else {
+            $factoryData = $this->model::factory()->create($additionalFactoryData);
+        }
+
+        //the user provided the right ID
+        $response = $this->put(route($this->requestPath, $factoryData->id), $attributes, $this->headers);
+
+        $factoryData->refresh();
+        $this->assertModelExists($factoryData)
+            ->dataResource($factoryData)
+            ->updateSuccess();
+
+        $response->assertMatchRest();
+
+        return $this;
+    }
+}

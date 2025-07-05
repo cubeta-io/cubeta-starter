@@ -1,0 +1,13 @@
+{
+  "plugins": ["prettier-plugin-blade", "prettier-plugin-tailwindcss", "prettier-plugin-organize-imports"],
+  "overrides": [
+    {
+      "files": [
+        "*.blade.php"
+      ],
+      "options": {
+        "parser": "blade"
+      }
+    }
+  ]
+}

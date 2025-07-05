@@ -1,0 +1,152 @@
+<?php
+
+namespace {{namespace}};
+
+use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
+use App\Http\Controllers\WebController;
+use Exception;
+use {{request_namespace}};
+use {{model_namespace}};
+use {{service_namespace}};
+use {{traits_namespace}}\DataTablesTrait;
+{{imports}}
+
+class {{model_name}}Controller extends WebController
+{
+    use DataTablesTrait;
+
+    private {{model_name}}Service ${{model_name_camel_case}}Service;
+
+    public function __construct()
+    {
+        $this->{{model_name_camel_case}}Service = {{model_name}}Service::make();
+        // place the relations you want to return them within the response
+        $this->relations = [{{loaded_relations}}];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function data()
+    {
+        $data = {{model_name}}::query()
+            ->with([{{loaded_relations}}])
+            ->select('{{table_name}}.*');
+
+        $query = DataTables::eloquent($data)
+            {{additional_columns}}
+            ->addColumn('action', function ({{model_name}} $row) {
+                return $this->crudButtons($row, '{{base_route_name}}');
+            });
+
+            {{translatable_order_queries}}
+
+            return $query->rawColumns(['action' , {{raw_columns}}])->make();
+    }
+
+    public function index()
+    {
+        return view('{{index_view}}');
+    }
+
+    public function create()
+    {
+        return view('{{create_view}}');
+    }
+
+    public function show(${{id_variable}})
+    {
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->view(${{id_variable}}, $this->relations);
+        if (${{model_name_camel_case}}) {
+            return view('{{show_view}}', compact('{{model_name_camel_case}}'));
+        }
+        return redirect()
+            ->back()
+            ->with('error' , trans('site.there_is_no_data'));
+    }
+
+    public function store(StoreUpdate{{model_name}}Request $request)
+    {
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->store($request->validated(), $this->relations);
+        if (${{model_name_camel_case}}) {
+            return redirect()
+                ->route('{{index_route}}', ${{model_name_camel_case}}->id)
+                ->with('message' , trans('site.stored_successfully'));
+        }
+        return redirect()
+            ->back()
+            ->with('error' , trans('site.something_went_wrong'));
+    }
+
+    public function edit(${{id_variable}})
+    {
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->view(${{id_variable}}, $this->relations);
+
+        if (${{model_name_camel_case}}) {
+            return view('{{update_view}}', compact(['{{model_name_camel_case}}']));
+        }
+
+         return redirect()
+             ->back()
+             ->with('error' , trans('site.there_is_no_data'));
+    }
+
+    public function update(StoreUpdate{{model_name}}Request $request, ${{id_variable}})
+    {
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->update($request->validated(), ${{id_variable}}, $this->relations);
+        if (${{model_name_camel_case}}) {
+            return redirect()
+            ->route('{{index_route}}', ${{id_variable}})
+            ->with('message' , trans('site.update_successfully'));
+        }
+
+        return redirect()
+            ->back()
+            ->with('error' , trans('site.there_is_no_data'));
+    }
+
+    public function destroy(${{id_variable}})
+    {
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->delete(${{id_variable}});
+
+        if (${{model_name_camel_case}}) {
+            return response()->json(['message' => trans('site.delete_successfully')]) ;
+        }
+
+        return redirect()
+            ->back()
+            ->with('error' , trans('site.there_is_no_data'));
+    }
+
+    public function export(Request $request)
+    {
+        $ids = $request->ids ?? [];
+
+        return $this->{{model_name_camel_case}}Service->export($ids);
+    }
+
+    public function getImportExample()
+    {
+        return $this->{{model_name_camel_case}}Service->getImportExample();
+    }
+
+    public function import(Request $request)
+    {
+        try{
+            $request->validate([
+                'excel_file' => 'required|mimes:xls,xlsx',
+            ]);
+            $this->{{model_name_camel_case}}Service->import();
+            return redirect()
+                ->back()
+                ->with('message' , trans('site.success'));
+        }catch (\Exception){
+            return redirect()
+                ->back()
+                ->with('message' , trans('site.something_went_wrong'));
+        }
+    }
+
+    {{methods}}
+}

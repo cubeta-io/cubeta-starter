@@ -1,0 +1,94 @@
+<?php
+
+namespace {{namespace}};
+
+use {{request_namespace}};
+use {{service_namespace}};
+use App\Http\Controllers\ApiController;
+use Illuminate\Http\Request;
+
+class {{model_name}}Controller extends ApiController{
+
+    private {{model_name}}Service ${{model_variable}}Service;
+
+    public function __construct() {
+        $this->{{model_variable}}Service = {{model_name}}Service::make();
+        // place the relations you want to return them within the response
+        $this->relations = [] ;
+    }
+
+    public function index()
+    {
+        $items = $this->{{model_variable}}Service->indexWithPagination($this->relations);
+        return rest()
+           ->ok()
+           ->getSuccess()
+           ->data($items)
+           ->send();
+    }
+
+    public function show(${{id_variable}})
+    {
+        $item = $this->{{model_variable}}Service->view(${{id_variable}}, $this->relations);
+        return rest()
+           ->when(
+                $item,
+                fn($rest) => $rest->getSuccess()->data($item),
+                fn($rest) => $rest->noData()
+           )->send();
+    }
+
+    public function store(StoreUpdate{{model_name}}Request $request)
+    {
+        $item = $this->{{model_variable}}Service->store($request->validated() , $this->relations);
+        return rest()
+           ->when(
+                $item,
+                fn($rest) => $rest->storeSuccess()->data($item),
+                fn($rest) => $rest->noData()
+           )->send();
+    }
+
+    public function update(${{id_variable}}, StoreUpdate{{model_name}}Request $request)
+    {
+        $item = $this->{{model_variable}}Service->update($request->validated(), ${{id_variable}} , $this->relations);
+        return rest()
+           ->when(
+                $item,
+                fn($rest) => $rest->updateSuccess()->data($item),
+                fn($rest) => $rest->noData()
+           )->send();
+    }
+
+    public function destroy(${{id_variable}})
+    {
+        $item = $this->{{model_variable}}Service->delete(${{id_variable}});
+        return rest()
+            ->when(
+                $item,
+                fn($rest) => $rest->ok()->deleteSuccess(),
+                fn($rest) => $rest->noData(),
+            )->send();
+    }
+
+    public function export(Request $request)
+    {
+        $ids = $request->ids ?? [];
+
+        return $this->{{model_variable}}Service->export($ids);
+    }
+
+    public function getImportExample()
+    {
+        return $this->{{model_variable}}Service->getImportExample();
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xls,xlsx',
+        ]);
+
+        $this->{{model_variable}}Service->import();
+    }
+}
