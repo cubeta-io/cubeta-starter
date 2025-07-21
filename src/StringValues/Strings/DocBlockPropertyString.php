@@ -28,6 +28,10 @@ class DocBlockPropertyString
 
     public function __toString(): string
     {
+        if ($this->tag == "property") {
+            return "@$this->tag $this->type \$$this->name";
+        }
+
         return "@$this->tag $this->type $this->name";
     }
 }
