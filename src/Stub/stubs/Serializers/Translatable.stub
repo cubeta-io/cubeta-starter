@@ -100,4 +100,27 @@ class Translatable implements JsonSerializable
             }
         }
     }
+
+    /**
+     * this method returns a value even if a translation for the selected locale is not found.
+     * if a corresponding value for the requested locale doesn't exist, it will loop on the available locales defined
+     * in the config and get the first one with a value, finally if there is no value with any locale it will returns an
+     * empty string
+     * @param string|null $locale
+     * @return string
+     */
+    public function forceTranslate(?string $locale = null): string
+    {
+        $value = $this->translate($locale);
+        if (!$value) {
+            foreach (config('cubeta-starter.available_locales') as $localeItem) {
+                $value = $this->translate($localeItem);
+                if ($value) {
+                    return $value;
+                }
+            }
+        }
+
+        return "";
+    }
 }
