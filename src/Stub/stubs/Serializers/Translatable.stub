@@ -112,12 +112,15 @@ class Translatable implements JsonSerializable
     public function forceTranslate(?string $locale = null): string
     {
         $value = $this->translate($locale);
-        if (!$value) {
-            foreach (config('cubeta-starter.available_locales') as $localeItem) {
-                $value = $this->translate($localeItem);
-                if ($value) {
-                    return $value;
-                }
+
+        if ($value) {
+            return $value;
+        }
+
+        foreach (config('cubeta-starter.available_locales') as $localeItem) {
+            $value = $this->translate($localeItem);
+            if (!empty($value)) {
+                return $value;
             }
         }
 
