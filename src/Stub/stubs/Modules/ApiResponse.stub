@@ -278,4 +278,14 @@ class ApiResponse implements JsonSerializable
             'is_last_page' => $data->onLastPage(),
         ];
     }
+
+
+    /**
+     * @param Request $request
+     * @return Response
+     */
+    public function toResponse($request): Response
+    {
+        return response()->json($this->jsonSerialize(), $this->code);
+    }
 }
