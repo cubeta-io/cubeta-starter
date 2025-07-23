@@ -55,7 +55,6 @@ class {{model_name}}Controller extends WebController
 
     public function store(StoreUpdate{{model_name}}Request $request)
     {
-        /** @var {{model_name}}|null $item */
         ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->store($request->validated(), $this->relations);
         if (${{model_name_camel_case}}) {
             return redirect()
@@ -81,7 +80,6 @@ class {{model_name}}Controller extends WebController
 
     public function update(StoreUpdate{{model_name}}Request $request, ${{model_name_camel_case}}Id)
     {
-        /** @var {{model_name}}|null $item */
         ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->update($request->validated(), ${{model_name_camel_case}}Id, $this->relations);
         if (${{model_name_camel_case}}) {
             return redirect()
