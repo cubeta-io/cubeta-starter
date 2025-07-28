@@ -11,12 +11,13 @@ use Carbon\Carbon;
 {{imports}}
 
 /**
- * @property string first_name
- * @property string last_name
- * @property string email
- * @property Carbon|null email_verified_at
- * @property string password
- * @property string|null reset_password_code
+ * @property int                $id
+ * @property string             $first_name
+ * @property string             $last_name
+ * @property string             $email
+ * @property Carbon|null        $email_verified_at
+ * @property string             $password
+ * @property string|null        $reset_password_code
  * @mixin Builder
  * @use HasFactory<UserFactory>
  */
