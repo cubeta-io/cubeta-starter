@@ -4,7 +4,7 @@ import { usePage } from "@inertiajs/react";
 import React, { ChangeEvent, HTMLProps, useState } from "react";
 import Email from "@/Components/icons/Email";
 
-export interface InputProps extends HTMLProps<HTMLInputElement> {
+export interface InputProps extends React.ComponentProps<"input"> {
   name: string;
   label?: string;
   type?: string;

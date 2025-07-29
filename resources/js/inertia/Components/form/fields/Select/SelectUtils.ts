@@ -1,4 +1,4 @@
-import React, { HTMLProps, ReactNode } from "react";
+import React, { ReactNode } from "react";
 
 export interface Option {
   label: any;
@@ -7,7 +7,7 @@ export interface Option {
 
 export interface SelectInputProps
   extends Omit<
-    HTMLProps<HTMLInputElement>,
+    React.ComponentProps<"input">,
     "name" | "className" | "value" | "onInput" | "ref" | "onChange"
   > {}
 

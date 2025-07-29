@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  HTMLProps,
-  useContext,
-  useRef,
-  useState,
-} from "react";
+import React, { ChangeEvent, useContext, useRef, useState } from "react";
 import { Translatable, translate } from "@/Models/Translatable";
 import { usePage } from "@inertiajs/react";
 import { MiddlewareProps } from "@/types";
@@ -12,8 +6,9 @@ import { LocaleContext } from "@/Contexts/TranslatableInputsContext";
 import { getNestedPropertyValue } from "@/helper";
 
 interface TranslatableProps
-  extends Omit<HTMLProps<HTMLTextAreaElement>, "defaultValue"> {
+  extends Omit<React.ComponentProps<"textarea">, "defaultValue"> {
   defaultValue?: string | object | Translatable | undefined;
+  label?: string;
 }
 
 const TranslatableEditor: React.FC<TranslatableProps> = ({

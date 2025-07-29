@@ -1,7 +1,7 @@
 import React, { HTMLProps } from "react";
 import { usePage } from "@inertiajs/react";
 
-export interface TextEditorProps extends HTMLProps<HTMLTextAreaElement> {
+export interface TextEditorProps extends React.ComponentProps<"textarea"> {
   name: string;
   label?: string;
   className?: string;
