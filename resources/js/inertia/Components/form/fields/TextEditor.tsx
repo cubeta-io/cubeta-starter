@@ -1,4 +1,4 @@
-import React, { HTMLProps } from "react";
+import React from "react";
 import { usePage } from "@inertiajs/react";
 
 export interface TextEditorProps extends React.ComponentProps<"textarea"> {

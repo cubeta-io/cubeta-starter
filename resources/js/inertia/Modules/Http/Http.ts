@@ -4,10 +4,8 @@ class HTTP<RESPONSE extends any = any> {
   private static instance: HTTP | undefined = undefined;
   private baseHeaders = {
     Accept: "application/html",
-    "Content-Type": "application/json",
     "Accept-Language": window.localStorage.getItem("locale") ?? "en",
   };
-
   private isFile = false;
 
   private constructor() {}
@@ -138,15 +136,30 @@ class HTTP<RESPONSE extends any = any> {
 
       this.addCsrfIfNeeded(method);
 
-      const request = async () =>
-        await fetch(url, {
-          method: method,
-          headers: {
-            ...headers,
-            ...this.baseHeaders,
-          },
-          body: JSON.stringify(data),
-        });
+      const config: RequestInit = {
+        method: method,
+        headers: {
+          ...headers,
+          ...this.baseHeaders,
+        },
+      };
+
+      if ((method === "POST" || method === "PUT") && data) {
+        if (this.shouldUseFormData(data)) {
+          const form = new FormData();
+          this.appendFormData(form, data);
+          config.body = form;
+          delete (config.headers as any)["Content-Type"];
+        } else {
+          config.body = JSON.stringify(data);
+          config.headers = {
+            ...config.headers,
+            "Content-Type": "application/json",
+          };
+        }
+      }
+
+      const request = async () => await fetch(url, config);
 
       let response = await request();
 
@@ -159,13 +172,7 @@ class HTTP<RESPONSE extends any = any> {
       if (!response.ok) {
         console.log("Error : " + resData.message);
         console.log("Data : ", resData.data);
-        return new ApiResponse(
-          undefined,
-          false,
-          response.status,
-          resData.message,
-          undefined,
-        );
+        console.log(resData);
       }
 
       return new ApiResponse(
@@ -178,14 +185,20 @@ class HTTP<RESPONSE extends any = any> {
     } catch (e) {
       console.error(e);
       console.error("Happened while requesting this url : " + url);
-      return new ApiResponse(undefined, false, 500, "Client error", undefined);
+      return new ApiResponse(
+        undefined,
+        false,
+        500,
+        "Client error",
+        undefined,
+      );
     }
   }
 
   private addCsrfIfNeeded(method: string) {
     if (method == "POST" || method == "PUT" || method == "DELETE") {
       this.headers({
-        "X-CSRF-TOKEN": this.csrfToken() ?? "",
+        "X-CSRF-TOKEN": HTTP.csrfToken() ?? "",
       });
     }
   }
@@ -201,11 +214,11 @@ class HTTP<RESPONSE extends any = any> {
     }
   };
 
-  public csrfToken = (): string | undefined | null => {
+  public static csrfToken(): string | null | undefined {
     return document
       ?.querySelector('meta[name="csrf-token"]')
       ?.getAttribute("content");
-  };
+  }
 
   private addParamsToUrl(
     params:
@@ -222,11 +235,116 @@ class HTTP<RESPONSE extends any = any> {
       !(params instanceof URLSearchParams)
     ) {
       params = Object.fromEntries(
-        Object.entries(params).filter(([_, value]) => value !== undefined),
+        Object.entries(params).filter(
+          ([_, value]) => value !== undefined,
+        ),
       );
-      url = url + "?" + new URLSearchParams(params as Record<string, string>);
+      url =
+        url +
+        "?" +
+        new URLSearchParams(params as Record<string, string>);
     }
     return url;
+  }
+
+  public async streamText(
+    url: string,
+    method: "GET" | "POST" = "POST",
+    data?: Record<string, any>,
+    headers?: Record<string, string>,
+  ): Promise<AsyncGenerator<string, void, unknown>> {
+    url = this.getUrl(url);
+    this.addCsrfIfNeeded(method);
+
+    const finalHeaders: HeadersInit = {
+      ...this.baseHeaders,
+      ...headers,
+    };
+
+    const config: RequestInit = {
+      method,
+      headers: finalHeaders,
+    };
+
+    if (method === "POST" && data) {
+      const form = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        form.append(key, value);
+      });
+      config.body = form;
+    }
+
+    const response = await fetch(url, config);
+
+    if (!response.body) {
+      throw new Error("Response body is not readable");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+
+    async function* streamGenerator(): AsyncGenerator<string> {
+      let done = false;
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+
+        const chunk = decoder.decode(value || new Uint8Array(), {
+          stream: true,
+        });
+        if (chunk) yield chunk;
+      }
+    }
+
+    return streamGenerator();
+  }
+
+  static async fileFromUrl(url: string, filename?: string): Promise<File> {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const name = filename || url.split("/").pop() || "downloaded-file";
+    return new File([blob], name, { type: blob.type });
+  }
+
+  private appendFormData(form: FormData, data: any, parentKey?: string) {
+    if (data === null || data === undefined) return;
+
+    if (Array.isArray(data)) {
+      data.forEach((value, index) => {
+        const key = parentKey
+          ? `${parentKey}[${index}]`
+          : String(index);
+        this.appendFormData(
+          form,
+          value,
+          parentKey ? `${parentKey}[]` : key,
+        );
+      });
+    } else if (data instanceof File || data instanceof Blob) {
+      form.append(parentKey!, data);
+    } else if (typeof data === "object") {
+      Object.entries(data).forEach(([key, value]) => {
+        const formKey = parentKey ? `${parentKey}[${key}]` : key;
+        this.appendFormData(form, value, formKey);
+      });
+    } else {
+      form.append(parentKey!, String(data));
+    }
+  }
+
+  private shouldUseFormData(data: any): boolean {
+    if (data === null || data === undefined) return false;
+
+    if (data instanceof File || data instanceof Blob) return true;
+
+    if (typeof data === "object") {
+      return Object.values(data).some((value) =>
+        this.shouldUseFormData(value),
+      );
+    }
+
+    return false;
   }
 }
 
