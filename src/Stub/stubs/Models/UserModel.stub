@@ -18,7 +18,9 @@ use Carbon\Carbon;
  * @property Carbon|null        $email_verified_at
  * @property string             $password
  * @property string|null        $reset_password_code
- * @mixin Builder
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @mixin Builder<User>
  * @use HasFactory<UserFactory>
  */
 class User extends Authenticatable {{implements_jwt_interface}}

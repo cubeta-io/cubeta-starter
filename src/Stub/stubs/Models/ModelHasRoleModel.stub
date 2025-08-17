@@ -6,6 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 {{imports}}
 
+/**
+ * @property integer             $id
+ * @property class-string<Model> $model_type
+ * @property int                 $model_id
+ * @property int                 $role_id
+ * @property Carbon              $created_at
+ * @property Carbon              $updated_at
+ * @mixin Builder<ModelHasRole>
+ */
 class ModelHasRole extends Model
 {
     protected $table = 'model_has_roles';
