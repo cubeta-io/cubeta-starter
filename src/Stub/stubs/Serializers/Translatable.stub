@@ -3,10 +3,12 @@
 namespace App\Serializers;
 
 use Exception;
+use Stringable;
 use JsonSerializable;
 use Illuminate\Support\Str;
+use Illuminate\Contracts\Support\Arrayable;
 
-class Translatable implements JsonSerializable
+class Translatable implements JsonSerializable, Arrayable, Stringable
 {
     private array $data = [];
 
@@ -46,6 +48,14 @@ class Translatable implements JsonSerializable
         }
 
         $this->validateLocaleKeys();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function create(string|array $value): Translatable
+    {
+        return new static($value);
     }
 
     public function translate(?string $locale = null)
