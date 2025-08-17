@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * @property integer $id
  * {{doc_block}}
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  * @mixin Builder<{{model_name}}>
  */
 class {{model_name}} extends Model
