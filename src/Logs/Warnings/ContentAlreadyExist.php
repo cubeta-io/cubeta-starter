@@ -12,7 +12,7 @@ class ContentAlreadyExist extends CubeWarning
 
     public function __construct(string $content, string $filePath = null, ?string $context = null)
     {
-        $this->content = FileUtils::formatCodeString($content);
+        $this->content = $content;
         $this->filePath = $filePath;
         parent::__construct(
             "The Content :\n\r```\n\r{$content}\n\r```\n\rAlready Exists In : [$filePath]",

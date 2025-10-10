@@ -12,7 +12,7 @@ class ContentRemoved extends CubeInfo
 
     public function __construct(string $content, string $filePath)
     {
-        $this->content = FileUtils::formatCodeString($content);
+        $this->content = $content;
         $this->filePath = $filePath;
 
         parent::__construct(

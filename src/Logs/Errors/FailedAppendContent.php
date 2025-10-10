@@ -12,7 +12,7 @@ class FailedAppendContent extends CubeError
 
     public function __construct(string $content, string $filePath = null, ?string $context = null)
     {
-        $this->content = FileUtils::formatCodeString($content);
+        $this->content = $content;
         $this->filePath = $filePath;
 
         parent::__construct(
