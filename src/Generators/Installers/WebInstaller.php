@@ -14,6 +14,7 @@ use Cubeta\CubetaStarter\Modules\Views;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Components\SidebarStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Traits\DataTablesTraitStubBuilder;
 use Cubeta\CubetaStarter\Stub\Publisher;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Facades\Artisan;
@@ -33,6 +34,7 @@ class WebInstaller extends AbstractGenerator
         $this->publishBaseRepository();
         $this->publishBaseService();
         $this->publishMakableTrait();
+        $this->publishDataTablesTrait();
         $this->publishHasMediaTrait();
 
         Artisan::call("vendor:publish", ['--force' => $this->override, "--tag" => "cubeta-starter-web"]);
@@ -92,15 +94,23 @@ class WebInstaller extends AbstractGenerator
             return;
         }
         $content = preg_replace($pattern, '', $content);
-        CubeLog::contentRemoved("tailwindcss()" , $vite->fullPath);
+        CubeLog::contentRemoved("tailwindcss()", $vite->fullPath);
 
         $pattern = '#import\s*tailwindcss\s*from\s*["\']\s*@tailwindcss/vite\s*["\']\s*;#s';
         if (preg_match($pattern, $content, $matches)) {
             $content = preg_replace($pattern, '', $content);
-            CubeLog::contentRemoved("import tailwindcss from '@tailwindcss/vite';" , $vite->fullPath);
+            CubeLog::contentRemoved("import tailwindcss from '@tailwindcss/vite';", $vite->fullPath);
         }
 
         $vite->putContent($content);
         $vite->format();
+    }
+
+    protected function publishDataTablesTrait(): void
+    {
+        $publishPath = CubePath::make(config('cubeta-starter.trait_path') . "/DataTablesTrait.php");
+        DataTablesTraitStubBuilder::make()
+            ->namespace(config('cubeta-starter.trait_namespace'))
+            ->generate($publishPath, $this->override);
     }
 }

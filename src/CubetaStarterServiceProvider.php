@@ -86,8 +86,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../resources/css/blade' => resource_path('css'),
             __DIR__ . '/../public' => public_path(),
 
-            __DIR__ . '/../src/Stub/stubs/Traits/DataTablesTrait.stub' => app_path("Traits/DataTablesTrait.php"),
-
             __DIR__ . '/../src/Stub/stubs/Web/Blade/Providers/CubetaStarterServiceProvider.stub' => app_path('/Providers/CubetaStarterServiceProvider.php'),
 
             __DIR__ . "/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
