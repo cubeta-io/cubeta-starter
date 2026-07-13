@@ -10,6 +10,7 @@ use Cubeta\CubetaStarter\Helpers\PackageManager;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Stub\Publisher;
+use Illuminate\Support\Facades\Artisan;
 
 class ReactTsPackagesInstaller extends AbstractGenerator
 {
@@ -58,13 +59,20 @@ class ReactTsPackagesInstaller extends AbstractGenerator
         Settings::make()->setInstalledWeb();
         Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
         Settings::make()->setInstalledWebPackages();
+
+        Artisan::call('vendor:publish', [
+            '--provider' => 'Inertia\\ServiceProvider',
+            '--force' => true
+        ]);
+
+        Artisan::call('view:clear');
     }
 
     public function preparePackageJson(): void
     {
         $packageJsonPath = CubePath::make('/package.json');
 
-        if (!$packageJsonPath->exist()){
+        if (!$packageJsonPath->exist()) {
             FileUtils::executeCommandInTheBaseDirectory("npm init -y");
         }
 

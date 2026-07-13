@@ -7,14 +7,14 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-        <title inertia>{{ config("app.name", "Laravel") }}</title>
         <meta name="csrf-token" content="{{ csrf_token() }}" />
 
         <!-- Scripts -->
         @viteReactRefresh
         @vite(["resources/js/cubeta-starter.tsx"])
-        @inertiaHead
+        <x-inertia::head>
+            <title>{{ config('app.name') }}</title>
+        </x-inertia::head>
         @routes
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,6 +25,6 @@
     </head>
 
     <body class="dark:bg-dark bg-white antialiased transition-all duration-300">
-        @inertia
+        <x-inertia::app />
     </body>
 </html>
