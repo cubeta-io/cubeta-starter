@@ -36,6 +36,7 @@ class ReactTsPackagesInstaller extends AbstractGenerator
         PackageManager::npmInstall([
             'laravel-vite-plugin',
             '@inertiajs/react',
+            "@inertiajs/vite",
             'tailwindcss',
             "@tailwindcss/vite",
             '@tailwindcss/forms',
@@ -47,7 +48,6 @@ class ReactTsPackagesInstaller extends AbstractGenerator
             'react-dom',
             'typescript',
             '@tinymce/tinymce-react',
-            '@vitejs/plugin-react-refresh',
             'autoprefixer',
             'sweetalert2',
             'sweetalert2-react-content',
