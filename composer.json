@@ -9,13 +9,14 @@
         }
     ],
     "require": {
+        "php": "^8.3",
         "spatie/laravel-package-tools": "^1.92.0",
-        "illuminate/support": "^v12.0.0",
-        "laravel/framework": "^v12.0.0",
+        "illuminate/support": "^v13.0.0",
+        "laravel/framework": "^v13.0.0",
         "laravel/prompts": "^0.3.5"
     },
     "require-dev": {
-        "orchestra/testbench": "^v10.0.0",
+        "orchestra/testbench": "^v11.0.0",
         "laravel/pint": "^1.7",
         "tightenco/ziggy": "^2.5",
         "maatwebsite/excel": "^3.1",
