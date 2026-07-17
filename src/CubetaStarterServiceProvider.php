@@ -207,6 +207,8 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../resources/js/inertia/Contexts' => resource_path('/js/Contexts'),
             __DIR__ . '/../resources/js/inertia/Models' => resource_path('/js/Models'),
             __DIR__ . '/../resources/js/inertia/cubeta-starter.tsx' => resource_path('/js/cubeta-starter.tsx'),
+            __DIR__ . '/../resources/js/inertia/global.d.ts' => resource_path('/js/global.d.ts'),
+            __DIR__ . '/../resources/js/inertia/vite-env.d.ts' => resource_path('/js/vite-env.d.ts'),
             __DIR__ . '/../resources/js/inertia/helper.ts' => resource_path('/js/helper.ts'),
             __DIR__ . '/../resources/js/inertia/Modules' => resource_path('/js/Modules'),
             __DIR__ . '/../resources/css/inertia' => resource_path('/css'),
