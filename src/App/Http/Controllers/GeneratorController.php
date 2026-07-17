@@ -33,9 +33,9 @@ class GeneratorController extends Controller
     private function handleLogs()
     {
         CubeLog::handleExceptionsAsErrors();
-        $logs = CubeLog::logs();
-        $oldLogs = Cache::get('logs') ?? [];
-        Cache::forever('logs', [...$oldLogs, ...$logs]);
+        $logs = array_map(fn ($log) => CubeLog::serializeForCache($log), CubeLog::logs());
+        $oldLogs = Cache::get('cubeta-starter.logs') ?? [];
+        Cache::forever('cubeta-starter.logs', [...$oldLogs, ...$logs]);
     }
 
     /**
@@ -148,7 +148,7 @@ class GeneratorController extends Controller
 
     public function clearLogs()
     {
-        Cache::delete('logs');
+        Cache::delete('cubeta-starter.logs');
         return response()->json(['success' => true]);
     }
 

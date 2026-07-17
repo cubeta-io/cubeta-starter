@@ -17,4 +17,9 @@ export default defineConfig({
             '@': '/resources/js',
         },
     },
+    server: {
+        watch: {
+            ignored: ['**/storage/framework/views/**'],
+        },
+    },
 });
