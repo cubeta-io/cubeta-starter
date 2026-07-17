@@ -1,12 +1,13 @@
 import LoadingSpinner from "@/Components/icons/LoadingSpinner";
 import { AvailableLocales } from "@/Models/Translatable";
 import Http from "@/Modules/Http/Http";
-import { MiddlewareProps } from "@/types";
 import { usePage } from "@inertiajs/react";
 import { useEffect, useRef, useState } from "react";
 
 const LanguageDropdown = () => {
-  const { currentLocale, availableLocales } = usePage<MiddlewareProps>().props;
+  const {
+    props: { currentLocale, availableLocales },
+  } = usePage();
   const [open, setOpen] = useState(false);
   const [selectedLocale, setSelectedLocale] = useState<
     string | AvailableLocales

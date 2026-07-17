@@ -1,14 +1,16 @@
 import { usePage } from "@inertiajs/react";
-import { MiddlewareProps } from "@/types";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 export const asset = (path: string) => {
+  const {
+    props: { asset },
+  } = usePage();
   if (path.startsWith("/")) {
     path = path.replace("/", "");
   }
 
-  return `${usePage<MiddlewareProps>().props.asset}${path}`;
+  return `${asset}${path}`;
 };
 
 export function getNestedPropertyValue(object: any, path: string): any {
@@ -27,6 +29,8 @@ export function getNestedPropertyValue(object: any, path: string): any {
 export const swal = withReactContent(Swal);
 
 export const getLocale = (): string => {
-  const { currentLocale } = usePage<MiddlewareProps>().props;
+  const {
+    props: { currentLocale },
+  } = usePage();
   return currentLocale ?? "en";
 };

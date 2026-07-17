@@ -1,12 +1,13 @@
 import React, { ChangeEvent, useContext, useRef, useState } from "react";
 import { Translatable, translate } from "@/Models/Translatable";
 import { usePage } from "@inertiajs/react";
-import { MiddlewareProps } from "@/types";
 import { LocaleContext } from "@/Contexts/TranslatableInputsContext";
 import { getNestedPropertyValue } from "@/helper";
 
-interface TranslatableProps
-  extends Omit<React.ComponentProps<"textarea">, "defaultValue"> {
+interface TranslatableProps extends Omit<
+  React.ComponentProps<"textarea">,
+  "defaultValue"
+> {
   defaultValue?: string | object | Translatable | undefined;
   label?: string;
 }
@@ -33,7 +34,9 @@ const TranslatableEditor: React.FC<TranslatableProps> = ({
   const [value, setValue] = useState<object | undefined>(defaultValue ?? {});
 
   const locale = useContext(LocaleContext);
-  const { availableLocales } = usePage<MiddlewareProps>().props;
+  const {
+    props: { availableLocales },
+  } = usePage();
 
   const handleChange = async (
     lang: string,
@@ -65,9 +68,9 @@ const TranslatableEditor: React.FC<TranslatableProps> = ({
         value={JSON.stringify(value ?? "{}")}
         onInput={(e) => {
           if (onChange) {
-            onChange(e as ChangeEvent<HTMLTextAreaElement>);
+            onChange(e as unknown as ChangeEvent<HTMLTextAreaElement>);
           } else if (onInput) {
-            onInput(e as ChangeEvent<HTMLTextAreaElement>);
+            onInput(e);
           }
         }}
         className={"hidden"}

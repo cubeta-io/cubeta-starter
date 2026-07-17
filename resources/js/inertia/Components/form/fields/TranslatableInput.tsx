@@ -2,11 +2,10 @@ import { LocaleContext } from "@/Contexts/TranslatableInputsContext";
 import { usePage } from "@inertiajs/react";
 import React, { ChangeEvent, useContext, useRef, useState } from "react";
 import Input, { InputProps } from "@/Components/form/fields/Input";
-import { MiddlewareProps } from "@/types";
 import { Translatable, translate } from "@/Models/Translatable";
 
 interface ITranslatableInputProps {
-  defaultValue?: string | Translatable | object | undefined;
+  defaultValue?: string | Translatable | undefined;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   onInput?: (e: ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
@@ -28,7 +27,9 @@ const TranslatableInput: React.FC<
   ...props
 }) => {
   const locale = useContext(LocaleContext);
-  const availableLocales = usePage<MiddlewareProps>().props.availableLocales;
+  const {
+    props: { availableLocales },
+  } = usePage();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const errors = usePage().props.errors;
@@ -66,9 +67,9 @@ const TranslatableInput: React.FC<
         className={"hidden"}
         onInput={(e) => {
           if (onChange) {
-            onChange(e as ChangeEvent<HTMLInputElement>);
+            onChange(e as unknown as ChangeEvent<HTMLInputElement>);
           } else if (onInput) {
-            onInput(e as ChangeEvent<HTMLInputElement>);
+            onInput(e as unknown as ChangeEvent<HTMLInputElement>);
           }
         }}
       />

@@ -40,8 +40,9 @@ class BaseAuthController extends WebController
         if ($user) {
             return redirect()->route('{{user_details_route}}');
         } else {
-            session()->flash('error', trans('site.credentials_not_match_records'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.credentials_not_match_records')
+            ])->back();
         }
     }
 
@@ -52,8 +53,9 @@ class BaseAuthController extends WebController
         if ($user) {
             return redirect()->route('{{user_details_route}}');
         } else {
-            session()->flash('error', trans('site.something_went_wrong'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
@@ -66,8 +68,9 @@ class BaseAuthController extends WebController
                 'user' => UserResource::make($user),
             ]);
         } else {
-            session()->flash('error', trans('site.something_went_wrong'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
@@ -77,8 +80,9 @@ class BaseAuthController extends WebController
         if ($result) {
             return Inertia::render('{{reset_password_code_form_page_name}}');
         } else {
-            session()->flash('error', trans('site.something_went_wrong'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
@@ -96,8 +100,9 @@ class BaseAuthController extends WebController
         if ($result) {
             return redirect()->route('{{login_page_route}}');
         } else {
-            session()->flash('error', trans('site.something_went_wrong'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
@@ -107,8 +112,9 @@ class BaseAuthController extends WebController
         if ($user) {
             return redirect()->route('{{user_details_route}}');
         } else {
-            session()->flash('error', trans('site.something_went_wrong'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
