@@ -66,12 +66,7 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
             $filenameOnly = Str::random(16);
         }
 
-        // NEVER trust client extension blindly
         $extension = $file->extension();
-
-        if (empty($extension)) {
-            $extension = $file->guessExtension() ?: 'bin';
-        }
 
         if (empty($extension)) {
             $extension = $file->getClientOriginalExtension();
