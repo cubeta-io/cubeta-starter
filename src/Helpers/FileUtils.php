@@ -16,8 +16,6 @@ use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use function Laravel\Prompts\info;
-
 
 class FileUtils
 {
@@ -85,15 +83,17 @@ class FileUtils
             $rootDirectory = base_path();
             $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
 
-            if (php_sapi_name() == "cli") {
-                info("Running command : [$command]");
-            } elseif ($withLog) {
+            if ($withLog) {
                 CubeLog::info("Running command : [$command]");
             }
 
-            $output = shell_exec($fullCommand);
+            $output = self::runCommandWithPipes(
+                command: $command,
+                fullCommand: $fullCommand,
+                echoOutput: php_sapi_name() == "cli"
+            );
 
-            if (is_string($output) && $withLog) {
+            if ($withLog && is_string($output) && !empty($output)) {
                 CubeLog::add($output);
             }
 
@@ -103,6 +103,63 @@ class FileUtils
         CubeLog::wrongEnvironment("Running Command : [$command]");
 
         return false;
+    }
+
+    /**
+     * Run a command through proc_open, capture its output, and optionally echo
+     * it in real-time. This replaces shell_exec so stdout and stderr are both
+     * captured reliably instead of letting stderr leak past silently.
+     */
+    private static function runCommandWithPipes(string $command, string $fullCommand, bool $echoOutput): string|false
+    {
+        $process = proc_open(
+            $fullCommand . ' 2>&1',
+            [
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w'],
+            ],
+            $pipes,
+            base_path()
+        );
+
+        if (!is_resource($process)) {
+            CubeLog::error("Failed to execute command: [$command]");
+            return false;
+        }
+
+        stream_set_blocking($pipes[1], false);
+        stream_set_blocking($pipes[2], false);
+
+        $output = '';
+
+        while (!feof($pipes[1]) || !feof($pipes[2])) {
+            $stdout = fread($pipes[1], 4096);
+            $stderr = fread($pipes[2], 4096);
+
+            if ($stdout !== '' && $stdout !== false) {
+                if ($echoOutput) {
+                    echo $stdout;
+                    flush();
+                }
+                $output .= $stdout;
+            }
+
+            if ($stderr !== '' && $stderr !== false) {
+                if ($echoOutput) {
+                    fwrite(STDERR, $stderr);
+                    fflush(STDERR);
+                }
+                $output .= $stderr;
+            }
+
+            usleep(10000);
+        }
+
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        proc_close($process);
+
+        return $output;
     }
 
     /**
