@@ -259,14 +259,6 @@ Extensive configuration options in `config/cubeta-starter.php`:
 - Localization options
 - Version control
 
-### Template Customization
-
-Customize the generated code by publishing templates:
-
-```bash
-php artisan vendor:publish --tag=cubeta-starter-templates
-```
-
 This allows you to modify how code is generated while still using the package's automation features.
 
 ## Conclusion
