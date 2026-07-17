@@ -91,6 +91,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
 
             __DIR__ . '/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
+            __DIR__ . '/../src/Stub/stubs/Rules/MediaValidationRule.stub' => app_path('Rules/MediaValidationRule.php'),
 
             __DIR__ . '/../src/Stub/stubs/Controllers/WebController.stub' => app_path('Http/Controllers/WebController.php'),
             __DIR__ . '/../src/Stub/stubs/Controllers/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
@@ -98,6 +99,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Stub/stubs/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
             __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
 
+            __DIR__ . '/../src/Stub/stubs/Serializers/SerializedMedia.stub' => app_path("Serializers/SerializedMedia.php"),
             __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
 
             __DIR__ . "/../src/Stub/stubs/BulkActions/BaseBulkAction.stub" => app_path("BulkAction/BaseBulkAction.php"),
@@ -121,11 +123,14 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
 
             __DIR__ . '/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
+            __DIR__ . '/../src/Stub/stubs/Rules/MediaValidationRule.stub' => app_path('Rules/MediaValidationRule.php'),
 
             __DIR__ . "/../src/Stub/stubs/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
             __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
 
             __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
+            __DIR__ . '/../src/Stub/stubs/Serializers/SerializedMedia.stub' => app_path("Serializers/SerializedMedia.php"),
+
             __DIR__ . "/../src/Stub/stubs/BulkActions/BaseBulkAction.stub" => app_path("BulkAction/BaseBulkAction.php"),
 
             __DIR__ . "/../src/Stub/stubs/Excel/BaseExporter.stub" => app_path("Excel/BaseExporter.php"),
@@ -220,11 +225,13 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . "/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
 
             __DIR__ . '/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
+            __DIR__ . '/../src/Stub/stubs/Rules/MediaValidationRule.stub' => app_path('Rules/MediaValidationRule.php'),
 
             __DIR__ . "/../src/Stub/stubs/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
             __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
 
             __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
+            __DIR__ . '/../src/Stub/stubs/Serializers/SerializedMedia.stub' => app_path("Serializers/SerializedMedia.php"),
 
             __DIR__ . "/../src/Stub/stubs/BulkActions/BaseBulkAction.stub" => app_path("BulkAction/BaseBulkAction.php"),
 

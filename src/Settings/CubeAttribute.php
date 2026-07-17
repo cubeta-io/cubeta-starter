@@ -248,7 +248,7 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
         if ($this->unique) {
             $routeParameter = $this->getOwnerTable()->routeParameterNaming();
             $rules[] = new ValidationRuleString(
-                "Rule::unique('{$this->parentTableName}','{$this->name}')->when(\$this->method() == 'PUT', fn(\$rule) => \$rule->ignore(\$this->route('$routeParameter')))",
+                "Rule::unique('{$this->parentTableName}','{$this->name}')->when(\$this->isMethod('PUT'), fn(\$rule) => \$rule->ignore(\$this->route('$routeParameter')))",
                 [new PhpImportString("Illuminate\Validation\Rule")]
             );
         }

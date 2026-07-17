@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
+use App\Rules\MediaValidationRule;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
@@ -68,7 +69,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         return new CastColumnString(
             $this->name,
-            "MediaCast::class",
+            "MediaCast::class . \":public,single\"",
             new PhpImportString("App\\Casts\\MediaCast")
         );
     }
@@ -77,13 +78,15 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         $rules = [
             ...$this->uniqueOrNullableValidationRules(),
-            new ValidationRuleString($this->isImageLike() ? 'image' : 'file'),
-            new ValidationRuleString('max:10000'),
+            new ValidationRuleString(
+                $this->isImageLike()
+                    ? 'new MediaValidationRule'
+                    : 'new MediaValidationRule(["file" , "max:10000"])',
+                [
+                    new PhpImportString('App\Rules\MediaValidationRule'),
+                ]
+            ),
         ];
-
-        if ($this->isImageLike()) {
-            $rules[] = new ValidationRuleString('mimes:jpeg,png,jpg,gif,svg,webp');
-        }
 
         return new PropertyValidationRuleString(
             $this->name,

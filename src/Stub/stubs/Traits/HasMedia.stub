@@ -1,8 +1,9 @@
 <?php
 
-namespace {{namespace}};
+namespace App\Traits;
 
 use App\Casts\MediaCast;
+use App\Serializers\SerializedMedia;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -15,9 +16,19 @@ trait HasMedia
         parent::boot();
         self::deleted(function (Model $model) {
             $mediaKeys = $model->getCasts();
-            foreach ($mediaKeys as $attribute => $mediaKey) {
-                if ($mediaKey == MediaCast::class) {
-                    MediaCast::deleteFiles($model->{$attribute});
+            foreach ($mediaKeys as $attribute => $castValue) {
+                if (str_contains($castValue, MediaCast::class)) {
+                    /** @var SerializedMedia|SerializedMedia[] $media */
+                    $media = $model->{$attribute};
+                    if ($media !== null) {
+                        if (is_array($media)) {
+                            foreach ($media as $item) {
+                                $item->delete();
+                            }
+                        } else {
+                            $media->delete();
+                        }
+                    }
                 }
             }
         });
