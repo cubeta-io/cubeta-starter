@@ -16,6 +16,7 @@ use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use JetBrains\PhpStorm\FileReference;
 
 class FileUtils
 {
@@ -32,14 +33,14 @@ class FileUtils
     }
 
     /**
-     * @param array  $stubProperties
+     * @param array $stubProperties
      * @param string $path
      * @param string $stubPath
-     * @param bool   $override
+     * @param bool $override
      * @return void
      * @throws FileNotFoundException
      */
-    public static function generateFileFromStub(array $stubProperties, string $path, string $stubPath, bool $override = false): void
+    public static function generateFileFromStub(array $stubProperties, string $path, #[FileReference(basePath: "src/Stub/stubs/")] string $stubPath, bool $override = false): void
     {
         CreateFile::make()
             ->setPath($path)
@@ -62,7 +63,7 @@ class FileUtils
 
     /**
      * format the js|ts|jsx|... file on the given path
-     * @param $filePath string the project path of the file eg:resources/js/Pages/page.tsx
+     * @param $filePath string the project path of the file eg:resources/js/pages/page.tsx
      * @return void
      */
     public static function formatWithPrettier(string $filePath): void
@@ -74,7 +75,7 @@ class FileUtils
 
     /**
      * @param string $command
-     * @param bool   $withLog
+     * @param bool $withLog
      * @return false|string|null
      */
     public static function executeCommandInTheBaseDirectory(string $command, bool $withLog = true): bool|string|null
@@ -164,9 +165,10 @@ class FileUtils
 
     /**
      * add the use statement to the top of the desired file
-     * @param string   $importStatement
+     * @param string $importStatement
      * @param CubePath $filePath
      * @return void
+     * @throws Exception
      */
     public static function addImportStatement(string $importStatement, CubePath $filePath): void
     {
@@ -207,7 +209,7 @@ class FileUtils
     /**
      * check if content exists in a file
      * @param CubePath $filePath
-     * @param string   $needle
+     * @param string $needle
      * @return bool
      */
     public static function contentExistInFile(CubePath $filePath, string $needle): bool

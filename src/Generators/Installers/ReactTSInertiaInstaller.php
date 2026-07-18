@@ -67,12 +67,13 @@ class ReactTSInertiaInstaller extends AbstractGenerator
 
     private function installInertia(): void
     {
-        Artisan::call('vendor:publish', [
-            '--tag' => 'react-ts',
-            '--force' => $this->override,
-        ]);
-
-        CubeLog::add(Artisan::output());
+        FileUtils::executeCommandInTheBaseDirectory(
+            str("php artisan vendor:publish --tag=react-ts")
+            ->when(
+                $this->override,
+                fn($s) => $s->append(" --force")
+            )
+        );
 
         Publisher::make()
             ->source(CubePath::stubPath('/Web/InertiaReact/Views/App.stub'))
@@ -98,6 +99,6 @@ class ReactTSInertiaInstaller extends AbstractGenerator
     {
         SidebarStubBuilder::make()
             ->indexRoute(Routes::dashboardPage(Settings::make()->installedWebAuth())->name)
-            ->generate(CubePath::make('resources/js/components/ui/Sidebar.tsx'), $this->override);
+            ->generate(CubePath::make('resources/js/components/ui/sidebar.tsx'), $this->override);
     }
 }

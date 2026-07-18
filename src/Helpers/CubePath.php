@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Helpers;
 
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
+use JetBrains\PhpStorm\FileReference;
 
 class CubePath
 {
@@ -17,7 +18,7 @@ class CubePath
      * the file directory inside your project starting from the root directory
      * @param string $inProjectFilePath
      */
-    public function __construct(string $inProjectFilePath)
+    public function __construct(#[FileReference] string $inProjectFilePath)
     {
         $inProjectFilePath = str_replace('/', DIRECTORY_SEPARATOR, $inProjectFilePath);
         $inProjectFilePath = str_replace(base_path(), '', $inProjectFilePath);
@@ -81,11 +82,7 @@ class CubePath
         return pathinfo($this->fullPath, PATHINFO_EXTENSION) ?: null;
     }
 
-    /**
-     * @param non-empty-string $stubPath
-     * @return string
-     */
-    public static function stubPath(string $stubPath): string
+    public static function stubPath(#[FileReference(basePath: "src/Stub/stubs/")] string $stubPath): string
     {
         return realpath(
             __DIR__ .
@@ -129,7 +126,7 @@ class CubePath
         return new self(
             str($this->inProjectPath)
                 ->when(
-                    str_ends_with($this->inProjectPath , DIRECTORY_SEPARATOR),
+                    str_ends_with($this->inProjectPath, DIRECTORY_SEPARATOR),
                     fn($s) => $s->append($path),
                     fn($s) => $s->append(DIRECTORY_SEPARATOR . $path)
                 )->toString()

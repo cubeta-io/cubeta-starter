@@ -271,7 +271,7 @@ trait HasPathAndNamespace
      */
     public function getReactTSPagesPaths(string $type): CubePath
     {
-        $viewsPath = 'resources/js/Pages/dashboard/' . $this->viewNaming();
+        $viewsPath = 'resources/js/pages/dashboard/' . $this->viewNaming();
 
         return match ($type) {
             'show' => CubePath::make("$viewsPath/show.tsx"),
