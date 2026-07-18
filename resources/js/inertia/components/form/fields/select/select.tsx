@@ -3,13 +3,15 @@ import XMark from "@/components/icons/XMark";
 import { getNestedPropertyValue } from "@/helper";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  include,
   ISelectProps,
+  Option,
+} from "@/components/form/fields/select/types";
+import { usePage } from "@inertiajs/react";
+import {
+  include,
   isEqual,
   isOption,
-  Option,
-} from "@/components/form/fields/Select/SelectUtils";
-import { usePage } from "@inertiajs/react";
+} from "@/components/form/fields/select/helpers";
 
 function Select<TData>({
   label,
@@ -30,7 +32,9 @@ function Select<TData>({
   required = false,
   inputProps = {},
 }: ISelectProps<TData>) {
-  const errors = usePage().props.errors;
+  const {
+    props: { errors },
+  } = usePage();
   const error = name && errors[name] ? errors[name] : undefined;
 
   const getOption = (item: TData): Option => ({
@@ -146,7 +150,7 @@ function Select<TData>({
       <label
         className={`block ${
           styles?.labelClasses ??
-          "select-text text-sm font-medium text-gray-900"
+          "text-sm font-medium text-gray-900 select-text"
         }`}
       >
         {label ?? ""}
@@ -158,7 +162,7 @@ function Select<TData>({
           className={`hidden`}
           onInput={(e) => {
             if (onChange) {
-              onChange(e as React.ChangeEvent<HTMLInputElement>);
+              onChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
             }
           }}
           {...inputProps}

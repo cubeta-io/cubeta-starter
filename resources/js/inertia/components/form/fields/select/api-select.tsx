@@ -1,15 +1,14 @@
 import {
   IApiSelectProps,
-  isEqual,
-  isOption,
   Option,
-} from "@/components/form/fields/Select/SelectUtils";
+} from "@/components/form/fields/select/types";
 import ChevronDown from "@/components/icons/ChevronDown";
 import LoadingSpinner from "@/components/icons/LoadingSpinner";
 import XMark from "@/components/icons/XMark";
 import { getNestedPropertyValue } from "@/helper";
 import { usePage } from "@inertiajs/react";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import { isEqual, isOption } from "@/components/form/fields/select/helpers";
 
 function ApiSelect<TResponse, TData>({
   api,
@@ -35,7 +34,9 @@ function ApiSelect<TResponse, TData>({
   getNextPage = undefined,
   required = false,
 }: IApiSelectProps<TResponse, TData>) {
-  const errors = usePage().props.errors;
+  const {
+    props: { errors },
+  } = usePage();
   const error = name && errors[name] ? errors[name] : undefined;
 
   const getOption = (item: TData): Option => ({
@@ -202,7 +203,7 @@ function ApiSelect<TResponse, TData>({
       <label
         className={`block ${
           styles?.labelClasses ??
-          "select-text text-sm font-medium text-gray-900 dark:text-white"
+          "text-sm font-medium text-gray-900 select-text dark:text-white"
         }`}
       >
         {label ?? ""}
@@ -214,7 +215,7 @@ function ApiSelect<TResponse, TData>({
           className={`hidden`}
           onInput={(e) => {
             if (onChange) {
-              onChange(e as ChangeEvent<HTMLInputElement>);
+              onChange(e as unknown as ChangeEvent<HTMLInputElement>);
             }
           }}
           {...inputProps}

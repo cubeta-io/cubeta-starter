@@ -150,7 +150,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             new TsImportString("ApiResponse", "@/Modules/Http/ApiResponse"),
             new TsImportString("Http", "@/Modules/Http/Http"),
             new TsImportString($modelName, "@/Models/{$modelName}"),
-            new TsImportString("ApiSelect", "@/components/form/fields/Select/ApiSelect"),
+            new TsImportString("ApiSelect", "@/components/form/fields/select/api-select"),
         ];
 
         if ($relatedModel->titleable()->isTranslatable()) {
