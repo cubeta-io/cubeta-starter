@@ -34,7 +34,7 @@ class CubePath
         $this->fileName = pathinfo($this->fullPath, PATHINFO_BASENAME) ?? "";
     }
 
-    public static function make(string $inProjectFilePath): CubePath
+    public static function make(#[FileReference] string $inProjectFilePath): CubePath
     {
         return new self($inProjectFilePath);
     }
