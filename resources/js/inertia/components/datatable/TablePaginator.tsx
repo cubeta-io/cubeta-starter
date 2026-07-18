@@ -1,4 +1,4 @@
-import { TablePaginatorProps } from "@/components/Datatable/DataTableUtils";
+import { TablePaginatorProps } from "@/components/datatable/DataTableUtils";
 import ChevronRight from "@/components/icons/ChevronRight";
 import ChevronLeft from "@/components/icons/ChevronLeft";
 

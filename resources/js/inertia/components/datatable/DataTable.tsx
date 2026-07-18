@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/icons/LoadingSpinner";
-import TableHead from "@/components/Datatable/TableHead";
-import TableBody from "@/components/Datatable/TableBody";
+import TableHead from "@/components/datatable/TableHead";
+import TableBody from "@/components/datatable/TableBody";
 import PageCard from "@/components/ui/PageCard";
-import { DataTableData } from "@/components/Datatable/DataTableUtils";
-import TableActions from "@/components/Datatable/TableActions";
-import TablePaginator from "@/components/Datatable/TablePaginator";
+import { DataTableData } from "@/components/datatable/DataTableUtils";
+import TableActions from "@/components/datatable/TableActions";
+import TablePaginator from "@/components/datatable/TablePaginator";
 import Modal from "@/components/ui/Modal";
-import ImportModal from "@/components/Datatable/ImportModal";
-import ExportModal from "@/components/Datatable/ExportModal";
+import ImportModal from "@/components/datatable/ImportModal";
+import ExportModal from "@/components/datatable/ExportModal";
 
 function DataTable<ApiResponse, Data>({
   api,

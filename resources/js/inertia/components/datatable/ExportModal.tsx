@@ -1,4 +1,4 @@
-import { DataTableSchema } from "@/components/Datatable/DataTableUtils";
+import { DataTableSchema } from "@/components/datatable/DataTableUtils";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import DownloadFile from "@/Hooks/DownloadFile";

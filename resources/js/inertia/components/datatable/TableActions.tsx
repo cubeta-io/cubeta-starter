@@ -1,5 +1,5 @@
 import { Link } from "@inertiajs/react";
-import { TableActionsProps } from "@/components/Datatable/DataTableUtils";
+import { TableActionsProps } from "@/components/datatable/DataTableUtils";
 import DocumentPlus from "@/components/icons/DocumentPlus";
 import Filter from "@/components/icons/Filter";
 import ArrowDownTray from "@/components/icons/ArrowDownTray";
