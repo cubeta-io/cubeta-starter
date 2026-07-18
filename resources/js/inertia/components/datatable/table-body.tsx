@@ -1,6 +1,6 @@
 import { translate } from "@/Models/Translatable";
 import { getNestedPropertyValue } from "@/helper";
-import { TableBodyProps } from "@/components/datatable/DataTableUtils";
+import { TableBodyProps } from "@/components/datatable/types";
 
 function TableBody<Data>({
   tableSchema,

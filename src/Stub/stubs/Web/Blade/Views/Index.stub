@@ -33,7 +33,7 @@
     @push('scripts')
         <script type="module">
             $(document).ready(function () {
-                $('#table').DataTable({
+                $('#table').Datatable({
                    ajax:dataTableAjax("{{ route('{{data_route}}') }}" , "{{ app()->getLocale() }}"),
                    columns: [
                        {"data": 'id', searchable: true, orderable: true},

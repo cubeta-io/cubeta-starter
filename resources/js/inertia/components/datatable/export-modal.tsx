@@ -1,4 +1,4 @@
-import { DataTableSchema } from "@/components/datatable/DataTableUtils";
+import { TableSchema } from "@/components/datatable/types";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import DownloadFile from "@/Hooks/DownloadFile";
@@ -14,7 +14,7 @@ const ExportModal = ({
 }: {
   openExport: boolean;
   setOpenExport: (value: boolean | ((prev: boolean) => boolean)) => void;
-  schema: DataTableSchema<any>[];
+  schema: TableSchema<any>[];
   exportRoute?: string;
   exportables?: string[];
 }) => {

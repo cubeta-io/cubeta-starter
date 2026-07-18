@@ -90,7 +90,7 @@ class BladeFileUtils
         }
 
         // Find the column array
-        $pattern = '/DataTable\s*\(\s*\{(.*?)columns\s*:\s*\[(.*?)](.*)}\)/s';
+        $pattern = '/Datatable\s*\(\s*\{(.*?)columns\s*:\s*\[(.*?)](.*)}\)/s';
 
         if (!preg_match($pattern, $fileContent, $objectMatches)) {
             CubeLog::warning(

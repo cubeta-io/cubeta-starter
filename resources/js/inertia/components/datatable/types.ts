@@ -4,7 +4,7 @@ export interface FilterParam {
   [key: string]: any;
 }
 
-export interface DataTableSchema<Data> {
+export interface TableSchema<Data> {
   name?: keyof Data | string;
   label: string;
   sortable?: boolean;
@@ -20,7 +20,7 @@ export interface DataTableSchema<Data> {
   ) => ReactNode | React.JSX.Element | undefined | null;
 }
 
-export interface DataTableData<ApiResponse, Data> {
+export interface TableData<ApiResponse, Data> {
   title?: string;
   createUrl?: string;
   importRoute?: string;
@@ -42,7 +42,7 @@ export interface DataTableData<ApiResponse, Data> {
     perPage?: number,
     params?: object,
   ) => Promise<ApiResponse>;
-  schema: DataTableSchema<Data>[];
+  schema: TableSchema<Data>[];
   filter?: (
     params: FilterParam,
     setParams: (
@@ -72,7 +72,7 @@ export interface TableActionsProps {
 }
 
 export interface TableBodyProps<Data> {
-  tableSchema: DataTableSchema<Data>[];
+  tableSchema: TableSchema<Data>[];
   data: Data[];
   setHidden: (value: ((prevState: number[]) => number[]) | number[]) => void;
   revalidate?: () => void;
@@ -80,7 +80,7 @@ export interface TableBodyProps<Data> {
 }
 
 export interface TableHeadProps<Data> {
-  schema: DataTableSchema<Data>[];
+  schema: TableSchema<Data>[];
   sortDir: string;
   setSortDir: (value: ((prevState: string) => string) | string) => void;
   sortCol: string;

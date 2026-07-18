@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/icons/LoadingSpinner";
-import TableHead from "@/components/datatable/TableHead";
-import TableBody from "@/components/datatable/TableBody";
+import TableHead from "@/components/datatable/table-head";
+import TableBody from "@/components/datatable/table-body";
 import PageCard from "@/components/ui/PageCard";
-import { DataTableData } from "@/components/datatable/DataTableUtils";
-import TableActions from "@/components/datatable/TableActions";
-import TablePaginator from "@/components/datatable/TablePaginator";
+import { TableData } from "@/components/datatable/types";
+import TableActions from "@/components/datatable/table-actions";
+import TablePaginator from "@/components/datatable/table-paginator";
 import Modal from "@/components/ui/Modal";
-import ImportModal from "@/components/datatable/ImportModal";
-import ExportModal from "@/components/datatable/ExportModal";
+import ImportModal from "@/components/datatable/import-modal";
+import ExportModal from "@/components/datatable/export-modal";
 
-function DataTable<ApiResponse, Data>({
+function Datatable<ApiResponse, Data>({
   api,
   schema,
   createUrl,
@@ -27,7 +27,7 @@ function DataTable<ApiResponse, Data>({
   importRoute = undefined,
   exportRoute = undefined,
   exportables = undefined,
-}: DataTableData<ApiResponse, Data>) {
+}: TableData<ApiResponse, Data>) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [hideCols, setHideCols] = useState<number[]>([]);
@@ -185,4 +185,4 @@ function DataTable<ApiResponse, Data>({
   );
 }
 
-export default DataTable;
+export default Datatable;
