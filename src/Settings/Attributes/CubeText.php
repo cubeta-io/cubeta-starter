@@ -116,13 +116,13 @@ class CubeText extends CubeStringable implements HasFakeMethod,
         }
 
         return new TsxInputComponentString(
-            "TextEditor",
+            "Textarea",
             $this->name,
             $this->labelNaming(),
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("TextEditor", "@/components/form/fields/TextEditor"),
+                new TsImportString("Textarea", "@/components/form/fields/textarea"),
                 new TsImportString("ChangeEvent", "react", false)
             ]
         );

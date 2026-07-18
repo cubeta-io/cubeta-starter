@@ -16,7 +16,9 @@ const Radio: React.FC<IRadioProps> = ({
   onChange = undefined,
   label = undefined,
 }) => {
-  const errors = usePage().props.errors;
+  const {
+    props: { errors },
+  } = usePage();
   const error = name && errors[name] ? errors[name] : undefined;
 
   return (

@@ -159,7 +159,7 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod,
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("Input", "@/components/form/fields/Input")
+                new TsImportString("Input", "@/components/form/fields/input")
             ]
         );
     }

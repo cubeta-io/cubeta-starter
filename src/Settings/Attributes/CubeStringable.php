@@ -177,7 +177,7 @@ class CubeStringable extends CubeAttribute implements
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("Input", "@/components/form/fields/Input")
+                new TsImportString("Input", "@/components/form/fields/input")
             ]
         );
     }

@@ -177,7 +177,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
             imports: [
                 new TsImportString(
                     "Radio",
-                    "@/components/form/fields/Radio"
+                    "@/components/form/fields/radio"
                 )
             ]
         );

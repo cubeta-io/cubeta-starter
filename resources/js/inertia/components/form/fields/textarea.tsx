@@ -1,14 +1,12 @@
 import React from "react";
 import { usePage } from "@inertiajs/react";
 
-export interface TextEditorProps extends React.ComponentProps<"textarea"> {
+export interface TextareaProps extends React.ComponentProps<"textarea"> {
   name: string;
   label?: string;
-  className?: string;
-  required?: boolean;
 }
 
-const TextEditor: React.FC<TextEditorProps> = ({
+const Textarea: React.FC<TextareaProps> = ({
   name,
   label,
   className,
@@ -39,4 +37,4 @@ const TextEditor: React.FC<TextEditorProps> = ({
   );
 };
 
-export default TextEditor;
+export default Textarea;

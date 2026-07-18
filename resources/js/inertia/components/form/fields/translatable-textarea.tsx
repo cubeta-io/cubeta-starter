@@ -12,7 +12,7 @@ interface TranslatableProps extends Omit<
   label?: string;
 }
 
-const TranslatableEditor: React.FC<TranslatableProps> = ({
+const TranslatableTextarea: React.FC<TranslatableProps> = ({
   label,
   className,
   defaultValue,
@@ -22,7 +22,9 @@ const TranslatableEditor: React.FC<TranslatableProps> = ({
   required = false,
   ...props
 }) => {
-  const errors = usePage().props.errors;
+  const {
+    props: { errors },
+  } = usePage();
   const error = name && errors[name] ? errors[name] : undefined;
 
   if (typeof defaultValue == "string") {
@@ -106,4 +108,4 @@ const TranslatableEditor: React.FC<TranslatableProps> = ({
   );
 };
 
-export default TranslatableEditor;
+export default TranslatableTextarea;

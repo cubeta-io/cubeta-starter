@@ -120,7 +120,7 @@ class CubeDateTime extends CubeDateable implements HasFakeMethod, HasMigrationCo
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("Input", "@/components/form/fields/Input")
+                new TsImportString("Input", "@/components/form/fields/input")
             ]
         );
     }

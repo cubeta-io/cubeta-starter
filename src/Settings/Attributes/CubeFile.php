@@ -195,7 +195,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
                 ]
             ],
             [
-                new TsImportString("Input", "@/components/form/fields/Input")
+                new TsImportString("Input", "@/components/form/fields/input")
             ]
         );
     }

@@ -1,6 +1,6 @@
 import { usePage } from "@inertiajs/react";
 import React, { ChangeEvent, useRef, useState } from "react";
-import Input, { InputProps } from "@/components/form/fields/Input";
+import Input, { InputProps } from "@/components/form/fields/input";
 import { Translatable, translate } from "@/Models/Translatable";
 import { useFormLocale } from "@/providers/form-locale-provider";
 
@@ -28,11 +28,10 @@ const TranslatableInput: React.FC<
 }) => {
   const { locale } = useFormLocale();
   const {
-    props: { availableLocales },
+    props: { availableLocales, errors },
   } = usePage();
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  const errors = usePage().props.errors;
+  const inputRef = useRef<HTMLInputElement>(null);
   const error = name && errors[name] ? errors[name] : undefined;
 
   if (typeof defaultValue == "string") {
@@ -82,7 +81,12 @@ const TranslatableInput: React.FC<
               defaultValue={defaultValue ? defaultValue[lang] : ""}
               type={"text"}
               placeholder={placeholder}
-              onInput={(e) => handleChange(e, lang)}
+              onInput={(e) =>
+                handleChange(
+                  e as unknown as ChangeEvent<HTMLInputElement>,
+                  lang,
+                )
+              }
               required={required}
               {...props}
             />
