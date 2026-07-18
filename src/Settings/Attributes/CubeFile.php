@@ -2,7 +2,6 @@
 
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
-use App\Rules\MediaValidationRule;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;

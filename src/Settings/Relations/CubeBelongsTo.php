@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeKey;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
@@ -97,11 +98,11 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
 
     public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): ReactTsInputComponentString
     {
-        $modelName = $this->modelNaming(); // User
-        $relatedModel = $this->parentModel(); // Author
+        $modelName = $this->modelNaming();
+        $relatedModel = $this->parentModel();
         $column = $relatedModel
             ->attributes()
-            ->filter(fn($att) => $att->isKey() && $att->modelNaming() == $modelName)
+            ->filter(fn(CubeAttribute $att) => $att->isKey() && $att->modelNaming() == $modelName)
             ->first() ?? CubeKey::factory($this->key, ColumnTypeEnum::KEY->value, parentTableName: $relatedModel->tableNaming());
         $dataRoute = CubeTable::create($modelName)->dataRoute($actor)->name;
 
@@ -124,7 +125,9 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             ],
             [
                 'key' => 'onChange',
-                'value' => "(e) => setData(\"$this->key\", e.target.value ? Number(e.target.value) : undefined)",
+                'value' => $column->nullable
+                    ? "(e) => setData(\"$this->key\", e.target.value ? Number(e.target.value) : undefined)"
+                    : "(e) => setData(\"$this->key\", Number(e.target.value))",
             ],
             $this->relationModel()->titleable()->isTranslatable()
                 ? [
@@ -149,7 +152,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
 
         $imports = [
             new TsImportString("ApiResponse", "@/modules/http/api-response"),
-            new TsImportString("http", "@/modules/http/http"),
+            new TsImportString("Http", "@/modules/http/http"),
             new TsImportString($modelName, $this->tsModelImportPath()),
             new TsImportString("ApiSelect", "@/components/form/fields/select/api-select"),
         ];

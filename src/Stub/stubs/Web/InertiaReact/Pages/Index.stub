@@ -1,8 +1,7 @@
 import ActionsButtons from "@/components/datatable/actions-buttons";
 import Datatable from "@/components/datatable/datatable";
-import {{model_name}} from "@/Models/{{model_name}}";
-import ApiResponse from "@/Modules/Http/api-response";
-import Http from "@/Modules/Http/Http";
+import ApiResponse from "@/modules/http/api-response";
+import Http from "@/modules/http/http";
 {{imports}}
 
 const Index = ({exportables}:{exportables:string[]}) => {

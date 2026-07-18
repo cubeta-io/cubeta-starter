@@ -8,13 +8,14 @@ use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Illuminate\Support\Collection;
 
 /**
- * @template T
- * @extends Collection<T>
+ * @template TKey of array-key
+ * @template-covariant TValue
+ * @extends Collection<TKey , TValue>
  */
 class CubeCollection extends Collection
 {
     /**
-     * @param Closure(T):string|null $callable
+     * @param Closure(TValue):string|null $callable
      * @return CubeCollection
      */
     public function stringifyEachOne(Closure $callable = null): CubeCollection

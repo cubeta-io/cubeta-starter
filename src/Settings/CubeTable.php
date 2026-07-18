@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class CubeTable
 {
-    use NamingConventions, HasPathAndNamespace , HasViewsAndRoutes;
+    use NamingConventions, HasPathAndNamespace, HasViewsAndRoutes;
 
     /**
      * @var string
@@ -67,11 +67,11 @@ class CubeTable
     }
 
     /**
-     * @param string          $modelName
-     * @param string          $tableName
+     * @param string $modelName
+     * @param string $tableName
      * @param CubeAttribute[] $attributes
-     * @param CubeRelation[]  $relations
-     * @param string          $version
+     * @param CubeRelation[] $relations
+     * @param string $version
      */
     public function __construct(string $modelName, string $tableName, array $attributes, array $relations, string $version)
     {
@@ -88,10 +88,10 @@ class CubeTable
 
     /**
      * @param string $modelName
-     * @param array  $attributes
-     * @param array  $relations
-     * @param array  $uniques
-     * @param array  $nullables
+     * @param array $attributes
+     * @param array $relations
+     * @param array $uniques
+     * @param array $nullables
      * @param string $version
      * @return CubeTable
      */
@@ -183,7 +183,7 @@ class CubeTable
     }
 
     /**
-     * @param string      $name
+     * @param string $name
      * @param string|null $type
      * @return bool
      */
@@ -201,7 +201,7 @@ class CubeTable
     }
 
     /**
-     * @param string      $modelName
+     * @param string $modelName
      * @param string|null $type
      * @return bool
      */
@@ -255,7 +255,7 @@ class CubeTable
     }
 
     /**
-     * @return CubeCollection<CubeAttribute>
+     * @return CubeCollection<int,CubeAttribute>
      */
     public function attributes(string|ColumnTypeEnum|null $type = null): CubeCollection
     {

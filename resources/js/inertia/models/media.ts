@@ -1,11 +1,9 @@
-type Media =
-  | {
-      url: string;
-      size: number;
-      extension: string;
-      mime_type: string;
-    }
-  | File;
+interface Media {
+  url: string;
+  size: number;
+  extension: string;
+  mime_type: string;
+}
 
 export function getFileNameFromUrl(url: string): string {
   try {

@@ -3,8 +3,7 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Illuminate\Support\Stringable;
-use function Orchestra\Testbench\join_paths;
+use function Illuminate\Filesystem\join_paths;
 
 /**
  * A trait providing methods to generate paths, namespaces, and class strings

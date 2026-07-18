@@ -53,7 +53,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $builder = ShowPageStubBuilder::make()
             ->modelName($this->table->modelNaming())
             ->modelVariable($this->table->variableNaming())
-            ->editRouteName($this->table->editRoute($this->actor)->name);
+            ->editRouteName($this->table->editRoute($this->actor)->name)
+            ->import(new TsImportString($this->table->modelNaming(), $this->table->tsModelImportPath()));
 
         $this->table->attributes()
             ->whereInstanceOf(HasReactTsDisplayComponentString::class)
@@ -87,7 +88,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->indexRoute($this->table->indexRoute($this->actor, ContainerType::WEB)->name)
             ->importRoute($this->table->importRoute($this->actor, ContainerType::WEB)->name)
             ->exportRoute($this->table->exportRoute($this->actor, ContainerType::WEB)->name)
-            ->importExampleRoute($this->table->importExampleRoute($this->actor, ContainerType::WEB)->name);
+            ->importExampleRoute($this->table->importExampleRoute($this->actor, ContainerType::WEB)->name)
+            ->import(new TsImportString($this->table->modelNaming(), $this->table->tsModelImportPath()));
 
         $this->table->attributes()
             ->whereInstanceOf(HasDataTableColumnObjectString::class)
@@ -216,7 +218,16 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 }
 
                 if ($attr instanceof HasInterfacePropertyString) {
-                    $builder->formFieldInterface($attr->interfacePropertyString());
+                    if ($attr->isFile()) {
+                        $builder->formFieldInterface(new InterfacePropertyString(
+                            $attr->name,
+                            "Media|File",
+                            true,
+                            new TsImportString("Media", "@/models/media")
+                        ));
+                    } else {
+                        $builder->formFieldInterface($attr->interfacePropertyString());
+                    }
                 }
             });
 

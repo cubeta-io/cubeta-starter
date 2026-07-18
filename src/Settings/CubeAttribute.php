@@ -59,10 +59,10 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
     public bool $isRequired;
 
     /**
-     * @param string      $name
-     * @param string      $type
-     * @param bool        $nullable
-     * @param bool        $unique
+     * @param string $name
+     * @param string $type
+     * @param bool $nullable
+     * @param bool $unique
      * @param string|null $parentTableName
      */
     public function __construct(string $name, string $type, bool $nullable = false, bool $unique = false, ?string $parentTableName = null)
@@ -111,6 +111,8 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
     }
 
     /**
+     * @phpstan-assert-if-true CubeFile $this
+     * @psalm-assert-if-true CubeFile $this
      * @return bool
      */
     public function isFile(): bool
