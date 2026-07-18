@@ -122,7 +122,7 @@ class CubeText extends CubeStringable implements HasFakeMethod,
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("TextEditor", "@/Components/form/fields/TextEditor"),
+                new TsImportString("TextEditor", "@/components/form/fields/TextEditor"),
                 new TsImportString("ChangeEvent", "react", false)
             ]
         );
@@ -137,7 +137,7 @@ class CubeText extends CubeStringable implements HasFakeMethod,
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name}",
             [
-                new TsImportString("LongTextField", "@/Components/Show/LongTextField")
+                new TsImportString("LongTextField", "@/components/Show/LongTextField")
             ]
         );
     }

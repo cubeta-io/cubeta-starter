@@ -1,6 +1,6 @@
-import Eye from "@/Components/icons/Eye";
-import Pencil from "@/Components/icons/Pencil";
-import Trash from "@/Components/icons/Trash";
+import Eye from "@/components/icons/Eye";
+import Pencil from "@/components/icons/Pencil";
+import Trash from "@/components/icons/Trash";
 import { swal } from "@/helper";
 import Http from "@/Modules/Http/Http";
 import { Link } from "@inertiajs/react";

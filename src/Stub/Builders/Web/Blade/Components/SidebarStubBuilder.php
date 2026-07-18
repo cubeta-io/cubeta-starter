@@ -12,7 +12,7 @@ class SidebarStubBuilder extends StubBuilder
 {
     protected function stubPath(): string
     {
-        return CubePath::stubPath('Web/Blade/Components/Sidebar.stub');
+        return CubePath::stubPath('Web/Blade/components/Sidebar.stub');
     }
 
     protected function getStubPropertyArray(): array

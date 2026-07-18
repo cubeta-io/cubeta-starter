@@ -1,6 +1,6 @@
 import { FormEvent, ReactNode } from "react";
-import Button from "@/Components/ui/Button";
-import ChevronLeft from "@/Components/icons/ChevronLeft";
+import Button from "@/components/ui/Button";
+import ChevronLeft from "@/components/icons/ChevronLeft";
 
 const Form = ({
   onSubmit,

@@ -1,5 +1,5 @@
 import React from "react";
-import LoadingSpinner from "@/Components/icons/LoadingSpinner";
+import LoadingSpinner from "@/components/icons/LoadingSpinner";
 
 interface IButtonProps extends React.ComponentProps<"button"> {
   color?:

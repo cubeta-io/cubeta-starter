@@ -1,8 +1,8 @@
-import ClosedEye from "@/Components/icons/ClosedEye";
-import Eye from "@/Components/icons/Eye";
+import ClosedEye from "@/components/icons/ClosedEye";
+import Eye from "@/components/icons/Eye";
 import { usePage } from "@inertiajs/react";
 import React, { ChangeEvent, HTMLProps, useState } from "react";
-import Email from "@/Components/icons/Email";
+import Email from "@/components/icons/Email";
 
 export interface InputProps extends React.ComponentProps<"input"> {
   name: string;

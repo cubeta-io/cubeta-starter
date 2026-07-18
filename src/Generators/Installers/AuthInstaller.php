@@ -386,7 +386,7 @@ class AuthInstaller extends AbstractGenerator
 
     public function addRouteToReactTsProfileDropdown(string $tagId, string $routeName): void
     {
-        $dropDownPath = CubePath::make("resources/js/Components/ui/ProfileDropDown.tsx");
+        $dropDownPath = CubePath::make("resources/js/components/ui/ProfileDropDown.tsx");
         if (!$dropDownPath->exist()) {
             CubeLog::notFound($dropDownPath->fullPath, "Adding auth routes to navbar dropdown");
             return;
@@ -560,7 +560,7 @@ class AuthInstaller extends AbstractGenerator
         }
 
         if (Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
-            $sidebarPath = CubePath::make('resources/js/Components/ui/Sidebar.tsx');
+            $sidebarPath = CubePath::make('resources/js/components/ui/Sidebar.tsx');
         } else {
             $sidebarPath = CubePath::make('resources/views/includes/sidebar.blade.php');
         }

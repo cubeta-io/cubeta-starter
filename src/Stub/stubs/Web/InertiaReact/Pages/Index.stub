@@ -1,5 +1,5 @@
-import ActionsButtons from "@/Components/Datatable/ActionsButtons";
-import DataTable from "@/Components/Datatable/DataTable";
+import ActionsButtons from "@/components/Datatable/ActionsButtons";
+import DataTable from "@/components/Datatable/DataTable";
 import {{model_name}} from "@/Models/{{model_name}}";
 import ApiResponse from "@/Modules/Http/ApiResponse";
 import Http from "@/Modules/Http/Http";

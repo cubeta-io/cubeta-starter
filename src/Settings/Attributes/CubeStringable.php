@@ -177,7 +177,7 @@ class CubeStringable extends CubeAttribute implements
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("Input", "@/Components/form/fields/Input")
+                new TsImportString("Input", "@/components/form/fields/Input")
             ]
         );
     }
@@ -207,7 +207,7 @@ class CubeStringable extends CubeAttribute implements
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name}",
             [
-                new TsImportString("SmallTextField", "@/Components/Show/SmallTextField")
+                new TsImportString("SmallTextField", "@/components/Show/SmallTextField")
             ]
         );
     }

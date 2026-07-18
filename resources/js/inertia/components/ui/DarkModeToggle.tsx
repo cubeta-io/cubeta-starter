@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Sun from "@/Components/icons/Sun";
-import Moon from "@/Components/icons/Moon";
+import Sun from "@/components/icons/Sun";
+import Moon from "@/components/icons/Moon";
 
 const DarkModeToggle = () => {
   const currentTheme = window.localStorage.getItem("theme_mode") ?? "light";

@@ -177,7 +177,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
             imports: [
                 new TsImportString(
                     "Radio",
-                    "@/Components/form/fields/Radio"
+                    "@/components/form/fields/Radio"
                 )
             ]
         );
@@ -192,7 +192,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name} ? 'Yes' : 'No'",
             [
-                new TsImportString("SmallTextField", "@/Components/Show/SmallTextField")
+                new TsImportString("SmallTextField", "@/components/Show/SmallTextField")
             ]
         );
     }

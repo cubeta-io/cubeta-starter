@@ -1,6 +1,6 @@
-import PresentationChart from "@/Components/icons/PresentationChart";
-import TableCells from "@/Components/icons/TableCells";
-import XMark from "@/Components/icons/XMark";
+import PresentationChart from "@/components/icons/PresentationChart";
+import TableCells from "@/components/icons/TableCells";
+import XMark from "@/components/icons/XMark";
 import { asset } from "@/helper";
 import { Link } from "@inertiajs/react";
 import React, { ReactNode } from "react";

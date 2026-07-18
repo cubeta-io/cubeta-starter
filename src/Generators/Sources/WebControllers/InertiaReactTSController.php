@@ -115,7 +115,7 @@ class InertiaReactTSController extends AbstractGenerator
 
         $updatedContent = preg_replace_callback($pattern, $callback, $fileContent);
         $sidebarPath->putContent($updatedContent);
-        FileUtils::tsAddImportStatement('import TableCells from "@/Components/icons/TableCells";', $sidebarPath);
+        FileUtils::tsAddImportStatement('import TableCells from "@/components/icons/TableCells";', $sidebarPath);
         $sidebarPath->format();
         CubeLog::contentAppended($newSidebarItem, $sidebarPath->fullPath);
     }

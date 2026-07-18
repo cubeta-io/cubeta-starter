@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace {{namespace}};
 
 use App\Casts\MediaCast;
 use App\Serializers\SerializedMedia;

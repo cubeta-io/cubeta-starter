@@ -98,6 +98,6 @@ class ReactTSInertiaInstaller extends AbstractGenerator
     {
         SidebarStubBuilder::make()
             ->indexRoute(Routes::dashboardPage(Settings::make()->installedWebAuth())->name)
-            ->generate(CubePath::make('resources/js/Components/ui/Sidebar.tsx'), $this->override);
+            ->generate(CubePath::make('resources/js/components/ui/Sidebar.tsx'), $this->override);
     }
 }

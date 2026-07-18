@@ -167,7 +167,7 @@ class CubeDateable extends CubeAttribute implements HasFakeMethod,
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name}",
             [
-                new TsImportString("SmallTextField", "@/Components/Show/SmallTextField")
+                new TsImportString("SmallTextField", "@/components/Show/SmallTextField")
             ]
         );
     }

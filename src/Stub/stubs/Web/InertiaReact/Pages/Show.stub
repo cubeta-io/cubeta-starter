@@ -1,5 +1,5 @@
-import Button from "@/Components/ui/Button";
-import PageCard from "@/Components/ui/PageCard";
+import Button from "@/components/ui/Button";
+import PageCard from "@/components/ui/PageCard";
 import {{model_name}} from "@/Models/{{model_name}}";
 import { Link } from "@inertiajs/react";
 {{imports}}

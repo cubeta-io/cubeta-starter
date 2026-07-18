@@ -1,6 +1,6 @@
-import { DataTableSchema } from "@/Components/Datatable/DataTableUtils";
-import Button from "@/Components/ui/Button";
-import Modal from "@/Components/ui/Modal";
+import { DataTableSchema } from "@/components/Datatable/DataTableUtils";
+import Button from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
 import DownloadFile from "@/Hooks/DownloadFile";
 import Http from "@/Modules/Http/Http";
 import { FormEvent, useState } from "react";

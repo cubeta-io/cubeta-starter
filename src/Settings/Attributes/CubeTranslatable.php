@@ -179,7 +179,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
             $tag = "TranslatableEditor";
             $imports = [
                 new TsImportString("ChangeEvent", "react", false),
-                new TsImportString("TranslatableEditor", "@/Components/form/fields/TranslatableEditor")
+                new TsImportString("TranslatableEditor", "@/components/form/fields/TranslatableEditor")
             ];
         } else {
             $attributes = [
@@ -190,7 +190,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
             ];
             $tag = "TranslatableInput";
             $imports = [
-                new TsImportString("TranslatableInput", "@/Components/form/fields/TranslatableInput")
+                new TsImportString("TranslatableInput", "@/components/form/fields/TranslatableInput")
             ];
         }
 
@@ -221,8 +221,8 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
             "translate({$modelVariable}{$nullable}.{$this->name})",
             [
                 $this->isTextable()
-                    ? new TsImportString("LongTextField", "@/Components/Show/LongTextField")
-                    : new TsImportString("SmallTextField", "@/Components/Show/SmallTextField"),
+                    ? new TsImportString("LongTextField", "@/components/Show/LongTextField")
+                    : new TsImportString("SmallTextField", "@/components/Show/SmallTextField"),
                 new TsImportString("translate", "@/Models/Translatable", false),
             ]
         );

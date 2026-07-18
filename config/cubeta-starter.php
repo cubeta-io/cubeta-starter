@@ -1,5 +1,7 @@
 <?php
 
+use function Illuminate\Filesystem\join_paths;
+
 return [
 
     /**
@@ -23,84 +25,78 @@ return [
      * model path and namespace
      */
     'model_namespace' => "App\Models",
-    'model_path' => 'app/Models',
+    'model_path' => join_paths('app', 'Models'),
 
     /**
      * repositories path and namespace
      */
     'repository_namespace' => "App\Repositories",
-    'repository_path' => 'app/Repositories',
+    'repository_path' => join_paths('app', 'Repositories'),
 
     /**
      * service path and namespace
      */
     'service_namespace' => 'App\Services',
-    'service_path' => 'app/Services',
+    'service_path' => join_paths('app', 'Services'),
 
     /**
      * api controller path and namespace
      */
     'api_controller_namespace' => 'App\Http\Controllers\API',
-    'api_controller_path' => 'app/Http/Controllers/API',
+    'api_controller_path' => join_paths('app', 'Http', 'Controllers', 'API'),
 
     /**
      * web controller path and namespace
      */
     'web_controller_namespace' => 'App\Http\Controllers\WEB',
-    'web_controller_path' => 'app/Http/Controllers/WEB',
+    'web_controller_path' => join_paths('app', 'Http', 'Controllers', 'WEB'),
 
     /**
      * requests path and namespace
      */
     'request_namespace' => 'App\Http\Requests',
-    'request_path' => 'app/Http/Requests',
+    'request_path' => join_paths('app', 'Http', 'Requests'),
 
     /**
      * resources path and namespace
      */
     'resource_namespace' => 'App\Http\Resources',
-    'resource_path' => 'app/Http/Resources',
-
-    /**
-     * policy path and namespace
-     */
-    'policy_namespace' => 'App\Policies',
-    'policy_path' => 'app/Policies',
+    'resource_path' => join_paths('app', 'Http', 'Resources'),
 
     /**
      * the directory of all migration files
      */
-    'migration_path' => 'database/migrations',
+    'migration_path' => join_paths('database', 'migrations'),
 
     /**
      * seeders path and namespace
      */
     'seeder_namespace' => 'Database\Seeders',
-    'seeder_path' => 'database/seeders',
+    'seeder_path' => join_paths('database', 'seeders'),
 
     /**
      * factory path and namespace
      */
     'factory_namespace' => 'Database\Factories',
-    'factory_path' => 'database/factories',
+    'factory_path' => join_paths('database', 'factories'),
 
     /**
      * test path and namespace
      */
     'test_namespace' => 'Tests\Feature',
-    'test_path' => 'tests/Feature',
+    'test_path' => join_paths('tests', 'Feature'),
 
     /**
      * traits path and namespace
      */
     'trait_namespace' => 'App\Traits',
-    'trait_path' => 'app\Traits',
+    'trait_path' => join_paths('app', 'Traits'),
 
     /**
      * exception path and namespace
      */
     'exception_namespace' => 'App\Exceptions',
-    'exception_path' => 'app\Exceptions',
+    'exception_path' => join_paths('app', 'Exceptions'),
 
     /**
      * when this is true, then for each generated controller will be a generated postman collection for it

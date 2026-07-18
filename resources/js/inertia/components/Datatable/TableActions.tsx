@@ -1,9 +1,9 @@
 import { Link } from "@inertiajs/react";
-import { TableActionsProps } from "@/Components/Datatable/DataTableUtils";
-import DocumentPlus from "@/Components/icons/DocumentPlus";
-import Filter from "@/Components/icons/Filter";
-import ArrowDownTray from "@/Components/icons/ArrowDownTray";
-import TableCells from "@/Components/icons/TableCells";
+import { TableActionsProps } from "@/components/Datatable/DataTableUtils";
+import DocumentPlus from "@/components/icons/DocumentPlus";
+import Filter from "@/components/icons/Filter";
+import ArrowDownTray from "@/components/icons/ArrowDownTray";
+import TableCells from "@/components/icons/TableCells";
 
 function TableActions({
   createUrl,

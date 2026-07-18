@@ -3,10 +3,10 @@ import {
   isEqual,
   isOption,
   Option,
-} from "@/Components/form/fields/Select/SelectUtils";
-import ChevronDown from "@/Components/icons/ChevronDown";
-import LoadingSpinner from "@/Components/icons/LoadingSpinner";
-import XMark from "@/Components/icons/XMark";
+} from "@/components/form/fields/Select/SelectUtils";
+import ChevronDown from "@/components/icons/ChevronDown";
+import LoadingSpinner from "@/components/icons/LoadingSpinner";
+import XMark from "@/components/icons/XMark";
 import { getNestedPropertyValue } from "@/helper";
 import { usePage } from "@inertiajs/react";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";

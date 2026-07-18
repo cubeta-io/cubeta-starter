@@ -1,6 +1,6 @@
-import { TablePaginatorProps } from "@/Components/Datatable/DataTableUtils";
-import ChevronRight from "@/Components/icons/ChevronRight";
-import ChevronLeft from "@/Components/icons/ChevronLeft";
+import { TablePaginatorProps } from "@/components/Datatable/DataTableUtils";
+import ChevronRight from "@/components/icons/ChevronRight";
+import ChevronLeft from "@/components/icons/ChevronLeft";
 
 function TablePaginator<ApiResponse>({
   response,

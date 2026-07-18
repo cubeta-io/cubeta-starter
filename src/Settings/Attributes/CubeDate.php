@@ -146,7 +146,7 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("Input", "@/Components/form/fields/Input")
+                new TsImportString("Input", "@/components/form/fields/Input")
             ]
         );
     }

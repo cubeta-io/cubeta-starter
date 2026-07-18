@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Navbar from "@/Components/ui/Navbar";
-import { Sidebar } from "@/Components/ui/Sidebar";
+import Navbar from "@/components/ui/Navbar";
+import { Sidebar } from "@/components/ui/Sidebar";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { usePage } from "@inertiajs/react";

@@ -1,7 +1,7 @@
 import { useForm } from "@inertiajs/react";
 import { FormEvent } from "react";
-import PageCard from "@/Components/ui/PageCard";
-import Form from "@/Components/form/Form";
+import PageCard from "@/components/ui/PageCard";
+import Form from "@/components/form/Form";
 {{imports}}
 
 const {{component_name}} = ({{component_props}}) => {
