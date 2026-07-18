@@ -3,6 +3,8 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Illuminate\Support\Stringable;
+use function Orchestra\Testbench\join_paths;
 
 /**
  * A trait providing methods to generate paths, namespaces, and class strings
@@ -261,23 +263,11 @@ trait HasPathAndNamespace
      */
     public function getTSModelPath(): CubePath
     {
-        return CubePath::make("resources/js/models/{$this->modelNaming()}.ts");
+        return CubePath::make(join_paths("resources/js/models/", str($this->modelNaming())->kebab()->lower() . ".ts"));
     }
 
-    /**
-     * $type must be one of "show"|"index"|"create"|"update"
-     * @param string $type
-     * @return CubePath
-     */
-    public function getReactTSPagesPaths(string $type): CubePath
+    public function tsModelImportPath(): string
     {
-        $viewsPath = 'resources/js/pages/dashboard/' . $this->viewNaming();
-
-        return match ($type) {
-            'show' => CubePath::make("$viewsPath/show.tsx"),
-            "create" => CubePath::make("$viewsPath/Create.tsx"),
-            "update", "edit" => CubePath::make("$viewsPath/Edit.tsx"),
-            "index" => CubePath::make("$viewsPath/Index.tsx"),
-        };
+        return "@/models/" . str($this->modelNaming())->kebab()->lower();
     }
 }

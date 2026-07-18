@@ -32,6 +32,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactT
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
+use JetBrains\PhpStorm\ExpectedValues;
 
 class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     HasMigrationColumn,
@@ -147,7 +148,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsInputComponentString
     {
         $variableName = $this->getOwnerTable()->variableNaming();
         $labels = $this->booleanLabels();

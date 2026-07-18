@@ -69,7 +69,7 @@ class CubeManyToMany extends CubeRelation implements HasFactoryRelationMethod, H
             true,
             new TsImportString(
                 $modelName,
-                "@/models/{$modelName}"
+                $this->tsModelImportPath()
             )
         );
     }

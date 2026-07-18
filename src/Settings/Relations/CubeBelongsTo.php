@@ -35,6 +35,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
+use JetBrains\PhpStorm\ExpectedValues;
 
 
 class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
@@ -89,12 +90,12 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             true,
             new TsImportString(
                 $modelName,
-                "@/models/{$modelName}"
+                $this->tsModelImportPath()
             )
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): ReactTsInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): ReactTsInputComponentString
     {
         $modelName = $this->modelNaming(); // User
         $relatedModel = $this->parentModel(); // Author
@@ -149,7 +150,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         $imports = [
             new TsImportString("ApiResponse", "@/modules/http/api-response"),
             new TsImportString("http", "@/modules/http/http"),
-            new TsImportString($modelName, "@/models/{$modelName}"),
+            new TsImportString($modelName, $this->tsModelImportPath()),
             new TsImportString("ApiSelect", "@/components/form/fields/select/api-select"),
         ];
 

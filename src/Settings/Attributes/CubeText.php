@@ -19,6 +19,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponen
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
+use JetBrains\PhpStorm\ExpectedValues;
 
 class CubeText extends CubeStringable implements HasFakeMethod,
     HasMigrationColumn,
@@ -100,7 +101,7 @@ class CubeText extends CubeStringable implements HasFakeMethod,
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
         $attributes = [
             [

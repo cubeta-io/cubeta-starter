@@ -23,6 +23,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactT
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Illuminate\Support\Str;
+use JetBrains\PhpStorm\ExpectedValues;
 
 class CubeStringable extends CubeAttribute implements
     HasFakeMethod,
@@ -150,7 +151,7 @@ class CubeStringable extends CubeAttribute implements
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
         $attributes = [
             [

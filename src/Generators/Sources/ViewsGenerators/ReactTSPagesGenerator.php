@@ -120,12 +120,11 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->merge($this->table->relations())
             ->whereInstanceOf(HasInterfacePropertyString::class)
             ->each(function (HasInterfacePropertyString|CubeAttribute|CubeRelation $item) use ($builder) {
-                if ($item instanceof CubeRelation) {
-                    if (!$item->relationModel()->getTSModelPath()->exist()) {
-                        return true;
-                    } else {
-                        $string = $item->interfacePropertyString();
-                    }
+                if (
+                    $item instanceof CubeRelation
+                    && !$item->relationModel()->getTSModelPath()->exist()
+                ) {
+                    return true;
                 } else {
                     $string = $item->interfacePropertyString();
                 }
@@ -147,7 +146,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->componentName("Edit")
             ->formTitle("Edit {$this->table->modelNaming()}")
             ->componentProps("{{$this->table->variableNaming()}}:{{$this->table->variableNaming()}:{$this->table->modelNaming()}}")
-            ->import(new TsImportString($this->table->modelNaming(), "@/models/{$this->table->modelNaming()}"))
+            ->import(new TsImportString($this->table->modelNaming(), $this->table->tsModelImportPath()))
             ->action("post(route(\"{$updateRoute}\" , {$this->table->variableNaming()}.id));")
             ->when(
                 $this->table->hasTranslatableAttribute(),

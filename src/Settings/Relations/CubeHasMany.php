@@ -66,7 +66,7 @@ class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDoc
             true,
             new TsImportString(
                 $modelName,
-                "@/models/{$modelName}"
+                $this->tsModelImportPath()
             )
         );
     }
