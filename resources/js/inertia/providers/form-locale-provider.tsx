@@ -7,7 +7,7 @@ import {
   useContext,
   useState,
 } from "react";
-import { AvailableLocales } from "@/models/Translatable";
+import { AvailableLocales } from "@/models/translatable";
 
 const LocaleContext = createContext<{
   locale: AvailableLocales;

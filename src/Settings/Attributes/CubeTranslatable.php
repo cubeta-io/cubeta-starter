@@ -223,7 +223,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
                 $this->isTextable()
                     ? new TsImportString("LongTextField", "@/components/show/long-text-field")
                     : new TsImportString("SmallTextField", "@/components/show/small-text-field"),
-                new TsImportString("translate", "@/models/Translatable", false),
+                new TsImportString("translate", "@/models/translatable", false),
             ]
         );
     }

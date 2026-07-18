@@ -499,7 +499,7 @@ class AuthInstaller extends AbstractGenerator
             ->generate(Views::resetPassword()->path, $this->override);
 
         UserModelInterfaceStubBuilder::make()
-            ->generate(CubePath::make('resources/js/models/User.ts'), $this->override);
+            ->generate(CubePath::make('resources/js/models/user.ts'), $this->override);
     }
 
     /**

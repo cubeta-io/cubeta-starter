@@ -1,7 +1,7 @@
 import { usePage } from "@inertiajs/react";
 import React, { ChangeEvent, useRef, useState } from "react";
 import Input, { InputProps } from "@/components/form/fields/input";
-import { Translatable, translate } from "@/models/Translatable";
+import { Translatable, translate } from "@/models/translatable";
 import { useFormLocale } from "@/providers/form-locale-provider";
 
 interface ITranslatableInputProps {

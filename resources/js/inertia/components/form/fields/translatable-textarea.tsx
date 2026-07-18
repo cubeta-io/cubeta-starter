@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useRef, useState } from "react";
-import { Translatable, translate } from "@/models/Translatable";
+import { Translatable, translate } from "@/models/translatable";
 import { usePage } from "@inertiajs/react";
 import { getNestedPropertyValue } from "@/helper";
 import { useFormLocale } from "@/providers/form-locale-provider";
