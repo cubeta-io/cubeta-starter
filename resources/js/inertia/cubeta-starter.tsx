@@ -1,7 +1,7 @@
 import { createInertiaApp } from "@inertiajs/react";
 import "../css/cubeta-starter.css";
 import "./bootstrap";
-import Layout from "@/components/layouts/Layout";
+import Layout from "@/components/layouts/layout";
 
 const authPages = [
   "Login",

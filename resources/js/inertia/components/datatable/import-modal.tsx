@@ -1,8 +1,8 @@
 import { FormEvent } from "react";
-import Modal from "@/components/ui/Modal";
+import Modal from "@/components/ui/modal";
 import Input from "@/components/form/fields/input";
 import { useForm } from "@inertiajs/react";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 import DownloadFile from "@/Hooks/DownloadFile";
 
 const ImportModal = ({

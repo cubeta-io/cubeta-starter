@@ -1,7 +1,7 @@
-import LanguageDropdown from "@/components/ui/LanguageDropDown";
-import ProfileDropdown from "@/components/ui/ProfileDropdown";
+import LanguageDropdown from "@/components/ui/language-dropdown";
+import ProfileDropdown from "@/components/ui/profile-dropdown";
 import Menu from "@/components/icons/Menu";
-import DarkModeToggle from "@/components/ui/DarkModeToggle";
+import DarkModeToggle from "@/components/ui/dark-mode-toggle";
 
 const Navbar = ({
   isSidebarOpen,

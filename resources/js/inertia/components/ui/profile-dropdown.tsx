@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
-import User from "@/Models/User";
 import { asset } from "@/helper";
 import ChevronDown from "@/components/icons/ChevronDown";
 
 const ProfileDropdown = () => {
   const [open, setOpen] = useState(false);
-  const { authUser } = usePage().props;
+  const {
+    props: { authUser },
+  } = usePage();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleClickOutside = (event: MouseEvent) => {
@@ -39,17 +40,14 @@ const ProfileDropdown = () => {
             alt=""
           />
         </div>
-        {(authUser as User)?.first_name ??
-          undefined + (authUser as User)?.last_name ??
-          undefined ??
-          "App Admin"}
+        {`${authUser?.first_name} ${authUser?.last_name}`}
         <ChevronDown className="ms-3 h-4 w-4" />
       </button>
 
       <div
         className={`${
           open ? "absolute" : "hidden"
-        } bg-white-secondary dark:bg-dark-secondary start-5 z-10 w-44 rounded-lg shadow`}
+        } bg-white-secondary dark:bg-dark-secondary inset-s-5 z-10 w-44 rounded-lg shadow`}
       >
         <ul className="h-full text-sm text-gray-700 shadow-md dark:text-white">
           <li>

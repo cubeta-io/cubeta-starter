@@ -1,4 +1,4 @@
-import ImagePreview from "@/components/Show/ImagePreview";
+import ImagePreview from "@/components/show/image-preview";
 
 const Gallery = ({
   sources,

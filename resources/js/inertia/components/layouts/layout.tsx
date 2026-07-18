@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Navbar from "@/components/ui/Navbar";
+import Navbar from "@/components/ui/navbar";
 import { Sidebar } from "@/components/ui/Sidebar";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

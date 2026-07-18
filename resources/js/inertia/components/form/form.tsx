@@ -1,5 +1,5 @@
 import { FormEvent, ReactNode } from "react";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 import ChevronLeft from "@/components/icons/ChevronLeft";
 
 const Form = ({

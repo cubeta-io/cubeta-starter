@@ -172,7 +172,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         $parentModel = $this->parentModel();
         $column = $this->relationModel()->titleable();
         $imports = [
-            new TsImportString("SmallTextField", "@/components/Show/SmallTextField"),
+            new TsImportString("SmallTextField", "@/components/show/small-text-field"),
         ];
 
         if ($column->isTranslatable()) {

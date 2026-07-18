@@ -1,6 +1,6 @@
-import Form from "@/components/form/Form";
+import Form from "@/components/form/form";
 import Input from "@/components/form/fields/input";
-import PageCard from "@/components/ui/PageCard";
+import PageCard from "@/components/ui/page-card";
 import { asset } from "@/helper";
 import { Link, useForm } from "@inertiajs/react";
 import { FormEvent } from "react";

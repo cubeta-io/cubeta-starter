@@ -209,7 +209,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name}?.url",
             [
-                new TsImportString("Gallery", "@/components/Show/Gallery")
+                new TsImportString("Gallery", "@/components/show/gallery")
             ]
         );
     }

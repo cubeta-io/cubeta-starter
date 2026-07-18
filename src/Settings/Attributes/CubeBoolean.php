@@ -192,7 +192,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name} ? 'Yes' : 'No'",
             [
-                new TsImportString("SmallTextField", "@/components/Show/SmallTextField")
+                new TsImportString("SmallTextField", "@/components/show/small-text-field")
             ]
         );
     }

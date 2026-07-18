@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/icons/LoadingSpinner";
 import TableHead from "@/components/datatable/table-head";
 import TableBody from "@/components/datatable/table-body";
-import PageCard from "@/components/ui/PageCard";
+import PageCard from "@/components/ui/page-card";
 import { TableData } from "@/components/datatable/types";
 import TableActions from "@/components/datatable/table-actions";
 import TablePaginator from "@/components/datatable/table-paginator";
-import Modal from "@/components/ui/Modal";
+import Modal from "@/components/ui/modal";
 import ImportModal from "@/components/datatable/import-modal";
 import ExportModal from "@/components/datatable/export-modal";
 

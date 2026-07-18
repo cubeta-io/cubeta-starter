@@ -274,7 +274,7 @@ trait HasPathAndNamespace
         $viewsPath = 'resources/js/Pages/dashboard/' . $this->viewNaming();
 
         return match ($type) {
-            'show' => CubePath::make("$viewsPath/Show.tsx"),
+            'show' => CubePath::make("$viewsPath/show.tsx"),
             "create" => CubePath::make("$viewsPath/Create.tsx"),
             "update", "edit" => CubePath::make("$viewsPath/Edit.tsx"),
             "index" => CubePath::make("$viewsPath/Index.tsx"),

@@ -137,7 +137,7 @@ class CubeText extends CubeStringable implements HasFakeMethod,
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name}",
             [
-                new TsImportString("LongTextField", "@/components/Show/LongTextField")
+                new TsImportString("LongTextField", "@/components/show/long-text-field")
             ]
         );
     }
