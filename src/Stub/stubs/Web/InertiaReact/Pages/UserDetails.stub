@@ -1,7 +1,7 @@
 import Form from "@/components/form/form";
 import Input from "@/components/form/fields/input";
 import PageCard from "@/components/ui/page-card";
-import User from "@/Models/User";
+import User from "@/models/user";
 import { useForm } from "@inertiajs/react";
 import { FormEvent, useState } from "react";
 
@@ -66,14 +66,17 @@ const UserOverview = ({ user }: { user: User }) => {
 };
 
 const EditProfile = ({user}: { user: User }) => {
-    const {put, setData, processing} = useForm<{
+    const { put, setData, processing } = useForm<{
         first_name?: string;
         last_name?: string;
         email?: string;
         password?: string;
         password_confirmation?: string;
         _method: "POST" | "PUT";
-    }>();
+    }>({
+        ...user,
+        _method: "PUT",
+    });
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();

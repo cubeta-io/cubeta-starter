@@ -25,7 +25,7 @@ return [
      * model path and namespace
      */
     'model_namespace' => "App\Models",
-    'model_path' => join_paths('app', 'models'),
+    'model_path' => join_paths('app', 'Models'),
 
     /**
      * repositories path and namespace

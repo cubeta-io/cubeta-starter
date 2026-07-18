@@ -6,6 +6,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Database\Factories\UserFactory;
 use Carbon\Carbon;
 {{imports}}
@@ -23,34 +26,20 @@ use Carbon\Carbon;
  * @mixin Builder<User>
  * @use HasFactory<UserFactory>
  */
+#[Fillable([
+    'first_name',
+    'last_name',
+    'email',
+    'password',
+    'email_verified_at',
+    'reset_password_code',
+])]
+#[Hidden(['password', 'remember_token'])]
+#[Guarded(['id'])]
 class User extends Authenticatable {{implements_jwt_interface}}
 {
     use HasFactory, Notifiable;
     {{traits}}
-
-    protected $guarded = ['id'];
-
-    /**
-     * The attributes that are mass assignable.
-     * @var list<string>
-     */
-    protected $fillable = [
-        'first_name' ,
-        'last_name' ,
-        'email' ,
-        'password' ,
-        'email_verified_at' ,
-        'reset_password_code',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
 
     /**
      * Get the attributes that should be cast.
