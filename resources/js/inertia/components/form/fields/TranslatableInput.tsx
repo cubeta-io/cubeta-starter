@@ -1,8 +1,8 @@
-import { LocaleContext } from "@/Contexts/TranslatableInputsContext";
 import { usePage } from "@inertiajs/react";
-import React, { ChangeEvent, useContext, useRef, useState } from "react";
+import React, { ChangeEvent, useRef, useState } from "react";
 import Input, { InputProps } from "@/components/form/fields/Input";
 import { Translatable, translate } from "@/Models/Translatable";
+import { useFormLocale } from "@/providers/form-locale-provider";
 
 interface ITranslatableInputProps {
   defaultValue?: string | Translatable | undefined;
@@ -26,7 +26,7 @@ const TranslatableInput: React.FC<
   required = false,
   ...props
 }) => {
-  const locale = useContext(LocaleContext);
+  const { locale } = useFormLocale();
   const {
     props: { availableLocales },
   } = usePage();

@@ -151,9 +151,9 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->action("post(route(\"{$updateRoute}\" , {$this->table->variableNaming()}.id));")
             ->when(
                 $this->table->hasTranslatableAttribute(),
-                fn($builder) => $builder->translatableContextOpenTag("<TranslatableInputsContext>")
-                    ->translatableContextCloseTag("</TranslatableInputsContext>")
-                    ->import(new TsImportString("TranslatableInputsContext", "@/Contexts/TranslatableInputsContext"))
+                fn($builder) => $builder->translatableContextOpenTag("<FormLocaleProvider>")
+                    ->translatableContextCloseTag("</FormLocaleProvider>")
+                    ->import(new TsImportString("FormLocaleProvider", "@/providers/form-locale-provider"))
             )->formFieldInterface(new InterfacePropertyString("_method", "'PUT'|'POST'", true));
 
         $builder->defaultValue("_method", "'PUT'");
@@ -201,9 +201,9 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->action("post(route(\"{$storeRoute}\"));")
             ->when(
                 $this->table->hasTranslatableAttribute(),
-                fn($builder) => $builder->translatableContextOpenTag("<TranslatableInputsContext>")
-                    ->translatableContextCloseTag("</TranslatableInputsContext>")
-                    ->import(new TsImportString("TranslatableInputsContext", "@/Contexts/TranslatableInputsContext"))
+                fn($builder) => $builder->translatableContextOpenTag("<FormLocaleProvider>")
+                    ->translatableContextCloseTag("</FormLocaleProvider>")
+                    ->import(new TsImportString("FormLocaleProvider", "@/providers/form-locale-provider"))
             )->formFieldInterface(new InterfacePropertyString("_method", "'PUT'|'POST'", true));
 
         $this->table->attributes()

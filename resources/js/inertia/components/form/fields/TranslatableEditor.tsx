@@ -1,8 +1,8 @@
-import React, { ChangeEvent, useContext, useRef, useState } from "react";
+import React, { ChangeEvent, useRef, useState } from "react";
 import { Translatable, translate } from "@/Models/Translatable";
 import { usePage } from "@inertiajs/react";
-import { LocaleContext } from "@/Contexts/TranslatableInputsContext";
 import { getNestedPropertyValue } from "@/helper";
+import { useFormLocale } from "@/providers/form-locale-provider";
 
 interface TranslatableProps extends Omit<
   React.ComponentProps<"textarea">,
@@ -33,7 +33,7 @@ const TranslatableEditor: React.FC<TranslatableProps> = ({
 
   const [value, setValue] = useState<object | undefined>(defaultValue ?? {});
 
-  const locale = useContext(LocaleContext);
+  const { locale } = useFormLocale();
   const {
     props: { availableLocales },
   } = usePage();
