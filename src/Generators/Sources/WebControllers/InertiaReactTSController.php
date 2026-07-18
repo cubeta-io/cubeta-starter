@@ -80,7 +80,7 @@ class InertiaReactTSController extends AbstractGenerator
 
     public function addSidebarItem(string $indexRoute, string $title): void
     {
-        $sidebarPath = CubePath::make("/resources/js/components/ui/Sidebar.tsx");
+        $sidebarPath = CubePath::make("/resources/js/components/ui/sidebar.tsx");
 
         if (!$sidebarPath->exist()) {
             CubeLog::add(new NotFound("$sidebarPath->fullPath", "Adding $title To Sidebar items when generating web controller"));

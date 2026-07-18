@@ -1,14 +1,13 @@
 import { createInertiaApp } from "@inertiajs/react";
 import "../css/cubeta-starter.css";
-import "./bootstrap";
 import Layout from "@/components/layouts/layout";
 
 const authPages = [
-  "Login",
-  "ForgetPassword",
-  "ResetPasswordCodeForm",
-  "ResetPassword",
-  "Register",
+  "login",
+  "forget-password",
+  "reset-password-code-form",
+  "reset-password",
+  "register",
 ];
 
 createInertiaApp({

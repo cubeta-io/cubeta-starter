@@ -7,10 +7,7 @@ import { usePage } from "@inertiajs/react";
 
 const Layout = ({ children }: { children?: React.ReactNode }) => {
   const theme = window.localStorage.getItem("theme_mode") ?? "light";
-  const {
-    flash,
-    props: { currentLocale },
-  } = usePage();
+  const { flash } = usePage();
   const [isOpen, setIsOpen] = useState(true);
   const toggleSidebar = () => {
     setIsOpen((prev) => !prev);
@@ -27,7 +24,7 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
   return (
     <>
       <div className={`flex max-h-screen overflow-y-scroll`}>
-        <ToastContainer theme={theme} rtl={currentLocale == "ar"} />
+        <ToastContainer theme={theme} />
         <div
           className={`bg-white-secondary dark:bg-dark-secondary h-screen shadow-lg ${
             isOpen ? "slide-sidebar-right" : "slide-sidebar-left w-1/4"

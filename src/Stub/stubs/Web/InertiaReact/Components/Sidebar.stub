@@ -1,5 +1,4 @@
 import PresentationChart from "@/components/icons/PresentationChart";
-import TableCells from "@/components/icons/TableCells";
 import XMark from "@/components/icons/XMark";
 import { asset } from "@/helper";
 import { Link } from "@inertiajs/react";

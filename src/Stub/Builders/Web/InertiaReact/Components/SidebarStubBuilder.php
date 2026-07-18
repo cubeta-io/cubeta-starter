@@ -12,6 +12,6 @@ class SidebarStubBuilder extends TypescriptFileBuilder
 {
     protected function stubPath(): string
     {
-        return CubePath::stubPath('Web/InertiaReact/components/Sidebar.stub');
+        return CubePath::stubPath('Web/InertiaReact/Components/Sidebar.stub');
     }
 }
