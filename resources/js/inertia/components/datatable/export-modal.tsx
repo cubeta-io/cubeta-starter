@@ -1,7 +1,7 @@
 import { TableSchema } from "@/components/datatable/types";
 import Button from "@/components/ui/button";
 import Modal from "@/components/ui/modal";
-import DownloadFile from "@/Hooks/DownloadFile";
+import useDownloadFile from "@/hooks/use-download-file";
 import Http from "@/modules/http/http";
 import { FormEvent, useState } from "react";
 
@@ -25,7 +25,7 @@ const ExportModal = ({
           .filter((col) => col.name != undefined && col.name != "id")
           .map((c) => c.name as string),
   );
-  const { isLoading, downloadFile } = DownloadFile();
+  const { isLoading, downloadFile } = useDownloadFile();
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();

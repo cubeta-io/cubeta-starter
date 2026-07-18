@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const DownloadFile = () => {
+const useDownloadFile = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const downloadFile = async (api: () => Promise<Response | any>) => {
@@ -45,4 +45,4 @@ const DownloadFile = () => {
   return { downloadFile, isLoading };
 };
 
-export default DownloadFile;
+export default useDownloadFile;

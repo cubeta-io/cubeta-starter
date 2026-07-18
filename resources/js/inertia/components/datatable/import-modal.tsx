@@ -3,7 +3,7 @@ import Modal from "@/components/ui/modal";
 import Input from "@/components/form/fields/input";
 import { useForm } from "@inertiajs/react";
 import Button from "@/components/ui/button";
-import DownloadFile from "@/Hooks/DownloadFile";
+import useDownloadFile from "@/hooks/use-download-file";
 
 const ImportModal = ({
   openImport,
@@ -22,7 +22,7 @@ const ImportModal = ({
     excel_file?: File;
   }>();
 
-  const { isLoading, downloadFile } = DownloadFile();
+  const { isLoading, downloadFile } = useDownloadFile();
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
