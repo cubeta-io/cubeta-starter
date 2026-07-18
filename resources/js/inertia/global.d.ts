@@ -1,5 +1,5 @@
 import "@inertiajs/core";
-import { User } from "@/models/user";
+import User from "@/models/user";
 import { route as routeFn } from "ziggy-js";
 import { AvailableLocales } from "@/models/translatable";
 

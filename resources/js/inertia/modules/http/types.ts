@@ -1,4 +1,4 @@
-interface PaginationData {
+export interface PaginationMetaData {
   current_page: number;
   from: number;
   to: number;
@@ -8,5 +8,3 @@ interface PaginationData {
   is_first_page: boolean;
   is_last_page: boolean;
 }
-
-export default PaginationData;

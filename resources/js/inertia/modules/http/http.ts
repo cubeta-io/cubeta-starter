@@ -1,7 +1,7 @@
-import ApiResponse from "@/Modules/Http/ApiResponse";
+import ApiResponse from "@/modules/http/api-response";
 
-class HTTP<RESPONSE extends any = any> {
-  private static instance: HTTP | undefined = undefined;
+class Http<RESPONSE extends any = any> {
+  private static instance: Http | undefined = undefined;
   private baseHeaders = {
     Accept: "application/html",
     "Accept-Language": window.localStorage.getItem("locale") ?? "en",
@@ -10,14 +10,14 @@ class HTTP<RESPONSE extends any = any> {
 
   private constructor() {}
 
-  public static make<T extends any = any>(): HTTP<T> {
+  public static make<T extends any = any>(): Http<T> {
     if (!this.instance) {
-      this.instance = new HTTP<T>();
+      this.instance = new Http<T>();
     }
 
     this.instance.isFile = false;
 
-    return this.instance as HTTP<T>;
+    return this.instance as Http<T>;
   }
 
   public headers = (headers: Record<string, string>) => {
@@ -198,7 +198,7 @@ class HTTP<RESPONSE extends any = any> {
   private addCsrfIfNeeded(method: string) {
     if (method == "POST" || method == "PUT" || method == "DELETE") {
       this.headers({
-        "X-CSRF-TOKEN": HTTP.csrfToken() ?? "",
+        "X-CSRF-TOKEN": Http.csrfToken() ?? "",
       });
     }
   }
@@ -348,4 +348,4 @@ class HTTP<RESPONSE extends any = any> {
   }
 }
 
-export default HTTP;
+export default Http;

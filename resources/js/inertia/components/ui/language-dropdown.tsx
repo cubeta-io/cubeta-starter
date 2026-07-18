@@ -1,6 +1,6 @@
 import LoadingSpinner from "@/components/icons/LoadingSpinner";
 import { AvailableLocales } from "@/models/translatable";
-import Http from "@/Modules/Http/Http";
+import Http from "@/modules/http/http";
 import { usePage } from "@inertiajs/react";
 import { useEffect, useRef, useState } from "react";
 

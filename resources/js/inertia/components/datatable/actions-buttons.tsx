@@ -2,7 +2,7 @@ import Eye from "@/components/icons/Eye";
 import Pencil from "@/components/icons/Pencil";
 import Trash from "@/components/icons/Trash";
 import { swal } from "@/helper";
-import Http from "@/Modules/Http/Http";
+import Http from "@/modules/http/http";
 import { Link } from "@inertiajs/react";
 import { toast } from "react-toastify";
 import React from "react";

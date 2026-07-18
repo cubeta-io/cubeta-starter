@@ -1,18 +1,18 @@
-import PaginationData from "@/Modules/Http/Contracts/PaginationData";
+import { PaginationMetaData } from "@/modules/http/types";
 
 class ApiResponse<T> {
   private readonly _data: T | undefined;
   private readonly _message: string | undefined;
   private readonly _code: number;
   private readonly _status: boolean;
-  private readonly _paginate: PaginationData | undefined;
+  private readonly _paginate: PaginationMetaData | undefined;
 
   constructor(
     data: T | undefined,
     status = true,
     code = 500,
     message: string | undefined = undefined,
-    paginate: PaginationData | undefined = undefined,
+    paginate: PaginationMetaData | undefined = undefined,
   ) {
     this._data = data;
     this._status = status;
@@ -37,7 +37,7 @@ class ApiResponse<T> {
     return this._status;
   }
 
-  get paginate(): PaginationData | undefined {
+  get paginate(): PaginationMetaData | undefined {
     return this._paginate;
   }
 
