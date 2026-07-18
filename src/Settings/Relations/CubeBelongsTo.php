@@ -89,7 +89,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             true,
             new TsImportString(
                 $modelName,
-                "@/Models/{$modelName}"
+                "@/models/{$modelName}"
             )
         );
     }
@@ -149,12 +149,12 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         $imports = [
             new TsImportString("ApiResponse", "@/Modules/Http/ApiResponse"),
             new TsImportString("Http", "@/Modules/Http/Http"),
-            new TsImportString($modelName, "@/Models/{$modelName}"),
+            new TsImportString($modelName, "@/models/{$modelName}"),
             new TsImportString("ApiSelect", "@/components/form/fields/select/api-select"),
         ];
 
         if ($relatedModel->titleable()->isTranslatable()) {
-            $imports[] = new TsImportString("translate", "@/Models/Translatable", false);
+            $imports[] = new TsImportString("translate", "@/models/Translatable", false);
         }
 
         return new ReactTsInputComponentString(
@@ -176,7 +176,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         ];
 
         if ($column->isTranslatable()) {
-            $imports[] = new TsImportString("translate", "@/Models/Translatable", false);
+            $imports[] = new TsImportString("translate", "@/models/Translatable", false);
         }
 
         return new ReactTsDisplayComponentString(
@@ -202,7 +202,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         ];
 
         if ($column->isTranslatable()) {
-            $imports[] = new TsImportString("translate", "@/Models/Translatable", false);
+            $imports[] = new TsImportString("translate", "@/models/Translatable", false);
         }
 
         return new DataTableColumnObjectString(

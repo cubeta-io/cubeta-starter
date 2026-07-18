@@ -173,7 +173,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
             $this->name,
             "Media|undefined",
             true,
-            new TsImportString("Media", "@/Models/Media")
+            new TsImportString("Media", "@/models/Media")
         );
     }
 

@@ -1,4 +1,4 @@
-import { translate } from "@/Models/Translatable";
+import { translate } from "@/models/Translatable";
 import { getNestedPropertyValue } from "@/helper";
 import { TableBodyProps } from "@/components/datatable/types";
 

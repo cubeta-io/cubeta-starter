@@ -1,7 +1,7 @@
 import "@inertiajs/core";
 import { User } from "@/auth/User";
 import { route as routeFn } from "ziggy-js";
-import { AvailableLocales } from "@/Models/Translatable";
+import { AvailableLocales } from "@/models/Translatable";
 
 declare module "@inertiajs/core" {
   export interface InertiaConfig {
