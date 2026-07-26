@@ -1,37 +1,41 @@
 import React, { ReactNode } from "react";
 
-export interface Option {
-  label: any;
-  value: any;
+export interface Option<TValue = any, TLabel = any> {
+  label: TLabel;
+  value: TValue;
 }
 
-export interface SelectInputProps extends Omit<
-  React.ComponentProps<"input">,
-  "name" | "className" | "value" | "onInput" | "ref" | "onChange"
-> {}
-
-export interface IApiSelectProps<TResponse, TData> {
+export interface IApiSelectProps<
+  TResponse,
+  TData,
+  TMultiple extends boolean = false,
+  TValue = any,
+  TLabel = any,
+> {
   api: (
     page?: number,
     search?: string,
     isLast?: boolean,
     totalPages?: number,
   ) => Promise<TResponse>;
-  isMultiple?: boolean;
+  isMultiple?: TMultiple;
   optionLabel?: keyof TData;
   optionValue?: keyof TData;
   getDataArray: (response: TResponse) => TData[];
-  getOptionLabel?: (item: TData) => TData | any;
-  getOptionValue?: (item: TData) => TData | any;
+  getOptionLabel?: (item: TData) => TLabel;
+  getOptionValue?: (item: TData) => TValue;
   getIsLast: (data: TResponse) => boolean;
   getTotalPages: (data: TResponse) => number;
   onSelect?: (
     selectedItem?: TData,
-    selected?: Option[],
-    setSelected?: React.Dispatch<React.SetStateAction<Option[]>>,
+    selected?: Option<TValue, TLabel>[],
+    setSelected?: React.Dispatch<
+      React.SetStateAction<Option<TValue, TLabel>[]>
+    >,
     event?: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => void;
-  defaultValue?: TData[] | Option[] | TData | Option;
+  defaultValue?:
+    TData[] | Option<TValue, TLabel>[] | TData | Option<TValue, TLabel>;
   placeHolder?: string;
   label?: string;
   name?: string;
@@ -48,8 +52,9 @@ export interface IApiSelectProps<TResponse, TData> {
     dropDownItemsContainerClasses?: string;
     dropDownContainerMaxHeight?: number;
   };
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>, valuesArray?: []) => void;
-  inputProps?: SelectInputProps;
+  onChange?: TMultiple extends true
+    ? (value: Option<TValue, TLabel>[]) => void
+    : (value: Option<TValue, TLabel> | undefined) => void;
   revalidateOnOpen?: boolean;
   getNextPage?: (
     prevPage: number,
@@ -58,6 +63,11 @@ export interface IApiSelectProps<TResponse, TData> {
   ) => number;
   required?: boolean;
 }
+
+export interface SelectInputProps extends Omit<
+  React.ComponentProps<"input">,
+  "name" | "className" | "value" | "onInput" | "ref" | "onChange"
+> {}
 
 export interface ISelectProps<TData> {
   data: TData[];

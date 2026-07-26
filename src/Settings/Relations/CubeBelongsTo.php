@@ -125,9 +125,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             ],
             [
                 'key' => 'onChange',
-                'value' => $column->nullable
-                    ? "(e) => setData(\"$this->key\", e.target.value ? Number(e.target.value) : undefined)"
-                    : "(e) => setData(\"$this->key\", Number(e.target.value))",
+                'value' => "(v) => setData(\"$this->key\", v?.value)",
             ],
             $this->relationModel()->titleable()->isTranslatable()
                 ? [

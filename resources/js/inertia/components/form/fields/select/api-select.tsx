@@ -1,14 +1,103 @@
 import { ChevronDown, Loader, XIcon } from "lucide-react";
 import { getNestedPropertyValue, uniqueBy } from "@/helper";
 import { usePage } from "@inertiajs/react";
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import React, { JSX, useCallback, useEffect, useRef, useState } from "react";
 import { IApiSelectProps, Option } from "@/components/form/fields/select/types";
-import { isEqual, isOption } from "@/components/form/fields/select/helpers";
+import {
+  include,
+  isEqual,
+  isOption,
+} from "@/components/form/fields/select/helpers";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 
-function ApiSelect<TResponse, TData>({
+function ApiSelect<
+  TResponse,
+  TData,
+  TOptionValue extends keyof TData,
+  TOptionLabel extends keyof TData = TOptionValue,
+  TMultiple extends boolean = false,
+>(
+  props: IApiSelectProps<
+    TResponse,
+    TData,
+    TMultiple,
+    TData[TOptionValue],
+    TData[TOptionLabel]
+  > & {
+    optionValue: TOptionValue;
+    optionLabel?: TOptionLabel;
+    isMultiple?: TMultiple;
+    getOptionValue?: never;
+    getOptionLabel?: never;
+  },
+): JSX.Element;
+
+function ApiSelect<
+  TResponse,
+  TData,
+  TOptionValue extends keyof TData,
+  TLabel,
+  TMultiple extends boolean = false,
+>(
+  props: IApiSelectProps<
+    TResponse,
+    TData,
+    TMultiple,
+    TData[TOptionValue],
+    TLabel
+  > & {
+    optionValue: TOptionValue;
+    getOptionLabel: (item: TData) => TLabel;
+    isMultiple?: TMultiple;
+    getOptionValue?: never;
+  },
+): JSX.Element;
+
+function ApiSelect<
+  TResponse,
+  TData,
+  TValue,
+  TOptionLabel extends keyof TData,
+  TMultiple extends boolean = false,
+>(
+  props: IApiSelectProps<
+    TResponse,
+    TData,
+    TMultiple,
+    TValue,
+    TData[TOptionLabel]
+  > & {
+    getOptionValue: (item: TData) => TValue;
+    optionLabel?: TOptionLabel;
+    isMultiple?: TMultiple;
+    optionValue?: never;
+    getOptionLabel?: never;
+  },
+): JSX.Element;
+
+function ApiSelect<
+  TResponse,
+  TData,
+  TValue,
+  TLabel,
+  TMultiple extends boolean = false,
+>(
+  props: IApiSelectProps<TResponse, TData, TMultiple, TValue, TLabel> & {
+    getOptionValue?: (item: TData) => TValue;
+    getOptionLabel?: (item: TData) => TLabel;
+    isMultiple?: TMultiple;
+  },
+): JSX.Element;
+
+function ApiSelect<
+  TResponse,
+  TData,
+  TMultiple extends boolean = false,
+  TValue extends string | number | symbol = string | number | symbol,
+  TLabel extends React.ReactNode = React.ReactNode,
+>({
   api,
   getIsLast,
   getTotalPages,
@@ -17,7 +106,7 @@ function ApiSelect<TResponse, TData>({
   clearable = true,
   styles = undefined,
   name = undefined,
-  isMultiple = false,
+  isMultiple: isMultipleProp,
   closeOnSelect = true,
   optionLabel = undefined,
   optionValue = undefined,
@@ -28,16 +117,18 @@ function ApiSelect<TResponse, TData>({
   defaultValue = undefined,
   onChange = undefined,
   revalidateOnOpen = false,
-  inputProps = {},
   getNextPage = undefined,
   required = false,
-}: IApiSelectProps<TResponse, TData>) {
+}: IApiSelectProps<TResponse, TData, TMultiple, TValue, TLabel>) {
+  const isMultiple = isMultipleProp ?? false;
   const {
     props: { errors },
   } = usePage();
   const error = name && errors[name] ? errors[name] : undefined;
 
-  const getOption = (item: TData): Option => ({
+  type SelectedOption = Option<TValue, TLabel>;
+
+  const getOption = (item: TData): SelectedOption => ({
     label: getOptionLabel
       ? getOptionLabel(item)
       : (getNestedPropertyValue(item, String(optionLabel)) ?? undefined),
@@ -46,7 +137,7 @@ function ApiSelect<TResponse, TData>({
       : (getNestedPropertyValue(item, String(optionValue)) ?? undefined),
   });
 
-  let df: Option[] = [];
+  let df: SelectedOption[] = [];
 
   if (defaultValue) {
     if (!Array.isArray(defaultValue)) {
@@ -61,15 +152,38 @@ function ApiSelect<TResponse, TData>({
   }
 
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState<{ label: any; value: any }[]>(df);
+  const [selected, setSelected] = useState<SelectedOption[]>(df);
   const [search, setSearch] = useState<string | undefined>(undefined);
   const [items, setItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [isLast, setIsLast] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
-  const inputRef = useRef<HTMLInputElement>(null);
   const fullContainer = useRef<HTMLDivElement>(null);
+
+  const notifyChange = useCallback(
+    (newSelected: SelectedOption[]) => {
+      if (!onChange) {
+        return;
+      }
+      if (isMultiple) {
+        (onChange as (value: SelectedOption[]) => void)(newSelected);
+      } else {
+        (onChange as (value: SelectedOption | undefined) => void)(
+          newSelected[0],
+        );
+      }
+    },
+    [isMultiple, onChange],
+  );
+
+  const updateSelected = useCallback(
+    (newSelected: SelectedOption[]) => {
+      setSelected(newSelected);
+      notifyChange(newSelected);
+    },
+    [notifyChange],
+  );
 
   const getData = async () => {
     if (!isLoading) {
@@ -99,19 +213,21 @@ function ApiSelect<TResponse, TData>({
     e.stopPropagation();
     onSelect?.(item, selected, setSelected, e);
     const option = getOption(item);
+    let newSelected: SelectedOption[];
     if (isMultiple) {
       if (include(option, selected)) {
-        setSelected((prev) => prev.filter((sel) => !isEqual(sel, option)));
+        newSelected = selected.filter((sel) => !isEqual(sel, option));
       } else {
-        setSelected((prev) => [option, ...prev]);
+        newSelected = [option, ...selected];
       }
     } else {
       if (include(option, selected)) {
-        setSelected([]);
+        newSelected = [];
       } else {
-        setSelected([option]);
+        newSelected = [option];
       }
     }
+    updateSelected(newSelected);
 
     if (closeOnSelect) {
       setIsOpen(false);
@@ -150,10 +266,10 @@ function ApiSelect<TResponse, TData>({
 
   const handleRemoveFromSelected = (
     e: React.MouseEvent<HTMLSpanElement, MouseEvent>,
-    clickedItem: Option,
+    clickedItem: SelectedOption,
   ) => {
     e.stopPropagation();
-    setSelected((prev) => prev.filter((i) => !isEqual(i, clickedItem)));
+    updateSelected(selected.filter((i) => !isEqual(i, clickedItem)));
   };
 
   const handleDataScrolling = (e: React.UIEvent<HTMLDivElement>) => {
@@ -182,18 +298,6 @@ function ApiSelect<TResponse, TData>({
     getData();
   }, [page, search]);
 
-  useEffect(() => {
-    inputRef?.current?.dispatchEvent(new Event("input", { bubbles: true }));
-  }, [selected]);
-
-  const getInputValue = () => {
-    if (isMultiple) {
-      return JSON.stringify(selected.map((option) => option.value));
-    } else {
-      return selected?.[0]?.value ?? "";
-    }
-  };
-
   // Change the selected value whenever the defaultValue changes
   useEffect(() => {
     if (!defaultValue) {
@@ -201,7 +305,7 @@ function ApiSelect<TResponse, TData>({
       return;
     }
 
-    let newSelected: Option[];
+    let newSelected: SelectedOption[];
 
     if (!Array.isArray(defaultValue)) {
       newSelected = [
@@ -222,36 +326,11 @@ function ApiSelect<TResponse, TData>({
       ref={fullContainer}
     >
       {label && (
-        <FieldLabel htmlFor={`${name}_id`} className={styles?.labelClasses}>
+        <FieldLabel className={styles?.labelClasses}>
           {label}
           {required && <span className={"text-destructive"}>*</span>}
         </FieldLabel>
       )}
-
-      <input
-        ref={inputRef}
-        id={`${name}_id`}
-        name={name}
-        value={getInputValue()}
-        className={`hidden`}
-        onChange={(e) => {
-          if (!onChange) {
-            return;
-          }
-          let arrayValues: [];
-          try {
-            arrayValues = e.target.value ? JSON.parse(e.target.value) : [];
-          } catch (error) {
-            arrayValues = [];
-            console.log("Target Value:", e.target.value);
-            console.error("Error in Api Multi select");
-            console.error(error);
-            console.error(`Error caused by this value: ${e.target.value}`);
-          }
-          onChange(e as ChangeEvent<HTMLInputElement>, arrayValues);
-        }}
-        {...inputProps}
-      />
 
       <div
         onClick={() => handleOpen()}
@@ -262,7 +341,7 @@ function ApiSelect<TResponse, TData>({
           role={"listbox"}
           aria-expanded={isOpen}
           aria-activedescendant={
-            selected.length ? selected[0].value : undefined
+            selected.length ? String(selected[0].value) : undefined
           }
         >
           {selected.length > 0 ? (
@@ -295,7 +374,7 @@ function ApiSelect<TResponse, TData>({
                 className="text-primary h-5 w-5 transition-transform duration-300 hover:scale-110"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelected([]);
+                  updateSelected([]);
                 }}
               />
             )}
@@ -365,8 +444,4 @@ function ApiSelect<TResponse, TData>({
     </Field>
   );
 }
-
-const include = (option: Option, selected: Option[]): boolean =>
-  selected.filter((op) => isEqual(op, option)).length > 0;
-
 export default ApiSelect;

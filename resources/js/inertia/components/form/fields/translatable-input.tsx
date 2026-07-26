@@ -15,7 +15,7 @@ interface TranslatableProps extends Omit<
   onChange?: (v: string) => void;
 }
 
-const TranslatableTextarea: React.FC<TranslatableProps> = ({
+const TranslatableInput: React.FC<TranslatableProps> = ({
   label,
   defaultValue,
   onChange = undefined,
@@ -52,9 +52,8 @@ const TranslatableTextarea: React.FC<TranslatableProps> = ({
     <Field>
       <FieldSet>
         {availableLocales.map((lang, index) => (
-          <div className={lang !== locale ? "hidden" : ""}>
+          <div key={index} className={lang !== locale ? "hidden" : ""}>
             <Input
-              key={index}
               name={`${name}[${lang}]`}
               label={`${label} - ${lang.toUpperCase()}`}
               defaultValue={
@@ -75,4 +74,4 @@ const TranslatableTextarea: React.FC<TranslatableProps> = ({
   );
 };
 
-export default TranslatableTextarea;
+export default TranslatableInput;

@@ -126,8 +126,8 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
             [
                 'key' => 'onChange',
                 'value' => $this->nullable
-                    ? '(v) => setData("launch_date", v ? format(v, "yyyy-MM-dd") : undefined)'
-                    : '(v) => v && setData("launch_date", format(v, "yyyy-MM-dd"))'
+                    ? '(v) => setData("' . $this->name . '", v ? format(v, "yyyy-MM-dd") : undefined)'
+                    : '(v) => v && setData("' . $this->name . '", format(v, "yyyy-MM-dd"))'
             ]
         ];
 
