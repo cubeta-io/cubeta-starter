@@ -9,8 +9,6 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-@plugin '@tailwindcss/forms';
-
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {

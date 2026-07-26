@@ -1,11 +1,18 @@
-import Eye from "@/components/icons/Eye";
-import Pencil from "@/components/icons/Pencil";
-import Trash from "@/components/icons/Trash";
-import { swal } from "@/helper";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import Http from "@/modules/http/http";
 import { Link } from "@inertiajs/react";
-import { toast } from "react-toastify";
-import React from "react";
+import { ReactNode, useState } from "react";
+import { toast } from "sonner";
+import { Eye, Loader, Pencil, Trash } from "lucide-react";
 
 type Buttons = "delete" | "edit" | "show";
 
@@ -13,7 +20,7 @@ export interface ActionsButtonsProps<Data extends Record<string, any>> {
   data?: Data;
   id?: number | string;
   buttons: Buttons[];
-  children?: React.JSX.Element | undefined;
+  children?: ReactNode;
   baseUrl: string;
   deleteUrl?: string;
   editUrl?: string;
@@ -32,13 +39,16 @@ function ActionsButtons<Data extends Record<string, any>>({
   setHidden,
   children,
 }: ActionsButtonsProps<Data>) {
+  const [openDelete, setOpenDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const dataId = id ?? data?.id ?? undefined;
 
-  const dUrl = deleteUrl ?? `${baseUrl}/${dataId ?? ""}`; // delete url
-  const sUrl = showUrl ?? `${baseUrl}/${dataId ?? ""}`; // show url
-  const eUrl = editUrl ?? `${baseUrl}/${dataId ?? ""}/edit` + ""; // edit url
+  const dUrl = deleteUrl ?? `${baseUrl}/${dataId ?? ""}`;
+  const sUrl = showUrl ?? `${baseUrl}/${dataId ?? ""}`;
+  const eUrl = editUrl ?? `${baseUrl}/${dataId ?? ""}/edit`;
 
   const handleDelete = () => {
+    setDeleting(true);
     Http.make<boolean>()
       .delete(dUrl)
       .then((res) => {
@@ -54,46 +64,67 @@ function ActionsButtons<Data extends Record<string, any>>({
       .catch((e) => {
         toast.error("There Is Been An Error In Deleting");
         console.error(e);
+      })
+      .finally(() => {
+        setDeleting(false);
       });
   };
 
+  const onConfirmDelete = () => {
+    setOpenDelete(false);
+    handleDelete();
+  };
+
   return (
-    <div className={`flex items-center justify-start gap-3`}>
+    <div className="flex items-center justify-start gap-1">
       {buttons.includes("show") && (
-        <Link href={sUrl} className="hover:bg-white-secondary rounded-md p-0.5">
-          <Eye className="text-info h-5 w-5" />
-        </Link>
+        <Button render={<Link href={sUrl} />} size="icon">
+          <Eye />
+        </Button>
       )}
       {buttons.includes("edit") && (
-        <Link href={eUrl} className="hover:bg-white-secondary rounded-md p-0.5">
-          <Pencil className="text-success h-5 w-5" />
-        </Link>
+        <Button render={<Link href={eUrl} />} size="icon" variant="outline">
+          <Pencil />
+        </Button>
       )}
 
       {buttons.includes("delete") && (
-        <button className="hover:bg-white-secondary rounded-md p-0.5">
-          <Trash
-            className="text-danger h-5 w-5 cursor-pointer"
-            onClick={() => {
-              swal
-                .fire({
-                  title: "Do you want to Delete this item ?",
-                  showDenyButton: true,
-                  showCancelButton: true,
-                  confirmButtonText: "Yes",
-                  denyButtonText: `No`,
-                  confirmButtonColor: "#007BFF",
-                })
-                .then((result) => {
-                  if (result.isConfirmed && dataId) {
-                    handleDelete();
-                  } else if (result.isDenied) {
-                    toast.info("Didn't Delete");
-                  }
-                });
-            }}
+        <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
+          <AlertDialogTrigger
+            render={
+              <Button size="icon" variant="destructive">
+                <Trash />
+              </Button>
+            }
           />
-        </button>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Item</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this item? This action cannot be
+                undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setOpenDelete(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={onConfirmDelete}
+                disabled={deleting}
+              >
+                Delete
+                {deleting && <Loader className={"animate-spin"} />}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
       {children}
     </div>

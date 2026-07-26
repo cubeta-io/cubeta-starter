@@ -134,11 +134,15 @@ class CubeText extends CubeStringable implements HasFakeMethod,
         $modelVariable = $this->getOwnerTable()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            "LongTextField",
+            "DetailItem",
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name}",
             [
-                new TsImportString("LongTextField", "@/components/show/long-text-field")
+                new TsImportString("DetailItem", "@/components/ui/detail-item")
+            ],
+            [
+                'orientation' => '"vertical"',
+                "className" => '"md:col-span-2"'
             ]
         );
     }

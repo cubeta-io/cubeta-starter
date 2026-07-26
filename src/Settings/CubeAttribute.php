@@ -194,8 +194,17 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
      */
     public function isTextable(): bool
     {
-        return str($this->name)->contains(['body', 'content', 'description', 'summary', 'post', 'note', 'message'])
-            && $this->isText();
+        return str($this->name)
+                ->contains([
+                    'body',
+                    'content',
+                    'description',
+                    'summary',
+                    'post',
+                    'note',
+                    'message'
+                ])
+            && ($this->isText() || $this->isTranslatable());
     }
 
     /**

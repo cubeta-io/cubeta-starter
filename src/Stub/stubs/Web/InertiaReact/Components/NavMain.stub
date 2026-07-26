@@ -1,0 +1,147 @@
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+} from "@/components/ui/sidebar";
+import { Link } from "@inertiajs/react";
+import { ChevronRight, LayoutDashboardIcon } from "lucide-react";
+import { ReactNode } from "react";
+
+function isUrlActive(url: string) {
+  const location = window.location.href;
+  return location == url || location.startsWith(url);
+}
+
+export function NavMain({
+                          items,
+                        }: {
+  items: {
+    title: string;
+    href?: string;
+    icon?: ReactNode;
+    children?: {
+      title: string;
+      href?: string;
+      icon?: ReactNode;
+    }[];
+  }[];
+}) {
+  const url = window.location.href;
+  return (
+    <SidebarGroup>
+      <SidebarGroupContent className="flex flex-col gap-2">
+        <SidebarMenu>
+          <Link href={route("{{index_route}}")}>
+            <SidebarMenuItem className="flex items-center gap-2">
+              <SidebarMenuButton
+                tooltip="Dashboard"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+                isActive={url == route("{{index_route}}")}
+              >
+                <LayoutDashboardIcon />
+                <span>Dashboard</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </Link>
+
+          {items.map((item, index) => {
+            return item.children ? (
+              <SidebarCompactItem key={index} item={item} />
+            ) : (
+              <SidebarItem key={index} item={item} />
+            );
+          })}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
+const SidebarItem = ({
+                       item,
+                     }: {
+  item: {
+    title: string;
+    href?: string;
+    icon?: ReactNode;
+  };
+}) => {
+  if (!item.href) {
+    return null;
+  }
+  return (
+    <Link href={item.href}>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          tooltip={item.title}
+          isActive={isUrlActive(item.href)}
+        >
+          {item.icon}
+          <span>{item.title}</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </Link>
+  );
+};
+
+const SidebarCompactItem = ({
+                              item,
+                            }: {
+  item: {
+    title: string;
+    icon?: ReactNode;
+    children?: {
+      title: string;
+      href?: string;
+      icon?: ReactNode;
+    }[];
+  };
+}) => {
+  return (
+    <Collapsible
+      defaultOpen={item.children?.some(
+        (i) => i.href && isUrlActive(i.href),
+      )}
+      className={"group/collapsible"}
+    >
+      <SidebarMenuItem>
+        <CollapsibleTrigger>
+          <SidebarMenuButton tooltip={item.title}>
+            {item.icon}
+            <span>{item.title}</span>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {item.children?.map((subItem, index) => (
+              <SidebarMenuSubItem key={index}>
+                <SidebarMenuSubButton
+                  isActive={
+                    !!subItem.href &&
+                    isUrlActive(subItem.href)
+                  }
+                >
+                  <Link href={subItem.href}>
+                    {subItem.icon}
+                    <span>{subItem.title}</span>
+                  </Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
+  );
+};

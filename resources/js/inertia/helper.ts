@@ -1,6 +1,4 @@
 import { usePage } from "@inertiajs/react";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
 
 export const asset = (path: string) => {
   const {
@@ -26,11 +24,21 @@ export function getNestedPropertyValue(object: any, path: string): any {
   return value;
 }
 
-export const swal = withReactContent(Swal);
+export function uniqueBy<T, K extends keyof T>(array: T[], key: K): T[] {
+  return Array.from(new Map(array.map((item) => [item[key], item])).values());
+}
 
-export const getLocale = (): string => {
-  const {
-    props: { currentLocale },
-  } = usePage();
-  return currentLocale ?? "en";
+export const toTitleCase = (str: string): string => {
+  return (
+    str
+      .toLowerCase()
+      // replace separators with spaces
+      .replace(/[_\-@,.]+/g, " ")
+      // normalize multiple spaces
+      .replace(/\s+/g, " ")
+      .trim()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
+  );
 };

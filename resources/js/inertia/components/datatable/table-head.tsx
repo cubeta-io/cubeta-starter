@@ -1,6 +1,10 @@
-import ChevronUp from "@/components/icons/ChevronUp";
-import ChevronDown from "@/components/icons/ChevronDown";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { TableHeadProps } from "@/components/datatable/types";
+import {
+  TableHead as ShadcnTableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 function TableHead<Data>({
   schema,
@@ -10,45 +14,36 @@ function TableHead<Data>({
   setSortCol,
 }: TableHeadProps<Data>) {
   return (
-    <thead className="ltr:text-left rtl:text-right dark:text-white">
-      <tr>
+    <TableHeader>
+      <TableRow>
         {schema.map((header) => (
-          <th
+          <ShadcnTableHead
             key={header.label}
             onClick={() => {
               if (header.name && header.sortable) {
-                setSortDir((prevState) => {
-                  if (prevState == "asc") {
-                    return "desc";
-                  } else return "asc";
-                });
-
+                setSortDir((prevState) =>
+                  prevState === "asc" ? "desc" : "asc",
+                );
                 setSortCol(header.name as string);
               }
             }}
-            className={
-              header.headerProps?.className ??
-              `whitespace-nowrap px-4 py-2 font-medium text-gray-900 dark:text-white ${
-                header.sortable ? "cursor-pointer" : ""
-              }`
-            }
+            className={header.sortable ? "cursor-pointer" : undefined}
             {...header.headerProps}
           >
-            <div className={`flex items-center justify-between gap-2`}>
+            <div className="flex items-center justify-between gap-2">
               {header.label}
-
               {header.sortable ? (
-                <div className={`flex flex-col gap-0`}>
+                <div className="flex flex-col gap-0">
                   <ChevronUp
                     className={`h-3 w-3 ${
-                      sortDir == "asc" && sortCol == header.name
+                      sortDir === "asc" && sortCol === header.name
                         ? "fill-primary"
                         : ""
                     }`}
                   />
                   <ChevronDown
                     className={`h-3 w-3 ${
-                      sortDir == "desc" && sortCol == header.name
+                      sortDir === "desc" && sortCol === header.name
                         ? "fill-primary"
                         : ""
                     }`}
@@ -56,10 +51,10 @@ function TableHead<Data>({
                 </div>
               ) : null}
             </div>
-          </th>
+          </ShadcnTableHead>
         ))}
-      </tr>
-    </thead>
+      </TableRow>
+    </TableHeader>
   );
 }
 

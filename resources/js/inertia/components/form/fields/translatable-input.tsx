@@ -1,28 +1,25 @@
-import { usePage } from "@inertiajs/react";
-import React, { ChangeEvent, useRef, useState } from "react";
-import Input, { InputProps } from "@/components/form/fields/input";
+import { getNestedPropertyValue } from "@/helper";
 import { Translatable, translate } from "@/models/translatable";
+import { usePage } from "@inertiajs/react";
+import React, { useState } from "react";
 import { useFormLocale } from "@/providers/form-locale-provider";
+import { Field, FieldError, FieldSet } from "@/components/ui/field";
+import Input from "@/components/form/fields/input";
 
-interface ITranslatableInputProps {
-  defaultValue?: string | Translatable | undefined;
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
-  onInput?: (e: ChangeEvent<HTMLInputElement>) => void;
-  required?: boolean;
+interface TranslatableProps extends Omit<
+  React.ComponentProps<typeof Input>,
+  "defaultValue" | "onChange" | "onInput"
+> {
+  defaultValue?: string | object | Translatable | undefined;
+  label?: string;
+  onChange?: (v: string) => void;
 }
 
-const TranslatableInput: React.FC<
-  Omit<InputProps, "defaultValue" | "onChange" | "onInput"> &
-    ITranslatableInputProps
-> = ({
-  name,
+const TranslatableTextarea: React.FC<TranslatableProps> = ({
   label,
-  type,
   defaultValue,
-  className,
-  placeholder = "",
   onChange = undefined,
-  onInput = undefined,
+  name,
   required = false,
   ...props
 }) => {
@@ -31,71 +28,51 @@ const TranslatableInput: React.FC<
     props: { availableLocales, errors },
   } = usePage();
 
-  const inputRef = useRef<HTMLInputElement>(null);
   const error = name && errors[name] ? errors[name] : undefined;
 
   if (typeof defaultValue == "string") {
     defaultValue = translate(defaultValue, true);
   }
 
-  const [value, setValue] = useState<object | undefined | Translatable>(
-    defaultValue ?? undefined,
-  );
+  const [value, setValue] = useState<object | undefined>(defaultValue ?? {});
 
-  const handleChange = async (
-    e: ChangeEvent<HTMLInputElement>,
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>,
     lang: string | keyof Translatable,
   ) => {
-    await setValue((prev) =>
-      prev
-        ? {
-            ...prev,
-            [lang]: e.target.value,
-          }
-        : { [lang]: e.target.value },
-    );
-    inputRef?.current?.dispatchEvent(new Event("input", { bubbles: true }));
+    const nextValue = value
+      ? { ...value, [lang]: e.target.value }
+      : { [lang]: e.target.value };
+
+    setValue(nextValue);
+    onChange?.(JSON.stringify(nextValue));
   };
 
   return (
-    <div className={"flex w-full flex-col"}>
-      <input
-        ref={inputRef}
-        value={JSON.stringify(value ?? {})}
-        readOnly={true}
-        className={"hidden"}
-        onInput={(e) => {
-          if (onChange) {
-            onChange(e as unknown as ChangeEvent<HTMLInputElement>);
-          } else if (onInput) {
-            onInput(e as unknown as ChangeEvent<HTMLInputElement>);
-          }
-        }}
-      />
-      {availableLocales.map((lang: keyof Translatable, index) => {
-        return (
-          <div key={index} className={locale != lang ? "hidden" : undefined}>
+    <Field>
+      <FieldSet>
+        {availableLocales.map((lang, index) => (
+          <div className={lang !== locale ? "hidden" : ""}>
             <Input
+              key={index}
               name={`${name}[${lang}]`}
               label={`${label} - ${lang.toUpperCase()}`}
-              defaultValue={defaultValue ? defaultValue[lang] : ""}
-              type={"text"}
-              placeholder={placeholder}
-              onInput={(e) =>
-                handleChange(
-                  e as unknown as ChangeEvent<HTMLInputElement>,
-                  lang,
-                )
+              defaultValue={
+                defaultValue ? getNestedPropertyValue(defaultValue, lang) : ""
               }
-              required={required}
+              onChange={(e) => handleChange(e, lang)}
               {...props}
             />
           </div>
-        );
-      })}
-      {error ? <p className={"text-sm text-red-700"}>{error}</p> : ""}
-    </div>
+        ))}
+        {error && (
+          <FieldError className={"text-destructive text-sm"}>
+            {error}
+          </FieldError>
+        )}
+      </FieldSet>
+    </Field>
   );
 };
 
-export default TranslatableInput;
+export default TranslatableTextarea;

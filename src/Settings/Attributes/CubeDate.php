@@ -124,12 +124,10 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
     {
         $attributes = [
             [
-                'key' => 'type',
-                'value' => '"date"'
-            ],
-            [
                 'key' => 'onChange',
-                'value' => "(e) => setData(\"{$this->name}\", e.target?.value)"
+                'value' => $this->nullable
+                    ? '(v) => setData("launch_date", v ? format(v, "yyyy-MM-dd") : undefined)'
+                    : '(v) => v && setData("launch_date", format(v, "yyyy-MM-dd"))'
             ]
         ];
 
@@ -141,13 +139,14 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
         }
 
         return new TsxInputComponentString(
-            "Input",
+            "DatePicker",
             $this->name,
             $this->labelNaming(),
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("Input", "@/components/form/fields/input")
+                new TsImportString("DatePicker", "@/components/form/fields/date-picker"),
+                new TsImportString("format", "date-fns", false)
             ]
         );
     }

@@ -1,14 +1,12 @@
-import {
-  IApiSelectProps,
-  Option,
-} from "@/components/form/fields/select/types";
-import ChevronDown from "@/components/icons/ChevronDown";
-import LoadingSpinner from "@/components/icons/LoadingSpinner";
-import XMark from "@/components/icons/XMark";
-import { getNestedPropertyValue } from "@/helper";
+import { ChevronDown, Loader, XIcon } from "lucide-react";
+import { getNestedPropertyValue, uniqueBy } from "@/helper";
 import { usePage } from "@inertiajs/react";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import { IApiSelectProps, Option } from "@/components/form/fields/select/types";
 import { isEqual, isOption } from "@/components/form/fields/select/helpers";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
 function ApiSelect<TResponse, TData>({
   api,
@@ -77,7 +75,7 @@ function ApiSelect<TResponse, TData>({
     if (!isLoading) {
       setIsLoading(true);
       await api(page, search, isLast, totalPages).then((data: TResponse) => {
-        setItems((prev) => [...(getDataArray(data) ?? []), ...prev]);
+        setItems((prev) => [...prev, ...(getDataArray(data) ?? [])]);
         setIsLoading(false);
         setIsLast(getIsLast(data) ?? true);
         setTotalPages(getTotalPages(data) ?? 1);
@@ -99,22 +97,19 @@ function ApiSelect<TResponse, TData>({
     item: TData,
   ) => {
     e.stopPropagation();
-    if (onSelect) {
-      onSelect(item, selected, setSelected, e);
-    } else {
-      const option = getOption(item);
-      if (isMultiple) {
-        if (include(option, selected)) {
-          setSelected((prev) => prev.filter((sel) => !isEqual(sel, option)));
-        } else {
-          setSelected((prev) => [option, ...prev]);
-        }
+    onSelect?.(item, selected, setSelected, e);
+    const option = getOption(item);
+    if (isMultiple) {
+      if (include(option, selected)) {
+        setSelected((prev) => prev.filter((sel) => !isEqual(sel, option)));
       } else {
-        if (include(option, selected)) {
-          setSelected([]);
-        } else {
-          setSelected([option]);
-        }
+        setSelected((prev) => [option, ...prev]);
+      }
+    } else {
+      if (include(option, selected)) {
+        setSelected([]);
+      } else {
+        setSelected([option]);
       }
     }
 
@@ -161,13 +156,14 @@ function ApiSelect<TResponse, TData>({
     setSelected((prev) => prev.filter((i) => !isEqual(i, clickedItem)));
   };
 
-  const handleDataScrolling = (e: any) => {
-    const { scrollTop, clientHeight, scrollHeight } = e.target;
-    if (scrollHeight - scrollTop === clientHeight) {
+  const handleDataScrolling = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
+    const distanceFromBottom =
+      scrollHeight - Math.ceil(scrollTop) - clientHeight;
+    if (distanceFromBottom <= clientHeight * 0.5 && !isLoading) {
       if (getNextPage) {
         setPage((oldPage) => getNextPage(oldPage, isLast, totalPages));
-      }
-      if (!isLast && page <= totalPages) {
+      } else if (!isLast && page <= totalPages) {
         setPage((oldPage) => oldPage + 1);
       }
     }
@@ -192,62 +188,97 @@ function ApiSelect<TResponse, TData>({
 
   const getInputValue = () => {
     if (isMultiple) {
-      return `[${selected.map((option) => option.value)}]`;
+      return JSON.stringify(selected.map((option) => option.value));
     } else {
       return selected?.[0]?.value ?? "";
     }
   };
 
+  // Change the selected value whenever the defaultValue changes
+  useEffect(() => {
+    if (!defaultValue) {
+      setSelected([]);
+      return;
+    }
+
+    let newSelected: Option[];
+
+    if (!Array.isArray(defaultValue)) {
+      newSelected = [
+        isOption(defaultValue) ? defaultValue : getOption(defaultValue),
+      ];
+    } else {
+      newSelected = defaultValue.map((val) =>
+        isOption(val) ? val : getOption(val),
+      );
+    }
+
+    setSelected(newSelected);
+  }, [defaultValue]);
+
   return (
-    <div className="relative w-full select-none" ref={fullContainer}>
-      <label
-        className={`block ${
-          styles?.labelClasses ??
-          "text-sm font-medium text-gray-900 select-text dark:text-white"
-        }`}
-      >
-        {label ?? ""}
-        {required ? <span className="text-sm text-red-500">*</span> : ""}
-        <input
-          ref={inputRef}
-          name={name ?? ""}
-          value={getInputValue()}
-          className={`hidden`}
-          onInput={(e) => {
-            if (onChange) {
-              onChange(e as unknown as ChangeEvent<HTMLInputElement>);
-            }
-          }}
-          {...inputProps}
-        />
-      </label>
+    <Field
+      className={`relative grid w-full grid-cols-1 items-center gap-3 duration-300 select-none`}
+      ref={fullContainer}
+    >
+      {label && (
+        <FieldLabel htmlFor={`${name}_id`} className={styles?.labelClasses}>
+          {label}
+          {required && <span className={"text-destructive"}>*</span>}
+        </FieldLabel>
+      )}
+
+      <input
+        ref={inputRef}
+        id={`${name}_id`}
+        name={name}
+        value={getInputValue()}
+        className={`hidden`}
+        onChange={(e) => {
+          if (!onChange) {
+            return;
+          }
+          let arrayValues: [];
+          try {
+            arrayValues = e.target.value ? JSON.parse(e.target.value) : [];
+          } catch (error) {
+            arrayValues = [];
+            console.log("Target Value:", e.target.value);
+            console.error("Error in Api Multi select");
+            console.error(error);
+            console.error(`Error caused by this value: ${e.target.value}`);
+          }
+          onChange(e as ChangeEvent<HTMLInputElement>, arrayValues);
+        }}
+        {...inputProps}
+      />
 
       <div
         onClick={() => handleOpen()}
-        className={`flex cursor-pointer justify-between ${
-          styles?.selectClasses ??
-          "w-full rounded-lg border border-gray-300 p-2 text-gray-700 sm:text-sm"
-        }`}
+        className={`dark:bg-input/30 flex cursor-pointer justify-between bg-transparent px-1.5 py-[0.470rem] transition-all duration-300 ${styles?.selectClasses ?? "text-primary w-full rounded-md border sm:text-sm"}`}
       >
-        <div className="flex w-full items-center justify-between">
+        <div
+          className="flex w-full items-center justify-between"
+          role={"listbox"}
+          aria-expanded={isOpen}
+          aria-activedescendant={
+            selected.length ? selected[0].value : undefined
+          }
+        >
           {selected.length > 0 ? (
             <div className="flex flex-wrap items-center gap-1">
               {selected.map((option, index) => (
                 <div className="flex flex-wrap gap-1" key={index}>
-                  <span
-                    className={`${
-                      styles?.selectedItemsBadgeClasses ??
-                      "rounded-sm bg-gray-500 p-0.5 text-white hover:bg-red-400"
-                    } cursor-pointer`}
-                    onClick={(e) => handleRemoveFromSelected(e, option)}
-                  >
+                  <Badge onClick={(e) => handleRemoveFromSelected(e, option)}>
                     {option.label}
-                  </span>
+                  </Badge>
                 </div>
               ))}
             </div>
           ) : (
-            <p className={"dark:text-white"}>{placeHolder}</p>
+            <p className={placeHolder ?? "transition-opacity duration-300"}>
+              {placeHolder ?? `Select ${label} ...`}
+            </p>
           )}
           <div className="flex items-center gap-2">
             {isLoading && (
@@ -255,32 +286,30 @@ function ApiSelect<TResponse, TData>({
                 {styles?.loadingIcon ? (
                   styles.loadingIcon()
                 ) : (
-                  <LoadingSpinner className="text-primary h-full w-full" />
+                  <Loader className="text-primary h-full w-full animate-spin" />
                 )}
               </div>
             )}
-            {selected.length > 0 && clearable ? (
-              <XMark
+            {selected.length > 0 && clearable && (
+              <XIcon
+                className="text-primary h-5 w-5 transition-transform duration-300 hover:scale-110"
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelected([]);
                 }}
               />
-            ) : (
-              ""
             )}
-            <ChevronDown />
+            <ChevronDown
+              className={`text-primary h-5 w-5 font-extrabold transition-transform duration-300 ${isOpen && "rotate-180"}`}
+            />
           </div>
         </div>
         <div
-          className={
+          className={`absolute left-0 z-50 overflow-y-scroll transition-all duration-300 ${
             isOpen
-              ? `absolute left-0 z-50 ${
-                  styles?.dropDownItemsContainerClasses ??
-                  "bg-white-secondary dark:bg-dark-secondary w-full rounded-lg border border-gray-200 px-3 pb-3 shadow-2xl"
-                }`
-              : "hidden"
-          }
+              ? "scale-100 opacity-100"
+              : "pointer-events-none scale-95 opacity-0"
+          } ${styles?.dropDownItemsContainerClasses ?? "bg-popover w-full rounded-lg border px-3 pb-3 shadow-2xl"}`}
           style={{
             top: `${(fullContainer?.current?.clientHeight ?? 0) + 5}px`,
             maxHeight: `${styles?.dropDownContainerMaxHeight ?? "200"}px`,
@@ -288,50 +317,52 @@ function ApiSelect<TResponse, TData>({
           }}
           onScroll={(e) => handleDataScrolling(e)}
         >
-          <div className={`sticky top-0 bg-inherit`}>
-            <input
-              className={`${
-                styles?.searchInputClasses ??
-                "focus:border-primary focus:outline-primary dark:bg-secondary my-2 w-full rounded-md p-1 placeholder-white dark:text-white"
-              }`}
+          <div className={`sticky top-1 bg-inherit`}>
+            <Input
+              className={`${styles?.searchInputClasses ?? " "} text-primary my-2 w-full p-1 transition-shadow duration-300`}
               onClick={(e) => handleClickingOnSearchInput(e)}
               onChange={(e) => handleSearchChange(e)}
               value={search ?? ""}
               name={"search-box"}
-              type={"text"}
+              type={"search"}
               placeholder={"Search ..."}
             />
           </div>
 
-          {items.map((item, index) => (
+          {uniqueBy(
+            items,
+            optionValue ?? getOption(items?.[0] ?? "id").value,
+          ).map((item, index) => (
             <div
               key={index}
-              className={` ${
+              className={`transition-colors duration-300 ${
                 include(getOption(item), selected)
-                  ? `${
-                      styles?.selectedDropDownItemClasses ??
-                      "bg-primary border-primary"
-                    }`
-                  : ""
-              } ${
-                styles?.dropDownItemClasses ??
-                "hover:border-primary hover:bg-primary my-1 w-full cursor-pointer rounded-md p-2 text-black dark:text-white"
-              }`}
+                  ? `${styles?.selectedDropDownItemClasses ?? "bg-foreground text-secondary"}`
+                  : `${styles?.dropDownItemClasses ?? "hover:bg-foreground text-primary hover:text-secondary my-1 w-full cursor-pointer rounded-md p-2"}`
+              } ${styles?.dropDownItemClasses ?? "hover:bg-foreground text-primary hover:text-secondary my-1 w-full cursor-pointer rounded-md p-2"}`}
               onClick={(e) => handleChoseItem(e, item)}
             >
               {getOption(item).label ?? ""}
             </div>
           ))}
-
           {isLoading && (
-            <div className="my-2 flex w-full items-center justify-center dark:text-white">
+            <div className="text-primary my-2 flex w-full items-center justify-center transition-opacity duration-300">
               Loading ...
             </div>
           )}
         </div>
       </div>
-      {error ? <p className={"text-sm text-red-700"}>{error}</p> : ""}
-    </div>
+      {error && <FieldError>{error}</FieldError>}
+      {errors &&
+        isMultiple &&
+        selected.length > 0 &&
+        name &&
+        Object.entries(errors).map(([key, value], index) => {
+          if (key.startsWith(name)) {
+            return <FieldError key={index}>{value}</FieldError>;
+          }
+        })}
+    </Field>
   );
 }
 

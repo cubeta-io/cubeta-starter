@@ -155,18 +155,23 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
         $attributes = [
             [
                 'key' => 'items',
-                'value' => "[{label:\"{$labels['true']}\" , value:true}, {label:\"{$labels['false']}\" , value:false}]"
+                'value' => "[{label:\"{$labels['true']}\" , value:1}, {label:\"{$labels['false']}\" , value:0}]"
             ],
             [
                 'key' => 'onChange',
-                'value' => "(e) => setData(\"{$this->name}\" , e.target.value == \"true\")"
+                'value' => "(v) => setData(\"{$this->name}\" , v == 1)"
             ]
         ];
 
         if ($formType == "update") {
             $attributes[] = [
                 'key' => 'checked',
-                'value' => "(val: any) => val == $variableName.{$this->name}"
+                'value' => "(v) => v == Number($variableName.{$this->name})"
+            ];
+        } else {
+            $attributes[] = [
+                'key' => 'checked',
+                'value' => "(v) => v == 0"
             ];
         }
 
@@ -189,11 +194,11 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
         $modelVariable = $this->getOwnerTable()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            "SmallTextField",
+            "DetailItem",
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name} ? 'Yes' : 'No'",
             [
-                new TsImportString("SmallTextField", "@/components/show/small-text-field")
+                new TsImportString("DetailItem", "@/components/ui/detail-item")
             ]
         );
     }
@@ -205,7 +210,10 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
             $this->labelNaming(),
             false,
             true,
-            "return cell ? (<span>Yes</span>) : (<span>No</span>)"
+            "return cell ? (<Badge>Yes</Badge>) : (<Badge variant=\"destructive\">No</Badge>);",
+            [
+                new TsImportString("Badge", "@/components/ui/badge", false),
+            ]
         );
     }
 }

@@ -176,7 +176,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         $parentModel = $this->parentModel();
         $column = $this->relationModel()->titleable();
         $imports = [
-            new TsImportString("SmallTextField", "@/components/show/small-text-field"),
+            new TsImportString("DetailItem", "@/components/ui/detail-item"),
         ];
 
         if ($column->isTranslatable()) {
@@ -184,7 +184,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         }
 
         return new ReactTsDisplayComponentString(
-            "SmallTextField",
+            "DetailItem",
             $this->titleNaming(),
             $column->isTranslatable()
                 ? "translate(" . $parentModel->variableNaming() . "?." . $this->relationMethodNaming() . "?." . $column->name . ")"

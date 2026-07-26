@@ -1,35 +1,33 @@
 import { ReactNode } from "react";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const PageCard = ({
   children,
   title,
   actions,
+  description,
 }: {
   children?: ReactNode;
   title?: string;
-  actions?: ReactNode;
+  description?: string;
+  actions?: ReactNode[] | ReactNode;
 }) => {
   return (
-    <div
-      className={
-        "bg-white-secondary dark:bg-dark-secondary w-full rounded-md p-8"
-      }
-      style={{
-        boxShadow: "0 35px 60px 15px rgba(0, 0, 0, 0.2)",
-      }}
-    >
-      {title || actions ? (
-        <div
-          className={`dark:bg-dark mb-5 flex w-full items-center justify-between rounded-md bg-white p-4 shadow-md`}
-        >
-          <h2 className="text-xl font-bold dark:text-white">{title}</h2>
-          <div>{actions ? actions : ""}</div>
-        </div>
-      ) : (
-        ""
-      )}
-      {children}
-    </div>
+    <Card>
+      <CardHeader>
+        {title && <CardTitle>{title}</CardTitle>}
+        {description && <CardDescription>{description}</CardDescription>}
+        {actions && <CardAction>{actions}</CardAction>}
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
   );
 };
 

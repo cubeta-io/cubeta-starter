@@ -39,7 +39,6 @@ class ReactTsPackagesInstaller extends AbstractGenerator
             "@inertiajs/vite",
             'tailwindcss',
             "@tailwindcss/vite",
-            '@tailwindcss/forms',
             '@types/node',
             '@types/react',
             '@types/react-dom',
@@ -47,11 +46,6 @@ class ReactTsPackagesInstaller extends AbstractGenerator
             'react',
             'react-dom',
             'typescript',
-            '@tinymce/tinymce-react',
-            'autoprefixer',
-            'sweetalert2',
-            'sweetalert2-react-content',
-            'react-toastify',
             "vite"
         ]);
 

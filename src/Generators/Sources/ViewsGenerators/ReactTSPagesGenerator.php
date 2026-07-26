@@ -161,7 +161,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
 
         $this->table->attributes()
             ->each(function (CubeAttribute|HasReactTsInputString $attr) use ($builder) {
-                if (!$attr->isFile() && !$attr->isKey()) {
+                if (!$attr->isKey()) {
                     $builder->defaultValue($attr->name, "{$this->table->variableNaming()}?.{$attr->name}");
                 }
 
@@ -174,7 +174,16 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 }
 
                 if ($attr instanceof HasInterfacePropertyString) {
-                    $builder->formFieldInterface($attr->interfacePropertyString());
+                    if ($attr->isFile()) {
+                        $builder->formFieldInterface(new InterfacePropertyString(
+                            $attr->name,
+                            "Media|File|undefined",
+                            true,
+                            new TsImportString("Media", "@/models/media")
+                        ));
+                    } else {
+                        $builder->formFieldInterface($attr->interfacePropertyString());
+                    }
                 }
             });
 
@@ -221,11 +230,14 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                     if ($attr->isFile()) {
                         $builder->formFieldInterface(new InterfacePropertyString(
                             $attr->name,
-                            "Media|File",
+                            "Media|File|undefined",
                             true,
                             new TsImportString("Media", "@/models/media")
                         ));
                     } else {
+                        if ($attr->isBoolean()) {
+                            $builder->defaultValue($attr->name, 'false');
+                        }
                         $builder->formFieldInterface($attr->interfacePropertyString());
                     }
                 }

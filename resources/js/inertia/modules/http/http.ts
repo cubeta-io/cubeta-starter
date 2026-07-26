@@ -20,6 +20,19 @@ class Http<RESPONSE extends any = any> {
     return this.instance as Http<T>;
   }
 
+  public static csrfToken(): string | null | undefined {
+    return document
+      ?.querySelector('meta[name="csrf-token"]')
+      ?.getAttribute("content");
+  }
+
+  static async fileFromUrl(url: string, filename?: string): Promise<File> {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const name = filename || url.split("/").pop() || "downloaded-file";
+    return new File([blob], name, { type: blob.type });
+  }
+
   public headers = (headers: Record<string, string>) => {
     this.baseHeaders = { ...this.baseHeaders, ...headers };
     return this;
@@ -108,6 +121,59 @@ class Http<RESPONSE extends any = any> {
     return await this.run("PUT", url, headers, undefined, data);
   }
 
+  public async streamText(
+    url: string,
+    method: "GET" | "POST" = "POST",
+    data?: Record<string, any>,
+    headers?: Record<string, string>,
+  ): Promise<AsyncGenerator<string, void, unknown>> {
+    url = this.getUrl(url);
+    this.addCsrfIfNeeded(method);
+
+    const finalHeaders: HeadersInit = {
+      ...this.baseHeaders,
+      ...headers,
+    };
+
+    const config: RequestInit = {
+      method,
+      headers: finalHeaders,
+    };
+
+    if (method === "POST" && data) {
+      const form = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        form.append(key, value);
+      });
+      config.body = form;
+    }
+
+    const response = await fetch(url, config);
+
+    if (!response.body) {
+      throw new Error("Response body is not readable");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+
+    async function* streamGenerator(): AsyncGenerator<string> {
+      let done = false;
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+
+        const chunk = decoder.decode(value || new Uint8Array(), {
+          stream: true,
+        });
+        if (chunk) yield chunk;
+      }
+    }
+
+    return streamGenerator();
+  }
+
   private run(
     method: string,
     url: string,
@@ -115,6 +181,7 @@ class Http<RESPONSE extends any = any> {
     params?: string | string[][] | Record<string, string> | URLSearchParams,
     data?: Record<string, any> | undefined,
   ): Promise<Response>;
+
   private run(
     method: string,
     url: string,
@@ -185,13 +252,7 @@ class Http<RESPONSE extends any = any> {
     } catch (e) {
       console.error(e);
       console.error("Happened while requesting this url : " + url);
-      return new ApiResponse(
-        undefined,
-        false,
-        500,
-        "Client error",
-        undefined,
-      );
+      return new ApiResponse(undefined, false, 500, "Client error", undefined);
     }
   }
 
@@ -214,12 +275,6 @@ class Http<RESPONSE extends any = any> {
     }
   };
 
-  public static csrfToken(): string | null | undefined {
-    return document
-      ?.querySelector('meta[name="csrf-token"]')
-      ?.getAttribute("content");
-  }
-
   private addParamsToUrl(
     params:
       | string
@@ -235,76 +290,11 @@ class Http<RESPONSE extends any = any> {
       !(params instanceof URLSearchParams)
     ) {
       params = Object.fromEntries(
-        Object.entries(params).filter(
-          ([_, value]) => value !== undefined,
-        ),
+        Object.entries(params).filter(([_, value]) => value !== undefined),
       );
-      url =
-        url +
-        "?" +
-        new URLSearchParams(params as Record<string, string>);
+      url = url + "?" + new URLSearchParams(params as Record<string, string>);
     }
     return url;
-  }
-
-  public async streamText(
-    url: string,
-    method: "GET" | "POST" = "POST",
-    data?: Record<string, any>,
-    headers?: Record<string, string>,
-  ): Promise<AsyncGenerator<string, void, unknown>> {
-    url = this.getUrl(url);
-    this.addCsrfIfNeeded(method);
-
-    const finalHeaders: HeadersInit = {
-      ...this.baseHeaders,
-      ...headers,
-    };
-
-    const config: RequestInit = {
-      method,
-      headers: finalHeaders,
-    };
-
-    if (method === "POST" && data) {
-      const form = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
-        form.append(key, value);
-      });
-      config.body = form;
-    }
-
-    const response = await fetch(url, config);
-
-    if (!response.body) {
-      throw new Error("Response body is not readable");
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-
-    async function* streamGenerator(): AsyncGenerator<string> {
-      let done = false;
-
-      while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-
-        const chunk = decoder.decode(value || new Uint8Array(), {
-          stream: true,
-        });
-        if (chunk) yield chunk;
-      }
-    }
-
-    return streamGenerator();
-  }
-
-  static async fileFromUrl(url: string, filename?: string): Promise<File> {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    const name = filename || url.split("/").pop() || "downloaded-file";
-    return new File([blob], name, { type: blob.type });
   }
 
   private appendFormData(form: FormData, data: any, parentKey?: string) {
@@ -312,14 +302,8 @@ class Http<RESPONSE extends any = any> {
 
     if (Array.isArray(data)) {
       data.forEach((value, index) => {
-        const key = parentKey
-          ? `${parentKey}[${index}]`
-          : String(index);
-        this.appendFormData(
-          form,
-          value,
-          parentKey ? `${parentKey}[]` : key,
-        );
+        const key = parentKey ? `${parentKey}[${index}]` : String(index);
+        this.appendFormData(form, value, parentKey ? `${parentKey}[]` : key);
       });
     } else if (data instanceof File || data instanceof Blob) {
       form.append(parentKey!, data);
@@ -339,9 +323,7 @@ class Http<RESPONSE extends any = any> {
     if (data instanceof File || data instanceof Blob) return true;
 
     if (typeof data === "object") {
-      return Object.values(data).some((value) =>
-        this.shouldUseFormData(value),
-      );
+      return Object.values(data).some((value) => this.shouldUseFormData(value));
     }
 
     return false;

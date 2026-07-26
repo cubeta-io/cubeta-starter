@@ -1,6 +1,6 @@
 import { TablePaginatorProps } from "@/components/datatable/types";
-import ChevronRight from "@/components/icons/ChevronRight";
-import ChevronLeft from "@/components/icons/ChevronLeft";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function TablePaginator<ApiResponse>({
   response,
@@ -13,7 +13,8 @@ function TablePaginator<ApiResponse>({
   isFirst = undefined,
   isLast = undefined,
 }: TablePaginatorProps<ApiResponse>) {
-  const paginationArray = [...Array(getTotalPages(response) ?? 0)];
+  const totalPages = getTotalPages(response) ?? 0;
+  const paginationArray = [...Array(totalPages)];
 
   const setNextPage = () => {
     if (getNextPage) {
@@ -27,51 +28,49 @@ function TablePaginator<ApiResponse>({
     if (getPreviousPage) {
       setPage(getPreviousPage(response, page));
     } else {
-      setPage((old) => Math.max(old - 1, 0));
+      setPage((old) => Math.max(old - 1, 1));
     }
   };
 
-  const isFirstPage = () => {
-    return isFirst ? isFirst(response) : page <= 1;
-  };
-
-  const isLastPage = () => {
-    return isLast ? isLast(response) : getTotalPages(response) <= page;
-  };
+  const isFirstPage = () => (isFirst ? isFirst(response) : page <= 1);
+  const isLastPage = () => (isLast ? isLast(response) : totalPages <= page);
 
   return (
     <div className="flex justify-between px-4 py-2">
       {getTotalRecords && (
-        <div className={"justify-start dark:text-white"}>
+        <div className="justify-start">
           Total Records : {getTotalRecords(response)}
         </div>
       )}
       <ol className="flex items-center justify-end gap-1 text-xs font-medium">
-        <li className={`border-0`}>
-          <button
-            onClick={() => setPrevPage()}
+        <li>
+          <Button
+            type="button"
+            size="icon"
+            variant="secondary"
+            onClick={setPrevPage}
             disabled={isFirstPage()}
-            className="bg-secondary inline-flex size-8 cursor-pointer items-center justify-center rounded-md border-0 text-white outline-0 rtl:rotate-180"
+            aria-label="Previous Page"
           >
-            <span className="sr-only">Prev Page</span>
             <ChevronLeft />
-          </button>
+          </Button>
         </li>
 
         {paginationArray.map((_e, index) => {
+          const pageNumber = index + 1;
+          const isCurrentPage = pageNumber === page;
+
           if (index < 3 || index >= paginationArray.length - 1) {
             return (
-              <li key={`page-${index + 1}`}>
-                <button
-                  onClick={() => setPage(index + 1)}
-                  className={`size-8 cursor-pointer rounded-md text-center leading-8 ${
-                    index + 1 == page
-                      ? "bg-primary text-white"
-                      : "text-primary bg-white dark:bg-white"
-                  }`}
+              <li key={`page-${pageNumber}`}>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={isCurrentPage ? "default" : "outline"}
+                  onClick={() => setPage(pageNumber)}
                 >
-                  {index + 1}
-                </button>
+                  {pageNumber}
+                </Button>
               </li>
             );
           } else if (
@@ -80,39 +79,39 @@ function TablePaginator<ApiResponse>({
               page < paginationArray.length - 4)
           ) {
             return (
-              <li key={`page-${index + 1}`}>
+              <li key={`page-${pageNumber}`}>
                 <span>...</span>
               </li>
             );
           } else if (index >= page - 2 && index <= page + 1) {
             return (
-              <li key={`page-${index + 1}`}>
-                <button
-                  onClick={() => setPage(index + 1)}
-                  className={`size-8 cursor-pointer rounded-md text-center leading-8 ${
-                    index + 1 == page
-                      ? "bg-primary text-white"
-                      : "text-primary bg-white dark:bg-white"
-                  }`}
+              <li key={`page-${pageNumber}`}>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={isCurrentPage ? "default" : "outline"}
+                  onClick={() => setPage(pageNumber)}
                 >
-                  {index + 1}
-                </button>
+                  {pageNumber}
+                </Button>
               </li>
             );
-          } else return null;
+          } else {
+            return null;
+          }
         })}
+
         <li>
-          <button
-            type={"button"}
-            onClick={() => {
-              setNextPage();
-            }}
+          <Button
+            type="button"
+            size="icon"
+            variant="secondary"
+            onClick={setNextPage}
             disabled={isLastPage()}
-            className="bg-secondary inline-flex size-8 cursor-pointer items-center justify-center rounded-md border-0 text-white outline-0 rtl:rotate-180"
+            aria-label="Next Page"
           >
-            <span className="sr-only">Next Page</span>
             <ChevronRight />
-          </button>
+          </Button>
         </li>
       </ol>
     </div>

@@ -2,6 +2,7 @@
 
 namespace {{namespace}}\AuthRequests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateUserRequest extends FormRequest
@@ -28,8 +29,14 @@ class UpdateUserRequest extends FormRequest
         return [
             'first_name' => 'required|string|min:3|max:255',
             'last_name' => 'required|string|min:3|max:255',
-            'email' => 'required|min:3|max:255|email|unique:users,email,'.auth($guard)->user()?->id,
-            'password' => 'required|min:8|max:255|confirmed',
+            'email' => 'required|min:3|max:255|email|unique:users,email,' . auth($guard)->user()?->id,
+            'password' => [
+                'nullable',
+                'min:8',
+                'max:255',
+                'confirmed',
+                Rule::excludeIf(fn() => empty($this->input('password'))),
+            ],
         ];
     }
 }

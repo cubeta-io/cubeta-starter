@@ -170,25 +170,18 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
 
     public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
+        $attributes = [
+            [
+                'key' => 'onChange',
+                'value' => "(v) => setData(\"{$this->name}\", v)"
+            ]
+        ];
         if ($this->isTextable()) {
-            $attributes = [
-                [
-                    'key' => 'onChange',
-                    'value' => "(e: ChangeEvent<HTMLTextAreaElement>) => setData(\"{$this->name}\", e.target.value)"
-                ]
-            ];
             $tag = "TranslatableTextarea";
             $imports = [
-                new TsImportString("ChangeEvent", "react", false),
                 new TsImportString("TranslatableTextarea", "@/components/form/fields/translatable-textarea")
             ];
         } else {
-            $attributes = [
-                [
-                    'key' => 'onChange',
-                    'value' => "(e) => setData(\"{$this->name}\", e.target.value)"
-                ]
-            ];
             $tag = "TranslatableInput";
             $imports = [
                 new TsImportString("TranslatableInput", "@/components/form/fields/translatable-input")
@@ -217,15 +210,16 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
         $modelVariable = $this->getOwnerTable()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            $this->isTextable() ? "LongTextField" : "SmallTextField",
+            "DetailItem",
             $this->labelNaming(),
             "translate({$modelVariable}{$nullable}.{$this->name})",
             [
-                $this->isTextable()
-                    ? new TsImportString("LongTextField", "@/components/show/long-text-field")
-                    : new TsImportString("SmallTextField", "@/components/show/small-text-field"),
+                new TsImportString("DetailItem", "@/components/ui/detail-item"),
                 new TsImportString("translate", "@/models/translatable", false),
-            ]
+            ],
+            $this->isTextable()
+                ? ['orientation' => '"vertical"', "className" => '"md:col-span-2"']
+                : []
         );
     }
 

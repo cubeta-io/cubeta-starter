@@ -1,115 +1,107 @@
 import { TableSchema } from "@/components/datatable/types";
-import Button from "@/components/ui/button";
-import Modal from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import useDownloadFile from "@/hooks/use-download-file";
 import Http from "@/modules/http/http";
-import { FormEvent, useState } from "react";
+import React, { useState } from "react";
+import { toTitleCase } from "@/helper";
+import { TableIcon } from "lucide-react";
 
-const ExportModal = ({
-  openExport,
-  setOpenExport,
-  schema,
-  exportRoute,
-  exportables = undefined,
-}: {
-  openExport: boolean;
-  setOpenExport: (value: boolean | ((prev: boolean) => boolean)) => void;
+interface ExportModalProps {
   schema: TableSchema<any>[];
   exportRoute?: string;
   exportables?: string[];
-}) => {
-  const [cols, setCols] = useState<string[]>(
-    exportables
-      ? exportables
-      : schema
-          .filter((col) => col.name != undefined && col.name != "id")
-          .map((c) => c.name as string),
-  );
+}
+
+const ExportModal = ({
+  schema,
+  exportRoute,
+  exportables,
+}: ExportModalProps) => {
+  const [open, setOpen] = useState(false);
   const { isLoading, downloadFile } = useDownloadFile();
 
-  const onSubmit = (e: FormEvent) => {
+  const columns = exportables
+    ? exportables.map((name) => ({ label: name, value: name }))
+    : schema
+        .filter((col) => col.name !== undefined && col.name !== "id")
+        .map((col) => ({
+          label: col.label ?? (col.name as string),
+          value: col.name as string,
+        }));
+
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(
+    columns.map((col) => col.value),
+  );
+
+  const toggleColumn = (column: string, checked: boolean) => {
+    setSelectedColumns((prev) =>
+      checked ? [...prev, column] : prev.filter((col) => col !== column),
+    );
+  };
+
+  const onSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     downloadFile(() =>
       Http.make()
         .file()
         .post(exportRoute ?? "", {
-          columns: cols,
+          columns: selectedColumns,
         }),
     ).then(() => {
-      setOpenExport(false);
+      setOpen(false);
     });
   };
 
   return (
-    <Modal
-      isOpen={openExport}
-      onClose={() => {
-        setOpenExport(false);
-      }}
-    >
-      <form onSubmit={onSubmit}>
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-          {exportables
-            ? exportables.map((exp, index) => (
-                <label
-                  className="flex items-center justify-between gap-2 dark:text-white"
-                  key={index}
-                >
-                  {exp}
-                  <input
-                    type="checkbox"
-                    className="accent-primary rounded-md"
-                    value={exp as string}
-                    name="columns"
-                    onChange={(e) => {
-                      e.target.checked
-                        ? setCols((prev) => {
-                            let temp = prev;
-                            temp.push(exp as string);
-                            return temp;
-                          })
-                        : setCols((prev) => prev.filter((c) => c != exp));
-                    }}
-                    defaultChecked={true}
-                  />
-                </label>
-              ))
-            : schema.map((item, index) =>
-                item.name && item.name != "id" ? (
-                  <label
-                    className="flex items-center justify-between gap-2"
-                    key={index}
-                  >
-                    {item.label ?? item.name}
-                    <input
-                      type="checkbox"
-                      className="rounded-md"
-                      value={item.name as string}
-                      name="columns"
-                      onChange={(e) => {
-                        e.target.checked
-                          ? setCols((prev) => {
-                              let temp = prev;
-                              temp.push(item.name as string);
-                              return temp;
-                            })
-                          : setCols((prev) =>
-                              prev.filter((c) => c != item.name),
-                            );
-                      }}
-                      defaultChecked={true}
-                    />
-                  </label>
-                ) : (
-                  ""
-                ),
-              )}
-        </div>
-        <div className="my-5 flex items-center">
-          <Button disabled={isLoading}>Export</Button>
-        </div>
-      </form>
-    </Modal>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger
+        render={
+          <Button type="button" size="icon" variant="outline">
+            <TableIcon />
+          </Button>
+        }
+      />
+      <DialogContent>
+        <form onSubmit={onSubmit}>
+          <DialogHeader>
+            <DialogTitle>Export</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            {columns.map((column) => (
+              <Label
+                key={column.value}
+                className="flex cursor-pointer items-center justify-between gap-2 font-normal"
+              >
+                {toTitleCase(column.label)}
+                <Checkbox
+                  name="columns"
+                  value={column.value}
+                  checked={selectedColumns.includes(column.value)}
+                  onCheckedChange={(checked) =>
+                    toggleColumn(column.value, checked)
+                  }
+                />
+              </Label>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button disabled={isLoading} type="submit">
+              Export
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

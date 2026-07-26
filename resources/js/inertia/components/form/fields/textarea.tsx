@@ -1,5 +1,7 @@
-import React from "react";
+import { Textarea as ShadcnTextarea } from "@/components/ui/textarea";
 import { usePage } from "@inertiajs/react";
+import React from "react";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
 export interface TextareaProps extends React.ComponentProps<"textarea"> {
   name: string;
@@ -9,31 +11,25 @@ export interface TextareaProps extends React.ComponentProps<"textarea"> {
 const Textarea: React.FC<TextareaProps> = ({
   name,
   label,
-  className,
   required = false,
   ...props
 }) => {
-  const errors = usePage().props.errors;
+  const {
+    props: { errors },
+  } = usePage();
   const error = name && errors[name] ? errors[name] : undefined;
 
   return (
-    <div className={className ?? ""}>
-      <label className={"dark:text-white"}>
-        {label}
-        {required ? <span className="text-sm text-red-500">*</span> : ""}
-        <textarea
-          id="OrderNotes"
-          className={
-            className ??
-            "dark:bg-dark-secondary w-full rounded-lg border-gray-200 align-top shadow-sm sm:text-sm"
-          }
-          rows={4}
-          name={name ?? ""}
-          {...props}
-        />
-      </label>
-      {error ? <p className={"text-sm text-red-700"}>{error}</p> : ""}
-    </div>
+    <Field>
+      {label && (
+        <FieldLabel htmlFor={`${name}_id`}>
+          {label}
+          {required && <span className="text-destructive text-sm">*</span>}
+        </FieldLabel>
+      )}
+      <ShadcnTextarea id={`${name}_id`} rows={4} name={name ?? ""} {...props} />
+      {error && <FieldError>{error}</FieldError>}
+    </Field>
   );
 };
 

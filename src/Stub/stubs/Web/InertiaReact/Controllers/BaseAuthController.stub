@@ -38,6 +38,9 @@ class BaseAuthController extends WebController
     {
         $user = $this->userService->login($request->validated(), $this->role, $this->relations);
         if ($user) {
+            Inertia::flash([
+                'success' => trans('site.successfully_logged_in'),
+            ]);
             return redirect()->route('{{user_details_route}}');
         } else {
             return Inertia::flash([
@@ -51,6 +54,9 @@ class BaseAuthController extends WebController
         $user = $this->userService->updateUserDetails($request->validated(), $this->role, $this->relations);
 
         if ($user) {
+            Inertia::flash([
+                'success' => trans('site.update_successfully'),
+            ]);
             return redirect()->route('{{user_details_route}}');
         } else {
             return Inertia::flash([
@@ -78,6 +84,9 @@ class BaseAuthController extends WebController
     {
         $result = $this->userService->passwordResetRequest($request->validated()['email']);
         if ($result) {
+            Inertia::flash([
+                'success' => trans('site.email_verification_code_sent'),
+            ]);
             return Inertia::render('{{reset_password_code_form_page_name}}');
         } else {
             return Inertia::flash([
@@ -89,6 +98,9 @@ class BaseAuthController extends WebController
     public function validateResetPasswordCode(CheckPasswordResetRequest $request)
     {
         $request->validated();
+        Inertia::flash([
+            'success' => trans('site.code_correct'),
+        ]);
         return redirect()->route('{{password_reset_page_route}}');
     }
 
@@ -98,6 +110,9 @@ class BaseAuthController extends WebController
         $result = $this->userService->passwordReset($data['reset_password_code'], $data['password']);
 
         if ($result) {
+            Inertia::flash([
+                'success' => trans('site.password_changed_successfully')
+            ]);
             return redirect()->route('{{login_page_route}}');
         } else {
             return Inertia::flash([
@@ -110,6 +125,9 @@ class BaseAuthController extends WebController
     {
         $user = $this->userService->register($request->validated(), $this->role);
         if ($user) {
+            Inertia::flash([
+                'success' => trans('site.registered_successfully'),
+            ]);
             return redirect()->route('{{user_details_route}}');
         } else {
             return Inertia::flash([
@@ -121,6 +139,9 @@ class BaseAuthController extends WebController
     public function logout()
     {
         $this->userService->logout();
+        Inertia::flash([
+            'success' => trans('site.logout_success'),
+        ]);
         return redirect()->route("{{login_page_route}}");
     }
 }

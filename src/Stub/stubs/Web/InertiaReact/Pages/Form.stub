@@ -1,15 +1,15 @@
 import { useForm } from "@inertiajs/react";
-import { FormEvent } from "react";
 import PageCard from "@/components/ui/page-card";
 import Form from "@/components/form/form";
 {{imports}}
 
 const {{component_name}} = ({{component_props}}) => {
-    const { post, setData, processing } = useForm<{
+    const { post, setData, processing } = useForm<
+        Partial<{
         {{form_field_interface}}
-    }>({{default_values}});
+    }>>({{default_values}});
 
-    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const onSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         {{set_put}}
         {{action}}

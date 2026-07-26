@@ -205,11 +205,16 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
         $modelVariable = $this->getOwnerTable()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            "Gallery",
+            "DetailItem",
             $this->labelNaming(),
-            "{$modelVariable}{$nullable}.{$this->name}?.url",
+            "<Gallery sources={[{$modelVariable}{$nullable}.{$this->name}?.url]} />",
             [
-                new TsImportString("Gallery", "@/components/show/gallery")
+                new TsImportString("Gallery", "@/components/ui/gallery"),
+                new TsImportString("DetailItem", "@/components/ui/detail-item")
+            ],
+            [
+                "className" => '"md:col-span-2"',
+                'orientation' => '"vertical"',
             ]
         );
     }

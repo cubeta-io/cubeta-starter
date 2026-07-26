@@ -12,6 +12,7 @@ use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
@@ -193,18 +194,71 @@ class FileUtils
         $filePath->format();
     }
 
-    public static function tsAddImportStatement(string $importStatement, CubePath $filePath): void
+    public static function tsAddImportStatement(TsImportString $import, CubePath $filePath): void
     {
-        if (self::contentExistInFile($filePath, $importStatement)) {
+        if (self::contentExistInFile($filePath, $import)) {
             return;
         }
 
+
         $fileContent = $filePath->getContent();
-        $fileContent = "\n{$importStatement}\n{$fileContent}";
+
+        if (self::tsImportExists($fileContent, $import)) {
+            CubeLog::contentAlreadyExists($import , $filePath);
+            return;
+        }
+
+        $fileContent = "\n{$import}\n{$fileContent}";
         $filePath->putContent($fileContent);
         $filePath->format();
     }
 
+    public static function tsImportExists(string $fileContent, TsImportString $tsImport): bool
+    {
+        // Normalize line endings so multiline imports are handled consistently
+        $content = str_replace(["\r\n", "\r"], "\n", $fileContent);
+
+        $from = preg_quote($tsImport->from, '/');
+
+        // Case 1: Side-effect import → import "path";
+        if ($tsImport->import === null) {
+            $pattern = '/^\s*import\s+["\']' . $from . '["\']\s*;?/m';
+            return preg_match($pattern, $content) === 1;
+        }
+
+        $import = preg_quote($tsImport->import, '/');
+
+        // Case 2: Default import → import Name from "path";
+        if ($tsImport->default) {
+            $pattern = '/^\s*import\s+' . $import . '\s+from\s+["\']' . $from . '["\']\s*;?/m';
+            return preg_match($pattern, $content) === 1;
+        }
+
+        // Case 3: Named import → import { Name } from "path";
+        // Also handles multiline and mixed imports like: import { A, Name, B } from "path";
+        $pattern = '/^\s*import\s*(?:type\s+)?\{\s*([^}]*)\s*\}\s*from\s+["\']' . $from . '["\']\s*;?/m';
+
+        if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER) === false) {
+            return false;
+        }
+
+        foreach ($matches as $match) {
+            // Split by comma and check each imported name
+            $importsInBraces = array_map('trim', explode(',', $match[1]));
+
+            foreach ($importsInBraces as $imp) {
+                // Strip potential aliases: "Name as Alias" → "Name"
+                $parts = preg_split('/\s+as\s+/i', $imp);
+                $actualName = trim($parts[0]);
+
+                if ($actualName === $tsImport->import) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     /**
      * check if content exists in a file

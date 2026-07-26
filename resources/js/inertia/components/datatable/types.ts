@@ -27,7 +27,7 @@ export interface TableData<ApiResponse, Data> {
   importExampleRoute?: string;
   exportRoute?: string;
   exportables?: string[];
-  getDataArray: (res: ApiResponse) => Data[]|undefined;
+  getDataArray: (res: ApiResponse) => Data[] | undefined;
   getTotalPages: (res: ApiResponse) => number;
   getNextPage?: (res: ApiResponse) => number;
   getPreviousPage?: (res: ApiResponse) => number;
@@ -45,29 +45,7 @@ export interface TableData<ApiResponse, Data> {
   schema: TableSchema<Data>[];
   filter?: (
     params: FilterParam,
-    setParams: (
-      value: ((prevState: FilterParam) => FilterParam) | FilterParam,
-    ) => void,
-  ) => ReactNode | React.JSX.Element | undefined | null;
-}
-
-export interface TableActionsProps {
-  createUrl?: string;
-  search: string;
-  perPage: number;
-  importable: boolean;
-  exportable: boolean;
-  setPerPage: (value: number | ((prev: number) => number)) => void;
-  setPage: (value: number | ((prev: number) => number)) => void;
-  setOpenFilter: (value: boolean | ((prev: boolean) => boolean)) => void;
-  setSearch: (value: string | ((prev: string) => string)) => void;
-  setOpenImport: (value: boolean | ((prev: boolean) => boolean)) => void;
-  setOpenExport: (value: boolean | ((prev: boolean) => boolean)) => void;
-  filter?: (
-    params: FilterParam,
-    setParams: (
-      value: ((prevState: FilterParam) => FilterParam) | FilterParam,
-    ) => void,
+    setParams: (key: string, value: Json) => void,
   ) => ReactNode | React.JSX.Element | undefined | null;
 }
 
@@ -98,3 +76,11 @@ export interface TablePaginatorProps<ApiResponse> {
   isFirst?: (response: ApiResponse) => boolean;
   isLast?: (response: ApiResponse) => boolean;
 }
+
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];

@@ -1,80 +1,99 @@
-import { FormEvent } from "react";
-import Modal from "@/components/ui/modal";
 import Input from "@/components/form/fields/input";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useForm } from "@inertiajs/react";
-import Button from "@/components/ui/button";
+import { useState } from "react";
 import useDownloadFile from "@/hooks/use-download-file";
+import { DownloadIcon, Loader } from "lucide-react";
 
-const ImportModal = ({
-  openImport,
-  setOpenImport,
-  revalidate,
-  importRoute,
-  importExampleRoute,
-}: {
-  openImport: boolean;
-  setOpenImport: (value: boolean | ((prev: boolean) => boolean)) => void;
+interface ImportModalProps {
   revalidate: () => void;
   importRoute: string;
   importExampleRoute?: string;
-}) => {
-  const { post, setData, errors, processing } = useForm<{
+}
+
+const ImportModal = ({
+  revalidate,
+  importRoute,
+  importExampleRoute,
+}: ImportModalProps) => {
+  const [open, setOpen] = useState(false);
+
+  const { post, setData, processing } = useForm<{
     excel_file?: File;
   }>();
 
   const { isLoading, downloadFile } = useDownloadFile();
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = () => {
     post(importRoute, {
       onSuccess: () => {
         if (!processing && !isLoading) {
           revalidate();
-          setOpenImport(false);
+          setOpen(false);
           setData("excel_file", undefined);
         }
       },
     });
   };
+
   return (
-    <Modal
-      isOpen={openImport}
-      onClose={() => {
-        if (!isLoading && !processing) {
-          setOpenImport(false);
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger
+        render={
+          <Button type="button" size="icon" variant="secondary">
+            <DownloadIcon />
+          </Button>
         }
-      }}
-    >
-      <form onSubmit={onSubmit}>
-        <label className={"dark:text-white"}>
-          Excel File
-          <Input
-            name={"excel_file"}
-            type="file"
-            onChange={(e) => {
-              setData("excel_file", e.target.files?.[0]);
-            }}
-          />
-        </label>
-        <div className="my-5 flex items-center gap-2">
-          <Button type="submit" disabled={processing}>
+      />
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Import from excel file</DialogTitle>
+        </DialogHeader>
+        <Input
+          name="excel_file"
+          type="file"
+          label="Excel File"
+          onChange={(e) => {
+            setData("excel_file", e.target.files?.[0]);
+          }}
+        />
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="button" disabled={processing} onClick={onSubmit}>
             Import
+            {processing && <Loader className={"animate-spin"} />}
           </Button>
           {importExampleRoute && (
             <Button
-              color="secondary"
               type="button"
-              onClick={() => {
-                downloadFile(() => fetch(importExampleRoute));
-              }}
+              variant="secondary"
               disabled={isLoading}
+              onClick={async () => {
+                await downloadFile(() => fetch(importExampleRoute));
+                setOpen(false);
+              }}
             >
-              Get Import Example
+              Get import example
+              {isLoading && <Loader className={"animate-spin"} />}
             </Button>
           )}
-        </div>
-      </form>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

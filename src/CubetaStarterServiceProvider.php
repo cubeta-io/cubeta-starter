@@ -204,7 +204,6 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             __DIR__ . '/../pint.json' => base_path('pint.json'),
             __DIR__ . '/../.prettierignore' => base_path('.prettierignore'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
-            __DIR__ . '/../src/Stub/stubs/Web/InertiaReact/Config/TsConfig.stub' => base_path('/tsconfig.json'),
             __DIR__ . '/../src/Stub/stubs/Web/InertiaReact/Config/ViteConfig.stub' => base_path('/vite.config.js'),
 
             __DIR__ . '/../resources/js/inertia/components' => resource_path('/js/components'),

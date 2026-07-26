@@ -110,8 +110,7 @@ class FormPageStubBuilder extends TypescriptFileBuilder
                 fn(Stringable $str) => $str->wrap("{", "}")
             ),
             "{{fields}}" => $fields,
-            '{{form_field_interface}}' => str(implode("\n", $this->formFieldsInterface))
-                ->replaceMatches('/Media\s*\|/', 'File|'),
+            '{{form_field_interface}}' => implode("\n", $this->formFieldsInterface),
         ];
     }
 }

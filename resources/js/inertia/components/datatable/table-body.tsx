@@ -1,6 +1,11 @@
-import { translate } from "@/models/translatable";
-import { getNestedPropertyValue } from "@/helper";
 import { TableBodyProps } from "@/components/datatable/types";
+import { getNestedPropertyValue } from "@/helper";
+import { translate } from "@/models/translatable";
+import {
+  TableBody as ShadcnTableBody,
+  TableCell,
+  TableRow,
+} from "@/components/ui/table";
 
 function TableBody<Data>({
   tableSchema,
@@ -10,109 +15,87 @@ function TableBody<Data>({
   hidden = [],
 }: TableBodyProps<Data>) {
   return (
-    <tbody>
+    <ShadcnTableBody>
       {data?.length ? (
-        data?.map((item: any, index: any) => {
-          if (!hidden.includes(item.id ?? index)) {
-            return (
-              <tr
-                key={`${index}-${item.label}`}
-                className={`hover:opacity-50 dark:text-white`}
-              >
-                {tableSchema.map((schema, index) => {
-                  if (!schema.render && schema.name) {
-                    return (
-                      <td
-                        key={`${schema.label} - ${index}`}
-                        className={
-                          schema.cellProps?.className ??
-                          "whitespace-nowrap px-4 py-2 font-medium"
-                        }
-                        {...schema.cellProps}
-                      >
-                        {schema?.translatable
-                          ? translate(
-                              getNestedPropertyValue(
-                                item,
-                                schema.name as string,
-                              ),
-                            )
-                          : (getNestedPropertyValue(
-                              item,
-                              schema.name as string,
-                            ) ?? "No Data")}
-                      </td>
-                    );
-                  } else if (schema.render && schema.name) {
-                    return (
-                      <td
-                        key={`${schema.label} - ${index}`}
-                        className={
-                          schema.cellProps?.className ??
-                          "font-mediums whitespace-nowrap px-4 py-2"
-                        }
-                        {...schema.cellProps}
-                      >
-                        {schema.render(
-                          schema?.translatable
-                            ? translate(
-                                getNestedPropertyValue(
-                                  item,
-                                  schema.name as string,
-                                ),
-                              )
-                            : (getNestedPropertyValue(
-                                item,
-                                schema.name as string,
-                              ) ?? "No Data"),
-                          item,
-                          setHidden,
-                          revalidate,
-                        )}
-                      </td>
-                    );
-                  } else if (schema.render) {
-                    return (
-                      <td
-                        key={`${schema.label} - ${index}`}
-                        className={
-                          schema.cellProps?.className ??
-                          "whitespace-nowrap px-4 py-2 font-medium"
-                        }
-                        {...schema.cellProps}
-                      >
-                        {schema.render(undefined, item, setHidden, revalidate)}
-                      </td>
-                    );
-                  } else
-                    return (
-                      <td
-                        key={index}
-                        className={
-                          schema.cellProps?.className ??
-                          "whitespace-nowrap px-4 py-2 font-medium"
-                        }
-                        {...schema.cellProps}
-                      >
-                        No Data
-                      </td>
-                    );
-                })}
-              </tr>
-            );
+        data.map((item: any, index: any) => {
+          if (hidden.includes(item.id ?? index)) {
+            return null;
           }
+
+          return (
+            <TableRow key={`${index}-${item.label}`}>
+              {tableSchema.map((schema, schemaIndex) => {
+                const key = `${schema.label}-${schemaIndex}`;
+                const cellClassName =
+                  schema.cellProps?.className ??
+                  "whitespace-nowrap px-4 py-2 font-medium";
+
+                const value = schema.name
+                  ? schema.translatable
+                    ? translate(
+                        getNestedPropertyValue(item, schema.name as string),
+                      )
+                    : (getNestedPropertyValue(item, schema.name as string) ??
+                      "No Data")
+                  : undefined;
+
+                if (!schema.render && schema.name) {
+                  return (
+                    <TableCell
+                      key={key}
+                      className={cellClassName}
+                      {...schema.cellProps}
+                    >
+                      {value}
+                    </TableCell>
+                  );
+                }
+
+                if (schema.render && schema.name) {
+                  return (
+                    <TableCell
+                      key={key}
+                      className={cellClassName}
+                      {...schema.cellProps}
+                    >
+                      {schema.render(value, item, setHidden, revalidate)}
+                    </TableCell>
+                  );
+                }
+
+                if (schema.render) {
+                  return (
+                    <TableCell
+                      key={key}
+                      className={cellClassName}
+                      {...schema.cellProps}
+                    >
+                      {schema.render(undefined, item, setHidden, revalidate)}
+                    </TableCell>
+                  );
+                }
+
+                return (
+                  <TableCell
+                    key={key}
+                    className={cellClassName}
+                    {...schema.cellProps}
+                  >
+                    No Data
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          );
         })
       ) : (
-        <tr>
-          <td
-            colSpan={tableSchema.length}
-            className={"p-3 text-center dark:text-white"}
-          >
+        <TableRow>
+          <TableCell colSpan={tableSchema.length} className="p-3 text-center">
             No Data
-          </td>
-        </tr>
+          </TableCell>
+        </TableRow>
       )}
-    </tbody>
+    </ShadcnTableBody>
   );
 }
 

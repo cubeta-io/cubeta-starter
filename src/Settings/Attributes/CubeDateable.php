@@ -163,11 +163,11 @@ class CubeDateable extends CubeAttribute implements HasFakeMethod,
         $modelVariable = $this->getOwnerTable()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            "SmallTextField",
+            "DetailItem",
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name}",
             [
-                new TsImportString("SmallTextField", "@/components/show/small-text-field")
+                new TsImportString("DetailItem", "@/components/ui/detail-item")
             ]
         );
     }

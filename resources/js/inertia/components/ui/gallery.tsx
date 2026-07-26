@@ -1,4 +1,4 @@
-import ImagePreview from "@/components/show/image-preview";
+import ImagePreview from "@/components/ui/image-preview";
 
 const Gallery = ({
   sources,
@@ -6,9 +6,7 @@ const Gallery = ({
   sources: (string | undefined)[] | undefined;
 }) => {
   return (
-    <div
-      className={`dark:bg-dark grid w-full grid-cols-4 gap-5 dark:text-white`}
-    >
+    <div className={`grid w-full grid-cols-1 gap-5 md:grid-cols-4`}>
       {sources?.map(
         (img: string | undefined, index) =>
           img && (

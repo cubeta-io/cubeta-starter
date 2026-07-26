@@ -22,7 +22,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactT
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use JetBrains\PhpStorm\ExpectedValues;
 
-class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent,HasReactTsInputString
+class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent, HasReactTsInputString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -106,7 +106,7 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
                     "value" => "\${$modelVariable}->{$this->name}?->format('H:i')"
                 ],
                 [
-                    "key" => 'label' ,
+                    "key" => 'label',
                     'value' => $label
                 ]
             ]
@@ -123,6 +123,10 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
             [
                 'key' => 'onChange',
                 'value' => "(e) => setData(\"{$this->name}\", e.target?.value)"
+            ],
+            [
+                'key' => 'className',
+                'value' => '"appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden"'
             ]
         ];
 
