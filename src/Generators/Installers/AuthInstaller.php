@@ -644,5 +644,6 @@ class AuthInstaller extends AbstractGenerator
             . $content;
 
         $cubetaStarter->putContent($content);
+        $cubetaStarter->format();
     }
 }

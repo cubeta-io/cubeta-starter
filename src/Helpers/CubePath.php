@@ -58,9 +58,7 @@ class CubePath
     {
         if (str($this->fileName)->contains('.blade.php')) {
             FileUtils::formatWithPrettier($this->fullPath);
-        }
-
-        if ($this->getFileExtension() == "php") {
+        } elseif ($this->getFileExtension() == "php") {
             FileUtils::formatWithPint($this->fullPath);
         } else {
             FileUtils::formatWithPrettier($this->fullPath);
