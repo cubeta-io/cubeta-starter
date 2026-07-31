@@ -13,3 +13,8 @@ yarn-error.log
 /.idea
 /.vscode
 /test-files
+
+# VitePress docs
+/docs/node_modules
+/docs/.vitepress/dist
+/docs/.vitepress/cache
