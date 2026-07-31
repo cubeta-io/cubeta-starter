@@ -2,6 +2,63 @@
 
 # **Changelog :**
 
+## **V 5.0.0**
+
+This is a major release that upgrades the whole stack to `Laravel 13` and rebuilds the generated React
+
+dashboard on top of `shadcn/ui`. Because of the framework bump and the frontend rewrite it is a breaking
+
+change, so we made it a major version.
+
+### **What's new**
+
+1. Adding support for `Laravel 13` and dropping support for previous versions (now requires `PHP 8.3+`).
+2. The generated React/Inertia dashboard is now built on top of `shadcn/ui` , so you get a full set of
+   accessible, themeable UI primitives (`dialog` , `drawer` , `sidebar` , `select` , `calendar` , `popover` ,
+   `dropdown-menu` , `tabs` , `card` , `chart` and more) published straight into your project.
+3. A `components.json` file is now generated so you can pull additional `shadcn` components into your project
+   using the `shadcn` CLI.
+4. Introducing light/dark mode out of the box through a new `theme-provider` (powered by `next-themes`) with a
+   ready-made theme toggle in the dashboard header.
+5. Toast notifications now use `sonner` via a dedicated `toaster-provider` , replacing the old
+   `react-toastify` / `sweetalert2` setup.
+6. Introducing the `SerializedMedia` serializer and a new `MediaValidationRule` to standardize how uploaded
+   files are validated and represented across requests, resources and the frontend.
+7. New form field components generated for the dashboard, including a `date-picker` (backed by
+   `react-day-picker`), `checkbox` , `radio` , `textarea` and reworked translatable inputs.
+8. A new `FormLocaleProvider` replaces the old translatable inputs context to manage the active locale of
+   translatable fields inside your forms.
+
+### **What has been improved**
+
+1. Upgraded the frontend toolchain: `Inertia React 3` , `Vite 8` , `TypeScript 7` and `Tailwind CSS 4.3` , with
+   `lucide-react` icons replacing the hand-written icon components.
+2. Generated Models now use the `#[Fillable]` attribute instead of the `$fillable` array, matching Laravel 13
+   conventions and keeping model classes cleaner.
+3. Auth flashes and redirects now use Inertia flash data instead of session flashes for a smoother SPA
+   experience, and the auth screens ship with a dedicated `AuthLayout` .
+4. The `config/cubeta-starter.php` paths now use `join_paths()` so generation works consistently across
+   operating systems.
+5. Command execution inside the generator now runs through `proc_open` instead of `shell_exec` , capturing both
+   stdout and stderr and streaming output in real time for more reliable installs.
+6. Improved log handling and caching in the generation engine for more reliable and readable output.
+7. Added richer static-analysis annotations (`#[ExpectedValues]` , `#[FileReference]`) across the source for a
+   better developer experience when contributing to or extending the package.
+8. Standardized all generated frontend file and import paths to lowercase for consistency.
+
+### **Fixing some bugs**
+
+1. Fixed `ApiSelect` typing and its handling of multiple-selection updates.
+2. Fixed media handling and file serialization edge cases in the generated resources and casts.
+3. Various fixes across the generated Inertia pages, auth screens and dashboard components.
+
+### **Notes / breaking changes**
+
+1. The `cubeta-starter-templates` publish tag and its template-customization workflow have been removed.
+2. The `policy_path` / `policy_namespace` config entries were removed from `config/cubeta-starter.php` .
+3. Because of the `shadcn/ui` rewrite, previously published dashboard components live under new lowercase
+   paths , so re-publish the frontend assets when upgrading an existing project.
+
 ## **V 4.0.0**
 
 This version basically is a rewrite for the package and it was a massive rewrite so for that we make it a major
