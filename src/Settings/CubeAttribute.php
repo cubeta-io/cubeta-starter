@@ -208,9 +208,10 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
     }
 
     /**
+     * get the table that this attribute belongs to
      * @return CubeTable
      */
-    public function getOwnerTable(): CubeTable
+    public function table(): CubeTable
     {
         return Settings::make()->getTable($this->parentTableName) ?? CubeTable::create($this->parentTableName);
     }
@@ -257,7 +258,7 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
         $rules = [new ValidationRuleString($this->nullable ? 'nullable' : 'required')];
 
         if ($this->unique) {
-            $routeParameter = $this->getOwnerTable()->routeParameterNaming();
+            $routeParameter = $this->table()->routeParameterNaming();
             $rules[] = new ValidationRuleString(
                 "Rule::unique('{$this->parentTableName}','{$this->name}')->when(\$this->isMethod('PUT'), fn(\$rule) => \$rule->ignore(\$this->route('$routeParameter')))",
                 [new PhpImportString("Illuminate\Validation\Rule")]
@@ -276,7 +277,7 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
 
     public function bladeDisplayComponent(): DisplayComponentString
     {
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
         $modelVariable = $table->variableNaming();
         $label = $this->labelNaming();
         return new DisplayComponentString(

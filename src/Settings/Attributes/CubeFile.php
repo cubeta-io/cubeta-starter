@@ -130,7 +130,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
 
     public function bladeDisplayComponent(): DisplayComponentString
     {
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
         $modelVariable = $table->variableNaming();
         return new DisplayComponentString(
             "x-image-preview",
@@ -179,30 +179,38 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
 
     public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
+        $props = [
+            [
+                'key' => 'onChange',
+                'value' => "(file) => setData(\"{$this->name}\", file)"
+            ],
+            [
+                'key' => 'acceptedFileTypes',
+                'value' => "['image/*']"
+            ],
+        ];
+
+        if ($formType == "update") {
+            $props[] = [
+                'key' => 'defaultValue',
+                'value' => "{$this->table()->variableNaming()}.{$this->name}"
+            ];
+        }
         return new TsxInputComponentString(
-            "Input",
+            "FilepondInput",
             $this->name,
             $this->titleNaming(),
             $this->isRequired,
+            $props,
             [
-                [
-                    'key' => 'onChange',
-                    'value' => "(e) => setData(\"{$this->name}\", e.target.files?.[0])"
-                ],
-                [
-                    'key' => 'type',
-                    'value' => "'file'"
-                ]
-            ],
-            [
-                new TsImportString("Input", "@/components/form/fields/input")
+                new TsImportString("Input", "@/components/form/fields/filepond/filepond-input")
             ]
         );
     }
 
     public function displayComponentString(): ReactTsDisplayComponentString
     {
-        $modelVariable = $this->getOwnerTable()->variableNaming();
+        $modelVariable = $this->table()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
             "DetailItem",

@@ -100,7 +100,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
     {
         $attributes = [];
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
 
         if ($formType == "update") {
             $attributes[] = [
@@ -150,7 +150,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
 
     public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsInputComponentString
     {
-        $variableName = $this->getOwnerTable()->variableNaming();
+        $variableName = $this->table()->variableNaming();
         $labels = $this->booleanLabels();
         $attributes = [
             [
@@ -191,7 +191,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
 
     public function displayComponentString(): ReactTsDisplayComponentString
     {
-        $modelVariable = $this->getOwnerTable()->variableNaming();
+        $modelVariable = $this->table()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
             "DetailItem",

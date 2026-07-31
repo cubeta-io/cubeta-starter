@@ -69,6 +69,13 @@ class ReactTsPackagesInstaller extends AbstractGenerator
             "@tiptap/extension-youtube",
             "@tiptap/react",
             "@tiptap/starter-kit",
+            // filepond
+            "filepond",
+            "filepond-plugin-file-poster",
+            "filepond-plugin-file-validate-type",
+            "filepond-plugin-image-exif-orientation",
+            "filepond-plugin-image-preview",
+            "react-filepond",
         ]);
 
         $this->configurePrettier();

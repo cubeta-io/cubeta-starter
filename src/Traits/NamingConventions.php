@@ -29,8 +29,10 @@ trait NamingConventions
     }
 
     /**
-     * return the variable name from the model name
-     * if string provided the result will be base on the given string else on the modelName property of the class
+     *  return the variable name from the model name
+     *  if string provided, the result will be base on the given string else on the modelName property of the class
+     * @param string|null $name
+     * @return string
      */
     public function variableNaming(?string $name = null): string
     {

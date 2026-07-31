@@ -6,11 +6,23 @@ import { SiteHeader } from "@/components/dashboard/navbar/site-header";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/providers/theme-provider";
 import ToasterProvider from "@/providers/toaster-provider";
+import { registerPlugin } from "filepond";
+import FilePondPluginFilePoster from "filepond-plugin-file-poster";
+import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
+import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 
 const Layout = ({ children }: { children?: React.ReactNode }) => {
   const {
     props: { currentLocale },
   } = usePage();
+
+  registerPlugin(
+    FilePondPluginImageExifOrientation,
+    FilePondPluginImagePreview,
+    FilePondPluginFileValidateType,
+    FilePondPluginFilePoster,
+  );
 
   return (
     <ThemeProvider defaultTheme={"system"}>

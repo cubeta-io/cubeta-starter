@@ -2,6 +2,24 @@
 
 # **Changelog :**
 
+## **V 5.0.2**
+
+### **What's new**
+
+1. Introducing a new `FilepondInput` file field for the React/Inertia dashboard, built on top of
+   `FilePond`, which replaces the previous plain file `Input` used for file columns. It comes with:
+    - Drag-and-drop uploads with image previews and file posters
+    - Single or multiple file selection via the `isMultiple` prop
+    - Accepted file-type restrictions via the `acceptedFileTypes` prop (defaults to common image types)
+    - Automatic hydration of existing `Media` values on edit forms, so already-uploaded files show up in
+      the field
+    - Standard field styling, label and validation error handling consistent with the other form fields
+2. File columns now generate the `FilepondInput` component instead of a basic file input, and edit forms
+   pre-fill the field with the current media.
+3. The required FilePond plugins (image preview, file poster, file-type validation and EXIF orientation)
+   are registered automatically in the dashboard layout, and all `filepond` / `react-filepond` packages
+   are installed automatically by the React/TS packages installer.
+
 ## **V 5.0.1**
 
 ### **What's new**
