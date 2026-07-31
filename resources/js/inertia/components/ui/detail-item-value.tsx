@@ -5,15 +5,19 @@ import { FieldDescription } from "@/components/ui/field";
 interface ValueProps extends React.ComponentProps<typeof FieldDescription> {
   value?: unknown;
   children?: ReactNode;
+  html?: boolean;
 }
 
 export const DetailItemValue: React.FC<ValueProps> = ({
   value,
   children,
+  html,
   ...props
 }) => {
   let showedValue = value;
-  if (value === undefined || value === null) {
+  if (typeof value == "string" && html) {
+    showedValue = <div dangerouslySetInnerHTML={{ __html: value }} />;
+  } else if (value === undefined || value === null) {
     showedValue = <Badge>{"No data"}</Badge>;
   } else if (value === 0 || Number.isNaN(value)) {
     showedValue = 0;

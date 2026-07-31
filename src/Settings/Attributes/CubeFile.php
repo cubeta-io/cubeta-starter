@@ -203,7 +203,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
             $this->isRequired,
             $props,
             [
-                new TsImportString("Input", "@/components/form/fields/filepond/filepond-input")
+                new TsImportString("FilepondInput", "@/components/form/fields/filepond/filepond-input")
             ]
         );
     }

@@ -34,20 +34,20 @@ class ReactTsPackagesInstaller extends AbstractGenerator
 
         //install js packages
         PackageManager::npmInstall([
-            'react',
-            'react-dom',
-            '@types/react',
-            '@types/react-dom',
+            'laravel-vite-plugin',
             '@inertiajs/react',
             "@inertiajs/vite",
-            '@vitejs/plugin-react',
             'tailwindcss',
             "@tailwindcss/vite",
+            '@types/node',
+            '@types/react',
+            '@types/react-dom',
+            '@vitejs/plugin-react',
+            'react',
+            'react-dom',
             'typescript',
             "vite",
-            'laravel-vite-plugin',
-            '@types/node',
-            //tiptap packages
+            //tiptap
             "@tiptap/extension-blockquote",
             "@tiptap/extension-bullet-list",
             "@tiptap/extension-character-count",

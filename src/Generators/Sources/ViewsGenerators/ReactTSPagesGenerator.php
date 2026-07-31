@@ -166,7 +166,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 }
 
                 if ($attr instanceof HasReactTsInputString) {
-                    if ($attr->isText() || $attr->isTextable()) {
+                    if ($attr->isText() || $attr->isTextable() || $attr->isFile()) {
                         $builder->bigField($attr->inputComponent("update", $this->actor));
                     } else {
                         $builder->smallField($attr->inputComponent("update", $this->actor));
@@ -177,7 +177,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                     if ($attr->isFile()) {
                         $builder->formFieldInterface(new InterfacePropertyString(
                             $attr->name,
-                            "Media|File|undefined",
+                            "Media|File|null",
                             true,
                             new TsImportString("Media", "@/models/media")
                         ));
@@ -219,7 +219,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $this->table->attributes()
             ->each(function (CubeAttribute $attr) use ($builder) {
                 if ($attr instanceof HasReactTsInputString) {
-                    if ($attr->isText() || $attr->isTextable()) {
+                    if ($attr->isText() || $attr->isTextable() || $attr->isFile()) {
                         $builder->bigField($attr->inputComponent("store", $this->actor));
                     } else {
                         $builder->smallField($attr->inputComponent("store", $this->actor));
@@ -230,7 +230,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                     if ($attr->isFile()) {
                         $builder->formFieldInterface(new InterfacePropertyString(
                             $attr->name,
-                            "Media|File|undefined",
+                            "Media|File|null",
                             true,
                             new TsImportString("Media", "@/models/media")
                         ));

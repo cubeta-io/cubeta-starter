@@ -45,7 +45,7 @@ function FilepondInput({
   isMultiple: true;
   label?: string;
   acceptedFileTypes?: string[];
-  onChange?: (file: MediaInput[] | undefined) => void;
+  onChange?: (file: MediaInput[] | null) => void;
   defaultValue?: Media[];
   process?: string | ServerUrl | ProcessServerConfigFunction | null;
 }): JSX.Element;
@@ -63,7 +63,7 @@ function FilepondInput({
   isMultiple?: false | undefined;
   label?: string;
   acceptedFileTypes?: string[];
-  onChange?: (file: MediaInput | undefined) => void;
+  onChange?: (file: MediaInput | null) => void;
   defaultValue?: Media;
   process?: string | ServerUrl | ProcessServerConfigFunction | null;
 }): JSX.Element;
@@ -82,8 +82,7 @@ function FilepondInput({
   label?: string;
   acceptedFileTypes?: string[];
   onChange?:
-    | ((file: MediaInput[] | undefined) => void)
-    | ((file: MediaInput | undefined) => void);
+    ((file: MediaInput[] | null) => void) | ((file: MediaInput | null) => void);
   defaultValue?: Media[] | Media;
   process?: string | ServerUrl | ProcessServerConfigFunction | null;
 }): JSX.Element {
@@ -124,12 +123,12 @@ function FilepondInput({
             return;
           }
           if (isMultiple) {
-            (onChange as (file: MediaInput[] | undefined) => void)(
-              value.length > 0 ? value : undefined,
+            (onChange as (file: MediaInput[] | null) => void)(
+              value.length > 0 ? value : null,
             );
           } else {
-            (onChange as (file: MediaInput | undefined) => void)(
-              value.length > 0 ? value[0] : undefined,
+            (onChange as (file: MediaInput | null) => void)(
+              value.length > 0 ? value[0] : null,
             );
           }
         }}

@@ -78,14 +78,18 @@ function ActionsButtons<Data extends Record<string, any>>({
   return (
     <div className="flex items-center justify-start gap-1">
       {buttons.includes("show") && (
-        <Button render={<Link href={sUrl} />} size="icon">
-          <Eye />
-        </Button>
+        <Link href={sUrl}>
+          <Button size="icon">
+            <Eye />
+          </Button>
+        </Link>
       )}
       {buttons.includes("edit") && (
-        <Button render={<Link href={eUrl} />} size="icon" variant="outline">
-          <Pencil />
-        </Button>
+        <Link href={eUrl}>
+          <Button size="icon" variant="outline">
+            <Pencil />
+          </Button>
+        </Link>
       )}
 
       {buttons.includes("delete") && (
