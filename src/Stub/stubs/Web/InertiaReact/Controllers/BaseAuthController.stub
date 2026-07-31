@@ -38,10 +38,14 @@ class BaseAuthController extends WebController
     {
         $user = $this->userService->login($request->validated(), $this->role, $this->relations);
         if ($user) {
+            Inertia::flash([
+                'success' => trans('site.successfully_logged_in'),
+            ]);
             return redirect()->route('{{user_details_route}}');
         } else {
-            session()->flash('error', trans('site.credentials_not_match_records'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.credentials_not_match_records')
+            ])->back();
         }
     }
 
@@ -50,10 +54,14 @@ class BaseAuthController extends WebController
         $user = $this->userService->updateUserDetails($request->validated(), $this->role, $this->relations);
 
         if ($user) {
+            Inertia::flash([
+                'success' => trans('site.update_successfully'),
+            ]);
             return redirect()->route('{{user_details_route}}');
         } else {
-            session()->flash('error', trans('site.something_went_wrong'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
@@ -66,8 +74,9 @@ class BaseAuthController extends WebController
                 'user' => UserResource::make($user),
             ]);
         } else {
-            session()->flash('error', trans('site.something_went_wrong'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
@@ -75,16 +84,23 @@ class BaseAuthController extends WebController
     {
         $result = $this->userService->passwordResetRequest($request->validated()['email']);
         if ($result) {
+            Inertia::flash([
+                'success' => trans('site.email_verification_code_sent'),
+            ]);
             return Inertia::render('{{reset_password_code_form_page_name}}');
         } else {
-            session()->flash('error', trans('site.something_went_wrong'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
     public function validateResetPasswordCode(CheckPasswordResetRequest $request)
     {
         $request->validated();
+        Inertia::flash([
+            'success' => trans('site.code_correct'),
+        ]);
         return redirect()->route('{{password_reset_page_route}}');
     }
 
@@ -94,10 +110,14 @@ class BaseAuthController extends WebController
         $result = $this->userService->passwordReset($data['reset_password_code'], $data['password']);
 
         if ($result) {
+            Inertia::flash([
+                'success' => trans('site.password_changed_successfully')
+            ]);
             return redirect()->route('{{login_page_route}}');
         } else {
-            session()->flash('error', trans('site.something_went_wrong'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
@@ -105,16 +125,23 @@ class BaseAuthController extends WebController
     {
         $user = $this->userService->register($request->validated(), $this->role);
         if ($user) {
+            Inertia::flash([
+                'success' => trans('site.registered_successfully'),
+            ]);
             return redirect()->route('{{user_details_route}}');
         } else {
-            session()->flash('error', trans('site.something_went_wrong'));
-            return redirect()->back();
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
     public function logout()
     {
         $this->userService->logout();
+        Inertia::flash([
+            'success' => trans('site.logout_success'),
+        ]);
         return redirect()->route("{{login_page_route}}");
     }
 }

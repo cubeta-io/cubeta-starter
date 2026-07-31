@@ -1,0 +1,233 @@
+<?php
+
+namespace App\Serializers;
+
+use Exception;
+use Stringable;
+use JsonSerializable;
+use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
+use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Contracts\Support\Arrayable;
+use function Illuminate\Filesystem\join_paths;
+
+class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringable
+{
+    private string $storagePath;
+    public readonly string $extension;
+    public readonly string $mimeType;
+    public readonly int $size;
+    public readonly string $dir;
+    public readonly bool $private;
+
+    /**
+     * @param UploadedFile|array{storage_path:string,extension:string,mime_type:string,size:int, path:string} $file
+     */
+    public function __construct(
+        UploadedFile|array $file,
+        ?string            $dir = null,
+        bool               $private = false,
+    )
+    {
+        $this->dir = $dir ?? "";
+        $this->private = $private;
+
+        if (self::isMediaArray($file)) {
+            $this->storagePath = $file['storage_path'];
+            $this->extension = $file['extension'];
+            $this->mimeType = $file['mime_type'];
+            $this->size = intval($file['size']);
+        } else {
+            $this->storagePath = $this->storeFile($file);
+            $this->size = round(($file->getSize() ?? 0) / 1024);
+            $this->extension = $this->guessExtension();
+            $this->mimeType = $file->getMimeType();
+        }
+    }
+
+    private function storeFile(UploadedFile $file): string
+    {
+        // Get base name from original client file
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+
+        // Normalize aggressively
+        $filenameOnly = str($originalName)
+            ->lower()
+            ->ascii() // removes unicode
+            ->replaceMatches('/[^a-z0-9\-_]/', '-') // force safe chars only
+            ->replaceMatches('/-+/', '-') // collapse repeats
+            ->trim('-')
+            ->limit(80, '') // prevent filesystem/path issues
+            ->toString();
+
+        // fallback if empty
+        if (empty($filenameOnly)) {
+            $filenameOnly = Str::random(16);
+        }
+
+        $extension = $file->extension();
+
+        if (empty($extension)) {
+            $extension = $file->getClientOriginalExtension();
+        }
+
+        // final safety check: only allow safe extension format
+        $extension = preg_replace('/[^a-z0-9]/', '', strtolower($extension));
+
+        // final filename
+        $finalFileName = $filenameOnly . '.' . $extension;
+
+        // extra safety: prevent hidden files or weird edge cases
+        $finalFileName = ltrim($finalFileName, '.');
+
+        return $file->storeAs(
+            join_paths($this->dir, Str::uuid()->toString()),
+            $finalFileName,
+            [
+                'disk' => $this->private ? 'local' : 'public',
+            ],
+        );
+
+    }
+
+    public static function isMediaArray(mixed $value): bool
+    {
+        if (!is_array($value)) {
+            return false;
+        }
+
+        return isset($value['storage_path'])
+            && isset($value['extension'])
+            && isset($value['mime_type'])
+            && isset($value['size']);
+    }
+
+    public function delete(): bool
+    {
+        $filePath = $this->fullPath();
+
+        if (!$this->exists()) {
+            return false;
+        }
+
+        // 1. Delete the physical file first
+        $fileDeleted = unlink($filePath);
+
+        if (!$fileDeleted) {
+            return false;
+        }
+
+        // 2. Identify the target folder boundaries
+        $parentDir = dirname($filePath);
+        $access = $this->private ? "private" : "public";
+        $rootStoragePath = storage_path(join_paths("app", $access));
+
+        // 3. Clean upward until we hit the base disk directory ('app/public' or 'app/private')
+        while ($parentDir !== $rootStoragePath && is_dir($parentDir)) {
+            // @ suppresses the PHP warning when a directory is NOT empty.
+            // rmdir() safely fails if any other files or folders exist inside it.
+            if (!@rmdir($parentDir)) {
+                // The moment we hit a shared directory with other files, stop the climb
+                break;
+            }
+            // Move up to the next parent folder level
+            $parentDir = dirname($parentDir);
+        }
+
+        return true;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'name' => $this->name(),
+            'storage_path' => $this->storagePath,
+            'size' => $this->size,
+            'extension' => $this->extension,
+            'mime_type' => $this->mimeType,
+        ];
+    }
+
+    public function __toString(): string
+    {
+        return json_encode($this->jsonSerialize(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    public function toJson($options = 0): string
+    {
+        return json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'url' => $this->url(),
+            'size' => $this->size,
+            'extension' => $this->extension,
+            'mime_type' => $this->mimeType,
+            'storage_path' => $this->storagePath,
+        ];
+    }
+
+    public function exists(): bool
+    {
+        return file_exists($this->fullPath());
+    }
+
+    public function name(): string
+    {
+        return pathinfo($this->fullPath(), PATHINFO_FILENAME);
+    }
+
+    /**
+     * @return string
+     */
+    public function fullPath(): string
+    {
+        if (empty($this->storagePath)) {
+            throw new Exception("Undefined Storage Path For Media, Cannot Get Its Full Path");
+        }
+
+        $access = $this->private ? "private" : "public";
+
+        return storage_path(join_paths("app", $access, $this->storagePath));
+    }
+
+    public function url(): string
+    {
+        return asset("storage/" . ltrim($this->storagePath, DIRECTORY_SEPARATOR));
+    }
+
+    public function getUploadedFile()
+    {
+        return new UploadedFile(
+            $this->fullPath(),
+            $this->name(),
+            !empty($this->mimeType) && $this->mimeType != "unknown" ? $this->mimeType : null,
+            null,
+            true,
+        );
+    }
+
+    private function guessExtension(): ?string
+    {
+        $path = $this->fullPath();
+        $extension = File::extension($path);
+
+        if (!empty($extension)) {
+            return $extension;
+        }
+
+        /** @var string $extension */
+        $extension = str($path)
+            ->explode(".")
+            ->last();
+
+        if (!empty($extension)) {
+            return $extension;
+        }
+
+        return null;
+    }
+}

@@ -4,8 +4,6 @@ namespace Cubeta\CubetaStarter\Traits;
 
 use Carbon\Carbon;
 use Cubeta\CubetaStarter\Helpers\Naming;
-use Cubeta\CubetaStarter\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 
@@ -31,8 +29,10 @@ trait NamingConventions
     }
 
     /**
-     * return the variable name from the model name
-     * if string provided the result will be base on the given string else on the modelName property of the class
+     *  return the variable name from the model name
+     *  if string provided, the result will be base on the given string else on the modelName property of the class
+     * @param string|null $name
+     * @return string
      */
     public function variableNaming(?string $name = null): string
     {
@@ -80,7 +80,7 @@ trait NamingConventions
      * return the name based on name convention for relation functions in the models for a given string if provided or
      * to the model name if not provided
      * @param string|null $name
-     * @param bool        $singular
+     * @param bool $singular
      * @return string
      */
     public function relationMethodNaming(?string $name = null, bool $singular = true): string
@@ -233,11 +233,11 @@ trait NamingConventions
             $base = Str::replace('is_', '', $this->name);
             return [
                 'true' => Str::title($base),
-                'false' => 'Not' . Str::title($base),
+                'false' => 'Not' . " " . Str::title($base),
             ];
         } else return [
             'true' => Str::title($this->name),
-            'false' => 'Not' . Str::title($this->name),
+            'false' => 'Not' . " " . Str::title($this->name),
         ];
     }
 

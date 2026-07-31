@@ -37,11 +37,13 @@ class Translatable implements JsonSerializable, Arrayable, Stringable
     /**
      * @throws Exception
      */
-    public function __construct(string|array $value)
+    public function __construct(string|array|null $value)
     {
-        if (is_string($value) && Str::isJson($value)) {
+        if (is_null($value)) {
+            $this->data = [];
+        } elseif (is_string($value) && Str::isJson($value)) {
             $this->data = json_decode($value, true);
-        } elseif (is_string($value) && !Str::isJson($value)){
+        } elseif (is_string($value) && !Str::isJson($value)) {
             $this->data[config('cubeta-starter.default_locale')] = $value;
         } else {
             $this->data = $value;

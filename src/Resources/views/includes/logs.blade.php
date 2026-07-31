@@ -1,5 +1,37 @@
 @php
-    $logs = collect(\Illuminate\Support\Facades\Cache::get('logs') ?? [])->reverse() ;
+    $logs = collect(\Illuminate\Support\Facades\Cache::get('cubeta-starter.logs') ?? [])->reverse();
+
+    $logType = function ($log): ?string {
+        if (is_array($log)) {
+            return $log['type'] ?? 'string';
+        }
+        if (is_string($log)) {
+            return 'string';
+        }
+        if ($log instanceof \Cubeta\CubetaStarter\Logs\CubeError) {
+            return 'error';
+        }
+        if ($log instanceof \Cubeta\CubetaStarter\Logs\CubeWarning) {
+            return 'warning';
+        }
+        if ($log instanceof \Cubeta\CubetaStarter\Logs\CubeInfo) {
+            return 'info';
+        }
+        return null;
+    };
+
+    $logHtml = function ($log): string {
+        if (is_array($log)) {
+            return $log['html'] ?? '';
+        }
+        if (is_string($log)) {
+            return "<div class='p-3 w-100 p-2 border border-success rounded-3 border-2'><div class='w-100'>" . e($log) . "</div></div>";
+        }
+        if (is_object($log) && method_exists($log, 'getHtml')) {
+            return $log->getHtml();
+        }
+        return '';
+    };
 @endphp
 <div id="terminal-wrapper">
     <div class="resizer"></div>
@@ -27,28 +59,28 @@
         @if(count($logs))
             <div id="all" class="d-flex flex-column justify-content-between gap-5">
                 @foreach($logs as $log)
-                    @if(is_string($log))
+                    @if($logType($log) === 'string')
                         <div class='p-3 w-100 p-2 border border-success rounded-3 border-2'>
-                            <div class='w-100'>{{$log}}</div>
+                            <div class='w-100'>{{ is_array($log) ? ($log['message'] ?? '') : $log }}</div>
                         </div>
                     @else
-                        {!! $log->getHtml() !!}
+                        {!! $logHtml($log) !!}
                     @endif
                 @endforeach
             </div>
             <div id="info" class="d-flex flex-column justify-content-between gap-5">
-                @foreach($logs->filter(fn ($item) => ($item instanceof \Cubeta\CubetaStarter\Logs\CubeInfo)) as $log)
-                    {!! $log->getHtml() !!}
+                @foreach($logs->filter(fn ($item) => $logType($item) === 'info') as $log)
+                    {!! $logHtml($log) !!}
                 @endforeach
             </div>
             <div id="warnings" class="d-flex flex-column justify-content-between gap-5">
-                @foreach($logs->filter(fn ($item) => $item instanceof \Cubeta\CubetaStarter\Logs\CubeWarning) as $log)
-                    {!! $log->getHtml() !!}
+                @foreach($logs->filter(fn ($item) => $logType($item) === 'warning') as $log)
+                    {!! $logHtml($log) !!}
                 @endforeach
             </div>
             <div id="errors" class="d-flex flex-column justify-content-between gap-5">
-                @foreach($logs->filter(fn ($item) => $item instanceof \Cubeta\CubetaStarter\Logs\CubeError) as $log)
-                    {!! $log->getHtml() !!}
+                @foreach($logs->filter(fn ($item) => $logType($item) === 'error') as $log)
+                    {!! $logHtml($log) !!}
                 @endforeach
             </div>
         @else

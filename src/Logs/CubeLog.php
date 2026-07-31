@@ -58,6 +58,34 @@ class CubeLog
         self::$logs = [];
     }
 
+    /**
+     * Convert a log entry into a cache-safe array so we never serialize
+     * PHP objects into Laravel Cache / session (that causes incomplete-object
+     * errors when the class is not loaded before unserialize()).
+     */
+    public static function serializeForCache(Exception|CubeError|CubeInfo|CubeWarning|string $log): array|string
+    {
+        if (is_string($log)) {
+            return $log;
+        }
+
+        if ($log instanceof Exception || $log instanceof Throwable) {
+            $log = new CubeError($log->getMessage(), $log->getFile());
+        }
+
+        $type = match (true) {
+            $log instanceof CubeError => 'error',
+            $log instanceof CubeWarning => 'warning',
+            default => 'info',
+        };
+
+        return [
+            'type' => $type,
+            'html' => $log->getHtml(),
+            'message' => $log->getMessage(),
+        ];
+    }
+
     public static function splitExceptions(): array
     {
         $logs = array_filter(self::$logs, fn($log) => (!$log instanceof Exception and !$log instanceof Throwable));

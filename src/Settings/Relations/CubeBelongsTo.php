@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeKey;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
@@ -35,6 +36,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
+use JetBrains\PhpStorm\ExpectedValues;
 
 
 class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
@@ -89,18 +91,18 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             true,
             new TsImportString(
                 $modelName,
-                "@/Models/{$modelName}"
+                $this->tsModelImportPath()
             )
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): ReactTsInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): ReactTsInputComponentString
     {
-        $modelName = $this->modelNaming(); // User
-        $relatedModel = $this->parentModel(); // Author
+        $modelName = $this->modelNaming();
+        $relatedModel = $this->parentModel();
         $column = $relatedModel
             ->attributes()
-            ->filter(fn($att) => $att->isKey() && $att->modelNaming() == $modelName)
+            ->filter(fn(CubeAttribute $att) => $att->isKey() && $att->modelNaming() == $modelName)
             ->first() ?? CubeKey::factory($this->key, ColumnTypeEnum::KEY->value, parentTableName: $relatedModel->tableNaming());
         $dataRoute = CubeTable::create($modelName)->dataRoute($actor)->name;
 
@@ -123,7 +125,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             ],
             [
                 'key' => 'onChange',
-                'value' => "(e) => setData(\"$this->key\", e.target.value ? Number(e.target.value) : undefined)",
+                'value' => "(v) => setData(\"$this->key\", v?.value)",
             ],
             $this->relationModel()->titleable()->isTranslatable()
                 ? [
@@ -147,14 +149,14 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         }
 
         $imports = [
-            new TsImportString("ApiResponse", "@/Modules/Http/ApiResponse"),
-            new TsImportString("Http", "@/Modules/Http/Http"),
-            new TsImportString($modelName, "@/Models/{$modelName}"),
-            new TsImportString("ApiSelect", "@/Components/form/fields/Select/ApiSelect"),
+            new TsImportString("ApiResponse", "@/modules/http/api-response"),
+            new TsImportString("Http", "@/modules/http/http"),
+            new TsImportString($modelName, $this->tsModelImportPath()),
+            new TsImportString("ApiSelect", "@/components/form/fields/select/api-select"),
         ];
 
         if ($relatedModel->titleable()->isTranslatable()) {
-            $imports[] = new TsImportString("translate", "@/Models/Translatable", false);
+            $imports[] = new TsImportString("translate", "@/models/translatable", false);
         }
 
         return new ReactTsInputComponentString(
@@ -172,15 +174,15 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         $parentModel = $this->parentModel();
         $column = $this->relationModel()->titleable();
         $imports = [
-            new TsImportString("SmallTextField", "@/Components/Show/SmallTextField"),
+            new TsImportString("DetailItem", "@/components/ui/detail-item"),
         ];
 
         if ($column->isTranslatable()) {
-            $imports[] = new TsImportString("translate", "@/Models/Translatable", false);
+            $imports[] = new TsImportString("translate", "@/models/translatable", false);
         }
 
         return new ReactTsDisplayComponentString(
-            "SmallTextField",
+            "DetailItem",
             $this->titleNaming(),
             $column->isTranslatable()
                 ? "translate(" . $parentModel->variableNaming() . "?." . $this->relationMethodNaming() . "?." . $column->name . ")"
@@ -202,7 +204,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         ];
 
         if ($column->isTranslatable()) {
-            $imports[] = new TsImportString("translate", "@/Models/Translatable", false);
+            $imports[] = new TsImportString("translate", "@/models/translatable", false);
         }
 
         return new DataTableColumnObjectString(

@@ -57,13 +57,15 @@ class {{model_name}}Controller extends WebController
     {
         ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->store($request->validated(), $this->relations);
         if (${{model_name_camel_case}}) {
-            return redirect()
-                    ->route('{{index_route}}')
-                    ->with('success' , trans('site.stored_successfully'));
+            Inertia::flash([
+                'success' => trans('site.stored_successfully')
+            ]);
+            return redirect()->route('{{index_route}}');
         }
-        return redirect()
-                ->back()
-                ->with('error' , trans('site.something_went_wrong'));
+
+        return Inertia::flash([
+            'success' => trans('site.something_went_wrong')
+        ])->back();
     }
 
     public function edit(${{model_name_camel_case}}Id)
@@ -73,6 +75,7 @@ class {{model_name}}Controller extends WebController
         if (!${{model_name_camel_case}}) {
             abort(404);
         }
+
         return Inertia::render('{{update_page}}' , [
             '{{model_name_camel_case}}' => {{resource_name}}::make(${{model_name_camel_case}})
         ]);
@@ -82,14 +85,15 @@ class {{model_name}}Controller extends WebController
     {
         ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->update($request->validated(), ${{model_name_camel_case}}Id, $this->relations);
         if (${{model_name_camel_case}}) {
-            return redirect()
-                ->route('{{index_route}}')
-                ->with('success' , trans('site.update_successfully'));
+            Inertia::flash([
+                'success' => trans('site.update_successfully')
+            ]);
+            return redirect()->route('{{index_route}}');
         }
 
-        return redirect()
-            ->back()
-            ->with('error' , trans('site.there_is_no_data'));
+        return Inertia::flash([
+            'error' => trans('site.there_is_no_data')
+        ])->back();
     }
 
     public function destroy(${{model_name_camel_case}}Id)
@@ -113,9 +117,9 @@ class {{model_name}}Controller extends WebController
             session()->flash('success' , trans('site.success'));
             return $result;
         } catch(Exception){
-            return redirect()
-                ->back()
-                ->with('error' , trans('site.something_went_wrong'));
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
@@ -126,9 +130,9 @@ class {{model_name}}Controller extends WebController
             session()->flash('success' , trans('site.success'));
             return $result;
         } catch(Exception){
-            return redirect()
-                ->back()
-                ->with('error' , trans('site.something_went_wrong'));
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 
@@ -137,13 +141,14 @@ class {{model_name}}Controller extends WebController
         try{
             $request->validate(['excel_file' => 'required|mimes:xls,xlsx']);
             $this->{{model_name_camel_case}}Service->import();
-            return redirect()
-                ->back()
-                ->with('message' , trans('site.success'));
+
+            return Inertia::flash([
+                'success' => trans('site.success')
+            ])->back();
         }catch (Exception){
-            return redirect()
-                ->back()
-                ->with('message' , trans('site.something_went_wrong'));
+            return Inertia::flash([
+                'error' => trans('site.something_went_wrong')
+            ])->back();
         }
     }
 

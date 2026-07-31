@@ -3,120 +3,206 @@
 namespace App\Casts;
 
 use Exception;
-use GuzzleHttp\Psr7\MimeType;
-use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
+use App\Serializers\SerializedMedia;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class MediaCast implements CastsAttributes
 {
     public bool $withoutObjectCaching = true;
+    private readonly bool $private;
+    private readonly bool $isSingle;
 
     /**
-     * Cast the given value.
-     * @param array<string, mixed> $attributes
+     * @param string $privateOrPublic "public" or "private"
+     * @param string $structureType   "array" or "single"
      */
-    public function get(Model $model, string $key, mixed $value, array $attributes): mixed
+    public function __construct(string $privateOrPublic = "public", string $structureType = "single")
     {
-        if (is_string($value) || Str::isJson($value)) {
-            return json_decode($value, true);
-        }
-
-        return $value;
+        $this->private = $privateOrPublic === "private";
+        $this->isSingle = $structureType === "single";
     }
 
     /**
-     * Prepare the given value for storage.
-     * @param array<string, mixed> $attributes
-     * @throws Exception
+     * Cast the given value from database storage structure.
      */
-    public function set(Model $model, string $key, mixed $value, array $attributes): string|null|false
+    public function get(Model $model, string $key, mixed $value, array $attributes): SerializedMedia|array|null
     {
         if (is_null($value)) {
-            self::deleteFiles($model->{$key});
             return null;
         }
 
-        $paths = $this->handleFileStoring($value, $model);
-        if (is_string($paths)) {
-            return json_encode($this->format($paths));
-        } elseif (is_array($paths)) {
-            foreach ($paths as $key => $item) {
-                $paths[$key] = $this->format($item);
+        $data = json_decode($value, true);
+
+        if (!is_array($data)) {
+            throw new Exception("Invalid stored data in the media column [$key], table : {$model->getTable()}");
+        }
+
+        if ($this->isSingle) {
+            if (SerializedMedia::isMediaArray($data)) {
+                $file = new SerializedMedia($data, $model->getTable(), $this->private);
+                return $file->exists() ? $file : null;
             }
-            return json_encode($paths, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        } elseif (!$paths) {
+            /** @var array|null $first */
+            $first = collect($data)->first(fn($item) => SerializedMedia::isMediaArray($item));
+            return $first ? new SerializedMedia($first, $model->getTable(), $this->private) : null;
+        }
+
+        if (SerializedMedia::isMediaArray($data)) {
+            $file = new SerializedMedia($data, $model->getTable(), $this->private);
+            return $file->exists() ? [$file] : [];
+        }
+
+        return array_values(
+            array_map(
+                function (array $item) use ($model) {
+                    $file = new SerializedMedia($item, $model->getTable(), $this->private);
+                    return $file->exists() ? $file : null;
+                },
+                array_filter($data, fn($item) => SerializedMedia::isMediaArray($item)),
+            ),
+        );
+    }
+
+    /**
+     * Prepare the given value for storage and cleanup unreferenced files.
+     *
+     * @throws Exception
+     */
+    public function set(Model $model, string $key, mixed $value, array $attributes): ?string
+    {
+        if (is_null($value)) {
+            $this->deleteOldMedia($model, $key, collect());
             return null;
         }
-        throw new Exception("Invalid Media Value");
-    }
 
-    private function format(string $value): array
-    {
-        $fullPath = storage_path("app/public/" . trim($value, '/'));
-        $fileExists = file_exists($fullPath);
-        $extension = File::extension($fullPath);
-        return [
-            'url' => asset("storage/$value"),
-            'size' => $fileExists ? round(filesize($fullPath) / 1024) : 0,
-            'extension' => $extension,
-            'mime_type' => $fileExists ? MimeType::fromExtension($extension) : "unknown",
-        ];
-    }
+        // Gather valid paths currently owned by this specific record row to verify incoming arrays
+        $allowedPaths = $this->getCurrentlyOwnedPaths($model, $key);
 
-    private function handleFileStoring(UploadedFile|array $value, Model $model): array|string|null
-    {
-        $images = [];
+        /** @var Collection<int,SerializedMedia> $newMediaCollection */
+        $newMediaCollection = collect();
 
-        $isArray = is_array($value);
-        /** @var UploadedFile[] $files */
-        $files = Arr::wrap($value);
+        // Helper logic to securely ingest raw array descriptors if they pass the integrity check
+        $securePushArray = function (array $item) use ($newMediaCollection, $model, $allowedPaths) {
+            if (SerializedMedia::isMediaArray($item)) {
+                $media = new SerializedMedia($item, $model->getTable(), $this->private);
 
-        foreach ($files as $file) {
-            $images[] = $this->storeFile($file, $model->getTable());
-        }
+                // SECURITY CHECK: The structural array file path must already belong to this record
+                if (in_array($media->fullPath(), $allowedPaths, true)) {
+                    $newMediaCollection->push($media);
+                }
+                // Silently drop or throw an exception if an unowned path injection is attempted
+            }
+        };
 
-        return $isArray
-            ? $images
-            : (count($images) > 0
-                ? $images[0]
-                : null
-            );
-    }
-
-    public function storeFile(UploadedFile $file, $dir): string
-    {
-        $directory = storage_path("app/public/$dir");
-        if (!is_dir($directory)) {
-            File::makeDirectory(storage_path("app/public/$dir"), 0777, true);
-        }
-        return $file->store($dir, [
-            'disk' => 'public',
-        ]);
-    }
-
-    private static function deleteFileByUrl(string $url): void
-    {
-        $path = str_replace(asset('storage/'), '', $url);
-        $fullPath = storage_path("app/public/$path");
-        if (file_exists($fullPath)) {
-            unlink($fullPath);
-        }
-    }
-
-    public static function deleteFiles(array $media): void
-    {
-        if (isset($media['url'])) {
-            self::deleteFileByUrl($media['url']);
-        } else {
-            foreach ($media as $file) {
-                if (is_array($file) && isset($file['url'])) {
-                    self::deleteFileByUrl($file['url']);
+        // 1. Unify and validate incoming variant shapes
+        if ($value instanceof SerializedMedia) {
+            // Fresh file uploads are inherently safe because this migh be done just via the code
+            $newMediaCollection->push($value);
+        } elseif ($value instanceof UploadedFile) {
+            // Fresh file uploads are inherently safe because they go through the system's upload layout
+            $newMediaCollection->push(new SerializedMedia($value, $model->getTable(), $this->private));
+        } elseif (is_array($value)) {
+            if (SerializedMedia::isMediaArray($value)) {
+                $securePushArray($value);
+            } else {
+                foreach ($value as $item) {
+                    if ($item instanceof SerializedMedia) {
+                        $newMediaCollection->push($item);
+                    } elseif ($item instanceof UploadedFile) {
+                        $newMediaCollection->push(new SerializedMedia($item, $model->getTable(), $this->private));
+                    } elseif (is_array($item)) {
+                        $securePushArray($item);
+                    }
                 }
             }
+        } elseif (Str::isJson($value)) {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                if (SerializedMedia::isMediaArray($decoded)) {
+                    $securePushArray($decoded);
+                } else {
+                    foreach ($decoded as $item) {
+                        if (is_array($item)) {
+                            $securePushArray($item);
+                        }
+                    }
+                }
+            }
+        } else {
+            throw new Exception("Unhandled Media Type Within Media Cast");
         }
+
+        // 2. Safely run deletion checks on unreferenced disk items
+        $this->deleteOldMedia($model, $key, $newMediaCollection);
+
+        // 3. Write back to database honoring the explicit configuration context
+        if ($this->isSingle) {
+            $targetMedia = $newMediaCollection->first();
+            return $targetMedia?->toJson();
+        }
+
+        $arrayData = $newMediaCollection->map(fn(SerializedMedia $media) => $media->toArray())->all();
+        return json_encode($arrayData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Parse files on disk and drop rows no longer active in the request snapshot
+     */
+    private function deleteOldMedia(Model $model, string $key, Collection $newMediaCollection): void
+    {
+        $rawOriginal = $model->getRawOriginal($key);
+        if (empty($rawOriginal)) {
+            return;
+        }
+
+        $oldDecoded = json_decode($rawOriginal, true);
+        if (!is_array($oldDecoded)) {
+            return;
+        }
+
+        $oldItems = SerializedMedia::isMediaArray($oldDecoded) ? [$oldDecoded] : $oldDecoded;
+
+        $oldMediaCollection = collect($oldItems)
+            ->filter(fn($item) => SerializedMedia::isMediaArray($item))
+            ->map(fn($item) => new SerializedMedia($item, $model->getTable(), $this->private));
+
+        $oldMediaCollection->each(function (SerializedMedia $oldItem) use ($newMediaCollection) {
+            $stillExists = $newMediaCollection->contains(function (SerializedMedia $newItem) use ($oldItem) {
+                return $newItem->fullPath() === $oldItem->fullPath();
+            });
+
+            if (!$stillExists) {
+                $oldItem->delete();
+            }
+        });
+    }
+
+    /**
+     * Get all file paths currently saved in this column record to act as an ownership whitelist.
+     *
+     * @return array<int, string>
+     */
+    private function getCurrentlyOwnedPaths(Model $model, string $key): array
+    {
+        $rawOriginal = $model->getRawOriginal($key);
+        if (empty($rawOriginal)) {
+            return [];
+        }
+
+        $decoded = json_decode($rawOriginal, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        $items = SerializedMedia::isMediaArray($decoded) ? [$decoded] : $decoded;
+
+        return collect($items)
+            ->filter(fn($item) => SerializedMedia::isMediaArray($item))
+            ->map(fn($item) => (new SerializedMedia($item, $model->getTable(), $this->private))->fullPath())
+            ->all();
     }
 }

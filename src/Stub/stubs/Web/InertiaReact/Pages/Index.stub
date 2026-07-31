@@ -1,13 +1,12 @@
-import ActionsButtons from "@/Components/Datatable/ActionsButtons";
-import DataTable from "@/Components/Datatable/DataTable";
-import {{model_name}} from "@/Models/{{model_name}}";
-import ApiResponse from "@/Modules/Http/ApiResponse";
-import Http from "@/Modules/Http/Http";
+import ActionsButtons from "@/components/datatable/actions-buttons";
+import Datatable from "@/components/datatable/datatable";
+import ApiResponse from "@/modules/http/api-response";
+import Http from "@/modules/http/http";
 {{imports}}
 
 const Index = ({exportables}:{exportables:string[]}) => {
     return (
-        <DataTable
+        <Datatable
             title="{{model_name}} Table"
             createUrl={route("{{create_route}}")}
             importRoute={route("{{import_route}}")}

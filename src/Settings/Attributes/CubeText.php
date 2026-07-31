@@ -19,6 +19,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponen
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
+use JetBrains\PhpStorm\ExpectedValues;
 
 class CubeText extends CubeStringable implements HasFakeMethod,
     HasMigrationColumn,
@@ -61,7 +62,7 @@ class CubeText extends CubeStringable implements HasFakeMethod,
     public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
     {
         $attributes = [];
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
 
         if ($formType == "update") {
             $attributes[] = [
@@ -82,7 +83,7 @@ class CubeText extends CubeStringable implements HasFakeMethod,
 
     public function bladeDisplayComponent(): DisplayComponentString
     {
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
         $modelVariable = $table->variableNaming();
         $label = $this->labelNaming();
         return new DisplayComponentString(
@@ -100,7 +101,7 @@ class CubeText extends CubeStringable implements HasFakeMethod,
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
         $attributes = [
             [
@@ -111,18 +112,18 @@ class CubeText extends CubeStringable implements HasFakeMethod,
         if ($formType == "update") {
             $attributes[] = [
                 'key' => 'defaultValue',
-                'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
+                'value' => "{$this->table()->variableNaming()}.{$this->name}"
             ];
         }
 
         return new TsxInputComponentString(
-            "TextEditor",
+            "Textarea",
             $this->name,
             $this->labelNaming(),
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("TextEditor", "@/Components/form/fields/TextEditor"),
+                new TsImportString("Textarea", "@/components/form/fields/textarea"),
                 new TsImportString("ChangeEvent", "react", false)
             ]
         );
@@ -130,14 +131,18 @@ class CubeText extends CubeStringable implements HasFakeMethod,
 
     public function displayComponentString(): ReactTsDisplayComponentString
     {
-        $modelVariable = $this->getOwnerTable()->variableNaming();
+        $modelVariable = $this->table()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            "LongTextField",
+            "DetailItem",
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name}",
             [
-                new TsImportString("LongTextField", "@/Components/Show/LongTextField")
+                new TsImportString("DetailItem", "@/components/ui/detail-item")
+            ],
+            [
+                'orientation' => '"vertical"',
+                "className" => '"md:col-span-2"'
             ]
         );
     }

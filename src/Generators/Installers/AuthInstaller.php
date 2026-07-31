@@ -22,6 +22,7 @@ use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\MethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\TraitString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\BaseAuthControllerStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Factories\UserFactoryStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Mails\ResetPasswordCodeEmailStubBuilder;
@@ -96,9 +97,10 @@ class AuthInstaller extends AbstractGenerator
             $this->generateWebAuthRoutes();
 
             if ($this->frontType == FrontendTypeEnum::REACT_TS) {
+                $this->appendAuthLayout();
                 $this->generateReactTsAuthViews();
-                $this->addRouteToReactTsProfileDropdown("logout", Routes::logout(ContainerType::WEB, null)->name);
-                $this->addRouteToReactTsProfileDropdown("user-details", Routes::me(ContainerType::WEB, null)->name);
+                $this->addRouteToReactTsNavUser("logout", Routes::logout(ContainerType::WEB, null)->name);
+                $this->addRouteToReactTsNavUser("user-details", Routes::me(ContainerType::WEB, null)->name);
             } else {
                 $this->generateBladeAuthViews();
                 $this->addRouteToBladeNavbarDropdown("logout", Routes::logout(ContainerType::WEB, null)->name);
@@ -384,9 +386,9 @@ class AuthInstaller extends AbstractGenerator
         $navbarPath->putContent($navbarContent);
     }
 
-    public function addRouteToReactTsProfileDropdown(string $tagId, string $routeName): void
+    public function addRouteToReactTsNavUser(string $tagId, string $routeName): void
     {
-        $dropDownPath = CubePath::make("resources/js/Components/ui/ProfileDropDown.tsx");
+        $dropDownPath = CubePath::make("resources/js/components/dashboard/sidebar/nav-user.tsx");
         if (!$dropDownPath->exist()) {
             CubeLog::notFound($dropDownPath->fullPath, "Adding auth routes to navbar dropdown");
             return;
@@ -440,9 +442,10 @@ class AuthInstaller extends AbstractGenerator
     }
 
     /**
-     * @param CubePath           $routeFile
+     * @param CubePath $routeFile
      * @param Collection<Routes> $routes
      * @return void
+     * @throws \Exception
      */
     private function generateAuthWebRouteFileOrAppendRoutes(CubePath $routeFile, Collection $routes): void
     {
@@ -499,7 +502,7 @@ class AuthInstaller extends AbstractGenerator
             ->generate(Views::resetPassword()->path, $this->override);
 
         UserModelInterfaceStubBuilder::make()
-            ->generate(CubePath::make('resources/js/Models/User.ts'), $this->override);
+            ->generate(CubePath::make('resources/js/models/user.ts'), $this->override);
     }
 
     /**
@@ -560,9 +563,11 @@ class AuthInstaller extends AbstractGenerator
         }
 
         if (Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
-            $sidebarPath = CubePath::make('resources/js/Components/ui/Sidebar.tsx');
+            $sidebarPath = CubePath::make('resources/js/components/dashboard/sidebar/app-sidebar.tsx');
+            $navMainPath = CubePath::make('resources/js/components/dashboard/sidebar/nav-main.tsx');
         } else {
             $sidebarPath = CubePath::make('resources/views/includes/sidebar.blade.php');
+            $navMainPath = null;
         }
 
         if (FileUtils::contentExistInFile($sidebarPath, $publicRoute->name)) {
@@ -573,5 +578,72 @@ class AuthInstaller extends AbstractGenerator
             CubeLog::contentRemoved("route('$publicRoute->name')", $sidebarPath);
             CubeLog::contentAppended("route('$protectedRoute->name')", $sidebarPath);
         }
+
+        if (!empty($navMainPath) && $navMainPath->exist() && FileUtils::contentExistInFile($navMainPath, $publicRoute->name)) {
+            $content = $navMainPath->getContent();
+            $content = str_replace($publicRoute->name, $protectedRoute->name, $content);
+            $navMainPath->putContent($content);
+            $navMainPath->format();
+            CubeLog::contentRemoved("route('$publicRoute->name')", $navMainPath);
+            CubeLog::contentAppended("route('$protectedRoute->name')", $navMainPath);
+        }
+    }
+
+    public function appendAuthLayout()
+    {
+        Publisher::make()
+            ->source(CubePath::stubPath("Web/InertiaReact/Layouts/AuthLayout.stub"))
+            ->destination(CubePath::make("resources/js/components/layouts/auth-layout.tsx"))
+            ->publish($this->override);
+
+        $cubetaStarter = CubePath::make("resources/js/cubeta-starter.tsx");
+
+        if (!$cubetaStarter->exist()) {
+            CubeLog::add(new NotFound($cubetaStarter->fullPath, "Appending Auth Pages Layout to cubeta-starter.tsx"));
+            return;
+        }
+
+        $authPagesArray = 'const authPages = [
+                                      "login",
+                                      "forget-password",
+                                      "reset-password-code-form",
+                                      "reset-password",
+                                      "register",
+                               ];';
+
+        $content = $cubetaStarter->getContent();
+        $content = $content . "\n\n" . $authPagesArray;
+
+        $pattern = '/layout\s*:\s*\(\s*([a-zA-Z_$][a-zA-Z0-9_$]*)[^)]*\)\s*=>\s*([^,\r\n]+)/';
+
+        if (!preg_match($pattern, $content, $matches, PREG_OFFSET_CAPTURE)) {
+            CubeLog::failedAppending(
+                "layout: (name) => (authPages.includes(name) ? AuthLayout : Layout)",
+                $cubetaStarter->fullPath,
+                "Appending Auth Pages Layout to cubeta-starter.tsx"
+            );
+            return null;
+        }
+
+        $fullMatch = $matches[0][0];
+
+        $parameter = $matches[1][0];
+
+        $layoutExpression = trim($matches[2][0]);
+
+        $replacement = sprintf(
+            'layout: (%s) => (authPages.includes(%s) ? AuthLayout : %s)',
+            $parameter,
+            $parameter,
+            $layoutExpression
+        );
+
+        $content = str_replace($fullMatch, $replacement, $content);
+        $content = new TsImportString("AuthLayout", "@/components/layouts/auth-layout")
+            . "\n"
+            . $content;
+
+        $cubetaStarter->putContent($content);
+        $cubetaStarter->format();
     }
 }

@@ -1,7 +1,7 @@
-import Button from "@/Components/ui/Button";
-import PageCard from "@/Components/ui/PageCard";
-import {{model_name}} from "@/Models/{{model_name}}";
+import { Button } from "@/components/ui/button";
+import PageCard from "@/components/ui/page-card";
 import { Link } from "@inertiajs/react";
+import { FieldGroup } from "@/components/ui/field";
 {{imports}}
 
 const Show = ({ {{model_variable}} }: { {{model_variable}}: {{model_name}} }) => {
@@ -9,19 +9,18 @@ const Show = ({ {{model_variable}} }: { {{model_variable}}: {{model_name}} }) =>
         <PageCard
             title="{{model_name}} Details"
             actions={
-                <div className="flex justify-between items-center">
-                    <Link href={route("{{edit_route_name}}" , {{model_variable}}.id)}>
-                        <Button>Edit</Button>
-                    </Link>
-                </div>
+                <Link href={route("{{edit_route_name}}" , {{model_variable}}.id)}>
+                    <Button>Edit</Button>
+                </Link>
             }
         >
-            <div className="gap-5 grid grid-cols-1 md:grid-cols-2">
-                {{small_fields}}
-            </div>
+            <FieldGroup>
+                <div className="gap-5 grid grid-cols-1 md:grid-cols-2">
+                    {{small_fields}}
+                </div>
 
-            {{big_fields}}
-
+                {{big_fields}}
+            </FieldGroup>
         </PageCard>
     );
 };

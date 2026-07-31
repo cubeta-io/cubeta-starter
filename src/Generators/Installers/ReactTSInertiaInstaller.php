@@ -8,15 +8,16 @@ use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Helpers\PackageManager;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Modules\Routes;
 use Cubeta\CubetaStarter\Modules\Views;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Components\NavMainStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Components\SidebarStubBuilder;
 use Cubeta\CubetaStarter\Stub\Publisher;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Illuminate\Support\Facades\Artisan;
 
 class ReactTSInertiaInstaller extends AbstractGenerator
 {
@@ -32,7 +33,9 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             return;
         }
 
+        $this->publishTsConfig();
         $this->installInertia();
+        $this->installShadcn();
 
         $this->publishBaseRepository();
         $this->publishBaseService();
@@ -67,12 +70,13 @@ class ReactTSInertiaInstaller extends AbstractGenerator
 
     private function installInertia(): void
     {
-        Artisan::call('vendor:publish', [
-            '--tag' => 'react-ts',
-            '--force' => $this->override,
-        ]);
-
-        CubeLog::add(Artisan::output());
+        FileUtils::executeCommandInTheBaseDirectory(
+            str("php artisan vendor:publish --tag=react-ts")
+                ->when(
+                    $this->override,
+                    fn($s) => $s->append(" --force")
+                )
+        );
 
         Publisher::make()
             ->source(CubePath::stubPath('/Web/InertiaReact/Views/App.stub'))
@@ -96,8 +100,68 @@ class ReactTSInertiaInstaller extends AbstractGenerator
 
     private function generateSidebar(): void
     {
+        NavMainStubBuilder::make()
+            ->indexRoute(Routes::dashboardPage(Settings::make()->installedWebAuth())->name)
+            ->generate(CubePath::make('resources/js/components/dashboard/sidebar/nav-main.tsx'), $this->override);
+
         SidebarStubBuilder::make()
             ->indexRoute(Routes::dashboardPage(Settings::make()->installedWebAuth())->name)
-            ->generate(CubePath::make('resources/js/Components/ui/Sidebar.tsx'), $this->override);
+            ->generate(CubePath::make('resources/js/components/dashboard/sidebar/app-sidebar.tsx'), $this->override);
+    }
+
+    public function installShadcn(): void
+    {
+        $componentsJsonPath = CubePath::make("components.json");
+        if ($componentsJsonPath->exist() && !$this->override) {
+            $componentsJsonPath->logAlreadyExist("Installing web inertia react stack packages");
+        } else {
+            Publisher::make()
+                ->source(CubePath::stubPath("Web/InertiaReact/Config/ComponentsJson.stub"))
+                ->destination($componentsJsonPath)
+                ->publish($this->override);
+        }
+
+        PackageManager::npx("shadcn@latest init -t laravel -b base -y -p nova -f --rtl --pointer --reinstall --css-variables");
+
+        PackageManager::shadcnAdd([
+            "alert-dialog",
+            "avatar",
+            "badge",
+            "breadcrumb",
+            "button",
+            "card",
+            "chart",
+            "checkbox",
+            "collapsible",
+            "dialog",
+            "drawer",
+            "dropdown-menu",
+            "field",
+            "input",
+            "label",
+            "radio-group",
+            "select",
+            "separator",
+            "sheet",
+            "sidebar",
+            "skeleton",
+            "sonner",
+            "table",
+            "tabs",
+            "textarea",
+            "toggle",
+            "toggle-group",
+            "tooltip",
+            'popover',
+            'calendar'
+        ], $this->override);
+    }
+
+    public function publishTsConfig(): void
+    {
+        Publisher::make()
+            ->source(CubePath::stubPath('Web/InertiaReact/Config/TsConfig.stub'))
+            ->destination(CubePath::make('tsconfig.json'))
+            ->publish($this->override);
     }
 }

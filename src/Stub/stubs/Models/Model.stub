@@ -5,6 +5,7 @@ namespace {{namespace}};
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Carbon\Carbon;
 {{imports}}
 
@@ -15,14 +16,11 @@ use Carbon\Carbon;
  * @property Carbon $updated_at
  * @mixin Builder<{{model_name}}>
  */
+#[Fillable([{{fillable}}])]
 class {{model_name}} extends Model
 {
     use HasFactory;
     {{traits}}
-
-    protected $fillable = [
-       {{fillable}}
-    ];
 
     protected function casts(): array
     {

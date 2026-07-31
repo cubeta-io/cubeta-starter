@@ -422,7 +422,7 @@ so you will find a :
 11. postman collection
 
 > [!warning]
-> after the first generation a `cubeta-starter.config.js` file will be created in the base directory of your project
+> after the first generation a `cubeta-starter.config.json` file will be created in the base directory of your project
 > for now this file is useless for you but helpful for us to make you generating experience better but in the coming
 > releases it will give you a lot of features .
 

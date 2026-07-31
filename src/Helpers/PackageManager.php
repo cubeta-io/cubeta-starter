@@ -107,7 +107,7 @@ class PackageManager
         if (!$packageJson->exist()) {
             FileUtils::executeCommandInTheBaseDirectory("npm init -y");
         }
-        
+
         return json_decode($packageJson->getContent(), true);
     }
 
@@ -118,5 +118,24 @@ class PackageManager
             return null;
         }
         return json_decode($composerJson->getContent(), true);
+    }
+
+    public static function npx(string $command): void
+    {
+        FileUtils::executeCommandInTheBaseDirectory("npx --yes $command");
+    }
+
+    public static function shadcnAdd(array $components, bool $override = false): void
+    {
+        $components = implode(" ", $components);
+        $options = [
+            "-y"
+        ];
+
+        if ($override) {
+            $options[] = "-o";
+        }
+
+        self::npx("shadcn@latest add $components" . " " . implode(" ", $options));
     }
 }

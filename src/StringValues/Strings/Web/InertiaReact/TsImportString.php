@@ -10,8 +10,8 @@ class TsImportString
 
     /**
      * @param string|null $import
-     * @param bool        $default
-     * @param string      $from
+     * @param bool $default
+     * @param string $from
      */
     public function __construct(?string $import, string $from, bool $default = true)
     {

@@ -20,8 +20,9 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayCompon
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
+use JetBrains\PhpStorm\ExpectedValues;
 
-class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent,HasReactTsInputString
+class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent, HasReactTsInputString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -73,7 +74,7 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
     public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
     {
         $attributes = [];
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
 
         if ($formType == "update") {
             $attributes[] = [
@@ -94,7 +95,7 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
 
     public function bladeDisplayComponent(): DisplayComponentString
     {
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
         $modelVariable = $table->variableNaming();
         $label = $this->labelNaming();
         return new DisplayComponentString(
@@ -105,14 +106,14 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
                     "value" => "\${$modelVariable}->{$this->name}?->format('H:i')"
                 ],
                 [
-                    "key" => 'label' ,
+                    "key" => 'label',
                     'value' => $label
                 ]
             ]
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
         $attributes = [
             [
@@ -122,13 +123,17 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
             [
                 'key' => 'onChange',
                 'value' => "(e) => setData(\"{$this->name}\", e.target?.value)"
+            ],
+            [
+                'key' => 'className',
+                'value' => '"appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden"'
             ]
         ];
 
         if ($formType == "update") {
             $attributes[] = [
                 'key' => 'defaultValue',
-                'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
+                'value' => "{$this->table()->variableNaming()}.{$this->name}"
             ];
         }
 
@@ -139,7 +144,7 @@ class CubeTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("Input", "@/Components/form/fields/Input")
+                new TsImportString("Input", "@/components/form/fields/input")
             ]
         );
     }

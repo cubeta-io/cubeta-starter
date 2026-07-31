@@ -29,6 +29,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactT
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
+use JetBrains\PhpStorm\ExpectedValues;
 
 class CubeTranslatable extends CubeStringable implements HasFakeMethod,
     HasMigrationColumn,
@@ -113,7 +114,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
     public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
     {
         $attributes = [];
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
 
         if ($formType == "update") {
             $attributes[] = [
@@ -134,7 +135,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
 
     public function bladeDisplayComponent(): DisplayComponentString
     {
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
         $modelVariable = $table->variableNaming();
         $label = $this->labelNaming();
         return new DisplayComponentString(
@@ -167,37 +168,30 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
+        $attributes = [
+            [
+                'key' => 'onChange',
+                'value' => "(v) => setData(\"{$this->name}\", v)"
+            ]
+        ];
         if ($this->isTextable()) {
-            $attributes = [
-                [
-                    'key' => 'onChange',
-                    'value' => "(e: ChangeEvent<HTMLTextAreaElement>) => setData(\"{$this->name}\", e.target.value)"
-                ]
-            ];
-            $tag = "TranslatableEditor";
+            $tag = "TranslatableTextarea";
             $imports = [
-                new TsImportString("ChangeEvent", "react", false),
-                new TsImportString("TranslatableEditor", "@/Components/form/fields/TranslatableEditor")
+                new TsImportString("TranslatableTextarea", "@/components/form/fields/translatable-textarea")
             ];
         } else {
-            $attributes = [
-                [
-                    'key' => 'onChange',
-                    'value' => "(e) => setData(\"{$this->name}\", e.target.value)"
-                ]
-            ];
             $tag = "TranslatableInput";
             $imports = [
-                new TsImportString("TranslatableInput", "@/Components/form/fields/TranslatableInput")
+                new TsImportString("TranslatableInput", "@/components/form/fields/translatable-input")
             ];
         }
 
         if ($formType == "update") {
             $attributes[] = [
                 'key' => 'defaultValue',
-                'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
+                'value' => "{$this->table()->variableNaming()}.{$this->name}"
             ];
         }
 
@@ -213,18 +207,19 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
 
     public function displayComponentString(): ReactTsDisplayComponentString
     {
-        $modelVariable = $this->getOwnerTable()->variableNaming();
+        $modelVariable = $this->table()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            $this->isTextable() ? "LongTextField" : "SmallTextField",
+            "DetailItem",
             $this->labelNaming(),
             "translate({$modelVariable}{$nullable}.{$this->name})",
             [
-                $this->isTextable()
-                    ? new TsImportString("LongTextField", "@/Components/Show/LongTextField")
-                    : new TsImportString("SmallTextField", "@/Components/Show/SmallTextField"),
-                new TsImportString("translate", "@/Models/Translatable", false),
-            ]
+                new TsImportString("DetailItem", "@/components/ui/detail-item"),
+                new TsImportString("translate", "@/models/translatable", false),
+            ],
+            $this->isTextable()
+                ? ['orientation' => '"vertical"', "className" => '"md:col-span-2"']
+                : []
         );
     }
 

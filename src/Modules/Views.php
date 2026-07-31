@@ -86,7 +86,7 @@ class Views
             : "blade.php";
 
         $resourcePath = $frontendType == FrontendTypeEnum::REACT_TS
-            ? "resources/js/Pages"
+            ? "resources/js/pages"
             : "resources/views";
 
         $nameSeparator = $frontendType == FrontendTypeEnum::REACT_TS
@@ -142,7 +142,7 @@ class Views
             ? "tsx"
             : "blade.php";
         $resourcePath = $frontendType == FrontendTypeEnum::REACT_TS
-            ? "resources/js/Pages"
+            ? "resources/js/pages"
             : "resources/views";
 
         $path = "{$resourcePath}/" . $name . ".$extension";
@@ -161,7 +161,7 @@ class Views
             ? "tsx"
             : "blade.php";
         $resourcePath = $frontendType == FrontendTypeEnum::REACT_TS
-            ? "resources/js/Pages"
+            ? "resources/js/pages"
             : "resources/views";
         return new self(
             name: "index",

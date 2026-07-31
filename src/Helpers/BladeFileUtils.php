@@ -52,12 +52,12 @@ class BladeFileUtils
     public static function addColumnToDataTable(CubePath $filePath, DataTableColumnString $columnObject, HtmlTableHeaderString $columnHeader): bool
     {
         if (!$filePath->exist()) {
-            CubeLog::notFound($filePath->fullPath, "Trying To Add $columnObject->name column object To The Datatable Columns in : [$filePath->fullPath]");
+            CubeLog::notFound($filePath->fullPath, "Trying To Add $columnObject->name column object To The datatable Columns in : [$filePath->fullPath]");
             return false;
         }
 
         if (FileUtils::contentExistInFile($filePath, $columnObject)) {
-            CubeLog::contentAlreadyExists($columnObject, $filePath->fullPath, "Trying To Add $columnObject->name column object To The Datatable Columns in : [$filePath->fullPath]");
+            CubeLog::contentAlreadyExists($columnObject, $filePath->fullPath, "Trying To Add $columnObject->name column object To The datatable Columns in : [$filePath->fullPath]");
             return false;
         }
 
@@ -70,14 +70,14 @@ class BladeFileUtils
             if (!preg_match($pattern, $fileContent, $htmlMatches)) {
                 CubeLog::warning(
                     "We Couldn't find the Proper Place To Add New Column In The HTML Of [$filePath->fullPath]",
-                    "Trying To Add $columnObject->name column object To The Datatable Columns in : [$filePath->fullPath]"
+                    "Trying To Add $columnObject->name column object To The datatable Columns in : [$filePath->fullPath]"
                 );
                 return false;
             }
             if (empty($htmlMatches[6])) {
                 CubeLog::warning(
                     "We Couldn't find the Proper Place To Add New Column In The HTML Of [$filePath->fullPath]",
-                    "Trying To Add $columnObject->name column object To The Datatable Columns in : [$filePath->fullPath]"
+                    "Trying To Add $columnObject->name column object To The datatable Columns in : [$filePath->fullPath]"
                 );
                 return false;
             }
@@ -90,12 +90,12 @@ class BladeFileUtils
         }
 
         // Find the column array
-        $pattern = '/DataTable\s*\(\s*\{(.*?)columns\s*:\s*\[(.*?)](.*)}\)/s';
+        $pattern = '/Datatable\s*\(\s*\{(.*?)columns\s*:\s*\[(.*?)](.*)}\)/s';
 
         if (!preg_match($pattern, $fileContent, $objectMatches)) {
             CubeLog::warning(
                 "We Couldn't find the Proper Place To Add New Column In The HTML Of [$filePath->fullPath]",
-                "Trying To Add $columnObject->name column object To The Datatable Columns in : [$filePath->fullPath]"
+                "Trying To Add $columnObject->name column object To The datatable Columns in : [$filePath->fullPath]"
             );
             return false;
         }
@@ -103,7 +103,7 @@ class BladeFileUtils
         if (empty($objectMatches[2])) {
             CubeLog::warning(
                 "We Couldn't find the Proper Place To Add New Column In The HTML Of [$filePath->fullPath]",
-                "Trying To Add $columnObject->name column object To The Datatable Columns in : [$filePath->fullPath]"
+                "Trying To Add $columnObject->name column object To The datatable Columns in : [$filePath->fullPath]"
             );
             return false;
         }

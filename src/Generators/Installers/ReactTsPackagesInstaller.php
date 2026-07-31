@@ -10,6 +10,7 @@ use Cubeta\CubetaStarter\Helpers\PackageManager;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Stub\Publisher;
+use Illuminate\Support\Facades\Artisan;
 
 class ReactTsPackagesInstaller extends AbstractGenerator
 {
@@ -35,9 +36,9 @@ class ReactTsPackagesInstaller extends AbstractGenerator
         PackageManager::npmInstall([
             'laravel-vite-plugin',
             '@inertiajs/react',
+            "@inertiajs/vite",
             'tailwindcss',
             "@tailwindcss/vite",
-            '@tailwindcss/forms',
             '@types/node',
             '@types/react',
             '@types/react-dom',
@@ -45,26 +46,56 @@ class ReactTsPackagesInstaller extends AbstractGenerator
             'react',
             'react-dom',
             'typescript',
-            '@tinymce/tinymce-react',
-            '@vitejs/plugin-react-refresh',
-            'autoprefixer',
-            'sweetalert2',
-            'sweetalert2-react-content',
-            'react-toastify',
-            "vite"
+            "vite",
+            //tiptap
+            "@tiptap/extension-blockquote",
+            "@tiptap/extension-bullet-list",
+            "@tiptap/extension-character-count",
+            "@tiptap/extension-color",
+            "@tiptap/extension-font-family",
+            "@tiptap/extension-gapcursor",
+            "@tiptap/extension-heading",
+            "@tiptap/extension-horizontal-rule",
+            "@tiptap/extension-image",
+            "@tiptap/extension-link",
+            "@tiptap/extension-list-item",
+            "@tiptap/extension-ordered-list",
+            "@tiptap/extension-table",
+            "@tiptap/extension-table-cell",
+            "@tiptap/extension-table-header",
+            "@tiptap/extension-table-row",
+            "@tiptap/extension-text-align",
+            "@tiptap/extension-text-style",
+            "@tiptap/extension-youtube",
+            "@tiptap/react",
+            "@tiptap/starter-kit",
+            // filepond
+            "filepond",
+            "filepond-plugin-file-poster",
+            "filepond-plugin-file-validate-type",
+            "filepond-plugin-image-exif-orientation",
+            "filepond-plugin-image-preview",
+            "react-filepond",
         ]);
 
         $this->configurePrettier();
         Settings::make()->setInstalledWeb();
         Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
         Settings::make()->setInstalledWebPackages();
+
+        Artisan::call('vendor:publish', [
+            '--provider' => 'Inertia\\ServiceProvider',
+            '--force' => true
+        ]);
+
+        Artisan::call('view:clear');
     }
 
     public function preparePackageJson(): void
     {
         $packageJsonPath = CubePath::make('/package.json');
 
-        if (!$packageJsonPath->exist()){
+        if (!$packageJsonPath->exist()) {
             FileUtils::executeCommandInTheBaseDirectory("npm init -y");
         }
 

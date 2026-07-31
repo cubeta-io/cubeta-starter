@@ -12,12 +12,12 @@ use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
 use Cubeta\CubetaStarter\Logs\Info\SuccessMessage;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use function Laravel\Prompts\info;
-
+use JetBrains\PhpStorm\FileReference;
 
 class FileUtils
 {
@@ -34,14 +34,14 @@ class FileUtils
     }
 
     /**
-     * @param array  $stubProperties
+     * @param array $stubProperties
      * @param string $path
      * @param string $stubPath
-     * @param bool   $override
+     * @param bool $override
      * @return void
      * @throws FileNotFoundException
      */
-    public static function generateFileFromStub(array $stubProperties, string $path, string $stubPath, bool $override = false): void
+    public static function generateFileFromStub(array $stubProperties, string $path, #[FileReference(basePath: "src/Stub/stubs/")] string $stubPath, bool $override = false): void
     {
         CreateFile::make()
             ->setPath($path)
@@ -64,7 +64,7 @@ class FileUtils
 
     /**
      * format the js|ts|jsx|... file on the given path
-     * @param $filePath string the project path of the file eg:resources/js/Pages/page.tsx
+     * @param $filePath string the project path of the file eg:resources/js/pages/page.tsx
      * @return void
      */
     public static function formatWithPrettier(string $filePath): void
@@ -76,7 +76,7 @@ class FileUtils
 
     /**
      * @param string $command
-     * @param bool   $withLog
+     * @param bool $withLog
      * @return false|string|null
      */
     public static function executeCommandInTheBaseDirectory(string $command, bool $withLog = true): bool|string|null
@@ -85,15 +85,17 @@ class FileUtils
             $rootDirectory = base_path();
             $fullCommand = sprintf('cd %s && %s', escapeshellarg($rootDirectory), $command);
 
-            if (php_sapi_name() == "cli") {
-                info("Running command : [$command]");
-            } elseif ($withLog) {
+            if ($withLog) {
                 CubeLog::info("Running command : [$command]");
             }
 
-            $output = shell_exec($fullCommand);
+            $output = self::runCommandWithPipes(
+                command: $command,
+                fullCommand: $fullCommand,
+                echoOutput: php_sapi_name() == "cli"
+            );
 
-            if (is_string($output) && $withLog) {
+            if ($withLog && is_string($output) && !empty($output)) {
                 CubeLog::add($output);
             }
 
@@ -106,10 +108,68 @@ class FileUtils
     }
 
     /**
+     * Run a command through proc_open, capture its output, and optionally echo
+     * it in real-time. This replaces shell_exec so stdout and stderr are both
+     * captured reliably instead of letting stderr leak past silently.
+     */
+    private static function runCommandWithPipes(string $command, string $fullCommand, bool $echoOutput): string|false
+    {
+        $process = proc_open(
+            $fullCommand . ' 2>&1',
+            [
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w'],
+            ],
+            $pipes,
+            base_path()
+        );
+
+        if (!is_resource($process)) {
+            CubeLog::error("Failed to execute command: [$command]");
+            return false;
+        }
+
+        stream_set_blocking($pipes[1], false);
+        stream_set_blocking($pipes[2], false);
+
+        $output = '';
+
+        while (!feof($pipes[1]) || !feof($pipes[2])) {
+            $stdout = fread($pipes[1], 4096);
+            $stderr = fread($pipes[2], 4096);
+
+            if ($stdout !== '' && $stdout !== false) {
+                if ($echoOutput) {
+                    echo $stdout;
+                    flush();
+                }
+                $output .= $stdout;
+            }
+
+            if ($stderr !== '' && $stderr !== false) {
+                if ($echoOutput) {
+                    fwrite(STDERR, $stderr);
+                    fflush(STDERR);
+                }
+                $output .= $stderr;
+            }
+
+            usleep(10000);
+        }
+
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        proc_close($process);
+
+        return $output;
+    }
+
+    /**
      * add the use statement to the top of the desired file
-     * @param string   $importStatement
+     * @param string $importStatement
      * @param CubePath $filePath
      * @return void
+     * @throws Exception
      */
     public static function addImportStatement(string $importStatement, CubePath $filePath): void
     {
@@ -134,23 +194,76 @@ class FileUtils
         $filePath->format();
     }
 
-    public static function tsAddImportStatement(string $importStatement, CubePath $filePath): void
+    public static function tsAddImportStatement(TsImportString $import, CubePath $filePath): void
     {
-        if (self::contentExistInFile($filePath, $importStatement)) {
+        if (self::contentExistInFile($filePath, $import)) {
             return;
         }
 
+
         $fileContent = $filePath->getContent();
-        $fileContent = "\n{$importStatement}\n{$fileContent}";
+
+        if (self::tsImportExists($fileContent, $import)) {
+            CubeLog::contentAlreadyExists($import , $filePath);
+            return;
+        }
+
+        $fileContent = "\n{$import}\n{$fileContent}";
         $filePath->putContent($fileContent);
         $filePath->format();
     }
 
+    public static function tsImportExists(string $fileContent, TsImportString $tsImport): bool
+    {
+        // Normalize line endings so multiline imports are handled consistently
+        $content = str_replace(["\r\n", "\r"], "\n", $fileContent);
+
+        $from = preg_quote($tsImport->from, '/');
+
+        // Case 1: Side-effect import → import "path";
+        if ($tsImport->import === null) {
+            $pattern = '/^\s*import\s+["\']' . $from . '["\']\s*;?/m';
+            return preg_match($pattern, $content) === 1;
+        }
+
+        $import = preg_quote($tsImport->import, '/');
+
+        // Case 2: Default import → import Name from "path";
+        if ($tsImport->default) {
+            $pattern = '/^\s*import\s+' . $import . '\s+from\s+["\']' . $from . '["\']\s*;?/m';
+            return preg_match($pattern, $content) === 1;
+        }
+
+        // Case 3: Named import → import { Name } from "path";
+        // Also handles multiline and mixed imports like: import { A, Name, B } from "path";
+        $pattern = '/^\s*import\s*(?:type\s+)?\{\s*([^}]*)\s*\}\s*from\s+["\']' . $from . '["\']\s*;?/m';
+
+        if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER) === false) {
+            return false;
+        }
+
+        foreach ($matches as $match) {
+            // Split by comma and check each imported name
+            $importsInBraces = array_map('trim', explode(',', $match[1]));
+
+            foreach ($importsInBraces as $imp) {
+                // Strip potential aliases: "Name as Alias" → "Name"
+                $parts = preg_split('/\s+as\s+/i', $imp);
+                $actualName = trim($parts[0]);
+
+                if ($actualName === $tsImport->import) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     /**
      * check if content exists in a file
      * @param CubePath $filePath
-     * @param string   $needle
+     * @param string $needle
      * @return bool
      */
     public static function contentExistInFile(CubePath $filePath, string $needle): bool

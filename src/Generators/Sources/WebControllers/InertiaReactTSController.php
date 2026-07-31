@@ -13,6 +13,7 @@ use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\SidebarItemString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Controllers\ControllerStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -80,7 +81,7 @@ class InertiaReactTSController extends AbstractGenerator
 
     public function addSidebarItem(string $indexRoute, string $title): void
     {
-        $sidebarPath = CubePath::make("/resources/js/components/ui/Sidebar.tsx");
+        $sidebarPath = CubePath::make("/resources/js/components/dashboard/sidebar/app-sidebar.tsx");
 
         if (!$sidebarPath->exist()) {
             CubeLog::add(new NotFound("$sidebarPath->fullPath", "Adding $title To Sidebar items when generating web controller"));
@@ -115,7 +116,7 @@ class InertiaReactTSController extends AbstractGenerator
 
         $updatedContent = preg_replace_callback($pattern, $callback, $fileContent);
         $sidebarPath->putContent($updatedContent);
-        FileUtils::tsAddImportStatement('import TableCells from "@/Components/icons/TableCells";', $sidebarPath);
+        FileUtils::tsAddImportStatement(new TsImportString('TableIcon', "lucide-react", false), $sidebarPath);
         $sidebarPath->format();
         CubeLog::contentAppended($newSidebarItem, $sidebarPath->fullPath);
     }

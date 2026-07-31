@@ -4,6 +4,7 @@ namespace App\Modules;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use JsonSerializable;

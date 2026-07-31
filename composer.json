@@ -1,46 +1,47 @@
 {
-    "name": "cubeta/cubeta-starter",
-    "description": "Cubeta-Starter: A developer's Swiss army knife for seamless CRUD operations. Choose between core integration or dev dependency. Enjoy a user-friendly GUI for code generation, enhancing your development workflow. Say goodbye to repetition, embrace productivity with Cubeta-Starter!",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "cubeta",
-            "email": "development@cubeta.io"
-        }
-    ],
-    "require": {
-        "spatie/laravel-package-tools": "^1.92.0",
-        "illuminate/support": "^v12.0.0",
-        "laravel/framework": "^v12.0.0",
-        "laravel/prompts": "^0.3.5"
-    },
-    "require-dev": {
-        "orchestra/testbench": "^v10.0.0",
-        "laravel/pint": "^1.7",
-        "tightenco/ziggy": "^2.5",
-        "maatwebsite/excel": "^3.1",
-        "inertiajs/inertia-laravel": "^2.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "Cubeta\\CubetaStarter\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Cubeta\\CubetaStarter\\tests\\": "tests/"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Cubeta\\CubetaStarter\\CubetaStarterServiceProvider"
-            ]
-        }
-    },
-    "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
+  "name": "cubeta/cubeta-starter",
+  "description": "Cubeta-Starter: A developer's Swiss army knife for seamless CRUD operations. Choose between core integration or dev dependency. Enjoy a user-friendly GUI for code generation, enhancing your development workflow. Say goodbye to repetition, embrace productivity with Cubeta-Starter!",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "cubeta",
+      "email": "development@cubeta.io"
     }
+  ],
+  "require": {
+    "php": "^8.3",
+    "spatie/laravel-package-tools": "^1.92.0",
+    "illuminate/support": "^v13.0.0",
+    "laravel/framework": "^v13.0.0",
+    "laravel/prompts": "^0.3.5"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^v11.0.0",
+    "laravel/pint": "^1.7",
+    "tightenco/ziggy": "^2.5",
+    "maatwebsite/excel": "^3.1",
+    "inertiajs/inertia-laravel": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Cubeta\\CubetaStarter\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Cubeta\\CubetaStarter\\tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Cubeta\\CubetaStarter\\CubetaStarterServiceProvider"
+      ]
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
 }

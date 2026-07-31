@@ -21,6 +21,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayCompon
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
+use JetBrains\PhpStorm\ExpectedValues;
 
 class CubeDate extends CubeDateable implements HasFakeMethod,
     HasMigrationColumn,
@@ -81,7 +82,7 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
     public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
     {
         $attributes = [];
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
         if ($formType == "update") {
             $attributes[] = [
                 'key' => ':value',
@@ -101,7 +102,7 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
 
     public function bladeDisplayComponent(): DisplayComponentString
     {
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
         $modelVariable = $table->variableNaming();
         $label = $this->labelNaming();
         return new DisplayComponentString(
@@ -119,34 +120,33 @@ class CubeDate extends CubeDateable implements HasFakeMethod,
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
         $attributes = [
             [
-                'key' => 'type',
-                'value' => '"date"'
-            ],
-            [
                 'key' => 'onChange',
-                'value' => "(e) => setData(\"{$this->name}\", e.target?.value)"
+                'value' => $this->nullable
+                    ? '(v) => setData("' . $this->name . '", v ? format(v, "yyyy-MM-dd") : undefined)'
+                    : '(v) => v && setData("' . $this->name . '", format(v, "yyyy-MM-dd"))'
             ]
         ];
 
         if ($formType == "update") {
             $attributes[] = [
                 'key' => 'defaultValue',
-                'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
+                'value' => "{$this->table()->variableNaming()}.{$this->name}"
             ];
         }
 
         return new TsxInputComponentString(
-            "Input",
+            "DatePicker",
             $this->name,
             $this->labelNaming(),
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("Input", "@/Components/form/fields/Input")
+                new TsImportString("DatePicker", "@/components/form/fields/date-picker"),
+                new TsImportString("format", "date-fns", false)
             ]
         );
     }

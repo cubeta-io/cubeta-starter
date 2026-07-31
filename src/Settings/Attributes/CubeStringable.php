@@ -23,6 +23,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactT
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Illuminate\Support\Str;
+use JetBrains\PhpStorm\ExpectedValues;
 
 class CubeStringable extends CubeAttribute implements
     HasFakeMethod,
@@ -120,7 +121,7 @@ class CubeStringable extends CubeAttribute implements
     public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
     {
         $attributes = [];
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
 
         if ($formType == "update") {
             $attributes[] = [
@@ -150,7 +151,7 @@ class CubeStringable extends CubeAttribute implements
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
         $attributes = [
             [
@@ -166,7 +167,7 @@ class CubeStringable extends CubeAttribute implements
         if ($formType == "update") {
             $attributes[] = [
                 'key' => 'defaultValue',
-                'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
+                'value' => "{$this->table()->variableNaming()}.{$this->name}"
             ];
         }
 
@@ -177,7 +178,7 @@ class CubeStringable extends CubeAttribute implements
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("Input", "@/Components/form/fields/Input")
+                new TsImportString("Input", "@/components/form/fields/input")
             ]
         );
     }
@@ -200,14 +201,14 @@ class CubeStringable extends CubeAttribute implements
 
     public function displayComponentString(): ReactTsDisplayComponentString
     {
-        $modelVariable = $this->getOwnerTable()->variableNaming();
+        $modelVariable = $this->table()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            "SmallTextField",
+            "DetailItem",
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name}",
             [
-                new TsImportString("SmallTextField", "@/Components/Show/SmallTextField")
+                new TsImportString("DetailItem", "@/components/ui/detail-item")
             ]
         );
     }

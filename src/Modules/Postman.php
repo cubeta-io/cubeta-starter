@@ -241,7 +241,6 @@ class Postman
                         ['key' => 'email', 'value' => "$role@email.com", 'type' => 'text'],
                         ['key' => 'password', 'value' => "123456789", 'type' => 'text'],
                         ['key' => 'password_confirmation', 'value' => "123456789", 'type' => 'text'],
-                        ['key' => 'fcm_token', 'value' => "", 'type' => 'text']
                     ]
                 ),
 

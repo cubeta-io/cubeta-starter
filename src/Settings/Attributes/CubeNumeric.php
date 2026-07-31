@@ -30,6 +30,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactT
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
+use JetBrains\PhpStorm\ExpectedValues;
 
 class CubeNumeric extends CubeAttribute implements HasFakeMethod,
     HasMigrationColumn,
@@ -90,7 +91,7 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod,
     public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
     {
         $attributes = [];
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
 
         if ($formType == "update") {
             $attributes[] = [
@@ -132,7 +133,7 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod,
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
         $attributes = [
             [
@@ -148,7 +149,7 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod,
         if ($formType == "update") {
             $attributes[] = [
                 'key' => 'defaultValue',
-                'value' => "{$this->getOwnerTable()->variableNaming()}.{$this->name}"
+                'value' => "{$this->table()->variableNaming()}.{$this->name}"
             ];
         }
 
@@ -159,21 +160,21 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod,
             $this->isRequired,
             $attributes,
             [
-                new TsImportString("Input", "@/Components/form/fields/Input")
+                new TsImportString("Input", "@/components/form/fields/input")
             ]
         );
     }
 
     public function displayComponentString(): ReactTsDisplayComponentString
     {
-        $modelVariable = $this->getOwnerTable()->variableNaming();
+        $modelVariable = $this->table()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            "SmallTextField",
+            "DetailItem",
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name}",
             [
-                new TsImportString("SmallTextField", "@/Components/Show/SmallTextField")
+                new TsImportString("DetailItem", "@/components/ui/detail-item")
             ]
         );
     }

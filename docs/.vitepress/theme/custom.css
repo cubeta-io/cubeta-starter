@@ -1,0 +1,51 @@
+/**
+ * Cubeta Starter brand theme.
+ * Maps VitePress brand CSS variables onto the logo palette:
+ *   - #165F96  primary blue (brand)
+ *   - #0A2540  deep navy (darker mark)
+ *   - #1E77BC  lighter blue (accents / hover)
+ * See https://vitepress.dev/reference/default-theme-config#theme-colors
+ */
+
+:root {
+  --vp-c-brand-1: #165f96;
+  --vp-c-brand-2: #1e77bc;
+  --vp-c-brand-3: #165f96;
+  --vp-c-brand-soft: rgba(22, 95, 150, 0.14);
+
+  /* Home hero name gradient (deep navy -> brand blue) */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #0a2540 20%, #165f96 60%, #1e77bc);
+
+  /* Hero logo glow using the brand blues */
+  --vp-home-hero-image-background-image: linear-gradient(
+    -45deg,
+    rgba(22, 95, 150, 0.55) 30%,
+    rgba(30, 119, 188, 0.55)
+  );
+  --vp-home-hero-image-filter: blur(44px);
+}
+
+.dark {
+  /* Lighten the brand on dark backgrounds for contrast/legibility */
+  --vp-c-brand-1: #4ba3e0;
+  --vp-c-brand-2: #1e77bc;
+  --vp-c-brand-3: #165f96;
+  --vp-c-brand-soft: rgba(75, 163, 224, 0.16);
+
+  --vp-home-hero-name-background: linear-gradient(120deg, #4ba3e0 20%, #1e77bc 60%, #165f96);
+  --vp-home-hero-image-background-image: linear-gradient(
+    -45deg,
+    rgba(22, 95, 150, 0.5) 30%,
+    rgba(30, 119, 188, 0.5)
+  );
+}
+
+/* Buttons follow the brand blue */
+:root {
+  --vp-button-brand-bg: var(--vp-c-brand-1);
+  --vp-button-brand-hover-bg: var(--vp-c-brand-2);
+  --vp-button-brand-active-bg: var(--vp-c-brand-3);
+  --vp-button-brand-border: var(--vp-c-brand-1);
+  --vp-button-brand-hover-border: var(--vp-c-brand-2);
+}

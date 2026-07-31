@@ -53,7 +53,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $builder = ShowPageStubBuilder::make()
             ->modelName($this->table->modelNaming())
             ->modelVariable($this->table->variableNaming())
-            ->editRouteName($this->table->editRoute($this->actor)->name);
+            ->editRouteName($this->table->editRoute($this->actor)->name)
+            ->import(new TsImportString($this->table->modelNaming(), $this->table->tsModelImportPath()));
 
         $this->table->attributes()
             ->whereInstanceOf(HasReactTsDisplayComponentString::class)
@@ -87,7 +88,8 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->indexRoute($this->table->indexRoute($this->actor, ContainerType::WEB)->name)
             ->importRoute($this->table->importRoute($this->actor, ContainerType::WEB)->name)
             ->exportRoute($this->table->exportRoute($this->actor, ContainerType::WEB)->name)
-            ->importExampleRoute($this->table->importExampleRoute($this->actor, ContainerType::WEB)->name);
+            ->importExampleRoute($this->table->importExampleRoute($this->actor, ContainerType::WEB)->name)
+            ->import(new TsImportString($this->table->modelNaming(), $this->table->tsModelImportPath()));
 
         $this->table->attributes()
             ->whereInstanceOf(HasDataTableColumnObjectString::class)
@@ -120,12 +122,11 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->merge($this->table->relations())
             ->whereInstanceOf(HasInterfacePropertyString::class)
             ->each(function (HasInterfacePropertyString|CubeAttribute|CubeRelation $item) use ($builder) {
-                if ($item instanceof CubeRelation) {
-                    if (!$item->relationModel()->getTSModelPath()->exist()) {
-                        return true;
-                    } else {
-                        $string = $item->interfacePropertyString();
-                    }
+                if (
+                    $item instanceof CubeRelation
+                    && !$item->relationModel()->getTSModelPath()->exist()
+                ) {
+                    return true;
                 } else {
                     $string = $item->interfacePropertyString();
                 }
@@ -147,25 +148,25 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->componentName("Edit")
             ->formTitle("Edit {$this->table->modelNaming()}")
             ->componentProps("{{$this->table->variableNaming()}}:{{$this->table->variableNaming()}:{$this->table->modelNaming()}}")
-            ->import(new TsImportString($this->table->modelNaming(), "@/Models/{$this->table->modelNaming()}"))
+            ->import(new TsImportString($this->table->modelNaming(), $this->table->tsModelImportPath()))
             ->action("post(route(\"{$updateRoute}\" , {$this->table->variableNaming()}.id));")
             ->when(
                 $this->table->hasTranslatableAttribute(),
-                fn($builder) => $builder->translatableContextOpenTag("<TranslatableInputsContext>")
-                    ->translatableContextCloseTag("</TranslatableInputsContext>")
-                    ->import(new TsImportString("TranslatableInputsContext", "@/Contexts/TranslatableInputsContext"))
+                fn($builder) => $builder->translatableContextOpenTag("<FormLocaleProvider>")
+                    ->translatableContextCloseTag("</FormLocaleProvider>")
+                    ->import(new TsImportString("FormLocaleProvider", "@/providers/form-locale-provider"))
             )->formFieldInterface(new InterfacePropertyString("_method", "'PUT'|'POST'", true));
 
         $builder->defaultValue("_method", "'PUT'");
 
         $this->table->attributes()
             ->each(function (CubeAttribute|HasReactTsInputString $attr) use ($builder) {
-                if (!$attr->isFile() && !$attr->isKey()) {
+                if (!$attr->isKey()) {
                     $builder->defaultValue($attr->name, "{$this->table->variableNaming()}?.{$attr->name}");
                 }
 
                 if ($attr instanceof HasReactTsInputString) {
-                    if ($attr->isText() || $attr->isTextable()) {
+                    if ($attr->isText() || $attr->isTextable() || $attr->isFile()) {
                         $builder->bigField($attr->inputComponent("update", $this->actor));
                     } else {
                         $builder->smallField($attr->inputComponent("update", $this->actor));
@@ -173,7 +174,16 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 }
 
                 if ($attr instanceof HasInterfacePropertyString) {
-                    $builder->formFieldInterface($attr->interfacePropertyString());
+                    if ($attr->isFile()) {
+                        $builder->formFieldInterface(new InterfacePropertyString(
+                            $attr->name,
+                            "Media|File|null",
+                            true,
+                            new TsImportString("Media", "@/models/media")
+                        ));
+                    } else {
+                        $builder->formFieldInterface($attr->interfacePropertyString());
+                    }
                 }
             });
 
@@ -201,15 +211,15 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->action("post(route(\"{$storeRoute}\"));")
             ->when(
                 $this->table->hasTranslatableAttribute(),
-                fn($builder) => $builder->translatableContextOpenTag("<TranslatableInputsContext>")
-                    ->translatableContextCloseTag("</TranslatableInputsContext>")
-                    ->import(new TsImportString("TranslatableInputsContext", "@/Contexts/TranslatableInputsContext"))
+                fn($builder) => $builder->translatableContextOpenTag("<FormLocaleProvider>")
+                    ->translatableContextCloseTag("</FormLocaleProvider>")
+                    ->import(new TsImportString("FormLocaleProvider", "@/providers/form-locale-provider"))
             )->formFieldInterface(new InterfacePropertyString("_method", "'PUT'|'POST'", true));
 
         $this->table->attributes()
             ->each(function (CubeAttribute $attr) use ($builder) {
                 if ($attr instanceof HasReactTsInputString) {
-                    if ($attr->isText() || $attr->isTextable()) {
+                    if ($attr->isText() || $attr->isTextable() || $attr->isFile()) {
                         $builder->bigField($attr->inputComponent("store", $this->actor));
                     } else {
                         $builder->smallField($attr->inputComponent("store", $this->actor));
@@ -217,7 +227,19 @@ class ReactTSPagesGenerator extends InertiaReactTSController
                 }
 
                 if ($attr instanceof HasInterfacePropertyString) {
-                    $builder->formFieldInterface($attr->interfacePropertyString());
+                    if ($attr->isFile()) {
+                        $builder->formFieldInterface(new InterfacePropertyString(
+                            $attr->name,
+                            "Media|File|null",
+                            true,
+                            new TsImportString("Media", "@/models/media")
+                        ));
+                    } else {
+                        if ($attr->isBoolean()) {
+                            $builder->defaultValue($attr->name, 'false');
+                        }
+                        $builder->formFieldInterface($attr->interfacePropertyString());
+                    }
                 }
             });
 

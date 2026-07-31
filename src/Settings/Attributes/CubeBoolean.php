@@ -32,6 +32,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactT
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
+use JetBrains\PhpStorm\ExpectedValues;
 
 class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     HasMigrationColumn,
@@ -99,7 +100,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
     {
         $attributes = [];
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
 
         if ($formType == "update") {
             $attributes[] = [
@@ -147,25 +148,30 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsInputComponentString
     {
-        $variableName = $this->getOwnerTable()->variableNaming();
+        $variableName = $this->table()->variableNaming();
         $labels = $this->booleanLabels();
         $attributes = [
             [
                 'key' => 'items',
-                'value' => "[{label:\"{$labels['true']}\" , value:true}, {label:\"{$labels['false']}\" , value:false}]"
+                'value' => "[{label:\"{$labels['true']}\" , value:1}, {label:\"{$labels['false']}\" , value:0}]"
             ],
             [
                 'key' => 'onChange',
-                'value' => "(e) => setData(\"{$this->name}\" , e.target.value == \"true\")"
+                'value' => "(v) => setData(\"{$this->name}\" , v == 1)"
             ]
         ];
 
         if ($formType == "update") {
             $attributes[] = [
                 'key' => 'checked',
-                'value' => "(val: any) => val == $variableName.{$this->name}"
+                'value' => "(v) => v == Number($variableName.{$this->name})"
+            ];
+        } else {
+            $attributes[] = [
+                'key' => 'checked',
+                'value' => "(v) => v == 0"
             ];
         }
 
@@ -177,7 +183,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
             imports: [
                 new TsImportString(
                     "Radio",
-                    "@/Components/form/fields/Radio"
+                    "@/components/form/fields/radio"
                 )
             ]
         );
@@ -185,14 +191,14 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
 
     public function displayComponentString(): ReactTsDisplayComponentString
     {
-        $modelVariable = $this->getOwnerTable()->variableNaming();
+        $modelVariable = $this->table()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            "SmallTextField",
+            "DetailItem",
             $this->labelNaming(),
             "{$modelVariable}{$nullable}.{$this->name} ? 'Yes' : 'No'",
             [
-                new TsImportString("SmallTextField", "@/Components/Show/SmallTextField")
+                new TsImportString("DetailItem", "@/components/ui/detail-item")
             ]
         );
     }
@@ -204,7 +210,10 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
             $this->labelNaming(),
             false,
             true,
-            "return cell ? (<span>Yes</span>) : (<span>No</span>)"
+            "return cell ? (<Badge>Yes</Badge>) : (<Badge variant=\"destructive\">No</Badge>);",
+            [
+                new TsImportString("Badge", "@/components/ui/badge", false),
+            ]
         );
     }
 }

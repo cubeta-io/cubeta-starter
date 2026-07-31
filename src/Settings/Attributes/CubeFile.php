@@ -32,6 +32,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactT
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
+use JetBrains\PhpStorm\ExpectedValues;
 
 class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInterfacePropertyString, HasReactTsInputString, HasReactTsDisplayComponentString
 {
@@ -68,7 +69,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         return new CastColumnString(
             $this->name,
-            "MediaCast::class",
+            "MediaCast::class . \":public,single\"",
             new PhpImportString("App\\Casts\\MediaCast")
         );
     }
@@ -77,13 +78,15 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         $rules = [
             ...$this->uniqueOrNullableValidationRules(),
-            new ValidationRuleString($this->isImageLike() ? 'image' : 'file'),
-            new ValidationRuleString('max:10000'),
+            new ValidationRuleString(
+                $this->isImageLike()
+                    ? 'new MediaValidationRule'
+                    : 'new MediaValidationRule(["file" , "max:10000"])',
+                [
+                    new PhpImportString('App\Rules\MediaValidationRule'),
+                ]
+            ),
         ];
-
-        if ($this->isImageLike()) {
-            $rules[] = new ValidationRuleString('mimes:jpeg,png,jpg,gif,svg,webp');
-        }
 
         return new PropertyValidationRuleString(
             $this->name,
@@ -127,7 +130,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
 
     public function bladeDisplayComponent(): DisplayComponentString
     {
-        $table = $this->getOwnerTable() ?? CubeTable::create($this->parentTableName);
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
         $modelVariable = $table->variableNaming();
         return new DisplayComponentString(
             "x-image-preview",
@@ -170,43 +173,56 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
             $this->name,
             "Media|undefined",
             true,
-            new TsImportString("Media", "@/Models/Media")
+            new TsImportString("Media", "@/models/media")
         );
     }
 
-    public function inputComponent(string $formType = "store", ?string $actor = null): TsxInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
     {
+        $props = [
+            [
+                'key' => 'onChange',
+                'value' => "(file) => setData(\"{$this->name}\", file)"
+            ],
+            [
+                'key' => 'acceptedFileTypes',
+                'value' => "['image/*']"
+            ],
+        ];
+
+        if ($formType == "update") {
+            $props[] = [
+                'key' => 'defaultValue',
+                'value' => "{$this->table()->variableNaming()}.{$this->name}"
+            ];
+        }
         return new TsxInputComponentString(
-            "Input",
+            "FilepondInput",
             $this->name,
             $this->titleNaming(),
             $this->isRequired,
+            $props,
             [
-                [
-                    'key' => 'onChange',
-                    'value' => "(e) => setData(\"{$this->name}\", e.target.files?.[0])"
-                ],
-                [
-                    'key' => 'type',
-                    'value' => "'file'"
-                ]
-            ],
-            [
-                new TsImportString("Input", "@/Components/form/fields/Input")
+                new TsImportString("FilepondInput", "@/components/form/fields/filepond/filepond-input")
             ]
         );
     }
 
     public function displayComponentString(): ReactTsDisplayComponentString
     {
-        $modelVariable = $this->getOwnerTable()->variableNaming();
+        $modelVariable = $this->table()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
         return new ReactTsDisplayComponentString(
-            "Gallery",
+            "DetailItem",
             $this->labelNaming(),
-            "{$modelVariable}{$nullable}.{$this->name}?.url",
+            "<Gallery sources={[{$modelVariable}{$nullable}.{$this->name}?.url]} />",
             [
-                new TsImportString("Gallery", "@/Components/Show/Gallery")
+                new TsImportString("Gallery", "@/components/ui/gallery"),
+                new TsImportString("DetailItem", "@/components/ui/detail-item")
+            ],
+            [
+                "className" => '"md:col-span-2"',
+                'orientation' => '"vertical"',
             ]
         );
     }

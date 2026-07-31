@@ -1,0 +1,19 @@
+import React, { ReactNode } from "react";
+import { ThemeProvider } from "@/providers/theme-provider";
+import ToasterProvider from "@/providers/toaster-provider";
+
+const AuthLayout = ({ children }: { children?: ReactNode }) => {
+    return (
+        <ThemeProvider defaultTheme={"system"}>
+            <ToasterProvider>
+                <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+                    <div className="w-full max-w-sm">
+                        <div className={"flex flex-col gap-6"}>{children}</div>
+                    </div>
+                </div>
+            </ToasterProvider>
+        </ThemeProvider>
+    );
+};
+
+export default AuthLayout;
