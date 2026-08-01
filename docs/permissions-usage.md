@@ -116,7 +116,7 @@ auth()->user()->hasPermission('create' , Product::class); // true
 auth()->user()->hasPermission('show' , Product::class); // false
 ```
 
-> [!note]
+> [!NOTE]
 > this check will check if one of the user roles has the provided permission and return true if exist .
 
 

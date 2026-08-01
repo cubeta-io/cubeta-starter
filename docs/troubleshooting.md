@@ -115,7 +115,7 @@ php artisan vendor:publish --tag=cubeta-starter-config
    ```bash
    php artisan cubeta:install web
    ```
-2. Check that the `CubetaStarterServiceProvider` is registered in your `config/app.php`
+2. Check that the `CubetaStarterServiceProvider` is registered in your `bootstrap/providers.php`
 3. Clear the view cache:
    ```bash
    php artisan view:clear

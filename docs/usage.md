@@ -62,10 +62,10 @@ principle (like if you put _**products**_ as a model name the package will autom
 but it is always better to provide the right names to the commands instead on depending on them in case of facing an
 unexpected behaviour .
 
-> [!info]
+> [!NOTE]
 > The `actor` parameter will define the actor on the created endpoints, and it is important for route placing and
 > naming , you'll be asked about it if you used our roles permission tool via the
-> command `php artisan cubeta:insall permissions`.
+> command `php artisan cubeta:install permissions`.
 
 ## Install Permissions Command
 
@@ -103,15 +103,14 @@ this command will initialize your project with the following :
 9. User.php ( _Model_ ) ( _this will override the existing User.php model file so be careful_ )
 10. UserRepository ( _Repository Class_ )
 11. UserService ( _Service Class_ )
-12. IUserService ( _Service Interface_ )
-13. 2014_10_12_000000_create_users_table.php ( _migration_ ) ( _this will override the existing users table migration
+12. 2014_10_12_000000_create_users_table.php ( _migration_ ) ( _this will override the existing users table migration
     file
     so be careful_ )
-14. ResetPasswordCodeEmail ( _Notification_ )
-15. set of routes for the dashboard authentication ( _for web_ )
-16. reset-password-email.blade.php ( _view_ )
-17. set of views for the authentication process ( _for web_ )
-18. a set of pages to handle your authentication flow based on your frontend stack
+13. ResetPasswordCodeEmail ( _Notification_ )
+14. set of routes for the dashboard authentication ( _for web_ )
+15. reset-password-email.blade.php ( _view_ )
+16. set of views for the authentication process ( _for web_ )
+17. a set of pages to handle your authentication flow based on your frontend stack
 
 Now as you see you are now ready to create your authentication endpoints powered up by those files and classes
 
@@ -125,11 +124,11 @@ extend it for every actor you want.
 This command will add the desired actor roles to your project like when you have (admin , customer , ....) roles in your
 project
 
-> [!note]
+> [!NOTE]
 > using this command require you to install the Permissions Feature by executing the
 > command `php artisan cubeta:install permissions`
 
-> [!warning]
+> [!WARNING]
 > make sure that your user model uses the `HasRoles` trait
 
 #### **how to use it :**
@@ -191,7 +190,7 @@ Do You Want To Create Authentication Api Controller For This Actor ? (yes/no) [y
  > yes
 ```
 
-> [!note]
+> [!NOTE]
 > You have to run `php artisan cubeta:install auth` if you'd like to create an authentication controller for your actor
 
 Now you will notice that the there is multiple files generated and some changes in your project files:
@@ -205,11 +204,11 @@ Now you will notice that the there is multiple files generated and some changes 
    your app routes
 7. the `student.php` and `public.php` route files has the auth routes for the generated controller
 
-> [!warning]
+> [!WARNING]
 > when overriding any file with the same name and directory of the generated file will be lost
 > so be careful
 
-> [!note]
+> [!NOTE]
 > this command works with the generated files of these commands :  `cubeta:install permissions` , `cubeta:install auth`
 > so make sure that you follow their steps before start adding actors
 
@@ -221,19 +220,19 @@ now if you opened the generated **StudentAuthController** you'll see the followi
 namespace App\Http\Controllers\API\v1;
 
 use App\Enums\RolesPermissionEnum;
-use App\Services\User\IUserService;
+use App\Services\User\UserService;
 
 class StudentAuthController extends BaseAuthController
 {
-    public function __construct(IUserService $userService)
+    public function __construct()
     {
-        parent::__construct($userService);
+        parent::__construct();
         $this->roleHook(RolesPermissionEnum::STUDENT['role']);
     }
 }
 ```
 
-> [!note]
+> [!NOTE]
 > all the namespaces and the generated directories are based on the config you defined in
 > the `config/cubeta-starter.php` file
 
@@ -282,7 +281,7 @@ public function register(AuthRegisterRequest $request)
 }
 ```
 
-> [!note]
+> [!NOTE]
 > the base purpose of this package isn't to strict you with specific ways to handle your project but is to give you
 > classes and traits and tools in your project code so that you can edit them as you want so dig in and start scanning
 > the code
@@ -306,28 +305,27 @@ then an output for each property of your model will appear like this :
 
 ```
 What is the data type of the (( name field )) ? default is  [string]:
-  [0 ] integer         
-  [1 ] bigInteger      
+  [0 ] integer
+  [1 ] bigInteger
   [2 ] unsignedBigInteger
-  [3 ] unsignedDouble  
-  [4 ] double          
-  [5 ] float           
-  [6 ] string          
+  [3 ] double
+  [4 ] float
+  [5 ] string
+  [6 ] text
   [7 ] json
-  [8 ] text
-  [9 ] boolean
-  [10] date
-  [11] time
-  [12] dateTime
-  [13] timestamp
-  [14] file
-  [15] key
-  [16] translatable
+  [8 ] boolean
+  [9 ] date
+  [10] time
+  [11] dateTime
+  [12] timestamp
+  [13] file
+  [14] key
+  [15] translatable
 ```
 
 those are the column type you just enter the number of the type
 
-> [!note]
+> [!NOTE]
 > the `key` type is a foreignId so if your column name is something like this : `user_id` you need to
 > define it as a key type
 
@@ -421,10 +419,11 @@ so you will find a :
 10. test class for your model with a test for CRUD operations
 11. postman collection
 
-> [!warning]
-> after the first generation a `cubeta-starter.config.json` file will be created in the base directory of your project
-> for now this file is useless for you but helpful for us to make you generating experience better but in the coming
-> releases it will give you a lot of features .
+> [!NOTE]
+> After the first generation a `cubeta-starter.config.json` file will be created in the base directory of your project.
+> It tracks your generated tables, chosen frontend stack, and which parts of the package you've installed. The package
+> reads it to power the GUI and to make smarter decisions on subsequent generations, so keep it under version control
+> and avoid editing it by hand.
 
 ### Create Model Command Options
 
@@ -435,7 +434,7 @@ if you execute this command :
 
 this command will generate the product model with a corresponding resource and controller .
 
-> [!note]
+> [!NOTE]
 > when not providing an option to the command it will generate the model and all its related files as we said before
 
 
@@ -452,6 +451,6 @@ this command will generate the product model with a corresponding resource and c
 9. `--web_controller`
 10. `--test`
 
-> [!note]
+> [!NOTE]
 > you cannot do the same thing using the gui . you have to generate every file alone
 > but instead you have a **full generation operation** page to generate the whole files with the model

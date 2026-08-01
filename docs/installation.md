@@ -4,8 +4,8 @@ This guide will walk you through the process of installing and setting up Cubeta
 
 ## Requirements
 
-- PHP 8.0 or higher
-- Laravel 8.0 or higher
+- PHP 8.3 or higher
+- Laravel 13 or higher
 - Composer
 
 ## Basic Installation
@@ -68,31 +68,36 @@ php artisan cubeta:install react-ts
 php artisan cubeta:install react-ts-packages
 ```
 
-> **Note**: You can generate code for one frontend stack alongside the API stack. When we refer to "web generating," this means generating for either Blade or React.ts stacks depending on your selection.
+> [!NOTE]
+> You can generate code for one frontend stack alongside the API stack. When we refer to "web generating," this means generating for either Blade or React.ts stacks depending on your selection.
 
-> **Note**: During installation, two route files will be generated (`protected` and `public`) based on your usage (web or API) in the `routes/v1/{selected-usage}/` directory. These will be registered in your route service provider.
+> [!NOTE]
+> During installation, two route files will be generated (`protected` and `public`) based on your usage (web or API) in the `routes/v1/{selected-usage}/` directory. These will be registered in your app's route registration (`bootstrap/app.php`).
 
 ## Important Considerations
 
-> **Warning**: Installing API or web components is critical for making the generated endpoints or pages work properly.
+> [!WARNING]
+> Installing API or web components is critical for making the generated endpoints or pages work properly.
 
-> **Warning**: Using the package GUI for installation will override any existing files with the same name and directory. If you want more control, use the terminal commands with or without the `--force` flag:
+> [!WARNING]
+> Using the package GUI for installation will override any existing files with the same name and directory. If you want more control, use the terminal commands with or without the `--force` flag:
 > ```bash
 > php artisan cubeta:install api --force
 > ```
 
-> **Tip**: It's good practice to ensure your project has a Git repository that tracks all your changes, as the package will generate a significant number of files.
+> [!TIP]
+> It's good practice to ensure your project has a Git repository that tracks all your changes, as the package will generate a significant number of files.
 
 ## What Gets Installed
 
 ### Accepted Language Middleware
 
-The package will publish a new middleware to handle your application localization and register it in your middleware aliases under the key `locale` in `/app/Http/Kernel.php`.
+The package will publish a new middleware to handle your application localization and register it in your middleware aliases under the key `locale` in your `bootstrap/app.php` file (via the `withMiddleware()` callback).
 
 ### CubetaStarterServiceProvider
 
-When installing the Blade web stack, the package will publish a new service provider and register it within the `providers` key in your `/bootstrap/providers.php` config file. This service provider registers the published Blade components.
+When installing the Blade web stack, the package will publish a new service provider and register it within the `providers` key in your `/bootstrap/providers.php` file. This service provider registers the published Blade components.
 
 ### HandleInertiaRequests Middleware
 
-If you choose the Inertia.js stack, the package will publish and register the `HandleInertiaRequests` middleware class in your `web` middleware group in `/app/Http/Kernel.php` as part of the [Inertia.js installation process](https://inertiajs.com/server-side-setup#middleware).
+If you choose the Inertia.js stack, the package will publish and register the `HandleInertiaRequests` middleware class in your `web` middleware group in `bootstrap/app.php` as part of the [Inertia.js installation process](https://inertiajs.com/server-side-setup#middleware).

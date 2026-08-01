@@ -6,7 +6,7 @@ The created models will have methods that help you control the flow of your appl
 
 the defined `searchableArray` method will power your index controllers with the ability to search inside the returned
 columns on within the requested query but this is a limitation to the usage of the `globalQuery` method in your model
-corresponding repository . check on the `all_with_paginatiom` method in the base repository then its call from the base
+corresponding repository . check on the `allWithPagination` method in the base repository then its call from the base
 service class .
 
 this mean querying your models like this :
@@ -118,16 +118,27 @@ corresponding table by using 2 query params :
 so when your request contain those params and your request uses the `globalQuery` method it will return the response
 data ordered by the selected column .
 
-> [!warning]
+> [!WARNING]
 > the functionality of the previous methods depends on using the `globalQuery` method based in the BaseRepository class
 > read more about it [here](base-repository.md#baserepository-class)
 
-## filesKeys method
+## File columns (MediaCast & HasMedia)
 
-this method is just to define your files columns in your model (the columns those store a file paths and accepts files
-in their creation process) .
-so when creating or updating a model using the base repository `create` , `update` methods each column his name exists
-in the returned array of this method will be treated as a file , this means that the repository will get this file and
-store it in the storage and save its path in the storage in the database column .
+File columns are handled through the `MediaCast` cast and the `HasMedia` trait, both added to the model automatically
+when it has a `file` column — you don't declare a list of file keys by hand.
+
+Any column cast to `\App\Casts\MediaCast::class` is treated as a file. So when you create or update a record through the
+repository's `create` / `update` methods and pass an uploaded file for that column, the file is stored and its path is
+saved in the column. The `HasMedia` trait also hooks into the model's `deleted` event to remove the stored files when a
+record is deleted.
+
+```php
+protected function casts(): array
+{
+    return [
+        'image' => \App\Casts\MediaCast::class,
+    ];
+}
+```
 
 

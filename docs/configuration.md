@@ -6,7 +6,7 @@ Cubeta Starter provides several configuration options to customize its behavior 
 
 After installing Cubeta Starter, you'll find a configuration file at `config/cubeta-starter.php`. This file contains all the settings you can adjust to customize the package's behavior.
 
-If the configuration file doesn't exist, you can publish it using:
+The config file is published for you when you run any of the install commands (`cubeta:install api`, `web`, or `react-ts`). If you ever need to (re)publish it on its own, use:
 
 ```bash
 php artisan vendor:publish --tag=cubeta-starter-config
@@ -14,123 +14,109 @@ php artisan vendor:publish --tag=cubeta-starter-config
 
 ## Available Configuration Options
 
+The configuration is a **flat** array of keys — each generated artifact has its own `*_namespace` and `*_path` entry. The real defaults are shown below.
+
 ### Project Settings
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `project_name` | The name of your project, used for naming the Postman collection | Your Laravel app name |
-| `project_url` | Your project's public URL, used in the Postman collection | `null` (defaults to `http://localhost/your-project/public/`) |
-| `version` | The version of the generated code structure | `"2.0"` |
+| `project_name` | The name of your project, used for naming the Postman collection | `'CubetaStarter'` |
+| `version` | The version segment of the generated code structure (used in namespaces/paths, e.g. `App\Http\Resources\v1`) | `'v1'` |
+| `project_url` | Your project's public URL, used in the Postman collection | `null` (falls back to `http://localhost/{project_name}/public/`) |
+| `generate_postman_collection_for_api_routes` | Whether to (re)generate/append a Postman collection for each generated API controller | `true` |
+| `postman_collection_path` | Where the Postman collection is written (empty = project root) | `''` |
 
 ### Localization Settings
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `available_locales` | Array of locales your application supports | `["en"]` |
-| `default_locale` | The default locale for your application | `"en"` |
+| `available_locales` | Array of locales your application supports | `['en']` |
+| `default_locale` | The default locale for your application | `'en'` |
 
 ### Directory and Namespace Settings
 
-The following settings control where generated files are placed and what namespaces they use:
-
-#### Models
+Each of the following is a pair of flat keys — a `*_namespace` (PHP namespace) and a `*_path` (filesystem path built with `join_paths(...)`). These control where generated files are placed:
 
 ```php
-'models' => [
-    'directory' => 'app/Models',
-    'namespace' => 'App\\Models',
-],
+// Models
+'model_namespace' => "App\Models",
+'model_path'      => join_paths('app', 'Models'),
+
+// Repositories (the base class lives under a Contracts sub-namespace)
+'repository_namespace' => "App\Repositories",
+'repository_path'      => join_paths('app', 'Repositories'),
+
+// Services (the base class lives under a Contracts sub-namespace)
+'service_namespace' => 'App\Services',
+'service_path'      => join_paths('app', 'Services'),
+
+// API controllers
+'api_controller_namespace' => 'App\Http\Controllers\API',
+'api_controller_path'      => join_paths('app', 'Http', 'Controllers', 'API'),
+
+// Web controllers
+'web_controller_namespace' => 'App\Http\Controllers\WEB',
+'web_controller_path'      => join_paths('app', 'Http', 'Controllers', 'WEB'),
+
+// Requests
+'request_namespace' => 'App\Http\Requests',
+'request_path'      => join_paths('app', 'Http', 'Requests'),
+
+// Resources
+'resource_namespace' => 'App\Http\Resources',
+'resource_path'      => join_paths('app', 'Http', 'Resources'),
+
+// Migrations (path only)
+'migration_path' => join_paths('database', 'migrations'),
+
+// Seeders
+'seeder_namespace' => 'Database\Seeders',
+'seeder_path'      => join_paths('database', 'seeders'),
+
+// Factories
+'factory_namespace' => 'Database\Factories',
+'factory_path'      => join_paths('database', 'factories'),
+
+// Tests
+'test_namespace' => 'Tests\Feature',
+'test_path'      => join_paths('tests', 'Feature'),
+
+// Traits
+'trait_namespace' => 'App\Traits',
+'trait_path'      => join_paths('app', 'Traits'),
+
+// Exceptions
+'exception_namespace' => 'App\Exceptions',
+'exception_path'      => join_paths('app', 'Exceptions'),
 ```
 
-#### Controllers
-
-```php
-'controllers' => [
-    'api' => [
-        'directory' => 'app/Http/Controllers/API/v1',
-        'namespace' => 'App\\Http\\Controllers\\API\\v1',
-    ],
-    'web' => [
-        'directory' => 'app/Http/Controllers/Web/v1',
-        'namespace' => 'App\\Http\\Controllers\\Web\\v1',
-    ],
-],
-```
-
-#### Requests
-
-```php
-'requests' => [
-    'directory' => 'app/Http/Requests',
-    'namespace' => 'App\\Http\\Requests',
-],
-```
-
-#### Resources
-
-```php
-'resources' => [
-    'directory' => 'app/Http/Resources',
-    'namespace' => 'App\\Http\\Resources',
-],
-```
-
-#### Repositories
-
-```php
-'repositories' => [
-    'directory' => 'app/Repositories',
-    'namespace' => 'App\\Repositories',
-    'contracts_directory' => 'app/Repositories/Contracts',
-    'contracts_namespace' => 'App\\Repositories\\Contracts',
-],
-```
-
-#### Services
-
-```php
-'services' => [
-    'directory' => 'app/Services',
-    'namespace' => 'App\\Services',
-    'interfaces_directory' => 'app/Services/Interfaces',
-    'interfaces_namespace' => 'App\\Services\\Interfaces',
-],
-```
-
-#### Routes
-
-```php
-'routes' => [
-    'api_directory' => 'routes/v1/api',
-    'web_directory' => 'routes/v1/web',
-],
-```
+> [!NOTE]
+> The `version` value is woven into generated namespaces and paths. For example, with `version => 'v1'` a resource is generated as `App\Http\Resources\v1\ProductResource`. Base classes such as `BaseRepository` and `BaseService` are placed under a `Contracts` sub-namespace of their configured namespace.
 
 ## Example Configuration
 
 Here's an example of a customized configuration:
 
 ```php
+use function Illuminate\Filesystem\join_paths;
+
 return [
     'project_name' => 'My E-commerce App',
-    'project_url' => 'https://myecommerce.example.com',
+    'project_url'  => 'https://myecommerce.example.com',
+    'version'      => 'v1',
+
     'available_locales' => ['en', 'fr', 'es'],
-    'default_locale' => 'en',
-    'version' => '2.0',
-    
-    'models' => [
-        'directory' => 'app/Domain/Models',
-        'namespace' => 'App\\Domain\\Models',
-    ],
-    
-    'controllers' => [
-        'api' => [
-            'directory' => 'app/Http/Controllers/Api',
-            'namespace' => 'App\\Http\\Controllers\\Api',
-        ],
-        // Other settings...
-    ],
-    // Other settings...
+    'default_locale'    => 'en',
+
+    // move models into a domain folder
+    'model_namespace' => 'App\Domain\Models',
+    'model_path'      => join_paths('app', 'Domain', 'Models'),
+
+    // customise the API controller location
+    'api_controller_namespace' => 'App\Http\Controllers\Api',
+    'api_controller_path'      => join_paths('app', 'Http', 'Controllers', 'Api'),
+
+    // ...the rest of the keys shown above
 ];
 ```
 
@@ -150,7 +136,7 @@ The configuration settings directly affect how and where files are generated:
 1. **Directory and Namespace Settings**: Control where files are created and what namespaces they use
 2. **Localization Settings**: Determine what locales are supported for translatable fields
 3. **Project Settings**: Affect the Postman collection and other project-specific features
-4. **Version**: Determines the structure of the generated code
+4. **Version**: The `version` value is inserted into generated namespaces and paths (e.g. `App\Http\Resources\v1\ProductResource`)
 
 ## Changing Configuration After Generation
 

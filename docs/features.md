@@ -88,16 +88,13 @@ Cubeta Starter implements the Repository pattern to separate data access logic:
 
 Example repository usage:
 ```php
-// Injected through dependency injection
-public function __construct(ProductRepository $productRepository)
-{
-    $this->productRepository = $productRepository;
-}
+// Repositories are singletons — obtain them via make()
+$repository = ProductRepository::make();
 
 // Using the repository
-$products = $this->productRepository->all();
-$product = $this->productRepository->find($id);
-$this->productRepository->create($data);
+$products = $repository->all();
+$product  = $repository->find($id);
+$repository->create($data);
 ```
 
 ### Service Pattern
@@ -111,14 +108,11 @@ Services encapsulate business logic:
 
 Example service usage:
 ```php
-// Injected through dependency injection
-public function __construct(ProductService $productService)
-{
-    $this->productService = $productService;
-}
+// Services are singletons too — obtain them via make()
+$service = ProductService::make();
 
 // Using the service
-$result = $this->productService->createProduct($request->validated());
+$product = $service->store($request->validated());
 ```
 
 ## Authentication & Authorization
@@ -128,9 +122,10 @@ $result = $this->productService->createProduct($request->validated());
 Support for multiple user types (actors):
 
 ```bash
-php artisan create:actor Admin
-php artisan create:actor Customer
+php artisan create:actor
 ```
+
+The command is interactive — it asks for the actor name (e.g. `admin`, `customer`), its permissions, and the container (api/web/both), then generates the role and its auth flow.
 
 This creates:
 - Role definitions
@@ -166,9 +161,12 @@ $table->json('name'); // Will be handled as translatable
 'name' => ['required', 'json', new ValidTranslatableJson]
 
 // In model
-protected $casts = [
-    'name' => Translatable::class,
-];
+protected function casts(): array
+{
+    return [
+        'name' => \App\Casts\Translatable::class,
+    ];
+}
 
 // Usage
 $product->name->en; // English name
@@ -191,9 +189,13 @@ Consistent API response format:
 
 ```php
 return rest()->ok()->data($data)->message('Success')->send();
-return rest()->created()->data($resource)->message('Created successfully')->send();
+return rest()->ok()->data($resource)->message('Created successfully')->send();
 return rest()->notFound()->message('Resource not found')->send();
 ```
+
+> [!TIP]
+> There are also convenience shorthands such as `rest()->createdSuccessfully($data)`, `rest()->getSuccessfully($data)`,
+> `rest()->updatedSuccessfully($data)` and `rest()->deleteSuccessfully()` — see the [ApiResponse reference](api-response.md#apiresponse) for the full list.
 
 ### API Resources
 
@@ -219,8 +221,10 @@ Automatic Postman collection generation:
 Generate tests for your models:
 
 ```bash
-php artisan create:test ProductTest
+php artisan create:test Product
 ```
+
+The command takes a **model name** (Product, Post, etc.), not a test class name.
 
 Features:
 - Tests for all CRUD operations

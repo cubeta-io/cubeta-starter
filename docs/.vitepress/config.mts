@@ -43,7 +43,8 @@ export default defineConfig({
 
     nav: [
       { text: 'Introduction', link: '/introduction' },
-      { text: 'Installation', link: '/installation' },
+      { text: 'Quickstart', link: '/quickstart' },
+      { text: 'Commands', link: '/commands' },
       { text: 'Usage', link: '/usage' },
       { text: 'Changelog', link: '/_changelog' },
       { text: 'Cubeta', link: 'https://cubeta.io/' },
@@ -55,6 +56,7 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Introduction', link: '/introduction' },
+          { text: 'Quickstart', link: '/quickstart' },
           { text: 'Installation', link: '/installation' },
           { text: 'Configuration', link: '/configuration' },
           { text: 'Features', link: '/features' },
@@ -65,6 +67,8 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Basic Usage', link: '/usage' },
+          { text: 'Commands Reference', link: '/commands' },
+          { text: 'Published Files', link: '/published-files' },
           { text: 'Generated Files', link: '/created-files' },
           { text: 'Models', link: '/created-model' },
           { text: 'Roles & Permissions', link: '/permissions-usage' },

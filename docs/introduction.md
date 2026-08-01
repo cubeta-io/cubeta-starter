@@ -41,6 +41,6 @@ All generated code follows Laravel best practices and is ready to use immediatel
 
 ## Getting Started
 
-Ready to accelerate your Laravel development? Check out our [Installation Guide](installation.md) to get started with Cubeta Starter.
+Ready to accelerate your Laravel development? The fastest path is the [Quickstart Guide](quickstart.md) — install, generate a model, and hit a working API in about 5 minutes.
 
-After installation, you can explore the [Usage Guide](usage.md) to learn how to generate your first CRUD operations.
+For more detail, see the [Installation Guide](installation.md), then the [Usage Guide](usage.md) and the [Commands Reference](commands.md) to learn every generator and option.

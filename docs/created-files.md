@@ -4,22 +4,19 @@
 
 As mentioned before you'll find a model class corresponding to the name you entered
 
-- the model will has the needed methods to represent your relations
-- it will have a method to get your file path named after it, so you can access its storage path
+- the model will have the needed methods to represent your relations
 - if you have a property of type `bool` you'll see a scope for it to make it easier to query data based on this
   property
-
 - you'll notice the existence of `searchableArray()` method in the returned array of this method you can define the
   searchable columns in the table of this model so in the index method if you passed a query param named `search` with
   the value of the wanted value the index method will search within the defined columns in the `searchableArray()`
   method .
 - you'll notice the existence of `relationsSearchableArray()` method in the returned array of this method you can define
   the related tables and their desired columns to search within in the same way for the `searchableArray()` method .
-- the `filesKeys()` method will determine the columns you want to treat them as a files so
-  the [BaseRepository Class](base-repository.md#baserepository-class) can recognize them. in this I mean when you use
-  the create
-  method for example the BaseRepository Class will detect that this column is representing a file, so it will store the
-  file in the storage path and its storage path will be in the record of the table .
+- file columns are handled through the `MediaCast` cast together with the `HasMedia` trait (both added to the model
+  automatically). Any column cast to `\App\Casts\MediaCast::class` is treated as a file: when you create or update a
+  record the uploaded file is stored and its path is saved in that column, and the file is cleaned up when the record
+  is deleted. You don't need to maintain a list of file columns by hand.
 
 **you'll find that we have already filled those arrays with appropriate values, but you can change them according to
 your preferences**
@@ -30,26 +27,26 @@ an extended explanation [here](created-model.md#created-models)
 
 the corresponding created migration will match the types of the columns you entered before
 
-> [!note]
+> [!NOTE]
 > columns of type files will be placed on the migration file as a string columns with a nullable
 > attribute
 
-> [!note]
+> [!NOTE]
 > columns of type key will be placed on the migration file as a `foreignIdFor` columns with these
 > attributes :
 > 1. constrained
 > 2. cascadeOnDelete
 
-> [!note]
+> [!NOTE]
 > columns of type translatable will be placed on the migration file as a `json` columns
 
-> [!tip]
+> [!TIP]
 > it is always better to check on the created files
 
 ## Controllers
 
-the created controller contains the five basic methods `(index , show , store , update , delete)` in addition to excel
-files exporting and importing methods `(export , import , importExample)`
+the created controller contains the five basic methods `(index , show , store , update , destroy)` in addition to excel
+files exporting and importing methods `(export , import , getImportExample)`
 
 ## Requests
 
@@ -68,7 +65,7 @@ each model property will have this rules : `required|PropertyType` unless this :
 | columns with text type                                                                                 | nullable ,string                            |
 | columns with translatable type                                                                         | required , json , new ValidTranslatableJson |
 
-> [!attention]
+> [!CAUTION]
 > it is important to check on the rules of the created form request after each created model to
 > make sure that these rules are compatible with your application purposes and to check if there is any invalid rule
 > usage
@@ -78,7 +75,7 @@ each model property will have this rules : `required|PropertyType` unless this :
 Fore each created model there will be a corresponding Json Resource class which extends the `BaseResource` class , this
 class extends the functionality of the JsonResource class and allows you to extend it more [BaseResource class is explained here](base-resource.md#baseresource).
 
-> [!warning]
+> [!WARNING]
 > this resource will return the relations of this model also
 
 ## Factories
@@ -90,7 +87,6 @@ the created factory fill the database according to this :
 | integer\|bigInteger\|unsignedBigInteger | fake()->numberBetween(1,2000)                                                                                                                                                          |
 | key type columns                        | a factory for the related model                                                                                                                                                        |
 | translatable type column                | json_encode(["en":fake()->word()]) in fact the array inside the `json_encode` method will be a fake word for each available locale you defined in the `cubeta-starter.php` config file |
-| unsignedDouble                          | fake()->randomFloat(1,2000)                                                                                                                                                            |
 | double                                  | fake()->randomFloat(1,2000)                                                                                                                                                            |
 | float                                   | fake()->randomFloat(1,2000)                                                                                                                                                            |
 | string                                  | fake()->sentence()                                                                                                                                                                     |
@@ -141,7 +137,7 @@ layer will be placed above the model layer and before the service layer (we will
 
 so any database operation related to your model we prefer you do it in the corresponding repository class .
 
-each repository class will be bind in the service provider by default (if it was created by the package)
+each repository is a singleton — you obtain it via its static `make()` method (provided by the `Makable` trait) rather than through dependency injection.
 
 if you opened the created repository class you'll notice that it extends another class named
 BaseRepository, and it is in the `app/Repositories/Contracts` Directory check on
@@ -162,18 +158,16 @@ article : [Service Design Patterns](https://davislevine.medium.com/service-desig
 and based on that we placed the code that handle the logic on the service layer and this layer will be placed above the
 repository layer .
 
-after your model creation is done you'll find 2 php files in the services' in the directory you defined in the package
-config
-file :
+after your model creation is done you'll find a `YourModelService.php` file in the services directory you defined in the
+package config file.
 
-1. `YourModelService.php` this is the service class
-2. `IYourModelService.php` this is the service interface
-
-if you opened the service class you will notice that the class extends a class named BaseService.
+if you opened the service class you'll notice that it extends `BaseService` and uses the `Makable` trait, so — like
+repositories — you obtain it through its static `make()` method rather than dependency injection. It also declares a
+`$repositoryClass` property pointing at the model's repository, which the base service uses for all data access.
 
 ## Tests
 
-foreach created model there will be a corresponding test class which extends `MainTestClass` you can find it in
+foreach created model there will be a corresponding test class which extends `MainTestCase` you can find it in
 the `tests/Feature` directory , this test class will test the CRUD endpoints , in the created test
 you'll see the following variables : `$model , $resource , $userType , $baseUrl` and you'll see that
 there is two of them have a value , but if we go to the others you need to know the following:
