@@ -31,6 +31,8 @@ class WebInstaller extends AbstractGenerator
     {
         Settings::make()->setFrontendType(FrontendTypeEnum::BLADE);
 
+        $this->installValidationPackages();
+
         $this->publishBaseRepository();
         $this->publishBaseService();
         $this->publishMakableTrait();

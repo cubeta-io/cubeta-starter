@@ -174,6 +174,14 @@ trait NamingConventions
     /**
      * @return string
      */
+    public function getDtoName(): string
+    {
+        return 'StoreUpdate' . $this->modelNaming() . 'DTO';
+    }
+
+    /**
+     * @return string
+     */
     public function getFactoryName(): string
     {
         return $this->modelNaming() . "Factory";

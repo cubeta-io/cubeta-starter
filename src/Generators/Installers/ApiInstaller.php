@@ -30,6 +30,7 @@ class ApiInstaller extends AbstractGenerator
     public function run(): void
     {
         PackageManager::composerInstall("maatwebsite/excel");
+        $this->installValidationPackages();
 
         $this->publishBaseRepository();
         $this->publishBaseService();

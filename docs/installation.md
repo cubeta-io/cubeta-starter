@@ -39,7 +39,12 @@ The package provides a user-friendly graphical interface to help you set up your
    - **Inertia, React, TypeScript, Tailwind**: Modern SPA-like experience
    - **No Frontend (API Only)**: For backend API development
 
-4. Based on your selection, you'll see additional installation options:
+4. Choose how the generated code validates the incoming requests data:
+   - **FormRequest**: the classic Laravel form requests (default)
+   - **DTO**: validated DTOs powered by `wendelladriel/laravel-validated-dto`, injected into the generated controllers
+   - **Both**: generate both classes — the generated controllers depend on the form request
+
+5. Based on your selection, you'll see additional installation options:
    - **Install For API Usage**: Sets up classes and traits for API-based CRUDs
    - **Install For Web Usage**: Sets up classes and traits for web-based CRUDs
    - **Install Both**: Sets up both API and web files

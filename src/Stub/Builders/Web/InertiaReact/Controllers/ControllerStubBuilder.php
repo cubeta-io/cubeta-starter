@@ -7,6 +7,9 @@ use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 
 /**
  * @method self requestNamespace(string $namespace)
+ * @method self requestClass(string $requestClass)
+ * @method self requestVariable(string $requestVariable)
+ * @method self validatedData(string $validatedData)
  * @method self modelNamespace(string $namespace)
  * @method self serviceNamespace(string $namespace)
  * @method self modelName(string $name)

@@ -39,6 +39,10 @@ class Installer extends BaseCommand
             return;
         }
 
+        if (in_array($plugin, ['api', 'web', 'react-ts'])) {
+            $this->askForValidationType();
+        }
+
         $override = $this->askForOverride();
 
         switch ($plugin) {

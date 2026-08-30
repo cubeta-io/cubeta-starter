@@ -19,12 +19,16 @@ use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Str;
+use Cubeta\CubetaStarter\StringValues\Contracts\Dtos\HasDtoCast;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoCastString;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
 
 class CubeKey extends CubeAttribute implements HasFakeMethod,
     HasMigrationColumn,
     HasPropertyValidationRule,
     HasDocBlockProperty,
-    HasInterfacePropertyString
+    HasInterfacePropertyString,
+    HasDtoCast
 {
     use RouteBinding;
 
@@ -110,6 +114,24 @@ class CubeKey extends CubeAttribute implements HasFakeMethod,
             $this->name,
             "number",
             $this->nullable,
+        );
+    }
+
+    public function dtoProperty(): DtoPropertyString
+    {
+        return new DtoPropertyString(
+            $this->name,
+            "int",
+            $this->nullable
+        );
+    }
+
+    public function dtoCast(): DtoCastString
+    {
+        return new DtoCastString(
+            $this->name,
+            "new IntegerCast()",
+            [new PhpImportString('WendellAdriel\ValidatedDTO\Casting\IntegerCast')]
         );
     }
 }

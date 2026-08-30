@@ -33,6 +33,10 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use JetBrains\PhpStorm\ExpectedValues;
+use Cubeta\CubetaStarter\StringValues\Contracts\Dtos\HasDtoCast;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoCastString;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 
 class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     HasMigrationColumn,
@@ -46,7 +50,8 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     HasInterfacePropertyString,
     HasReactTsInputString,
     HasReactTsDisplayComponentString,
-    HasDataTableColumnObjectString
+    HasDataTableColumnObjectString,
+    HasDtoCast
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -214,6 +219,24 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
             [
                 new TsImportString("Badge", "@/components/ui/badge", false),
             ]
+        );
+    }
+
+    public function dtoProperty(): DtoPropertyString
+    {
+        return new DtoPropertyString(
+            $this->name,
+            "bool",
+            $this->nullable
+        );
+    }
+
+    public function dtoCast(): DtoCastString
+    {
+        return new DtoCastString(
+            $this->name,
+            "new BooleanCast()",
+            [new PhpImportString('WendellAdriel\ValidatedDTO\Casting\BooleanCast')]
         );
     }
 }

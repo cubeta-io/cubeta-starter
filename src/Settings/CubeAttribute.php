@@ -26,11 +26,13 @@ use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
+use Cubeta\CubetaStarter\StringValues\Contracts\Dtos\HasDtoProperty;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
 
 /**
  *
  */
-class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayComponent
+class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayComponent, HasDtoProperty
 {
     use NamingConventions;
 
@@ -260,7 +262,7 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
         if ($this->unique) {
             $routeParameter = $this->table()->routeParameterNaming();
             $rules[] = new ValidationRuleString(
-                "Rule::unique('{$this->parentTableName}','{$this->name}')->when(\$this->isMethod('PUT'), fn(\$rule) => \$rule->ignore(\$this->route('$routeParameter')))",
+                "Rule::unique('{$this->parentTableName}','{$this->name}')->when(request()->isMethod('PUT'), fn(\$rule) => \$rule->ignore(request()->route('$routeParameter')))",
                 [new PhpImportString("Illuminate\Validation\Rule")]
             );
         }
@@ -272,6 +274,15 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
     {
         return new ResourcePropertyString(
             $this->name
+        );
+    }
+
+    public function dtoProperty(): DtoPropertyString
+    {
+        return new DtoPropertyString(
+            $this->name,
+            "string",
+            $this->nullable
         );
     }
 

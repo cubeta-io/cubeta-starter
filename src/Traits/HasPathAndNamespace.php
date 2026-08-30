@@ -3,6 +3,7 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Settings\Settings;
 use function Illuminate\Filesystem\join_paths;
 
 /**
@@ -105,6 +106,75 @@ trait HasPathAndNamespace
         return $prefixOnly
             ? ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}"
             : ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getRequestName()}";
+    }
+
+    /**
+     * @return CubePath
+     */
+    public function getDtoPath(): CubePath
+    {
+        return CubePath::make(config('cubeta-starter.dto_path') . "/{$this->version}/{$this->modelNaming()}/{$this->getDtoName()}.php");
+    }
+
+    /**
+     * @return string
+     */
+    public function getDtoClassString(): string
+    {
+        return "\\" . config('cubeta-starter.dto_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getDtoName()}";
+    }
+
+    public function getDtoNameSpace(bool $withStart = true, bool $prefixOnly = false): string
+    {
+        return $prefixOnly
+            ? ($withStart ? "\\" : "") . config('cubeta-starter.dto_namespace') . "\\{$this->version}\\{$this->modelNaming()}"
+            : ($withStart ? "\\" : "") . config('cubeta-starter.dto_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getDtoName()}";
+    }
+
+    /**
+     * the name of the validation class used by the generated controllers
+     * it depends on the chosen validation type within the settings file
+     * @return string
+     */
+    public function getValidationClassName(): string
+    {
+        return Settings::make()->getValidationType()->controllersUseDto()
+            ? $this->getDtoName()
+            : $this->getRequestName();
+    }
+
+    /**
+     * the namespace of the validation class used by the generated controllers
+     * @param bool $withStart
+     * @return string
+     */
+    public function getValidationNameSpace(bool $withStart = true): string
+    {
+        return Settings::make()->getValidationType()->controllersUseDto()
+            ? $this->getDtoNameSpace($withStart)
+            : $this->getRequestNameSpace($withStart);
+    }
+
+    /**
+     * the variable name of the injected validation class within the generated controllers
+     * @return string
+     */
+    public function getValidationVariableName(): string
+    {
+        return Settings::make()->getValidationType()->controllersUseDto()
+            ? "dto"
+            : "request";
+    }
+
+    /**
+     * how the generated controllers get the validated data from the injected validation class
+     * @return string
+     */
+    public function getValidatedDataString(): string
+    {
+        return Settings::make()->getValidationType()->controllersUseDto()
+            ? "\$dto->toArray()"
+            : "\$request->validated()";
     }
 
     /**

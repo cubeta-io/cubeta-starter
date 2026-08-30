@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter;
 
 use Cubeta\CubetaStarter\Commands\Generators\AddActor;
 use Cubeta\CubetaStarter\Commands\Generators\MakeController;
+use Cubeta\CubetaStarter\Commands\Generators\MakeDto;
 use Cubeta\CubetaStarter\Commands\Generators\MakeFactory;
 use Cubeta\CubetaStarter\Commands\Generators\MakeMigration;
 use Cubeta\CubetaStarter\Commands\Generators\MakeModel;
@@ -188,6 +189,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->hasCommand(MakeFactory::class)
             ->hasCommand(MakeSeeder::class)
             ->hasCommand(MakeRequest::class)
+            ->hasCommand(MakeDto::class)
             ->hasCommand(MakeRepository::class)
             ->hasCommand(MakeService::class)
             ->hasCommand(MakeTest::class)

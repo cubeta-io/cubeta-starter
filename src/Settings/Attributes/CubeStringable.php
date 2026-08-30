@@ -24,6 +24,9 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ExpectedValues;
+use Cubeta\CubetaStarter\StringValues\Contracts\Dtos\HasDtoCast;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoCastString;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 
 class CubeStringable extends CubeAttribute implements
     HasFakeMethod,
@@ -33,7 +36,8 @@ class CubeStringable extends CubeAttribute implements
     HasBladeInputComponent,
     HasInterfacePropertyString,
     HasReactTsInputString,
-    HasReactTsDisplayComponentString
+    HasReactTsDisplayComponentString,
+    HasDtoCast
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -210,6 +214,15 @@ class CubeStringable extends CubeAttribute implements
             [
                 new TsImportString("DetailItem", "@/components/ui/detail-item")
             ]
+        );
+    }
+
+    public function dtoCast(): DtoCastString
+    {
+        return new DtoCastString(
+            $this->name,
+            "new StringCast()",
+            [new PhpImportString('WendellAdriel\ValidatedDTO\Casting\StringCast')]
         );
     }
 }

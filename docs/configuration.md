@@ -62,6 +62,10 @@ Each of the following is a pair of flat keys — a `*_namespace` (PHP namespace)
 'request_namespace' => 'App\Http\Requests',
 'request_path'      => join_paths('app', 'Http', 'Requests'),
 
+// DTOs
+'dto_namespace' => 'App\DTOs',
+'dto_path'      => join_paths('app', 'DTOs'),
+
 // Resources
 'resource_namespace' => 'App\Http\Resources',
 'resource_path'      => join_paths('app', 'Http', 'Resources'),

@@ -58,6 +58,13 @@ return [
     'request_path' => join_paths('app', 'Http', 'Requests'),
 
     /**
+     * data transfer objects path and namespace
+     * used when the project is generating DTOs instead of (or beside) the form requests
+     */
+    'dto_namespace' => 'App\DTOs',
+    'dto_path' => join_paths('app', 'DTOs'),
+
+    /**
      * resources path and namespace
      */
     'resource_namespace' => 'App\Http\Resources',

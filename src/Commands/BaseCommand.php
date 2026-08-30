@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Enums\ValidationTypeEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Settings\Settings;
@@ -24,6 +25,27 @@ class BaseCommand extends Command
             options: ContainerType::ALL,
             default: ContainerType::API
         );
+    }
+
+    /**
+     * ask the user about the classes he wants to validate the requests data with
+     * then store his choice within the package settings file
+     * @return ValidationTypeEnum
+     */
+    public function askForValidationType(): ValidationTypeEnum
+    {
+        $choice = select(
+            label: "What Do You Want To Validate The Requests Data With ?",
+            options: ValidationTypeEnum::getAllValues(),
+            default: Settings::make()->getValidationType()->value,
+            hint: "The DTOs are generated using [wendelladriel/laravel-validated-dto] package and it will be installed for you"
+        );
+
+        $type = ValidationTypeEnum::tryFrom($choice) ?? ValidationTypeEnum::FORM_REQUEST;
+
+        Settings::make()->setValidationType($type);
+
+        return $type;
     }
 
     public function askForOverride(): bool
