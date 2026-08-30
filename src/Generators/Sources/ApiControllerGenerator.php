@@ -26,7 +26,10 @@ class ApiControllerGenerator extends AbstractGenerator
             ->modelName($this->table->modelName)
             ->serviceNamespace($this->table->getServiceNamespace(false))
             ->idVariable($this->table->idVariable())
-            ->requestNamespace($this->table->getRequestNameSpace(false))
+            ->requestNamespace($this->table->getValidationNameSpace(false))
+            ->requestClass($this->table->getValidationClassName())
+            ->requestVariable($this->table->getValidationVariableName())
+            ->validatedData($this->table->getValidatedDataString())
             ->serviceName($this->table->modelNaming())
             ->modelVariable($this->table->variableNaming())
             ->generate($controllerPath, $this->override);

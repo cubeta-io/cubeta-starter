@@ -13,6 +13,8 @@
         $installedRoles = \Cubeta\CubetaStarter\Settings\Settings::make()->installedRoles();
         $installedApiAuth = \Cubeta\CubetaStarter\Settings\Settings::make()->installedApiAuth();
         $installedWebAuth = \Cubeta\CubetaStarter\Settings\Settings::make()->installedWebAuth();
+        $validationTypes = \Cubeta\CubetaStarter\Enums\ValidationTypeEnum::getAllValues();
+        $currentValidationType = \Cubeta\CubetaStarter\Settings\Settings::make()->getValidationType();
     @endphp
 
     <div class="d-flex align-items-center justify-content-start flex-column w-100">
@@ -62,6 +64,20 @@
                                                 {{$stack}}
                                             </option>
                                         @endif
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <label class="form-check-label col-md-9 my-2" for="ask_validation_type">
+                                What do you want to validate the requests data with ?
+                            </label>
+                            <div class="col-md-3 my-2 select-container">
+                                <select class="rounded custom-select" name="validation_type" id="ask_validation_type">
+                                    @foreach($validationTypes as $validationType)
+                                        <option value="{{$validationType}}"
+                                                @selected($currentValidationType == \Cubeta\CubetaStarter\Enums\ValidationTypeEnum::tryFrom($validationType))>
+                                            {{$validationType}}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>

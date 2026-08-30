@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
+use Cubeta\CubetaStarter\Enums\ValidationTypeEnum;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 use Cubeta\CubetaStarter\Generators\Installers\ApiInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\AuthInstaller;
@@ -90,6 +91,10 @@ class GeneratorController extends Controller
 
         if (isset($data['override']) && $data['override'] == "override") {
             $override = true;
+        }
+
+        if (isset($data['validation_type']) && ValidationTypeEnum::tryFrom($data['validation_type'])) {
+            Settings::make()->setValidationType(ValidationTypeEnum::from($data['validation_type']));
         }
 
         if (isset($data['api']) && $data['api']) {

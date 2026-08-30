@@ -8,6 +8,7 @@ use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Helpers\PackageManager;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
@@ -18,6 +19,11 @@ use Cubeta\CubetaStarter\Stub\Builders\Traits\MakableTraitStubBuilder;
 
 abstract class AbstractGenerator
 {
+    /**
+     * the package used by the generated data transfer objects
+     */
+    public const DTO_PACKAGE = "wendelladriel/laravel-validated-dto";
+
     public string $type = '';
     public FrontendTypeEnum $frontType;
 
@@ -67,6 +73,15 @@ abstract class AbstractGenerator
     public function run(): void
     {
 
+    }
+
+    protected function installValidationPackages(): void
+    {
+        if (!Settings::make()->getValidationType()->hasDto()) {
+            return;
+        }
+
+        PackageManager::composerInstall(self::DTO_PACKAGE);
     }
 
     protected function publishBaseService(): void

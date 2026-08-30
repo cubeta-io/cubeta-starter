@@ -23,12 +23,12 @@ class MethodString
     public array $docBlocs = [];
 
     /**
-     * @param string                   $name
-     * @param array                    $parameters
-     * @param array|string             $body
-     * @param string                   $visibility
-     * @param string|null              $returnType
-     * @param PhpImportString[]        $imports
+     * @param string $name
+     * @param array $parameters
+     * @param array|string $body
+     * @param string $visibility
+     * @param string|null $returnType
+     * @param PhpImportString[] $imports
      * @param DocBlockPropertyString[] $docBlocs
      */
     public function __construct(string $name, array $parameters, array|string $body, string $visibility = 'public', ?string $returnType = null, array $imports = [], array $docBlocs = [])
@@ -68,7 +68,13 @@ class MethodString
         $comment = "";
 
         if (count($this->docBlocs) > 0) {
-            $comment = "/**\n" . implode("\n * ", $this->docBlocs) . "\n*/";
+            $comment =
+                "/**\n" .
+                array_reduce(
+                    $this->docBlocs,
+                    fn(string|null $c, DocBlockPropertyString $docBloc) => ($c ?? "") . "\n *" . $docBloc
+                )
+                . "\n*/";
         }
 
         if ($this->returnType) {

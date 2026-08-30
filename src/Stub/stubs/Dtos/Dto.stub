@@ -1,0 +1,43 @@
+<?php
+
+namespace {{namespace}};
+
+use WendellAdriel\ValidatedDTO\ValidatedDTO;
+{{imports}}
+
+class StoreUpdate{{model_name}}DTO extends ValidatedDTO
+{
+    {{properties}}
+
+    /**
+     * Get the validation rules that apply to the DTO.
+     */
+    protected function rules(): array
+    {
+        return [
+            {{rules}}
+        ];
+    }
+
+    /**
+     * Get the default values for the DTO properties.
+     */
+    protected function defaults(): array
+    {
+        return [
+            {{defaults}}
+        ];
+    }
+
+    /**
+     * Get the type casting for the DTO properties.
+     */
+    protected function casts(): array
+    {
+        return [
+            {{casts}}
+        ];
+    }
+
+    {{methods}}
+}

@@ -53,9 +53,9 @@ class {{model_name}}Controller extends WebController
         return Inertia::render('{{create_page}}');
     }
 
-    public function store(StoreUpdate{{model_name}}Request $request)
+    public function store({{request_class}} ${{request_variable}})
     {
-        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->store($request->validated(), $this->relations);
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->store({{validated_data}}, $this->relations);
         if (${{model_name_camel_case}}) {
             Inertia::flash([
                 'success' => trans('site.stored_successfully')
@@ -81,9 +81,9 @@ class {{model_name}}Controller extends WebController
         ]);
     }
 
-    public function update(StoreUpdate{{model_name}}Request $request, ${{model_name_camel_case}}Id)
+    public function update({{request_class}} ${{request_variable}}, ${{model_name_camel_case}}Id)
     {
-        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->update($request->validated(), ${{model_name_camel_case}}Id, $this->relations);
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->update({{validated_data}}, ${{model_name_camel_case}}Id, $this->relations);
         if (${{model_name_camel_case}}) {
             Inertia::flash([
                 'success' => trans('site.update_successfully')

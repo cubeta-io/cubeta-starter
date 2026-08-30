@@ -20,6 +20,7 @@ class GeneratorFactory
             Sources\MigrationGenerator::$key,
             Sources\ModelGenerator::$key,
             Sources\RequestGenerator::$key,
+            Sources\DtoGenerator::$key,
             Sources\FactoryGenerator::$key,
             Sources\SeederGenerator::$key,
             Sources\RepositoryGenerator::$key,
@@ -43,6 +44,7 @@ class GeneratorFactory
     {
         return [
             Sources\RequestGenerator::$key,
+            Sources\DtoGenerator::$key,
             Sources\SeederGenerator::$key,
             Sources\RepositoryGenerator::$key,
             Sources\ServiceGenerator::$key,
@@ -60,10 +62,13 @@ class GeneratorFactory
 
     public static function getAllGeneratorsKeys(): array
     {
+        $validationType = Settings::make()->getValidationType();
+
         return [
             Sources\MigrationGenerator::$key,
             Sources\ModelGenerator::$key,
-            Sources\RequestGenerator::$key,
+            ...($validationType->hasFormRequest() ? [Sources\RequestGenerator::$key] : []),
+            ...($validationType->hasDto() ? [Sources\DtoGenerator::$key] : []),
             Sources\ResourceGenerator::$key,
             Sources\FactoryGenerator::$key,
             Sources\SeederGenerator::$key,
@@ -138,6 +143,17 @@ class GeneratorFactory
                 override: $override,
             ),
             Sources\RequestGenerator::$key => new Sources\RequestGenerator(
+                fileName: $fileName,
+                attributes: $attributes,
+                relations: $relations,
+                nullables: $nullables,
+                uniques: $uniques,
+                actor: $actor,
+                generatedFor: $generatedFor,
+                version: $version,
+                override: $override,
+            ),
+            Sources\DtoGenerator::$key => new Sources\DtoGenerator(
                 fileName: $fileName,
                 attributes: $attributes,
                 relations: $relations,

@@ -2,6 +2,36 @@
 
 # **Changelog :**
 
+## **V 5.1.0**
+
+### **What's new**
+
+1. You can now choose how the generated code validates the incoming requests data. While installing
+   (`php artisan cubeta:install api` , `web` or `react-ts`) or from the GUI settings page you pick one of:
+    - `FormRequest` : the classic Laravel form requests (the default, and what previous versions always generated)
+    - `DTO` : validated DTOs built on top of [wendelladriel/laravel-validated-dto](https://github.com/WendellAdriel/laravel-validated-dto)
+    - `Both` : generate both classes
+   Your choice is stored in `cubeta-starter.config.json` under `validation_type` , so every later generation follows it.
+2. Introducing the DTO generator, which creates a
+   `App\DTOs\<version>\<Model>\StoreUpdate<Model>DTO` class extending `ValidatedDTO` with:
+    - the same validation rules the form request gets
+    - typed properties inferred from the column types (`int` , `float` , `bool` , `string` , `UploadedFile`),
+      nullable columns being nullable and defaulting to `null`
+    - casts for the castable columns (`IntegerCast` , `FloatCast` , `BooleanCast` , `StringCast`)
+3. Introducing the `create:dto` command and a matching `--dto` option for `create:model` , alongside the existing
+   `create:request` / `--request` .
+4. `wendelladriel/laravel-validated-dto` is now installed for you by the api , web and react-ts installers whenever the
+   chosen validation type includes DTOs.
+5. New `dto_namespace` and `dto_path` keys in `config/cubeta-starter.php` to control where the generated DTOs live.
+6. The generated controllers now inject the validation class you chose : a DTO is injected and read with
+   `$dto->toArray()` , while a form request is still injected and read with `$request->validated()` . When you pick
+   `Both` , both classes are generated and the controllers depend on the form request.
+
+### **What has been improved**
+
+1. The generated unique column rule now uses `request()->isMethod('PUT')` and `request()->route(...)` instead of
+   `$this->isMethod(...)` and `$this->route(...)` , so the same rule works inside form requests and DTOs alike.
+
 ## **V 5.0.2**
 
 ### **What's new**

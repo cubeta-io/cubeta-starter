@@ -31,6 +31,11 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use JetBrains\PhpStorm\ExpectedValues;
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\StringValues\Contracts\Dtos\HasDtoCast;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoCastString;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 
 class CubeNumeric extends CubeAttribute implements HasFakeMethod,
     HasMigrationColumn,
@@ -43,7 +48,8 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod,
     HasInterfacePropertyString,
     HasReactTsInputString,
     HasReactTsDisplayComponentString,
-    HasDataTableColumnObjectString
+    HasDataTableColumnObjectString,
+    HasDtoCast
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -187,5 +193,38 @@ class CubeNumeric extends CubeAttribute implements HasFakeMethod,
             false,
             true,
         );
+    }
+
+    public function dtoProperty(): DtoPropertyString
+    {
+        return new DtoPropertyString(
+            $this->name,
+            $this->isIntegerLike() ? "int" : "float",
+            $this->nullable
+        );
+    }
+
+    public function dtoCast(): DtoCastString
+    {
+        return $this->isIntegerLike()
+            ? new DtoCastString(
+                $this->name,
+                "new IntegerCast()",
+                [new PhpImportString('WendellAdriel\ValidatedDTO\Casting\IntegerCast')]
+            )
+            : new DtoCastString(
+                $this->name,
+                "new FloatCast()",
+                [new PhpImportString('WendellAdriel\ValidatedDTO\Casting\FloatCast')]
+            );
+    }
+
+    private function isIntegerLike(): bool
+    {
+        return in_array($this->type, [
+            ColumnTypeEnum::INTEGER->value,
+            ColumnTypeEnum::BIG_INTEGER->value,
+            ColumnTypeEnum::UNSIGNED_BIG_INTEGER->value,
+        ]);
     }
 }

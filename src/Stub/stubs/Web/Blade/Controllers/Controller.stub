@@ -66,9 +66,9 @@ class {{model_name}}Controller extends WebController
             ->with('error' , trans('site.there_is_no_data'));
     }
 
-    public function store(StoreUpdate{{model_name}}Request $request)
+    public function store({{request_class}} ${{request_variable}})
     {
-        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->store($request->validated(), $this->relations);
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->store({{validated_data}}, $this->relations);
         if (${{model_name_camel_case}}) {
             return redirect()
                 ->route('{{index_route}}', ${{model_name_camel_case}}->id)
@@ -92,9 +92,9 @@ class {{model_name}}Controller extends WebController
              ->with('error' , trans('site.there_is_no_data'));
     }
 
-    public function update(StoreUpdate{{model_name}}Request $request, ${{id_variable}})
+    public function update({{request_class}} ${{request_variable}}, ${{id_variable}})
     {
-        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->update($request->validated(), ${{id_variable}}, $this->relations);
+        ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->update({{validated_data}}, ${{id_variable}}, $this->relations);
         if (${{model_name_camel_case}}) {
             return redirect()
             ->route('{{index_route}}', ${{id_variable}})

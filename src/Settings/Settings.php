@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Settings;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
+use Cubeta\CubetaStarter\Enums\ValidationTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
 
 class Settings
@@ -13,6 +14,7 @@ class Settings
     private static array $json;
     private static array $tables;
     private static ?FrontendTypeEnum $frontendStack = null;
+    private static ?ValidationTypeEnum $validationType = null;
     private static bool $hasRoles = false;
     private static string $version;
     private static bool $installedApi = false;
@@ -32,6 +34,12 @@ class Settings
 
         if (isset(self::$json['frontend_type'])) {
             self::$frontendStack = FrontendTypeEnum::tryFrom(self::$json['frontend_type']);
+        }
+
+        if (isset(self::$json['validation_type'])) {
+            self::$validationType = ValidationTypeEnum::tryFrom(self::$json['validation_type']);
+        } else {
+            self::$validationType = null;
         }
 
         if (isset(self::$json['has_roles'])) {
@@ -253,6 +261,27 @@ class Settings
     public function getFrontendType(): ?FrontendTypeEnum
     {
         return self::$frontendStack;
+    }
+
+    /**
+     * @param ValidationTypeEnum $type
+     * @return void
+     */
+    public function setValidationType(ValidationTypeEnum $type): void
+    {
+        self::$json["validation_type"] = $type->value;
+        self::$validationType = $type;
+        self::storeJsonSettings(self::$json);
+    }
+
+    /**
+     * the requests validation classes type of the host project
+     * defaults to the form requests when the user didn't choose one yet
+     * @return ValidationTypeEnum
+     */
+    public function getValidationType(): ValidationTypeEnum
+    {
+        return self::$validationType ?? ValidationTypeEnum::FORM_REQUEST;
     }
 
     /**

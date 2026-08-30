@@ -70,6 +70,27 @@ each model property will have this rules : `required|PropertyType` unless this :
 > make sure that these rules are compatible with your application purposes and to check if there is any invalid rule
 > usage
 
+## DTOs
+
+When you pick `DTO` or `Both` as the validation type while installing (`php artisan cubeta:install api|web|react-ts`, or the GUI settings page), each model also gets a
+`App\DTOs\<version>\<Model>\StoreUpdate<Model>DTO` class extending `WendellAdriel\ValidatedDTO\ValidatedDTO` from the
+[wendelladriel/laravel-validated-dto](https://github.com/WendellAdriel/laravel-validated-dto) package (installed for you).
+
+The DTO carries the same rules the form request gets, plus typed properties and casts inferred from the column types
+(`IntegerCast`, `FloatCast`, `BooleanCast`, `StringCast`). It is injected directly into the generated controllers, which
+read the validated data with `$dto->toArray()`:
+
+```php
+public function store(StoreUpdateProductDTO $dto)
+{
+    $item = $this->productService->store($dto->toArray(), $this->relations);
+    // ...
+}
+```
+
+> [!NOTE]
+> When the validation type is `Both`, both classes are generated but the generated controllers depend on the form request.
+
 ## Resources
 
 Fore each created model there will be a corresponding Json Resource class which extends the `BaseResource` class , this

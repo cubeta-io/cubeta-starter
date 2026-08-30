@@ -38,9 +38,9 @@ class {{model_name}}Controller extends ApiController{
            )->send();
     }
 
-    public function store(StoreUpdate{{model_name}}Request $request)
+    public function store({{request_class}} ${{request_variable}})
     {
-        $item = $this->{{model_variable}}Service->store($request->validated() , $this->relations);
+        $item = $this->{{model_variable}}Service->store({{validated_data}} , $this->relations);
         return rest()
            ->when(
                 $item,
@@ -49,9 +49,9 @@ class {{model_name}}Controller extends ApiController{
            )->send();
     }
 
-    public function update(${{id_variable}}, StoreUpdate{{model_name}}Request $request)
+    public function update(${{id_variable}}, {{request_class}} ${{request_variable}})
     {
-        $item = $this->{{model_variable}}Service->update($request->validated(), ${{id_variable}} , $this->relations);
+        $item = $this->{{model_variable}}Service->update({{validated_data}}, ${{id_variable}} , $this->relations);
         return rest()
            ->when(
                 $item,

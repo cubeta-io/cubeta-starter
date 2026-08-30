@@ -50,11 +50,11 @@ The primary command. Generates a complete CRUD stack for a model.
 
 ```bash
 php artisan create:model {name?} {attributes?} {nullables?} {uniques?} {relations?} {actor?} {container?}
-    {--migration} {--request} {--resource} {--factory} {--seeder}
+    {--migration} {--request} {--dto} {--resource} {--factory} {--seeder}
     {--repository} {--service} {--controller} {--web_controller} {--test} {--force}
 ```
 
-**With no options**, it generates **everything**: model, migration, factory, seeder, request, resource, controller, repository, service, test, routes, and (optionally) a Postman collection.
+**With no options**, it generates **everything**: model, migration, factory, seeder, request and/or DTO (per the validation type you chose while installing), resource, controller, repository, service, test, routes, and (optionally) a Postman collection.
 
 **With options**, it generates only the model plus the requested pieces. For example:
 
@@ -67,6 +67,7 @@ php artisan create:model Product --controller --resource
 |--------|-----------|
 | `--migration` | Migration file |
 | `--request` | Form request with validation |
+| `--dto` | Validated DTO (`wendelladriel/laravel-validated-dto`) |
 | `--resource` | JSON API resource |
 | `--factory` | Model factory |
 | `--seeder` | Database seeder |
@@ -119,6 +120,14 @@ php artisan create:request {name?} {attributes?} {nullables?} {uniques?} {contai
 ```
 
 Creates a form request with validation rules inferred from column names and types (see [Generated Files → Requests](created-files.md#requests)).
+
+### `create:dto`
+
+```bash
+php artisan create:dto {name?} {attributes?} {nullables?} {uniques?} {container?} {--force}
+```
+
+Creates a validated DTO extending `WendellAdriel\ValidatedDTO\ValidatedDTO` with the same rules the form request gets, plus typed properties and casts. It requires the `wendelladriel/laravel-validated-dto` package, which `cubeta:install` adds for you when you pick `DTO` or `Both` as the validation type.
 
 ### `create:resource`
 

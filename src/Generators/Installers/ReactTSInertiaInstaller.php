@@ -33,6 +33,8 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             return;
         }
 
+        $this->installValidationPackages();
+
         $this->publishTsConfig();
         $this->installInertia();
         $this->installShadcn();

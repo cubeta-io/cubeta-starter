@@ -20,7 +20,7 @@ class MakeModel extends BaseCommand
         {relations?}
         {actor?}
         {container?}
-        {--migration} {--request} {--resource}
+        {--migration} {--request} {--dto} {--resource}
         {--factory} {--seeder} {--repository}
         {--service} {--controller} {--web_controller}
         {--test} 
@@ -89,6 +89,7 @@ class MakeModel extends BaseCommand
                 $result = match ($key) {
                     'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, 'uniques' => $uniques, '--force' => $override]),
                     'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container, '--force' => $override]),
+                    'dto' => $this->call('create:dto', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container, '--force' => $override]),
                     'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'container' => $container, '--force' => $override]),
                     'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'uniques' => $uniques, '--force' => $override]),
                     'seeder' => $this->call('create:seeder', ['name' => $name, '--force' => $override]),
@@ -105,7 +106,16 @@ class MakeModel extends BaseCommand
             $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, 'uniques' => $uniques, '--force' => $override]);
             $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'uniques' => $uniques, '--force' => $override]);
             $this->call('create:seeder', ['name' => $name, '--force' => $override]);
-            $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container, '--force' => $override]);
+            $validationType = Settings::make()->getValidationType();
+
+            if ($validationType->hasFormRequest()) {
+                $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container, '--force' => $override]);
+            }
+
+            if ($validationType->hasDto()) {
+                $this->call('create:dto', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container, '--force' => $override]);
+            }
+
             $this->call('create:repository', ['name' => $name, '--force' => $override]);
             $this->call('create:service', ['name' => $name, '--force' => $override]);
 

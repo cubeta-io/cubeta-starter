@@ -33,6 +33,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactT
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use JetBrains\PhpStorm\ExpectedValues;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
 
 class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInterfacePropertyString, HasReactTsInputString, HasReactTsDisplayComponentString
 {
@@ -224,6 +225,16 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
                 "className" => '"md:col-span-2"',
                 'orientation' => '"vertical"',
             ]
+        );
+    }
+
+    public function dtoProperty(): DtoPropertyString
+    {
+        return new DtoPropertyString(
+            $this->name,
+            "UploadedFile",
+            $this->nullable,
+            [new PhpImportString('Illuminate\\Http\\UploadedFile')]
         );
     }
 }

@@ -8,6 +8,9 @@ use Illuminate\Support\Arr;
 
 /**
  * @method self requestNamespace(string $requestNamespace)
+ * @method self requestClass(string $requestClass)
+ * @method self requestVariable(string $requestVariable)
+ * @method self validatedData(string $validatedData)
  * @method self modelNamespace(string $modelNamespace)
  * @method self serviceNamespace(string $serviceNamespace)
  * @method self traitsNamespace(string $traitsNamespace)
