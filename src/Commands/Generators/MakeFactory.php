@@ -23,10 +23,13 @@ class MakeFactory extends BaseCommand
 
         if (!$attributes) {
             [$attributes, $uniques] = $this->askForModelAttributes(true);
+        } else {
+            $attributes = $this->resolveAttributes($attributes);
         }
 
         $relations = $this->argument('relations') ?? ($this->askForRelations($modelName) ?? []);
-        $uniques = $this->argument('uniques') ?? ($uniques ?? []);
+        $relations = $this->resolveRelations($relations);
+        $uniques = $this->resolveList($this->argument('uniques') ?? ($uniques ?? []));
 
         $generator = new GeneratorFactory("factory");
         $override = $this->askForOverride();

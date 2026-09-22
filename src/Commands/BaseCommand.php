@@ -20,6 +20,10 @@ class BaseCommand extends Command
 {
     public function askForContainer(): array|string
     {
+        if (!$this->input->isInteractive()) {
+            return ContainerType::API;
+        }
+
         return select(
             label: "What Is The Container Type For This Operation",
             options: ContainerType::ALL,
@@ -34,6 +38,10 @@ class BaseCommand extends Command
      */
     public function askForValidationType(): ValidationTypeEnum
     {
+        if (!$this->input->isInteractive()) {
+            return Settings::make()->getValidationType();
+        }
+
         $choice = select(
             label: "What Do You Want To Validate The Requests Data With ?",
             options: ValidationTypeEnum::getAllValues(),
@@ -50,19 +58,99 @@ class BaseCommand extends Command
 
     public function askForOverride(): bool
     {
-        if (!$this->option('force')) {
-            return confirm(
-                label: "Do You Want The Generated Files To Override Any Files Of The Same Name ?",
-            );
-        } else {
-            return $this->option('force');
+        if ($this->option('force')) {
+            return true;
         }
+
+        if (!$this->input->isInteractive()) {
+            return false;
+        }
+
+        return confirm(
+            label: "Do You Want The Generated Files To Override Any Files Of The Same Name ?",
+        );
+    }
+
+    /**
+     * Parse a CLI "field:type,field2:type2" string into the assoc [field => type] shape
+     * the generators expect. Already-resolved arrays (e.g. forwarded from another command
+     * via `$this->call()`) are passed through untouched.
+     */
+    public function resolveAttributes(array|string|null $value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (!$value) {
+            return [];
+        }
+
+        $attributes = [];
+        foreach (explode(',', $value) as $pair) {
+            $pair = trim($pair);
+            if ($pair === '') {
+                continue;
+            }
+            [$field, $type] = array_pad(explode(':', $pair, 2), 2, ColumnTypeEnum::STRING->value);
+            $attributes[Naming::column(trim($field))] = trim($type);
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * Parse a CLI "model:relationType, model2:relationType2" string into the assoc
+     * [relatedModel => relationType] shape the generators expect.
+     */
+    public function resolveRelations(array|string|null $value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (!$value) {
+            return [];
+        }
+
+        $relations = [];
+        foreach (explode(',', $value) as $pair) {
+            $pair = trim($pair);
+            if (empty($pair)) {
+                continue;
+            }
+            [$model, $type] = array_pad(explode(':', $pair, 2), 2, RelationsTypeEnum::BelongsTo->value);
+            $relations[trim($model)] = trim($type);
+        }
+
+        return $relations;
+    }
+
+    /**
+     * Parse a CLI comma separated "field,field2" string into a plain array,
+     * used for the nullable/unique column lists.
+     */
+    public function resolveList(array|string|null $value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (!$value) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            array_map('trim', explode(',', $value)),
+            fn(string $item) => $item !== ''
+        ));
     }
 
     public function askForActorsAndPermissions(): array
     {
         $actor = $this->askWithoutEmptyAnswer("What Is The Actor Name ?", placeholder: "i.e:admin , customer , ...");
-        $hasPermissions = confirm("Does This Actor Has A Specific Permissions You Want o Specify ? ({$actor})", false);
+        $hasPermissions = $this->input->isInteractive()
+            && confirm("Does This Actor Has A Specific Permissions You Want o Specify ? ({$actor})", false);
         if ($hasPermissions) {
             $permissions = $this->askWithoutEmptyAnswer(
                 "What Are ($actor) Permissions ?",
@@ -80,6 +168,10 @@ class BaseCommand extends Command
 
     protected function askWithoutEmptyAnswer(string $question, ?string $default = null, ?string $placeholder = null, ?string $hint = null): string
     {
+        if (!$this->input->isInteractive() && trim($default ?? '') === '') {
+            throw new \RuntimeException("Missing required input for a non-interactive run: \"{$question}\". Pass it explicitly as a command argument/option.");
+        }
+
         return text(
             label: $question,
             placeholder: $placeholder ?? "",
@@ -94,7 +186,7 @@ class BaseCommand extends Command
 
     public function askForModelName(string $class): string
     {
-        if (!Settings::make()->getFrontendType()) {
+        if (!Settings::make()->getFrontendType() && $this->input->isInteractive()) {
             $frontend = select(
                 label: "Chose Your Front-End Stack First",
                 options: FrontendTypeEnum::getAllValues(),
@@ -110,6 +202,10 @@ class BaseCommand extends Command
         $roleEnumPath = CubePath::make("app/Enums/RolesPermissionEnum.php");
 
         if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RolesPermissionEnum")) {
+            if (!$this->input->isInteractive()) {
+                return "none";
+            }
+
             /** @noinspection PhpUndefinedClassInspection */
             /** @noinspection PhpFullyQualifiedNameUsageInspection */
             /** @noinspection PhpUndefinedNamespaceInspection */
@@ -125,6 +221,10 @@ class BaseCommand extends Command
 
     public function askForRelations(string $modelName): array
     {
+        if (!$this->input->isInteractive()) {
+            return [];
+        }
+
         $createdModels = Settings::make()->getAllModels();
         $relations = [];
 
@@ -175,6 +275,10 @@ class BaseCommand extends Command
      */
     public function askForModelAttributes(bool $getUniques = false, bool $getNullables = false): array
     {
+        if (!$this->input->isInteractive()) {
+            throw new \RuntimeException("Missing required \"attributes\" input for a non-interactive run. Pass it explicitly as a command argument, e.g. \"name:string,age:integer\".");
+        }
+
         $nullables = [];
         $uniques = [];
         $paramsString = text(

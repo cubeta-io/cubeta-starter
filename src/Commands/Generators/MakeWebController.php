@@ -32,11 +32,14 @@ class MakeWebController extends BaseCommand
 
         if (!$attributes) {
             [$attributes, , $nullables] = $this->askForModelAttributes(false, true);
+        } else {
+            $attributes = $this->resolveAttributes($attributes);
         }
 
         $relations = $this->argument('relations') ?? ($this->askForRelations($modelName) ?? []);
+        $relations = $this->resolveRelations($relations);
 
-        $nulls = $this->argument("nullables") ?? ($nullables ?? []);
+        $nulls = $this->resolveList($this->argument("nullables") ?? ($nullables ?? []));
 
         $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors("Model"));
 

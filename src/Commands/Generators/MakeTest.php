@@ -25,6 +25,8 @@ class MakeTest extends BaseCommand
 
         if (!$attributes) {
             [$attributes, ,] = $this->askForModelAttributes(true);
+        } else {
+            $attributes = $this->resolveAttributes($attributes);
         }
 
         $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors("Model"));

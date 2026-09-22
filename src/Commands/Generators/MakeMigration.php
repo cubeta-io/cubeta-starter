@@ -24,13 +24,16 @@ class MakeMigration extends BaseCommand
 
         if (!$attributes) {
             [$attributes, $uniques, $nullables] = $this->askForModelAttributes(true, true);
+        } else {
+            $attributes = $this->resolveAttributes($attributes);
         }
 
         $relations = $this->argument('relations') ?? ($this->askForRelations($modelName) ?? []);
+        $relations = $this->resolveRelations($relations);
 
-        $unique = $this->argument('uniques') ?? ($uniques ?? []);
+        $unique = $this->resolveList($this->argument('uniques') ?? ($uniques ?? []));
 
-        $nulls = $this->argument("nullables") ?? ($nullables ?? []);
+        $nulls = $this->resolveList($this->argument("nullables") ?? ($nullables ?? []));
 
         $generator = new GeneratorFactory("migration");
 

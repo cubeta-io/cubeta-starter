@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Commands\Installers;
 
 use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Enums\ValidationTypeEnum;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 use Cubeta\CubetaStarter\Generators\Installers\ApiInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\AuthInstaller;
@@ -12,6 +13,7 @@ use Cubeta\CubetaStarter\Generators\Installers\PermissionsInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\ReactTSInertiaInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\ReactTsPackagesInstaller;
 use Cubeta\CubetaStarter\Generators\Installers\WebInstaller;
+use Cubeta\CubetaStarter\Settings\Settings;
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\warning;
@@ -20,7 +22,12 @@ class Installer extends BaseCommand
 {
     protected $description = 'Add Package Files For Api Based Usage';
 
-    protected $signature = 'cubeta:install {name? : plugin name [api , web , web-packages , auth , permissions , react-ts , react-ts-packages]} {version=v1} {--force}';
+    protected $signature = 'cubeta:install
+        {name? : plugin name [api , web , web-packages , auth , permissions , react-ts , react-ts-packages]}
+        {version=v1}
+        {container? : web, api or both (only used by the auth plugin)}
+        {--validation= : FormRequest, DTO or Both (only used by the api, web and react-ts plugins)}
+        {--force}';
 
     public function handle(): void
     {
@@ -40,7 +47,11 @@ class Installer extends BaseCommand
         }
 
         if (in_array($plugin, ['api', 'web', 'react-ts'])) {
-            $this->askForValidationType();
+            if ($validation = $this->option('validation')) {
+                Settings::make()->setValidationType(ValidationTypeEnum::tryFrom($validation) ?? ValidationTypeEnum::FORM_REQUEST);
+            } else {
+                $this->askForValidationType();
+            }
         }
 
         $override = $this->askForOverride();
@@ -61,7 +72,7 @@ class Installer extends BaseCommand
                 $gen = new GeneratorFactory(PermissionsInstaller::$key);
                 break;
             case "auth" :
-                $container = $this->askForContainer();
+                $container = $this->argument('container') ?? $this->askForContainer();
                 $gen = new GeneratorFactory(AuthInstaller::$key);
                 break;
             case "react-ts" :
