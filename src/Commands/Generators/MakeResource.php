@@ -8,14 +8,28 @@ use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeResource extends BaseCommand
 {
-    public $description = 'Create a new resource';
+    public $description = 'Create a new api resource for a model';
 
     public $signature = 'create:resource
-        {name? : The name of the model }
-        {attributes? : columns with data types}
-        {relations? : the model relations}
-        {container? : web or api}
-        {--force}';
+        {name? : The name of the model, e.g. Post }
+        {attributes? : model columns, format "field:type,field2:type2,..." }
+        {relations? : model relations, format "relatedModel:relationType,..." }
+        {container? : api, web or both }
+        {--force : overwrite the existing resource instead of skipping/prompting }';
+
+    public function getHelp(): string
+    {
+        return <<<HELP
+          Generates an Eloquent API Resource class exposing the given model's attributes
+          and relations.
+
+          {$this->argumentFormatsHelp()}
+
+          Examples:
+            php artisan create:resource Post
+            php artisan create:resource Post "title:string,body:text" "comments:hasMany" api --force --no-interaction
+          HELP;
+    }
 
     public function handle(): void
     {

@@ -18,6 +18,34 @@ use function Laravel\Prompts\text;
 
 class BaseCommand extends Command
 {
+    protected function argumentFormatsHelp(): string
+    {
+        $columnTypes = implode(', ', ColumnTypeEnum::getAllValues());
+        $relationTypes = implode(', ', RelationsTypeEnum::getAllValues());
+
+        return <<<HELP
+          Argument formats (used so this command can be run in one non-interactive line, e.g. by an AI agent):
+
+            attributes   "field:type,field2:type2,..."
+                         Supported types: {$columnTypes}
+                         Example: "title:string,body:text,is_published:boolean,category_id:key"
+                         Note: a "key" column (e.g. category_id) automatically creates a belongsTo relation.
+
+            relations    "relatedModel:relationType,relatedModel2:relationType2,..."
+                         Supported relation types: {$relationTypes}
+                         Example: "comments:hasMany,tags:manyToMany"
+
+            nullables    "field,field2,..." - comma separated column names that are nullable.
+            uniques      "field,field2,..." - comma separated column names that are unique.
+            container    api | web | both
+
+          Skip prompts entirely:
+            Pass every argument explicitly and add --no-interaction (falls back to sane
+            defaults instead of asking) and --force (to overwrite existing files, otherwise
+            existing files are left untouched when non-interactive).
+          HELP;
+    }
+
     public function askForContainer(): array|string
     {
         if (!$this->input->isInteractive()) {

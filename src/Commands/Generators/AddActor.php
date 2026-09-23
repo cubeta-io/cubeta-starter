@@ -12,13 +12,26 @@ class AddActor extends BaseCommand
 {
     use RouteBinding;
 
-    protected $description = 'Add New Actor To The Project';
+    protected $description = 'Add a new actor (role) to the project, with its permissions and route bindings';
     protected $signature = 'create:actor
-        {actor? : The name of the actor}
-        {permissions? : comma separated list of permissions, e.g. can-read,can-edit}
-        {container? : web, api or both}
-        {--authenticated : create an authentication api controller for this actor}
-        {--force}';
+        {actor? : the name of the actor, e.g. admin, customer, ... }
+        {permissions? : comma separated list of permissions, e.g. "can-read,can-edit" (leave empty for none) }
+        {container? : api, web or both }
+        {--authenticated : also generate an authentication api controller for this actor }
+        {--force : overwrite existing files instead of skipping/prompting }';
+
+    public function getHelp(): string
+    {
+        return <<<HELP
+          Registers a new actor (role) via spatie/laravel-permission - the RolesPermissionEnum
+          entry, its permissions, gates/policies and route model bindings. Requires the
+          "permissions" package to be installed first via "php artisan cubeta:install permissions".
+
+          Examples:
+            php artisan create:actor admin
+            php artisan create:actor admin "can-read,can-edit" api --authenticated --force --no-interaction
+          HELP;
+    }
 
     public function handle(): void
     {

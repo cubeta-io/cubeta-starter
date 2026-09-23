@@ -8,11 +8,25 @@ use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeController extends BaseCommand
 {
-    protected $description = 'Create a new controller';
+    protected $description = 'Create a new api controller for a model';
 
     protected $signature = 'create:controller
-        {name? : The name of the model }
-        {actor? : The actor of the endpoint of this model } {--force}';
+        {name? : The name of the model, e.g. Post }
+        {actor? : the actor allowed to use the generated endpoints, or "none" }
+        {--force : overwrite the existing controller instead of skipping/prompting }';
+
+    public function getHelp(): string
+    {
+        return <<<HELP
+          Generates an api CRUD controller (index/store/show/update/destroy/export/import/get-import-example) for a model,
+          wired to its repository/service and routes. Requires "api" tooling to be installed
+          first via "php artisan cubeta:install api".
+
+          Examples:
+            php artisan create:controller Post
+            php artisan create:controller Post none --force --no-interaction
+          HELP;
+    }
 
     public function handle(): void
     {

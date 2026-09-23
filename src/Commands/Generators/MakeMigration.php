@@ -7,15 +7,28 @@ use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeMigration extends BaseCommand
 {
-    public $description = 'Create a new migration';
+    public $description = 'Create a new migration for a model';
 
     public $signature = 'create:migration
-        {name? : The name of the model }
-        {attributes? : columns with data types}
-        {relations?  : related models}
-        {nullables? : nullable columns}
-        {uniques? : uniques columns}
-        {--force}';
+        {name? : The name of the model, e.g. Post }
+        {attributes? : model columns, format "field:type,field2:type2,..." }
+        {relations? : model relations, format "relatedModel:relationType,..." }
+        {nullables? : nullable columns, format "field,field2,..." }
+        {uniques? : unique columns, format "field,field2,..." }
+        {--force : overwrite the existing migration instead of skipping/prompting }';
+
+    public function getHelp(): string
+    {
+        return <<<HELP
+          Generates a migration file for a model's table.
+
+          {$this->argumentFormatsHelp()}
+
+          Examples:
+            php artisan create:migration Post
+            php artisan create:migration Post "title:string,body:text,category_id:key" "comments:hasMany" "" "slug" --force --no-interaction
+          HELP;
+    }
 
     public function handle(): void
     {

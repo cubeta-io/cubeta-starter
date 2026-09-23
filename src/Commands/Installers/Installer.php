@@ -20,14 +20,35 @@ use function Laravel\Prompts\warning;
 
 class Installer extends BaseCommand
 {
-    protected $description = 'Add Package Files For Api Based Usage';
+    protected $description = 'Install a Cubeta Starter stack/plugin (api, web, auth, permissions, react-ts, ...) into the host app';
 
     protected $signature = 'cubeta:install
-        {name? : plugin name [api , web , web-packages , auth , permissions , react-ts , react-ts-packages]}
-        {version=v1}
-        {container? : web, api or both (only used by the auth plugin)}
-        {--validation= : FormRequest, DTO or Both (only used by the api, web and react-ts plugins)}
-        {--force}';
+        {name? : plugin name: api, web, web-packages, auth, permissions, react-ts or react-ts-packages }
+        {version=v1 : the api version prefix used for routes, e.g. v1 }
+        {container? : api, web or both - only used by the "auth" plugin }
+        {--validation= : FormRequest, DTO or Both - only used by the api, web and react-ts plugins }
+        {--force : overwrite existing files instead of skipping/prompting }';
+
+    public function getHelp(): string
+    {
+        return <<<HELP
+          One-time stack setup for the host Laravel app. Run once per plugin before generating
+          model files that depend on it:
+
+            api               base api scaffolding (routes, base controller, exception handling, ...)
+            web               base blade scaffolding
+            web-packages      front-end packages/build tooling for the blade stack
+            auth              authentication controllers/endpoints for the chosen container
+            permissions       installs spatie/laravel-permission and role scaffolding
+            react-ts          Inertia + React + TypeScript scaffolding
+            react-ts-packages front-end packages/build tooling for the react-ts stack
+
+          Examples:
+            php artisan cubeta:install api
+            php artisan cubeta:install api v1 --validation=DTO --force --no-interaction
+            php artisan cubeta:install auth v1 api --force --no-interaction
+          HELP;
+    }
 
     public function handle(): void
     {
