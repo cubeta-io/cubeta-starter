@@ -33,13 +33,16 @@ This page won't re-document Spatie's full API — refer to the [official `spatie
 
 Cubeta Starter still provides `php artisan create:actor` to register an actor (role) for your project on top of Spatie's models. For a given actor it generates:
 
-- A `RolesPermissionEnum::<ROLE>` const describing the role's name and its declared permissions, stored in `app/Enums/RolesPermissionEnum.php`.
+- A native PHP enum case on `App\Enums\RoleEnum` (e.g. `RoleEnum::Admin = 'admin'`), plus a `permissions(): array` match arm describing its declared permissions.
 - A `RoleSeeder` that creates the corresponding `Spatie\Permission\Models\Role` records:
 
 ```php
+use App\Enums\RoleEnum;
 use Spatie\Permission\Models\Role;
 
-Role::firstOrCreate(['name' => $role['role']]);
+foreach (RoleEnum::cases() as $role) {
+    Role::firstOrCreate(['name' => $role->value]);
+}
 ```
 
 - A route group for the actor guarded by Spatie's `role` middleware, e.g. `'role:admin'` (previously `'has-role:admin'`).

@@ -12,7 +12,7 @@ This guide addresses common issues you might encounter when using Cubeta Starter
 1. Check your Laravel version compatibility with Cubeta Starter
 2. Try using the `--ignore-platform-reqs` flag:
    ```bash
-   composer require cubeta/cubeta-starter --ignore-platform-reqs
+   composer require cubeta/cubeta-starter --dev --ignore-platform-reqs
    ```
 3. If the issue persists, try updating your dependencies:
    ```bash

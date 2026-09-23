@@ -190,6 +190,6 @@ Attributes typed as `key` are automatically converted into a `BelongsTo` relatio
 ## Deployment Notes
 
 - This is a Composer package, not a deployable service. Deployment happens by tagging releases and publishing to Packagist.
-- The host Laravel application installs the package via `composer require cubeta/cubeta-starter` and runs the relevant `cubeta:install` and `create:*` commands.
+- The host Laravel application installs the package via `composer require cubeta/cubeta-starter --dev` and runs the relevant `cubeta:install` and `create:*` commands.
 - Frontend assets for generated stacks are built by the host app with `npm run build`; this package only ships source assets and stubs.
 - When publishing a new version, update the changelog (`docs/_changelog.md`) and version references per the SemVer guidance in `docs/contributing.md`.

@@ -1,9 +1,9 @@
 @extends('CubetaStarter::layout')
 @section('content')
     @php
-        $roleEnumPath = \Cubeta\CubetaStarter\Helpers\CubePath::make("app/Enums/RolesPermissionEnum.php");
-        if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RolesPermissionEnum")) {
-            $actors = [ ...\App\Enums\RolesPermissionEnum::ALL_ROLES];
+        $roleEnumPath = \Cubeta\CubetaStarter\Helpers\CubePath::make("app/Enums/RoleEnum.php");
+        if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RoleEnum")) {
+            $actors = [ ...\App\Enums\RoleEnum::values()];
         }else{
             $actors = [];
         }

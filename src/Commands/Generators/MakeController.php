@@ -32,7 +32,7 @@ class MakeController extends BaseCommand
     {
         $modelName = $this->argument("name") ?? $this->askForModelName("Controller");
 
-        if (file_exists(base_path('app/Enums/RolesPermissionEnum.php')) && class_exists('\App\Enums\RolesPermissionEnum')) {
+        if (file_exists(base_path('app/Enums/RoleEnum.php')) && class_exists('\App\Enums\RoleEnum')) {
             if ($this->argument('actor')) {
                 $actor = $this->argument('actor');
             } else {

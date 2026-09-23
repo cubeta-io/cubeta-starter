@@ -94,76 +94,61 @@ class ActorFilesGenerator extends AbstractGenerator
 
     public function createRolesEnum(): void
     {
-        $roleEnum = $this->roleEnumNaming($this->role);
-        $roleEnumValue = str($this->role)->lower()->singular();
-        $placedPermission = collect($this->permissions)
-            ->map(fn($s) => str($s)->lower()->kebab()->toString())
+        $caseName = $this->roleEnumNaming($this->role);
+        $caseValue = str($this->role)->lower()->singular();
+        $placedPermissions = collect($this->permissions)
+            ->map(fn($s) => "'" . str($s)->lower()->kebab()->toString() . "'")
             ->implode(",");
 
-        $enum = "const $roleEnum = ['role' => '$roleEnumValue' , 'permissions' => [$placedPermission]];";
+        $enumPath = CubePath::make("/app/Enums/RoleEnum.php");
 
-        $enumPath = CubePath::make("/app/Enums/RolesPermissionEnum.php");
-
-        if (FileUtils::contentExistInFile($enumPath, $enum)) {
-            CubeLog::contentAlreadyExists("The Role ({$this->role})", $enumPath->fullPath, "Adding New Role Enum To RolesPermissions Enum");
+        if (FileUtils::contentExistInFile($enumPath, "case $caseName")) {
+            CubeLog::contentAlreadyExists("The Role ({$this->role})", $enumPath->fullPath, "Adding New Role Case To RoleEnum");
             return;
         }
 
         if (!$enumPath->exist()) {
             Publisher::make()
-                ->source(CubePath::stubPath('Enums/RolesPermissionEnum.stub'))
+                ->source(CubePath::stubPath('Enums/RoleEnum.stub'))
                 ->destination($enumPath)
                 ->publish($this->override);
         }
 
-        $pattern = '#class\s*RolesPermissionEnum\s*\{(.*)}#s';
         $content = $enumPath->getContent();
 
+        $pattern = '#enum\s*RoleEnum\s*:\s*string\s*\{(.*)}#s';
+
         if (!preg_match($pattern, $content, $matches)) {
-            CubeLog::failedAppending($enum, $enumPath, "Adding new actor");
+            CubeLog::failedAppending("case $caseName = '$caseValue';", $enumPath, "Adding new actor");
             return;
         }
 
-        $content = str_replace($matches[1], "$enum\n{$matches[1]}", $content);
+        $content = str_replace($matches[1], "\n    case $caseName = '$caseValue';\n{$matches[1]}", $content);
 
-        $pattern = '#const\s*ALL_ROLES\s*=\s*\[(.*?)]\s*;#s';
-
-        if (!preg_match($pattern, $content, $matches)) {
-            CubeLog::failedAppending($enum, "self::{$roleEnum}['role'],", "Adding new actor");
-        }
-
-        $content = preg_replace(
-            $pattern,
-            "const ALL_ROLES = [\n" . FileUtils::fixArrayOrObjectCommas("$matches[1],self::{$roleEnum}['role'],") . "\n];",
-            $content
-        );
-
-        $pattern = '#const\s*ALL\s*=\s*\[(.*?)]\s*;#s';
+        $pattern = '#match\s*\(\s*\$this\s*\)\s*\{(.*?)}#s';
 
         if (!preg_match($pattern, $content, $matches)) {
-            CubeLog::failedAppending($enum, "self::{$roleEnum},", "Adding new actor");
+            CubeLog::failedAppending("self::$caseName => [$placedPermissions],", $enumPath, "Adding new actor");
+        } else {
+            $content = preg_replace_callback($pattern, function () use ($matches, $caseName, $placedPermissions) {
+                return "match (\$this) {\n{$matches[1]}\n    self::$caseName => [$placedPermissions],\n}";
+            }, $content, 1);
         }
-
-        $content = preg_replace(
-            $pattern,
-            "const ALL = [\n" . FileUtils::fixArrayOrObjectCommas("$matches[1],self::{$roleEnum},") . "\n];",
-            $content
-        );
 
         $enumPath->putContent($content);
         $enumPath->format();
 
-        CubeLog::contentAppended("The Role ($this->role) Enum Declaration", $enumPath->fullPath);
+        CubeLog::contentAppended("The Role ($this->role) Enum Case", $enumPath->fullPath);
     }
 
     /**
-     * return the role enum for a given string
+     * return the enum case name for a given role string, e.g. "super_admin" -> "SuperAdmin"
      * @param string $name
      * @return string
      */
     public function roleEnumNaming(string $name): string
     {
-        return Str::singular(Str::upper(Str::snake($name)));
+        return Str::studly(Str::singular($name));
     }
 
     public function createRoleSeeder(): void

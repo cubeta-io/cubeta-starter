@@ -13,7 +13,7 @@ This guide will walk you through the process of installing and setting up Cubeta
 In your project root directory, open the terminal and run:
 
 ```bash
-composer require cubeta/cubeta-starter
+composer require cubeta/cubeta-starter --dev
 ```
 
 This will add the package to your project's dependencies.

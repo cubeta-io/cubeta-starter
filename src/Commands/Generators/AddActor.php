@@ -23,8 +23,8 @@ class AddActor extends BaseCommand
     public function getHelp(): string
     {
         return <<<HELP
-          Registers a new actor (role) via spatie/laravel-permission - the RolesPermissionEnum
-          entry, its permissions, gates/policies and route model bindings. Requires the
+          Registers a new actor (role) via spatie/laravel-permission - the RoleEnum
+          case, its permissions, gates/policies and route model bindings. Requires the
           "permissions" package to be installed first via "php artisan cubeta:install permissions".
 
           Examples:

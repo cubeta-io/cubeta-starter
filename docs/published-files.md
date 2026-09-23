@@ -140,7 +140,7 @@ This command installs [`spatie/laravel-permission`](https://spatie.be/docs/larav
 | `Spatie\Permission\Traits\HasRoles` added to `app/Models/User.php` | Gives the `User` model `assignRole`, `hasRole`, and the rest of Spatie's API |
 | `role`, `permission`, `role_or_permission` middleware aliases | Registered in `bootstrap/app.php`, pointing to `Spatie\Permission\Middleware\*` |
 
-`create:actor` additionally generates `app/Enums/RolesPermissionEnum.php` and a `RoleSeeder` that seeds Spatie `Role` records.
+`create:actor` additionally generates `app/Enums/RoleEnum.php` (a native PHP backed enum, one case per role) and a `RoleSeeder` that seeds Spatie `Role` records from it.
 
 ---
 

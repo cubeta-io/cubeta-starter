@@ -207,14 +207,14 @@ Now you will notice that the there is multiple files generated and some changes 
 > this command works with the generated files of these commands :  `cubeta:install permissions` , `cubeta:install auth`
 > so make sure that you follow their steps before start adding actors
 
-If you do a little check on `app/Enums/RolesPermissions.php` you'll find that your actor has been added to it .
+If you do a little check on `app/Enums/RoleEnum.php` you'll find that your actor has been added to it as a native enum case.
 
 now if you opened the generated **StudentAuthController** you'll see the following
 
 ```php
 namespace App\Http\Controllers\API\v1;
 
-use App\Enums\RolesPermissionEnum;
+use App\Enums\RoleEnum;
 use App\Services\User\UserService;
 
 class StudentAuthController extends BaseAuthController
@@ -222,7 +222,7 @@ class StudentAuthController extends BaseAuthController
     public function __construct()
     {
         parent::__construct();
-        $this->roleHook(RolesPermissionEnum::STUDENT['role']);
+        $this->roleHook(RoleEnum::Student->value);
     }
 }
 ```

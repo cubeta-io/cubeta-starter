@@ -2,9 +2,9 @@
 @section('content')
     @php
         $stacks = array_reverse(\Cubeta\CubetaStarter\Enums\FrontendTypeEnum::getAllValues());
-        $roleEnumPath = \Cubeta\CubetaStarter\Helpers\CubePath::make("app/Enums/RolesPermissionEnum.php");
-        if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RolesPermissionEnum")) {
-            $actors = ['none', ...\App\Enums\RolesPermissionEnum::ALL_ROLES];
+        $roleEnumPath = \Cubeta\CubetaStarter\Helpers\CubePath::make("app/Enums/RoleEnum.php");
+        if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RoleEnum")) {
+            $actors = ['none', ...\App\Enums\RoleEnum::values()];
         }else{
             $actors = [];
         }

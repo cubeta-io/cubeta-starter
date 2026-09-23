@@ -227,9 +227,9 @@ class BaseCommand extends Command
 
     public function askForGeneratedFileActors(string $class): array|string|null
     {
-        $roleEnumPath = CubePath::make("app/Enums/RolesPermissionEnum.php");
+        $roleEnumPath = CubePath::make("app/Enums/RoleEnum.php");
 
-        if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RolesPermissionEnum")) {
+        if ($roleEnumPath->exist() and class_exists("\\App\\Enums\\RoleEnum")) {
             if (!$this->input->isInteractive()) {
                 return "none";
             }
@@ -239,7 +239,7 @@ class BaseCommand extends Command
             /** @noinspection PhpUndefinedNamespaceInspection */
             return select(
                 "Who Is The Actor For This $class ?",
-                ['none', ...\App\Enums\RolesPermissionEnum::ALL_ROLES],
+                ['none', ...\App\Enums\RoleEnum::values()],
                 default: "none",
             );
         }
