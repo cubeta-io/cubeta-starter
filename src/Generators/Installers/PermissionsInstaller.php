@@ -2,6 +2,7 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\CubePath;
@@ -10,6 +11,9 @@ use Cubeta\CubetaStarter\Helpers\PackageManager;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\Stub\Builders\Resources\PermissionResourceStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Resources\RoleResourceStubBuilder;
 
 class PermissionsInstaller extends AbstractGenerator
 {
@@ -29,10 +33,88 @@ class PermissionsInstaller extends AbstractGenerator
 
         $this->addMiddlewares();
 
+        if (Settings::make()->installedApi() || Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
+            $this->generateRoleResource();
+            $this->generatePermissionResource();
+            $this->addRolesAndPermissionsToUserResource();
+        }
+
         Settings::make()->setInstalledRoles();
         CubeLog::info("Don't forget to run [php artisan migrate]");
     }
 
+    public function generateRoleResource(): void
+    {
+        $resourcePath = CubePath::make(config('cubeta-starter.resource_path')."/$this->version/RoleResource.php");
+        RoleResourceStubBuilder::make()
+            ->namespace(config('cubeta-starter.resource_namespace')."\\$this->version")
+            ->generate($resourcePath, $this->override);
+    }
+
+    public function generatePermissionResource(): void
+    {
+        $resourcePath = CubePath::make(config('cubeta-starter.resource_path')."/$this->version/PermissionResource.php");
+        PermissionResourceStubBuilder::make()
+            ->namespace(config('cubeta-starter.resource_namespace')."\\$this->version")
+            ->generate($resourcePath, $this->override);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function addRolesAndPermissionsToUserResource(): void
+    {
+        $resourcePath = CubePath::make(config('cubeta-starter.resource_path')."/$this->version/UserResource.php");
+
+        if (! $resourcePath->exist()) {
+            CubeLog::notFound($resourcePath->fullPath, 'Trying to add roles and permissions fields to [UserResource]');
+
+            return;
+        }
+
+        $content = $resourcePath->getContent();
+
+        if (FileUtils::contentExistsInString($content, 'RoleResource::collection')) {
+            CubeLog::contentAlreadyExists('roles and permissions fields', $resourcePath->fullPath, 'Installing permissions');
+
+            return;
+        }
+
+        $pattern = '/(\'email\'\s*=>\s*\$this->email\s*,)/';
+
+        if (! preg_match($pattern, $content)) {
+            CubeLog::failedAppending("'roles' => RoleResource::collection(...)", $resourcePath, 'Installing permissions');
+
+            return;
+        }
+
+        $rolesField = new ResourcePropertyString(
+            'roles',
+            "RoleResource::collection(\$this->whenLoaded('roles'))",
+            [new PhpImportString(config('cubeta-starter.resource_namespace')."\\$this->version\\RoleResource")]
+        );
+
+        $permissionsField = new ResourcePropertyString(
+            'permissions',
+            "PermissionResource::collection(\$this->whenLoaded('permissions'))",
+            [new PhpImportString(config('cubeta-starter.resource_namespace')."\\$this->version\\PermissionResource")]
+        );
+
+        $addition = "\n$rolesField,\n$permissionsField,";
+
+        $content = preg_replace($pattern, '$1'.$addition, $content);
+        $resourcePath->putContent($content);
+
+        foreach ([...$rolesField->imports, ...$permissionsField->imports] as $import) {
+            FileUtils::addImportStatement($import, $resourcePath);
+        }
+
+        $resourcePath->format();
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function addTraitToUserModel(): void
     {
         $modelPath = CubePath::make(config('cubeta-starter.model_path').'/User.php');

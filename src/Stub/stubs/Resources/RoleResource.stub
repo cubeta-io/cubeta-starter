@@ -4,13 +4,12 @@ namespace {{namespace}};
 
 use Illuminate\Http\Request;
 use App\Http\Resources\BaseResource\BaseResource;
-use {{model_namespace}}\User;
-{{imports}}
+use Spatie\Permission\Models\Role;
 
 /**
- * @mixin User
+ * @mixin Role
  */
-class UserResource extends BaseResource
+class RoleResource extends BaseResource
 {
     /**
      * Transform the resource into an array.
@@ -20,11 +19,8 @@ class UserResource extends BaseResource
     public function toArray(Request $request): array
     {
         return [
-            'id'         => $this->id,
-            'first_name' => $this->first_name,
-            'last_name'  => $this->last_name,
-            'email'      => $this->email,
-            {{additional_fields}}
+            'id'   => $this->id,
+            'name' => $this->name,
         ];
     }
 }

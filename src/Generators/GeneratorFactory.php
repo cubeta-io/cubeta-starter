@@ -242,7 +242,7 @@ class GeneratorFactory
             Installers\ApiInstaller::$key => new Installers\ApiInstaller(version: $version , override: $override),
             Installers\WebInstaller::$key => new Installers\WebInstaller(version: $version, override: $override),
             Installers\BladePackagesInstaller::$key => new Installers\BladePackagesInstaller(override: $override),
-            Installers\PermissionsInstaller::$key => new Installers\PermissionsInstaller(override: $override),
+            Installers\PermissionsInstaller::$key => new Installers\PermissionsInstaller(generatedFor: $generatedFor, version: $version, override: $override),
             Installers\ReactTSInertiaInstaller::$key => new Installers\ReactTSInertiaInstaller(override: $override),
             Installers\ReactTsPackagesInstaller::$key => new Installers\ReactTsPackagesInstaller(override: $override),
             default => throw new Error("Not supported generator {$this->source} "),
