@@ -50,6 +50,9 @@ The package does not run as a standalone application. It is loaded by a host Lar
 │   └── site.php               # Default translation strings the package publishes
 ├── public/                    # Static assets (images, JS) published to host apps
 ├── resources/
+│   ├── boost/                 # Laravel Boost AI guidelines/skills auto-loaded by host apps
+│   │   ├── guidelines/core.blade.php
+│   │   └── skills/cubeta-starter-development/SKILL.md
 │   ├── css/                   # Blade and Inertia CSS
 │   ├── js/                    # Blade JS and Inertia React/TS components
 │   └── views/                 # Blade views published to host apps

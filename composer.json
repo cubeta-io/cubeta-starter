@@ -22,6 +22,9 @@
     "maatwebsite/excel": "^3.1",
     "inertiajs/inertia-laravel": "^2.0"
   },
+  "suggest": {
+    "laravel/boost": "Adds an MCP server plus this package's AI guidelines and skills (resources/boost/*) for AI coding agents: composer require laravel/boost --dev && php artisan boost:install"
+  },
   "autoload": {
     "psr-4": {
       "Cubeta\\CubetaStarter\\": "src/"
