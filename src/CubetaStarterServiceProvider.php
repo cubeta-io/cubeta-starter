@@ -76,6 +76,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
+            __DIR__ . '/../config/media.php' => base_path('config/media.php'),
             __DIR__ . '/../pint.json' => base_path('pint.json'),
             __DIR__ . '/../.prettierignore' => base_path('.prettierignore'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
@@ -116,6 +117,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
+            __DIR__ . '/../config/media.php' => base_path('config/media.php'),
             __DIR__ . '/../pint.json' => base_path('pint.json'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
 
@@ -180,7 +182,8 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             ->name('cubeta-starter')
             ->hasConfigFile([
                 'cubeta-starter',
-                'views-names'
+                'views-names',
+                'media',
             ])
             ->hasCommand(MakeController::class)
             ->hasCommand(MakeResource::class)
@@ -203,6 +206,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
+            __DIR__ . '/../config/media.php' => base_path('config/media.php'),
             __DIR__ . '/../pint.json' => base_path('pint.json'),
             __DIR__ . '/../.prettierignore' => base_path('.prettierignore'),
             __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),

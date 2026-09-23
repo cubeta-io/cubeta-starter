@@ -14,9 +14,11 @@ As mentioned before you'll find a model class corresponding to the name you ente
 - you'll notice the existence of `relationsSearchableArray()` method in the returned array of this method you can define
   the related tables and their desired columns to search within in the same way for the `searchableArray()` method .
 - file columns are handled through the `MediaCast` cast together with the `HasMedia` trait (both added to the model
-  automatically). Any column cast to `\App\Casts\MediaCast::class` is treated as a file: when you create or update a
-  record the uploaded file is stored and its path is saved in that column, and the file is cleaned up when the record
-  is deleted. You don't need to maintain a list of file columns by hand.
+  automatically). A column cast to `MediaCast::single(private: false)` or `MediaCast::array(private: true)` is treated
+  as a file: when you create or update a record the uploaded file is stored on the configured disk (see
+  [Configuration](configuration.md#media-settings)) and its metadata is saved in that column as JSON. `HasMedia` removes
+  the stored file (s) when they're replaced on update and when the record is deleted (force-deleted, if the model uses
+  `SoftDeletes`). You don't need to maintain a list of file columns by hand.
 
 **you'll find that we have already filled those arrays with appropriate values, but you can change them according to
 your preferences**
@@ -28,7 +30,7 @@ an extended explanation [here](created-model.md#created-models)
 the corresponding created migration will match the types of the columns you entered before
 
 > [!NOTE]
-> columns of type files will be placed on the migration file as a string columns with a nullable
+> columns of type files will be placed on the migration file as a `json` column with a nullable
 > attribute
 
 > [!NOTE]
@@ -52,16 +54,16 @@ files exporting and importing methods `(export , import , getImportExample)`
 
 each model property will have this rules : `required|PropertyType` unless this :
 
-| property name	                                                                                         | rules                                       |
+| property name	                                                                                          | rules                                       |
 |:-------------------------------------------------------------------------------------------------------|---------------------------------------------|
-| name,first_name ,last_name	                                                                            | required,string ,min:3 ,max:255             |
+| name,first_name ,last_name	                                                                             | required,string ,min:3 ,max:255             |
 | email                                                                                                  | required,string,max:255 ,email              |
 | password                                                                                               | required,string,max:255 ,min:6 ,confirmed   |
-| phone , phone_number , number	                                                                         | required,string,max:255 ,min:6              |
+| phone , phone_number , number	                                                                          | required,string,max:255 ,min:6              |
 | any word ends with `_at` (started_at , ends_at , … , any type that seems to be a date type)            | required,date                               |
 | any word starts with `is_` (is_original , is_available , …. , any type that seems to be boolean value) | required,boolean                            |
 | any word ends with `_id` (user_id , product_id , …. , any type that seems to be foreign key)           | required,integer,exists:parent table,id     |
-| columns with file type	                                                                                | nullable,image,mimes:jpeg,png,jpg,max:2048  |
+| columns with file type	                                                                                 | nullable,image,mimes:jpeg,png,jpg,max:2048  |
 | columns with text type                                                                                 | nullable ,string                            |
 | columns with translatable type                                                                         | required , json , new ValidTranslatableJson |
 
@@ -72,9 +74,11 @@ each model property will have this rules : `required|PropertyType` unless this :
 
 ## DTOs
 
-When you pick `DTO` or `Both` as the validation type while installing (`php artisan cubeta:install api|web|react-ts`, or the GUI settings page), each model also gets a
+When you pick `DTO` or `Both` as the validation type while installing (`php artisan cubeta:install api|web|react-ts`, or
+the GUI settings page), each model also gets a
 `App\DTOs\<version>\<Model>\StoreUpdate<Model>DTO` class extending `WendellAdriel\ValidatedDTO\ValidatedDTO` from the
-[wendelladriel/laravel-validated-dto](https://github.com/WendellAdriel/laravel-validated-dto) package (installed for you).
+[wendelladriel/laravel-validated-dto](https://github.com/WendellAdriel/laravel-validated-dto) package (installed for
+you).
 
 The DTO carries the same rules the form request gets, plus typed properties and casts inferred from the column types
 (`IntegerCast`, `FloatCast`, `BooleanCast`, `StringCast`). It is injected directly into the generated controllers, which
@@ -89,12 +93,14 @@ public function store(StoreUpdateProductDTO $dto)
 ```
 
 > [!NOTE]
-> When the validation type is `Both`, both classes are generated but the generated controllers depend on the form request.
+> When the validation type is `Both`, both classes are generated but the generated controllers depend on the form
+request.
 
 ## Resources
 
 Fore each created model there will be a corresponding Json Resource class which extends the `BaseResource` class , this
-class extends the functionality of the JsonResource class and allows you to extend it more [BaseResource class is explained here](base-resource.md#baseresource).
+class extends the functionality of the JsonResource class and allows you to extend it
+more [BaseResource class is explained here](base-resource.md#baseresource).
 
 > [!WARNING]
 > this resource will return the relations of this model also
@@ -158,7 +164,8 @@ layer will be placed above the model layer and before the service layer (we will
 
 so any database operation related to your model we prefer you do it in the corresponding repository class .
 
-each repository is a singleton — you obtain it via its static `make()` method (provided by the `Makable` trait) rather than through dependency injection.
+each repository is a singleton — you obtain it via its static `make()` method (provided by the `Makable` trait) rather
+than through dependency injection.
 
 if you opened the created repository class you'll notice that it extends another class named
 BaseRepository, and it is in the `app/Repositories/Contracts` Directory check on
