@@ -135,17 +135,13 @@ This creates:
 
 ### Permissions System
 
-Built-in roles and permissions system:
+Roles and permissions powered by [`spatie/laravel-permission`](https://spatie.be/docs/laravel-permission):
 
 ```bash
 php artisan cubeta:install permissions
 ```
 
-Features:
-- Role management
-- Permission assignment
-- Policy enforcement
-- Middleware for route protection
+This installs `spatie/laravel-permission`, publishes its migrations and config, adds the `HasRoles` trait to your `User` model, and registers the `role`, `permission`, and `role_or_permission` middleware aliases. `create:actor` builds on top of it to generate per-role enum entries, a `RoleSeeder`, and role-guarded routes. See [Permissions Usage](permissions-usage.md).
 
 ## Localization Support
 

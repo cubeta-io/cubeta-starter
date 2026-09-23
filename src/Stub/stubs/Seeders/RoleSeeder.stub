@@ -4,7 +4,7 @@ namespace {{namespace}};
 
 use App\Enums\RolesPermissionEnum;
 use Illuminate\Database\Seeder;
-use {{model_namespace}}\Role;
+use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -18,7 +18,7 @@ class RoleSeeder extends Seeder
         $roles = RolesPermissionEnum::ALL;
 
         foreach ($roles as $role) {
-            Role::updateOrCreate(['name' => $role['role']], []);
+            Role::firstOrCreate(['name' => $role['role']]);
         }
     }
 }

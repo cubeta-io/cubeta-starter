@@ -34,7 +34,7 @@ features:
     details: First-class translatable columns and automatic locale detection out of the box.
   - icon: 🔑
     title: Auth & Permissions
-    details: Optional multi-actor authentication and a lightweight roles & permissions system.
+    details: Optional multi-actor authentication and spatie/laravel-permission-based roles & permissions.
   - icon: 🧪
     title: Testing Ready
     details: Every generated model ships with a feature test suite covering all CRUD endpoints.

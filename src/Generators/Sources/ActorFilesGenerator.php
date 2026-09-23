@@ -64,7 +64,7 @@ class ActorFilesGenerator extends AbstractGenerator
             if (!$routeFile->exist()) {
                 $this->addRouteFile($this->role, ContainerType::WEB, $this->version, [
                     'authenticated:web',
-                    'has-role:' . $this->role,
+                    'role:' . $this->role,
                 ]);
             }
         }
@@ -73,7 +73,7 @@ class ActorFilesGenerator extends AbstractGenerator
             if (!$routeFile->exist()) {
                 $this->addRouteFile($this->role, ContainerType::API, $this->version, [
                     'authenticated:api',
-                    'has-role:' . $this->role,
+                    'role:' . $this->role,
                     'jwt-auth',
                 ]);
             }

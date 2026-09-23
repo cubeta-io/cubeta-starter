@@ -131,17 +131,16 @@ See [Usage → Install Auth Command](usage.md#install-auth-command) for the full
 
 ## Published by `cubeta:install permissions`
 
-A lightweight, self-contained authorization system (no external package). See [Permissions Usage](permissions-usage.md).
+This command installs [`spatie/laravel-permission`](https://spatie.be/docs/laravel-permission) rather than publishing its own files under `app/`. See [Permissions Usage](permissions-usage.md).
 
-| File | Purpose |
+| Effect | Purpose |
 |------|---------|
-| `app/Models/Role.php` | Role model |
-| `app/Models/ModelHasRole.php`, `app/Models/ModelHasPermission.php` | Pivot models |
-| `app/Traits/HasRoles.php` | Adds role methods (`assignRole`, `hasRole`, `byRole` scope, …) to a model |
-| `app/Traits/HasPermissions.php` | Adds permission methods (`assignPermission`, `hasPermission`, abilities, …) |
-| `app/Interfaces/ActionsMustBeAuthorized.php` | Interface for models with authorized actions |
-| `app/Exceptions/RoleDoesNotExistException.php` | Thrown for unknown roles |
-| `database/migrations/*` | Roles, permissions, and pivot tables |
+| `spatie/laravel-permission` added via Composer | Provides the `Role`/`Permission` models and the roles/permissions API |
+| Spatie's own migrations and `config/permission.php` | Published via `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"` |
+| `Spatie\Permission\Traits\HasRoles` added to `app/Models/User.php` | Gives the `User` model `assignRole`, `hasRole`, and the rest of Spatie's API |
+| `role`, `permission`, `role_or_permission` middleware aliases | Registered in `bootstrap/app.php`, pointing to `Spatie\Permission\Middleware\*` |
+
+`create:actor` additionally generates `app/Enums/RolesPermissionEnum.php` and a `RoleSeeder` that seeds Spatie `Role` records.
 
 ---
 

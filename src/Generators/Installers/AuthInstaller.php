@@ -163,7 +163,7 @@ class AuthInstaller extends AbstractGenerator
                     ->import(new PhpImportString('PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject')))
             ->when(
                 Settings::make()->installedRoles(),
-                fn($builder) => $builder->trait(new TraitString("HasRoles", new PhpImportString("App\Traits\HasRoles")))
+                fn($builder) => $builder->trait(new TraitString("HasRoles", new PhpImportString("Spatie\Permission\Traits\HasRoles")))
             )->generate($modelPath, $this->override);
     }
 
