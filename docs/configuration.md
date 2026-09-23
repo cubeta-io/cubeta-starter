@@ -1,12 +1,15 @@
 # Configuration
 
-Cubeta Starter provides several configuration options to customize its behavior according to your project's needs. This guide explains all available configuration options and how to use them effectively.
+Cubeta Starter provides several configuration options to customize its behavior according to your project's needs. This
+guide explains all available configuration options and how to use them effectively.
 
 ## Configuration File
 
-After installing Cubeta Starter, you'll find a configuration file at `config/cubeta-starter.php`. This file contains all the settings you can adjust to customize the package's behavior.
+After installing Cubeta Starter, you'll find a configuration file at `config/cubeta-starter.php`. This file contains all
+the settings you can adjust to customize the package's behavior.
 
-The config file is published for you when you run any of the install commands (`cubeta:install api`, `web`, or `react-ts`). If you ever need to (re)publish it on its own, use:
+The config file is published for you when you run any of the install commands (`cubeta:install api`, `web`, or
+`react-ts`). If you ever need to (re)publish it on its own, use:
 
 ```bash
 php artisan vendor:publish --tag=cubeta-starter-config
@@ -14,28 +17,30 @@ php artisan vendor:publish --tag=cubeta-starter-config
 
 ## Available Configuration Options
 
-The configuration is a **flat** array of keys — each generated artifact has its own `*_namespace` and `*_path` entry. The real defaults are shown below.
+The configuration is a **flat** array of keys — each generated artifact has its own `*_namespace` and `*_path` entry.
+The real defaults are shown below.
 
 ### Project Settings
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `project_name` | The name of your project, used for naming the Postman collection | `'CubetaStarter'` |
-| `version` | The version segment of the generated code structure (used in namespaces/paths, e.g. `App\Http\Resources\v1`) | `'v1'` |
-| `project_url` | Your project's public URL, used in the Postman collection | `null` (falls back to `http://localhost/{project_name}/public/`) |
-| `generate_postman_collection_for_api_routes` | Whether to (re)generate/append a Postman collection for each generated API controller | `true` |
-| `postman_collection_path` | Where the Postman collection is written (empty = project root) | `''` |
+| Option                                       | Description                                                                                                  | Default                                                          |
+|----------------------------------------------|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| `project_name`                               | The name of your project, used for naming the Postman collection                                             | `'CubetaStarter'`                                                |
+| `version`                                    | The version segment of the generated code structure (used in namespaces/paths, e.g. `App\Http\Resources\v1`) | `'v1'`                                                           |
+| `project_url`                                | Your project's public URL, used in the Postman collection                                                    | `null` (falls back to `http://localhost/{project_name}/public/`) |
+| `generate_postman_collection_for_api_routes` | Whether to (re)generate/append a Postman collection for each generated API controller                        | `true`                                                           |
+| `postman_collection_path`                    | Where the Postman collection is written (empty = project root)                                               | `''`                                                             |
 
 ### Localization Settings
 
-| Option | Description | Default |
-|--------|-------------|---------|
+| Option              | Description                                | Default  |
+|---------------------|--------------------------------------------|----------|
 | `available_locales` | Array of locales your application supports | `['en']` |
-| `default_locale` | The default locale for your application | `'en'` |
+| `default_locale`    | The default locale for your application    | `'en'`   |
 
 ### Directory and Namespace Settings
 
-Each of the following is a pair of flat keys — a `*_namespace` (PHP namespace) and a `*_path` (filesystem path built with `join_paths(...)`). These control where generated files are placed:
+Each of the following is a pair of flat keys — a `*_namespace` (PHP namespace) and a `*_path` (filesystem path built
+with `join_paths(...)`). These control where generated files are placed:
 
 ```php
 // Models
@@ -95,7 +100,30 @@ Each of the following is a pair of flat keys — a `*_namespace` (PHP namespace)
 ```
 
 > [!NOTE]
-> The `version` value is woven into generated namespaces and paths. For example, with `version => 'v1'` a resource is generated as `App\Http\Resources\v1\ProductResource`. Base classes such as `BaseRepository` and `BaseService` are placed under a `Contracts` sub-namespace of their configured namespace.
+> The `version` value is woven into generated namespaces and paths. For example, with `version => 'v1'` a resource is
+generated as `App\Http\Resources\v1\ProductResource`. Base classes such as `BaseRepository` and `BaseService` are placed
+under a `Contracts` sub-namespace of their configured namespace.
+
+## Media Settings
+
+File columns (generated via `MediaCast` / `HasMedia`,
+see [Created Models](created-model.md#file-columns-mediacast--hasmedia))
+are configured separately, in `config/media.php`. It's published alongside `cubeta-starter.php` by the install
+commands; to (re)publish it on its own:
+
+```bash
+php artisan vendor:publish --tag=cubeta-starter-config
+```
+
+| Option                                 | Description                                                             | Default                                              |
+|----------------------------------------|-------------------------------------------------------------------------|------------------------------------------------------|
+| `disk`                                 | The filesystem disk every media column reads from and writes to         | `env('MEDIA_DISK', env('FILESYSTEM_DISK', 'local'))` |
+| `temporary_url_ttl`                    | Minutes a signed URL for a private file stays valid                     | `env('MEDIA_TEMPORARY_URL_TTL', 5)`                  |
+| `prefixes.public` / `prefixes.private` | Path prefixes that separate public and private files on the shared disk | `'public'` / `'private'`                             |
+
+> [!NOTE]
+> Public and private media share a single disk and are separated only by the path prefix — configure your disk/bucket's
+> access policy (e.g. anonymous read on the `public` prefix) accordingly.
 
 ## Example Configuration
 
@@ -140,10 +168,12 @@ The configuration settings directly affect how and where files are generated:
 1. **Directory and Namespace Settings**: Control where files are created and what namespaces they use
 2. **Localization Settings**: Determine what locales are supported for translatable fields
 3. **Project Settings**: Affect the Postman collection and other project-specific features
-4. **Version**: The `version` value is inserted into generated namespaces and paths (e.g. `App\Http\Resources\v1\ProductResource`)
+4. **Version**: The `version` value is inserted into generated namespaces and paths (e.g.
+   `App\Http\Resources\v1\ProductResource`)
 
 ## Changing Configuration After Generation
 
-If you change configuration settings after generating files, new files will follow the new configuration, but existing files won't be moved or updated automatically. Consider this when planning your project structure.
+If you change configuration settings after generating files, new files will follow the new configuration, but existing
+files won't be moved or updated automatically. Consider this when planning your project structure.
 
 For major changes to your project structure, it's recommended to make configuration changes before generating any files.

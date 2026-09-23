@@ -7,63 +7,88 @@ use Stringable;
 use JsonSerializable;
 use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Filesystem\FilesystemAdapter;
+
 use function Illuminate\Filesystem\join_paths;
 
 class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringable
 {
     private string $storagePath;
-    public readonly string $extension;
-    public readonly string $mimeType;
-    public readonly int $size;
+
     public readonly string $dir;
+
+    public readonly string $extension;
+
+    public readonly string $mimeType;
+
     public readonly bool $private;
 
+    public readonly float $size;
+
     /**
-     * @param UploadedFile|array{storage_path:string,extension:string,mime_type:string,size:int, path:string} $file
+     * @param UploadedFile|array{storage_path:string,extension:string,mime_type:string,size:int} $file
      */
     public function __construct(
         UploadedFile|array $file,
-        ?string            $dir = null,
-        bool               $private = false,
-    )
-    {
-        $this->dir = $dir ?? "";
-        $this->private = $private;
+        ?string $dir = null,
+        bool $private = false,
+    ) {
+        $this->dir = $dir ?? '';
 
         if (self::isMediaArray($file)) {
             $this->storagePath = $file['storage_path'];
+            $this->private = self::visibilityFromPath($this->storagePath) ?? $private;
             $this->extension = $file['extension'];
             $this->mimeType = $file['mime_type'];
-            $this->size = intval($file['size']);
+            $this->size = (float) $file['size'];
         } else {
+            $this->private = $private;
             $this->storagePath = $this->storeFile($file);
             $this->size = round(($file->getSize() ?? 0) / 1024);
-            $this->extension = $this->guessExtension();
-            $this->mimeType = $file->getMimeType();
+            $this->extension = $this->guessExtension() ?? '';
+            $this->mimeType = $file->getMimeType() ?? 'unknown';
         }
+    }
+
+    private function disk(): FilesystemAdapter
+    {
+        /** @var FilesystemAdapter $disk */
+        $disk = Storage::disk(self::diskName());
+
+        return $disk;
+    }
+
+    private function guessExtension(): ?string
+    {
+        $extension = pathinfo($this->storagePath, PATHINFO_EXTENSION);
+
+        return $extension !== '' ? $extension : null;
+    }
+
+    private function prefix(): string
+    {
+        return (string) config($this->private ? 'media.prefixes.private' : 'media.prefixes.public');
     }
 
     private function storeFile(UploadedFile $file): string
     {
-        // Get base name from original client file
         $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
 
         // Normalize aggressively
         $filenameOnly = str($originalName)
             ->lower()
-            ->ascii() // removes unicode
+            ->ascii() // removes Unicode
             ->replaceMatches('/[^a-z0-9\-_]/', '-') // force safe chars only
             ->replaceMatches('/-+/', '-') // collapse repeats
             ->trim('-')
             ->limit(80, '') // prevent filesystem/path issues
             ->toString();
 
-        // fallback if empty
         if (empty($filenameOnly)) {
-            $filenameOnly = Str::random(16);
+            $filenameOnly = Str::random();
         }
 
         $extension = $file->extension();
@@ -72,28 +97,155 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
             $extension = $file->getClientOriginalExtension();
         }
 
-        // final safety check: only allow safe extension format
         $extension = preg_replace('/[^a-z0-9]/', '', strtolower($extension));
 
-        // final filename
-        $finalFileName = $filenameOnly . '.' . $extension;
+        $finalFileName = $filenameOnly.'.'.$extension;
 
-        // extra safety: prevent hidden files or weird edge cases
         $finalFileName = ltrim($finalFileName, '.');
 
         return $file->storeAs(
-            join_paths($this->dir, Str::uuid()->toString()),
+            join_paths($this->prefix(), $this->dir, Str::uuid()->toString()),
             $finalFileName,
             [
-                'disk' => $this->private ? 'local' : 'public',
+                'disk' => self::diskName(),
+                'visibility' => $this->private ? 'private' : 'public',
             ],
         );
+    }
 
+    private static function visibilityFromPath(string $path): ?bool
+    {
+        $prefix = Str::before(ltrim($path, '/'), '/');
+
+        return match ($prefix) {
+            (string) config('media.prefixes.private') => true,
+            (string) config('media.prefixes.public') => false,
+            default => null,
+        };
+    }
+
+    /**
+     * The database shape — never the API shape, or a `(string)` cast would
+     * write a URL into the column.
+     */
+    public function __toString(): string
+    {
+        return $this->toJson();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function contents(): string
+    {
+        $contents = $this->disk()->get($this->path());
+
+        if (is_null($contents)) {
+            throw new Exception("Cannot read the media file at [$this->storagePath]");
+        }
+
+        return $contents;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function copyTo(string $dir, ?bool $private = null): self
+    {
+        return new self($this->getUploadedFile(), $dir, $private ?? $this->private);
+    }
+
+    public function delete(): bool
+    {
+        if (empty($this->storagePath)) {
+            return false;
+        }
+
+        $directory = dirname($this->storagePath);
+
+        if ($directory === '' || $directory === '.' || $directory === DIRECTORY_SEPARATOR) {
+            return $this->disk()->delete($this->storagePath);
+        }
+
+        return $this->disk()->deleteDirectory($directory);
+    }
+
+    /**
+     * The disk every media file is read from and written to.
+     */
+    public static function diskName(): string
+    {
+        return (string) config('media.disk');
+    }
+
+    /**
+     * Hits the disk. to check if the file exists
+     */
+    public function exists(): bool
+    {
+        return ! empty($this->storagePath) && $this->disk()->exists($this->storagePath);
+    }
+
+    /**
+     * Store bytes we produced ourselves rather than a file somebody uploaded.
+     */
+    public static function fromContents(
+        string $contents,
+        string $name,
+        string $mimeType,
+        ?string $dir = null,
+        bool $private = false,
+    ): self {
+        $path = join_paths(
+            (string) config($private ? 'media.prefixes.private' : 'media.prefixes.public'),
+            $dir ?? '',
+            Str::uuid()->toString(),
+            $name,
+        );
+
+        Storage::disk(self::diskName())->put(
+            $path,
+            $contents,
+            ['visibility' => $private ? 'private' : 'public'],
+        );
+
+        return new self([
+            'storage_path' => $path,
+            'extension' => pathinfo($name, PATHINFO_EXTENSION),
+            'mime_type' => $mimeType,
+            'size' => round(strlen($contents) / 1024),
+        ], $dir, $private);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getUploadedFile(): UploadedFile
+    {
+        $stream = $this->disk()->readStream($this->storagePath);
+
+        if (! is_resource($stream)) {
+            throw new Exception("Cannot read the media file at [$this->storagePath]");
+        }
+
+        $temporaryPath = tempnam(sys_get_temp_dir(), 'media-');
+        $target = fopen($temporaryPath, 'wb');
+        stream_copy_to_stream($stream, $target);
+        fclose($target);
+        fclose($stream);
+
+        return new UploadedFile(
+            $temporaryPath,
+            $this->name().'.'.$this->extension,
+            ! empty($this->mimeType) && $this->mimeType != 'unknown' ? $this->mimeType : null,
+            null,
+            true,
+        );
     }
 
     public static function isMediaArray(mixed $value): bool
     {
-        if (!is_array($value)) {
+        if (! is_array($value)) {
             return false;
         }
 
@@ -103,39 +255,37 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
             && isset($value['size']);
     }
 
-    public function delete(): bool
+    /**
+     * The API shape.
+     */
+    public function jsonSerialize(): array
     {
-        $filePath = $this->fullPath();
+        return [
+            'url' => $this->url(),
+            'size' => $this->size,
+            'extension' => $this->extension,
+            'mime_type' => $this->mimeType,
+            'storage_path' => $this->storagePath,
+        ];
+    }
 
-        if (!$this->exists()) {
-            return false;
+    public function name(): string
+    {
+        return pathinfo($this->storagePath, PATHINFO_FILENAME);
+    }
+
+    /**
+     * The disk-relative path
+     *
+     * @throws Exception
+     */
+    public function path(): string
+    {
+        if (empty($this->storagePath)) {
+            throw new Exception('Undefined Storage Path For Media, Cannot Get Its Path');
         }
 
-        // 1. Delete the physical file first
-        $fileDeleted = unlink($filePath);
-
-        if (!$fileDeleted) {
-            return false;
-        }
-
-        // 2. Identify the target folder boundaries
-        $parentDir = dirname($filePath);
-        $access = $this->private ? "private" : "public";
-        $rootStoragePath = storage_path(join_paths("app", $access));
-
-        // 3. Clean upward until we hit the base disk directory ('app/public' or 'app/private')
-        while ($parentDir !== $rootStoragePath && is_dir($parentDir)) {
-            // @ suppresses the PHP warning when a directory is NOT empty.
-            // rmdir() safely fails if any other files or folders exist inside it.
-            if (!@rmdir($parentDir)) {
-                // The moment we hit a shared directory with other files, stop the climb
-                break;
-            }
-            // Move up to the next parent folder level
-            $parentDir = dirname($parentDir);
-        }
-
-        return true;
+        return $this->storagePath;
     }
 
     public function toArray(): array
@@ -149,85 +299,30 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
         ];
     }
 
-    public function __toString(): string
-    {
-        return json_encode($this->jsonSerialize(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-    }
-
     public function toJson($options = 0): string
     {
         return json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
-    public function jsonSerialize(): array
-    {
-        return [
-            'url' => $this->url(),
-            'size' => $this->size,
-            'extension' => $this->extension,
-            'mime_type' => $this->mimeType,
-            'storage_path' => $this->storagePath,
-        ];
-    }
-
-    public function exists(): bool
-    {
-        return file_exists($this->fullPath());
-    }
-
-    public function name(): string
-    {
-        return pathinfo($this->fullPath(), PATHINFO_FILENAME);
-    }
-
     /**
-     * @return string
-     */
-    public function fullPath(): string
-    {
-        if (empty($this->storagePath)) {
-            throw new Exception("Undefined Storage Path For Media, Cannot Get Its Full Path");
-        }
-
-        $access = $this->private ? "private" : "public";
-
-        return storage_path(join_paths("app", $access, $this->storagePath));
-    }
-
+    * A private object is not anonymously readable, so it has to be signed.
+    * Disks that cannot sign (a plain local disk) fall back to the direct
+    * URL rather than throwing.
+    */
     public function url(): string
     {
-        return asset("storage/" . ltrim($this->storagePath, DIRECTORY_SEPARATOR));
-    }
+        $disk = $this->disk();
 
-    public function getUploadedFile()
-    {
-        return new UploadedFile(
-            $this->fullPath(),
-            $this->name(),
-            !empty($this->mimeType) && $this->mimeType != "unknown" ? $this->mimeType : null,
-            null,
-            true,
-        );
-    }
-
-    private function guessExtension(): ?string
-    {
-        $path = $this->fullPath();
-        $extension = File::extension($path);
-
-        if (!empty($extension)) {
-            return $extension;
+        // A private object is not anonymously readable, so it has to be signed.
+        // Disks that cannot sign (a plain local disk) fall back to the direct
+        // URL rather than throwing.
+        if ($this->private && $disk->providesTemporaryUrls()) {
+            return $disk->temporaryUrl(
+                $this->storagePath,
+                now()->addMinutes((int) config('media.temporary_url_ttl')),
+            );
         }
 
-        /** @var string $extension */
-        $extension = str($path)
-            ->explode(".")
-            ->last();
-
-        if (!empty($extension)) {
-            return $extension;
-        }
-
-        return null;
+        return $disk->url($this->storagePath);
     }
 }

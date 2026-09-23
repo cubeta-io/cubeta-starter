@@ -1,198 +1,61 @@
-## How To Use Roles Permissions Tools
+## How To Use Roles & Permissions Tools
 
-In this section we will talk about the roles permissions tools usage .
+Cubeta Starter's roles & permissions feature is built on top of [`spatie/laravel-permission`](https://spatie.be/docs/laravel-permission), a well-established, battle-tested authorization package. The command `php artisan cubeta:install permissions` does the following for you:
 
-after installing the tools using `php artisan cubeta:install permissions`run your migration by this
-command `php artisan migrate`
+1. Requires `spatie/laravel-permission` into your project via Composer.
+2. Publishes Spatie's own migrations and `config/permission.php` (via `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"`).
+3. Adds the `Spatie\Permission\Traits\HasRoles` trait to your `User` model.
+4. Registers the `role`, `permission`, and `role_or_permission` middleware aliases in `bootstrap/app.php` (`Spatie\Permission\Middleware\RoleMiddleware`, `PermissionMiddleware`, and `RoleOrPermissionMiddleware`).
 
-## Roles
+After installing, run your migrations:
 
-firstly you should make sure that the User model or whatever model you want to power it with the roles ,permissions
-feature is using the trait `HasRoles` like this :
+```bash
+php artisan migrate
+```
+
+## Roles & Permissions API
+
+Once installed, your `User` model (or any model you add `HasRoles` to) has the full Spatie API available: `assignRole()`, `hasRole()`, `removeRole()`, `givePermissionTo()`, `hasPermissionTo()`, `can()`, and more, plus the `Spatie\Permission\Models\Role` and `Spatie\Permission\Models\Permission` models.
 
 ```php
-namespace App\Models;
-use App\Traits\HasRoles;
+auth()->user()->assignRole('admin');
 
-class User extends Authenticatable
-{
-    use HasRoles
+auth()->user()->hasRole('admin'); // bool
+
+auth()->user()->givePermissionTo('edit articles');
+
+auth()->user()->can('edit articles'); // bool
+```
+
+This page won't re-document Spatie's full API — refer to the [official `spatie/laravel-permission` documentation](https://spatie.be/docs/laravel-permission) for everything else (teams, super-admins, permission caching, Blade directives, etc.).
+
+## `create:actor`
+
+Cubeta Starter still provides `php artisan create:actor` to register an actor (role) for your project on top of Spatie's models. For a given actor it generates:
+
+- A native PHP enum case on `App\Enums\RoleEnum` (e.g. `RoleEnum::Admin = 'admin'`), plus a `permissions(): array` match arm describing its declared permissions.
+- A `RoleSeeder` that creates the corresponding `Spatie\Permission\Models\Role` records:
+
+```php
+use App\Enums\RoleEnum;
+use Spatie\Permission\Models\Role;
+
+foreach (RoleEnum::cases() as $role) {
+    Role::firstOrCreate(['name' => $role->value]);
 }
 ```
 
-fill the roles table with your roles or just run the `RoleSeeder.php` which has been generated if you've used the
-command `php artisan create:actor`
+- A route group for the actor guarded by Spatie's `role` middleware, e.g. `'role:admin'` (previously `'has-role:admin'`).
 
-now simply you can check if a user has a specific role by this :
+Run the seeder after generating an actor:
 
-```php
-auth()->user()->hasRole('admin');
-```
-
-this method will return a boolean value and throw an exception if the provided role doesn't exist in the roles table
-
-you can give a specific use a role with this method :
-
-```php
-\App\Models\User::find(1)->assignRole('admin');
-```
-
-this method will return the same user instance and throw an exception if the role doesn't exist in the roles table.
-
-you can get all the user roles by just calling the roles relation like this :
-
-```php
-auth()->user()->roles()->get();
-```
-
-and you have the scope `byRole` if you'd like to get all the users with a specific role
-
-```php
-\App\Models\User::where('email' , 'email@test.com')->byRole('admin')->get();
-```
-
-you can remove a role from the user by doing this :
-
-```php
-auth()->user()->removeRole('admin');
-```
-
-## Permissions
-
-permissions can be assigned to a user or to permission over a specific model
-like when you'd like to give the user an index permission for the product model .
-
-this can be achieved like this :
-
-```php
-auth()->user()->assignPermission('index' , \App\Models\Product::class)
-
-// or provide an array of permissions like this
-
-auth()->user()->assignPermission(['index' , 'show'] , \App\Models\Product::class)
-
-// or assign the permission for a role : 
-
-\App\Models\Role::getByName('admin')->assignPermission(['index' , 'show'] , \App\Models\Product::class);
-```
-
-now for every specific model permission you should implement the `App\Interfaces\ActionsMustBeAuthorized` interface and
-implement the `authorizedActions():array` static method
-so for example your model should look like this :
-
-```php
-namespace App\Models;
-
-use App\Interfaces\ActionsMustBeAuthorized;
-use Illuminate\Database\Eloquent\Model;
-
-class Product extends Model implements ActionsMustBeAuthorized
-{
-    public static function authorizedActions(): array
-    {
-        return[
-            'index' ,
-            'show' ,
-            // the rest of the authorized actions
-        ];
-    }
-    
-    // the rest of the model code
-}
-```
-
-this is required for checking if the actions on this model has to be authorized by specific permissions
-
-so based on the provided **Product** model example if you do this checks  :
-
-```php
-auth()->user()->assignPermission(['index' , 'show']);
-
-auth()->user()->hasPermission('index' , Product::class); // true
-
-auth()->user()->hasPermission('create' , Product::class); // true 
-//because the permission don't have an authorized action in the model
-
-auth()->user()->hasPermission('show' , Product::class); // false
+```bash
+php artisan db:seed RoleSeeder
 ```
 
 > [!NOTE]
-> this check will check if one of the user roles has the provided permission and return true if exist .
+> `create:actor` requires the permissions feature to already be installed (`cubeta:install permissions`), and — for an authentication controller — the auth feature (`cubeta:install auth`).
 
+## Further reading
 
-```php
-$adminRole = Role::getByName('admin')->assignPermission('index' , Product::class);
-
-auth()->user()->assignRole("admin");
-
-auth()->user()->hasPermission('index') // true
-```
-
-## Abilities
-
-sometimes you want to specify the permissions on a specific records in the database like that the user can just delete
-his products so the permissions feature can handle such cases .
-
-let us assume the following
-
-Product Model :
-
-```php
-namespace App\Models;
-
-use App\Interfaces\ActionsMustBeAuthorized;
-use Illuminate\Database\Eloquent\Model;
-
-class Product extends Model implements ActionsMustBeAuthorized
-{
-    public static function authorizedActions(): array
-    {
-        return[
-            'index' ,
-            'show' ,
-            'delete'
-            // the rest of the authorized actions
-        ];
-    }
-    // the rest of the model code
-    
-    public function canDelete() : bool {
-        return auth()->user()->id == $this->user_id
-    }
-}
-```
-
-as you see we've added delete action to the authorized actions and added new public method ( _canDelete_ ) which returns
-a bool value
-this method implement the ability .
-now you can provide a model instance to the **hasPermission** method so the method will automatically check for such
-abilities like this :
-
-```php
-$authUserProduct = Product::factory()->create(['user_id' => auth()->user()->id]) ; 
-$otherUserProduct = Product::factory()->create(['user_id' => 'some_user_id']);
-
-auth()->user()->hasPermission('delete' , Product::class , $authUserProduct); // true
-
-auth()->user()->hasPermission('delete' , Product::class , $otherUserProduct); // false
-```
-
-you can add as much as you want abilities as they match the pattern : _can**AuthorizedAction**_ in camel case and the
-method must returns a boolean value
-
-even for permissions you have a scope **byPermission()** to get all roles or users for a specific permission
-
-```php
-\App\Models\User::query()->byPermission('index' , Product::class)->get();
-
-\App\Models\Role::query()->byPermission('index' , Product::class)->get();
-```
-
-
-finally you can remove user or role permission by this : 
-
-```php
-auth()->user()->removePermission('index' , Product::class);
-```
-
-
+For anything beyond the basics shown above — permission caching, teams/multi-tenancy, wildcard permissions, Blade directives (`@role`, `@can`), and the full middleware syntax — see the [`spatie/laravel-permission` documentation](https://spatie.be/docs/laravel-permission).

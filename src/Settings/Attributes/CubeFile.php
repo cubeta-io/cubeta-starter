@@ -70,7 +70,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         return new CastColumnString(
             $this->name,
-            "MediaCast::class . \":public,single\"",
+            "MediaCast::single(private: false)",
             new PhpImportString("App\\Casts\\MediaCast")
         );
     }

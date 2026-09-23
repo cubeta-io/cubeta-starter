@@ -13,7 +13,7 @@ Get up and running with Cubeta Starter in under 5 minutes.
 Install the package via Composer:
 
 ```bash
-composer require cubeta/cubeta-starter
+composer require cubeta/cubeta-starter --dev
 ```
 
 ## Setup

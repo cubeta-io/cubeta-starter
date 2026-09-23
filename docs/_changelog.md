@@ -2,6 +2,49 @@
 
 # **Changelog :**
 
+## **V 6.0.0**
+
+This release moves roles/permissions onto `spatie/laravel-permission` and reworks how file/media columns are
+stored and configured. Because both changes affect previously generated code and database schema, it is a
+breaking change, so we made it a major version.
+
+### **What's new**
+
+1. Generator commands (`create:actor` , `create:dto` , `create:factory` , `create:migration` , `create:model` , and
+   others) can now be run **non-interactively**, accepting attributes/relations/uniques/nullables/container as
+   arguments instead of interactive prompts, with sane defaults used where possible and a clear error raised when a
+   required input is missing — handy for scripts, CI, or AI coding agents.
+2. Running any generator command with `--help` now prints detailed usage examples and an explanation of the
+   attributes/relations/nullables/uniques/container argument formats, so you no longer need to check the docs to
+   use them non-interactively.
+3. New publishable `config/media.php` lets you configure the storage disk, signed URL TTL for private files, and
+   public/private path prefixes used by generated file/media columns.
+4. File columns now generate `MediaCast::single()` / `MediaCast::array()` casts (with an explicit `private` flag)
+   instead of the old `MediaCast::class . ":public,single"` string syntax.
+5. File/media columns now store richer metadata (path, size, extension, MIME type) instead of a bare path string,
+   giving you `url()` , `exists()` , `contents()` and `delete()` helpers on the value, and are migrated as `json`
+   columns instead of nullable strings.
+6. If you install `laravel/boost` in your project, this package now ships Boost-compatible guidelines and a skill
+   so AI coding agents get built-in guidance on how to use it correctly.
+
+### **What has been improved**
+
+1. Roles/permissions are now powered by `spatie/laravel-permission` instead of a custom-built system; the
+   `permissions` installer now installs and configures it for you automatically.
+2. Actor/role references now use a native PHP `RoleEnum` instead of the removed `RolesPermissionEnum` .
+3. Generated file handling now cleans up replaced files on update, and removes files only on force-delete for
+   soft-deletable models instead of on a regular soft delete.
+
+### **Notes / breaking changes**
+
+1. The previously generated custom roles/permissions system (models, migrations, middlewares and traits) has been
+   removed in favor of `spatie/laravel-permission` . Existing projects that installed the old permissions stack
+   need to migrate to Spatie's tables and APIs when upgrading.
+2. `RolesPermissionEnum` has been removed and replaced by `RoleEnum` ; update any code referencing the old enum.
+3. File/media columns are now migrated as `json` instead of nullable `string` , and the cast syntax changed from
+   `MediaCast::class . ":..."` to `MediaCast::single()` / `MediaCast::array()` . Existing installs need a new
+   migration and a cast update when upgrading media columns.
+
 ## **V 5.1.0**
 
 ### **What's new**

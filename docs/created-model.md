@@ -127,16 +127,32 @@ data ordered by the selected column .
 File columns are handled through the `MediaCast` cast and the `HasMedia` trait, both added to the model automatically
 when it has a `file` column — you don't declare a list of file keys by hand.
 
-Any column cast to `\App\Casts\MediaCast::class` is treated as a file. So when you create or update a record through the
-repository's `create` / `update` methods and pass an uploaded file for that column, the file is stored and its path is
-saved in the column. The `HasMedia` trait also hooks into the model's `deleted` event to remove the stored files when a
-record is deleted.
+A column cast with `MediaCast::single(private: false)` (one file) or `MediaCast::array(private: true)` (multiple files)
+is treated as a file column. When you create or update a record through the repository's `create` / `update` methods
+and pass an `UploadedFile` for that column, the file is stored on the disk configured in `config/media.php` (see
+[Configuration](configuration.md#media-settings)) under a `public` or `private` path prefix depending on the `private`
+flag, and a `SerializedMedia` value object — serialized as JSON containing the storage path, size, extension and MIME
+type — is saved in the column.
+
+Reading the attribute back gives you a `SerializedMedia` instance (or an array of them for `::array()` columns) with:
+
+- `url()` — a public URL for public files, or a short-lived signed URL (TTL from `media.temporary_url_ttl`) for
+  private files on disks that support temporary URLs
+- `exists()`, `contents()`, `delete()`, `getUploadedFile()`, `copyTo()`
+
+`HasMedia` keeps the disk in sync with the column automatically:
+
+- on **update**, if a column's value changes, the file (s) it previously pointed to are deleted once the transaction
+  commits
+- on **delete**, stored files are removed when the record is actually removed — for models using `SoftDeletes`, this
+  only happens on a **force delete**, not a soft delete
 
 ```php
 protected function casts(): array
 {
     return [
-        'image' => \App\Casts\MediaCast::class,
+        'image' => MediaCast::single(private: false),
+        'attachments' => MediaCast::array(private: true),
     ];
 }
 ```

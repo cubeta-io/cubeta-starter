@@ -10,23 +10,48 @@ use Cubeta\CubetaStarter\Settings\Settings;
 
 class MakeModel extends BaseCommand
 {
-    public $description = 'Create a new model class';
+    public $description = 'Create a new model, and optionally its migration, request/dto, resource, factory, seeder, repository, service, controller and test';
 
     public $signature = 'create:model
-        {name? : The name of the model }
-        {attributes?}
-        {nullables? : nullable columns}
-        {uniques? : unique columns}
-        {relations?}
-        {actor?}
-        {container?}
-        {--migration} {--request} {--dto} {--resource}
-        {--factory} {--seeder} {--repository}
-        {--service} {--controller} {--web_controller}
-        {--test} 
-        {--force}';
+        {name? : The name of the model, e.g. Post }
+        {attributes? : model columns, format "field:type,field2:type2,..." (see "php artisan help create:model") }
+        {nullables? : nullable columns, format "field,field2,..." }
+        {uniques? : unique columns, format "field,field2,..." }
+        {relations? : model relations, format "relatedModel:relationType,..." }
+        {actor? : the actor allowed to use the generated endpoints, or "none" }
+        {container? : api, web or both }
+        {--migration : only generate the migration (repeatable with the other --xxx flags; omit all of them to generate everything) }
+        {--request : only generate the form request }
+        {--dto : only generate the data transfer object }
+        {--resource : only generate the api resource }
+        {--factory : only generate the model factory }
+        {--seeder : only generate the seeder }
+        {--repository : only generate the repository }
+        {--service : only generate the service }
+        {--controller : only generate the api controller }
+        {--web_controller : only generate the web controller }
+        {--test : only generate the feature test }
+        {--force : overwrite existing files instead of skipping/prompting }';
 
     protected bool $useGui = false;
+
+    public function getHelp(): string
+    {
+        return <<<HELP
+          Generates an Eloquent model and, by default, every file that goes with it: migration,
+          form request and/or DTO, api resource, factory, seeder, repository, service, controller
+          and feature test. Pass one or more of the --migration/--request/--dto/--resource/--factory/
+          --seeder/--repository/--service/--controller/--web_controller/--test flags to generate only
+          a subset instead.
+
+          {$this->argumentFormatsHelp()}
+
+          Examples:
+            php artisan create:model Post
+            php artisan create:model Post "title:string,body:text,category_id:key" "" "slug" "comments:hasMany" none api --force --no-interaction
+            php artisan create:model Post "title:string,body:text" "" "" "" none api --migration --factory --force --no-interaction
+          HELP;
+    }
 
     public function handle(): void
     {
@@ -36,13 +61,16 @@ class MakeModel extends BaseCommand
 
         if (!$attributes) {
             [$attributes, $uniques, $nullables] = $this->askForModelAttributes(true, true);
+        } else {
+            $attributes = $this->resolveAttributes($attributes);
         }
 
         $relations = $this->argument('relations') ?? ($this->askForRelations($modelName) ?? []);
+        $relations = $this->resolveRelations($relations);
 
-        $unique = $this->argument('uniques') ?? ($uniques ?? []);
+        $unique = $this->resolveList($this->argument('uniques') ?? ($uniques ?? []));
 
-        $nulls = $this->argument("nullables") ?? ($nullables ?? []);
+        $nulls = $this->resolveList($this->argument("nullables") ?? ($nullables ?? []));
 
         $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors("Model") ?? 'none');
 

@@ -12,7 +12,7 @@ This guide addresses common issues you might encounter when using Cubeta Starter
 1. Check your Laravel version compatibility with Cubeta Starter
 2. Try using the `--ignore-platform-reqs` flag:
    ```bash
-   composer require cubeta/cubeta-starter --ignore-platform-reqs
+   composer require cubeta/cubeta-starter --dev --ignore-platform-reqs
    ```
 3. If the issue persists, try updating your dependencies:
    ```bash
@@ -162,15 +162,16 @@ php artisan vendor:publish --tag=cubeta-starter-config
 
 ### Role and Permission Setup Errors
 
-**Issue**: Problems with the roles and permissions system.
+**Issue**: Problems with the roles and permissions system (built on [`spatie/laravel-permission`](https://spatie.be/docs/laravel-permission)).
 
 **Solution**:
 1. Make sure you've installed the permissions component:
    ```bash
    php artisan cubeta:install permissions
    ```
-2. Check that your models use the `HasRoles` trait
-3. Verify that the roles and permissions tables are migrated
+2. Check that your `User` model uses Spatie's `HasRoles` trait (`Spatie\Permission\Traits\HasRoles`)
+3. Verify that Spatie's `roles`, `permissions`, `model_has_roles`, `model_has_permissions`, and `role_has_permissions` tables are migrated (`php artisan migrate`)
+4. For anything beyond installation, consult [Spatie's own troubleshooting/FAQ docs](https://spatie.be/docs/laravel-permission)
 
 ## Still Having Issues?
 

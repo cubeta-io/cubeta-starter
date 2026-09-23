@@ -9,15 +9,28 @@ use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 class MakeRequest extends BaseCommand
 {
 
-    public $description = 'Create a new request';
+    public $description = 'Create a new form request for a model';
 
     public $signature = 'create:request
-        {name? : The name of the model }
-        {attributes? : columns with data types}
-        {nullables? : nullable columns}
-        {uniques? : uniques columns}
-        {container? : web or api}
-        {--force}';
+        {name? : The name of the model, e.g. Post }
+        {attributes? : model columns, format "field:type,field2:type2,..." }
+        {nullables? : nullable columns, format "field,field2,..." }
+        {uniques? : unique columns, format "field,field2,..." }
+        {container? : api, web or both }
+        {--force : overwrite the existing request instead of skipping/prompting }';
+
+    public function getHelp(): string
+    {
+        return <<<HELP
+          Generates a FormRequest class validating the given model's attributes.
+
+          {$this->argumentFormatsHelp()}
+
+          Examples:
+            php artisan create:request Post
+            php artisan create:request Post "title:string,body:text" "" "slug" api --force --no-interaction
+          HELP;
+    }
 
     public function handle(): void
     {
@@ -27,11 +40,13 @@ class MakeRequest extends BaseCommand
 
         if (!$attributes) {
             [$attributes, $uniques, $nullables] = $this->askForModelAttributes(true, true);
+        } else {
+            $attributes = $this->resolveAttributes($attributes);
         }
 
-        $unique = $this->argument('uniques') ?? ($uniques ?? []);
+        $unique = $this->resolveList($this->argument('uniques') ?? ($uniques ?? []));
 
-        $nulls = $this->argument("nullables") ?? ($nullables ?? []);
+        $nulls = $this->resolveList($this->argument("nullables") ?? ($nullables ?? []));
 
         $override = $this->askForOverride();
 

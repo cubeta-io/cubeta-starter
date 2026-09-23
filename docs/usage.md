@@ -69,20 +69,15 @@ unexpected behaviour .
 
 ## Install Permissions Command
 
-In previous versions we used `spatie/laravel-permission` which is a great package but to lightweight your project and
-make it optional to you use it or not or to edit the way it works we have powered you with the
-command `php artisan cubeta:install permissions` which will generate the following files for you :
+Cubeta Starter uses [`spatie/laravel-permission`](https://spatie.be/docs/laravel-permission) for roles and permissions rather than a custom-built system. The
+command `php artisan cubeta:install permissions` will:
 
-1. RoleDoesNotExistException ( _exception class_ )
-2. ActionsMustBeAuthorized ( _interface for models_ )
-3. ModelHasPermission ( _model_ )
-4. ModelHasRole ( _model_ )
-5. Role ( _model_ )
-6. HasPermissions ( _trait_ )
-7. HasRoles ( _trait_ )
-8. migration files for the generated models
+1. Require `spatie/laravel-permission` into your project via Composer.
+2. Publish Spatie's own migrations and `config/permission.php`.
+3. Add the `Spatie\Permission\Traits\HasRoles` trait to your `User` model.
+4. Register the `role`, `permission`, and `role_or_permission` middleware aliases in `bootstrap/app.php`.
 
-now you can handle your actor roles and permissions easily and with an opinionated way
+You then get the full Spatie API (`assignRole`, `hasRole`, `givePermissionTo`, `can`, ...) on your models, plus `create:actor` support for generating actor role definitions and route guards on top of it.
 
 check the usage manual [here](permissions-usage.md#how-to-use-roles-permissions-tools) .
 
@@ -212,14 +207,14 @@ Now you will notice that the there is multiple files generated and some changes 
 > this command works with the generated files of these commands :  `cubeta:install permissions` , `cubeta:install auth`
 > so make sure that you follow their steps before start adding actors
 
-If you do a little check on `app/Enums/RolesPermissions.php` you'll find that your actor has been added to it .
+If you do a little check on `app/Enums/RoleEnum.php` you'll find that your actor has been added to it as a native enum case.
 
 now if you opened the generated **StudentAuthController** you'll see the following
 
 ```php
 namespace App\Http\Controllers\API\v1;
 
-use App\Enums\RolesPermissionEnum;
+use App\Enums\RoleEnum;
 use App\Services\User\UserService;
 
 class StudentAuthController extends BaseAuthController
@@ -227,7 +222,7 @@ class StudentAuthController extends BaseAuthController
     public function __construct()
     {
         parent::__construct();
-        $this->roleHook(RolesPermissionEnum::STUDENT['role']);
+        $this->roleHook(RoleEnum::Student->value);
     }
 }
 ```
