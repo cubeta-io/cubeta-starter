@@ -19,12 +19,19 @@ use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Modules\Routes;
 use Cubeta\CubetaStarter\Modules\Views;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 use Cubeta\CubetaStarter\StringValues\Strings\MethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\TraitString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\BaseAuthControllerStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Dtos\AuthLoginDTOStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Dtos\AuthRegisterDTOStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Dtos\CheckPasswordResetDTOStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Dtos\RequestResetPasswordDTOStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Dtos\ResetPasswordDTOStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Dtos\UpdateUserDTOStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Factories\UserFactoryStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Mails\ResetPasswordCodeEmailStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Migrations\UserMigrationStubBuilder;
@@ -77,7 +84,7 @@ class AuthInstaller extends AbstractGenerator
         $this->generateUserModel();
         $this->generateUserService();
         $this->generateUserRepository();
-        $this->generateAuthRequests();
+        $this->generateAuthValidationClasses();
         $this->generateResetPasswordMail();
         $this->generateUserFactory();
 
@@ -200,6 +207,20 @@ class AuthInstaller extends AbstractGenerator
     /**
      * @return void
      */
+    private function generateAuthValidationClasses(): void
+    {
+        $validationType = Settings::make()->getValidationType();
+
+        if ($validationType->hasFormRequest()) {
+            $this->generateAuthRequests();
+        }
+
+        if ($validationType->hasDto()) {
+            $this->installValidationPackages();
+            $this->generateAuthDtos();
+        }
+    }
+
     private function generateAuthRequests(): void
     {
         $namespace = config('cubeta-starter.request_namespace') . "\\$this->version";
@@ -228,6 +249,94 @@ class AuthInstaller extends AbstractGenerator
         UpdateUserRequestStubBuilder::make()
             ->namespace($namespace)
             ->generate($requestDirectory->append("UpdateUserRequest.php"), $this->override);
+    }
+
+    private function generateAuthDtos(): void
+    {
+        $namespace = config('cubeta-starter.dto_namespace') . "\\$this->version";
+        $dtoDirectory = CubePath::make(config('cubeta-starter.dto_path') . "/$this->version/AuthDtos");
+
+        AuthLoginDTOStubBuilder::make()
+            ->namespace($namespace)
+            ->generate($dtoDirectory->append("AuthLoginDTO.php"), $this->override);
+
+        AuthRegisterDTOStubBuilder::make()
+            ->namespace($namespace)
+            ->generate($dtoDirectory->append("AuthRegisterDTO.php"), $this->override);
+
+        CheckPasswordResetDTOStubBuilder::make()
+            ->namespace($namespace)
+            ->generate($dtoDirectory->append("CheckPasswordResetDTO.php"), $this->override);
+
+        RequestResetPasswordDTOStubBuilder::make()
+            ->namespace($namespace)
+            ->generate($dtoDirectory->append("RequestResetPasswordDTO.php"), $this->override);
+
+        ResetPasswordDTOStubBuilder::make()
+            ->namespace($namespace)
+            ->generate($dtoDirectory->append("ResetPasswordDTO.php"), $this->override);
+
+        UpdateUserDTOStubBuilder::make()
+            ->namespace($namespace)
+            ->generate($dtoDirectory->append("UpdateUserDTO.php"), $this->override);
+    }
+
+    /**
+     * The validation class names/imports/access pattern for the six auth validation
+     * classes, switched between FormRequest and DTO based on the configured validation type
+     * (mirrors {@see \Cubeta\CubetaStarter\Traits\HasPathAndNamespace::getValidationClassName()}
+     * for CRUD models, applied here per auth action since each has its own class).
+     */
+    private function authValidationTokens(): array
+    {
+        $useDto = Settings::make()->getValidationType()->controllersUseDto();
+
+        $namespace = $useDto
+            ? config('cubeta-starter.dto_namespace') . "\\$this->version\\AuthDtos"
+            : config('cubeta-starter.request_namespace') . "\\$this->version\\AuthRequests";
+
+        $classes = $useDto
+            ? [
+                'loginClass' => 'AuthLoginDTO',
+                'registerClass' => 'AuthRegisterDTO',
+                'requestResetClass' => 'RequestResetPasswordDTO',
+                'resetClass' => 'ResetPasswordDTO',
+                'updateUserClass' => 'UpdateUserDTO',
+                'checkResetClass' => 'CheckPasswordResetDTO',
+            ]
+            : [
+                'loginClass' => 'AuthLoginRequest',
+                'registerClass' => 'AuthRegisterRequest',
+                'requestResetClass' => 'RequestResetPasswordRequest',
+                'resetClass' => 'ResetPasswordRequest',
+                'updateUserClass' => 'UpdateUserRequest',
+                'checkResetClass' => 'CheckPasswordResetRequest',
+            ];
+
+        return [
+            ...$classes,
+            'imports' => collect($classes)->map(fn($class) => new PhpImportString("$namespace\\$class"))->values()->all(),
+            'requestVar' => $useDto ? 'dto' : 'request',
+            'validatedCall' => $useDto ? 'toArray()' : 'validated()',
+        ];
+    }
+
+    private function applyAuthValidationTokens(
+        BaseAuthControllerStubBuilder|BladeBaseAuthControllerStubBuilder|ReactTsBaseAuthControllerStubBuilder $builder
+    ): BaseAuthControllerStubBuilder|BladeBaseAuthControllerStubBuilder|ReactTsBaseAuthControllerStubBuilder
+    {
+        $tokens = $this->authValidationTokens();
+
+        return $builder
+            ->import($tokens['imports'])
+            ->loginClass($tokens['loginClass'])
+            ->registerClass($tokens['registerClass'])
+            ->requestResetClass($tokens['requestResetClass'])
+            ->resetClass($tokens['resetClass'])
+            ->updateUserClass($tokens['updateUserClass'])
+            ->checkResetClass($tokens['checkResetClass'])
+            ->requestVar($tokens['requestVar'])
+            ->validatedCall($tokens['validatedCall']);
     }
 
     /**
@@ -288,11 +397,12 @@ class AuthInstaller extends AbstractGenerator
     private function generateBaseAuthApiController(): void
     {
         $controllerPath = CubePath::make(config('cubeta-starter.api_controller_path') . "/$this->version/BaseAuthController.php");
-        BaseAuthControllerStubBuilder::make()
+        $builder = BaseAuthControllerStubBuilder::make()
             ->namespace(config('cubeta-starter.api_controller_namespace') . "\\$this->version")
-            ->requestNamespace(config('cubeta-starter.request_namespace') . "\\$this->version")
             ->serviceNamespace(config('cubeta-starter.service_namespace') . "\\$this->version")
-            ->resourceNamespace(config('cubeta-starter.resource_namespace') . "\\$this->version")
+            ->resourceNamespace(config('cubeta-starter.resource_namespace') . "\\$this->version");
+
+        $this->applyAuthValidationTokens($builder)
             ->generate($controllerPath, $this->override);
     }
 
@@ -313,13 +423,14 @@ class AuthInstaller extends AbstractGenerator
         }
 
         $builder->namespace(config('cubeta-starter.web_controller_namespace') . "\\$this->version")
-            ->requestNamespace(config('cubeta-starter.request_namespace') . "\\$this->version")
             ->serviceNamespace(config('cubeta-starter.service_namespace') . "\\$this->version")
             ->userDetailsRoute(Routes::me(ContainerType::WEB, null)->name)
             ->passwordResetPageRoute(Routes::resetPasswordPage()->name)
             ->loginPageRoute(Routes::loginPage()->name)
             ->resetPasswordCodeFormPageName(config('views-names.reset-password-code-form'))
-            ->userDetailsPageName(config('views-names.user-details'))
+            ->userDetailsPageName(config('views-names.user-details'));
+
+        $this->applyAuthValidationTokens($builder)
             ->generate($controllerPath, $this->override);
     }
 

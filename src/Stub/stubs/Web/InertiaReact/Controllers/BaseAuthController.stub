@@ -6,13 +6,8 @@ use Exception;
 use Inertia\Inertia;
 use App\Http\Controllers\WebController;
 use {{service_namespace}}\User\UserService;
-use {{request_namespace}}\AuthRequests\AuthLoginRequest;
-use {{request_namespace}}\AuthRequests\UpdateUserRequest;
-use {{request_namespace}}\AuthRequests\AuthRegisterRequest;
-use {{request_namespace}}\AuthRequests\ResetPasswordRequest;
-use {{request_namespace}}\AuthRequests\CheckPasswordResetRequest;
-use {{request_namespace}}\AuthRequests\RequestResetPasswordRequest;
 use {{resource_namespace}}\UserResource;
+{{imports}}
 
 class BaseAuthController extends WebController
 {
@@ -34,9 +29,9 @@ class BaseAuthController extends WebController
         $this->role = $role;
     }
 
-    public function login(AuthLoginRequest $request)
+    public function login({{login_class}} ${{request_var}})
     {
-        $user = $this->userService->login($request->validated(), $this->role, $this->relations);
+        $user = $this->userService->login(${{request_var}}->{{validated_call}}, $this->role, $this->relations);
         if ($user) {
             Inertia::flash([
                 'success' => trans('site.successfully_logged_in'),
@@ -49,9 +44,9 @@ class BaseAuthController extends WebController
         }
     }
 
-    public function updateUserDetails(UpdateUserRequest $request)
+    public function updateUserDetails({{update_user_class}} ${{request_var}})
     {
-        $user = $this->userService->updateUserDetails($request->validated(), $this->role, $this->relations);
+        $user = $this->userService->updateUserDetails(${{request_var}}->{{validated_call}}, $this->role, $this->relations);
 
         if ($user) {
             Inertia::flash([
@@ -80,9 +75,9 @@ class BaseAuthController extends WebController
         }
     }
 
-    public function requestResetPassword(RequestResetPasswordRequest $request)
+    public function requestResetPassword({{request_reset_class}} ${{request_var}})
     {
-        $result = $this->userService->passwordResetRequest($request->validated()['email']);
+        $result = $this->userService->passwordResetRequest(${{request_var}}->{{validated_call}}['email']);
         if ($result) {
             Inertia::flash([
                 'success' => trans('site.email_verification_code_sent'),
@@ -95,18 +90,18 @@ class BaseAuthController extends WebController
         }
     }
 
-    public function validateResetPasswordCode(CheckPasswordResetRequest $request)
+    public function validateResetPasswordCode({{check_reset_class}} ${{request_var}})
     {
-        $request->validated();
+        ${{request_var}}->{{validated_call}};
         Inertia::flash([
             'success' => trans('site.code_correct'),
         ]);
         return redirect()->route('{{password_reset_page_route}}');
     }
 
-    public function resetPassword(ResetPasswordRequest $request)
+    public function resetPassword({{reset_class}} ${{request_var}})
     {
-        $data = $request->validated();
+        $data = ${{request_var}}->{{validated_call}};
         $result = $this->userService->passwordReset($data['reset_password_code'], $data['password']);
 
         if ($result) {
@@ -121,9 +116,9 @@ class BaseAuthController extends WebController
         }
     }
 
-    public function register(AuthRegisterRequest $request)
+    public function register({{register_class}} ${{request_var}})
     {
-        $user = $this->userService->register($request->validated(), $this->role);
+        $user = $this->userService->register(${{request_var}}->{{validated_call}}, $this->role);
         if ($user) {
             Inertia::flash([
                 'success' => trans('site.registered_successfully'),
