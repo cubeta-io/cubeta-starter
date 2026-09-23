@@ -21,6 +21,7 @@ use Cubeta\CubetaStarter\Modules\Views;
 use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\StringValues\Strings\MethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\TraitString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\BaseAuthControllerStubBuilder;
@@ -263,6 +264,21 @@ class AuthInstaller extends AbstractGenerator
         UserResourceStubBuilder::make()
             ->modelNamespace(trim(config('cubeta-starter.model_namespace')))
             ->namespace(config('cubeta-starter.resource_namespace') . "\\$this->version")
+            ->when(
+                Settings::make()->installedRoles(),
+                fn(UserResourceStubBuilder $builder) => $builder->additionalFields([
+                    new ResourcePropertyString(
+                        'roles',
+                        "RoleResource::collection(\$this->whenLoaded('roles'))",
+                        [new PhpImportString(config('cubeta-starter.resource_namespace') . "\\$this->version\\RoleResource")]
+                    ),
+                    new ResourcePropertyString(
+                        'permissions',
+                        "PermissionResource::collection(\$this->whenLoaded('permissions'))",
+                        [new PhpImportString(config('cubeta-starter.resource_namespace') . "\\$this->version\\PermissionResource")]
+                    ),
+                ])
+            )
             ->generate($resourcePath, $this->override);
     }
 
