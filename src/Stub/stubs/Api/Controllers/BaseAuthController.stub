@@ -2,17 +2,12 @@
 
 namespace {{namespace}};
 
-use {{request_namespace}}\AuthRequests\RequestResetPasswordRequest;
-use {{request_namespace}}\AuthRequests\CheckPasswordResetRequest;
-use {{request_namespace}}\AuthRequests\ResetPasswordRequest;
-use {{request_namespace}}\AuthRequests\AuthRegisterRequest;
-use {{request_namespace}}\AuthRequests\UpdateUserRequest;
-use {{request_namespace}}\AuthRequests\AuthLoginRequest;
 use {{service_namespace}}\User\UserService;
 use {{resource_namespace}}\UserResource;
 use App\Http\Controllers\ApiController;
 use Illuminate\Http\Request;
 use Exception;
+{{imports}}
 
 class BaseAuthController extends ApiController
 {
@@ -34,9 +29,9 @@ class BaseAuthController extends ApiController
         $this->role = $role;
     }
 
-    public function login(AuthLoginRequest $request)
+    public function login({{login_class}} ${{request_var}})
     {
-        $result = $this->userService->login($request->validated(), $this->role, $this->relations);
+        $result = $this->userService->login(${{request_var}}->{{validated_call}}, $this->role, $this->relations);
         if (!$result || !is_array($result)) {
             return rest()
                 ->message(trans('site.credentials_not_match_records'))
@@ -85,9 +80,9 @@ class BaseAuthController extends ApiController
            ->send();
     }
 
-    public function register(AuthRegisterRequest $request)
+    public function register({{register_class}} ${{request_var}})
     {
-        $result = $this->userService->register($request->validated(), $this->role , $this->relations);
+        $result = $this->userService->register(${{request_var}}->{{validated_call}}, $this->role , $this->relations);
 
         if (!$result || !is_array($result)) {
             return rest()
@@ -107,9 +102,9 @@ class BaseAuthController extends ApiController
            ->send();
     }
 
-    public function requestResetPassword(RequestResetPasswordRequest $request)
+    public function requestResetPassword({{request_reset_class}} ${{request_var}})
     {
-        $result = $this->userService->passwordResetRequest($request->email);
+        $result = $this->userService->passwordResetRequest(${{request_var}}->email);
         if ($result) {
             return rest()
                 ->ok()
@@ -123,9 +118,9 @@ class BaseAuthController extends ApiController
             ->send();
     }
 
-    public function resetPassword(ResetPasswordRequest $request)
+    public function resetPassword({{reset_class}} ${{request_var}})
     {
-        $result = $this->userService->passwordReset($request->reset_password_code, $request->password);
+        $result = $this->userService->passwordReset(${{request_var}}->reset_password_code, ${{request_var}}->password);
         if ($result) {
             return rest()
                 ->ok()
@@ -139,9 +134,9 @@ class BaseAuthController extends ApiController
             ->send();
     }
 
-    public function updateUserDetails(UpdateUserRequest $request)
+    public function updateUserDetails({{update_user_class}} ${{request_var}})
     {
-        $result = $this->userService->updateUserDetails($request->validated(), $this->role , $this->relations);
+        $result = $this->userService->updateUserDetails(${{request_var}}->{{validated_call}}, $this->role , $this->relations);
 
         if (!$result || !is_array($result)) {
             return rest()
@@ -178,7 +173,7 @@ class BaseAuthController extends ApiController
         }
     }
 
-    public function validateResetPasswordCode(CheckPasswordResetRequest $request)
+    public function validateResetPasswordCode({{check_reset_class}} ${{request_var}})
     {
         return rest()
             ->ok()

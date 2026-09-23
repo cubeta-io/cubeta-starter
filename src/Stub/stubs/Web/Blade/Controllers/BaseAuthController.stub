@@ -5,12 +5,7 @@ namespace {{namespace}};
 use Exception;
 use App\Http\Controllers\WebController;
 use {{service_namespace}}\User\UserService;
-use {{request_namespace}}\AuthRequests\AuthLoginRequest;
-use {{request_namespace}}\AuthRequests\UpdateUserRequest;
-use {{request_namespace}}\AuthRequests\AuthRegisterRequest;
-use {{request_namespace}}\AuthRequests\ResetPasswordRequest;
-use {{request_namespace}}\AuthRequests\CheckPasswordResetRequest;
-use {{request_namespace}}\AuthRequests\RequestResetPasswordRequest;
+{{imports}}
 
 class BaseAuthController extends WebController
 {
@@ -32,9 +27,9 @@ class BaseAuthController extends WebController
         $this->role = $role;
     }
 
-    public function login(AuthLoginRequest $request)
+    public function login({{login_class}} ${{request_var}})
     {
-        $user = $this->userService->login($request->validated(), $this->role, $this->relations);
+        $user = $this->userService->login(${{request_var}}->{{validated_call}}, $this->role, $this->relations);
         if ($user) {
             return redirect()->route('{{user_details_route}}');
         } else {
@@ -43,9 +38,9 @@ class BaseAuthController extends WebController
         }
     }
 
-    public function register(AuthRegisterRequest $request)
+    public function register({{register_class}} ${{request_var}})
     {
-        $user = $this->userService->register($request->validated(), $this->role , $this->relations);
+        $user = $this->userService->register(${{request_var}}->{{validated_call}}, $this->role , $this->relations);
         if ($user) {
             return redirect()->route('{{user_details_route}}');
         } else {
@@ -54,9 +49,9 @@ class BaseAuthController extends WebController
         }
     }
 
-    public function updateUserDetails(UpdateUserRequest $request)
+    public function updateUserDetails({{update_user_class}} ${{request_var}})
     {
-        $user = $this->userService->updateUserDetails($request->validated(), $this->role , $this->relations);
+        $user = $this->userService->updateUserDetails(${{request_var}}->{{validated_call}}, $this->role , $this->relations);
 
         if ($user) {
             return redirect()->route('{{user_details_route}}');
@@ -78,9 +73,9 @@ class BaseAuthController extends WebController
         }
     }
 
-    public function requestResetPassword(RequestResetPasswordRequest $request)
+    public function requestResetPassword({{request_reset_class}} ${{request_var}})
     {
-        $result = $this->userService->passwordResetRequest($request->email);
+        $result = $this->userService->passwordResetRequest(${{request_var}}->email);
         if ($result) {
             return view('{{reset_password_code_form_page_name}}');
         } else {
@@ -89,14 +84,14 @@ class BaseAuthController extends WebController
         }
     }
 
-    public function validateResetPasswordCode(CheckPasswordResetRequest $request)
+    public function validateResetPasswordCode({{check_reset_class}} ${{request_var}})
     {
         return redirect()->route('{{password_reset_page_route}}');
     }
 
-    public function resetPassword(ResetPasswordRequest $request)
+    public function resetPassword({{reset_class}} ${{request_var}})
     {
-        $data = $request->validated();
+        $data = ${{request_var}}->{{validated_call}};
         $result = $this->userService->passwordReset($data['reset_password_code'], $data['password']);
 
         if ($result) {
