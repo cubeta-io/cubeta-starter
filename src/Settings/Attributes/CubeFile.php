@@ -17,6 +17,7 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasR
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Models\CastColumnString;
@@ -33,7 +34,6 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactT
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use JetBrains\PhpStorm\ExpectedValues;
-use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
 
 class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInterfacePropertyString, HasReactTsInputString, HasReactTsDisplayComponentString
 {
@@ -60,9 +60,12 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         return new DocBlockPropertyString(
             $this->name,
-            str("array{url:string,size:string,extension:string,mime_type:string}")
+            str("SerializedMedia")
                 ->when($this->nullable, fn($str) => $str->append("|null"))
-                ->toString()
+                ->toString(),
+            imports: [
+                new PhpImportString("App\Serializers\SerializedMedia")
+            ]
         );
     }
 
