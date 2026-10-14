@@ -2,6 +2,10 @@
 
 # **Changelog :**
 
+## **V 6.0.5**
+
+1. **Fixing some bugs**
+
 ## **V 6.0.4**
 
 ### **What's new**
@@ -100,9 +104,11 @@ breaking change, so we made it a major version.
 1. You can now choose how the generated code validates the incoming requests data. While installing
    (`php artisan cubeta:install api` , `web` or `react-ts`) or from the GUI settings page you pick one of:
     - `FormRequest` : the classic Laravel form requests (the default, and what previous versions always generated)
-    - `DTO` : validated DTOs built on top of [wendelladriel/laravel-validated-dto](https://github.com/WendellAdriel/laravel-validated-dto)
+    - `DTO` : validated DTOs built on top
+      of [wendelladriel/laravel-validated-dto](https://github.com/WendellAdriel/laravel-validated-dto)
     - `Both` : generate both classes
-   Your choice is stored in `cubeta-starter.config.json` under `validation_type` , so every later generation follows it.
+      Your choice is stored in `cubeta-starter.config.json` under `validation_type` , so every later generation follows
+      it.
 2. Introducing the DTO generator, which creates a
    `App\DTOs\<version>\<Model>\StoreUpdate<Model>DTO` class extending `ValidatedDTO` with:
     - the same validation rules the form request gets
