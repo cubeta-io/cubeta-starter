@@ -2,6 +2,39 @@
 
 # **Changelog :**
 
+## **V 6.0.3**
+
+### **Fixing some bugs**
+
+1. Fixed the generated model PHPDoc type for file attributes to use `SerializedMedia` (or `SerializedMedia|null`
+   for nullable attributes) and import `App\Serializers\SerializedMedia`, matching the value returned by the
+   generated `MediaCast` instead of describing it as an array shape.
+
+## **V 6.0.2**
+
+### **What's new**
+
+1. The auth installer now follows the project's configured validation type for every generated auth action across
+   the API, Blade and Inertia/React stacks. Selecting `DTO` makes the generated auth controllers accept validated
+   DTOs and read their data with `toArray()`; selecting `FormRequest` keeps the existing request-based behavior.
+2. Added validated DTOs for login, registration, password-reset requests, password resets, reset-code checks and
+   user-profile updates. They are generated under the configured DTO namespace when the validation type is `DTO`
+   or `Both`.
+3. When `Both` is selected, the auth installer now generates both form requests and DTOs while keeping the generated
+   controllers dependent on form requests, consistent with the CRUD generators.
+4. The auth installer now installs the validated DTO package automatically when auth DTOs are enabled.
+
+## **V 6.0.1**
+
+### **What's new**
+
+1. The permissions installer now generates `RoleResource` and `PermissionResource` classes for API and
+   Inertia/React projects. Both resources expose the role or permission `id` and `name`.
+2. Generated `UserResource` classes now include `roles` and `permissions` collections when the permissions stack is
+   installed, using `whenLoaded()` so those relations are serialized only after they have been loaded.
+3. Installing permissions after auth now updates the existing `UserResource` with the role and permission fields;
+   installing auth after permissions includes the same fields while generating the resource.
+
 ## **V 6.0.0**
 
 This release moves roles/permissions onto `spatie/laravel-permission` and reworks how file/media columns are
@@ -259,4 +292,3 @@ version update
 1. Making the columns of type translatable being cast into `Translatable::class` custom cast instead of generating an
    accessor for each translated column . you can find the custom cast `Translatable::class` after publishing
    `cubeta-starter-locale` tag in the `app/Casts` directory
-
