@@ -10,7 +10,7 @@ const Gallery = ({
       {sources?.map(
         (img: string | undefined, index) =>
           img && (
-            <div key={index} className="h-40">
+            <div key={index}>
               <ImagePreview src={img} />
             </div>
           ),

@@ -10,6 +10,9 @@
    that open the related record's show page.
 2. Generated Inertia/React CRUD show pages now render generated `belongsTo` relation values as linked buttons that
    open the related record's show page.
+3. Generated Inertia/React CRUD pages now predict whether file columns contain images from names such as `logo`,
+   `image`, `photo`, `avatar`, `icon`, `thumbnail`, `banner`, `cover` and `poster`. Image files render as previews in
+   index tables and galleries on show pages, while other files render as download buttons.
 
 ## **V 6.0.3**
 

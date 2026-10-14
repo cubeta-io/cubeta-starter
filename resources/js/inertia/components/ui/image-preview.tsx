@@ -1,5 +1,6 @@
 import React, { HTMLProps, useState } from "react";
 import { XIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ImgProps extends Omit<
   HTMLProps<HTMLImageElement>,
@@ -18,19 +19,16 @@ const ImagePreview: React.FC<ImgProps> = ({ caption, src, ...props }) => {
       onClick={() => setIsExpanded(false)}
     >
       {isExpanded && (
-        <div
+        <Button
           className={"fixed top-0 right-0 z-50 cursor-pointer"}
           onClick={(e) => {
             e.stopPropagation();
             setIsExpanded(false);
           }}
+          size={"icon"}
         >
-          <XIcon
-            className={
-              "h-12 w-12 rounded-md bg-gray-300 text-black hover:text-white"
-            }
-          />
-        </div>
+          <XIcon />
+        </Button>
       )}
       <div
         className={`transform cursor-pointer rounded-md transition duration-300 ${isExpanded ? "scale-110" : "h-full w-full overflow-hidden object-contain"}`}
@@ -41,7 +39,7 @@ const ImagePreview: React.FC<ImgProps> = ({ caption, src, ...props }) => {
       >
         <img
           src={src}
-          className={`${isExpanded ? "max-h-fit max-w-fit" : "h-full w-full max-w-40 rounded-full object-cover"}`}
+          className={`${isExpanded ? "max-h-fit max-w-fit" : "size-32 rounded-full object-cover"}`}
           {...props}
           alt={caption}
         />

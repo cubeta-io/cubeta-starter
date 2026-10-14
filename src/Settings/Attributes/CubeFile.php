@@ -15,6 +15,7 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTabl
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
@@ -32,10 +33,11 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript\DataTableColu
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use JetBrains\PhpStorm\ExpectedValues;
 
-class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInterfacePropertyString, HasReactTsInputString, HasReactTsDisplayComponentString
+class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInterfacePropertyString, HasReactTsInputString, HasReactTsDisplayComponentString, HasDataTableColumnObjectString
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -103,8 +105,17 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
         return str($this->name)
             ->contains([
                 'image',
+                'photo',
+                'picture',
                 'profile',
+                'avatar',
+                'logo',
                 'icon',
+                'thumbnail',
+                'thumb',
+                'banner',
+                'cover',
+                'poster',
                 'img',
                 'svg',
             ]);
@@ -216,6 +227,22 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         $modelVariable = $this->table()->variableNaming();
         $nullable = $this->nullable ? "?" : "";
+
+        if (!$this->isImageLike()) {
+            $fileUrl = "{$modelVariable}{$nullable}.{$this->name}?.url";
+
+            return new ReactTsDisplayComponentString(
+                "DetailItem",
+                $this->labelNaming(),
+                $fileUrl . ' ? (<a href={' . $fileUrl . '} download><Button size="icon"><DownloadIcon/></Button></a>) : undefined',
+                [
+                    new TsImportString("Button", "@/components/ui/button", false),
+                    new TsImportString("DownloadIcon", "lucide-react", false),
+                    new TsImportString("DetailItem", "@/components/ui/detail-item"),
+                ],
+            );
+        }
+
         return new ReactTsDisplayComponentString(
             "DetailItem",
             $this->labelNaming(),
@@ -228,6 +255,34 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
                 "className" => '"md:col-span-2"',
                 'orientation' => '"vertical"',
             ]
+        );
+    }
+
+    public function datatableColumnObject(string $actor): DataTableColumnObjectString
+    {
+        if (!$this->isImageLike()) {
+            return new DataTableColumnObjectString(
+                $this->name,
+                $this->labelNaming(),
+                false,
+                false,
+                'return cell?.url ? (<a href={cell.url} download><Button size={"icon"}><DownloadIcon/></Button></a>) : undefined;',
+                [
+                    new TsImportString("Button", "@/components/ui/button", false),
+                    new TsImportString("DownloadIcon", "lucide-react", false),
+                ],
+            );
+        }
+
+        return new DataTableColumnObjectString(
+            $this->name,
+            $this->labelNaming(),
+            false,
+            false,
+            'return (<ImagePreview src={cell?.url} />);',
+            [
+                new TsImportString("ImagePreview", "@/components/ui/image-preview"),
+            ],
         );
     }
 
