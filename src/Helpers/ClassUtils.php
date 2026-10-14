@@ -223,19 +223,38 @@ class ClassUtils
             return false;
         }
 
-        $pattern = '#/\*\s*\*(.*?)\*/\s*class\s*#s';
         $fileContent = $classPath->getContent();
+        $classDocBlock = null;
 
-        if (!preg_match($pattern, $fileContent, $matches)) {
+        foreach (token_get_all($fileContent) as $token) {
+            if (!is_array($token)) {
+                continue;
+            }
+
+            if ($token[0] === T_DOC_COMMENT) {
+                $classDocBlock = $token[1];
+            }
+
+            if ($token[0] === T_CLASS) {
+                break;
+            }
+        }
+
+        if (!$classDocBlock || FileUtils::contentExistsInString($classDocBlock, "$property")) {
             return false;
         }
 
-        if (empty($matches[1])) {
+        $newDocBlock = preg_replace(
+            '/\s*\*\/$/',
+            "\n * $property\n */",
+            rtrim($classDocBlock)
+        );
+
+        if (!$newDocBlock) {
             return false;
         }
 
-        $newBlock = trim($matches[1]) . "\n * $property \n";
-        $fileContent = str_replace($matches[1], $newBlock, $fileContent);
+        $fileContent = str_replace($classDocBlock, $newDocBlock, $fileContent);
         $classPath->putContent($fileContent);
 
         foreach ($property->imports as $import) {

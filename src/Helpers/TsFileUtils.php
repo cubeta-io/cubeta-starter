@@ -17,16 +17,15 @@ class TsFileUtils
         InterfacePropertyString $interfacePropertyString
     ): void
     {
-        $interfaceName = $interfacePath->getFileNameWithoutExtension();
         $propertyName = $interfacePropertyString->name;
         if (!$interfacePath->exist()) {
-            CubeLog::add(new NotFound($interfacePath->fullPath, "Trying to add new property [$propertyName] to [$interfaceName] TS interface"));
+            CubeLog::add(new NotFound($interfacePath->fullPath, "Trying to add new property [$propertyName] to TS interface"));
             return;
         }
 
         $fileContent = $interfacePath->getContent();
 
-        $pattern = '/interface\s*' . preg_quote($interfaceName, '/') . '\s*\{(.*?)}/s';
+        $pattern = '/interface\s+[A-Za-z_$][A-Za-z0-9_$]*\s*\{(.*?)}/s';
 
         if (preg_match($pattern, $fileContent, $matches)) {
             $interfaceBody = $matches[1];
@@ -35,7 +34,7 @@ class TsFileUtils
                 CubeLog::contentAlreadyExists(
                     $interfacePropertyString,
                     $interfacePath->fullPath,
-                    "Trying to add new property [$propertyName] to [$interfaceName] TS interface"
+                    "Trying to add new property [$propertyName] to TS interface"
                 );
                 return;
             }
@@ -45,7 +44,7 @@ class TsFileUtils
             $interfacePath->putContent($fileContent);
             $interfacePath->format();
         } else {
-            CubeLog::failedAppending($interfacePropertyString, $interfacePath->fullPath, "Trying to add new property [$propertyName] to [$interfaceName] TS interface");
+            CubeLog::failedAppending($interfacePropertyString, $interfacePath->fullPath, "Trying to add new property [$propertyName] to TS interface");
         }
     }
 
