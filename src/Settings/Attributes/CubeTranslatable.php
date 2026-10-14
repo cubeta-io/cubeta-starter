@@ -223,7 +223,7 @@ class CubeTranslatable extends CubeStringable implements HasFakeMethod,
         );
     }
 
-    public function datatableColumnObject(string $actor): DataTableColumnObjectString
+    public function datatableColumnObject(?string $actor = null): DataTableColumnObjectString
     {
         return new DataTableColumnObjectString(
             $this->name,

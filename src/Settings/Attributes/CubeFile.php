@@ -258,7 +258,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
         );
     }
 
-    public function datatableColumnObject(string $actor): DataTableColumnObjectString
+    public function datatableColumnObject(?string $actor = null): DataTableColumnObjectString
     {
         if (!$this->isImageLike()) {
             return new DataTableColumnObjectString(

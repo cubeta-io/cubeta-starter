@@ -201,7 +201,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         );
     }
 
-    public function datatableColumnObject(string $actor): DataTableColumnObjectString
+    public function datatableColumnObject(?string $actor = null): DataTableColumnObjectString
     {
         $column = $this->relationModel()->titleable();
         $showRoute = $this->relationModel()->showRoute($actor, ContainerType::WEB)->name;
