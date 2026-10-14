@@ -2,6 +2,15 @@
 
 # **Changelog :**
 
+## **V 6.0.4**
+
+### **What's new**
+
+1. Generated Inertia/React CRUD index tables now render generated `belongsTo` relation values as small linked buttons
+   that open the related record's show page.
+2. Generated Inertia/React CRUD show pages now render generated `belongsTo` relation values as linked buttons that
+   open the related record's show page.
+
 ## **V 6.0.3**
 
 ### **Fixing some bugs**

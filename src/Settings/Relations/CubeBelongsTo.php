@@ -169,12 +169,20 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         );
     }
 
-    public function displayComponentString(): ReactTsDisplayComponentString
+    public function displayComponentString(?string $actor = null): ReactTsDisplayComponentString
     {
         $parentModel = $this->parentModel();
         $column = $this->relationModel()->titleable();
+        $showRoute = $this->relationModel()->showRoute($actor, ContainerType::WEB)->name;
+        $viewValue = $column->isTranslatable()
+            ? "translate({$parentModel->variableNaming()}?.{$this->relationMethodNaming()}?.{$column->name})"
+            : "{$parentModel->variableNaming()}?.{$this->relationMethodNaming()}?.{$column->name}";
+
         $imports = [
             new TsImportString("DetailItem", "@/components/ui/detail-item"),
+            new TsImportString("DetailItemValue", "@/components/ui/detail-item-value", false),
+            new TsImportString("Button", "@/components/ui/button", false),
+            new TsImportString("Link", "@inertiajs/react", false),
         ];
 
         if ($column->isTranslatable()) {
@@ -184,9 +192,11 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         return new ReactTsDisplayComponentString(
             "DetailItem",
             $this->titleNaming(),
-            $column->isTranslatable()
-                ? "translate(" . $parentModel->variableNaming() . "?." . $this->relationMethodNaming() . "?." . $column->name . ")"
-                : $parentModel->variableNaming() . "?." . $this->relationMethodNaming() . "?." . $column->name,
+            "<Link href={route(\"$showRoute\", {$parentModel->variableNaming()}.{$this->key})}>
+                <Button>
+                    <DetailItemValue value={{$viewValue}} />
+                </Button>
+            </Link>",
             $imports,
         );
     }
@@ -200,7 +210,8 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             : "record?.{$this->method()}?.{$column->name}";
 
         $imports = [
-            new TsImportString("Link", "@inertiajs/react", false)
+            new TsImportString("Button", "@/components/ui/button", false),
+            new TsImportString("Link", "@inertiajs/react", false),
         ];
 
         if ($column->isTranslatable()) {
@@ -214,7 +225,9 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
             false,
             "return (record?.{$this->key} && <Link className=\"hover:text-primary underline\"
                         href={route(\"$showRoute\" , record?.{$this->key})}>
-                        {{$viewValue}}
+                        <Button size={\"sm\"}>
+                            {{$viewValue}}
+                        </Button>
                     </Link>)",
             $imports,
         );

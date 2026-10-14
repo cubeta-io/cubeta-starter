@@ -303,7 +303,7 @@ class CodeSniffer
                 }
 
                 if ($reversedRelation instanceof HasReactTsDisplayComponentString) {
-                    $component = $reversedRelation->displayComponentString();
+                    $component = $reversedRelation->displayComponentString($this->actor);
                     TsFileUtils::addComponentToShowPage($component, $relatedShowPagePath);
                     TsFileUtils::addImportStatement($component->imports, $relatedShowPagePath);
                 }

@@ -70,7 +70,7 @@ class ReactTSPagesGenerator extends InertiaReactTSController
             ->whereInstanceOf(HasReactTsDisplayComponentString::class)
             ->each(function (CubeRelation|HasReactTsDisplayComponentString $rel) use ($builder) {
                 if ($rel->exists() && $rel->getTSModelPath()->exist()) {
-                    $builder->smallField($rel->displayComponentString());
+                    $builder->smallField($rel->displayComponentString($this->actor));
                 }
             });
 
