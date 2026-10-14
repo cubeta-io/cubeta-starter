@@ -97,7 +97,7 @@ class BaseAuthController extends ApiController
                'user'          => UserResource::make($user),
                'token'         => $token,
                'refresh_token' => $refreshToken,
-           ])->message(__('site.registered_successfully'))
+           ])->message(trans('site.registered_successfully'))
            ->ok()
            ->send();
     }

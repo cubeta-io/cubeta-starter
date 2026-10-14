@@ -14,45 +14,24 @@ use Illuminate\Support\Str;
 
 class CubeRelation
 {
-    use NamingConventions, HasPathAndNamespace;
+    use HasPathAndNamespace, NamingConventions;
 
-    /**
-     * @var string
-     */
     public string $type;
 
-    /**
-     * @var string
-     */
     public string $relationModel;
 
     private ?CubeTable $relationModelTableObject = null;
 
-    /**
-     * @var string|null
-     */
     public ?string $key = null;
 
-    /**
-     * @var string
-     */
     public string $version = 'v1';
 
-    /**
-     * @var string
-     */
     public string $parentModel;
 
     private ?CubeTable $parentModelTableObject = null;
 
     private ?CubeRelation $reverseRelation = null;
 
-    /**
-     * @param string $type
-     * @param string $relationModel
-     * @param string $relatedModel
-     * @param string $version
-     */
     public function __construct(string $type, string $relationModel, string $relatedModel, string $version = 'v1')
     {
         $this->type = $type;
@@ -60,28 +39,26 @@ class CubeRelation
         $this->parentModel = Naming::model($relatedModel);
 
         if ($this->type == RelationsTypeEnum::BelongsTo->value) {
-            $this->key = Str::singular(strtolower($this->relationModel)) . '_id';
+            $this->key = Str::singular(strtolower($this->relationModel)).'_id';
         }
 
         $this->usedString = $this->relationModel;
         $this->version = $version;
     }
 
-    /**
-     * @return bool|string
-     */
     public function toJson(): bool|string
     {
         if ($this->key) {
             return json_encode([
-                "type" => $this->type,
-                "model_name" => $this->relationModel,
-                "key" => $this->key,
+                'type' => $this->type,
+                'model_name' => $this->relationModel,
+                'key' => $this->key,
             ], JSON_PRETTY_PRINT);
         }
+
         return json_encode([
-            "type" => $this->type,
-            "model_name" => $this->relationModel,
+            'type' => $this->type,
+            'model_name' => $this->relationModel,
         ], JSON_PRETTY_PRINT);
     }
 
@@ -92,22 +69,23 @@ class CubeRelation
     {
         if ($this->key) {
             return [
-                "type" => $this->type,
-                "model_name" => $this->relationModel,
-                "key" => $this->key,
+                'type' => $this->type,
+                'model_name' => $this->relationModel,
+                'key' => $this->key,
             ];
         }
+
         return [
-            "type" => $this->type,
-            "model_name" => $this->relationModel,
+            'type' => $this->type,
+            'model_name' => $this->relationModel,
         ];
     }
 
     /**
      * the relation is existing if its model class is defined
-     * @param bool $withTypescriptChecking when true this mean check for the TypeScript model if exist
-     * @param bool $withMethodChecking     when true this mean check for the relation method within the model if exists
-     * @return bool
+     *
+     * @param  bool  $withTypescriptChecking  when true this mean check for the TypeScript model if exist
+     * @param  bool  $withMethodChecking  when true this mean check for the relation method within the model if exists
      */
     public function exists(bool $withTypescriptChecking = false, bool $withMethodChecking = false): bool
     {
@@ -118,9 +96,9 @@ class CubeRelation
 
         if ($withMethodChecking) {
             $exist = $exist && ClassUtils::isMethodDefined( // category model has a "product" method
-                    $relatedModel->getModelPath(),
-                    $this->method()
-                );
+                $relatedModel->getModelPath(),
+                $this->method()
+            );
         }
 
         if ($withTypescriptChecking) {
@@ -134,7 +112,6 @@ class CubeRelation
      * a relation is loadable when the current table model exists,
      * and it has the relation method, and the related model exists
      * and has the current table method
-     * @return bool
      */
     public function loadable(): bool
     {
@@ -149,9 +126,6 @@ class CubeRelation
             && ClassUtils::isMethodDefined($this->getModelPath(), $related->relationMethodNaming(singular: $this->isHasMany() || $this->isHasOne())); // the product model has the category method
     }
 
-    /**
-     * @return string
-     */
     public function method(): string
     {
         // relationModel = "Product"
@@ -160,7 +134,9 @@ class CubeRelation
         // return will be "products"
         if ($this->isHasMany() || $this->isManyToMany()) {
             return $this->relationMethodNaming(singular: false);
-        } else return $this->relationMethodNaming();
+        } else {
+            return $this->relationMethodNaming();
+        }
     }
 
     public function reverseMethod(): string
@@ -172,41 +148,26 @@ class CubeRelation
         return $this->relationMethodNaming($this->parentModel, $this->isHasMany() || $this->isHasOne());
     }
 
-    /**
-     * @return bool
-     */
     public function isHasMany(): bool
     {
         return $this->type == RelationsTypeEnum::HasMany->value;
     }
 
-    /**
-     * @return bool
-     */
     public function isManyToMany(): bool
     {
         return $this->type == RelationsTypeEnum::ManyToMany->value;
     }
 
-    /**
-     * @return bool
-     */
     public function isBelongsTo(): bool
     {
         return $this->type == RelationsTypeEnum::BelongsTo->value;
     }
 
-    /**
-     * @return bool
-     */
     public function isHasOne(): bool
     {
         return $this->type == RelationsTypeEnum::HasOne->value;
     }
 
-    /**
-     * @return CubeTable
-     */
     public function relationModel(): CubeTable
     {
         if ($this->relationModelTableObject) {
@@ -241,6 +202,7 @@ class CubeRelation
         }
 
         $this->parentModelTableObject = Settings::make()->getTable($this->parentModel) ?? CubeTable::create($this->parentModel);
+
         return $this->parentModelTableObject;
     }
 
@@ -262,21 +224,27 @@ class CubeRelation
 
         $this->reverseRelation = $this->relationModel()
             ->relations()
-            ->filter(fn(CubeRelation $rel) => $rel->modelNaming() == $this->parentModel()->modelNaming())
+            ->filter(fn (CubeRelation $rel) => $rel->modelNaming() == $this->parentModel()->modelNaming())
             ->first();
 
-        if (!$this->reverseRelation) {
+        if (! $this->reverseRelation) {
             $this->reverseRelation = CubeRelation::factory(
                 $this->reverseType(),
                 $this->parentModel()->modelNaming(),
                 $this->relationModel()->modelNaming()
             );
         }
+
         return $this->reverseRelation;
     }
 
     public function singularRelation(): bool
     {
         return $this->isBelongsTo() || $this->isHasOne();
+    }
+
+    public function translationKey(): string
+    {
+        return 'models.'.Naming::model($this->parentModel).'.fields.'.($this->key ?? $this->method());
     }
 }

@@ -14,6 +14,7 @@ use Illuminate\Support\Stringable;
  * @method self setPut(string $setPut)
  * @method self action (string $action)
  * @method self formTitle (string $formTitle)
+ * @method self modelName (string $modelName)
  * @method self translatableContextOpenTag(string $translatableContextOpenTag)
  * @method self translatableContextCloseTag(string $translatableContextCloseTag)
  */
@@ -51,6 +52,7 @@ class FormPageStubBuilder extends TypescriptFileBuilder
     public function defaultValue(string $key, string $value): static
     {
         $this->defaultValues[] = "$key:$value";
+
         return $this;
     }
 
@@ -61,13 +63,13 @@ class FormPageStubBuilder extends TypescriptFileBuilder
             $this->import($property->import);
         }
         $this->formFieldsInterface = collect($this->formFieldsInterface)
-            ->unique(fn(InterfacePropertyString $item) => $item->name)
+            ->unique(fn (InterfacePropertyString $item) => $item->name)
             ->toArray();
+
         return $this;
     }
 
     /**
-     * @param ReactTsInputComponentString $field
      * @return $this
      */
     public function smallField(ReactTsInputComponentString $field): static
@@ -86,6 +88,7 @@ class FormPageStubBuilder extends TypescriptFileBuilder
         if (count($field->imports) > 0) {
             $this->import($field->imports);
         }
+
         return $this;
     }
 
@@ -96,20 +99,20 @@ class FormPageStubBuilder extends TypescriptFileBuilder
 
     protected function getStubPropertyArray(): array
     {
-        $fields = implode("\n", $this->smallFields) .
-            "\n" .
+        $fields = implode("\n", $this->smallFields).
+            "\n".
             implode(
                 "\n",
-                array_map(fn($field) => "<div className=\"md:col-span-2\">$field</div>", $this->bigFields)
+                array_map(fn ($field) => "<div className=\"md:col-span-2\">$field</div>", $this->bigFields)
             );
 
         return [
             ...parent::getStubPropertyArray(),
-            "{{default_values}}" => str(implode("\n,", $this->defaultValues))->when(
-                fn(Stringable $str) => !$str->isEmpty(),
-                fn(Stringable $str) => $str->wrap("{", "}")
+            '{{default_values}}' => str(implode("\n,", $this->defaultValues))->when(
+                fn (Stringable $str) => ! $str->isEmpty(),
+                fn (Stringable $str) => $str->wrap('{', '}')
             ),
-            "{{fields}}" => $fields,
+            '{{fields}}' => $fields,
             '{{form_field_interface}}' => implode("\n", $this->formFieldsInterface),
         ];
     }

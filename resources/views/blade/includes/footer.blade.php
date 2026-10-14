@@ -1,6 +1,7 @@
 <footer id="footer" class="footer"></footer>
 <script>
-    const _CSRF_TOKEN = '{{ csrf_token() }}';
+  const _CSRF_TOKEN = "{{ csrf_token() }}";
+  window._DASHBOARD_TRANSLATIONS = @json (trans('site.dashboard'));
 </script>
 
 <script src="{{ asset("js/main.js") }}"></script>
@@ -8,35 +9,35 @@
 <script src="{{ asset("js/CustomFunctions.js") }}"></script>
 
 <script type="module">
-    localStorage.setItem("locale", "{{ app()->getLocale() }}");
+  localStorage.setItem("locale", "{{ app()->getLocale() }}");
 
-$(document).ready(function() {
-  markRequiredFields();
-  initPluginsByClass();
-  handleImageGalleryExistence();
-  changeLocale();
-});
-disableSubmitUntilFillRequiredFields();
+  $(document).ready(function() {
+    markRequiredFields();
+    initPluginsByClass();
+    handleImageGalleryExistence();
+    changeLocale();
+  });
+  disableSubmitUntilFillRequiredFields();
 
-@if (session()->has('error'))
-triggerSwalError("{{ session()->get('error') }}");
-@php
-  session()->remove('error');
-@endphp
-@endif
+  @if (session()->has('error'))
+  triggerSwalError("{{ session()->get('error') }}");
+  @php
+      session()->remove('error');
+  @endphp
+  @endif
 
-@if (session()->has('success'))
-triggerSwalSuccess("{{ session()->get('success') }}");
-@php
-  session()->remove('success');
-@endphp
-@endif
+  @if (session()->has('success'))
+  triggerSwalSuccess("{{ session()->get('success') }}");
+  @php
+      session()->remove('success');
+  @endphp
+  @endif
 
-@if (session()->has('message'))
-triggerSwalMessage('{{ session()->get('message') }}');
-@php
-  session()->remove('success');
-@endphp
-@endif
+  @if (session()->has('message'))
+  triggerSwalMessage('{{ session()->get('message') }}');
+    @php
+        session()->remove('success');
+    @endphp
+    @endif
 </script>
 @stack("scripts")

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { usePage } from "@inertiajs/react";
 import { AppSidebar } from "@/components/dashboard/sidebar/app-sidebar";
@@ -16,6 +16,10 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
   const {
     props: { currentLocale },
   } = usePage();
+
+  useEffect(() => {
+    document.documentElement.lang = currentLocale;
+  }, [currentLocale]);
 
   registerPlugin(
     FilePondPluginImageExifOrientation,

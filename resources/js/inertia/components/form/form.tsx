@@ -2,12 +2,13 @@ import { ReactNode, SubmitEventHandler } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Loader } from "lucide-react";
 import { FieldGroup } from "@/components/ui/field";
+import { useTranslation } from "@/hooks/use-translation";
 
 const Form = ({
   onSubmit,
   processing,
   children,
-  buttonText = "Save",
+  buttonText,
   backButton = true,
 }: {
   onSubmit: SubmitEventHandler<HTMLFormElement>;
@@ -16,6 +17,8 @@ const Form = ({
   buttonText?: string;
   backButton?: boolean;
 }) => {
+  const { t } = useTranslation();
+  const submitText = buttonText ?? t("dashboard.actions.save");
   return (
     <form onSubmit={onSubmit}>
       <FieldGroup>
@@ -33,11 +36,11 @@ const Form = ({
               }}
             >
               <ChevronLeft />
-              Back
+              {t("dashboard.actions.back")}
             </Button>
           )}
           <Button type="submit" disabled={processing}>
-            {buttonText}
+            {submitText}
             {processing && <Loader className={"animate-spin"} />}
           </Button>
         </FieldGroup>

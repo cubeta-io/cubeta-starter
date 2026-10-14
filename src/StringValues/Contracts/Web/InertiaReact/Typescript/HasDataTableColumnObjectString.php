@@ -6,5 +6,5 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTa
 
 interface HasDataTableColumnObjectString
 {
-    public function datatableColumnObject(string $actor): DataTableColumnObjectString;
+    public function datatableColumnObject(?string $actor = null): DataTableColumnObjectString;
 }

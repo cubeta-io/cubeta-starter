@@ -24,6 +24,7 @@ import { Link } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 import { Json, TableData } from "@/components/datatable/types";
 import { Plus } from "lucide-react";
+import { useTranslation } from "@/hooks/use-translation";
 
 function DataTable<ApiResponse, Data>({
   api,
@@ -43,6 +44,7 @@ function DataTable<ApiResponse, Data>({
   exportRoute = undefined,
   exportables = undefined,
 }: TableData<ApiResponse, Data>) {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [hideCols, setHideCols] = useState<number[]>([]);
@@ -98,7 +100,12 @@ function DataTable<ApiResponse, Data>({
         <div className={"flex gap-1"}>
           {createUrl && (
             <Link href={createUrl}>
-              <Button size={"icon"} type={"button"} variant={"default"}>
+              <Button
+                size={"icon"}
+                type={"button"}
+                variant={"default"}
+                aria-label={t("dashboard.actions.create")}
+              >
                 <Plus />
               </Button>
             </Link>
@@ -161,7 +168,7 @@ function DataTable<ApiResponse, Data>({
           <Input
             type="search"
             id="Search"
-            placeholder="Search For ..."
+            placeholder={t("dashboard.table.search")}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -183,7 +190,7 @@ function DataTable<ApiResponse, Data>({
           <ShadcnTableBody>
             <TableRow>
               <TableCell colSpan={schema.length} className={"p-3 text-center"}>
-                Loading ...
+                {t("dashboard.table.loading")}
               </TableCell>
             </TableRow>
           </ShadcnTableBody>

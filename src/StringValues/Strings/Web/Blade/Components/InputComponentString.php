@@ -1,14 +1,28 @@
 <?php
 
 namespace Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components;
+
 // TODO: change class name to BladeInputComponentString
 class InputComponentString
 {
     private string $type;
+
     private string $tag;
+
     private string $name;
+
     private bool $isRequired = false;
+
     private ?string $label = null;
+
+    private ?string $translationKey = null;
+
+    public function translationKey(string $translationKey): self
+    {
+        $this->translationKey = $translationKey;
+
+        return $this;
+    }
 
     /**
      * @var array{array{key:string , value:string}}
@@ -16,12 +30,7 @@ class InputComponentString
     private array $attributes = [];
 
     /**
-     * @param string                                  $type
-     * @param string                                  $tag
-     * @param string                                  $name
-     * @param bool                                    $isRequired
-     * @param string|null                             $label
-     * @param array{array{key:string , value:string}} $attributes
+     * @param  array{array{key:string , value:string}}  $attributes
      */
     public function __construct(string $type, string $tag, string $name, bool $isRequired = false, ?string $label = null, array $attributes = [])
     {
@@ -33,19 +42,19 @@ class InputComponentString
         $this->isRequired = $isRequired;
     }
 
-
     public function __toString(): string
     {
-        if (in_array($this->tag, ["x-translatable-text-editor", "x-text-editor"])) {
-            $grid = "col-sm-12 col-md-12";
+        $label = $this->translationKey ? "{{ trans('site.{$this->translationKey}') }}" : $this->label;
+        if (in_array($this->tag, ['x-translatable-text-editor', 'x-text-editor'])) {
+            $grid = 'col-sm-12 col-md-12';
         } else {
-            $grid = "col-sm-12 col-md-6";
+            $grid = 'col-sm-12 col-md-6';
         }
 
-        $renderedAttributes = "";
+        $renderedAttributes = '';
 
         foreach ($this->attributes as $attribute) {
-            if (!empty($attribute['value'])) {
+            if (! empty($attribute['value'])) {
                 $renderedAttributes .= " {$attribute['key']}=\"{$attribute['value']}\" ";
             } else {
                 $renderedAttributes .= " {$attribute['key']} ";
@@ -53,12 +62,12 @@ class InputComponentString
         }
 
         if ($this->isRequired) {
-            $renderedAttributes .= " required ";
+            $renderedAttributes .= ' required ';
         }
 
-        if ($this->type == "radio"){
+        if ($this->type == 'radio') {
             return "<div class=\"col-sm-12 col-md-6\">
-                        <label class=\"form-label\">{$this->label}</label>
+                        <label class=\"form-label\">{$label}</label>
                         <div class=\"d-flex gap-5\">
                             <x-form-check-radio name=\"{$this->name}\" :value=\"0\" $renderedAttributes/>
                             <x-form-check-radio name=\"{$this->name}\" :value=\"1\" $renderedAttributes/>
@@ -70,7 +79,7 @@ class InputComponentString
                     <{$this->tag} 
                         type=\"{$this->type}\" 
                         name=\"{$this->name}\"
-                        label=\"{$this->label}\"
+                        label=\"{$label}\"
                         $renderedAttributes
                     />
                 </div>";

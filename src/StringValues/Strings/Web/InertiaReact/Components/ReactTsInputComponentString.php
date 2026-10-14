@@ -7,9 +7,15 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 class ReactTsInputComponentString
 {
     private string $tag;
+
     private string $name;
+
     private ?string $label;
+
     private bool $required;
+
+    public ?string $translationKey;
+
     /**
      * @var array{array{key:string , value:string}}
      */
@@ -21,14 +27,9 @@ class ReactTsInputComponentString
     public array $imports = [];
 
     /**
-     * @param string           $tag
-     * @param string           $name
-     * @param string|null      $label
-     * @param bool             $required
-     * @param array            $attributes
-     * @param TsImportString[] $imports
+     * @param  TsImportString[]  $imports
      */
-    public function __construct(string $tag, string $name, ?string $label = null, bool $required = false, array $attributes = [], array $imports = [])
+    public function __construct(string $tag, string $name, ?string $label = null, bool $required = false, array $attributes = [], array $imports = [], ?string $translationKey = null)
     {
         $this->tag = $tag;
         $this->name = $name;
@@ -36,18 +37,21 @@ class ReactTsInputComponentString
         $this->required = $required;
         $this->attributes = $attributes;
         $this->imports = $imports;
+        $this->translationKey = $translationKey;
     }
 
     public function __toString(): string
     {
-        $renderedAttributes = "";
+        $renderedAttributes = '';
 
-        if ($this->label) {
-            $renderedAttributes .= " label={\"$this->label\"} ";
+        if ($this->label || $this->translationKey) {
+            $renderedAttributes .= $this->translationKey
+                ? " label={t(\"{$this->translationKey}\")} "
+                : " label={\"$this->label\"} ";
         }
 
         foreach ($this->attributes as $attribute) {
-            if (!empty($attribute['value'])) {
+            if (! empty($attribute['value'])) {
                 $renderedAttributes .= " {$attribute['key']}={{$attribute['value']}} ";
             } else {
                 $renderedAttributes .= " {$attribute['key']} ";
@@ -55,7 +59,7 @@ class ReactTsInputComponentString
         }
 
         if ($this->required) {
-            $renderedAttributes .= " required ";
+            $renderedAttributes .= ' required ';
         }
 
         return "<$this->tag name=\"$this->name\" $renderedAttributes />";

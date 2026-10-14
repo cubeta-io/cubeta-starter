@@ -1,6 +1,7 @@
 import { TablePaginatorProps } from "@/components/datatable/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/hooks/use-translation";
 
 function TablePaginator<ApiResponse>({
   response,
@@ -13,6 +14,7 @@ function TablePaginator<ApiResponse>({
   isFirst = undefined,
   isLast = undefined,
 }: TablePaginatorProps<ApiResponse>) {
+  const { t } = useTranslation();
   const totalPages = getTotalPages(response) ?? 0;
   const paginationArray = [...Array(totalPages)];
 
@@ -39,7 +41,9 @@ function TablePaginator<ApiResponse>({
     <div className="flex justify-between px-4 py-2">
       {getTotalRecords && (
         <div className="justify-start">
-          Total Records : {getTotalRecords(response)}
+          {t("dashboard.table.total_records", {
+            count: getTotalRecords(response),
+          })}
         </div>
       )}
       <ol className="flex items-center justify-end gap-1 text-xs font-medium">
@@ -50,7 +54,7 @@ function TablePaginator<ApiResponse>({
             variant="secondary"
             onClick={setPrevPage}
             disabled={isFirstPage()}
-            aria-label="Previous Page"
+            aria-label={t("dashboard.table.previous_page")}
           >
             <ChevronLeft />
           </Button>
@@ -108,7 +112,7 @@ function TablePaginator<ApiResponse>({
             variant="secondary"
             onClick={setNextPage}
             disabled={isLastPage()}
-            aria-label="Next Page"
+            aria-label={t("dashboard.table.next_page")}
           >
             <ChevronRight />
           </Button>

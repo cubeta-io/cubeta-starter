@@ -247,7 +247,7 @@ public function register(AuthRegisterRequest $request)
             'user' => new UserResource($user) ,
             'token' => $token ,
             'refresh_token' => $refresh_token
-        ])->message(__('site.registered_successfully'))
+        ])->message(trans('site.registered_successfully'))
         ->send();
     }
 ```

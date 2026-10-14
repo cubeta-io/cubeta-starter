@@ -1,4 +1,4 @@
-@props([
+@props ([
     "label",
     "name" => null,
     "api",
@@ -19,7 +19,7 @@
   <select
     class="form-select select-2 @error($name) is-invalid @enderror"
     id="{{ $name }}_select2"
-    data-placeholder="Chose A {{ $label }}"
+    data-placeholder="{{ trans('site.dashboard.form.select', ['label' => $label]) }}"
     name="{{ $name }}"
     onchange="disableSubmitUntilFillRequiredFields()"
     {{ $attributes->merge() }}
@@ -34,12 +34,12 @@
 
     {{ $slot }}
   </select>
-  @error($name)
-  <div class="invalid-feedback">{{ $message }}</div>
+  @error ($name)
+    <div class="invalid-feedback">{{ $message }}</div>
   @enderror
 </div>
 
-@push("scripts")
+@push ("scripts")
   <script type="module">
     $(document).ready(function() {
       const select2Element = $("#{{ $name }}_select2");
@@ -87,5 +87,5 @@
                 },
               });
             });
-    </script>
+  </script>
 @endpush

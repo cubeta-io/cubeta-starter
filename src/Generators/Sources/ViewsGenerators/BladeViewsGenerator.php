@@ -6,6 +6,7 @@ use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
+use Cubeta\CubetaStarter\Helpers\TranslationFileUtils;
 use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
@@ -24,14 +25,17 @@ class BladeViewsGenerator extends BladeControllerGenerator
 {
     use RouteBinding;
 
-    public static string $key = "views";
+    public static string $key = 'views';
 
     public function run(bool $override = false): void
     {
-        if (!Settings::make()->getFrontendType() == FrontendTypeEnum::BLADE) {
-            CubeLog::add(new CubeError("Install web tools by running [php artisan cubeta:install web && php artisan cubeta:install web-packages] then try again", happenedWhen: "Generating a {$this->table->modelName} blade views"));
+        if (! Settings::make()->getFrontendType() == FrontendTypeEnum::BLADE) {
+            CubeLog::add(new CubeError('Install web tools by running [php artisan cubeta:install web && php artisan cubeta:install web-packages] then try again', happenedWhen: "Generating a {$this->table->modelName} blade views"));
+
             return;
         }
+
+        TranslationFileUtils::addModelTranslations($this->table);
 
         $modelVariable = $this->table->variableNaming();
         $hasTranslatableFields = $this->table->hasTranslatableAttribute();
@@ -42,22 +46,22 @@ class BladeViewsGenerator extends BladeControllerGenerator
         $updateFormPath = $this->table->editView($this->actor)->path;
 
         $createInputs = $this->getInputsFields();
-        $updateInputs = $this->getInputsFields("update");
+        $updateInputs = $this->getInputsFields('update');
 
         // create view
         FormViewStubBuilder::make()
-            ->method("POST")
-            ->title("Create {$this->table->modelName}")
-            ->localizationSelector($hasTranslatableFields ? new FormLocalSelectorString() : "")
+            ->method('POST')
+            ->title("{{ trans('site.dashboard.titles.create', ['model' => trans('site.models.{$this->table->modelName}.singular')]) }}")
+            ->localizationSelector($hasTranslatableFields ? new FormLocalSelectorString : '')
             ->submitRoute($this->table->storeRoute($this->actor, ContainerType::WEB)->name)
             ->inputs($createInputs)
             ->generate($createFormPath, $this->override);
 
         // update view
         FormViewStubBuilder::make()
-            ->method("PUT")
-            ->title("Update {$this->table->modelName}")
-            ->localizationSelector($hasTranslatableFields ? new FormLocalSelectorString() : "")
+            ->method('PUT')
+            ->title("{{ trans('site.dashboard.titles.update', ['model' => trans('site.models.{$this->table->modelName}.singular')]) }}")
+            ->localizationSelector($hasTranslatableFields ? new FormLocalSelectorString : '')
             ->submitRoute($this->table->updateRoute($this->actor, ContainerType::WEB)->name)
             ->updateParameters(", \${$modelVariable}->id")
             ->inputs($updateInputs)
@@ -73,13 +77,17 @@ class BladeViewsGenerator extends BladeControllerGenerator
             ->editRoute($this->table->editRoute($this->actor)->name)
             ->components(
                 $this->table->attributes()
-                    ->map(fn(CubeAttribute $attribute) => $attribute->bladeDisplayComponent()?->__toString())
+                    ->map(function (CubeAttribute $attribute) {
+                        $component = $attribute->bladeDisplayComponent();
+
+                        return $component?->translationKey($attribute->translationKey())->__toString();
+                    })
                     ->implode("\n")
             )->generate($showPath, $this->override);
 
         // index view
         IndexViewStubBuilder::make()
-            ->tableName(ucfirst($this->table->tableNaming()))
+            ->tableName($this->table->modelNaming())
             ->createRoute($this->table->createRoute($this->actor)->name)
             ->dataRoute($this->table->dataRoute($this->actor)->name)
             ->exportRoute($this->table->exportRoute($this->actor, ContainerType::WEB)->name)
@@ -88,34 +96,34 @@ class BladeViewsGenerator extends BladeControllerGenerator
             ->modelClassString($this->table->getModelClassString())
             ->htmlColumns(
                 $this->table->attributes()
-                    ->filter(fn(CubeAttribute $attribute) => !$attribute->isTextable())
-                    ->merge($this->table->relations()->filter(fn(CubeRelation $relation) => $relation->exists()))
+                    ->filter(fn (CubeAttribute $attribute) => ! $attribute->isTextable())
+                    ->merge($this->table->relations()->filter(fn (CubeRelation $relation) => $relation->exists()))
                     ->whereInstanceOf(HasHtmlTableHeader::class)
-                    ->map(fn(HasHtmlTableHeader $attribute) => $attribute->htmlTableHeader()->__toString())
+                    ->map(fn (HasHtmlTableHeader|CubeAttribute|CubeRelation $attribute) => $attribute->htmlTableHeader()->translationKey($attribute->translationKey())->__toString())
                     ->implode("\n")
             )->dataTableObjectColumns(
                 $this->table->attributes()
-                    ->filter(fn(CubeAttribute $attribute) => !$attribute->isTextable())
-                    ->merge($this->table->relations()->filter(fn(CubeRelation $relation) => $relation->exists()))
+                    ->filter(fn (CubeAttribute $attribute) => ! $attribute->isTextable())
+                    ->merge($this->table->relations()->filter(fn (CubeRelation $relation) => $relation->exists()))
                     ->whereInstanceOf(HasDatatableColumnString::class)
-                    ->map(fn(HasDatatableColumnString $attribute) => $attribute->datatableColumnString()->__toString())
+                    ->map(fn (HasDatatableColumnString $attribute) => $attribute->datatableColumnString()->__toString())
                     ->implode("\n")
             )->generate($indexPath, $this->override);
     }
 
-    private function getInputsFields(string $formType = "store"): string
+    private function getInputsFields(string $formType = 'store'): string
     {
         return $this->table
-                ->attributes()
-                ->whereInstanceOf(HasBladeInputComponent::class)
-                ->map(fn(HasBladeInputComponent $attr) => $attr->bladeInputComponent($formType, $this->actor)->__toString())
-                ->implode("\n") . "\n" . $this->table
-                ->relations()
-                ->whereInstanceOf(HasBladeInputComponent::class)
-                ->filter(fn(CubeRelation $rel) => $rel->getWebControllerPath()->exist()
-                    && $rel->relationModel()->getModelPath()->exist()
-                    && ClassUtils::isMethodDefined($rel->getWebControllerPath(), "allPaginatedJson")
-                )->map(fn(HasBladeInputComponent $attr) => $attr->bladeInputComponent($formType, $this->actor)->__toString())
-                ->implode("\n");
+            ->attributes()
+            ->whereInstanceOf(HasBladeInputComponent::class)
+            ->map(fn (HasBladeInputComponent|CubeAttribute $attr) => $attr->bladeInputComponent($formType, $this->actor)->translationKey($attr->translationKey())->__toString())
+            ->implode("\n")."\n".$this->table
+            ->relations()
+            ->whereInstanceOf(HasBladeInputComponent::class)
+            ->filter(fn (CubeRelation $rel) => $rel->getWebControllerPath()->exist()
+                && $rel->relationModel()->getModelPath()->exist()
+                && ClassUtils::isMethodDefined($rel->getWebControllerPath(), 'allPaginatedJson')
+            )->map(fn (HasBladeInputComponent|CubeRelation $attr) => $attr->bladeInputComponent($formType, $this->actor)->translationKey($attr->translationKey())->__toString())
+            ->implode("\n");
     }
 }

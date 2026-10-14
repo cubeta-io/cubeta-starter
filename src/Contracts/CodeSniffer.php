@@ -5,6 +5,7 @@ namespace Cubeta\CubetaStarter\Contracts;
 use Cubeta\CubetaStarter\Helpers\BladeFileUtils;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Cubeta\CubetaStarter\Helpers\TranslationFileUtils;
 use Cubeta\CubetaStarter\Helpers\TsFileUtils;
 use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\CubeTable;
@@ -27,8 +28,8 @@ use Cubeta\CubetaStarter\Traits\RouteBinding;
 
 class CodeSniffer
 {
-    use RouteBinding;
     use Makable;
+    use RouteBinding;
 
     private ?CubeTable $table = null;
 
@@ -42,12 +43,14 @@ class CodeSniffer
     public function setModel(CubeTable $table): static
     {
         $this->table = $table;
+
         return $this;
     }
 
     public function setActor(?string $actor = null): static
     {
         $this->actor = $actor;
+
         return $this;
     }
 
@@ -179,12 +182,13 @@ class CodeSniffer
                 $relatedUpdateView = $relation->relationModel()->editView($this->actor)->path;
                 $relatedIndexView = $relation->relationModel()->indexView($this->actor)->path;
                 $relatedShowView = $relation->relationModel()->showView($this->actor)->path;
+                TranslationFileUtils::addModelTranslations($relation->relationModel());
 
                 if ($reversedRelation instanceof HasBladeInputComponent
                     && (!$reversedRelation->isBelongsTo() || ClassUtils::isMethodDefined($controllerPath, 'allPaginatedJson'))
                 ) {
-                    BladeFileUtils::addToNewInputToForm($reversedRelation->bladeInputComponent("store", $this->actor), $relatedCreateView);
-                    BladeFileUtils::addToNewInputToForm($reversedRelation->bladeInputComponent("update", $this->actor), $relatedUpdateView);
+                    BladeFileUtils::addToNewInputToForm($reversedRelation->bladeInputComponent('store', $this->actor)->translationKey($reversedRelation->translationKey()), $relatedCreateView);
+                    BladeFileUtils::addToNewInputToForm($reversedRelation->bladeInputComponent('update', $this->actor)->translationKey($reversedRelation->translationKey()), $relatedUpdateView);
                 }
 
                 if ($reversedRelation instanceof HasDatatableColumnString
@@ -199,12 +203,12 @@ class CodeSniffer
                         );
                         ClassUtils::addNewColumnToYajraRawColumnsInController($col->returnColName, $relatedControllerPath);
                     }
-                    BladeFileUtils::addColumnToDataTable($relatedIndexView, $reversedRelation->dataTableColumnString(), $reversedRelation->htmlTableHeader());
+                    BladeFileUtils::addColumnToDataTable($relatedIndexView, $reversedRelation->dataTableColumnString(), $reversedRelation->htmlTableHeader()->translationKey($reversedRelation->translationKey()));
                     ClassUtils::addNewRelationsToWithMethod($relatedControllerPath, $relatedTable, [$reversedRelation->method()]);
                 }
 
                 if ($reversedRelation instanceof HasBladeDisplayComponent) {
-                    BladeFileUtils::addNewDisplayComponentToShowView($reversedRelation->bladeDisplayComponent(), $relatedShowView);
+                    BladeFileUtils::addNewDisplayComponentToShowView($reversedRelation->bladeDisplayComponent()->translationKey($reversedRelation->translationKey()), $relatedShowView);
                 }
 
                 ClassUtils::addRelationsToControllerRelationsProperty($relation->getWebControllerPath(), [$reversedRelation->method()]);
@@ -225,7 +229,7 @@ class CodeSniffer
             ->filter(fn(CubeRelation $rel) => $rel->getTSModelPath()->exist())
             ->each(function (CubeRelation $relation) {
                 $related = $relation->relationModel(); // product
-                $relatedInterfacePath = $related->getTSModelPath(); //product.ts
+                $relatedInterfacePath = $related->getTSModelPath(); // product.ts
                 $reversedRelation = $relation->reverseRelation(); // category
 
                 if ($reversedRelation instanceof HasInterfacePropertyString) {
@@ -252,21 +256,23 @@ class CodeSniffer
 
         $this->table->relations()
             ->filter(fn(CubeRelation $rel) => $rel->getTSModelPath()->exist() && $rel->loadable())
-            ->each(function (CubeRelation $rel) use ($actor) {
+            ->each(function (CubeRelation $rel) {
                 $relatedIndexPagePath = $rel->relationModel()->indexView($this->actor)->path;
                 $relatedCreatePagePath = $rel->relationModel()->createView($this->actor)->path;
                 $relatedUpdatePagePath = $rel->relationModel()->editView($this->actor)->path;
                 $relatedShowPagePath = $rel->relationModel()->showView($this->actor)->path;
 
                 $reversedRelation = $rel->reverseRelation();
+                TranslationFileUtils::addModelTranslations($rel->relationModel(), withReactJson: true);
                 if ($reversedRelation instanceof HasDataTableColumnObjectString && $relatedIndexPagePath->exist()) {
                     $object = $reversedRelation->datatableColumnObject($this->actor);
+                    $object->translationKey = $reversedRelation->translationKey();
                     TsFileUtils::addColumnToDataTable($relatedIndexPagePath, $object);
                     TsFileUtils::addImportStatement($object->imports, $relatedIndexPagePath);
                 }
 
                 if ($rel->isBelongsTo()
-                    && !ClassUtils::isMethodDefined($reversedRelation->getWebControllerPath(), "data")
+                    && !ClassUtils::isMethodDefined($reversedRelation->getWebControllerPath(), 'data')
                 ) {
                     return true;
                 }
@@ -275,10 +281,11 @@ class CodeSniffer
                     && $reversedRelation instanceof HasInterfacePropertyString
                     && $relatedCreatePagePath->exist()
                 ) {
-                    $input = $reversedRelation->inputComponent("store", $this->actor);
+                    $input = $reversedRelation->inputComponent('store', $this->actor);
+                    $input->translationKey = $reversedRelation->translationKey();
                     $interfaceProperty = new InterfacePropertyString(
                         $reversedRelation->keyName(),
-                        $reversedRelation->singularRelation() ? "numeric" : "numeric[]",
+                        $reversedRelation->singularRelation() ? 'numeric' : 'numeric[]',
                         $rel->relationModel()->getAttribute($reversedRelation->keyName())?->nullable ?? false
                     );
                     TsFileUtils::addNewInputToReactTSForm($input, $interfaceProperty, $relatedCreatePagePath);
@@ -289,30 +296,32 @@ class CodeSniffer
                     && $reversedRelation instanceof HasInterfacePropertyString
                     && $relatedUpdatePagePath->exist()
                 ) {
-                    $input = $reversedRelation->inputComponent("update", $this->actor);
+                    $input = $reversedRelation->inputComponent('update', $this->actor);
+                    $input->translationKey = $reversedRelation->translationKey();
                     $interfaceProperty = new InterfacePropertyString(
                         $reversedRelation->keyName(),
-                        $reversedRelation->singularRelation() ? "numeric" : "numeric[]",
+                        $reversedRelation->singularRelation() ? 'numeric' : 'numeric[]',
                         $rel->relationModel()->getAttribute($reversedRelation->keyName())?->nullable ?? false
                     );
                     TsFileUtils::addNewInputToReactTSForm($input, $interfaceProperty, $relatedUpdatePagePath, [
                         'key' => $reversedRelation->keyName(),
-                        'value' => $rel->variableNaming() . "?." . $reversedRelation->keyName()
+                        'value' => $rel->variableNaming() . '?.' . $reversedRelation->keyName(),
                     ]);
                     TsFileUtils::addImportStatement($input->imports, $relatedUpdatePagePath);
                 }
 
                 if ($reversedRelation instanceof HasReactTsDisplayComponentString) {
                     $component = $reversedRelation->displayComponentString($this->actor);
+                    $component->translationKey = $reversedRelation->translationKey();
                     TsFileUtils::addComponentToShowPage($component, $relatedShowPagePath);
                     TsFileUtils::addImportStatement($component->imports, $relatedShowPagePath);
                 }
 
                 ClassUtils::addRelationsToControllerRelationsProperty($rel->getWebControllerPath(), [$reversedRelation->method()]);
+
                 return true;
             });
 
         return $this;
     }
-
 }

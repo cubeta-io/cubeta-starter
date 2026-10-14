@@ -2,6 +2,20 @@
 
 # **Changelog :**
 
+## **V 6.1.0**
+
+### **What's new**
+
+1. Generated Blade and Inertia/React dashboards now resolve their navigation, CRUD, authentication, table, form,
+   modal, editor, notification and accessibility text from locale files instead of embedding user-facing English
+   strings in generated pages and published components.
+2. Inertia dashboards now load locale-specific JSON modules through a reusable `useTranslation` hook with
+   placeholder replacement and English fallback support; Inertia shares only the active locale with each request.
+3. Generating CRUD pages now adds missing model, plural-model, attribute and relation labels to every configured
+   locale's Laravel `site.php` file and, for React dashboards, its locale JSON file without replacing existing values.
+4. Generated Blade DataTables and shared dashboard controls now consume the same locale selected by the existing
+   language switcher, and generated documents expose the active locale through their HTML language attribute.
+
 ## **V 6.0.5**
 
 1. **Fixing some bugs**
@@ -104,11 +118,9 @@ breaking change, so we made it a major version.
 1. You can now choose how the generated code validates the incoming requests data. While installing
    (`php artisan cubeta:install api` , `web` or `react-ts`) or from the GUI settings page you pick one of:
     - `FormRequest` : the classic Laravel form requests (the default, and what previous versions always generated)
-    - `DTO` : validated DTOs built on top
-      of [wendelladriel/laravel-validated-dto](https://github.com/WendellAdriel/laravel-validated-dto)
+    - `DTO` : validated DTOs built on top of [wendelladriel/laravel-validated-dto](https://github.com/WendellAdriel/laravel-validated-dto)
     - `Both` : generate both classes
-      Your choice is stored in `cubeta-starter.config.json` under `validation_type` , so every later generation follows
-      it.
+   Your choice is stored in `cubeta-starter.config.json` under `validation_type` , so every later generation follows it.
 2. Introducing the DTO generator, which creates a
    `App\DTOs\<version>\<Model>\StoreUpdate<Model>DTO` class extending `ValidatedDTO` with:
     - the same validation rules the form request gets

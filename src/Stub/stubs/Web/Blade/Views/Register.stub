@@ -14,48 +14,48 @@
                         <div class="card mb-3">
                             <div class="card-body">
                                 <div class="pt-4 pb-2">
-                                    <h5 class="card-title text-center pb-0 fs-4">Create An Account</h5>
+                                    <h5 class="card-title text-center pb-0 fs-4">{{ trans('site.dashboard.auth.register_title') }}</h5>
                                 </div>
                                 <form class="row g-3 needs-validation" action="{{route('{{register_route}}')}}" method="POST"
                                       novalidate>
                                     @csrf
                                     <div class="col-6">
-                                        <label for="first_name" class="form-label">First Name</label>
+                                        <label for="first_name" class="form-label">{{ trans('site.dashboard.auth.first_name') }}</label>
                                         <div class="input-group has-validation">
                                             <input type="text" name="first_name" class="form-control"
                                                    id="first_name" required>
-                                            <div class="invalid-feedback">Please enter your first name.</div>
+                                            <div class="invalid-feedback">{{ trans('site.dashboard.auth.invalid_first_name') }}</div>
                                         </div>
                                     </div>
                                     <div class="col-6">
-                                        <label for="last_name" class="form-label">Last Name</label>
+                                        <label for="last_name" class="form-label">{{ trans('site.dashboard.auth.last_name') }}</label>
                                         <div class="input-group has-validation">
                                             <input type="text" name="last_name" class="form-control"
                                                    id="last_name" required>
-                                            <div class="invalid-feedback">Please enter your last name.</div>
+                                            <div class="invalid-feedback">{{ trans('site.dashboard.auth.invalid_last_name') }}</div>
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label for="email" class="form-label">Email</label>
+                                        <label for="email" class="form-label">{{ trans('site.dashboard.auth.email') }}</label>
                                         <div class="input-group has-validation">
                                             <span class="input-group-text" id="inputGroupPrepend">@</span>
                                             <input type="text" name="email" class="form-control"
                                                    id="email" required>
-                                            <div class="invalid-feedback">Please enter your email.</div>
+                                            <div class="invalid-feedback">{{ trans('site.dashboard.auth.invalid_email') }}</div>
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <label for="password" class="form-label">Password</label>
+                                        <label for="password" class="form-label">{{ trans('site.dashboard.auth.password') }}</label>
                                         <input type="password" name="password" class="form-control"
                                                id="password" required>
-                                        <div class="invalid-feedback">Please enter your password!</div>
+                                        <div class="invalid-feedback">{{ trans('site.dashboard.auth.invalid_password') }}</div>
                                     </div>
                                     <div class="col-12">
-                                        <label for="password_confirmation" class="form-label">Confirm Password</label>
+                                        <label for="password_confirmation" class="form-label">{{ trans('site.dashboard.auth.confirm_password') }}</label>
                                         <input type="password" name="password_confirmation"
                                                class="form-control"
                                                id="password_confirmation" required>
-                                        <div class="invalid-feedback">Please confirm your password!</div>
+                                        <div class="invalid-feedback">{{ trans('site.dashboard.auth.invalid_confirmation') }}</div>
                                     </div>
                                     @if($errors->any())
                                         <div class="card p-1 mt-2 mb-2">
@@ -71,10 +71,10 @@
                                         </div>
                                     @endif
                                     <div class="col-12">
-                                        <button class="btn btn-primary w-100" type="submit">Register</button>
+                                        <button class="btn btn-primary w-100" type="submit">{{ trans('site.dashboard.auth.register') }}</button>
                                     </div>
                                     <div class="col-12">
-                                        <p>Already has an account ?  <span><a href="{{route('{{login_page_route}}')}}">Login</a></span></p>
+                                        <p>{{ trans('site.dashboard.auth.already_registered') }} <span><a href="{{route('{{login_page_route}}')}}">{{ trans('site.dashboard.auth.sign_in') }}</a></span></p>
                                     </div>
                                 </form>
                             </div>

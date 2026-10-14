@@ -4,6 +4,7 @@ import { usePage } from "@inertiajs/react";
 import { Eye, EyeOff } from "lucide-react";
 import React, { useState } from "react";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { useTranslation } from "@/hooks/use-translation";
 
 export interface InputProps extends React.ComponentProps<"input"> {
   name: string;
@@ -20,6 +21,7 @@ const Input: React.FC<InputProps> = ({
   required = false,
   ...props
 }) => {
+  const { t } = useTranslation();
   const {
     props: { errors },
   } = usePage();
@@ -52,7 +54,11 @@ const Input: React.FC<InputProps> = ({
             type="button"
             onClick={() => setShowPassword((current) => !current)}
             className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex cursor-pointer items-center px-3"
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-label={
+              showPassword
+                ? t("dashboard.accessibility.hide_password")
+                : t("dashboard.accessibility.show_password")
+            }
             aria-pressed={showPassword}
           >
             {showPassword ? (

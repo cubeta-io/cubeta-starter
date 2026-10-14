@@ -2,15 +2,17 @@ import { Button } from "@/components/ui/button";
 import PageCard from "@/components/ui/page-card";
 import { Link } from "@inertiajs/react";
 import { FieldGroup } from "@/components/ui/field";
+import { useTranslation } from "@/hooks/use-translation";
 {{imports}}
 
 const Show = ({ {{model_variable}} }: { {{model_variable}}: {{model_name}} }) => {
+    const { t } = useTranslation();
     return (
         <PageCard
-            title="{{model_name}} Details"
+            title={t("dashboard.titles.details", { model: t("models.{{model_name}}.singular") })}
             actions={
                 <Link href={route("{{edit_route_name}}" , {{model_variable}}.id)}>
-                    <Button>Edit</Button>
+                    <Button>{t("dashboard.actions.edit")}</Button>
                 </Link>
             }
         >

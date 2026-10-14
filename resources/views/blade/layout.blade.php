@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
-    @include("includes.header")
-    <body>
-        @include("includes.navbar")
-        @include("includes.sidebar")
+<html lang="{{ app()->getLocale() }}" data-bs-theme="light">
+@include ("includes.header")
+<body>
+  @include ("includes.navbar")
+  @include ("includes.sidebar")
 
-        @yield("content")
+  @yield ("content")
 
-        @include("includes.footer")
-    </body>
+  @include ("includes.footer")
+</body>
 </html>

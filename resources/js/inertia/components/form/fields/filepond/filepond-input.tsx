@@ -11,6 +11,7 @@ import "filepond/dist/filepond.min.css";
 import { JSX, useState } from "react";
 import { FilePond } from "react-filepond";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { useTranslation } from "@/hooks/use-translation";
 
 export type MediaInput = File | Media;
 
@@ -86,6 +87,7 @@ function FilepondInput({
   defaultValue?: Media[] | Media;
   process?: string | ServerUrl | ProcessServerConfigFunction | null;
 }): JSX.Element {
+  const { t } = useTranslation();
   defaultValue = defaultValue
     ? Array.isArray(defaultValue)
       ? defaultValue
@@ -107,6 +109,19 @@ function FilepondInput({
     <Field orientation={"vertical"}>
       {label && <FieldLabel>{label}</FieldLabel>}
       <FilePond
+        labelIdle={t("dashboard.filepond.idle")}
+        labelFileProcessing={t("dashboard.filepond.processing")}
+        labelFileProcessingComplete={t(
+          "dashboard.filepond.processing_complete",
+        )}
+        labelFileProcessingAborted={t("dashboard.filepond.processing_aborted")}
+        labelFileProcessingError={t("dashboard.filepond.processing_error")}
+        labelTapToCancel={t("dashboard.filepond.tap_cancel")}
+        labelTapToRetry={t("dashboard.filepond.tap_retry")}
+        labelTapToUndo={t("dashboard.filepond.tap_undo")}
+        labelButtonRemoveItem={t("dashboard.filepond.remove")}
+        labelButtonAbortItemProcessing={t("dashboard.filepond.abort")}
+        labelButtonRetryItemProcessing={t("dashboard.filepond.retry")}
         files={files}
         onupdatefiles={(fileItems) => {
           const value = fileItems.map((item) => {

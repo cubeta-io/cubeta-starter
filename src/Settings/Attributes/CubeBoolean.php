@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Settings\Attributes;
 
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\StringValues\Contracts\Dtos\HasDtoCast;
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
@@ -18,10 +19,13 @@ use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasR
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoCastString;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Models\CastColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Models\ModelScopeMethodString;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
@@ -33,31 +37,14 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use JetBrains\PhpStorm\ExpectedValues;
-use Cubeta\CubetaStarter\StringValues\Contracts\Dtos\HasDtoCast;
-use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoCastString;
-use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
-use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 
-class CubeBoolean extends CubeAttribute implements HasFakeMethod,
-    HasMigrationColumn,
-    HasDocBlockProperty,
-    HasModelCastColumn,
-    HasModelScopeMethod,
-    HasPropertyValidationRule,
-    HasBladeInputComponent,
-    HasHtmlTableHeader,
-    HasDatatableColumnString,
-    HasInterfacePropertyString,
-    HasReactTsInputString,
-    HasReactTsDisplayComponentString,
-    HasDataTableColumnObjectString,
-    HasDtoCast
+class CubeBoolean extends CubeAttribute implements HasBladeInputComponent, HasDataTableColumnObjectString, HasDatatableColumnString, HasDocBlockProperty, HasDtoCast, HasFakeMethod, HasHtmlTableHeader, HasInterfacePropertyString, HasMigrationColumn, HasModelCastColumn, HasModelScopeMethod, HasPropertyValidationRule, HasReactTsDisplayComponentString, HasReactTsInputString
 {
     public function fakeMethod(): FakeMethodString
     {
         return new FakeMethodString(
             $this->name,
-            "fake()->boolean()"
+            'fake()->boolean()'
         );
     }
 
@@ -65,7 +52,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     {
         return new MigrationColumnString(
             $this->columnNaming(),
-            "boolean",
+            'boolean',
             $this->nullable,
             $this->unique,
         );
@@ -75,15 +62,15 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     {
         return new DocBlockPropertyString(
             $this->name,
-            str("boolean")
-                ->when($this->nullable, fn($str) => $str->append("|null"))
+            str('boolean')
+                ->when($this->nullable, fn($str) => $str->append('|null'))
                 ->toString()
         );
     }
 
     public function modelCastColumn(): CastColumnString
     {
-        return new CastColumnString($this->name, "boolean");
+        return new CastColumnString($this->name, 'boolean');
     }
 
     public function modelScopeMethod(): ModelScopeMethodString
@@ -102,26 +89,26 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
         );
     }
 
-    public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
+    public function bladeInputComponent(string $formType = 'store', ?string $actor = null): InputComponentString
     {
         $attributes = [];
         $table = $this->table() ?? CubeTable::create($this->parentTableName);
 
-        if ($formType == "update") {
+        if ($formType == 'update') {
             $attributes[] = [
-                'key' => ":checked",
-                'value' => "\${$table?->variableNaming()}->{$this->name}"
+                'key' => ':checked',
+                'value' => "\${$table?->variableNaming()}->{$this->name}",
             ];
         } else {
             $attributes[] = [
                 'key' => 'checked',
-                'value' => null
+                'value' => null,
             ];
         }
 
         return new InputComponentString(
-            "radio",
-            "x-input",
+            'radio',
+            'x-input',
             $this->name,
             $this->isRequired,
             $this->titleNaming(),
@@ -148,48 +135,47 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     {
         return new InterfacePropertyString(
             $this->name,
-            "boolean",
+            'boolean',
             $this->nullable,
         );
     }
 
-    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsInputComponentString
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = 'store', ?string $actor = null): TsInputComponentString
     {
         $variableName = $this->table()->variableNaming();
-        $labels = $this->booleanLabels();
         $attributes = [
             [
                 'key' => 'items',
-                'value' => "[{label:\"{$labels['true']}\" , value:1}, {label:\"{$labels['false']}\" , value:0}]"
+                'value' => '[{label:t("dashboard.boolean.yes") , value:1}, {label:t("dashboard.boolean.no") , value:0}]',
             ],
             [
                 'key' => 'onChange',
-                'value' => "(v) => setData(\"{$this->name}\" , v == 1)"
-            ]
+                'value' => "(v) => setData(\"{$this->name}\" , v == 1)",
+            ],
         ];
 
-        if ($formType == "update") {
+        if ($formType == 'update') {
             $attributes[] = [
                 'key' => 'checked',
-                'value' => "(v) => v == Number($variableName.{$this->name})"
+                'value' => "(v) => v == Number($variableName.{$this->name})",
             ];
         } else {
             $attributes[] = [
                 'key' => 'checked',
-                'value' => "(v) => v == 0"
+                'value' => '(v) => v == 0',
             ];
         }
 
         return new TsInputComponentString(
-            "Radio",
+            'Radio',
             $this->name,
             required: false,
             attributes: $attributes,
             imports: [
                 new TsImportString(
-                    "Radio",
-                    "@/components/form/fields/radio"
-                )
+                    'Radio',
+                    '@/components/form/fields/radio'
+                ),
             ]
         );
     }
@@ -197,13 +183,14 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     public function displayComponentString(): ReactTsDisplayComponentString
     {
         $modelVariable = $this->table()->variableNaming();
-        $nullable = $this->nullable ? "?" : "";
+        $nullable = $this->nullable ? '?' : '';
+
         return new ReactTsDisplayComponentString(
-            "DetailItem",
+            'DetailItem',
             $this->labelNaming(),
-            "{$modelVariable}{$nullable}.{$this->name} ? 'Yes' : 'No'",
+            "{$modelVariable}{$nullable}.{$this->name} ? t('dashboard.boolean.yes') : t('dashboard.boolean.no')",
             [
-                new TsImportString("DetailItem", "@/components/ui/detail-item")
+                new TsImportString('DetailItem', '@/components/ui/detail-item'),
             ]
         );
     }
@@ -215,9 +202,9 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
             $this->labelNaming(),
             false,
             true,
-            "return cell ? (<Badge>Yes</Badge>) : (<Badge variant=\"destructive\">No</Badge>);",
+            "return cell ? (<Badge>{t('dashboard.boolean.yes')}</Badge>) : (<Badge variant=\"destructive\">{t('dashboard.boolean.no')}</Badge>);",
             [
-                new TsImportString("Badge", "@/components/ui/badge", false),
+                new TsImportString('Badge', '@/components/ui/badge', false),
             ]
         );
     }
@@ -226,7 +213,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     {
         return new DtoPropertyString(
             $this->name,
-            "bool",
+            'bool',
             $this->nullable
         );
     }
@@ -235,7 +222,7 @@ class CubeBoolean extends CubeAttribute implements HasFakeMethod,
     {
         return new DtoCastString(
             $this->name,
-            "new BooleanCast()",
+            'new BooleanCast()',
             [new PhpImportString('WendellAdriel\ValidatedDTO\Casting\BooleanCast')]
         );
     }

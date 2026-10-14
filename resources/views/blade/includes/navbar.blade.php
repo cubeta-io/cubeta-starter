@@ -2,8 +2,11 @@
 <header id="header" class="header fixed-top d-flex align-items-center">
   <div class="d-flex align-items-center justify-content-between">
     <a href="#" class="logo d-flex align-items-center">
-      <img src="{{asset('images/cubeta-logo.png')}}" alt="">
-      <span class="d-none d-lg-block">Cubeta Starter</span>
+      <img src="{{asset('images/cubeta-logo.png')}}" alt="" />
+      <span
+        class="d-none d-lg-block"
+        >{{ config('cubeta-starter.project_name') }}</span
+      >
     </a>
     <i class="bi bi-list toggle-sidebar-btn"></i>
   </div>
@@ -11,40 +14,61 @@
   <nav class="header-nav ms-auto">
     <ul class="d-flex align-items-center">
       <div>
-        <i class="bi bi-sun-fill mx-2 theme-toggle"></i>
+        <i class="bi bi-sun-fill theme-toggle mx-2"></i>
       </div>
       <!--Profile Nav-->
       <li class="nav-item dropdown">
-        <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-          <img src="{{asset('images/profile-img.jpg')}}" alt="Profile" class="rounded-circle">
-          <span class="d-none d-md-block dropdown-toggle ps-2">{{auth()->user()?->name ?? "App Admin"}}</span>
+        <a
+          class="nav-link nav-profile d-flex align-items-center pe-0"
+          href="#"
+          data-bs-toggle="dropdown"
+        >
+          <img
+            src="{{asset('images/profile-img.jpg')}}"
+            alt="{{ trans('site.dashboard.profile') }}"
+            class="rounded-circle"
+          />
+          <span
+            class="d-none d-md-block dropdown-toggle ps-2"
+            >{{auth()->user()?->name ?? trans('site.dashboard.app_admin')}}</span
+          >
         </a>
         <!-- End Profile Iamge Icon -->
         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
           <li class="dropdown-header">
-            <h6>{{(auth()->user()?->first_name . " " . auth()->user()?->last_name) ?? "App Admin"}}</h6>
-            <span>Admin</span>
+            <h6>
+              {{(auth()->user()?->first_name . " " . auth()->user()?->last_name) ?? trans('site.dashboard.app_admin')}}
+            </h6>
+            <span>{{ trans('site.dashboard.admin') }}</span>
           </li>
           <li>
-            <hr class="dropdown-divider">
+            <hr class="dropdown-divider" />
           </li>
           <li>
-            <a id="user-details" class="dropdown-item d-flex align-items-center" href="#">
+            <a
+              id="user-details"
+              class="dropdown-item d-flex align-items-center"
+              href="#"
+            >
               <i class="bi bi-person"></i>
-              <span>My Profile</span>
+              <span>{{ trans('site.dashboard.profile') }}</span>
             </a>
           </li>
           <li>
-            <hr class="dropdown-divider">
+            <hr class="dropdown-divider" />
           </li>
           <li>
-            <a id="logout" class="dropdown-item d-flex align-items-center" href="#">
+            <a
+              id="logout"
+              class="dropdown-item d-flex align-items-center"
+              href="#"
+            >
               <i class="bi bi-box-arrow-right"></i>
-              <span>Sign Out</span>
+              <span>{{ trans('site.dashboard.logout') }}</span>
             </a>
           </li>
           <li>
-            <hr class="dropdown-divider">
+            <hr class="dropdown-divider" />
           </li>
         </ul>
         <!-- End Profile Dropdown Items -->
@@ -54,14 +78,21 @@
       <!-- language dropdown -->
       <li class="nav-item dropdown p-3">
         <div class="dropdown">
-          <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                  aria-expanded="false">
+          <button
+            class="btn btn-primary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
             {{ strtoupper(app()->getLocale()) }}
           </button>
           <ul class="dropdown-menu" id="lang-changer">
             @foreach (config('cubeta-starter.available_locales') as $lang)
-              <li style="cursor: pointer" data-lang="{{ $lang }}"
-                  data-route="{{ route('set-locale') }}">
+              <li
+                style="cursor: pointer"
+                data-lang="{{ $lang }}"
+                data-route="{{ route('set-locale') }}"
+              >
                 <a class="dropdown-item">{{ strtoupper($lang) }}</a>
               </li>
             @endforeach
@@ -73,10 +104,9 @@
   </nav>
 </header>
 
-
-@push('scripts')
+@push ('scripts')
   <script type="module">
-    $(document).ready(function() {
+    $(document).ready(function () {
       const themeToggle = document.querySelector(".theme-toggle");
       const theme = window.localStorage.getItem("theme") ?? "light";
 

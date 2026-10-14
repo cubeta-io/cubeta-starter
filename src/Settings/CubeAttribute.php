@@ -19,54 +19,32 @@ use Cubeta\CubetaStarter\Settings\Attributes\CubeTime;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeTimestamp;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeTranslatable;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeUnsignedBigInteger;
+use Cubeta\CubetaStarter\StringValues\Contracts\Dtos\HasDtoProperty;
 use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
+use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
-use Cubeta\CubetaStarter\StringValues\Contracts\Dtos\HasDtoProperty;
-use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
 
-/**
- *
- */
-class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayComponent, HasDtoProperty
+class CubeAttribute implements HasBladeDisplayComponent, HasDtoProperty, HasResourcePropertyString
 {
     use NamingConventions;
 
     public ?string $parentTableName;
 
-    /**
-     * @var string
-     */
     public string $name;
 
-    /**
-     * @var string
-     */
     public string $type;
 
-    /**
-     * @var bool
-     */
     public bool $nullable;
 
-    /**
-     * @var bool
-     */
     public bool $unique;
 
     public bool $isRequired;
 
-    /**
-     * @param string $name
-     * @param string $type
-     * @param bool $nullable
-     * @param bool $unique
-     * @param string|null $parentTableName
-     */
     public function __construct(string $name, string $type, bool $nullable = false, bool $unique = false, ?string $parentTableName = null)
     {
         $this->name = Naming::column($name);
@@ -75,38 +53,32 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
         $this->unique = $unique;
         $this->usedString = $this->name;
         $this->parentTableName = $parentTableName;
-        $this->isRequired = !$this->nullable;
+        $this->isRequired = ! $this->nullable;
     }
 
-    /**
-     * @return bool|string
-     */
     public function toJson(): bool|string
     {
         return json_encode([
-            "name" => $this->name,
-            "type" => $this->type,
-            "nullable" => $this->nullable,
-            "unique" => $this->unique,
+            'name' => $this->name,
+            'type' => $this->type,
+            'nullable' => $this->nullable,
+            'unique' => $this->unique,
         ], JSON_PRETTY_PRINT);
     }
 
     /**
-     * @return array{name:string , type:string , nullable:boolean , unique:boolean}
+     * @return array{name:string , type:string , nullable:bool , unique:bool}
      */
     public function toArray(): array
     {
         return [
-            "name" => $this->name,
-            "type" => $this->type,
-            "nullable" => $this->nullable,
-            "unique" => $this->unique,
+            'name' => $this->name,
+            'type' => $this->type,
+            'nullable' => $this->nullable,
+            'unique' => $this->unique,
         ];
     }
 
-    /**
-     * @return bool
-     */
     public function isKey(): bool
     {
         return $this->type == ColumnTypeEnum::KEY->value;
@@ -114,25 +86,19 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
 
     /**
      * @phpstan-assert-if-true CubeFile $this
+     *
      * @psalm-assert-if-true CubeFile $this
-     * @return bool
      */
     public function isFile(): bool
     {
         return $this->type == ColumnTypeEnum::FILE->value;
     }
 
-    /**
-     * @return bool
-     */
     public function isTranslatable(): bool
     {
         return $this->type == ColumnTypeEnum::TRANSLATABLE->value;
     }
 
-    /**
-     * @return bool
-     */
     public function isDateTime(): bool
     {
         return $this->type == ColumnTypeEnum::DATETIME->value;
@@ -148,9 +114,6 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
         return ColumnTypeEnum::DATE->value == $this->type;
     }
 
-    /**
-     * @return bool
-     */
     public function isString(): bool
     {
         return in_array($this->type, [
@@ -161,9 +124,6 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
         ]);
     }
 
-    /**
-     * @return bool
-     */
     public function isNumeric(): bool
     {
         return in_array($this->type, [
@@ -175,43 +135,33 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
         ]);
     }
 
-    /**
-     * @return bool
-     */
     public function isBoolean(): bool
     {
         return $this->type == ColumnTypeEnum::BOOLEAN->value;
     }
 
-    /**
-     * @return bool
-     */
     public function isText(): bool
     {
         return $this->type == ColumnTypeEnum::TEXT->value;
     }
 
-    /**
-     * @return bool
-     */
     public function isTextable(): bool
     {
         return str($this->name)
-                ->contains([
-                    'body',
-                    'content',
-                    'description',
-                    'summary',
-                    'post',
-                    'note',
-                    'message'
-                ])
+            ->contains([
+                'body',
+                'content',
+                'description',
+                'summary',
+                'post',
+                'note',
+                'message',
+            ])
             && ($this->isText() || $this->isTranslatable());
     }
 
     /**
      * get the table that this attribute belongs to
-     * @return CubeTable
      */
     public function table(): CubeTable
     {
@@ -221,11 +171,16 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
     public function labelNaming(): string
     {
         if ($this->isBoolean()) {
-            return str_starts_with($this->name, 'is_') ? $this->titleNaming() . " ?"
+            return str_starts_with($this->name, 'is_') ? $this->titleNaming().' ?'
                 : $this->titleNaming();
         } else {
             return $this->titleNaming();
         }
+    }
+
+    public function translationKey(): string
+    {
+        return 'models.'.Naming::model($this->parentTableName).'.fields.'.$this->name;
     }
 
     public static function factory(string $name, string $type, bool $nullable = false, bool $unique = false, ?string $parentTableName = null): CubeText|CubeInteger|CubeFloat|CubeDateTime|CubeTranslatable|CubeTimestamp|CubeDate|CubeAttribute|CubeKey|CubeJson|CubeString|CubeBoolean|CubeFile|CubeDouble|CubeTime|CubeUnsignedBigInteger
@@ -281,7 +236,7 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
     {
         return new DtoPropertyString(
             $this->name,
-            "string",
+            'string',
             $this->nullable
         );
     }
@@ -291,17 +246,18 @@ class CubeAttribute implements HasResourcePropertyString, HasBladeDisplayCompone
         $table = $this->table() ?? CubeTable::create($this->parentTableName);
         $modelVariable = $table->variableNaming();
         $label = $this->labelNaming();
+
         return new DisplayComponentString(
-            "x-small-text-field",
+            'x-small-text-field',
             [
                 [
-                    "key" => ":value",
-                    "value" => "\${$modelVariable}->{$this->name}"
+                    'key' => ':value',
+                    'value' => "\${$modelVariable}->{$this->name}",
                 ],
                 [
-                    "key" => 'label',
-                    'value' => $label
-                ]
+                    'key' => 'label',
+                    'value' => $label,
+                ],
             ]
         );
     }

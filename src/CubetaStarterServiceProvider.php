@@ -43,16 +43,14 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
 
     /**
      * load the package gui views
-     * @return void
      */
     private function loadGuiViews(): void
     {
-        $this->loadViewsFrom(__DIR__ . '/Resources/views', 'CubetaStarter');
+        $this->loadViewsFrom(__DIR__.'/Resources/views', 'CubetaStarter');
     }
 
     /**
      * load the variables used in the GUI views
-     * @return void
      */
     private function loadGuiViewsVariables(): void
     {
@@ -63,88 +61,87 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
 
     /**
      * register the route file of the package gui
-     * @return void
      */
     private function registerGuiRoutesFile(): void
     {
         if (app()->environment('local')) {
-            $this->loadRoutesFrom(__DIR__ . '/Routes/ui-routes.php');
+            $this->loadRoutesFrom(__DIR__.'/Routes/ui-routes.php');
         }
     }
 
     private function publishWeb(): void
     {
         $this->publishes([
-            __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
-            __DIR__ . '/../config/media.php' => base_path('config/media.php'),
-            __DIR__ . '/../pint.json' => base_path('pint.json'),
-            __DIR__ . '/../.prettierignore' => base_path('.prettierignore'),
-            __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
+            __DIR__.'/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
+            __DIR__.'/../config/media.php' => base_path('config/media.php'),
+            __DIR__.'/../pint.json' => base_path('pint.json'),
+            __DIR__.'/../.prettierignore' => base_path('.prettierignore'),
+            __DIR__.'/../lang/site.php' => lang_path('en/site.php'),
 
-            __DIR__ . '/../resources/views/blade/components' => resource_path('views/components'),
-            __DIR__ . '/../resources/views/blade/includes' => resource_path('views/includes'),
-            __DIR__ . '/../resources/views/blade/layout.blade.php' => resource_path('views/layout.blade.php'),
-            __DIR__ . '/../resources/js/blade' => resource_path('js'),
-            __DIR__ . '/../resources/css/blade' => resource_path('css'),
-            __DIR__ . '/../public' => public_path(),
+            __DIR__.'/../resources/views/blade/components' => resource_path('views/components'),
+            __DIR__.'/../resources/views/blade/includes' => resource_path('views/includes'),
+            __DIR__.'/../resources/views/blade/layout.blade.php' => resource_path('views/layout.blade.php'),
+            __DIR__.'/../resources/js/blade' => resource_path('js'),
+            __DIR__.'/../resources/css/blade' => resource_path('css'),
+            __DIR__.'/../public' => public_path(),
 
-            __DIR__ . '/../src/Stub/stubs/Web/Blade/Providers/CubetaStarterServiceProvider.stub' => app_path('/Providers/CubetaStarterServiceProvider.php'),
+            __DIR__.'/../src/Stub/stubs/Web/Blade/Providers/CubetaStarterServiceProvider.stub' => app_path('/Providers/CubetaStarterServiceProvider.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
+            __DIR__.'/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub' => app_path('Http/Middleware/AcceptedLanguagesMiddleware.php'),
 
-            __DIR__ . '/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
-            __DIR__ . '/../src/Stub/stubs/Rules/MediaValidationRule.stub' => app_path('Rules/MediaValidationRule.php'),
+            __DIR__.'/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
+            __DIR__.'/../src/Stub/stubs/Rules/MediaValidationRule.stub' => app_path('Rules/MediaValidationRule.php'),
 
-            __DIR__ . '/../src/Stub/stubs/Controllers/WebController.stub' => app_path('Http/Controllers/WebController.php'),
-            __DIR__ . '/../src/Stub/stubs/Controllers/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
+            __DIR__.'/../src/Stub/stubs/Controllers/WebController.stub' => app_path('Http/Controllers/WebController.php'),
+            __DIR__.'/../src/Stub/stubs/Controllers/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
-            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
+            __DIR__.'/../src/Stub/stubs/Casts/Translatable.stub' => app_path('Casts/Translatable.php'),
+            __DIR__.'/../src/Stub/stubs/Casts/MediaCast.stub' => app_path('Casts/MediaCast.php'),
 
-            __DIR__ . '/../src/Stub/stubs/Serializers/SerializedMedia.stub' => app_path("Serializers/SerializedMedia.php"),
-            __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
+            __DIR__.'/../src/Stub/stubs/Serializers/SerializedMedia.stub' => app_path('Serializers/SerializedMedia.php'),
+            __DIR__.'/../src/Stub/stubs/Serializers/Translatable.stub' => app_path('Serializers/Translatable.php'),
 
-            __DIR__ . "/../src/Stub/stubs/BulkActions/BaseBulkAction.stub" => app_path("BulkAction/BaseBulkAction.php"),
+            __DIR__.'/../src/Stub/stubs/BulkActions/BaseBulkAction.stub' => app_path('BulkAction/BaseBulkAction.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Excel/BaseExporter.stub" => app_path("Excel/BaseExporter.php"),
-            __DIR__ . '/../src/Stub/stubs/Excel/BaseImporter.stub' => app_path("Excel/BaseImporter.php"),
+            __DIR__.'/../src/Stub/stubs/Excel/BaseExporter.stub' => app_path('Excel/BaseExporter.php'),
+            __DIR__.'/../src/Stub/stubs/Excel/BaseImporter.stub' => app_path('Excel/BaseImporter.php'),
 
-            __DIR__ . '/../src/Stub/stubs/Helpers/helpers.stub' => app_path('Helpers/helpers.php'),
+            __DIR__.'/../src/Stub/stubs/Helpers/helpers.stub' => app_path('Helpers/helpers.php'),
         ], 'cubeta-starter-web');
     }
 
     private function publishApi(): void
     {
         $this->publishes([
-            __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
-            __DIR__ . '/../config/media.php' => base_path('config/media.php'),
-            __DIR__ . '/../pint.json' => base_path('pint.json'),
-            __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
+            __DIR__.'/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
+            __DIR__.'/../config/media.php' => base_path('config/media.php'),
+            __DIR__.'/../pint.json' => base_path('pint.json'),
+            __DIR__.'/../lang/site.php' => lang_path('en/site.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Controllers/ApiController.stub" => app_path("Http/Controllers/ApiController.php"),
+            __DIR__.'/../src/Stub/stubs/Controllers/ApiController.stub' => app_path('Http/Controllers/ApiController.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
+            __DIR__.'/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub' => app_path('Http/Middleware/AcceptedLanguagesMiddleware.php'),
 
-            __DIR__ . '/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
-            __DIR__ . '/../src/Stub/stubs/Rules/MediaValidationRule.stub' => app_path('Rules/MediaValidationRule.php'),
+            __DIR__.'/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
+            __DIR__.'/../src/Stub/stubs/Rules/MediaValidationRule.stub' => app_path('Rules/MediaValidationRule.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
-            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
+            __DIR__.'/../src/Stub/stubs/Casts/Translatable.stub' => app_path('Casts/Translatable.php'),
+            __DIR__.'/../src/Stub/stubs/Casts/MediaCast.stub' => app_path('Casts/MediaCast.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
-            __DIR__ . '/../src/Stub/stubs/Serializers/SerializedMedia.stub' => app_path("Serializers/SerializedMedia.php"),
+            __DIR__.'/../src/Stub/stubs/Serializers/Translatable.stub' => app_path('Serializers/Translatable.php'),
+            __DIR__.'/../src/Stub/stubs/Serializers/SerializedMedia.stub' => app_path('Serializers/SerializedMedia.php'),
 
-            __DIR__ . "/../src/Stub/stubs/BulkActions/BaseBulkAction.stub" => app_path("BulkAction/BaseBulkAction.php"),
+            __DIR__.'/../src/Stub/stubs/BulkActions/BaseBulkAction.stub' => app_path('BulkAction/BaseBulkAction.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Excel/BaseExporter.stub" => app_path("Excel/BaseExporter.php"),
-            __DIR__ . '/../src/Stub/stubs/Excel/BaseImporter.stub' => app_path("Excel/BaseImporter.php"),
+            __DIR__.'/../src/Stub/stubs/Excel/BaseExporter.stub' => app_path('Excel/BaseExporter.php'),
+            __DIR__.'/../src/Stub/stubs/Excel/BaseImporter.stub' => app_path('Excel/BaseImporter.php'),
 
-            __DIR__ . '/../src/Stub/stubs/Resources/BaseResource.stub' => app_path('Http/Resources/BaseResource/BaseResource.php'),
-            __DIR__ . '/../src/Stub/stubs/Resources/AnonymousResourceCollection.stub' => app_path('Http/Resources/BaseResource/AnonymousResourceCollection.php'),
+            __DIR__.'/../src/Stub/stubs/Resources/BaseResource.stub' => app_path('Http/Resources/BaseResource/BaseResource.php'),
+            __DIR__.'/../src/Stub/stubs/Resources/AnonymousResourceCollection.stub' => app_path('Http/Resources/BaseResource/AnonymousResourceCollection.php'),
 
-            __DIR__ . '/../src/Stub/stubs/Modules/ApiResponse.stub' => app_path('Modules/ApiResponse.php'),
+            __DIR__.'/../src/Stub/stubs/Modules/ApiResponse.stub' => app_path('Modules/ApiResponse.php'),
 
-            __DIR__ . '/../src/Stub/stubs/Helpers/helpers.stub' => app_path('Helpers/helpers.php'),
+            __DIR__.'/../src/Stub/stubs/Helpers/helpers.stub' => app_path('Helpers/helpers.php'),
         ], 'cubeta-starter-api');
     }
 
@@ -155,7 +152,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     {
         $this->registeringPackage();
 
-        $this->package = new Package();
+        $this->package = new Package;
 
         $this->package->setBasePath($this->getPackageBaseDir());
 
@@ -169,7 +166,7 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
             $this->mergeConfigFrom($this->package->basePath("/../config/$configFileName.php"), $configFileName);
         }
 
-        $this->mergeConfigFrom(__DIR__ . '/../config/cubeta-starter.php', 'cubeta-starter');
+        $this->mergeConfigFrom(__DIR__.'/../config/cubeta-starter.php', 'cubeta-starter');
 
         $this->packageRegistered();
 
@@ -205,58 +202,64 @@ class CubetaStarterServiceProvider extends PackageServiceProvider
     public function publishInertiaReactTs(): void
     {
         $this->publishes([
-            __DIR__ . '/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
-            __DIR__ . '/../config/media.php' => base_path('config/media.php'),
-            __DIR__ . '/../pint.json' => base_path('pint.json'),
-            __DIR__ . '/../.prettierignore' => base_path('.prettierignore'),
-            __DIR__ . '/../lang/site.php' => lang_path('en/site.php'),
-            __DIR__ . '/../src/Stub/stubs/Web/InertiaReact/Config/ViteConfig.stub' => base_path('/vite.config.js'),
+            __DIR__.'/../config/cubeta-starter.php' => base_path('config/cubeta-starter.php'),
+            __DIR__.'/../config/media.php' => base_path('config/media.php'),
+            __DIR__.'/../pint.json' => base_path('pint.json'),
+            __DIR__.'/../.prettierignore' => base_path('.prettierignore'),
+            __DIR__.'/../lang/site.php' => lang_path('en/site.php'),
+            __DIR__.'/../src/Stub/stubs/Web/InertiaReact/Config/ViteConfig.stub' => base_path('/vite.config.js'),
 
-            __DIR__ . '/../resources/js/inertia/components/dashboard' => resource_path('/js/components/dashboard'),
-            __DIR__ . '/../resources/js/inertia/components/datatable' => resource_path('/js/components/datatable'),
-            __DIR__ . '/../resources/js/inertia/components/form' => resource_path('/js/components/form'),
-            __DIR__ . '/../resources/js/inertia/components/layouts' => resource_path('/js/components/layouts'),
-            __DIR__ . '/../resources/js/inertia/components/ui/detail-item.tsx' => resource_path('/js/components/ui/detail-item.tsx'),
-            __DIR__ . '/../resources/js/inertia/components/ui/detail-item-label.tsx' => resource_path('/js/components/ui/detail-item-label.tsx'),
-            __DIR__ . '/../resources/js/inertia/components/ui/detail-item-value.tsx' => resource_path('/js/components/ui/detail-item-value.tsx'),
-            __DIR__ . '/../resources/js/inertia/components/ui/gallery.tsx' => resource_path('/js/components/ui/gallery.tsx'),
-            __DIR__ . '/../resources/js/inertia/components/ui/image-preview.tsx' => resource_path('/js/components/ui/image-preview.tsx'),
-            __DIR__ . '/../resources/js/inertia/components/ui/page-card.tsx' => resource_path('/js/components/ui/page-card.tsx'),
-            __DIR__ . '/../resources/js/inertia/hooks/use-download-file.ts' => resource_path('/js/hooks/use-download-file.ts'),
-            __DIR__ . '/../resources/js/inertia/providers' => resource_path('/js/providers'),
-            __DIR__ . '/../resources/js/inertia/models' => resource_path('/js/models'),
-            __DIR__ . '/../resources/js/inertia/cubeta-starter.tsx' => resource_path('/js/cubeta-starter.tsx'),
-            __DIR__ . '/../resources/js/inertia/global.d.ts' => resource_path('/js/global.d.ts'),
-            __DIR__ . '/../resources/js/inertia/vite-env.d.ts' => resource_path('/js/vite-env.d.ts'),
-            __DIR__ . '/../resources/js/inertia/helper.ts' => resource_path('/js/helper.ts'),
-            __DIR__ . '/../resources/js/inertia/modules' => resource_path('/js/modules'),
-            __DIR__ . '/../resources/css/inertia' => resource_path('/css'),
-            __DIR__ . '/../public/images' => public_path('/images'),
+            __DIR__.'/../resources/js/inertia/components/dashboard' => resource_path('/js/components/dashboard'),
+            __DIR__.'/../resources/js/inertia/components/datatable' => resource_path('/js/components/datatable'),
+            __DIR__.'/../resources/js/inertia/components/form' => resource_path('/js/components/form'),
+            __DIR__.'/../resources/js/inertia/components/layouts' => resource_path('/js/components/layouts'),
+            __DIR__.'/../resources/js/inertia/components/ui/detail-item.tsx' => resource_path('/js/components/ui/detail-item.tsx'),
+            __DIR__.'/../resources/js/inertia/components/ui/detail-item-label.tsx' => resource_path('/js/components/ui/detail-item-label.tsx'),
+            __DIR__.'/../resources/js/inertia/components/ui/detail-item-value.tsx' => resource_path('/js/components/ui/detail-item-value.tsx'),
+            __DIR__.'/../resources/js/inertia/components/ui/gallery.tsx' => resource_path('/js/components/ui/gallery.tsx'),
+            __DIR__.'/../resources/js/inertia/components/ui/image-preview.tsx' => resource_path('/js/components/ui/image-preview.tsx'),
+            __DIR__.'/../resources/js/inertia/components/ui/page-card.tsx' => resource_path('/js/components/ui/page-card.tsx'),
+            __DIR__.'/../resources/js/inertia/components/ui/breadcrumb.tsx' => resource_path('/js/components/ui/breadcrumb.tsx'),
+            __DIR__.'/../resources/js/inertia/components/ui/dialog.tsx' => resource_path('/js/components/ui/dialog.tsx'),
+            __DIR__.'/../resources/js/inertia/components/ui/sheet.tsx' => resource_path('/js/components/ui/sheet.tsx'),
+            __DIR__.'/../resources/js/inertia/components/ui/sidebar.tsx' => resource_path('/js/components/ui/sidebar.tsx'),
+            __DIR__.'/../resources/js/inertia/hooks/use-download-file.ts' => resource_path('/js/hooks/use-download-file.ts'),
+            __DIR__.'/../resources/js/inertia/hooks/use-translation.ts' => resource_path('/js/hooks/use-translation.ts'),
+            __DIR__.'/../resources/js/inertia/locales' => resource_path('/js/locales'),
+            __DIR__.'/../resources/js/inertia/providers' => resource_path('/js/providers'),
+            __DIR__.'/../resources/js/inertia/models' => resource_path('/js/models'),
+            __DIR__.'/../resources/js/inertia/cubeta-starter.tsx' => resource_path('/js/cubeta-starter.tsx'),
+            __DIR__.'/../resources/js/inertia/global.d.ts' => resource_path('/js/global.d.ts'),
+            __DIR__.'/../resources/js/inertia/vite-env.d.ts' => resource_path('/js/vite-env.d.ts'),
+            __DIR__.'/../resources/js/inertia/helper.ts' => resource_path('/js/helper.ts'),
+            __DIR__.'/../resources/js/inertia/modules' => resource_path('/js/modules'),
+            __DIR__.'/../resources/css/inertia' => resource_path('/css'),
+            __DIR__.'/../public/images' => public_path('/images'),
 
-            __DIR__ . '/../src/Stub/stubs/Controllers/WebController.stub' => app_path('/Http/Controllers/WebController.php'),
-            __DIR__ . '/../src/Stub/stubs/Controllers/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
+            __DIR__.'/../src/Stub/stubs/Controllers/WebController.stub' => app_path('/Http/Controllers/WebController.php'),
+            __DIR__.'/../src/Stub/stubs/Controllers/SetLocaleController.stub' => app_path('Http/Controllers/SetLocaleController.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub" => app_path("Http/Middleware/AcceptedLanguagesMiddleware.php"),
+            __DIR__.'/../src/Stub/stubs/Middlewares/AcceptedLanguagesMiddleware.stub' => app_path('Http/Middleware/AcceptedLanguagesMiddleware.php'),
 
-            __DIR__ . '/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
-            __DIR__ . '/../src/Stub/stubs/Rules/MediaValidationRule.stub' => app_path('Rules/MediaValidationRule.php'),
+            __DIR__.'/../src/Stub/stubs/Rules/ValidTranslatableJson.stub' => app_path('Rules/ValidTranslatableJson.php'),
+            __DIR__.'/../src/Stub/stubs/Rules/MediaValidationRule.stub' => app_path('Rules/MediaValidationRule.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Casts/Translatable.stub" => app_path('Casts/Translatable.php'),
-            __DIR__ . '/../src/Stub/stubs/Casts/MediaCast.stub' => app_path("Casts/MediaCast.php"),
+            __DIR__.'/../src/Stub/stubs/Casts/Translatable.stub' => app_path('Casts/Translatable.php'),
+            __DIR__.'/../src/Stub/stubs/Casts/MediaCast.stub' => app_path('Casts/MediaCast.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Serializers/Translatable.stub" => app_path("Serializers/Translatable.php"),
-            __DIR__ . '/../src/Stub/stubs/Serializers/SerializedMedia.stub' => app_path("Serializers/SerializedMedia.php"),
+            __DIR__.'/../src/Stub/stubs/Serializers/Translatable.stub' => app_path('Serializers/Translatable.php'),
+            __DIR__.'/../src/Stub/stubs/Serializers/SerializedMedia.stub' => app_path('Serializers/SerializedMedia.php'),
 
-            __DIR__ . "/../src/Stub/stubs/BulkActions/BaseBulkAction.stub" => app_path("BulkAction/BaseBulkAction.php"),
+            __DIR__.'/../src/Stub/stubs/BulkActions/BaseBulkAction.stub' => app_path('BulkAction/BaseBulkAction.php'),
 
-            __DIR__ . "/../src/Stub/stubs/Excel/BaseExporter.stub" => app_path("Excel/BaseExporter.php"),
-            __DIR__ . '/../src/Stub/stubs/Excel/BaseImporter.stub' => app_path("Excel/BaseImporter.php"),
+            __DIR__.'/../src/Stub/stubs/Excel/BaseExporter.stub' => app_path('Excel/BaseExporter.php'),
+            __DIR__.'/../src/Stub/stubs/Excel/BaseImporter.stub' => app_path('Excel/BaseImporter.php'),
 
-            __DIR__ . '/../src/Stub/stubs/Resources/BaseResource.stub' => app_path('Http/Resources/BaseResource/BaseResource.php'),
-            __DIR__ . '/../src/Stub/stubs/Resources/AnonymousResourceCollection.stub' => app_path('Http/Resources/BaseResource/AnonymousResourceCollection.php'),
+            __DIR__.'/../src/Stub/stubs/Resources/BaseResource.stub' => app_path('Http/Resources/BaseResource/BaseResource.php'),
+            __DIR__.'/../src/Stub/stubs/Resources/AnonymousResourceCollection.stub' => app_path('Http/Resources/BaseResource/AnonymousResourceCollection.php'),
 
-            __DIR__ . '/../src/Stub/stubs/Modules/ApiResponse.stub' => app_path('Modules/ApiResponse.php'),
-            __DIR__ . '/../src/Stub/stubs/Helpers/helpers.stub' => app_path('Helpers/helpers.php'),
+            __DIR__.'/../src/Stub/stubs/Modules/ApiResponse.stub' => app_path('Modules/ApiResponse.php'),
+            __DIR__.'/../src/Stub/stubs/Helpers/helpers.stub' => app_path('Helpers/helpers.php'),
         ], 'react-ts');
     }
 }

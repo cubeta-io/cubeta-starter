@@ -12,6 +12,7 @@ import { useForm } from "@inertiajs/react";
 import { useState } from "react";
 import useDownloadFile from "@/hooks/use-download-file";
 import { DownloadIcon, Loader } from "lucide-react";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface ImportModalProps {
   revalidate: () => void;
@@ -24,6 +25,7 @@ const ImportModal = ({
   importRoute,
   importExampleRoute,
 }: ImportModalProps) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const { post, setData, processing } = useForm<{
@@ -48,19 +50,24 @@ const ImportModal = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button type="button" size="icon" variant="secondary">
+          <Button
+            type="button"
+            size="icon"
+            variant="secondary"
+            aria-label={t("dashboard.actions.import")}
+          >
             <DownloadIcon />
           </Button>
         }
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Import from excel file</DialogTitle>
+          <DialogTitle>{t("dashboard.import.title")}</DialogTitle>
         </DialogHeader>
         <Input
           name="excel_file"
           type="file"
-          label="Excel File"
+          label={t("dashboard.import.excel_file")}
           onChange={(e) => {
             setData("excel_file", e.target.files?.[0]);
           }}
@@ -71,10 +78,10 @@ const ImportModal = ({
             variant="destructive"
             onClick={() => setOpen(false)}
           >
-            Cancel
+            {t("dashboard.actions.cancel")}
           </Button>
           <Button type="button" disabled={processing} onClick={onSubmit}>
-            Import
+            {t("dashboard.actions.import")}
             {processing && <Loader className={"animate-spin"} />}
           </Button>
           {importExampleRoute && (
@@ -87,7 +94,7 @@ const ImportModal = ({
                 setOpen(false);
               }}
             >
-              Get import example
+              {t("dashboard.actions.get_import_example")}
               {isLoading && <Loader className={"animate-spin"} />}
             </Button>
           )}

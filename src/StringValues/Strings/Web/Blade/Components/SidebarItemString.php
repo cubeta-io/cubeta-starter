@@ -5,9 +5,10 @@ namespace Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components;
 class SidebarItemString
 {
     private string $modelName;
+
     private string $routeName;
 
-    public function __construct(string $modelName , string $routeName)
+    public function __construct(string $modelName, string $routeName)
     {
         $this->modelName = $modelName;
         $this->routeName = $routeName;
@@ -18,7 +19,7 @@ class SidebarItemString
         return "<li class=\"nav-item\">
                     <a class=\"nav-link collapsed @if(str_contains(request()->fullUrl() , route('{$this->routeName}'))) active-sidebar-item @endif\" href=\"{{route('{$this->routeName}')}}\">
                         <i class=\"bi bi-circle\"></i>
-                        <span>{$this->modelName}</span>
+                        <span>{{trans('site.models.{$this->modelName}.plural')}}</span>
                     </a>
                </li>";
     }

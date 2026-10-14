@@ -9,6 +9,7 @@ import {
 import { toTitleCase } from "@/helper";
 import { usePage } from "@inertiajs/react";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { useTranslation } from "@/hooks/use-translation";
 
 type SelectOption<T extends string> = {
   label: string;
@@ -49,10 +50,11 @@ const Select = <T extends string>({
   data,
   selected,
   label,
-  placeholder = "Select an item",
+  placeholder,
   onChange,
   name,
 }: SelectProps<T>) => {
+  const { t } = useTranslation();
   const errors = usePage().props.errors as Record<string, string>;
   const options = normalizeOptions(data);
 
@@ -64,7 +66,9 @@ const Select = <T extends string>({
         onValueChange={(value) => onChange?.(value as T)}
       >
         <SelectTrigger className="w-full">
-          <SelectValue placeholder={placeholder} />
+          <SelectValue
+            placeholder={placeholder ?? t("dashboard.form.select_item")}
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>

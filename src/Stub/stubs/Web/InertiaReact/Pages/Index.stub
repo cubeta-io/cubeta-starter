@@ -2,12 +2,14 @@ import ActionsButtons from "@/components/datatable/actions-buttons";
 import Datatable from "@/components/datatable/datatable";
 import ApiResponse from "@/modules/http/api-response";
 import Http from "@/modules/http/http";
+import { useTranslation } from "@/hooks/use-translation";
 {{imports}}
 
 const Index = ({exportables}:{exportables:string[]}) => {
+    const { t } = useTranslation();
     return (
         <Datatable
-            title="{{model_name}} Table"
+            title={t("dashboard.titles.index", { model: t("models.{{model_name}}.singular") })}
             createUrl={route("{{create_route}}")}
             importRoute={route("{{import_route}}")}
             exportRoute={route("{{export_route}}")}
@@ -28,12 +30,12 @@ const Index = ({exportables}:{exportables:string[]}) => {
             schema={[
                 {
                     name: "id",
-                    label: "ID",
+                    label: t("dashboard.table.id"),
                     sortable: true,
                 },
                 {{columns}}
                 {
-                    label: "Options",
+                    label: t("dashboard.table.options"),
                     render: (_data, record, setHidden, revalidate) => (
                         <ActionsButtons
                             buttons={["delete", "edit", "show"]}

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import React from "react";
 import { FilterIcon } from "lucide-react";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface FilterModalProps {
   open: boolean;
@@ -25,23 +26,29 @@ function FilterModal({
   onReset,
   onApply,
 }: FilterModalProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger
         render={
-          <Button size="icon" variant="secondary" type="button">
+          <Button
+            size="icon"
+            variant="secondary"
+            type="button"
+            aria-label={t("dashboard.table.filters")}
+          >
             <FilterIcon />
           </Button>
         }
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Filters</DialogTitle>
+          <DialogTitle>{t("dashboard.table.filters")}</DialogTitle>
         </DialogHeader>
         {children}
         <DialogFooter>
           <Button onClick={onReset} variant="destructive" type="button">
-            Reset Filters
+            {t("dashboard.actions.reset_filters")}
           </Button>
           <Button
             onClick={() => {
@@ -50,7 +57,7 @@ function FilterModal({
             }}
             type="button"
           >
-            Apply
+            {t("dashboard.actions.apply")}
           </Button>
         </DialogFooter>
       </DialogContent>

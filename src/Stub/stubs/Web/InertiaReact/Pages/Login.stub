@@ -10,8 +10,10 @@ import Form from "@/components/form/form";
 import { Link, useForm } from "@inertiajs/react";
 import React from "react";
 import Input from "@/components/form/fields/input";
+import { useTranslation } from "@/hooks/use-translation";
 
 function Login() {
+    const { t } = useTranslation();
     const { post, setData, processing } = useForm<{
         email: string;
         password: string;
@@ -24,22 +26,22 @@ function Login() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Login to your account</CardTitle>
+                <CardTitle>{t("dashboard.auth.login_title")}</CardTitle>
                 <CardDescription>
-                    Enter your email below to login to your account
+                    {t("dashboard.auth.login_description")}
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <Form
                     onSubmit={onSubmit}
-                    buttonText={"Login"}
+                    buttonText={t("dashboard.auth.login")}
                     processing={processing}
                     backButton={false}
                 >
                     <FieldGroup>
                         <Input
                             name={"email"}
-                            label={"Email"}
+                            label={t("dashboard.auth.email")}
                             type={"text"}
                             onChange={(e) => setData("email", e.target.value)}
                             required={true}
@@ -47,7 +49,7 @@ function Login() {
 
                         <Input
                             name={"password"}
-                            label={"Password"}
+                            label={t("dashboard.auth.password")}
                             type={"password"}
                             onChange={(e) =>
                                 setData("password", e.target.value)
@@ -56,20 +58,20 @@ function Login() {
                         />
                         <Field>
                             <FieldDescription>
-                                Don&apos;t have an account?{" "}
+                                {t("dashboard.auth.not_registered")} {" "}
                                 <Link href={route("{{register_page_route}}")}>
-                                    Sign up
+                                    {t("dashboard.auth.sign_up")}
                                 </Link>
                             </FieldDescription>
 
                             <FieldDescription>
-                                Forgot your password?{" "}
+                                {t("dashboard.auth.forgot_password")} {" "}
                                 <Link
                                     href={route(
                                         "{{password_reset_request_page_route}}",
                                     )}
                                 >
-                                    Try Password Reset
+                                    {t("dashboard.auth.try_password_reset")}
                                 </Link>
                             </FieldDescription>
                         </Field>

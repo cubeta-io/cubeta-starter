@@ -1,45 +1,43 @@
-@props([
+@props ([
     "action",
     "method" => "POST",
     "validationErrorsFromHere" => false,
 ])
 @if ($validationErrorsFromHere)
-    @if ($errors->any())
-        <div class="card p-1">
-            <div class="card-body">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li style="color: red">
-                            {{ $error }}
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-        </div>
-    @endif
+  @if ($errors->any())
+    <div class="card p-1">
+      <div class="card-body">
+        <ul>
+          @foreach ($errors->all() as $error)
+            <li style="color: red">{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+    </div>
+  @endif
 @endif
 
 <!--end of validation errors-->
 <form
-    id="form"
-    action="{{ $action }}"
-    method="POST"
-    enctype="multipart/form-data"
+  id="form"
+  action="{{ $action }}"
+  method="POST"
+  enctype="multipart/form-data"
 >
-    @csrf
+  @csrf
 
-    @if ($method == "PUT" || $method == "put")
-        @method("PUT")
-    @endif
+  @if ($method == "PUT" || $method == "put")
+    @method ("PUT")
+  @endif
 
-    {{ $slot }}
-    <div class="my-2 text-center">
-        <button
-            id="submit-btn"
-            type="submit"
-            class="btn btn-primary btn-lg btn-block"
-        >
-            Submit
-        </button>
-    </div>
+  {{ $slot }}
+  <div class="my-2 text-center">
+    <button
+      id="submit-btn"
+      type="submit"
+      class="btn btn-primary btn-lg btn-block"
+    >
+      {{ trans('site.dashboard.actions.submit') }}
+    </button>
+  </div>
 </form>

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { usePage } from "@inertiajs/react";
+import { useTranslation } from "@/hooks/use-translation";
 
 type CalendarProps = React.ComponentProps<typeof Calendar>;
 
@@ -37,7 +38,7 @@ function normalizeDate(value: Date | string | undefined): Date | undefined {
 const DatePicker: React.FC<DatePickerProps> = ({
   name,
   label,
-  placeholder = "Pick a date",
+  placeholder,
   value,
   defaultValue,
   onChange,
@@ -46,8 +47,10 @@ const DatePicker: React.FC<DatePickerProps> = ({
   className,
   ...calendarProps
 }) => {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t("dashboard.form.pick_date");
   const {
-    props: { errors },
+    props: { errors, currentLocale },
   } = usePage();
   const error = name && errors?.[name] ? errors[name] : undefined;
 
@@ -92,7 +95,13 @@ const DatePicker: React.FC<DatePickerProps> = ({
                 error && "border-destructive",
               )}
             >
-              {date ? format(date, "PPP") : <span>{placeholder}</span>}
+              {date ? (
+                new Intl.DateTimeFormat(currentLocale, {
+                  dateStyle: "long",
+                }).format(date)
+              ) : (
+                <span>{resolvedPlaceholder}</span>
+              )}
               <ChevronDownIcon data-icon="inline-end" />
             </Button>
           }

@@ -12,6 +12,7 @@ import {
 import { Editor } from "@tiptap/react";
 import { TableIcon } from "lucide-react";
 import React, { useState } from "react";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface TableGridSelectorProps {
   onSelection: (rows: number, columns: number) => void;
@@ -24,6 +25,7 @@ const TableGridSelector: React.FC<TableGridSelectorProps> = ({
   maxRows = 10,
   maxColumns = 10,
 }) => {
+  const { t } = useTranslation();
   const [hoveredRow, setHoveredRow] = useState<number>(0);
   const [hoveredColumn, setHoveredColumn] = useState<number>(0);
 
@@ -61,8 +63,11 @@ const TableGridSelector: React.FC<TableGridSelectorProps> = ({
         </div>
         <p className="mt-4 text-sm">
           {hoveredRow > 0 && hoveredColumn > 0
-            ? `Selected: ${hoveredRow} x ${hoveredColumn}`
-            : "Hover over the grid to select"}
+            ? t("dashboard.editor.selected_grid", {
+                rows: hoveredRow,
+                columns: hoveredColumn,
+              })
+            : t("dashboard.editor.select_grid")}
         </p>
       </div>
     </div>
@@ -71,6 +76,7 @@ const TableGridSelector: React.FC<TableGridSelectorProps> = ({
 
 export const TableButtons = ({ editor }: { editor: Editor }) => {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger
@@ -82,7 +88,9 @@ export const TableButtons = ({ editor }: { editor: Editor }) => {
       />
       <DropdownMenuContent align={"start"}>
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Inert Table</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>
+            {t("dashboard.editor.insert_table")}
+          </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <TableGridSelector
@@ -103,83 +111,93 @@ export const TableButtons = ({ editor }: { editor: Editor }) => {
           </DropdownMenuPortal>
         </DropdownMenuSub>
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Add column</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>
+            {t("dashboard.editor.add_column")}
+          </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().addColumnBefore().run()}
               >
-                Before
+                {t("dashboard.editor.before")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().addColumnAfter().run()}
               >
-                After
+                {t("dashboard.editor.after")}
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Add row</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>
+            {t("dashboard.editor.add_row")}
+          </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().addRowBefore().run()}
               >
-                Before
+                {t("dashboard.editor.before")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().addRowAfter().run()}
               >
-                After
+                {t("dashboard.editor.after")}
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
 
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Delete</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>
+            {t("dashboard.actions.delete")}
+          </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().deleteColumn().run()}
               >
-                Delete column
+                {t("dashboard.editor.delete_column")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().deleteRow().run()}
               >
-                Delete row
+                {t("dashboard.editor.delete_row")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().deleteTable().run()}
               >
-                Delete table
+                {t("dashboard.editor.delete_table")}
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
 
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Cells</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>
+            {t("dashboard.editor.cells")}
+          </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().mergeCells().run()}
               >
-                Merge cells
+                {t("dashboard.editor.merge_cells")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().splitCell().run()}
               >
-                Split cell
+                {t("dashboard.editor.split_cell")}
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
 
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Header</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>
+            {t("dashboard.editor.header")}
+          </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <DropdownMenuItem
@@ -187,17 +205,17 @@ export const TableButtons = ({ editor }: { editor: Editor }) => {
                   editor.chain().focus().toggleHeaderColumn().run()
                 }
               >
-                Toggle header column
+                {t("dashboard.editor.toggle_header_column")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().toggleHeaderRow().run()}
               >
-                Toggle header row
+                {t("dashboard.editor.toggle_header_row")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => editor.chain().focus().toggleHeaderCell().run()}
               >
-                Toggle header cell
+                {t("dashboard.editor.toggle_header_cell")}
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
@@ -206,7 +224,7 @@ export const TableButtons = ({ editor }: { editor: Editor }) => {
         <DropdownMenuItem
           onClick={() => editor.chain().focus().fixTables().run()}
         >
-          Fix tables
+          {t("dashboard.editor.fix_tables")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -135,32 +135,43 @@ function handleImageGalleryExistence() {
   }
 }
 
+function dashboardTranslation(key) {
+  return (
+    key
+      .split(".")
+      .reduce(
+        (value, segment) => value?.[segment],
+        window._DASHBOARD_TRANSLATIONS,
+      ) ?? key
+  );
+}
+
 function triggerSwalError(message) {
   Swal.fire({
-    title: "Error!",
+    title: dashboardTranslation("notifications.error"),
     text: message,
     icon: "error",
-    confirmButtonText: "Ok",
+    confirmButtonText: dashboardTranslation("notifications.ok"),
     confirmButtonColor: "#0d6efd",
   });
 }
 
 function triggerSwalSuccess(message) {
   Swal.fire({
-    title: "Success!",
+    title: dashboardTranslation("notifications.success"),
     text: message,
     icon: "success",
-    confirmButtonText: "Ok",
+    confirmButtonText: dashboardTranslation("notifications.ok"),
     confirmButtonColor: "#0d6efd",
   });
 }
 
 function triggerSwalMessage(message) {
   Swal.fire({
-    title: "Info !",
+    title: dashboardTranslation("notifications.info"),
     text: message,
     icon: "info",
-    confirmButtonText: "Ok",
+    confirmButtonText: dashboardTranslation("notifications.ok"),
     confirmButtonColor: "#0d6efd",
   });
 }
@@ -209,7 +220,7 @@ function downloadResponseFile(response, xhr) {
   a.download =
     matches != null && matches[1]
       ? matches[1].replace(/['"]/g, "")
-      : "download";
+      : dashboardTranslation("actions.download");
   document.body.appendChild(a);
   a.click();
 

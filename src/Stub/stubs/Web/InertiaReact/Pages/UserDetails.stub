@@ -11,15 +11,17 @@ import {
     FieldGroup,
     FieldLabel,
 } from "@/components/ui/field";
+import { useTranslation } from "@/hooks/use-translation";
 
 const UserDetails = ({ user }: { user: User }) => {
+    const { t } = useTranslation();
     return (
-        <PageCard title={"Account Details"}>
+        <PageCard title={t("dashboard.titles.account_details")}>
             <Tabs defaultValue={"overview"}>
                 <TabsList className={"w-full"}>
-                    <TabsTrigger value={"overview"}>Overview</TabsTrigger>
+                    <TabsTrigger value={"overview"}>{t("dashboard.auth.overview")}</TabsTrigger>
                     <TabsTrigger value={"edit_profile"}>
-                        Edit Profile
+                        {t("dashboard.actions.edit")} {t("dashboard.profile")}
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent value={"overview"}>
@@ -36,17 +38,18 @@ const UserDetails = ({ user }: { user: User }) => {
 export default UserDetails;
 
 const UserOverview = ({ user }: { user: User }) => {
+    const { t } = useTranslation();
     return (
         <div className="my-5 grid grid-cols-1 md:grid-cols-2 gap-3">
             <Field orientation={"horizontal"}>
-                <FieldLabel>User Name :</FieldLabel>
+                <FieldLabel>{t("dashboard.auth.full_name")}</FieldLabel>
                 <FieldDescription>
                     {user.first_name} {user.last_name}
                 </FieldDescription>
             </Field>
 
             <Field orientation={"horizontal"}>
-                <FieldLabel>Email :</FieldLabel>
+                <FieldLabel>{t("dashboard.auth.email")}</FieldLabel>
                 <FieldDescription>{user.email}</FieldDescription>
             </Field>
         </div>
@@ -54,6 +57,7 @@ const UserOverview = ({ user }: { user: User }) => {
 };
 
 const EditProfile = ({ user }: { user: User }) => {
+    const { t } = useTranslation();
     const { put, setData, processing } = useForm<{
         first_name?: string;
         last_name?: string;
@@ -78,7 +82,7 @@ const EditProfile = ({ user }: { user: User }) => {
                     <Input
                         name="first_name"
                         type="text"
-                        label="First Name"
+                        label={t("dashboard.auth.first_name")}
                         onChange={(e) => {
                             setData("first_name", e.target.value);
                         }}
@@ -88,7 +92,7 @@ const EditProfile = ({ user }: { user: User }) => {
                     <Input
                         name="last_name"
                         type="text"
-                        label="Last Name"
+                        label={t("dashboard.auth.last_name")}
                         onChange={(e) => {
                             setData("last_name", e.target.value);
                         }}
@@ -99,7 +103,7 @@ const EditProfile = ({ user }: { user: User }) => {
                 <Input
                     name="email"
                     type="email"
-                    label="Email"
+                    label={t("dashboard.auth.email")}
                     onChange={(e) => {
                         setData("email", e.target.value);
                     }}
@@ -108,7 +112,7 @@ const EditProfile = ({ user }: { user: User }) => {
 
                 <Input
                     name="password"
-                    label="New Password"
+                    label={t("dashboard.auth.new_password")}
                     type="password"
                     onChange={(e) => {
                         setData(
@@ -122,7 +126,7 @@ const EditProfile = ({ user }: { user: User }) => {
 
                 <Input
                     name="password_confirmation"
-                    label="Password Confirmation"
+                    label={t("dashboard.auth.confirm_password")}
                     type="password"
                     onChange={(e) => {
                         setData(

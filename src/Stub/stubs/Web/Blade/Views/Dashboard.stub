@@ -2,7 +2,7 @@
 @section('content')
    <main class="main" id="main">
        <h1 class="display-5 text-primary">
-           Welcome to cubeta-starter generated dashboard
+           {{ trans('site.dashboard.welcome') }}
        </h1>
    </main>
 @endsection

@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { FieldDescription } from "@/components/ui/field";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface ValueProps extends React.ComponentProps<typeof FieldDescription> {
   value?: unknown;
@@ -14,22 +15,23 @@ export const DetailItemValue: React.FC<ValueProps> = ({
   html,
   ...props
 }) => {
+  const { t } = useTranslation();
   let showedValue = value;
   if (typeof value == "string" && html) {
     showedValue = <div dangerouslySetInnerHTML={{ __html: value }} />;
   } else if (value === undefined || value === null) {
-    showedValue = <Badge>{"No data"}</Badge>;
+    showedValue = <Badge>{t("dashboard.table.no_data")}</Badge>;
   } else if (value === 0 || Number.isNaN(value)) {
     showedValue = 0;
   } else if (value === false) {
-    showedValue = "false";
+    showedValue = t("dashboard.boolean.no");
   } else if (value === "") {
-    showedValue = <Badge>{"No data"}</Badge>;
+    showedValue = <Badge>{t("dashboard.table.no_data")}</Badge>;
   } else if (
     typeof value == "string" &&
-    (value?.includes("undefined") || value?.includes("null"))
+    (value == "undefined" || value == "null")
   ) {
-    showedValue = <Badge>{"No data"}</Badge>;
+    showedValue = <Badge>{t("dashboard.table.no_data")}</Badge>;
   } else if (typeof value == "string" && value.includes("NaN")) {
     showedValue = 0;
   }

@@ -7,23 +7,24 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 class DataTableColumnObjectString
 {
     public ?string $name = null;
+
     public ?string $label = null;
+
     public bool $translatable = false;
+
     public bool $sortable = false;
+
     public ?string $render = null;
 
     /** @var TsImportString[] */
     public array $imports = [];
 
+    public ?string $translationKey;
+
     /**
-     * @param string|null      $name
-     * @param string|null      $label
-     * @param bool             $translatable
-     * @param bool             $sortable
-     * @param string|null      $render
-     * @param TsImportString[] $imports
+     * @param  TsImportString[]  $imports
      */
-    public function __construct(?string $name, ?string $label, bool $translatable = false, bool $sortable = true, ?string $render = null, array $imports = [])
+    public function __construct(?string $name, ?string $label, bool $translatable = false, bool $sortable = true, ?string $render = null, array $imports = [], ?string $translationKey = null)
     {
         $this->name = $name;
         $this->label = $label;
@@ -31,32 +32,35 @@ class DataTableColumnObjectString
         $this->sortable = $sortable;
         $this->render = $render;
         $this->imports = $imports;
+        $this->translationKey = $translationKey;
     }
 
     public function __toString(): string
     {
-        $object = "{";
+        $object = '{';
         if ($this->name) {
             $object .= "name: \"$this->name\" ,";
         }
 
         if ($this->label) {
-            $object .= "label: \"$this->label\" ,";
+            $object .= $this->translationKey
+                ? "label: t(\"{$this->translationKey}\") ,"
+                : "label: \"$this->label\" ,";
         }
 
         if ($this->translatable) {
-            $object .= "translatable:true,";
+            $object .= 'translatable:true,';
         }
 
         if ($this->sortable) {
-            $object .= "sortable:true,";
+            $object .= 'sortable:true,';
         }
 
         if ($this->render) {
             $object .= "render: (cell, record, setHidden, revalidate) => {{$this->render}},";
         }
 
-        $object .= "}";
+        $object .= '}';
 
         return $object;
     }

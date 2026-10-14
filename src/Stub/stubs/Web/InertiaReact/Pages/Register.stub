@@ -10,8 +10,10 @@ import { Link, useForm } from "@inertiajs/react";
 import React from "react";
 import Form from "@/components/form/form";
 import Input from "@/components/form/fields/input";
+import { useTranslation } from "@/hooks/use-translation";
 
 function Register() {
+    const { t } = useTranslation();
     const { post, setData, processing } = useForm<{
         first_name: string;
         last_name: string;
@@ -27,16 +29,16 @@ function Register() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Create an account</CardTitle>
+                <CardTitle>{t("dashboard.auth.register_title")}</CardTitle>
                 <CardDescription>
-                    Enter your information below to create your account
+                    {t("dashboard.auth.register_description")}
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <Form
                     onSubmit={onSubmit}
                     processing={processing}
-                    buttonText="Sign Up"
+                    buttonText={t("dashboard.auth.register")}
                     backButton={false}
                 >
                     <FieldGroup>
@@ -50,7 +52,7 @@ function Register() {
                                 onChange={(e) =>
                                     setData("first_name", e.target.value)
                                 }
-                                label="First Name"
+                                label={t("dashboard.auth.first_name")}
                                 required={true}
                                 type="text"
                             />
@@ -59,7 +61,7 @@ function Register() {
                                 onChange={(e) =>
                                     setData("last_name", e.target.value)
                                 }
-                                label="Last Name"
+                                label={t("dashboard.auth.last_name")}
                                 required={true}
                                 type="text"
                             />
@@ -67,7 +69,7 @@ function Register() {
                         <Input
                             name="email"
                             onChange={(e) => setData("email", e.target.value)}
-                            label="Email"
+                            label={t("dashboard.auth.email")}
                             required={true}
                             type="email"
                         />
@@ -77,7 +79,7 @@ function Register() {
                             onChange={(e) =>
                                 setData("password", e.target.value)
                             }
-                            label="Password"
+                            label={t("dashboard.auth.password")}
                             required={true}
                             type="password"
                         />
@@ -86,15 +88,15 @@ function Register() {
                             onChange={(e) =>
                                 setData("password_confirmation", e.target.value)
                             }
-                            label="Confirm Password"
+                            label={t("dashboard.auth.confirm_password")}
                             required={true}
                             type="password"
                         />
                         <Field>
                             <FieldDescription>
-                                Already have an account?{" "}
+                                {t("dashboard.auth.already_registered")} {" "}
                                 <Link href={route("{{login_page_route}}")}>
-                                    Sign in
+                                    {t("dashboard.auth.sign_in")}
                                 </Link>
                             </FieldDescription>
                         </Field>

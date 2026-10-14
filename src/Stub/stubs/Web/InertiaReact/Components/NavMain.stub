@@ -16,6 +16,7 @@ import {
 import { Link } from "@inertiajs/react";
 import { ChevronRight, LayoutDashboardIcon } from "lucide-react";
 import { ReactNode } from "react";
+import { useTranslation } from "@/hooks/use-translation";
 
 function isUrlActive(url: string) {
   const location = window.location.href;
@@ -36,6 +37,7 @@ export function NavMain({
     }[];
   }[];
 }) {
+  const { t } = useTranslation();
   const url = window.location.href;
   return (
     <SidebarGroup>
@@ -44,12 +46,12 @@ export function NavMain({
           <Link href={route("{{index_route}}")}>
             <SidebarMenuItem className="flex items-center gap-2">
               <SidebarMenuButton
-                tooltip="Dashboard"
+                tooltip={t("dashboard.home")}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
                 isActive={url == route("{{index_route}}")}
               >
                 <LayoutDashboardIcon />
-                <span>Dashboard</span>
+                <span>{t("dashboard.home")}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </Link>

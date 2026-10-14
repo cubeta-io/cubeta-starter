@@ -4,7 +4,7 @@
 @extends('layout')
 @section('content')
     <x-show-layout
-        title="{{model_name}} : {{${{model_variable}}->{{titleable}}}}"
+        title="{{ trans('site.dashboard.titles.details', ['model' => trans('site.models.{{model_name}}.singular')]) }} : {{${{model_variable}}->{{titleable}}}}"
         editRoute="{{route('{{edit_route}}' , ${{model_variable}}->id)}}"
     >
         <div class="row">

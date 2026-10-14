@@ -13,6 +13,7 @@ import { Link } from "@inertiajs/react";
 import { ReactNode, useState } from "react";
 import { toast } from "sonner";
 import { Eye, Loader, Pencil, Trash } from "lucide-react";
+import { useTranslation } from "@/hooks/use-translation";
 
 type Buttons = "delete" | "edit" | "show";
 
@@ -39,6 +40,7 @@ function ActionsButtons<Data extends Record<string, any>>({
   setHidden,
   children,
 }: ActionsButtonsProps<Data>) {
+  const { t } = useTranslation();
   const [openDelete, setOpenDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const dataId = id ?? data?.id ?? undefined;
@@ -53,16 +55,16 @@ function ActionsButtons<Data extends Record<string, any>>({
       .delete(dUrl)
       .then((res) => {
         if (res.ok()) {
-          toast.success("Deleted !");
+          toast.success(t("dashboard.delete.success"));
           if (setHidden) {
             setHidden((prevState) => [dataId, ...prevState]);
           }
         } else {
-          toast.error("There Is Been An Error In Deleting");
+          toast.error(t("dashboard.delete.error"));
         }
       })
       .catch((e) => {
-        toast.error("There Is Been An Error In Deleting");
+        toast.error(t("dashboard.delete.error"));
         console.error(e);
       })
       .finally(() => {
@@ -79,14 +81,18 @@ function ActionsButtons<Data extends Record<string, any>>({
     <div className="flex items-center justify-start gap-1">
       {buttons.includes("show") && (
         <Link href={sUrl}>
-          <Button size="icon">
+          <Button size="icon" aria-label={t("dashboard.actions.show")}>
             <Eye />
           </Button>
         </Link>
       )}
       {buttons.includes("edit") && (
         <Link href={eUrl}>
-          <Button size="icon" variant="outline">
+          <Button
+            size="icon"
+            variant="outline"
+            aria-label={t("dashboard.actions.edit")}
+          >
             <Pencil />
           </Button>
         </Link>
@@ -96,17 +102,20 @@ function ActionsButtons<Data extends Record<string, any>>({
         <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
           <AlertDialogTrigger
             render={
-              <Button size="icon" variant="destructive">
+              <Button
+                size="icon"
+                variant="destructive"
+                aria-label={t("dashboard.actions.delete")}
+              >
                 <Trash />
               </Button>
             }
           />
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Item</AlertDialogTitle>
+              <AlertDialogTitle>{t("dashboard.delete.title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete this item? This action cannot be
-                undone.
+                {t("dashboard.delete.confirmation")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -115,7 +124,7 @@ function ActionsButtons<Data extends Record<string, any>>({
                 variant="secondary"
                 onClick={() => setOpenDelete(false)}
               >
-                Cancel
+                {t("dashboard.actions.cancel")}
               </Button>
               <Button
                 type="button"
@@ -123,7 +132,7 @@ function ActionsButtons<Data extends Record<string, any>>({
                 onClick={onConfirmDelete}
                 disabled={deleting}
               >
-                Delete
+                {t("dashboard.actions.delete")}
                 {deleting && <Loader className={"animate-spin"} />}
               </Button>
             </AlertDialogFooter>

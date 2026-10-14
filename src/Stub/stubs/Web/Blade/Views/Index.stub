@@ -2,7 +2,7 @@
 @section('content')
    <x-page-card>
         <div class="d-flex justify-content-between align-items-center">
-            <h1 class="card-title">Manage {{table_name}}</h1>
+            <h1 class="card-title">{{ trans('site.dashboard.titles.manage', ['model' => trans('site.models.{{table_name}}.plural')]) }}</h1>
             <div class="d-flex gap-1">
                 <a class="btn btn-primary" href="{{route('{{create_route}}')}}">
                     <i class="bi bi-file-earmark-plus"></i>
@@ -10,6 +10,7 @@
                 <x-export-button
                     route="{{route('{{export_route}}')}}"
                     :cols="{{model_class_string}}::getModel()->exportable()"
+                    model="{{table_name}}"
                 />
 
                 <x-import-button
@@ -22,9 +23,9 @@
         <table class="table" id="table">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>{{ trans('site.dashboard.table.id') }}</th>
                     {{html_columns}}
-                    <th>Action</th>
+                    <th>{{ trans('site.dashboard.table.actions') }}</th>
                 </tr>
             </thead>
         </table>
@@ -35,6 +36,7 @@
             $(document).ready(function () {
                 $('#table').Datatable({
                    ajax:dataTableAjax("{{ route('{{data_route}}') }}" , "{{ app()->getLocale() }}"),
+                   language: @json(trans('site.dashboard.datatable')),
                    columns: [
                        {"data": 'id', searchable: true, orderable: true},
                        {{data_table_object_columns}}

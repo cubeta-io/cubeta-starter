@@ -21,9 +21,11 @@ import {
 } from "lucide-react";
 import User from "@/models/user";
 import { Link } from "@inertiajs/react";
+import { useTranslation } from "@/hooks/use-translation";
 
 export function NavUser({ user }: { user?: User }) {
   const { isMobile } = useSidebar();
+  const { t } = useTranslation();
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -80,7 +82,7 @@ export function NavUser({ user }: { user?: User }) {
               <Link id={"user-details"} href={"#"}>
                 <DropdownMenuItem className={"cursor-pointer!"}>
                   <CircleUserRoundIcon />
-                  Account
+                  {t("dashboard.account")}
                 </DropdownMenuItem>
               </Link>
             </DropdownMenuGroup>
@@ -88,7 +90,7 @@ export function NavUser({ user }: { user?: User }) {
             <Link id={"logout"} href={"#"}>
               <DropdownMenuItem className={"cursor-pointer"}>
                 <LogOutIcon />
-                Log out
+                {t("dashboard.logout")}
               </DropdownMenuItem>
             </Link>
           </DropdownMenuContent>

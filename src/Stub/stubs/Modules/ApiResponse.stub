@@ -23,7 +23,7 @@ class ApiResponse implements JsonSerializable
     public function __construct()
     {
         $this->code = Response::HTTP_OK;
-        $this->message = __('site.success');
+        $this->message = trans('site.success');
         $this->data = null;
         $this->paginationData = null;
     }
@@ -89,7 +89,7 @@ class ApiResponse implements JsonSerializable
 
     public function message(string|null $message = null): static
     {
-        $this->message = $message ?? __('site.success');
+        $this->message = $message ?? trans('site.success');
         return $this;
     }
 
@@ -145,7 +145,7 @@ class ApiResponse implements JsonSerializable
     public function noData(mixed $data = null): static
     {
         $this->data = $data;
-        $this->message = __('site.there_is_no_data');
+        $this->message = trans('site.there_is_no_data');
         $this->code = Response::HTTP_NOT_FOUND;
         return $this;
     }
@@ -162,25 +162,25 @@ class ApiResponse implements JsonSerializable
 
     public function getSuccess(): static
     {
-        $this->message = __('site.get_successfully');
+        $this->message = trans('site.get_successfully');
         return $this;
     }
 
     public function storeSuccess(): static
     {
-        $this->message = __('site.stored_successfully');
+        $this->message = trans('site.stored_successfully');
         return $this;
     }
 
     public function updateSuccess(): static
     {
-        $this->message = __('site.update_successfully');
+        $this->message = trans('site.update_successfully');
         return $this;
     }
 
     public function deleteSuccess(): static
     {
-        $this->message = __('site.delete_successfully');
+        $this->message = trans('site.delete_successfully');
         return $this;
     }
 
@@ -239,7 +239,7 @@ class ApiResponse implements JsonSerializable
 
     public function unknownError(): static
     {
-        $this->message(__('site.failed'));
+        $this->message(trans('site.failed'));
         return $this;
     }
 
