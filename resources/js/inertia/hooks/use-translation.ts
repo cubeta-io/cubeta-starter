@@ -1,8 +1,21 @@
 import { usePage } from "@inertiajs/react";
+import englishTranslations from "../locales/en.json";
 
 type Replacements = Record<string, string | number>;
 type Translations = Record<string, unknown>;
 type TranslationModule = { default: Translations };
+type TranslationKey<Value, Prefix extends string = ""> = Value extends string
+  ? Prefix
+  : Value extends Record<string, unknown>
+    ? {
+        [Key in keyof Value & string]: TranslationKey<
+          Value[Key],
+          Prefix extends "" ? Key : `${Prefix}.${Key}`
+        >;
+      }[keyof Value & string]
+    : never;
+
+export type LocalizationKey = TranslationKey<typeof englishTranslations>;
 
 const localeModules = import.meta.glob<TranslationModule>("../locales/*.json", {
   eager: true,
@@ -27,10 +40,10 @@ function getTranslation(
 
 export function useTranslation() {
   const { currentLocale } = usePage().props;
-  const fallbackTranslations = translationsFor("en");
+  const fallbackTranslations: Translations = englishTranslations;
   const translations = translationsFor(currentLocale);
 
-  const t = (key: string, replacements: Replacements = {}): string => {
+  const t = (key: LocalizationKey, replacements: Replacements = {}): string => {
     const translated =
       getTranslation(translations, key) ??
       getTranslation(fallbackTranslations, key);
