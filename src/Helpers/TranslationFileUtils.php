@@ -57,6 +57,7 @@ class TranslationFileUtils
 
         $path->ensureDirectoryExists();
         $path->putContent("<?php\n\nreturn ".var_export($translations, true).";\n");
+        $path->format();
     }
 
     public static function mergeJson(CubePath $path, array $defaults): void
@@ -79,6 +80,7 @@ class TranslationFileUtils
             $translations,
             JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR,
         )."\n");
+        $path->format();
     }
 
     private static function mergeMissing(array $existing, array $defaults): array
