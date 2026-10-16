@@ -21,7 +21,10 @@ class Naming
      */
     public static function model(string $name): string
     {
-        return ucfirst(Str::singular(Str::studly($name)));
+        return str($name)
+            ->singular()
+            ->pascal()
+            ->toString();
     }
 
     /**
@@ -30,7 +33,10 @@ class Naming
      */
     public static function column(string $name): string
     {
-        return strtolower(Str::snake($name));
+        return str($name)
+            ->snake()
+            ->lower()
+            ->toString();
     }
 
     public static function pivotTableNaming(string $table1, string $table2): string

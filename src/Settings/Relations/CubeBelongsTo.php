@@ -144,7 +144,7 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         if ($formType == "update") {
             $attributes[] = [
                 'key' => 'defaultValue',
-                'value' => "{$relatedModel->variableNaming()}?.{$this->method()}"
+                'value' => "{$relatedModel->variableNaming()}?.{$this->relationKeyNaming()}"
             ];
         }
 

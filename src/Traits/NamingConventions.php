@@ -50,8 +50,16 @@ trait NamingConventions
     public function lowerPluralKebabNaming(?string $name = null): string
     {
         return $name
-            ? strtolower(Str::plural(Str::kebab($name)))
-            : strtolower(Str::plural(Str::kebab($this->usedString)));
+            ? str($name)
+                ->kebab()
+                ->plural()
+                ->lower()
+                ->toString()
+            : str($this->usedString)
+                ->kebab()
+                ->plural()
+                ->lower()
+                ->toString();
     }
 
     /**
@@ -90,9 +98,15 @@ trait NamingConventions
         }
 
         if ($singular) {
-            return Str::camel(lcfirst(Str::singular(Str::studly($name))));
+            return str($name)
+                ->camel()
+                ->singular()
+                ->toString();
         }
-        return Str::camel(lcfirst(Str::plural(Str::studly($name))));
+        return str($name)
+            ->camel()
+            ->plural()
+            ->toString();
     }
 
     /**
@@ -224,7 +238,13 @@ trait NamingConventions
      */
     public function keyName(): string
     {
-        return strtolower(Str::singular($this->usedString)) . "_id";
+        return str($this->usedString)
+            ->snake()
+            ->singular()
+            ->lower()
+            ->append("_id")
+            ->snake()
+            ->toString();
     }
 
     public function columnNaming(string $name = null): string
@@ -251,6 +271,9 @@ trait NamingConventions
 
     public function routeParameterNaming(): Stringable
     {
-        return str($this->usedString)->snake()->singular()->lower();
+        return str($this->usedString)
+            ->snake()
+            ->singular()
+            ->lower();
     }
 }

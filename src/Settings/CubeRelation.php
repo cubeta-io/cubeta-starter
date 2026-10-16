@@ -10,7 +10,6 @@ use Cubeta\CubetaStarter\Settings\Relations\CubeHasMany;
 use Cubeta\CubetaStarter\Settings\Relations\CubeManyToMany;
 use Cubeta\CubetaStarter\Traits\HasPathAndNamespace;
 use Cubeta\CubetaStarter\Traits\NamingConventions;
-use Illuminate\Support\Str;
 
 class CubeRelation
 {
@@ -39,7 +38,12 @@ class CubeRelation
         $this->parentModel = Naming::model($relatedModel);
 
         if ($this->type == RelationsTypeEnum::BelongsTo->value) {
-            $this->key = Str::singular(strtolower($this->relationModel)).'_id';
+            $this->key = str($this->relationModel)
+                ->singular()
+                ->snake()
+                ->append("_id")
+                ->snake()
+                ->toString();
         }
 
         $this->usedString = $this->relationModel;
@@ -84,8 +88,8 @@ class CubeRelation
     /**
      * the relation is existing if its model class is defined
      *
-     * @param  bool  $withTypescriptChecking  when true this mean check for the TypeScript model if exist
-     * @param  bool  $withMethodChecking  when true this mean check for the relation method within the model if exists
+     * @param bool $withTypescriptChecking when true this mean check for the TypeScript model if exist
+     * @param bool $withMethodChecking when true this mean check for the relation method within the model if exists
      */
     public function exists(bool $withTypescriptChecking = false, bool $withMethodChecking = false): bool
     {
@@ -96,9 +100,9 @@ class CubeRelation
 
         if ($withMethodChecking) {
             $exist = $exist && ClassUtils::isMethodDefined( // category model has a "product" method
-                $relatedModel->getModelPath(),
-                $this->method()
-            );
+                    $relatedModel->getModelPath(),
+                    $this->method()
+                );
         }
 
         if ($withTypescriptChecking) {
@@ -137,6 +141,18 @@ class CubeRelation
         } else {
             return $this->relationMethodNaming();
         }
+    }
+
+    /**
+     * the name the relation takes when it is being passed as a key like in an API Resource or in a typescript interface
+     * @return string
+     */
+    public function relationKeyNaming(): string
+    {
+        return str($this->method())
+            ->kebab()
+            ->lower()
+            ->toString();
     }
 
     public function reverseMethod(): string
@@ -224,10 +240,10 @@ class CubeRelation
 
         $this->reverseRelation = $this->relationModel()
             ->relations()
-            ->filter(fn (CubeRelation $rel) => $rel->modelNaming() == $this->parentModel()->modelNaming())
+            ->filter(fn(CubeRelation $rel) => $rel->modelNaming() == $this->parentModel()->modelNaming())
             ->first();
 
-        if (! $this->reverseRelation) {
+        if (!$this->reverseRelation) {
             $this->reverseRelation = CubeRelation::factory(
                 $this->reverseType(),
                 $this->parentModel()->modelNaming(),
@@ -245,6 +261,6 @@ class CubeRelation
 
     public function translationKey(): string
     {
-        return 'models.'.Naming::model($this->parentModel).'.fields.'.($this->key ?? $this->method());
+        return 'models.' . Naming::model($this->parentModel) . '.fields.' . ($this->key ?? $this->method());
     }
 }

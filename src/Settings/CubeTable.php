@@ -296,7 +296,7 @@ class CubeTable
     }
 
     /**
-     * @return CubeCollection<CubeRelation>
+     * @return CubeCollection<int ,CubeRelation>
      */
     public function relations(string|RelationsTypeEnum|null $type = null): CubeCollection
     {
@@ -314,7 +314,10 @@ class CubeTable
             });
     }
 
-    public function collect(): Collection
+    /**
+     * @return CubeCollection
+     */
+    public function collect(): CubeCollection
     {
         return CubeCollection::make($this->toArray());
     }
