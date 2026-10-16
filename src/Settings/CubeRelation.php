@@ -150,7 +150,7 @@ class CubeRelation
     public function relationKeyNaming(): string
     {
         return str($this->method())
-            ->kebab()
+            ->snake()
             ->lower()
             ->toString();
     }

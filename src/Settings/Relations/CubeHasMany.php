@@ -75,7 +75,7 @@ class CubeHasMany extends CubeRelation implements HasModelRelationMethod, HasDoc
     {
         return str($this->usedString)
             ->singular()
-            ->kebab()
+            ->snake()
             ->append("_ids")
             ->toString();
     }
