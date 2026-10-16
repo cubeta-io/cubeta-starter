@@ -43,6 +43,9 @@ class {{model_name}}Controller extends WebController
     public function show(${{model_name_camel_case}}Id)
     {
         ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->view(${{model_name_camel_case}}Id , $this->relations);
+        if(!${{model_name_camel_case}}){
+            abort(404);
+        }
         return Inertia::render('{{show_page}}', [
             '{{model_name_camel_case}}' => {{resource_name}}::make(${{model_name_camel_case}}),
         ]);
@@ -84,6 +87,7 @@ class {{model_name}}Controller extends WebController
     public function update({{request_class}} ${{request_variable}}, ${{model_name_camel_case}}Id)
     {
         ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->update({{validated_data}}, ${{model_name_camel_case}}Id, $this->relations);
+
         if (${{model_name_camel_case}}) {
             Inertia::flash([
                 'success' => trans('site.update_successfully')

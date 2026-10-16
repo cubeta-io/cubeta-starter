@@ -58,12 +58,12 @@ class {{model_name}}Controller extends WebController
     public function show(${{id_variable}})
     {
         ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->view(${{id_variable}}, $this->relations);
-        if (${{model_name_camel_case}}) {
-            return view('{{show_view}}', compact('{{model_name_camel_case}}'));
+
+        if(!${{model_name_camel_case}}){
+            abort(404);
         }
-        return redirect()
-            ->back()
-            ->with('error' , trans('site.there_is_no_data'));
+
+        return view('{{show_view}}', compact('{{model_name_camel_case}}'));
     }
 
     public function store({{request_class}} ${{request_variable}})
@@ -83,27 +83,24 @@ class {{model_name}}Controller extends WebController
     {
         ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->view(${{id_variable}}, $this->relations);
 
-        if (${{model_name_camel_case}}) {
-            return view('{{update_view}}', compact(['{{model_name_camel_case}}']));
+        if(!${{model_name_camel_case}}){
+            abort(404);
         }
 
-         return redirect()
-             ->back()
-             ->with('error' , trans('site.there_is_no_data'));
+        return view('{{update_view}}', compact(['{{model_name_camel_case}}']));
     }
 
     public function update({{request_class}} ${{request_variable}}, ${{id_variable}})
     {
         ${{model_name_camel_case}} = $this->{{model_name_camel_case}}Service->update({{validated_data}}, ${{id_variable}}, $this->relations);
-        if (${{model_name_camel_case}}) {
-            return redirect()
-            ->route('{{index_route}}', ${{id_variable}})
-            ->with('message' , trans('site.update_successfully'));
+
+        if(!${{model_name_camel_case}}){
+            abort(404);
         }
 
         return redirect()
-            ->back()
-            ->with('error' , trans('site.there_is_no_data'));
+            ->route('{{index_route}}', ${{id_variable}})
+            ->with('message' , trans('site.update_successfully'));
     }
 
     public function destroy(${{id_variable}})
