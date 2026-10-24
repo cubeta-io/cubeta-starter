@@ -11,6 +11,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class MediaCast implements CastsAttributes
 {
@@ -109,93 +110,117 @@ class MediaCast implements CastsAttributes
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {
-        if (method_exists($model, 'discardPendingMediaFor')) {
-            $model->discardPendingMediaFor($key);
-        }
-
         if (is_null($value)) {
+            $this->syncPendingMedia($model, $key, []);
+
             return null;
         }
 
-        $allowedPaths = $this->getCurrentlyOwnedPaths($model, $key);
+        // Uploads that are still pending on this model belong to it as well.
+        $allowedPaths = [
+            ...$this->getCurrentlyOwnedPaths($model, $key),
+            ...(method_exists($model, 'pendingMediaPaths') ? $model->pendingMediaPaths($key) : []),
+        ];
 
         /** @var Collection<int,SerializedMedia> $newMediaCollection */
         $newMediaCollection = collect();
 
-        $pushMedia = function (SerializedMedia $media) use ($key, $model, $newMediaCollection): void {
-            $newMediaCollection->push($media);
+        /** @var array<int, SerializedMedia> $storedMedia files stored by this call */
+        $storedMedia = [];
 
-            if ($media->wasRecentlyStored() && method_exists($model, 'trackPendingMedia')) {
-                $model->trackPendingMedia($key, $media);
-            }
+        $store = function (UploadedFile $file) use ($model, &$storedMedia): SerializedMedia {
+            $media = new SerializedMedia($file, $model->getTable(), $this->private);
+            $storedMedia[] = $media;
+
+            return $media;
         };
 
-        $securePushArray = function (array $item) use ($allowedPaths, $key, $model, $pushMedia): void {
+        $securePushArray = function (array $item) use ($allowedPaths, $key, $model, $newMediaCollection): void {
             if (SerializedMedia::isMediaArray($item)) {
                 $media = new SerializedMedia($item, $model->getTable(), $this->private);
 
-                if (in_array($media->path(), $allowedPaths, true)) {
-                    $pushMedia($media);
-
-                    return;
+                if (! in_array($media->path(), $allowedPaths, true)) {
+                    throw ValidationException::withMessages([
+                        $key => ['The selected media does not belong to this resource.'],
+                    ]);
                 }
 
-                if (method_exists($model, 'discardPendingMediaFor')) {
-                    $model->discardPendingMediaFor($key);
-                }
-
-                throw ValidationException::withMessages([
-                    $key => ['The selected media does not belong to this resource.'],
-                ]);
+                $newMediaCollection->push($media);
             }
         };
 
-        if ($value instanceof SerializedMedia) {
-            $pushMedia($value);
-        } elseif ($value instanceof UploadedFile) {
-            $pushMedia(new SerializedMedia($value, $model->getTable(), $this->private));
-        } elseif (is_array($value)) {
-            if (SerializedMedia::isMediaArray($value)) {
-                $securePushArray($value);
-            } else {
-                foreach ($value as $item) {
-                    if ($item instanceof SerializedMedia) {
-                        $pushMedia($item);
-                    } elseif ($item instanceof UploadedFile) {
-                        $pushMedia(new SerializedMedia($item, $model->getTable(), $this->private));
-                    } elseif (is_array($item)) {
-                        $securePushArray($item);
-                    }
-                }
-            }
-        } elseif (Str::isJson($value)) {
-            $decoded = json_decode($value, true);
-            if (is_array($decoded)) {
-                if (SerializedMedia::isMediaArray($decoded)) {
-                    $securePushArray($decoded);
+        try {
+            if ($value instanceof SerializedMedia) {
+                $newMediaCollection->push($value);
+            } elseif ($value instanceof UploadedFile) {
+                $newMediaCollection->push($store($value));
+            } elseif (is_array($value)) {
+                if (SerializedMedia::isMediaArray($value)) {
+                    $securePushArray($value);
                 } else {
-                    foreach ($decoded as $item) {
-                        if (is_array($item)) {
+                    foreach ($value as $item) {
+                        if ($item instanceof SerializedMedia) {
+                            $newMediaCollection->push($item);
+                        } elseif ($item instanceof UploadedFile) {
+                            $newMediaCollection->push($store($item));
+                        } elseif (is_array($item)) {
                             $securePushArray($item);
                         }
                     }
                 }
+            } elseif (Str::isJson($value)) {
+                $decoded = json_decode($value, true);
+                if (is_array($decoded)) {
+                    if (SerializedMedia::isMediaArray($decoded)) {
+                        $securePushArray($decoded);
+                    } else {
+                        foreach ($decoded as $item) {
+                            if (is_array($item)) {
+                                $securePushArray($item);
+                            }
+                        }
+                    }
+                }
+            } else {
+                throw new Exception('Unhandled Media Type Within Media Cast');
             }
-        } else {
-            throw new Exception('Unhandled Media Type Within Media Cast');
+        } catch (Throwable $exception) {
+            array_walk($storedMedia, fn (SerializedMedia $media) => $media->delete());
+
+            throw $exception;
         }
+
+        /** @var array<int, SerializedMedia> $keptMedia */
+        $keptMedia = $this->isSingle
+            ? $newMediaCollection->take(1)->all()
+            : $newMediaCollection->all();
+
+        // A single column keeps only its first file, so drop the extra uploads.
+        foreach (array_diff_key($newMediaCollection->all(), $keptMedia) as $media) {
+            if (in_array($media, $storedMedia, true)) {
+                $media->delete();
+            }
+        }
+
+        $this->syncPendingMedia($model, $key, $keptMedia);
 
         if ($this->isSingle) {
-            $targetMedia = $newMediaCollection->first();
-
-            return $targetMedia?->toStorageJson();
+            return ($keptMedia[0] ?? null)?->toStorageJson();
         }
 
-        $arrayData = $newMediaCollection
-            ->map(fn (SerializedMedia $media) => $media->toStorageArray())
-            ->all();
+        $arrayData = array_map(fn (SerializedMedia $media) => $media->toStorageArray(), $keptMedia);
 
         return json_encode($arrayData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @param  array<int, SerializedMedia>  $media
+     */
+    private function syncPendingMedia(Model $model, string $key, array $media): void
+    {
+        if (method_exists($model, 'syncPendingMedia')) {
+            $model->syncPendingMedia($key, $media);
+        }
     }
 
     public static function single(bool $private = false): string

@@ -41,31 +41,123 @@ trait HasMedia
         );
     }
 
-    public function discardPendingMediaFor(string $attribute): void
-    {
-        foreach ($this->pendingMedia[$attribute] ?? [] as $media) {
-            $media->delete();
-        }
-
-        unset($this->pendingMedia[$attribute]);
-    }
-
-    public function trackPendingMedia(string $attribute, SerializedMedia $media): void
-    {
-        $this->pendingMedia[$attribute][$media->path()] = $media;
-    }
-
-    private function markPendingMediaAsPersisted(): void
+    /**
+     * Laravel runs trait initializers on construction and unserialization, so
+     * an unserialized copy never owns the pending uploads of the original.
+     */
+    protected function initializeHasMedia(): void
     {
         $this->pendingMedia = [];
     }
 
+    /**
+     * A clone must not delete uploads that the original model may still save.
+     */
+    public function __clone(): void
+    {
+        $this->pendingMedia = [];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function pendingMediaPaths(string $attribute): array
+    {
+        return array_keys($this->pendingMedia[$attribute] ?? []);
+    }
+
+    /**
+     * Track the uploads the attribute now holds, and delete earlier pending
+     * uploads that it no longer references and that were never persisted.
+     *
+     * @param  array<int, SerializedMedia>  $media
+     */
+    public function syncPendingMedia(string $attribute, array $media): void
+    {
+        $keptPaths = array_map(fn (SerializedMedia $item) => $item->path(), $media);
+        $persistedPaths = self::mediaPaths($this->getRawOriginal($attribute));
+        $pending = [];
+
+        foreach ($this->pendingMedia[$attribute] ?? [] as $path => $item) {
+            if (in_array($path, $keptPaths, true)) {
+                $pending[$path] = $item;
+            } elseif (! in_array($path, $persistedPaths, true)) {
+                $item->delete();
+            }
+        }
+
+        foreach ($media as $item) {
+            if ($item->wasRecentlyStored()) {
+                $pending[$item->path()] = $item;
+            }
+        }
+
+        if ($pending === []) {
+            unset($this->pendingMedia[$attribute]);
+        } else {
+            $this->pendingMedia[$attribute] = $pending;
+        }
+    }
+
+    /**
+     * Pending uploads that the stored row doesn't reference yet. Inside the
+     * `saved` event this is the stored row from before the save.
+     *
+     * @return array<string, array<string, SerializedMedia>>
+     */
+    private function unpersistedPendingMedia(): array
+    {
+        $unpersisted = [];
+
+        foreach ($this->pendingMedia as $attribute => $media) {
+            $persistedPaths = self::mediaPaths($this->getRawOriginal($attribute));
+
+            foreach ($media as $path => $item) {
+                if (! in_array($path, $persistedPaths, true)) {
+                    $unpersisted[$attribute][$path] = $item;
+                }
+            }
+        }
+
+        return $unpersisted;
+    }
+
+    /**
+     * @param  array<string, array<string, SerializedMedia>>  $media
+     */
+    private function forgetPendingMedia(array $media): void
+    {
+        foreach ($media as $attribute => $items) {
+            foreach (array_keys($items) as $path) {
+                unset($this->pendingMedia[$attribute][$path]);
+            }
+
+            if (empty($this->pendingMedia[$attribute])) {
+                unset($this->pendingMedia[$attribute]);
+            }
+        }
+    }
+
+    /**
+     * @param  array<string, array<string, SerializedMedia>>  $media
+     */
+    private function discardPendingMedia(array $media): void
+    {
+        $this->forgetPendingMedia($media);
+
+        foreach ($media as $items) {
+            array_walk($items, fn (SerializedMedia $item) => $item->delete());
+        }
+    }
+
+    /**
+     * Uploads still referenced by the stored row are kept, so saves that skip
+     * model events (saveQuietly, withoutEvents, Event::fake) never lose files.
+     */
     public function __destruct()
     {
         try {
-            foreach (array_keys($this->pendingMedia) as $attribute) {
-                $this->discardPendingMediaFor($attribute);
-            }
+            $this->discardPendingMedia($this->unpersistedPendingMedia());
         } catch (Throwable) {
             // Destructors must not hide the original exception during cleanup.
         }
@@ -94,6 +186,14 @@ trait HasMedia
                 array_filter($items, fn ($item) => SerializedMedia::isMediaArray($item)),
             ),
         );
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function mediaPaths(mixed $rawValue): array
+    {
+        return array_map(fn (SerializedMedia $media) => $media->path(), self::mediaFrom($rawValue));
     }
 
     /**
@@ -132,16 +232,21 @@ trait HasMedia
              */
             function (Model $model) {
                 $removedMedia = [];
+                $savedMedia = $model->unpersistedPendingMedia();
 
                 foreach (self::mediaAttributes($model) as $attribute) {
                     array_push($removedMedia, ...self::orphanedMedia($model, $attribute));
                 }
 
-                self::afterCommit(function () use ($model, $removedMedia) {
+                if ($savedMedia !== [] && DB::transactionLevel() > 0) {
+                    DB::afterRollBack(fn () => $model->discardPendingMedia($savedMedia));
+                }
+
+                self::afterCommit(function () use ($model, $removedMedia, $savedMedia) {
                     try {
                         array_walk($removedMedia, fn (SerializedMedia $media) => $media->delete());
                     } finally {
-                        $model->markPendingMediaAsPersisted();
+                        $model->forgetPendingMedia($savedMedia);
                     }
                 });
             },

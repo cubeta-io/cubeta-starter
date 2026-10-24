@@ -16,7 +16,10 @@
 ### **What has been improved**
 
 1. Files uploaded through a media column are now deleted when the model is never saved, the transaction rolls back,
-   or the attribute is assigned again before saving, so failed writes no longer leave orphaned files behind.
+   or the attribute is assigned again before saving, so failed writes no longer leave orphaned files behind. Files
+   that the stored row references are always kept, including after saves that skip model events (`saveQuietly()`,
+   `Model::withoutEvents()`, `Event::fake()`). Cloned and unserialized models never delete the original's uploads, and
+   appending to a column that still holds unsaved uploads keeps them.
 2. Submitting stored media that doesn't belong to the record being written now fails with a validation error on that
    column. Previously the media was silently dropped.
 3. Private media URLs are now always temporary signed URLs. Media columns store only their storage metadata, while

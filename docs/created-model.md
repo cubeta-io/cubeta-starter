@@ -148,7 +148,8 @@ Reading the attribute back gives you a `SerializedMedia` instance (or an array o
 `HasMedia` keeps the disk in sync with the column automatically:
 
 - **newly uploaded** files are deleted again if the model is never saved, if the transaction rolls back, or if the
-  attribute is assigned again before saving
+  attribute is replaced again before saving. Files the stored row references are always kept, even after saves that
+  skip model events such as `saveQuietly()`.
 - on **update**, if a column's value changes, the file (s) it previously pointed to are deleted once the transaction
   commits
 - on **delete**, stored files are removed when the record is actually removed — for models using `SoftDeletes`, this
