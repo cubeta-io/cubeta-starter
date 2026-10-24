@@ -6,7 +6,7 @@
         "action": "composer run format:dirty"
       },
       {
-        "action": "npx prettier . --write"
+        "action": "npx lint-staged"
       }
     ]
   }
