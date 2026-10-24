@@ -20,7 +20,8 @@
     "laravel/pint": "^1.7",
     "tightenco/ziggy": "^2.5",
     "maatwebsite/excel": "^3.1",
-    "inertiajs/inertia-laravel": "^2.0"
+    "inertiajs/inertia-laravel": "^2.0",
+    "captainhook/captainhook": "^5.29"
   },
   "suggest": {
     "laravel/boost": "Adds an MCP server plus this package's AI guidelines and skills (resources/boost/*) for AI coding agents: composer require laravel/boost --dev && php artisan boost:install"
@@ -46,5 +47,13 @@
     "allow-plugins": {
       "pestphp/pest-plugin": true
     }
+  },
+  "scripts": {
+    "format": [
+      "./vendor/bin/pint"
+    ],
+    "format:dirty": [
+      "./vendor/bin/pint --dirty"
+    ]
   }
 }
