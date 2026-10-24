@@ -18,8 +18,6 @@ class ReactTsPackagesInstaller extends AbstractGenerator
 
     public string $type = 'installer';
 
-    /**
-     */
     public function run(): void
     {
         $this->preparePackageJson();
@@ -30,15 +28,15 @@ class ReactTsPackagesInstaller extends AbstractGenerator
             "inertiajs/inertia-laravel"
         ]);
 
-        FileUtils::executeCommandInTheBaseDirectory("php artisan ziggy:generate --types");
+        FileUtils::executeCommandInTheBaseDirectory('php artisan ziggy:generate --types');
 
-        //install js packages
+        // install js packages
         PackageManager::npmInstall([
             'laravel-vite-plugin',
             '@inertiajs/react',
-            "@inertiajs/vite",
+            '@inertiajs/vite',
             'tailwindcss',
-            "@tailwindcss/vite",
+            '@tailwindcss/vite',
             '@types/node',
             '@types/react',
             '@types/react-dom',
@@ -46,36 +44,28 @@ class ReactTsPackagesInstaller extends AbstractGenerator
             'react',
             'react-dom',
             'typescript',
-            "vite",
-            //tiptap
-            "@tiptap/extension-blockquote",
-            "@tiptap/extension-bullet-list",
-            "@tiptap/extension-character-count",
-            "@tiptap/extension-color",
-            "@tiptap/extension-font-family",
-            "@tiptap/extension-gapcursor",
-            "@tiptap/extension-heading",
-            "@tiptap/extension-horizontal-rule",
-            "@tiptap/extension-image",
-            "@tiptap/extension-link",
-            "@tiptap/extension-list-item",
-            "@tiptap/extension-ordered-list",
-            "@tiptap/extension-table",
-            "@tiptap/extension-table-cell",
-            "@tiptap/extension-table-header",
-            "@tiptap/extension-table-row",
-            "@tiptap/extension-text-align",
-            "@tiptap/extension-text-style",
-            "@tiptap/extension-youtube",
-            "@tiptap/react",
-            "@tiptap/starter-kit",
+            'vite',
+            // tiptap
+            '@tiptap/extension-character-count',
+            '@tiptap/extension-color',
+            '@tiptap/extension-font-family',
+            '@tiptap/extension-image',
+            '@tiptap/extension-table',
+            '@tiptap/extension-table-cell',
+            '@tiptap/extension-table-header',
+            '@tiptap/extension-table-row',
+            '@tiptap/extension-text-align',
+            '@tiptap/extension-text-style',
+            '@tiptap/extension-youtube',
+            '@tiptap/react',
+            '@tiptap/starter-kit',
             // filepond
-            "filepond",
-            "filepond-plugin-file-poster",
-            "filepond-plugin-file-validate-type",
-            "filepond-plugin-image-exif-orientation",
-            "filepond-plugin-image-preview",
-            "react-filepond",
+            'filepond',
+            'filepond-plugin-file-poster',
+            'filepond-plugin-file-validate-type',
+            'filepond-plugin-image-exif-orientation',
+            'filepond-plugin-image-preview',
+            'react-filepond',
         ]);
 
         $this->configurePrettier();
@@ -85,7 +75,7 @@ class ReactTsPackagesInstaller extends AbstractGenerator
 
         Artisan::call('vendor:publish', [
             '--provider' => 'Inertia\\ServiceProvider',
-            '--force' => true
+            '--force' => true,
         ]);
 
         Artisan::call('view:clear');
@@ -96,38 +86,35 @@ class ReactTsPackagesInstaller extends AbstractGenerator
         $packageJsonPath = CubePath::make('/package.json');
 
         if (!$packageJsonPath->exist()) {
-            FileUtils::executeCommandInTheBaseDirectory("npm init -y");
+            FileUtils::executeCommandInTheBaseDirectory('npm init -y');
         }
 
         $jsonArray = json_decode($packageJsonPath->getContent(), true);
 
-        if (isset($jsonArray['type']) && $jsonArray['type'] == "module") {
+        if (isset($jsonArray['type']) && $jsonArray['type'] == 'module') {
             return;
         } else {
-            $jsonArray['type'] = "module";
+            $jsonArray['type'] = 'module';
             $packageJsonPath->putContent(json_encode($jsonArray, JSON_PRETTY_PRINT + JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE));
             CubeLog::contentAppended('"type":"module"', $packageJsonPath->fullPath);
         }
     }
 
-    /**
-     * @return void
-     */
     private function configurePrettier(): void
     {
         PackageManager::npmInstall([
-            "prettier",
-            "prettier-plugin-blade",
-            "prettier-plugin-tailwindcss",
-            "prettier-plugin-organize-imports"
+            'prettier',
+            'prettier-plugin-blade',
+            'prettier-plugin-tailwindcss',
+            'prettier-plugin-organize-imports',
         ], true);
 
-        $prettierConfigPath = CubePath::make(".prettierrc");
+        $prettierConfigPath = CubePath::make('.prettierrc');
         if ($prettierConfigPath->exist() && !$this->override) {
-            $prettierConfigPath->logAlreadyExist("Installing web inertia react stack packages");
+            $prettierConfigPath->logAlreadyExist('Installing web inertia react stack packages');
         } else {
             Publisher::make()
-                ->source(CubePath::stubPath("Web/InertiaReact/Config/PrettierConfig.stub"))
+                ->source(CubePath::stubPath('Web/InertiaReact/Config/PrettierConfig.stub'))
                 ->destination($prettierConfigPath)
                 ->publish($this->override);
         }

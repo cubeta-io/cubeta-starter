@@ -4,17 +4,17 @@ import { Editor } from "@tiptap/react";
 import React from "react";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
-export interface TextEditorProps
-  extends Omit<
-    React.HTMLAttributes<HTMLDivElement>,
-    "onChange" | "defaultValue"
-  > {
+export interface TextEditorProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "onChange" | "defaultValue"
+> {
   name: string;
   label?: string;
   onChange?: (value: string) => void;
   defaultValue?: string;
   extraButtons?: (editor: Editor) => React.ReactNode;
   minHeight?: string;
+  debounceDelay?: number;
   required?: boolean;
 }
 
@@ -25,6 +25,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
   defaultValue,
   extraButtons,
   minHeight,
+  debounceDelay,
   required = false,
   ...props
 }) => {
@@ -47,6 +48,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         onChange={onChange}
         defaultValue={defaultValue}
         minHeight={minHeight}
+        debounceDelay={debounceDelay}
         {...props}
       />
       {error && <FieldError>{error}</FieldError>}

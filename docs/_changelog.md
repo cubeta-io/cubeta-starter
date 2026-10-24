@@ -2,6 +2,25 @@
 
 # **Changelog :**
 
+## **V 6.2.0**
+
+### **What's new**
+
+1. The generated Inertia/React `TextEditor` and `TranslatableTextEditor` components now expose a configurable
+   `debounceDelay` prop, defaulting to 250 milliseconds, for controlling how quickly edited content is committed to
+   form state.
+
+### **What has been improved**
+
+1. Tiptap content updates now use a true debounce that restarts after every edit, keeps the latest `onChange`
+   callback across parent renders and lets the existing save button flush pending content immediately.
+2. Editor transactions no longer rerender the entire editor integration. Toolbar formatting state and footer
+   character/word counts now subscribe only to the editor state they need through `useEditorState`.
+3. `StarterKit` extensions are configured in one place instead of being registered twice, and the React/TypeScript
+   installer no longer installs the redundant standalone extensions already bundled by `StarterKit`.
+4. Translatable rich-text values are accumulated through a stable reference, preventing rapid updates in different
+   locales from overwriting one another and avoiding an unnecessary local-state render.
+
 ## **V 6.1.0**
 
 ### **What's new**

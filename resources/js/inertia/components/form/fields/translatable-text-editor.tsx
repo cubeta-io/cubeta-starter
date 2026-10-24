@@ -1,16 +1,15 @@
 import { getNestedPropertyValue } from "@/helper";
 import { Translatable, translate } from "@/models/translatable";
 import { usePage } from "@inertiajs/react";
-import React, { useState } from "react";
+import React, { useRef } from "react";
 import { useFormLocale } from "@/providers/form-locale-provider";
 import { Field, FieldError, FieldSet } from "@/components/ui/field";
 import TextEditor from "@/components/form/fields/text-editor";
 
-interface TranslatableProps
-  extends Omit<
-    React.ComponentProps<typeof TextEditor>,
-    "defaultValue" | "onChange"
-  > {
+interface TranslatableProps extends Omit<
+  React.ComponentProps<typeof TextEditor>,
+  "defaultValue" | "onChange"
+> {
   name: string;
   defaultValue?: string | object | Translatable | undefined;
   label?: string;
@@ -36,17 +35,14 @@ const TranslatableTextEditor: React.FC<TranslatableProps> = ({
     defaultValue = translate(defaultValue, true);
   }
 
-  const [value, setValue] = useState<object | undefined>(defaultValue ?? {});
+  const valueRef = useRef<object | undefined>(defaultValue ?? {});
 
-  const handleChange = (
-    content: string,
-    lang: string | keyof Translatable,
-  ) => {
-    const nextValue = value
-      ? { ...value, [lang]: content }
+  const handleChange = (content: string, lang: string | keyof Translatable) => {
+    const nextValue = valueRef.current
+      ? { ...valueRef.current, [lang]: content }
       : { [lang]: content };
 
-    setValue(nextValue);
+    valueRef.current = nextValue;
     onChange?.(JSON.stringify(nextValue));
   };
 

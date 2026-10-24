@@ -17,7 +17,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Level } from "@tiptap/extension-heading";
 import { Editor, useCurrentEditor } from "@tiptap/react";
 import {
   Bold,
@@ -54,12 +53,19 @@ export const GetEditor = () => {
   return editor;
 };
 
-export const BulletListButton = ({ editor }: { editor: Editor }) => {
+type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+interface ActiveButtonProps {
+  editor: Editor;
+  isActive: boolean;
+}
+
+export const BulletListButton = ({ editor, isActive }: ActiveButtonProps) => {
   return (
     <Button
       type={"button"}
       size={"icon"}
-      variant={editor?.isActive("bulletList") ? "default" : "outline"}
+      variant={isActive ? "default" : "outline"}
       onClick={() => editor.chain().focus().toggleBulletList().run()}
     >
       <List />
@@ -67,11 +73,11 @@ export const BulletListButton = ({ editor }: { editor: Editor }) => {
   );
 };
 
-export const BoldButton = ({ editor }: { editor: Editor }) => {
+export const BoldButton = ({ editor, isActive }: ActiveButtonProps) => {
   return (
     <Button
       onClick={() => editor.chain().focus().toggleBold().run()}
-      variant={editor.isActive("bold") ? "default" : "outline"}
+      variant={isActive ? "default" : "outline"}
       type={"button"}
       size={"icon"}
     >
@@ -80,12 +86,12 @@ export const BoldButton = ({ editor }: { editor: Editor }) => {
   );
 };
 
-export const ItalicButton = ({ editor }: { editor: Editor }) => {
+export const ItalicButton = ({ editor, isActive }: ActiveButtonProps) => {
   return (
     <Button
       onClick={() => editor.chain().focus().toggleItalic().run()}
       size={"icon"}
-      variant={editor.isActive("italic") ? "default" : "outline"}
+      variant={isActive ? "default" : "outline"}
       type={"button"}
     >
       <Italic className="h-5 w-5" />
@@ -93,11 +99,11 @@ export const ItalicButton = ({ editor }: { editor: Editor }) => {
   );
 };
 
-export const BlockQuoteButton = ({ editor }: { editor: Editor }) => {
+export const BlockQuoteButton = ({ editor, isActive }: ActiveButtonProps) => {
   return (
     <Button
       type={"button"}
-      variant={editor.isActive("blockquote") ? "default" : "outline"}
+      variant={isActive ? "default" : "outline"}
       onClick={() => editor.chain().focus().toggleBlockquote().run()}
       size={"icon"}
     >
@@ -174,36 +180,13 @@ export const ImageUrlButton = ({ editor }: { editor: Editor }) => {
   );
 };
 
-export const HeadingButton = ({ editor }: { editor: Editor }) => {
-  let currentToggled;
-
-  const isActive = (level: Level) =>
-    editor?.isActive("heading", { level: level });
-
-  switch (true) {
-    case isActive(1):
-      currentToggled = "1";
-      break;
-    case isActive(2):
-      currentToggled = "2";
-      break;
-    case isActive(3):
-      currentToggled = "3";
-      break;
-    case isActive(4):
-      currentToggled = "4";
-      break;
-    case isActive(5):
-      currentToggled = "5";
-      break;
-    case isActive(6):
-      currentToggled = "6";
-      break;
-    default:
-      currentToggled = undefined;
-      break;
-  }
-
+export const HeadingButton = ({
+  editor,
+  currentLevel,
+}: {
+  editor: Editor;
+  currentLevel?: HeadingLevel;
+}) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -215,12 +198,12 @@ export const HeadingButton = ({ editor }: { editor: Editor }) => {
       />
       <DropdownMenuContent align={"start"}>
         <DropdownMenuRadioGroup
-          value={currentToggled}
+          value={currentLevel?.toString()}
           onValueChange={(value) => {
             editor
               .chain()
               .focus()
-              .setHeading({ level: parseInt(value) as Level })
+              .setHeading({ level: parseInt(value) as HeadingLevel })
               .run();
           }}
         >
@@ -266,12 +249,12 @@ export const HorizontalRuleButton = ({ editor }: { editor: Editor }) => {
   );
 };
 
-export const OrderedListButton = ({ editor }: { editor: Editor }) => {
+export const OrderedListButton = ({ editor, isActive }: ActiveButtonProps) => {
   return (
     <Button
       size={"icon"}
       type={"button"}
-      variant={"outline"}
+      variant={isActive ? "default" : "outline"}
       onClick={() => editor.chain().focus().toggleOrderedList().run()}
     >
       <ListOrdered />
@@ -320,49 +303,33 @@ export const YoutubeButton = ({ editor }: { editor: Editor }) => {
   );
 };
 
-export const ColorButton = ({ editor }: { editor: Editor }) => {
+export const ColorButton = ({
+  editor,
+  color,
+}: {
+  editor: Editor;
+  color?: string;
+}) => {
   return (
     <Input
       type="color"
       onInput={(event) =>
-        // @ts-ignore
-        editor.chain().focus().setColor(event.target.value).run()
+        editor.chain().focus().setColor(event.currentTarget.value).run()
       }
-      value={editor.getAttributes("textStyle").color}
+      value={color ?? "#000000"}
       className={"size-9"}
     />
   );
 };
 
-export const FontFamilyButton = ({ editor }: { editor: Editor }) => {
-  let currentToggled;
+export const FontFamilyButton = ({
+  editor,
+  fontFamily,
+}: {
+  editor: Editor;
+  fontFamily?: string;
+}) => {
   const { t } = useTranslation();
-
-  const isActive = (family: string) =>
-    editor.isActive("textStyle", {
-      fontFamily: family,
-    });
-
-  switch (true) {
-    case isActive("Inter"):
-      currentToggled = "Inter";
-      break;
-    case isActive('"Comic Sans MS", "Comic Sans"'):
-      currentToggled = '"Comic Sans MS", "Comic Sans"';
-      break;
-    case isActive("serif"):
-      currentToggled = "serif";
-      break;
-    case isActive("monospace"):
-      currentToggled = "monospace";
-      break;
-    case isActive("cursive"):
-      currentToggled = "cursive";
-      break;
-    default:
-      currentToggled = undefined;
-      break;
-  }
 
   return (
     <DropdownMenu>
@@ -376,7 +343,7 @@ export const FontFamilyButton = ({ editor }: { editor: Editor }) => {
 
       <DropdownMenuContent align={"start"}>
         <DropdownMenuRadioGroup
-          value={currentToggled}
+          value={fontFamily}
           onValueChange={(value) => {
             if (value == "none") {
               // editor.chain().focus().unsetFontFamily().run();
