@@ -2,13 +2,15 @@
 
 namespace App\Casts;
 
+use App\Serializers\SerializedMedia;
+use App\Traits\HasMedia;
 use Exception;
-use Illuminate\Support\Str;
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
-use App\Serializers\SerializedMedia;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class MediaCast implements CastsAttributes
 {
@@ -20,8 +22,8 @@ class MediaCast implements CastsAttributes
     public bool $withoutObjectCaching = true;
 
     /**
-     * @param string $privateOrPublic "public" or "private"
-     * @param string $structureType   "array" or "single"
+     * @param  string  $privateOrPublic  "public" or "private"
+     * @param  string  $structureType  "array" or "single"
      */
     public function __construct(string $privateOrPublic = 'public', string $structureType = 'single')
     {
@@ -101,10 +103,16 @@ class MediaCast implements CastsAttributes
     }
 
     /**
+     * @param  Model&HasMedia  $model
+     *
      * @throws Exception
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {
+        if (method_exists($model, 'discardPendingMediaFor')) {
+            $model->discardPendingMediaFor($key);
+        }
+
         if (is_null($value)) {
             return null;
         }
@@ -114,29 +122,47 @@ class MediaCast implements CastsAttributes
         /** @var Collection<int,SerializedMedia> $newMediaCollection */
         $newMediaCollection = collect();
 
-        $securePushArray = function (array $item) use ($newMediaCollection, $model, $allowedPaths) {
+        $pushMedia = function (SerializedMedia $media) use ($key, $model, $newMediaCollection): void {
+            $newMediaCollection->push($media);
+
+            if ($media->wasRecentlyStored() && method_exists($model, 'trackPendingMedia')) {
+                $model->trackPendingMedia($key, $media);
+            }
+        };
+
+        $securePushArray = function (array $item) use ($allowedPaths, $key, $model, $pushMedia): void {
             if (SerializedMedia::isMediaArray($item)) {
                 $media = new SerializedMedia($item, $model->getTable(), $this->private);
 
                 if (in_array($media->path(), $allowedPaths, true)) {
-                    $newMediaCollection->push($media);
+                    $pushMedia($media);
+
+                    return;
                 }
+
+                if (method_exists($model, 'discardPendingMediaFor')) {
+                    $model->discardPendingMediaFor($key);
+                }
+
+                throw ValidationException::withMessages([
+                    $key => ['The selected media does not belong to this resource.'],
+                ]);
             }
         };
 
         if ($value instanceof SerializedMedia) {
-            $newMediaCollection->push($value);
+            $pushMedia($value);
         } elseif ($value instanceof UploadedFile) {
-            $newMediaCollection->push(new SerializedMedia($value, $model->getTable(), $this->private));
+            $pushMedia(new SerializedMedia($value, $model->getTable(), $this->private));
         } elseif (is_array($value)) {
             if (SerializedMedia::isMediaArray($value)) {
                 $securePushArray($value);
             } else {
                 foreach ($value as $item) {
                     if ($item instanceof SerializedMedia) {
-                        $newMediaCollection->push($item);
+                        $pushMedia($item);
                     } elseif ($item instanceof UploadedFile) {
-                        $newMediaCollection->push(new SerializedMedia($item, $model->getTable(), $this->private));
+                        $pushMedia(new SerializedMedia($item, $model->getTable(), $this->private));
                     } elseif (is_array($item)) {
                         $securePushArray($item);
                     }
@@ -162,10 +188,12 @@ class MediaCast implements CastsAttributes
         if ($this->isSingle) {
             $targetMedia = $newMediaCollection->first();
 
-            return $targetMedia?->toJson();
+            return $targetMedia?->toStorageJson();
         }
 
-        $arrayData = $newMediaCollection->map(fn (SerializedMedia $media) => $media->toArray())->all();
+        $arrayData = $newMediaCollection
+            ->map(fn (SerializedMedia $media) => $media->toStorageArray())
+            ->all();
 
         return json_encode($arrayData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }

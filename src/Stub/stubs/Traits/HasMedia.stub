@@ -3,6 +3,7 @@
 namespace {{namespace}};
 
 use Exception;
+use Throwable;
 use App\Casts\MediaCast;
 use Illuminate\Support\Facades\DB;
 use App\Serializers\SerializedMedia;
@@ -13,6 +14,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 trait HasMedia
 {
+    /** @var array<string, array<string, SerializedMedia>> */
+    private array $pendingMedia = [];
+
     private static function afterCommit(callable $callback): void
     {
         if (DB::transactionLevel() > 0) {
@@ -35,6 +39,36 @@ trait HasMedia
                 fn (string $cast) => str_contains($cast, MediaCast::class),
             ),
         );
+    }
+
+    public function discardPendingMediaFor(string $attribute): void
+    {
+        foreach ($this->pendingMedia[$attribute] ?? [] as $media) {
+            $media->delete();
+        }
+
+        unset($this->pendingMedia[$attribute]);
+    }
+
+    public function trackPendingMedia(string $attribute, SerializedMedia $media): void
+    {
+        $this->pendingMedia[$attribute][$media->path()] = $media;
+    }
+
+    private function markPendingMediaAsPersisted(): void
+    {
+        $this->pendingMedia = [];
+    }
+
+    public function __destruct()
+    {
+        try {
+            foreach (array_keys($this->pendingMedia) as $attribute) {
+                $this->discardPendingMediaFor($attribute);
+            }
+        } catch (Throwable) {
+            // Destructors must not hide the original exception during cleanup.
+        }
     }
 
     /**
@@ -88,19 +122,30 @@ trait HasMedia
         );
     }
 
-    protected static function boot(): void
+    protected static function bootHasMedia(): void
     {
-        parent::boot();
+        self::saved(
+            /**
+             * @param Model&HasMedia $model
+             *
+             * @throws Exception
+             */
+            function (Model $model) {
+                $removedMedia = [];
 
-        self::saved(function (Model $model) {
-            foreach (self::mediaAttributes($model) as $attribute) {
-                $removed = self::orphanedMedia($model, $attribute);
-
-                if (! empty($removed)) {
-                    self::afterCommit(fn () => array_walk($removed, fn (SerializedMedia $m) => $m->delete()));
+                foreach (self::mediaAttributes($model) as $attribute) {
+                    array_push($removedMedia, ...self::orphanedMedia($model, $attribute));
                 }
-            }
-        });
+
+                self::afterCommit(function () use ($model, $removedMedia) {
+                    try {
+                        array_walk($removedMedia, fn (SerializedMedia $media) => $media->delete());
+                    } finally {
+                        $model->markPendingMediaAsPersisted();
+                    }
+                });
+            },
+        );
 
         self::deleted(function (Model $model) {
             if (method_exists($model, 'isForceDeleting') && ! $model->isForceDeleting()) {

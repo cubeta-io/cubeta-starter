@@ -2,25 +2,25 @@
 
 namespace App\Rules;
 
+use App\Serializers\SerializedMedia;
 use Closure;
 use Exception;
-use Illuminate\Http\UploadedFile;
-use App\Serializers\SerializedMedia;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Translation\PotentiallyTranslatedString;
 
 readonly class MediaValidationRule implements ValidationRule
 {
     /**
-     * @param string[] $fileRules
+     * @param  string[]  $fileRules
      */
     public function __construct(
         private array $fileRules = ['image:allow_svg', 'max:10000', 'mimes:jpeg,png,jpg,gif,svg,webp'],
     ) {}
 
     /**
-     * @param Closure(string, ?string=): PotentiallyTranslatedString $fail
+     * @param  Closure(string, ?string=): PotentiallyTranslatedString  $fail
      *
      * @throws Exception
      */
@@ -30,18 +30,19 @@ readonly class MediaValidationRule implements ValidationRule
             return;
         }
 
+        $temporaryPath = null;
+
         if ($value instanceof UploadedFile) {
             $fileToValidate = $value;
-        }
-        elseif ($value instanceof SerializedMedia) {
+        } elseif ($value instanceof SerializedMedia) {
             if (! $value->exists()) {
                 $fail('Invalid media file');
 
                 return;
             }
             $fileToValidate = $value->getUploadedFile();
-        }
-        else {
+            $temporaryPath = $fileToValidate->getPathname();
+        } else {
             if (! SerializedMedia::isMediaArray($value)) {
                 $fail('Invalid media file');
 
@@ -57,15 +58,22 @@ readonly class MediaValidationRule implements ValidationRule
             }
 
             $fileToValidate = $serializedMedia->getUploadedFile();
+            $temporaryPath = $fileToValidate->getPathname();
         }
 
-        $validator = Validator::make(
-            ['file' => $fileToValidate],
-            ['file' => $this->fileRules],
-        );
+        try {
+            $validator = Validator::make(
+                ['file' => $fileToValidate],
+                ['file' => $this->fileRules],
+            );
 
-        if ($validator->fails()) {
-            $fail($validator->errors()->first());
+            if ($validator->fails()) {
+                $fail($validator->errors()->first());
+            }
+        } finally {
+            if (! empty($temporaryPath)) {
+                @unlink($temporaryPath);
+            }
         }
     }
 }

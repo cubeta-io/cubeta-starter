@@ -15,7 +15,7 @@ in `vendor/`.
 | File                        | Purpose                                                                                                                               |
 |-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
 | `config/cubeta-starter.php` | Package configuration — paths, namespaces, locales, version. See [Configuration](configuration.md)                                    |
-| `config/media.php`          | File-storage configuration — disk, signed URL TTL, public/private path prefixes. See [Configuration](configuration.md#media-settings) |
+| `config/media.php`          | File-storage configuration — public/private disks, signed URL TTL, path prefixes. See [Configuration](configuration.md#media-settings) |
 | `pint.json`                 | Laravel Pint formatting preset                                                                                                        |
 
 ### Core Modules

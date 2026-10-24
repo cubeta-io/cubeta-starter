@@ -41,6 +41,7 @@ function FilepondInput({
   onChange,
   defaultValue,
   process,
+  allowProcess,
 }: {
   name: string;
   isMultiple: true;
@@ -49,6 +50,7 @@ function FilepondInput({
   onChange?: (file: MediaInput[] | null) => void;
   defaultValue?: Media[];
   process?: string | ServerUrl | ProcessServerConfigFunction | null;
+  allowProcess?: boolean;
 }): JSX.Element;
 
 function FilepondInput({
@@ -59,6 +61,7 @@ function FilepondInput({
   onChange,
   defaultValue,
   process,
+  allowProcess,
 }: {
   name: string;
   isMultiple?: false | undefined;
@@ -67,6 +70,7 @@ function FilepondInput({
   onChange?: (file: MediaInput | null) => void;
   defaultValue?: Media;
   process?: string | ServerUrl | ProcessServerConfigFunction | null;
+  allowProcess?: boolean;
 }): JSX.Element;
 
 function FilepondInput({
@@ -77,6 +81,7 @@ function FilepondInput({
   onChange,
   defaultValue = [],
   process,
+  allowProcess = true,
 }: {
   name: string;
   isMultiple?: boolean;
@@ -86,6 +91,7 @@ function FilepondInput({
     ((file: MediaInput[] | null) => void) | ((file: MediaInput | null) => void);
   defaultValue?: Media[] | Media;
   process?: string | ServerUrl | ProcessServerConfigFunction | null;
+  allowProcess?: boolean;
 }): JSX.Element {
   const { t } = useTranslation();
   defaultValue = defaultValue
@@ -104,6 +110,7 @@ function FilepondInput({
   const {
     props: { errors },
   } = usePage();
+  const shouldValidateFileType = acceptedFileTypes.length > 0;
 
   return (
     <Field orientation={"vertical"}>
@@ -147,8 +154,12 @@ function FilepondInput({
             );
           }
         }}
-        acceptedFileTypes={acceptedFileTypes}
+        acceptedFileTypes={
+          shouldValidateFileType ? acceptedFileTypes : undefined
+        }
+        allowFileTypeValidation={shouldValidateFileType}
         allowMultiple={isMultiple}
+        allowProcess={allowProcess}
         allowFilePoster={true}
         filePosterMaxHeight={250}
         filePosterMinHeight={250}

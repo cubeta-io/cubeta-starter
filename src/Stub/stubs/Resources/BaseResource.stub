@@ -3,7 +3,6 @@
 namespace App\Http\Resources\BaseResource;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\BaseResource\AnonymousResourceCollection;
 
 class BaseResource extends JsonResource
 {
@@ -11,31 +10,34 @@ class BaseResource extends JsonResource
 
     protected bool $detailed = false;
 
-    protected mixed $data;
-
     public function detailed(): static
     {
         $this->detailed = true;
+
         return $this;
     }
 
     public function extra(array $extraData = []): static
     {
-        $this->additions = [...$this->additions, ...$extraData];
+        $this->additions = [
+            ...$this->additions,
+            ...$extraData,
+        ];
+
         return $this;
     }
 
-    public function jsonSerialize(): array
+    public function resolve($request = null): array
     {
-        return array_merge(parent::jsonSerialize(), $this->additions);
+        return array_merge(
+            parent::resolve($request),
+            $this->additions,
+        );
     }
 
-    /**
-     * @param $resource
-     * @return AnonymousResourceCollection
-     */
-    public static function collection($resource)
+    public static function collection($resource): AnonymousResourceCollection
     {
+        /** @var AnonymousResourceCollection */
         return parent::collection($resource);
     }
 

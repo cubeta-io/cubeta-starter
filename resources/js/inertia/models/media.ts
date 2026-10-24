@@ -1,5 +1,6 @@
 interface Media {
   url: string;
+  storage_path: string;
   size: number;
   extension: string;
   mime_type: string;
@@ -22,6 +23,7 @@ export function isMedia(obj: any): obj is Media {
     typeof obj === "object" &&
     obj !== null &&
     typeof obj?.url === "string" &&
+    typeof obj.storage_path === "string" &&
     typeof obj.size === "number" &&
     typeof obj.extension === "string" &&
     typeof obj.mime_type === "string"

@@ -129,19 +129,26 @@ when it has a `file` column — you don't declare a list of file keys by hand.
 
 A column cast with `MediaCast::single(private: false)` (one file) or `MediaCast::array(private: true)` (multiple files)
 is treated as a file column. When you create or update a record through the repository's `create` / `update` methods
-and pass an `UploadedFile` for that column, the file is stored on the disk configured in `config/media.php` (see
-[Configuration](configuration.md#media-settings)) under a `public` or `private` path prefix depending on the `private`
-flag, and a `SerializedMedia` value object — serialized as JSON containing the storage path, size, extension and MIME
-type — is saved in the column.
+and pass an `UploadedFile` for that column, the file is stored on the public or private disk configured in
+`config/media.php` (see [Configuration](configuration.md#media-settings)), depending on the `private` flag, under a
+`public` or `private` path prefix. The column then holds JSON with the file's storage path, size, extension and MIME
+type.
+
+To keep a stored file on update, send its existing media object (including `storage_path`) back for that column. Media
+that isn't already stored on the record being written is rejected with a validation error on that column.
 
 Reading the attribute back gives you a `SerializedMedia` instance (or an array of them for `::array()` columns) with:
 
-- `url()` — a public URL for public files, or a short-lived signed URL (TTL from `media.temporary_url_ttl`) for
-  private files on disks that support temporary URLs
+- `url()`: a public URL for public files, or a short-lived signed URL (TTL from `media.temporary_url_ttl`) for
+  private files. The private disk must support temporary URLs, otherwise `url()` throws an exception.
 - `exists()`, `contents()`, `delete()`, `getUploadedFile()`, `copyTo()`
+- `toArray()` / `toJson()` give the API representation (`name`, `url`, `size`, `extension`, `mime_type`,
+  `storage_path`), while `toStorageArray()` / `toStorageJson()` give the representation stored in the database.
 
 `HasMedia` keeps the disk in sync with the column automatically:
 
+- **newly uploaded** files are deleted again if the model is never saved, if the transaction rolls back, or if the
+  attribute is assigned again before saving
 - on **update**, if a column's value changes, the file (s) it previously pointed to are deleted once the transaction
   commits
 - on **delete**, stored files are removed when the record is actually removed — for models using `SoftDeletes`, this

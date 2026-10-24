@@ -1,19 +1,31 @@
 <?php
 
+$filesystemDisk = env('FILESYSTEM_DISK', 'local');
+$sharedMediaDisk = env('MEDIA_DISK');
+
 return [
 
     /*
     |--------------------------------------------------------------------------
-    | Media Disk
+    | Media Disks
     |--------------------------------------------------------------------------
     |
-    | The filesystem disk every media column reads from and writes to. Public
-    | and private media share one disk and are separated by the path prefixes
-    | below, so this is a single value rather than a pair.
+    | Public and private media use independently configurable disks. They may
+    | share a cloud disk whose access policy respects the path prefixes below,
+    | but private media must never use Laravel's public local disk.
     |
      */
 
-    'disk' => env('MEDIA_DISK', env('FILESYSTEM_DISK', 'local')),
+    'disks' => [
+        'public' => env(
+            'MEDIA_PUBLIC_DISK',
+            $sharedMediaDisk ?? ($filesystemDisk === 'local' ? 'public' : $filesystemDisk),
+        ),
+        'private' => env(
+            'MEDIA_PRIVATE_DISK',
+            $sharedMediaDisk ?? (in_array($filesystemDisk, ['local', 'public'], true) ? 'local' : $filesystemDisk),
+        ),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -27,7 +39,7 @@ return [
     |
      */
 
-    'temporary_url_ttl' => (int)env('MEDIA_TEMPORARY_URL_TTL', 5),
+    'temporary_url_ttl' => (int) env('MEDIA_TEMPORARY_URL_TTL', 5),
 
     /*
     |--------------------------------------------------------------------------

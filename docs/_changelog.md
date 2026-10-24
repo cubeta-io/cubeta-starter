@@ -2,6 +2,46 @@
 
 # **Changelog :**
 
+## **V 6.3.0**
+
+### **What's new**
+
+1. `config/media.php` now defines separate public and private media disks through `media.disks.public`
+   (`MEDIA_PUBLIC_DISK`) and `media.disks.private` (`MEDIA_PRIVATE_DISK`). `MEDIA_DISK` still sets both at once. With
+   the default `local` filesystem, public media go to Laravel's `public` disk and private media to the `local` disk.
+2. Generated resource collections now support `detailed()`, which marks every item in the collection as detailed.
+3. The generated Inertia/React `FilepondInput` component accepts an `allowProcess` prop. Passing an empty
+   `acceptedFileTypes` array now turns off file-type validation.
+
+### **What has been improved**
+
+1. Files uploaded through a media column are now deleted when the model is never saved, the transaction rolls back,
+   or the attribute is assigned again before saving, so failed writes no longer leave orphaned files behind.
+2. Submitting stored media that doesn't belong to the record being written now fails with a validation error on that
+   column. Previously the media was silently dropped.
+3. Private media URLs are now always temporary signed URLs. Media columns store only their storage metadata, while
+   the API representation also includes `url` and `name`.
+4. Media validation and `SerializedMedia::copyTo()` now delete the temporary files they download, and temporary-file
+   failures raise clear exceptions.
+5. `BaseResource::extra()` data is now included in direct resource responses as well as nested ones. Collection items
+   are resolved through Laravel's resource pipeline, so conditional attributes such as `when()` are filtered
+   correctly.
+6. `HasMedia` now registers its model events through `bootHasMedia()` instead of overriding the model's `boot()`
+   method.
+7. The generated TypeScript `Media` model now includes `storage_path`, and file attributes on generated interfaces
+   accept `File | Media | null | undefined`.
+
+### **Notes / breaking changes**
+
+1. The `media.disk` config key has been replaced by `media.disks.public` / `media.disks.private`. Re-publish
+   `config/media.php` together with the media stubs. If you don't set `MEDIA_DISK`, existing public files stored on
+   the `local` disk must be moved to the `public` disk (or set `MEDIA_DISK=local`), and you need to run
+   `php artisan storage:link`.
+2. The private disk must support temporary URLs (for example, S3, or the `local` disk with `serve` enabled).
+   `SerializedMedia::url()` now throws an exception for private media on any other disk, and the private disk can no
+   longer be the `public` disk.
+3. The public static `SerializedMedia::diskName()` method has been removed.
+
 ## **V 6.2.0**
 
 ### **What's new**

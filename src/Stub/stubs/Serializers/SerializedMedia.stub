@@ -3,20 +3,23 @@
 namespace App\Serializers;
 
 use Exception;
-use Stringable;
-use JsonSerializable;
-use Illuminate\Support\Str;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Support\Str;
+use JsonException;
+use JsonSerializable;
+use Stringable;
 
 use function Illuminate\Filesystem\join_paths;
 
 class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringable
 {
     private string $storagePath;
+
+    private readonly bool $recentlyStored;
 
     public readonly string $dir;
 
@@ -29,22 +32,25 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
     public readonly float $size;
 
     /**
-     * @param UploadedFile|array{storage_path:string,extension:string,mime_type:string,size:int} $file
+     * @param  UploadedFile|array{storage_path:string,extension:string,mime_type:string,size:int}  $file
      */
     public function __construct(
         UploadedFile|array $file,
         ?string $dir = null,
         bool $private = false,
+        bool $recentlyStored = false,
     ) {
         $this->dir = $dir ?? '';
 
         if (self::isMediaArray($file)) {
+            $this->recentlyStored = $recentlyStored;
             $this->storagePath = $file['storage_path'];
             $this->private = self::visibilityFromPath($this->storagePath) ?? $private;
             $this->extension = $file['extension'];
             $this->mimeType = $file['mime_type'];
             $this->size = (float) $file['size'];
         } else {
+            $this->recentlyStored = true;
             $this->private = $private;
             $this->storagePath = $this->storeFile($file);
             $this->size = round(($file->getSize() ?? 0) / 1024);
@@ -56,9 +62,26 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
     private function disk(): FilesystemAdapter
     {
         /** @var FilesystemAdapter $disk */
-        $disk = Storage::disk(self::diskName());
+        $disk = Storage::disk($this->diskName());
 
         return $disk;
+    }
+
+    private static function configuredDiskName(bool $private): string
+    {
+        $visibility = $private ? 'private' : 'public';
+        $diskName = (string) config("media.disks.$visibility");
+
+        if ($private && $diskName === 'public') {
+            throw new Exception('Private media cannot use the public filesystem disk.');
+        }
+
+        return $diskName;
+    }
+
+    private function diskName(): string
+    {
+        return self::configuredDiskName($this->private);
     }
 
     private function guessExtension(): ?string
@@ -107,7 +130,7 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
             join_paths($this->prefix(), $this->dir, Str::uuid()->toString()),
             $finalFileName,
             [
-                'disk' => self::diskName(),
+                'disk' => $this->diskName(),
                 'visibility' => $this->private ? 'private' : 'public',
             ],
         );
@@ -127,10 +150,12 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
     /**
      * The database shape — never the API shape, or a `(string)` cast would
      * write a URL into the column.
+     *
+     * @throws JsonException
      */
     public function __toString(): string
     {
-        return $this->toJson();
+        return $this->toStorageJson();
     }
 
     /**
@@ -152,7 +177,18 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
      */
     public function copyTo(string $dir, ?bool $private = null): self
     {
-        return new self($this->getUploadedFile(), $dir, $private ?? $this->private);
+        $uploadedFile = $this->getUploadedFile();
+
+        try {
+            return new self($uploadedFile, $dir, $private ?? $this->private);
+        } finally {
+            @unlink($uploadedFile->getPathname());
+        }
+    }
+
+    public function wasRecentlyStored(): bool
+    {
+        return $this->recentlyStored;
     }
 
     public function delete(): bool
@@ -168,14 +204,6 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
         }
 
         return $this->disk()->deleteDirectory($directory);
-    }
-
-    /**
-     * The disk every media file is read from and written to.
-     */
-    public static function diskName(): string
-    {
-        return (string) config('media.disk');
     }
 
     /**
@@ -203,7 +231,7 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
             $name,
         );
 
-        Storage::disk(self::diskName())->put(
+        Storage::disk(self::configuredDiskName($private))->put(
             $path,
             $contents,
             ['visibility' => $private ? 'private' : 'public'],
@@ -214,7 +242,7 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
             'extension' => pathinfo($name, PATHINFO_EXTENSION),
             'mime_type' => $mimeType,
             'size' => round(strlen($contents) / 1024),
-        ], $dir, $private);
+        ], $dir, $private, true);
     }
 
     /**
@@ -229,10 +257,28 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
         }
 
         $temporaryPath = tempnam(sys_get_temp_dir(), 'media-');
+
+        if ($temporaryPath === false) {
+            fclose($stream);
+
+            throw new Exception('Cannot create a temporary media file.');
+        }
+
         $target = fopen($temporaryPath, 'wb');
-        stream_copy_to_stream($stream, $target);
-        fclose($target);
-        fclose($stream);
+
+        if ($target === false) {
+            fclose($stream);
+            @unlink($temporaryPath);
+
+            throw new Exception("Cannot write the temporary media file at [$temporaryPath]");
+        }
+
+        try {
+            stream_copy_to_stream($stream, $target);
+        } finally {
+            fclose($target);
+            fclose($stream);
+        }
 
         return new UploadedFile(
             $temporaryPath,
@@ -260,13 +306,7 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
      */
     public function jsonSerialize(): array
     {
-        return [
-            'url' => $this->url(),
-            'size' => $this->size,
-            'extension' => $this->extension,
-            'mime_type' => $this->mimeType,
-            'storage_path' => $this->storagePath,
-        ];
+        return $this->toArray();
     }
 
     public function name(): string
@@ -292,6 +332,20 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
     {
         return [
             'name' => $this->name(),
+            'url' => $this->url(),
+            'size' => $this->size,
+            'extension' => $this->extension,
+            'mime_type' => $this->mimeType,
+            'storage_path' => $this->storagePath,
+        ];
+    }
+
+    /**
+     * The database representation.
+     */
+    public function toStorageArray(): array
+    {
+        return [
             'storage_path' => $this->storagePath,
             'size' => $this->size,
             'extension' => $this->extension,
@@ -301,22 +355,37 @@ class SerializedMedia implements Arrayable, Jsonable, JsonSerializable, Stringab
 
     public function toJson($options = 0): string
     {
-        return json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        return json_encode(
+            $this->toArray(),
+            $options | JSON_THROW_ON_ERROR,
+        );
     }
 
     /**
-    * A private object is not anonymously readable, so it has to be signed.
-    * Disks that cannot sign (a plain local disk) fall back to the direct
-    * URL rather than throwing.
-    */
+     * The database JSON representation.
+     *
+     * @throws JsonException
+     */
+    public function toStorageJson(): string
+    {
+        return json_encode(
+            $this->toStorageArray(),
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR,
+        );
+    }
+
+    /**
+     * Private media must always use a temporary URL.
+     */
     public function url(): string
     {
         $disk = $this->disk();
 
-        // A private object is not anonymously readable, so it has to be signed.
-        // Disks that cannot sign (a plain local disk) fall back to the direct
-        // URL rather than throwing.
-        if ($this->private && $disk->providesTemporaryUrls()) {
+        if ($this->private) {
+            if (! $disk->providesTemporaryUrls()) {
+                throw new Exception('The private media disk must support temporary URLs.');
+            }
+
             return $disk->temporaryUrl(
                 $this->storagePath,
                 now()->addMinutes((int) config('media.temporary_url_ttl')),

@@ -171,6 +171,22 @@ Attributes typed as `key` are automatically converted into a `BelongsTo` relatio
 - **Logs:** Generation issues are collected through `src/Logs/CubeLog.php` rather than thrown as hard exceptions in most cases.
 - **Settings persistence:** Package state for the host app is stored in `cubeta-starter.config.json` at the host app root, not in package files.
 
+## Changelog Requirements
+
+- Every change to code in this repository must include a corresponding update to `docs/_changelog.md` in the same
+  change set. Add a concise, user-facing entry under the appropriate version and category, and do not consider the
+  code change complete until the changelog is updated.
+- Documentation-only or agent-instruction-only changes do not require a changelog entry.
+
+## Documentation Requirements
+
+- When a code change affects installation, configuration, commands, public APIs, generated output, supported
+  workflows or any other documented user-facing behavior, update the relevant package documentation in `docs/` in
+  the same change set. Do not consider the code change complete until the documentation accurately describes the
+  new behavior.
+- Internal refactors and fixes that do not change how users install, configure or use the package do not require a
+  documentation update beyond the mandatory changelog entry.
+
 ## Testing Instructions
 
 - Tests live in `tests/Feature/` (the `phpunit.xml` also references `tests/Unit`, but the directory does not currently exist).

@@ -115,15 +115,22 @@ commands; to (re)publish it on its own:
 php artisan vendor:publish --tag=cubeta-starter-config
 ```
 
-| Option                                 | Description                                                             | Default                                              |
-|----------------------------------------|-------------------------------------------------------------------------|------------------------------------------------------|
-| `disk`                                 | The filesystem disk every media column reads from and writes to         | `env('MEDIA_DISK', env('FILESYSTEM_DISK', 'local'))` |
-| `temporary_url_ttl`                    | Minutes a signed URL for a private file stays valid                     | `env('MEDIA_TEMPORARY_URL_TTL', 5)`                  |
-| `prefixes.public` / `prefixes.private` | Path prefixes that separate public and private files on the shared disk | `'public'` / `'private'`                             |
+| Option                                 | Description                                           | Default                                                                                          |
+|----------------------------------------|-------------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| `disks.public`                         | The filesystem disk public media is stored on         | `env('MEDIA_PUBLIC_DISK')`, else `MEDIA_DISK`, else `public` when `FILESYSTEM_DISK` is `local`, else `FILESYSTEM_DISK` |
+| `disks.private`                        | The filesystem disk private media is stored on        | `env('MEDIA_PRIVATE_DISK')`, else `MEDIA_DISK`, else `local` when `FILESYSTEM_DISK` is `local` or `public`, else `FILESYSTEM_DISK` |
+| `temporary_url_ttl`                    | Minutes a signed URL for a private file stays valid   | `env('MEDIA_TEMPORARY_URL_TTL', 5)`                                                              |
+| `prefixes.public` / `prefixes.private` | Path prefixes that separate public and private files  | `'public'` / `'private'`                                                                         |
 
 > [!NOTE]
-> Public and private media share a single disk and are separated only by the path prefix — configure your disk/bucket's
-> access policy (e.g. anonymous read on the `public` prefix) accordingly.
+> Set `MEDIA_DISK` to use one disk for both public and private media, for example a single S3 bucket. In that case
+> the two kinds of files are separated only by the path prefix, so configure the bucket's access policy to match (for
+> example, anonymous read on the `public` prefix only).
+
+> [!WARNING]
+> Private media URLs are always temporary signed URLs, so the private disk must support temporary URLs (for example
+> S3, or the `local` disk with `serve` enabled, which is Laravel's default). Private media can never use the `public`
+> disk. When public media uses Laravel's `public` disk, run `php artisan storage:link` so their URLs resolve.
 
 ## Example Configuration
 

@@ -37,7 +37,7 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTa
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use JetBrains\PhpStorm\ExpectedValues;
 
-class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColumn, HasDocBlockProperty, HasModelCastColumn, HasPropertyValidationRule, HasTestAdditionalFactoryData, HasBladeInputComponent, HasDatatableColumnString, HasHtmlTableHeader, HasInterfacePropertyString, HasReactTsInputString, HasReactTsDisplayComponentString, HasDataTableColumnObjectString
+class CubeFile extends CubeAttribute implements HasBladeInputComponent, HasDataTableColumnObjectString, HasDatatableColumnString, HasDocBlockProperty, HasFakeMethod, HasHtmlTableHeader, HasInterfacePropertyString, HasMigrationColumn, HasModelCastColumn, HasPropertyValidationRule, HasReactTsDisplayComponentString, HasReactTsInputString, HasTestAdditionalFactoryData
 {
     public function fakeMethod(): FakeMethodString
     {
@@ -162,13 +162,13 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         return new DataTableColumnString(
             $this->name,
-            <<<JS
+            <<<'JS'
                 const filePath = data?.url;
                 return `<div class="gallery">
-                            <a href="\${filePath}">
-                                <img class="img-fluid" style="max-width: 80px" src="\${filePath}" alt=""/>
+                            <a href="${filePath}">
+                                <img class="img-fluid" style="max-width: 80px" src="${filePath}" alt=""/>
                             </a>
-                        </div>`
+                        </div>`;
             JS,
             false,
             false,
@@ -186,7 +186,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         return new InterfacePropertyString(
             $this->name,
-            "Media|undefined",
+            'File|Media|null|undefined',
             true,
             new TsImportString("Media", "@/models/media")
         );
@@ -197,18 +197,18 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
         $props = [
             [
                 'key' => 'onChange',
-                'value' => "(file) => setData(\"{$this->name}\", file)"
+                'value' => "(file) => setData(\"{$this->name}\", file)",
             ],
             [
                 'key' => 'acceptedFileTypes',
-                'value' => "['image/*']"
+                'value' => "['image/*']",
             ],
         ];
 
-        if ($formType == "update") {
+        if ($formType == 'update') {
             $props[] = [
                 'key' => 'defaultValue',
-                'value' => "{$this->table()->variableNaming()}.{$this->name}"
+                'value' => "{$this->table()->variableNaming()}.{$this->name}",
             ];
         }
         return new TsxInputComponentString(
@@ -218,7 +218,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
             $this->isRequired,
             $props,
             [
-                new TsImportString("FilepondInput", "@/components/form/fields/filepond/filepond-input")
+                new TsImportString('FilepondInput', '@/components/form/fields/filepond/filepond-input'),
             ]
         );
     }
@@ -226,33 +226,33 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     public function displayComponentString(): ReactTsDisplayComponentString
     {
         $modelVariable = $this->table()->variableNaming();
-        $nullable = $this->nullable ? "?" : "";
+        $nullable = $this->nullable ? '?' : '';
 
         if (!$this->isImageLike()) {
             $fileUrl = "{$modelVariable}{$nullable}.{$this->name}?.url";
 
             return new ReactTsDisplayComponentString(
-                "DetailItem",
+                'DetailItem',
                 $this->labelNaming(),
                 $fileUrl . ' ? (<a href={' . $fileUrl . '} download><Button size="icon"><DownloadIcon/></Button></a>) : undefined',
                 [
-                    new TsImportString("Button", "@/components/ui/button", false),
-                    new TsImportString("DownloadIcon", "lucide-react", false),
-                    new TsImportString("DetailItem", "@/components/ui/detail-item"),
+                    new TsImportString('Button', '@/components/ui/button', false),
+                    new TsImportString('DownloadIcon', 'lucide-react', false),
+                    new TsImportString('DetailItem', '@/components/ui/detail-item'),
                 ],
             );
         }
 
         return new ReactTsDisplayComponentString(
-            "DetailItem",
+            'DetailItem',
             $this->labelNaming(),
             "<Gallery sources={[{$modelVariable}{$nullable}.{$this->name}?.url]} />",
             [
-                new TsImportString("Gallery", "@/components/ui/gallery"),
-                new TsImportString("DetailItem", "@/components/ui/detail-item")
+                new TsImportString('Gallery', '@/components/ui/gallery'),
+                new TsImportString('DetailItem', '@/components/ui/detail-item'),
             ],
             [
-                "className" => '"md:col-span-2"',
+                'className' => '"md:col-span-2"',
                 'orientation' => '"vertical"',
             ]
         );
@@ -268,8 +268,8 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
                 false,
                 'return cell?.url ? (<a href={cell.url} download><Button size={"icon"}><DownloadIcon/></Button></a>) : undefined;',
                 [
-                    new TsImportString("Button", "@/components/ui/button", false),
-                    new TsImportString("DownloadIcon", "lucide-react", false),
+                    new TsImportString('Button', '@/components/ui/button', false),
+                    new TsImportString('DownloadIcon', 'lucide-react', false),
                 ],
             );
         }
@@ -281,7 +281,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
             false,
             'return (<ImagePreview src={cell?.url} />);',
             [
-                new TsImportString("ImagePreview", "@/components/ui/image-preview"),
+                new TsImportString('ImagePreview', '@/components/ui/image-preview'),
             ],
         );
     }
@@ -290,7 +290,7 @@ class CubeFile extends CubeAttribute implements HasFakeMethod, HasMigrationColum
     {
         return new DtoPropertyString(
             $this->name,
-            "UploadedFile",
+            'UploadedFile',
             $this->nullable,
             [new PhpImportString('Illuminate\\Http\\UploadedFile')]
         );
