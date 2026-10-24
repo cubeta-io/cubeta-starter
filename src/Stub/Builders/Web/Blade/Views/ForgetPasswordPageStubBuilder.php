@@ -10,13 +10,13 @@ use Cubeta\CubetaStarter\Stub\Contracts\StubBuilder;
  */
 class ForgetPasswordPageStubBuilder extends StubBuilder
 {
-    protected function stubPath(): string
-    {
-        return CubePath::stubPath('Web/Blade/Views/ForgetPassword.stub');
-    }
-
     protected function getStubPropertyArray(): array
     {
         return $this->stubProperties;
+    }
+
+    protected function stubPath(): string
+    {
+        return CubePath::stubPath('Web/Blade/Views/ForgetPassword.stub');
     }
 }

@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Requests;
 
-use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
-use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 use Illuminate\Support\Arr;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
 
 /**
  * @method self modelName(string $modelName)
@@ -14,8 +14,21 @@ class RequestStubBuilder extends ClassStubBuilder
 {
     private array $rules = [];
 
+    protected function getStubPropertyArray(): array
+    {
+        return [
+            ...parent::getStubPropertyArray(),
+            '{{rules}}' => implode(",\n", $this->rules),
+        ];
+    }
+
+    protected function stubPath(): string
+    {
+        return CubePath::stubPath('Requests/Request.stub');
+    }
+
     /**
-     * @param PropertyValidationRuleString[]|PropertyValidationRuleString $rule
+     * @param  PropertyValidationRuleString[]|PropertyValidationRuleString $rule
      * @return $this
      */
     public function rule(array|PropertyValidationRuleString $rule): static
@@ -29,19 +42,7 @@ class RequestStubBuilder extends ClassStubBuilder
         }
 
         $this->rules = array_merge($rule, $this->rules);
+
         return $this;
-    }
-
-    protected function stubPath(): string
-    {
-        return CubePath::stubPath('Requests/Request.stub');
-    }
-
-    protected function getStubPropertyArray(): array
-    {
-        return [
-            ...parent::getStubPropertyArray(),
-            '{{rules}}' => implode(",\n", $this->rules),
-        ];
     }
 }

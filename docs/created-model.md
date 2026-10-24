@@ -27,9 +27,9 @@ to search and the query will search for it in the defined columns ,so if we have
 public function searchableArray() : array
 {
     return [
-        'title' , 
+        'title' ,
         'body'
-    ];   
+    ];
 }
 ```
 
@@ -47,18 +47,18 @@ class Post extends Model
     {
         return $this->hasMany(Comment::class);
     }
-    
+
     public function author()
     {
-        return $this->belongsTo(Author::class);    
+        return $this->belongsTo(Author::class);
     }
-    
-    public function relationsSearchableArray() 
+
+    public function relationsSearchableArray()
     {
         return [
             'comments' => [
                 'body'
-            ] , 
+            ] ,
             'author' => [
                 'name'
             ]
@@ -83,8 +83,8 @@ public function filterArray() : array
     return [
         [
             'field' => 'views', // this key could also be name so : 'name' => 'likes'
-            'operator' => '>=', // the default value is '=' , it could also set to 'like' operator or whatever where clause operator 
-            'method' => 'where', // it is a query so set the method you like it to filter  : 'whereColumn'  , default value is 'where' 
+            'operator' => '>=', // the default value is '=' , it could also set to 'like' operator or whatever where clause operator
+            'method' => 'where', // it is a query so set the method you like it to filter  : 'whereColumn'  , default value is 'where'
             'query' => null, // here you can provide a call back function that takes an instance of the global query implemented within your query to do whatever you want
         ],
         [
@@ -164,5 +164,3 @@ protected function casts(): array
     ];
 }
 ```
-
-

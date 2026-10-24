@@ -4,15 +4,12 @@ namespace Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers;
 
 class TranslatableColumnDataTableColumnOrderingOptionsArrayString
 {
-    private int $orderIndex;
     private int $columnIndex;
+
     private string $columnName;
 
-    /**
-     * @param int    $columnIndex
-     * @param string $columnName
-     * @param int    $orderIndex
-     */
+    private int $orderIndex;
+
     public function __construct(int $columnIndex, string $columnName, int $orderIndex = 0)
     {
         $this->orderIndex = $orderIndex;

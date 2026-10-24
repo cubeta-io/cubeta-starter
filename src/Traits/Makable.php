@@ -6,15 +6,9 @@ trait Makable
 {
     private static $instance;
 
-    public static function make(): static
+    public static function destroy(): void
     {
-        if (is_null(self::$instance)) {
-            self::$instance = new static();
-        } elseif (!(self::$instance instanceof static)) {
-            self::$instance = new static();
-        }
-        self::$instance->init();
-        return self::$instance;
+        self::$instance = null;
     }
 
     public function init(): void
@@ -22,8 +16,15 @@ trait Makable
         //
     }
 
-    public static function destroy(): void
+    public static function make(): static
     {
-        self::$instance = null;
+        if (is_null(self::$instance)) {
+            self::$instance = new static;
+        } elseif (! (self::$instance instanceof static)) {
+            self::$instance = new static;
+        }
+        self::$instance->init();
+
+        return self::$instance;
     }
 }

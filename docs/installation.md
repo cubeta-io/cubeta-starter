@@ -86,6 +86,7 @@ php artisan cubeta:install react-ts-packages
 
 > [!WARNING]
 > Using the package GUI for installation will override any existing files with the same name and directory. If you want more control, use the terminal commands with or without the `--force` flag:
+>
 > ```bash
 > php artisan cubeta:install api --force
 > ```

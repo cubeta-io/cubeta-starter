@@ -2,12 +2,23 @@
 
 namespace Cubeta\CubetaStarter\Helpers;
 
-use Cubeta\CubetaStarter\Settings\CubeRelation;
-use Cubeta\CubetaStarter\Settings\CubeTable;
 use Illuminate\Support\Arr;
+use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\Settings\CubeRelation;
 
 class TranslationFileUtils
 {
+    private static function mergeMissing(array $existing, array $defaults): array
+    {
+        foreach (Arr::dot($defaults) as $key => $value) {
+            if (! Arr::has($existing, $key)) {
+                Arr::set($existing, $key, $value);
+            }
+        }
+
+        return $existing;
+    }
+
     public static function addModelTranslations(CubeTable $table, bool $withReactJson = false): void
     {
         $modelKey = $table->modelNaming();
@@ -25,8 +36,8 @@ class TranslationFileUtils
             'models' => [
                 $modelKey => [
                     'singular' => $table->titleNaming(),
-                    'plural' => str($table->tableNaming())->headline()->toString(),
-                    'fields' => $fields,
+                    'plural'   => str($table->tableNaming())->headline()->toString(),
+                    'fields'   => $fields,
                 ],
             ],
         ];
@@ -81,16 +92,5 @@ class TranslationFileUtils
             JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR,
         )."\n");
         $path->format();
-    }
-
-    private static function mergeMissing(array $existing, array $defaults): array
-    {
-        foreach (Arr::dot($defaults) as $key => $value) {
-            if (! Arr::has($existing, $key)) {
-                Arr::set($existing, $key, $value);
-            }
-        }
-
-        return $existing;
     }
 }

@@ -2,18 +2,18 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
-use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
-use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
-use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\Helpers\PackageManager;
-use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
+use Cubeta\CubetaStarter\Helpers\PackageManager;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Cubeta\CubetaStarter\Stub\Builders\Resources\RoleResourceStubBuilder;
 use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\Stub\Builders\Resources\PermissionResourceStubBuilder;
-use Cubeta\CubetaStarter\Stub\Builders\Resources\RoleResourceStubBuilder;
 
 class PermissionsInstaller extends AbstractGenerator
 {
@@ -21,42 +21,25 @@ class PermissionsInstaller extends AbstractGenerator
 
     public string $type = 'installer';
 
-    public function run(bool $override = false): void
+    public function addMiddlewares(): void
     {
-        PackageManager::composerInstall('spatie/laravel-permission');
-
-        FileUtils::executeCommandInTheBaseDirectory(
-            'php artisan vendor:publish --provider="Spatie\\Permission\\PermissionServiceProvider"'
+        FileUtils::registerMiddleware(
+            "'role' => RoleMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            new PhpImportString("Spatie\Permission\Middleware\RoleMiddleware")
         );
 
-        $this->addTraitToUserModel();
+        FileUtils::registerMiddleware(
+            "'permission' => PermissionMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            new PhpImportString("Spatie\Permission\Middleware\PermissionMiddleware")
+        );
 
-        $this->addMiddlewares();
-
-        if (Settings::make()->installedApi() || Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
-            $this->generateRoleResource();
-            $this->generatePermissionResource();
-            $this->addRolesAndPermissionsToUserResource();
-        }
-
-        Settings::make()->setInstalledRoles();
-        CubeLog::info("Don't forget to run [php artisan migrate]");
-    }
-
-    public function generateRoleResource(): void
-    {
-        $resourcePath = CubePath::make(config('cubeta-starter.resource_path')."/$this->version/RoleResource.php");
-        RoleResourceStubBuilder::make()
-            ->namespace(config('cubeta-starter.resource_namespace')."\\$this->version")
-            ->generate($resourcePath, $this->override);
-    }
-
-    public function generatePermissionResource(): void
-    {
-        $resourcePath = CubePath::make(config('cubeta-starter.resource_path')."/$this->version/PermissionResource.php");
-        PermissionResourceStubBuilder::make()
-            ->namespace(config('cubeta-starter.resource_namespace')."\\$this->version")
-            ->generate($resourcePath, $this->override);
+        FileUtils::registerMiddleware(
+            "'role_or_permission' => RoleOrPermissionMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            new PhpImportString("Spatie\Permission\Middleware\RoleOrPermissionMiddleware")
+        );
     }
 
     /**
@@ -153,24 +136,41 @@ class PermissionsInstaller extends AbstractGenerator
         $modelPath->format();
     }
 
-    public function addMiddlewares(): void
+    public function generatePermissionResource(): void
     {
-        FileUtils::registerMiddleware(
-            "'role' => RoleMiddleware::class",
-            MiddlewareArrayGroupEnum::ALIAS,
-            new PhpImportString("Spatie\Permission\Middleware\RoleMiddleware")
+        $resourcePath = CubePath::make(config('cubeta-starter.resource_path')."/$this->version/PermissionResource.php");
+        PermissionResourceStubBuilder::make()
+            ->namespace(config('cubeta-starter.resource_namespace')."\\$this->version")
+            ->generate($resourcePath, $this->override);
+    }
+
+    public function generateRoleResource(): void
+    {
+        $resourcePath = CubePath::make(config('cubeta-starter.resource_path')."/$this->version/RoleResource.php");
+        RoleResourceStubBuilder::make()
+            ->namespace(config('cubeta-starter.resource_namespace')."\\$this->version")
+            ->generate($resourcePath, $this->override);
+    }
+
+    public function run(bool $override = false): void
+    {
+        PackageManager::composerInstall('spatie/laravel-permission');
+
+        FileUtils::executeCommandInTheBaseDirectory(
+            'php artisan vendor:publish --provider="Spatie\\Permission\\PermissionServiceProvider"'
         );
 
-        FileUtils::registerMiddleware(
-            "'permission' => PermissionMiddleware::class",
-            MiddlewareArrayGroupEnum::ALIAS,
-            new PhpImportString("Spatie\Permission\Middleware\PermissionMiddleware")
-        );
+        $this->addTraitToUserModel();
 
-        FileUtils::registerMiddleware(
-            "'role_or_permission' => RoleOrPermissionMiddleware::class",
-            MiddlewareArrayGroupEnum::ALIAS,
-            new PhpImportString("Spatie\Permission\Middleware\RoleOrPermissionMiddleware")
-        );
+        $this->addMiddlewares();
+
+        if (Settings::make()->installedApi() || Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
+            $this->generateRoleResource();
+            $this->generatePermissionResource();
+            $this->addRolesAndPermissionsToUserResource();
+        }
+
+        Settings::make()->setInstalledRoles();
+        CubeLog::info("Don't forget to run [php artisan migrate]");
     }
 }

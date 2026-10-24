@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
-use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeController extends BaseCommand
@@ -17,7 +17,7 @@ class MakeController extends BaseCommand
 
     public function getHelp(): string
     {
-        return <<<HELP
+        return <<<'HELP'
           Generates an api CRUD controller (index/store/show/update/destroy/export/import/get-import-example) for a model,
           wired to its repository/service and routes. Requires "api" tooling to be installed
           first via "php artisan cubeta:install api".
@@ -30,20 +30,20 @@ class MakeController extends BaseCommand
 
     public function handle(): void
     {
-        $modelName = $this->argument("name") ?? $this->askForModelName("Controller");
+        $modelName = $this->argument('name') ?? $this->askForModelName('Controller');
 
         if (file_exists(base_path('app/Enums/RoleEnum.php')) && class_exists('\App\Enums\RoleEnum')) {
             if ($this->argument('actor')) {
                 $actor = $this->argument('actor');
             } else {
-                $actor = ($this->askForGeneratedFileActors("Controller") ?? null);
+                $actor = ($this->askForGeneratedFileActors('Controller') ?? null);
             }
         }
 
         $override = $this->askForOverride();
 
-        $gen = new GeneratorFactory("controller");
+        $gen = new GeneratorFactory('controller');
 
-        $gen->make(fileName: $modelName, actor: $actor ?? null, generatedFor: ContainerType::API , override: $override);
+        $gen->make(fileName: $modelName, actor: $actor ?? null, generatedFor: ContainerType::API, override: $override);
     }
 }

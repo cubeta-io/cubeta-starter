@@ -25,50 +25,50 @@ return [
      * model path and namespace
      */
     'model_namespace' => "App\Models",
-    'model_path' => join_paths('app', 'Models'),
+    'model_path'      => join_paths('app', 'Models'),
 
     /**
      * repositories path and namespace
      */
     'repository_namespace' => "App\Repositories",
-    'repository_path' => join_paths('app', 'Repositories'),
+    'repository_path'      => join_paths('app', 'Repositories'),
 
     /**
      * service path and namespace
      */
     'service_namespace' => 'App\Services',
-    'service_path' => join_paths('app', 'Services'),
+    'service_path'      => join_paths('app', 'Services'),
 
     /**
      * api controller path and namespace
      */
     'api_controller_namespace' => 'App\Http\Controllers\API',
-    'api_controller_path' => join_paths('app', 'Http', 'Controllers', 'API'),
+    'api_controller_path'      => join_paths('app', 'Http', 'Controllers', 'API'),
 
     /**
      * web controller path and namespace
      */
     'web_controller_namespace' => 'App\Http\Controllers\WEB',
-    'web_controller_path' => join_paths('app', 'Http', 'Controllers', 'WEB'),
+    'web_controller_path'      => join_paths('app', 'Http', 'Controllers', 'WEB'),
 
     /**
      * requests path and namespace
      */
     'request_namespace' => 'App\Http\Requests',
-    'request_path' => join_paths('app', 'Http', 'Requests'),
+    'request_path'      => join_paths('app', 'Http', 'Requests'),
 
     /**
      * data transfer objects path and namespace
      * used when the project is generating DTOs instead of (or beside) the form requests
      */
     'dto_namespace' => 'App\DTOs',
-    'dto_path' => join_paths('app', 'DTOs'),
+    'dto_path'      => join_paths('app', 'DTOs'),
 
     /**
      * resources path and namespace
      */
     'resource_namespace' => 'App\Http\Resources',
-    'resource_path' => join_paths('app', 'Http', 'Resources'),
+    'resource_path'      => join_paths('app', 'Http', 'Resources'),
 
     /**
      * the directory of all migration files
@@ -79,31 +79,31 @@ return [
      * seeders path and namespace
      */
     'seeder_namespace' => 'Database\Seeders',
-    'seeder_path' => join_paths('database', 'seeders'),
+    'seeder_path'      => join_paths('database', 'seeders'),
 
     /**
      * factory path and namespace
      */
     'factory_namespace' => 'Database\Factories',
-    'factory_path' => join_paths('database', 'factories'),
+    'factory_path'      => join_paths('database', 'factories'),
 
     /**
      * test path and namespace
      */
     'test_namespace' => 'Tests\Feature',
-    'test_path' => join_paths('tests', 'Feature'),
+    'test_path'      => join_paths('tests', 'Feature'),
 
     /**
      * traits path and namespace
      */
     'trait_namespace' => 'App\Traits',
-    'trait_path' => join_paths('app', 'Traits'),
+    'trait_path'      => join_paths('app', 'Traits'),
 
     /**
      * exception path and namespace
      */
     'exception_namespace' => 'App\Exceptions',
-    'exception_path' => join_paths('app', 'Exceptions'),
+    'exception_path'      => join_paths('app', 'Exceptions'),
 
     /**
      * when this is true, then for each generated controller will be a generated postman collection for it

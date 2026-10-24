@@ -2,11 +2,11 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages;
 
-use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
-use Cubeta\CubetaStarter\Stub\Contracts\TypescriptFileBuilder;
 use Illuminate\Support\Stringable;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Stub\Contracts\TypescriptFileBuilder;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString;
 
 /**
  * @method self componentName(string $componentName)
@@ -23,11 +23,6 @@ class FormPageStubBuilder extends TypescriptFileBuilder
     /**
      * @var ReactTsInputComponentString[]
      */
-    private array $smallFields = [];
-
-    /**
-     * @var ReactTsInputComponentString[]
-     */
     private array $bigFields = [];
 
     /**
@@ -40,13 +35,44 @@ class FormPageStubBuilder extends TypescriptFileBuilder
      */
     private array $formFieldsInterface = [];
 
-    public function init(): void
+    /**
+     * @var ReactTsInputComponentString[]
+     */
+    private array $smallFields = [];
+
+    protected function getStubPropertyArray(): array
     {
-        $this->stubProperties = [];
-        $this->formFieldsInterface = [];
-        $this->bigFields = [];
-        $this->smallFields = [];
-        $this->defaultValues = [];
+        $fields = implode("\n", $this->smallFields).
+            "\n".
+            implode(
+                "\n",
+                array_map(fn ($field) => "<div className=\"md:col-span-2\">$field</div>", $this->bigFields)
+            );
+
+        return [
+            ...parent::getStubPropertyArray(),
+            '{{default_values}}' => str(implode("\n,", $this->defaultValues))->when(
+                fn (Stringable $str) => ! $str->isEmpty(),
+                fn (Stringable $str) => $str->wrap('{', '}')
+            ),
+            '{{fields}}'               => $fields,
+            '{{form_field_interface}}' => implode("\n", $this->formFieldsInterface),
+        ];
+    }
+
+    protected function stubPath(): string
+    {
+        return CubePath::stubPath('Web/InertiaReact/Pages/Form.stub');
+    }
+
+    public function bigField(ReactTsInputComponentString $field): static
+    {
+        $this->bigFields[] = $field;
+        if (count($field->imports) > 0) {
+            $this->import($field->imports);
+        }
+
+        return $this;
     }
 
     public function defaultValue(string $key, string $value): static
@@ -69,6 +95,15 @@ class FormPageStubBuilder extends TypescriptFileBuilder
         return $this;
     }
 
+    public function init(): void
+    {
+        $this->stubProperties = [];
+        $this->formFieldsInterface = [];
+        $this->bigFields = [];
+        $this->smallFields = [];
+        $this->defaultValues = [];
+    }
+
     /**
      * @return $this
      */
@@ -80,40 +115,5 @@ class FormPageStubBuilder extends TypescriptFileBuilder
         }
 
         return $this;
-    }
-
-    public function bigField(ReactTsInputComponentString $field): static
-    {
-        $this->bigFields[] = $field;
-        if (count($field->imports) > 0) {
-            $this->import($field->imports);
-        }
-
-        return $this;
-    }
-
-    protected function stubPath(): string
-    {
-        return CubePath::stubPath('Web/InertiaReact/Pages/Form.stub');
-    }
-
-    protected function getStubPropertyArray(): array
-    {
-        $fields = implode("\n", $this->smallFields).
-            "\n".
-            implode(
-                "\n",
-                array_map(fn ($field) => "<div className=\"md:col-span-2\">$field</div>", $this->bigFields)
-            );
-
-        return [
-            ...parent::getStubPropertyArray(),
-            '{{default_values}}' => str(implode("\n,", $this->defaultValues))->when(
-                fn (Stringable $str) => ! $str->isEmpty(),
-                fn (Stringable $str) => $str->wrap('{', '}')
-            ),
-            '{{fields}}' => $fields,
-            '{{form_field_interface}}' => implode("\n", $this->formFieldsInterface),
-        ];
     }
 }

@@ -3,8 +3,8 @@
 namespace Cubeta\CubetaStarter\Stub\Builders\Tests;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\StringValues\Strings\Tests\TestAdditionalFactoryDataString;
 use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
+use Cubeta\CubetaStarter\StringValues\Strings\Tests\TestAdditionalFactoryDataString;
 
 /**
  * @method self resourceNamespace(string $resourceNamespace)
@@ -20,6 +20,21 @@ class TestStubBuilder extends ClassStubBuilder
     /** @var TestAdditionalFactoryDataString[] */
     private array $additionalFactoryData = [];
 
+    protected function getStubPropertyArray(): array
+    {
+        $factoryData = implode(",\n", $this->additionalFactoryData);
+
+        return [
+            ...parent::getStubPropertyArray(),
+            '{{additional_factory_data}}' => ! empty($factoryData) ? "\n$factoryData\n" : '',
+        ];
+    }
+
+    protected function stubPath(): string
+    {
+        return CubePath::stubPath('Tests/Test.stub');
+    }
+
     public function additionalFactoryData(TestAdditionalFactoryDataString $additionalFactoryDataString): static
     {
         $this->additionalFactoryData[] = $additionalFactoryDataString;
@@ -29,20 +44,5 @@ class TestStubBuilder extends ClassStubBuilder
         }
 
         return $this;
-    }
-
-    protected function getStubPropertyArray(): array
-    {
-        $factoryData = implode(",\n", $this->additionalFactoryData);
-
-        return [
-            ...parent::getStubPropertyArray(),
-            "{{additional_factory_data}}" => !empty($factoryData) ? "\n$factoryData\n" : ""
-        ];
-    }
-
-    protected function stubPath(): string
-    {
-        return CubePath::stubPath('Tests/Test.stub');
     }
 }

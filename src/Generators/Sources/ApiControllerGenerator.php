@@ -2,17 +2,27 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Exception;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Modules\Postman;
 use Cubeta\CubetaStarter\Settings\Settings;
-use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\ApiControllerStubBuilder;
 use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Exception;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Stub\Builders\Api\Controllers\ApiControllerStubBuilder;
 
 class ApiControllerGenerator extends AbstractGenerator
 {
     use RouteBinding;
+
+    public function addToPostman(): void
+    {
+        try {
+            Postman::make()->addCrud($this->table, $this->actor)->save();
+            CubeLog::success("Postman Collection Now Has Folder For The Generated Controller [{$this->table->getControllerName()}] \nRe-Import It In Postman");
+        } catch (Exception $e) {
+            CubeLog::add($e);
+        }
+    }
 
     public function run(): void
     {
@@ -34,22 +44,11 @@ class ApiControllerGenerator extends AbstractGenerator
             ->modelVariable($this->table->variableNaming())
             ->generate($controllerPath, $this->override);
 
-
         $this->addRoute($this->table, $this->actor);
         $controllerPath->format();
 
         if (config('cubeta-starter.generate_postman_collection_for_api_routes')) {
             $this->addToPostman();
-        }
-    }
-
-    public function addToPostman(): void
-    {
-        try {
-            Postman::make()->addCrud($this->table, $this->actor)->save();
-            CubeLog::success("Postman Collection Now Has Folder For The Generated Controller [{$this->table->getControllerName()}] \nRe-Import It In Postman");
-        } catch (Exception $e) {
-            CubeLog::add($e);
         }
     }
 }

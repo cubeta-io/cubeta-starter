@@ -11,7 +11,7 @@
 <script type="module">
   localStorage.setItem("locale", "{{ app()->getLocale() }}");
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     markRequiredFields();
     initPluginsByClass();
     handleImageGalleryExistence();
@@ -22,22 +22,22 @@
   @if (session()->has('error'))
   triggerSwalError("{{ session()->get('error') }}");
   @php
-      session()->remove('error');
-  @endphp
+                          session()->remove('error');
+                      @endphp;
   @endif
 
   @if (session()->has('success'))
   triggerSwalSuccess("{{ session()->get('success') }}");
   @php
-      session()->remove('success');
-  @endphp
+                          session()->remove('success');
+                      @endphp;
   @endif
 
   @if (session()->has('message'))
-  triggerSwalMessage('{{ session()->get('message') }}');
-    @php
-        session()->remove('success');
-    @endphp
-    @endif
+  triggerSwalMessage("{{ session()->get('message') }}");
+  @php
+                            session()->remove('success');
+                        @endphp;
+  @endif
 </script>
-@stack("scripts")
+@stack ("scripts")

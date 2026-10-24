@@ -2,19 +2,13 @@
 
 namespace Cubeta\CubetaStarter;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class CreateFile
 {
     private static $instance;
-    /**
-     * The filesystem instance.
-     *
-     * @property Filesystem
-     */
-    protected FileSystem $files;
+
     /**
      * The path to create file at
      *
@@ -36,36 +30,16 @@ class CreateFile
      */
     private array $stubProperties;
 
+    /**
+     * The filesystem instance.
+     *
+     * @property Filesystem
+     */
+    protected FileSystem $files;
+
     private function __construct()
     {
         //
-    }
-
-    /**
-     * @param bool $override
-     * @return $this
-     * @throws FileNotFoundException
-     */
-    public function callFileGenerateFunctions(bool $override = false): static
-    {
-        $this->files = app()->make(Filesystem::class);
-        if (!$override) {
-            if ($this->files->exists($this->path)) {
-                return $this;
-            }
-        }
-        $this->createStub();
-
-        return $this;
-    }
-
-    public static function make(): CreateFile
-    {
-        if (self::$instance == null) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
     }
 
     /**
@@ -108,6 +82,33 @@ class CreateFile
     private function writeFile(mixed $stub): void
     {
         $this->files->put($this->path, $stub);
+    }
+
+    /**
+     * @return $this
+     *
+     * @throws FileNotFoundException
+     */
+    public function callFileGenerateFunctions(bool $override = false): static
+    {
+        $this->files = app()->make(Filesystem::class);
+        if (! $override) {
+            if ($this->files->exists($this->path)) {
+                return $this;
+            }
+        }
+        $this->createStub();
+
+        return $this;
+    }
+
+    public static function make(): CreateFile
+    {
+        if (self::$instance == null) {
+            self::$instance = new self;
+        }
+
+        return self::$instance;
     }
 
     /**

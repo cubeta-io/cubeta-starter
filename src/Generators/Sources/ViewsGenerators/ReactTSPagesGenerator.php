@@ -2,125 +2,84 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources\ViewsGenerators;
 
-use Cubeta\CubetaStarter\Contracts\CodeSniffer;
-use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
-use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSController;
-use Cubeta\CubetaStarter\Helpers\TranslationFileUtils;
-use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\Settings\CubeRelation;
+use Cubeta\CubetaStarter\Logs\CubeError;
 use Cubeta\CubetaStarter\Settings\Settings;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Contracts\CodeSniffer;
+use Cubeta\CubetaStarter\Settings\CubeRelation;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\Helpers\TranslationFileUtils;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\FormPageStubBuilder;
-use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\IndexPageStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\ShowPageStubBuilder;
+use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages\IndexPageStubBuilder;
+use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSController;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Typescript\TsInterfaceStubBuilder;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
 
 class ReactTSPagesGenerator extends InertiaReactTSController
 {
-    public function run(bool $override = false): void
+    private function generateCreateFormPage(): void
     {
-        if (! Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
-            CubeLog::add(new CubeError('Install react-ts tools by running [php artisan cubeta:install react-ts && php artisan cubeta:install react-ts-packages] then try again', happenedWhen: "Generating a {$this->table->modelName} react pages"));
-
-            return;
-        }
-
-        TranslationFileUtils::addModelTranslations($this->table, withReactJson: true);
-
-        $this->generateTypescriptModel();
-
-        $this->generateUpdateFormPage();
-        $this->generateCreateFormPage();
-
-        $this->generateShowPage();
-        $this->generateIndexPage();
-
-        CodeSniffer::make()
-            ->setModel($this->table)
-            ->setActor($this->actor)
-            ->checkForTsInterfaces()
-            ->checkForReactTSPagesAndControllerRelations($this->actor);
-    }
-
-    public function generateShowPage(): void
-    {
-        $showPagePath = $this->table->showView($this->actor)->path;
-
-        $builder = ShowPageStubBuilder::make()
+        $storeRoute = $this->table->storeRoute($this->actor, ContainerType::WEB)->name;
+        $formPath = $this->table->createView($this->actor)->path;
+        $builder = FormPageStubBuilder::make()
+            ->componentName('Create')
+            ->formTitle('dashboard.titles.create')
             ->modelName($this->table->modelNaming())
-            ->modelVariable($this->table->variableNaming())
-            ->editRouteName($this->table->editRoute($this->actor)->name)
-            ->import(new TsImportString($this->table->modelNaming(), $this->table->tsModelImportPath()));
+            ->action("post(route(\"{$storeRoute}\"));")
+            ->when(
+                $this->table->hasTranslatableAttribute(),
+                fn ($builder) => $builder->translatableContextOpenTag('<FormLocaleProvider>')
+                    ->translatableContextCloseTag('</FormLocaleProvider>')
+                    ->import(new TsImportString('FormLocaleProvider', '@/providers/form-locale-provider'))
+            )->formFieldInterface(new InterfacePropertyString('_method', "'PUT'|'POST'", true));
 
         $this->table->attributes()
-            ->whereInstanceOf(HasReactTsDisplayComponentString::class)
-            ->each(function (CubeAttribute|HasReactTsDisplayComponentString $attr) use ($builder) {
-                $component = $attr->displayComponentString();
-                $component->translationKey = $attr->translationKey();
-                if ($attr->isText() || $attr->isTextable()) {
-                    $builder->bigField($component);
-                } else {
-                    $builder->smallField($component);
+            ->each(function (CubeAttribute $attr) use ($builder) {
+                if ($attr instanceof HasReactTsInputString) {
+                    $component = $attr->inputComponent('store', $this->actor);
+                    $component->translationKey = $attr->translationKey();
+                    if ($attr->isText() || $attr->isTextable() || $attr->isFile()) {
+                        $builder->bigField($component);
+                    } else {
+                        $builder->smallField($component);
+                    }
+                }
+
+                if ($attr instanceof HasInterfacePropertyString) {
+                    if ($attr->isFile()) {
+                        $builder->formFieldInterface(new InterfacePropertyString(
+                            $attr->name,
+                            'Media|File|null',
+                            true,
+                            new TsImportString('Media', '@/models/media')
+                        ));
+                    } else {
+                        if ($attr->isBoolean()) {
+                            $builder->defaultValue($attr->name, 'false');
+                        }
+                        $builder->formFieldInterface($attr->interfacePropertyString());
+                    }
                 }
             });
 
         $this->table->relations()
-            ->whereInstanceOf(HasReactTsDisplayComponentString::class)
-            ->each(function (CubeRelation|HasReactTsDisplayComponentString $rel) use ($builder) {
-                if ($rel->exists() && $rel->getTSModelPath()->exist()) {
-                    $component = $rel->displayComponentString($this->actor);
-                    $component->translationKey = $rel->translationKey();
-                    $builder->smallField($component);
-                }
+            ->whereInstanceOf(HasReactTsInputString::class)
+            ->filter(fn (CubeRelation $relation) => $relation->relationModel()->getTSModelPath()->exist())
+            ->each(function (CubeRelation|HasReactTsInputString $relation) use ($builder) {
+                $component = $relation->inputComponent('store', $this->actor);
+                $component->translationKey = $relation->translationKey();
+                $builder->smallField($component);
             });
 
-        $builder->generate($showPagePath, $this->override);
-    }
-
-    public function generateIndexPage(): void
-    {
-        $indexPagePath = $this->table->indexView($this->actor)->path;
-        $builder = IndexPageStubBuilder::make()
-            ->modelName($this->table->modelNaming())
-            ->modelVariable($this->table->variableNaming())
-            ->createRoute($this->table->createRoute($this->actor)->name)
-            ->dataRoute($this->table->dataRoute($this->actor)->name)
-            ->indexRoute($this->table->indexRoute($this->actor, ContainerType::WEB)->name)
-            ->importRoute($this->table->importRoute($this->actor, ContainerType::WEB)->name)
-            ->exportRoute($this->table->exportRoute($this->actor, ContainerType::WEB)->name)
-            ->importExampleRoute($this->table->importExampleRoute($this->actor, ContainerType::WEB)->name)
-            ->import(new TsImportString($this->table->modelNaming(), $this->table->tsModelImportPath()));
-
-        $this->table->attributes()
-            ->whereInstanceOf(HasDataTableColumnObjectString::class)
-            ->each(function (HasDataTableColumnObjectString|CubeAttribute $attr) use ($builder) {
-                if (! $attr->isText() && ! $attr->isTextable()) {
-                    $column = $attr->datatableColumnObject($this->actor);
-                    $column->translationKey = $attr->translationKey();
-                    $builder->column($column);
-                }
-            });
-
-        $this->table->relations()
-            ->whereInstanceOf(HasDataTableColumnObjectString::class)
-            ->filter(fn (CubeRelation $relation) => $relation->exists())
-            ->each(function (HasDataTableColumnObjectString|CubeRelation $rel) use ($builder) {
-                if ($rel->exists() && $rel->getTSModelPath()->exist() && ! $rel->relationModel()->titleable()->isTextable()) {
-                    $column = $rel->datatableColumnObject($this->actor);
-                    $column->translationKey = $rel->translationKey();
-                    $builder->column($column);
-                }
-            });
-
-        $builder->generate($indexPagePath, $this->override);
+        $builder->generate($formPath, $this->override);
     }
 
     private function generateTypescriptModel(): void
@@ -213,60 +172,101 @@ class ReactTSPagesGenerator extends InertiaReactTSController
         $builder->generate($formPath, $this->override);
     }
 
-    private function generateCreateFormPage(): void
+    public function generateIndexPage(): void
     {
-        $storeRoute = $this->table->storeRoute($this->actor, ContainerType::WEB)->name;
-        $formPath = $this->table->createView($this->actor)->path;
-        $builder = FormPageStubBuilder::make()
-            ->componentName('Create')
-            ->formTitle('dashboard.titles.create')
+        $indexPagePath = $this->table->indexView($this->actor)->path;
+        $builder = IndexPageStubBuilder::make()
             ->modelName($this->table->modelNaming())
-            ->action("post(route(\"{$storeRoute}\"));")
-            ->when(
-                $this->table->hasTranslatableAttribute(),
-                fn ($builder) => $builder->translatableContextOpenTag('<FormLocaleProvider>')
-                    ->translatableContextCloseTag('</FormLocaleProvider>')
-                    ->import(new TsImportString('FormLocaleProvider', '@/providers/form-locale-provider'))
-            )->formFieldInterface(new InterfacePropertyString('_method', "'PUT'|'POST'", true));
+            ->modelVariable($this->table->variableNaming())
+            ->createRoute($this->table->createRoute($this->actor)->name)
+            ->dataRoute($this->table->dataRoute($this->actor)->name)
+            ->indexRoute($this->table->indexRoute($this->actor, ContainerType::WEB)->name)
+            ->importRoute($this->table->importRoute($this->actor, ContainerType::WEB)->name)
+            ->exportRoute($this->table->exportRoute($this->actor, ContainerType::WEB)->name)
+            ->importExampleRoute($this->table->importExampleRoute($this->actor, ContainerType::WEB)->name)
+            ->import(new TsImportString($this->table->modelNaming(), $this->table->tsModelImportPath()));
 
         $this->table->attributes()
-            ->each(function (CubeAttribute $attr) use ($builder) {
-                if ($attr instanceof HasReactTsInputString) {
-                    $component = $attr->inputComponent('store', $this->actor);
-                    $component->translationKey = $attr->translationKey();
-                    if ($attr->isText() || $attr->isTextable() || $attr->isFile()) {
-                        $builder->bigField($component);
-                    } else {
-                        $builder->smallField($component);
-                    }
-                }
-
-                if ($attr instanceof HasInterfacePropertyString) {
-                    if ($attr->isFile()) {
-                        $builder->formFieldInterface(new InterfacePropertyString(
-                            $attr->name,
-                            'Media|File|null',
-                            true,
-                            new TsImportString('Media', '@/models/media')
-                        ));
-                    } else {
-                        if ($attr->isBoolean()) {
-                            $builder->defaultValue($attr->name, 'false');
-                        }
-                        $builder->formFieldInterface($attr->interfacePropertyString());
-                    }
+            ->whereInstanceOf(HasDataTableColumnObjectString::class)
+            ->each(function (HasDataTableColumnObjectString|CubeAttribute $attr) use ($builder) {
+                if (! $attr->isText() && ! $attr->isTextable()) {
+                    $column = $attr->datatableColumnObject($this->actor);
+                    $column->translationKey = $attr->translationKey();
+                    $builder->column($column);
                 }
             });
 
         $this->table->relations()
-            ->whereInstanceOf(HasReactTsInputString::class)
-            ->filter(fn (CubeRelation $relation) => $relation->relationModel()->getTSModelPath()->exist())
-            ->each(function (CubeRelation|HasReactTsInputString $relation) use ($builder) {
-                $component = $relation->inputComponent('store', $this->actor);
-                $component->translationKey = $relation->translationKey();
-                $builder->smallField($component);
+            ->whereInstanceOf(HasDataTableColumnObjectString::class)
+            ->filter(fn (CubeRelation $relation) => $relation->exists())
+            ->each(function (HasDataTableColumnObjectString|CubeRelation $rel) use ($builder) {
+                if ($rel->exists() && $rel->getTSModelPath()->exist() && ! $rel->relationModel()->titleable()->isTextable()) {
+                    $column = $rel->datatableColumnObject($this->actor);
+                    $column->translationKey = $rel->translationKey();
+                    $builder->column($column);
+                }
             });
 
-        $builder->generate($formPath, $this->override);
+        $builder->generate($indexPagePath, $this->override);
+    }
+
+    public function generateShowPage(): void
+    {
+        $showPagePath = $this->table->showView($this->actor)->path;
+
+        $builder = ShowPageStubBuilder::make()
+            ->modelName($this->table->modelNaming())
+            ->modelVariable($this->table->variableNaming())
+            ->editRouteName($this->table->editRoute($this->actor)->name)
+            ->import(new TsImportString($this->table->modelNaming(), $this->table->tsModelImportPath()));
+
+        $this->table->attributes()
+            ->whereInstanceOf(HasReactTsDisplayComponentString::class)
+            ->each(function (CubeAttribute|HasReactTsDisplayComponentString $attr) use ($builder) {
+                $component = $attr->displayComponentString();
+                $component->translationKey = $attr->translationKey();
+                if ($attr->isText() || $attr->isTextable()) {
+                    $builder->bigField($component);
+                } else {
+                    $builder->smallField($component);
+                }
+            });
+
+        $this->table->relations()
+            ->whereInstanceOf(HasReactTsDisplayComponentString::class)
+            ->each(function (CubeRelation|HasReactTsDisplayComponentString $rel) use ($builder) {
+                if ($rel->exists() && $rel->getTSModelPath()->exist()) {
+                    $component = $rel->displayComponentString($this->actor);
+                    $component->translationKey = $rel->translationKey();
+                    $builder->smallField($component);
+                }
+            });
+
+        $builder->generate($showPagePath, $this->override);
+    }
+
+    public function run(bool $override = false): void
+    {
+        if (! Settings::make()->getFrontendType() == FrontendTypeEnum::REACT_TS) {
+            CubeLog::add(new CubeError('Install react-ts tools by running [php artisan cubeta:install react-ts && php artisan cubeta:install react-ts-packages] then try again', happenedWhen: "Generating a {$this->table->modelName} react pages"));
+
+            return;
+        }
+
+        TranslationFileUtils::addModelTranslations($this->table, withReactJson: true);
+
+        $this->generateTypescriptModel();
+
+        $this->generateUpdateFormPage();
+        $this->generateCreateFormPage();
+
+        $this->generateShowPage();
+        $this->generateIndexPage();
+
+        CodeSniffer::make()
+            ->setModel($this->table)
+            ->setActor($this->actor)
+            ->checkForTsInterfaces()
+            ->checkForReactTSPagesAndControllerRelations($this->actor);
     }
 }

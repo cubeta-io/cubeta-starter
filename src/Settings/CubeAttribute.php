@@ -2,48 +2,48 @@
 
 namespace Cubeta\CubetaStarter\Settings;
 
-use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Helpers\Naming;
-use Cubeta\CubetaStarter\Settings\Attributes\CubeBoolean;
-use Cubeta\CubetaStarter\Settings\Attributes\CubeDate;
-use Cubeta\CubetaStarter\Settings\Attributes\CubeDateTime;
-use Cubeta\CubetaStarter\Settings\Attributes\CubeDouble;
-use Cubeta\CubetaStarter\Settings\Attributes\CubeFile;
-use Cubeta\CubetaStarter\Settings\Attributes\CubeFloat;
-use Cubeta\CubetaStarter\Settings\Attributes\CubeInteger;
-use Cubeta\CubetaStarter\Settings\Attributes\CubeJson;
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Traits\NamingConventions;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeKey;
-use Cubeta\CubetaStarter\Settings\Attributes\CubeString;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeDate;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeFile;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeJson;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeText;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeTime;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeFloat;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeDouble;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeString;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeBoolean;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeInteger;
+use Cubeta\CubetaStarter\Settings\Attributes\CubeDateTime;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeTimestamp;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeTranslatable;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeUnsignedBigInteger;
 use Cubeta\CubetaStarter\StringValues\Contracts\Dtos\HasDtoProperty;
-use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
 use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
-use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
-use Cubeta\CubetaStarter\Traits\NamingConventions;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
 
 class CubeAttribute implements HasBladeDisplayComponent, HasDtoProperty, HasResourcePropertyString
 {
     use NamingConventions;
 
-    public ?string $parentTableName;
+    public bool $isRequired;
 
     public string $name;
 
-    public string $type;
-
     public bool $nullable;
 
-    public bool $unique;
+    public ?string $parentTableName;
 
-    public bool $isRequired;
+    public string $type;
+
+    public bool $unique;
 
     public function __construct(string $name, string $type, bool $nullable = false, bool $unique = false, ?string $parentTableName = null)
     {
@@ -56,32 +56,96 @@ class CubeAttribute implements HasBladeDisplayComponent, HasDtoProperty, HasReso
         $this->isRequired = ! $this->nullable;
     }
 
-    public function toJson(): bool|string
-    {
-        return json_encode([
-            'name' => $this->name,
-            'type' => $this->type,
-            'nullable' => $this->nullable,
-            'unique' => $this->unique,
-        ], JSON_PRETTY_PRINT);
-    }
-
     /**
-     * @return array{name:string , type:string , nullable:bool , unique:bool}
+     * @return ValidationRuleString[]
      */
-    public function toArray(): array
+    protected function uniqueOrNullableValidationRules(): array
     {
-        return [
-            'name' => $this->name,
-            'type' => $this->type,
-            'nullable' => $this->nullable,
-            'unique' => $this->unique,
-        ];
+        $rules = [new ValidationRuleString($this->nullable ? 'nullable' : 'required')];
+
+        if ($this->unique) {
+            $routeParameter = $this->table()->routeParameterNaming();
+            $rules[] = new ValidationRuleString(
+                "Rule::unique('{$this->parentTableName}','{$this->name}')->when(request()->isMethod('PUT'), fn(\$rule) => \$rule->ignore(request()->route('$routeParameter')))",
+                [new PhpImportString("Illuminate\Validation\Rule")]
+            );
+        }
+
+        return $rules;
     }
 
-    public function isKey(): bool
+    public function bladeDisplayComponent(): DisplayComponentString
     {
-        return $this->type == ColumnTypeEnum::KEY->value;
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
+        $modelVariable = $table->variableNaming();
+        $label = $this->labelNaming();
+
+        return new DisplayComponentString(
+            'x-small-text-field',
+            [
+                [
+                    'key'   => ':value',
+                    'value' => "\${$modelVariable}->{$this->name}",
+                ],
+                [
+                    'key'   => 'label',
+                    'value' => $label,
+                ],
+            ]
+        );
+    }
+
+    public function dtoProperty(): DtoPropertyString
+    {
+        return new DtoPropertyString(
+            $this->name,
+            'string',
+            $this->nullable
+        );
+    }
+
+    public static function factory(string $name, string $type, bool $nullable = false, bool $unique = false, ?string $parentTableName = null): CubeText|CubeInteger|CubeFloat|CubeDateTime|CubeTranslatable|CubeTimestamp|CubeDate|CubeAttribute|CubeKey|CubeJson|CubeString|CubeBoolean|CubeFile|CubeDouble|CubeTime|CubeUnsignedBigInteger
+    {
+        $type = ColumnTypeEnum::tryFrom($type);
+
+        return match ($type) {
+            ColumnTypeEnum::STRING => new CubeString($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::TEXT   => new CubeText($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::JSON   => new CubeJson($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::INTEGER, ColumnTypeEnum::BIG_INTEGER => new CubeInteger($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::UNSIGNED_BIG_INTEGER => new CubeUnsignedBigInteger($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::DOUBLE               => new CubeDouble($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::FLOAT                => new CubeFloat($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::BOOLEAN              => new CubeBoolean($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::DATE                 => new CubeDate($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::TIME                 => new CubeTime($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::DATETIME             => new CubeDateTime($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::TIMESTAMP            => new CubeTimestamp($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::FILE                 => new CubeFile($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::KEY                  => new CubeKey($name, $type->value, $nullable, $unique, $parentTableName),
+            ColumnTypeEnum::TRANSLATABLE         => new CubeTranslatable($name, $type->value, $nullable, $unique, $parentTableName),
+            default                              => new CubeAttribute($name, $type->value, $nullable, $unique, $parentTableName),
+        };
+    }
+
+    public function isBoolean(): bool
+    {
+        return $this->type == ColumnTypeEnum::BOOLEAN->value;
+    }
+
+    public function isDate(): bool
+    {
+        return ColumnTypeEnum::DATE->value == $this->type;
+    }
+
+    public function isDateable(): bool
+    {
+        return ColumnTypeEnum::isDateTimeType($this->type);
+    }
+
+    public function isDateTime(): bool
+    {
+        return $this->type == ColumnTypeEnum::DATETIME->value;
     }
 
     /**
@@ -94,34 +158,9 @@ class CubeAttribute implements HasBladeDisplayComponent, HasDtoProperty, HasReso
         return $this->type == ColumnTypeEnum::FILE->value;
     }
 
-    public function isTranslatable(): bool
+    public function isKey(): bool
     {
-        return $this->type == ColumnTypeEnum::TRANSLATABLE->value;
-    }
-
-    public function isDateTime(): bool
-    {
-        return $this->type == ColumnTypeEnum::DATETIME->value;
-    }
-
-    public function isDateable(): bool
-    {
-        return ColumnTypeEnum::isDateTimeType($this->type);
-    }
-
-    public function isDate(): bool
-    {
-        return ColumnTypeEnum::DATE->value == $this->type;
-    }
-
-    public function isString(): bool
-    {
-        return in_array($this->type, [
-            ColumnTypeEnum::STRING->value,
-            ColumnTypeEnum::TEXT->value,
-            ColumnTypeEnum::JSON->value,
-            ColumnTypeEnum::TRANSLATABLE->value,
-        ]);
+        return $this->type == ColumnTypeEnum::KEY->value;
     }
 
     public function isNumeric(): bool
@@ -135,9 +174,14 @@ class CubeAttribute implements HasBladeDisplayComponent, HasDtoProperty, HasReso
         ]);
     }
 
-    public function isBoolean(): bool
+    public function isString(): bool
     {
-        return $this->type == ColumnTypeEnum::BOOLEAN->value;
+        return in_array($this->type, [
+            ColumnTypeEnum::STRING->value,
+            ColumnTypeEnum::TEXT->value,
+            ColumnTypeEnum::JSON->value,
+            ColumnTypeEnum::TRANSLATABLE->value,
+        ]);
     }
 
     public function isText(): bool
@@ -160,12 +204,9 @@ class CubeAttribute implements HasBladeDisplayComponent, HasDtoProperty, HasReso
             && ($this->isText() || $this->isTranslatable());
     }
 
-    /**
-     * get the table that this attribute belongs to
-     */
-    public function table(): CubeTable
+    public function isTranslatable(): bool
     {
-        return Settings::make()->getTable($this->parentTableName) ?? CubeTable::create($this->parentTableName);
+        return $this->type == ColumnTypeEnum::TRANSLATABLE->value;
     }
 
     public function labelNaming(): string
@@ -178,53 +219,6 @@ class CubeAttribute implements HasBladeDisplayComponent, HasDtoProperty, HasReso
         }
     }
 
-    public function translationKey(): string
-    {
-        return 'models.'.Naming::model($this->parentTableName).'.fields.'.$this->name;
-    }
-
-    public static function factory(string $name, string $type, bool $nullable = false, bool $unique = false, ?string $parentTableName = null): CubeText|CubeInteger|CubeFloat|CubeDateTime|CubeTranslatable|CubeTimestamp|CubeDate|CubeAttribute|CubeKey|CubeJson|CubeString|CubeBoolean|CubeFile|CubeDouble|CubeTime|CubeUnsignedBigInteger
-    {
-        $type = ColumnTypeEnum::tryFrom($type);
-
-        return match ($type) {
-            ColumnTypeEnum::STRING => new CubeString($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::TEXT => new CubeText($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::JSON => new CubeJson($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::INTEGER, ColumnTypeEnum::BIG_INTEGER => new CubeInteger($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::UNSIGNED_BIG_INTEGER => new CubeUnsignedBigInteger($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::DOUBLE => new CubeDouble($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::FLOAT => new CubeFloat($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::BOOLEAN => new CubeBoolean($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::DATE => new CubeDate($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::TIME => new CubeTime($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::DATETIME => new CubeDateTime($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::TIMESTAMP => new CubeTimestamp($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::FILE => new CubeFile($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::KEY => new CubeKey($name, $type->value, $nullable, $unique, $parentTableName),
-            ColumnTypeEnum::TRANSLATABLE => new CubeTranslatable($name, $type->value, $nullable, $unique, $parentTableName),
-            default => new CubeAttribute($name, $type->value, $nullable, $unique, $parentTableName),
-        };
-    }
-
-    /**
-     * @return ValidationRuleString[]
-     */
-    protected function uniqueOrNullableValidationRules(): array
-    {
-        $rules = [new ValidationRuleString($this->nullable ? 'nullable' : 'required')];
-
-        if ($this->unique) {
-            $routeParameter = $this->table()->routeParameterNaming();
-            $rules[] = new ValidationRuleString(
-                "Rule::unique('{$this->parentTableName}','{$this->name}')->when(request()->isMethod('PUT'), fn(\$rule) => \$rule->ignore(request()->route('$routeParameter')))",
-                [new PhpImportString("Illuminate\Validation\Rule")]
-            );
-        }
-
-        return $rules;
-    }
-
     public function resourcePropertyString(): ResourcePropertyString
     {
         return new ResourcePropertyString(
@@ -232,33 +226,39 @@ class CubeAttribute implements HasBladeDisplayComponent, HasDtoProperty, HasReso
         );
     }
 
-    public function dtoProperty(): DtoPropertyString
+    /**
+     * get the table that this attribute belongs to
+     */
+    public function table(): CubeTable
     {
-        return new DtoPropertyString(
-            $this->name,
-            'string',
-            $this->nullable
-        );
+        return Settings::make()->getTable($this->parentTableName) ?? CubeTable::create($this->parentTableName);
     }
 
-    public function bladeDisplayComponent(): DisplayComponentString
+    /**
+     * @return array{name:string , type:string , nullable:bool , unique:bool}
+     */
+    public function toArray(): array
     {
-        $table = $this->table() ?? CubeTable::create($this->parentTableName);
-        $modelVariable = $table->variableNaming();
-        $label = $this->labelNaming();
+        return [
+            'name'     => $this->name,
+            'type'     => $this->type,
+            'nullable' => $this->nullable,
+            'unique'   => $this->unique,
+        ];
+    }
 
-        return new DisplayComponentString(
-            'x-small-text-field',
-            [
-                [
-                    'key' => ':value',
-                    'value' => "\${$modelVariable}->{$this->name}",
-                ],
-                [
-                    'key' => 'label',
-                    'value' => $label,
-                ],
-            ]
-        );
+    public function toJson(): bool|string
+    {
+        return json_encode([
+            'name'     => $this->name,
+            'type'     => $this->type,
+            'nullable' => $this->nullable,
+            'unique'   => $this->unique,
+        ], JSON_PRETTY_PRINT);
+    }
+
+    public function translationKey(): string
+    {
+        return 'models.'.Naming::model($this->parentTableName).'.fields.'.$this->name;
     }
 }

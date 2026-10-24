@@ -24,10 +24,10 @@ specified by `$modelClass`) to perform actual data operations.
 
 ### Constructor
 
-- **public function __construct()**
-    - Instantiates the model using the class specified in `$modelClass`.
-    - Initializes `$tableName`, `$searchableKeys`, `$relationSearchableKeys`, and `$filterKeys` based on model methods.
-    - Populates `$modelTableColumns` with fillable columns.
+- **public function \__construct()**
+  - Instantiates the model using the class specified in `$modelClass`.
+  - Initializes `$tableName`, `$searchableKeys`, `$relationSearchableKeys`, and `$filterKeys` based on model methods.
+  - Populates `$modelTableColumns` with fillable columns.
 
 ---
 
@@ -66,7 +66,7 @@ public function all(array $relationships = []): Collection|array|RegularCollecti
 Retrieves all records, optionally eager loading relationships.
 
 - **Parameters:**
-    - `$relationships`: Array of relationship names to eager load.
+  - `$relationships`: Array of relationship names to eager load.
 - **Returns:** `Collection`, `array`, or `RegularCollection` of models.
 
 ---
@@ -80,7 +80,7 @@ public function globalQuery(array $relations = []): Builder
 Builds a query with filters, search, and ordering applied.
 
 - **Parameters:**
-    - `$relations`: Array of relationship names to eager load.
+  - `$relations`: Array of relationship names to eager load.
 - **Returns:** Eloquent `Builder` instance.
 
 ---
@@ -94,8 +94,8 @@ public function allWithPagination(array $relationships = [], int $per_page = 10)
 Retrieves records with pagination.
 
 - **Parameters:**
-    - `$relationships`: Array of relationship names to eager load.
-    - `$per_page`: Number of records per page (default: 10).
+  - `$relationships`: Array of relationship names to eager load.
+  - `$per_page`: Number of records per page (default: 10).
 - **Returns:** `LengthAwarePaginator` of models.
 
 ---
@@ -109,8 +109,8 @@ public function create(array $data, array $relationships = []): Model
 Creates a new record.
 
 - **Parameters:**
-    - `$data`: Array of attributes for the new record.
-    - `$relationships`: Array of related data to associate.
+  - `$data`: Array of attributes for the new record.
+  - `$relationships`: Array of related data to associate.
 - **Returns:** The created `Model` instance.
 
 ---
@@ -124,7 +124,7 @@ public function delete(string|int|Model $id): ?bool
 Deletes a record by its ID.
 
 - **Parameters:**
-    - `$id`: The primary key or model instance to delete.
+  - `$id`: The primary key or model instance to delete.
 - **Returns:** `bool|null` — `true` if deleted, `false` if not, or `null` if not found.
 
 ---
@@ -138,8 +138,8 @@ public function find($id, array $relationships = []): ?Model
 Retrieves a single record by ID, optionally eager loading relationships.
 
 - **Parameters:**
-    - `$id`: The primary key of the record to retrieve.
-    - `$relationships`: Array of relationship names to eager load.
+  - `$id`: The primary key of the record to retrieve.
+  - `$relationships`: Array of relationship names to eager load.
 - **Returns:** The `Model` instance or `null` if not found.
 
 ---
@@ -153,9 +153,9 @@ public function update(array $data, string|int|Model $id, array $relationships =
 Updates an existing record by ID.
 
 - **Parameters:**
-    - `$data`: Array of attributes to update.
-    - `$id`: The primary key or model instance to update.
-    - `$relationships`: Array of related data to update.
+  - `$data`: Array of attributes to update.
+  - `$id`: The primary key or model instance to update.
+  - `$relationships`: Array of related data to update.
 - **Returns:** The updated `Model` instance or `null` if not found.
 
 ---
@@ -169,7 +169,7 @@ public function export(array $ids = []): BinaryFileResponse
 Exports records (optionally filtered by IDs) to a file (e.g., Excel or CSV).
 
 - **Parameters:**
-    - `$ids`: Array of record IDs to export (optional).
+  - `$ids`: Array of record IDs to export (optional).
 - **Returns:** `BinaryFileResponse` for file download.
 - **Throws:** `Exception` on failure.
 
@@ -301,4 +301,4 @@ class UserRepository extends BaseRepository
 
 - This class is abstract and should not be instantiated directly.
 - All data operations are delegated to the model specified by `$modelClass`.
-- Extend this class to implement model-specific data access logic in your application. 
+- Extend this class to implement model-specific data access logic in your application.

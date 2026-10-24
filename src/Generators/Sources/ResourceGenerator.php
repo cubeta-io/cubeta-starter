@@ -2,16 +2,16 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\Contracts\CodeSniffer;
-use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
-use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\Settings\CubeRelation;
 use Cubeta\CubetaStarter\Settings\Settings;
-use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Contracts\CodeSniffer;
+use Cubeta\CubetaStarter\Settings\CubeRelation;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Stub\Builders\Resources\ResourceStubBuilder;
+use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
 
 class ResourceGenerator extends AbstractGenerator
 {
@@ -21,9 +21,10 @@ class ResourceGenerator extends AbstractGenerator
     {
         if (Settings::make()->installedWeb()
             && Settings::make()->getFrontendType() != FrontendTypeEnum::REACT_TS
-            && !ContainerType::isApi($this->generatedFor)
+            && ! ContainerType::isApi($this->generatedFor)
         ) {
-            CubeLog::error("Resource is available when generating for api or react frontend stack");
+            CubeLog::error('Resource is available when generating for api or react frontend stack');
+
             return;
         }
 
@@ -35,16 +36,16 @@ class ResourceGenerator extends AbstractGenerator
             ->modelName($this->table->modelName)
             ->resourceField(
                 $this->table->attributes()
-                    ->filter(fn(CubeAttribute $attribute) => $attribute instanceof HasResourcePropertyString)
-                    ->map(fn(HasResourcePropertyString $attribute) => $attribute->resourcePropertyString())
+                    ->filter(fn (CubeAttribute $attribute) => $attribute instanceof HasResourcePropertyString)
+                    ->map(fn (HasResourcePropertyString $attribute) => $attribute->resourcePropertyString())
                     ->toArray()
             )->resourceField(
                 $this->table->relations()
                     ->filter(
-                        fn(CubeRelation $rel) => $rel instanceof HasResourcePropertyString
+                        fn (CubeRelation $rel) => $rel instanceof HasResourcePropertyString
                             && $rel->getModelPath()->exist()
                             && $rel->getResourcePath()->exist()
-                    )->map(fn(HasResourcePropertyString $attribute) => $attribute->resourcePropertyString())
+                    )->map(fn (HasResourcePropertyString $attribute) => $attribute->resourcePropertyString())
                     ->toArray()
             )->generate($resourcePath, $this->override);
 

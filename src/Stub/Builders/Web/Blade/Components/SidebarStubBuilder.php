@@ -10,13 +10,13 @@ use Cubeta\CubetaStarter\Stub\Contracts\StubBuilder;
  */
 class SidebarStubBuilder extends StubBuilder
 {
-    protected function stubPath(): string
-    {
-        return CubePath::stubPath('Web/Blade/components/Sidebar.stub');
-    }
-
     protected function getStubPropertyArray(): array
     {
         return $this->stubProperties;
+    }
+
+    protected function stubPath(): string
+    {
+        return CubePath::stubPath('Web/Blade/components/Sidebar.stub');
     }
 }

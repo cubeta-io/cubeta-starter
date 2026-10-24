@@ -4,15 +4,12 @@ namespace Cubeta\CubetaStarter\Logs;
 
 class CubeError
 {
-    public string $message;
     public ?string $affectedFilePath = null;
+
     public ?string $happenedWhen = null;
 
-    /**
-     * @param string $message
-     * @param string|null $affectedFilePath
-     * @param string|null $happenedWhen
-     */
+    public string $message;
+
     public function __construct(string $message, ?string $affectedFilePath = null, ?string $happenedWhen = null)
     {
         $this->message = $message;
@@ -20,13 +17,9 @@ class CubeError
         $this->happenedWhen = $happenedWhen;
     }
 
-    public function getMessage(): string
+    public function error(): string
     {
-        $msg = "Error : " . $this->message;
-        if ($this->affectedFilePath) $msg .= "\n\rAffected : {$this->affectedFilePath}";
-        if ($this->happenedWhen) $msg .= "\n\rHappened When : {$this->happenedWhen}";
-
-        return $msg;
+        return $this->message;
     }
 
     public function getHtml(): string
@@ -35,15 +28,24 @@ class CubeError
                 <span style='position: absolute; top: -25%; left: 1%' class='bg-danger rounded-2 p-1 fw-bold'>Error</span>
                     <div class='w-100'>{$this->message}</div>
                 ";
-        $msg .= $this->affectedFilePath ? "<div class='w-100'><span class='bg-danger-light'>Affected</span> : {$this->affectedFilePath}</div>" : "";
-        $msg .= $this->happenedWhen ? "<div class='w-100'><span class='bg-danger-light'>Happened When</span> : {$this->happenedWhen}</div>" : "";
+        $msg .= $this->affectedFilePath ? "<div class='w-100'><span class='bg-danger-light'>Affected</span> : {$this->affectedFilePath}</div>" : '';
+        $msg .= $this->happenedWhen ? "<div class='w-100'><span class='bg-danger-light'>Happened When</span> : {$this->happenedWhen}</div>" : '';
 
-        $msg .= "</div>";
+        $msg .= '</div>';
+
         return $msg;
     }
 
-    public function error(): string
+    public function getMessage(): string
     {
-        return $this->message;
+        $msg = 'Error : '.$this->message;
+        if ($this->affectedFilePath) {
+            $msg .= "\n\rAffected : {$this->affectedFilePath}";
+        }
+        if ($this->happenedWhen) {
+            $msg .= "\n\rHappened When : {$this->happenedWhen}";
+        }
+
+        return $msg;
     }
 }

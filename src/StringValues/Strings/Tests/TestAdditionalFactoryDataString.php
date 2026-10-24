@@ -6,15 +6,14 @@ use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 
 class TestAdditionalFactoryDataString
 {
-    public string $key;
-    public string $value;
-
     /** @var PhpImportString[]|null */
     public ?array $imports = null;
 
+    public string $key;
+
+    public string $value;
+
     /**
-     * @param string                 $key
-     * @param string                 $value
      * @param PhpImportString[]|null $imports
      */
     public function __construct(string $key, string $value, ?array $imports = null)
@@ -26,7 +25,7 @@ class TestAdditionalFactoryDataString
 
     public function __toString(): string
     {
-        if (!is_null($this->imports)) {
+        if (! is_null($this->imports)) {
             return "'$this->key' => $this->value";
         }
 

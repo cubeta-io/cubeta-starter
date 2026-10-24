@@ -17,10 +17,23 @@ class FormViewStubBuilder extends StubBuilder
 {
     private array $types = [];
 
-    public function type(string $name, string $type): static
+    protected function getStubPropertyArray(): array
     {
-        $this->types[$name] = $type;
-        return $this;
+        if (count($this->types) > 0) {
+            $types = '@php';
+            foreach ($this->types as $name => $type) {
+                $types .= "\n /** @var $type \$$name */ \n";
+            }
+
+            $types .= '@endphp';
+        } else {
+            $types = '';
+        }
+
+        return [
+            ...$this->stubProperties,
+            '{{types}}' => $types,
+        ];
     }
 
     protected function stubPath(): string
@@ -28,22 +41,10 @@ class FormViewStubBuilder extends StubBuilder
         return CubePath::stubPath('Web/Blade/Views/Form.stub');
     }
 
-    protected function getStubPropertyArray(): array
+    public function type(string $name, string $type): static
     {
-        if (count($this->types) > 0) {
-            $types = "@php";
-            foreach ($this->types as $name => $type) {
-                $types .= "\n /** @var $type \$$name */ \n";
-            }
+        $this->types[$name] = $type;
 
-            $types .= "@endphp";
-        } else {
-            $types = "";
-        }
-
-        return [
-            ...$this->stubProperties,
-            '{{types}}' => $types,
-        ];
+        return $this;
     }
 }

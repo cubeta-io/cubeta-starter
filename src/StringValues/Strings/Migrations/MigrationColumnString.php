@@ -7,11 +7,16 @@ use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 class MigrationColumnString
 {
     public ?PhpImportString $import;
-    public string $name;
-    public string $method;
-    public bool $nullable;
-    public bool $unique;
+
     public bool $isKey;
+
+    public string $method;
+
+    public string $name;
+
+    public bool $nullable;
+
+    public bool $unique;
 
     public function __construct(string $name, string $method, bool $nullable, bool $unique, bool $isKey = false, ?PhpImportString $import = null)
     {
@@ -32,18 +37,18 @@ class MigrationColumnString
             $statement .= "'$this->name'";
         }
 
-        $statement .= ")";
+        $statement .= ')';
 
         if ($this->nullable) {
-            $statement .= "->nullable()";
+            $statement .= '->nullable()';
         }
 
         if ($this->unique) {
-            $statement .= "->unique()";
+            $statement .= '->unique()';
         }
 
         if ($this->isKey) {
-            $statement .= "->constrained()->cascadeOnDelete()";
+            $statement .= '->constrained()->cascadeOnDelete()';
         }
 
         return "$statement;";

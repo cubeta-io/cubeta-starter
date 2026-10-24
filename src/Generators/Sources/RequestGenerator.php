@@ -2,10 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Stub\Builders\Requests\RequestStubBuilder;
+use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
 
 class RequestGenerator extends AbstractGenerator
 {
@@ -20,8 +20,8 @@ class RequestGenerator extends AbstractGenerator
             ->modelName($this->table->modelName)
             ->rule(
                 $this->table->attributes()
-                    ->filter(fn(CubeAttribute $attribute) => $attribute instanceof HasPropertyValidationRule)
-                    ->map(fn(HasPropertyValidationRule $attribute) => $attribute->propertyValidationRule())
+                    ->filter(fn (CubeAttribute $attribute) => $attribute instanceof HasPropertyValidationRule)
+                    ->map(fn (HasPropertyValidationRule $attribute) => $attribute->propertyValidationRule())
                     ->toArray()
             )->generate($requestPath, $this->override);
     }

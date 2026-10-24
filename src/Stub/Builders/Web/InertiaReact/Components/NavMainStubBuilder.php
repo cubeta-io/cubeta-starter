@@ -12,6 +12,6 @@ class NavMainStubBuilder extends TypescriptFileBuilder
 {
     protected function stubPath(): string
     {
-        return CubePath::stubPath("Web/InertiaReact/Components/NavMain.stub");
+        return CubePath::stubPath('Web/InertiaReact/Components/NavMain.stub');
     }
 }

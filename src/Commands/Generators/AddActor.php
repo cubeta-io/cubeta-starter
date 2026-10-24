@@ -2,17 +2,19 @@
 
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
-use Cubeta\CubetaStarter\Commands\BaseCommand;
-use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Generators\Sources\ActorFilesGenerator;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
 use function Laravel\Prompts\confirm;
+
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Cubeta\CubetaStarter\Commands\BaseCommand;
+use Cubeta\CubetaStarter\Generators\Sources\ActorFilesGenerator;
 
 class AddActor extends BaseCommand
 {
     use RouteBinding;
 
     protected $description = 'Add a new actor (role) to the project, with its permissions and route bindings';
+
     protected $signature = 'create:actor
         {actor? : the name of the actor, e.g. admin, customer, ... }
         {permissions? : comma separated list of permissions, e.g. "can-read,can-edit" (leave empty for none) }
@@ -22,7 +24,7 @@ class AddActor extends BaseCommand
 
     public function getHelp(): string
     {
-        return <<<HELP
+        return <<<'HELP'
           Registers a new actor (role) via spatie/laravel-permission - the RoleEnum
           case, its permissions, gates/policies and route model bindings. Requires the
           "permissions" package to be installed first via "php artisan cubeta:install permissions".
@@ -42,19 +44,19 @@ class AddActor extends BaseCommand
             $permissions = $this->resolveList($this->argument('permissions'));
             $permissions = count($permissions) ? $permissions : null;
         } else {
-            ["actor" => $actor, "permissions" => $permissions] = $this->askForActorsAndPermissions();
+            ['actor' => $actor, 'permissions' => $permissions] = $this->askForActorsAndPermissions();
         }
 
         $container = $this->argument('container') ?? $this->askForContainer();
 
         $authenticated = (bool) $this->option('authenticated');
-        if (!$this->option('authenticated') && ContainerType::isApi($container) && $this->input->isInteractive()) {
-            $authenticated = confirm("Do You Want To Create Authentication Api Controller For This Actor ?");
+        if (! $this->option('authenticated') && ContainerType::isApi($container) && $this->input->isInteractive()) {
+            $authenticated = confirm('Do You Want To Create Authentication Api Controller For This Actor ?');
         }
 
         $override = $this->askForOverride();
 
-        $generator = new ActorFilesGenerator($actor, $permissions, $authenticated, $container , override: $override);
+        $generator = new ActorFilesGenerator($actor, $permissions, $authenticated, $container, override: $override);
         $generator->run();
     }
 }

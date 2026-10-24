@@ -2,27 +2,23 @@
 
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
-use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
+use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
+use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
+use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
 use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
-use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
-use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
-use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
 
-class CubeJson extends CubeStringable implements HasFakeMethod,
-    HasMigrationColumn,
-    HasPropertyValidationRule,
-    HasBladeInputComponent,
-    HasDocBlockProperty,
-    HasResourcePropertyString
+class CubeJson extends CubeStringable implements HasBladeInputComponent, HasDocBlockProperty, HasFakeMethod, HasMigrationColumn, HasPropertyValidationRule, HasResourcePropertyString
 {
     public function fakeMethod(): FakeMethodString
     {
-        $isUnique = $this->unique ? "->unique()" : "";
+        $isUnique = $this->unique ? '->unique()' : '';
+
         return new FakeMethodString(
             $this->name,
             "json_encode([fake(){$isUnique}->word() => fake(){$isUnique}->word()])"
@@ -33,7 +29,7 @@ class CubeJson extends CubeStringable implements HasFakeMethod,
     {
         return new MigrationColumnString(
             $this->columnNaming(),
-            "json",
+            'json',
             $this->nullable,
             $this->unique
         );

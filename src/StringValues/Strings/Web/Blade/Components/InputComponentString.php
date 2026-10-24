@@ -5,32 +5,25 @@ namespace Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components;
 // TODO: change class name to BladeInputComponentString
 class InputComponentString
 {
-    private string $type;
-
-    private string $tag;
-
-    private string $name;
-
-    private bool $isRequired = false;
-
-    private ?string $label = null;
-
-    private ?string $translationKey = null;
-
-    public function translationKey(string $translationKey): self
-    {
-        $this->translationKey = $translationKey;
-
-        return $this;
-    }
-
     /**
      * @var array{array{key:string , value:string}}
      */
     private array $attributes = [];
 
+    private bool $isRequired = false;
+
+    private ?string $label = null;
+
+    private string $name;
+
+    private string $tag;
+
+    private ?string $translationKey = null;
+
+    private string $type;
+
     /**
-     * @param  array{array{key:string , value:string}}  $attributes
+     * @param array{array{key:string , value:string}} $attributes
      */
     public function __construct(string $type, string $tag, string $name, bool $isRequired = false, ?string $label = null, array $attributes = [])
     {
@@ -83,5 +76,12 @@ class InputComponentString
                         $renderedAttributes
                     />
                 </div>";
+    }
+
+    public function translationKey(string $translationKey): self
+    {
+        $this->translationKey = $translationKey;
+
+        return $this;
     }
 }

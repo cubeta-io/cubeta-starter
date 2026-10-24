@@ -15,12 +15,12 @@ class FactoryRelationMethodStringString extends MethodString
         parent::__construct(
             "with$relatedModelName",
             [
-                'count = 1' => 'int'
+                'count = 1' => 'int',
             ],
             "return \$this->has({$model->modelName}::factory(\$count));",
-            returnType: "static",
+            returnType: 'static',
             imports: [
-                new PhpImportString($model->getModelNameSpace(false))
+                new PhpImportString($model->getModelNameSpace(false)),
             ],
         );
     }

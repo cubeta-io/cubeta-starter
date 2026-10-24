@@ -29,7 +29,7 @@ that lives under the package's own `Cubeta\CubetaStarter\*` namespace, from appl
 requests, providers, tests, config, ...). The app must boot and run without
 the package installed.
 
-This restriction does **not** cover the files the commands generate/publish *into the host app* —
+This restriction does **not** cover the files the commands generate/publish _into the host app_ —
 those become part of the host app's own `App\*` namespace the moment they're written to disk, and
 are meant to be used/extended freely: e.g. `App\Http\Resources\BaseResource\BaseResource`,
 `App\Modules\ApiResponse`, `App\Http\Controllers\ApiController`, and every generated
@@ -44,7 +44,7 @@ fetching a URL, it's the same content and works offline:
 also published at **https://cubeta-io.github.io/cubeta-starter/<page>** if that's preferred.
 
 | Topic                                                              | Local file (`vendor/cubeta/cubeta-starter/docs/`) | Page                               |
-|--------------------------------------------------------------------|---------------------------------------------------|------------------------------------|
+| ------------------------------------------------------------------ | ------------------------------------------------- | ---------------------------------- |
 | Installation                                                       | `installation.md`                                 | `/installation`                    |
 | Configuration (`cubeta-starter.php`, `cubeta-starter.config.json`) | `configuration.md`                                | `/configuration`                   |
 | Feature overview                                                   | `features.md`                                     | `/features`                        |
@@ -81,7 +81,7 @@ more examples.
 ## Argument string formats
 
 | Argument            | Format                          | Example                                                       |
-|---------------------|---------------------------------|---------------------------------------------------------------|
+| ------------------- | ------------------------------- | ------------------------------------------------------------- |
 | attributes          | `field:type,field2:type2,...`   | `title:string,body:text,category_id:key,is_published:boolean` |
 | relations           | `relatedModel:relationType,...` | `comments:hasMany,tags:manyToMany`                            |
 | nullables / uniques | `field,field2,...`              | `slug,description`                                            |
@@ -101,7 +101,7 @@ Relation types (`RelationsTypeEnum`): `belongsTo, hasMany, hasOne, manyToMany`.
 `cubeta:install {name} {version=v1} {container?} {--validation=} {--force}`
 
 | Plugin              | Purpose                                                            |
-|---------------------|--------------------------------------------------------------------|
+| ------------------- | ------------------------------------------------------------------ |
 | `api`               | base api scaffolding (routes, base controller, exception handling) |
 | `web`               | base blade scaffolding                                             |
 | `web-packages`      | front-end packages/build tooling for the blade stack               |

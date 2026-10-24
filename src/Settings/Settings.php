@@ -2,106 +2,81 @@
 
 namespace Cubeta\CubetaStarter\Settings;
 
+use Cubeta\CubetaStarter\Helpers\Naming;
 use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Enums\ValidationTypeEnum;
-use Cubeta\CubetaStarter\Helpers\Naming;
 
 class Settings
 {
-    private static $instance;
-    private static array $json;
-    private static array $tables;
     private static ?FrontendTypeEnum $frontendStack = null;
-    private static ?ValidationTypeEnum $validationType = null;
+
     private static bool $hasRoles = false;
-    private static string $version;
+
     private static bool $installedApi = false;
-    private static bool $installedWeb = false;
+
     private static bool $installedApiAuth = false;
+
+    private static bool $installedWeb = false;
+
     private static bool $installedWebAuth = false;
+
     private static bool $installedWebPackages = false;
+
+    private static $instance;
+
+    private static array $json;
+
+    private static array $tables;
+
+    private static ?ValidationTypeEnum $validationType = null;
+
+    private static string $version;
 
     private function __construct()
     {
         //
     }
 
-    public static function make(): Settings
+    public function addTable(CubeTable $table): static
     {
-        self::$json = self::getJsonSettings();
-
-        if (isset(self::$json['frontend_type'])) {
-            self::$frontendStack = FrontendTypeEnum::tryFrom(self::$json['frontend_type']);
+        $exist = [];
+        foreach (self::$tables as $key => $t) {
+            if (isset($t['table_name']) and $t['table_name'] == $table->tableName) {
+                $exist = self::$tables[$key];
+                unset(self::$tables[$key]);
+            }
         }
 
-        if (isset(self::$json['validation_type'])) {
-            self::$validationType = ValidationTypeEnum::tryFrom(self::$json['validation_type']);
-        } else {
-            self::$validationType = null;
-        }
+        $new = $table->collect()->merge(collect($exist))->unique();
 
-        if (isset(self::$json['has_roles'])) {
-            self::$hasRoles = (bool)self::$json['has_roles'];
-        } else {
-            self::$hasRoles = false;
-        }
+        self::$tables[] = $new->toArray();
+        $json = self::getJsonSettings();
+        $json['tables'] = collect(self::$tables)->values()->toArray();
+        self::storeJsonSettings($json);
 
-        if (isset(self::$json['installed_api'])) {
-            self::$installedApi = (bool)self::$json['installed_api'];
-        } else {
-            self::$installedApi = false;
-        }
+        return $this;
+    }
 
-        if (isset(self::$json['installed_web'])) {
-            self::$installedWeb = (bool)self::$json['installed_web'];
-        } else {
-            self::$installedWeb = false;
-        }
+    public function getAllModels(): array
+    {
+        return array_map(fn ($table) => $table['model_name'] ?? 'UNDEFINED_TABLE_MODEL', self::$tables);
+    }
 
-        if (isset(self::$json['installed_web_packages'])) {
-            self::$installedWebPackages = (bool)self::$json['installed_web_packages'];
-        } else {
-            self::$installedWebPackages = false;
-        }
-
-        if (isset(self::$json['installed_api_auth'])) {
-            self::$installedApiAuth = (bool)self::$json['installed_api_auth'];
-        } else {
-            self::$installedApiAuth = false;
-        }
-
-        if (isset(self::$json['installed_web_auth'])) {
-            self::$installedWebAuth = (bool)self::$json['installed_web_auth'];
-        } else {
-            self::$installedWebAuth = false;
-        }
-
-        if (isset(self::$json["tables"])) {
-            self::$tables = self::$json["tables"];
-            self::$version = self::$tables["version"] ?? "v1";
-        } else {
-            self::$tables = [];
-            self::$version = 'v1';
-        }
-
-        if (self::$instance == null) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
+    public function getFrontendType(): ?FrontendTypeEnum
+    {
+        return self::$frontendStack;
     }
 
     /**
      * get the package (cubeta-starter) JSON file settings as an array
-     * @return array
      */
     public static function getJsonSettings(): array
     {
         $filePath = base_path('/cubeta-starter.config.json');
 
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             return [];
         }
 
@@ -112,15 +87,11 @@ class Settings
             true
         );
 
-        if (!$data) {
+        if (! $data) {
             return [];
         }
-        return $data;
-    }
 
-    public function getAllModels(): array
-    {
-        return array_map(fn($table) => $table['model_name'] ?? "UNDEFINED_TABLE_MODEL", self::$tables);
+        return $data;
     }
 
     public function getTable(string $modelName): ?CubeTable
@@ -129,7 +100,7 @@ class Settings
         $tableName = Naming::table($modelName);
 
         foreach (self::$tables as $table) {
-            if (!isset($table['model_name']) || $table['model_name'] != $modelName) {
+            if (! isset($table['model_name']) || $table['model_name'] != $modelName) {
                 continue;
             }
 
@@ -144,7 +115,7 @@ class Settings
                 $nullable = $attribute['nullable'] ?? false;
                 $unique = $attribute['unique'] ?? false;
 
-                if (!isset($name, $type)) {
+                if (! isset($name, $type)) {
                     continue;
                 }
 
@@ -156,7 +127,7 @@ class Settings
             foreach ($tableRelations as $type => $relationships) {
                 foreach ($relationships as $relationship) {
                     $relationModelName = $relationship['model_name'] ?? null;
-                    if (!$relationModelName) {
+                    if (! $relationModelName) {
                         continue;
                     }
 
@@ -174,6 +145,110 @@ class Settings
         }
 
         return null;
+    }
+
+    /**
+     * the requests validation classes type of the host project
+     * defaults to the form requests when the user didn't choose one yet
+     */
+    public function getValidationType(): ValidationTypeEnum
+    {
+        return self::$validationType ?? ValidationTypeEnum::FORM_REQUEST;
+    }
+
+    public function installedApi(): bool
+    {
+        return self::$installedApi;
+    }
+
+    public function installedApiAuth(): bool
+    {
+        return self::$installedApiAuth;
+    }
+
+    public function installedRoles(): bool
+    {
+        return self::$hasRoles;
+    }
+
+    public function installedWeb(): bool
+    {
+        return self::$installedWeb;
+    }
+
+    public function installedWebAuth(): bool
+    {
+        return self::$installedWebAuth;
+    }
+
+    public function installedWebPackages(): bool
+    {
+        return self::$installedWebPackages;
+    }
+
+    public static function make(): Settings
+    {
+        self::$json = self::getJsonSettings();
+
+        if (isset(self::$json['frontend_type'])) {
+            self::$frontendStack = FrontendTypeEnum::tryFrom(self::$json['frontend_type']);
+        }
+
+        if (isset(self::$json['validation_type'])) {
+            self::$validationType = ValidationTypeEnum::tryFrom(self::$json['validation_type']);
+        } else {
+            self::$validationType = null;
+        }
+
+        if (isset(self::$json['has_roles'])) {
+            self::$hasRoles = (bool) self::$json['has_roles'];
+        } else {
+            self::$hasRoles = false;
+        }
+
+        if (isset(self::$json['installed_api'])) {
+            self::$installedApi = (bool) self::$json['installed_api'];
+        } else {
+            self::$installedApi = false;
+        }
+
+        if (isset(self::$json['installed_web'])) {
+            self::$installedWeb = (bool) self::$json['installed_web'];
+        } else {
+            self::$installedWeb = false;
+        }
+
+        if (isset(self::$json['installed_web_packages'])) {
+            self::$installedWebPackages = (bool) self::$json['installed_web_packages'];
+        } else {
+            self::$installedWebPackages = false;
+        }
+
+        if (isset(self::$json['installed_api_auth'])) {
+            self::$installedApiAuth = (bool) self::$json['installed_api_auth'];
+        } else {
+            self::$installedApiAuth = false;
+        }
+
+        if (isset(self::$json['installed_web_auth'])) {
+            self::$installedWebAuth = (bool) self::$json['installed_web_auth'];
+        } else {
+            self::$installedWebAuth = false;
+        }
+
+        if (isset(self::$json['tables'])) {
+            self::$tables = self::$json['tables'];
+            self::$version = self::$tables['version'] ?? 'v1';
+        } else {
+            self::$tables = [];
+            self::$version = 'v1';
+        }
+
+        if (self::$instance == null) {
+            self::$instance = new self;
+        }
+
+        return self::$instance;
     }
 
     public function serialize(string $modelName, array $attributes, array $relations = [], array $nullables = [], array $uniques = [], string $version = 'v1'): CubeTable
@@ -213,29 +288,57 @@ class Settings
         return $table;
     }
 
-    public function addTable(CubeTable $table): static
+    public function setFrontendType(FrontendTypeEnum $type): void
     {
-        $exist = [];
-        foreach (self::$tables as $key => $t) {
-            if (isset($t["table_name"]) and $t["table_name"] == $table->tableName) {
-                $exist = self::$tables[$key];
-                unset(self::$tables[$key]);
-            }
-        }
+        self::$json['frontend_type'] = $type->value;
+        self::storeJsonSettings(self::$json);
+    }
 
-        $new = $table->collect()->merge(collect($exist))->unique();
+    public function setInstalledApi(bool $value = true): void
+    {
+        self::$json['installed_api'] = $value;
+        self::storeJsonSettings(self::$json);
+    }
 
-        self::$tables[] = $new->toArray();
-        $json = self::getJsonSettings();
-        $json['tables'] = collect(self::$tables)->values()->toArray();
-        self::storeJsonSettings($json);
-        return $this;
+    public function setInstalledApiAuth(bool $value = true): void
+    {
+        self::$json['installed_api_auth'] = $value;
+        self::storeJsonSettings(self::$json);
+    }
+
+    public function setInstalledRoles(bool $value = true): void
+    {
+        self::$json['has_roles'] = $value;
+        self::storeJsonSettings(self::$json);
+    }
+
+    public function setInstalledWeb(bool $value = true): void
+    {
+        self::$json['installed_web'] = $value;
+        self::storeJsonSettings(self::$json);
+    }
+
+    public function setInstalledWebAuth(bool $value = true): void
+    {
+        self::$json['installed_web_auth'] = $value;
+        self::storeJsonSettings(self::$json);
+    }
+
+    public function setInstalledWebPackages(bool $value = true): void
+    {
+        self::$json['installed_web_packages'] = $value;
+        self::storeJsonSettings(self::$json);
+    }
+
+    public function setValidationType(ValidationTypeEnum $type): void
+    {
+        self::$json['validation_type'] = $type->value;
+        self::$validationType = $type;
+        self::storeJsonSettings(self::$json);
     }
 
     /**
      * store the provided array in the package (cubeta-starter) JSON file settings as an array
-     * @param array $data
-     * @return void
      */
     public static function storeJsonSettings(array $data): void
     {
@@ -243,138 +346,5 @@ class Settings
             base_path('/cubeta-starter.config.json'),
             json_encode($data, JSON_PRETTY_PRINT)
         );
-    }
-
-    /**
-     * @param FrontendTypeEnum $type
-     * @return void
-     */
-    public function setFrontendType(FrontendTypeEnum $type): void
-    {
-        self::$json["frontend_type"] = $type->value;
-        self::storeJsonSettings(self::$json);
-    }
-
-    /**
-     * @return FrontendTypeEnum|null
-     */
-    public function getFrontendType(): ?FrontendTypeEnum
-    {
-        return self::$frontendStack;
-    }
-
-    /**
-     * @param ValidationTypeEnum $type
-     * @return void
-     */
-    public function setValidationType(ValidationTypeEnum $type): void
-    {
-        self::$json["validation_type"] = $type->value;
-        self::$validationType = $type;
-        self::storeJsonSettings(self::$json);
-    }
-
-    /**
-     * the requests validation classes type of the host project
-     * defaults to the form requests when the user didn't choose one yet
-     * @return ValidationTypeEnum
-     */
-    public function getValidationType(): ValidationTypeEnum
-    {
-        return self::$validationType ?? ValidationTypeEnum::FORM_REQUEST;
-    }
-
-    /**
-     * @return bool
-     */
-    public function installedRoles(): bool
-    {
-        return self::$hasRoles;
-    }
-
-    /**
-     * @param bool $value
-     * @return void
-     */
-    public function setInstalledRoles(bool $value = true): void
-    {
-        self::$json["has_roles"] = $value;
-        self::storeJsonSettings(self::$json);
-    }
-
-    /**
-     * @return bool
-     */
-    public function installedApi(): bool
-    {
-        return self::$installedApi;
-    }
-
-    /**
-     * @param bool $value
-     * @return void
-     */
-    public function setInstalledApi(bool $value = true): void
-    {
-        self::$json["installed_api"] = $value;
-        self::storeJsonSettings(self::$json);
-    }
-
-    /**
-     * @return bool
-     */
-    public function installedWeb(): bool
-    {
-        return self::$installedWeb;
-    }
-
-    /**
-     * @param bool $value
-     * @return void
-     */
-    public function setInstalledWeb(bool $value = true): void
-    {
-        self::$json["installed_web"] = $value;
-        self::storeJsonSettings(self::$json);
-    }
-
-    /**
-     * @return bool
-     */
-    public function installedApiAuth(): bool
-    {
-        return self::$installedApiAuth;
-    }
-
-    /**
-     * @param bool $value
-     * @return void
-     */
-    public function setInstalledApiAuth(bool $value = true): void
-    {
-        self::$json["installed_api_auth"] = $value;
-        self::storeJsonSettings(self::$json);
-    }
-
-    public function setInstalledWebAuth(bool $value = true): void
-    {
-        self::$json["installed_web_auth"] = $value;
-        self::storeJsonSettings(self::$json);
-    }
-
-    public function installedWebAuth(): bool
-    {
-        return self::$installedWebAuth;
-    }
-
-    public function installedWebPackages(): bool
-    {
-        return self::$installedWebPackages;
-    }
-
-    public function setInstalledWebPackages(bool $value = true): void
-    {
-        self::$json["installed_web_packages"] = $value;
-        self::storeJsonSettings(self::$json);
     }
 }

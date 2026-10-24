@@ -2,26 +2,33 @@
 
 namespace Cubeta\CubetaStarter\Stub;
 
-use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Helpers\FileUtils;
+use Exception;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Traits\Makable;
-use Exception;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Helpers\FileUtils;
 
 class Publisher
 {
     use Makable;
 
-    private string $source;
     private string $destination;
 
-    public function source(CubePath|string $source): static
-    {
-        $this->source = $source instanceof CubePath
-            ? $source->fullPath
-            : $source;
+    private string $source;
 
-        return $this;
+    private function formatDestination(): void
+    {
+        if (! file_exists($this->destination)) {
+            return;
+        }
+
+        if (str($this->destination)->contains('.blade.php')) {
+            FileUtils::formatWithPrettier($this->destination);
+        } elseif (str($this->destination)->contains('.php')) {
+            FileUtils::formatWithPint($this->destination);
+        } else {
+            FileUtils::formatWithPrettier($this->destination);
+        }
     }
 
     public function destination(CubePath|string $destination): static
@@ -33,16 +40,16 @@ class Publisher
         return $this;
     }
 
-
     public function publish(bool $override = false): bool
     {
-        if (file_exists($this->destination) and !$override) {
-            CubeLog::fileAlreadyExists($this->destination, "Trying To Generate : [" . $this->destination . "]");
+        if (file_exists($this->destination) and ! $override) {
+            CubeLog::fileAlreadyExists($this->destination, 'Trying To Generate : ['.$this->destination.']');
+
             return false;
         }
 
         try {
-            if (!file_exists($this->source)) {
+            if (! file_exists($this->source)) {
                 throw new Exception("File doesn't exists : [$this->source]");
             }
 
@@ -57,25 +64,21 @@ class Publisher
 
             CubeLog::generatedSuccessfully(pathinfo($this->destination, PATHINFO_BASENAME), $this->destination);
             $this->formatDestination();
+
             return true;
         } catch (Exception $e) {
             CubeLog::add($e);
+
             return false;
         }
     }
 
-    private function formatDestination(): void
+    public function source(CubePath|string $source): static
     {
-        if (!file_exists($this->destination)) {
-            return;
-        }
+        $this->source = $source instanceof CubePath
+            ? $source->fullPath
+            : $source;
 
-        if (str($this->destination)->contains('.blade.php')) {
-            FileUtils::formatWithPrettier($this->destination);
-        } elseif (str($this->destination)->contains(".php")) {
-            FileUtils::formatWithPint($this->destination);
-        } else {
-            FileUtils::formatWithPrettier($this->destination);
-        }
+        return $this;
     }
 }

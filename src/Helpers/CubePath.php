@@ -2,21 +2,24 @@
 
 namespace Cubeta\CubetaStarter\Helpers;
 
+use JetBrains\PhpStorm\FileReference;
 use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Logs\Errors\AlreadyExist;
-use JetBrains\PhpStorm\FileReference;
 
 class CubePath
 {
-    public string $inProjectPath;
-    public ?string $fullPath = null;
-    public ?string $fullDirectory = null;
-    public ?string $inProjectDirectory = null;
     public ?string $fileName = null;
+
+    public ?string $fullDirectory = null;
+
+    public ?string $fullPath = null;
+
+    public ?string $inProjectDirectory = null;
+
+    public string $inProjectPath;
 
     /**
      * the file directory inside your project starting from the root directory
-     * @param string $inProjectFilePath
      */
     public function __construct(#[FileReference] string $inProjectFilePath)
     {
@@ -31,12 +34,24 @@ class CubePath
         $this->fullPath = base_path($this->inProjectPath);
         $this->fullDirectory = dirname($this->fullPath);
         $this->inProjectDirectory = dirname($this->inProjectPath);
-        $this->fileName = pathinfo($this->fullPath, PATHINFO_BASENAME) ?? "";
+        $this->fileName = pathinfo($this->fullPath, PATHINFO_BASENAME) ?? '';
     }
 
-    public static function make(#[FileReference] string $inProjectFilePath): CubePath
+    public function __toString(): string
     {
-        return new self($inProjectFilePath);
+        return $this->fullPath;
+    }
+
+    public function append(string $path): CubePath
+    {
+        return new self(
+            str($this->inProjectPath)
+                ->when(
+                    str_ends_with($this->inProjectPath, DIRECTORY_SEPARATOR),
+                    fn ($s) => $s->append($path),
+                    fn ($s) => $s->append(DIRECTORY_SEPARATOR.$path)
+                )->toString()
+        );
     }
 
     public function ensureDirectoryExists(): void
@@ -49,16 +64,11 @@ class CubePath
         return file_exists($this->fullPath);
     }
 
-    public function logAlreadyExist(?string $happenedWhen = null): void
-    {
-        CubeLog::add(new AlreadyExist($this->fullPath, $happenedWhen));
-    }
-
     public function format(): void
     {
         if (str($this->fileName)->contains('.blade.php')) {
             FileUtils::formatWithPrettier($this->fullPath);
-        } elseif ($this->getFileExtension() == "php") {
+        } elseif ($this->getFileExtension() == 'php') {
             FileUtils::formatWithPint($this->fullPath);
         } else {
             FileUtils::formatWithPrettier($this->fullPath);
@@ -70,31 +80,48 @@ class CubePath
         return file_get_contents($this->fullPath);
     }
 
-    public function putContent($data, int $flags = 0): bool|int
-    {
-        return file_put_contents($this->fullPath, $data, $flags);
-    }
-
     public function getFileExtension(): ?string
     {
         return pathinfo($this->fullPath, PATHINFO_EXTENSION) ?: null;
     }
 
-    public static function stubPath(#[FileReference(basePath: "src/Stub/stubs/")] string $stubPath): string
+    public function getFileNameWithoutExtension(): string
+    {
+        return str($this->fileName)
+            ->replace('.'.$this->getFileExtension(), '')
+            ->toString();
+    }
+
+    public function logAlreadyExist(?string $happenedWhen = null): void
+    {
+        CubeLog::add(new AlreadyExist($this->fullPath, $happenedWhen));
+    }
+
+    public static function make(#[FileReference] string $inProjectFilePath): CubePath
+    {
+        return new self($inProjectFilePath);
+    }
+
+    public function putContent($data, int $flags = 0): bool|int
+    {
+        return file_put_contents($this->fullPath, $data, $flags);
+    }
+
+    public static function stubPath(#[FileReference(basePath: 'src/Stub/stubs/')] string $stubPath): string
     {
         return realpath(
-            __DIR__ .
-            DIRECTORY_SEPARATOR .
-            '..' .
-            DIRECTORY_SEPARATOR .
-            'Stub' .
-            DIRECTORY_SEPARATOR .
-            'stubs' .
+            __DIR__.
+            DIRECTORY_SEPARATOR.
+            '..'.
+            DIRECTORY_SEPARATOR.
+            'Stub'.
+            DIRECTORY_SEPARATOR.
+            'stubs'.
             (
-            (str_starts_with($stubPath, "/") || str_starts_with($stubPath, "\\"))
-                ? ''
-                : DIRECTORY_SEPARATOR
-            ) .
+                (str_starts_with($stubPath, '/') || str_starts_with($stubPath, '\\'))
+                    ? ''
+                    : DIRECTORY_SEPARATOR
+            ).
             str_replace(
                 '/',
                 DIRECTORY_SEPARATOR,
@@ -104,30 +131,6 @@ class CubePath
                     $stubPath
                 )
             )
-        );
-    }
-
-    public function __toString(): string
-    {
-        return $this->fullPath;
-    }
-
-    public function getFileNameWithoutExtension(): string
-    {
-        return str($this->fileName)
-            ->replace('.' . $this->getFileExtension(), '')
-            ->toString();
-    }
-
-    public function append(string $path): CubePath
-    {
-        return new self(
-            str($this->inProjectPath)
-                ->when(
-                    str_ends_with($this->inProjectPath, DIRECTORY_SEPARATOR),
-                    fn($s) => $s->append($path),
-                    fn($s) => $s->append(DIRECTORY_SEPARATOR . $path)
-                )->toString()
         );
     }
 }

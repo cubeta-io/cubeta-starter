@@ -16,7 +16,7 @@ Together, they form a robust system for handling API responses in a consistent a
 ### Properties
 
 | Property          | Type        | Description                                 |
-|-------------------|-------------|---------------------------------------------|
+| ----------------- | ----------- | ------------------------------------------- |
 | `$code`           | int         | The HTTP status code for the response       |
 | `$message`        | string      | The message to include in the response      |
 | `$data`           | mixed       | The data to include in the response         |
@@ -27,7 +27,7 @@ Together, they form a robust system for handling API responses in a consistent a
 The `ApiResponse` class provides methods for setting various HTTP status codes:
 
 | Method              | HTTP Status | Description                                       |
-|---------------------|-------------|---------------------------------------------------|
+| ------------------- | ----------- | ------------------------------------------------- |
 | `ok()`              | 200         | Sets the status code to 200 OK                    |
 | `unknown()`         | 500         | Sets the status code to 500 Internal Server Error |
 | `notFound()`        | 404         | Sets the status code to 404 Not Found             |
@@ -41,7 +41,7 @@ The `ApiResponse` class provides methods for setting various HTTP status codes:
 ### Data and Message Methods
 
 | Method                                  | Description                                                                                                    |
-|-----------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `data(mixed $data = null)`              | Sets the data to include in the response, with automatic resource transformation for models and paginated data |
 | `message(string\|null $message = null)` | Sets the message to include in the response                                                                    |
 | `noData(mixed $data = null)`            | Sets the data to null, sets a "no data" message, and sets the status code to 404                               |
@@ -50,7 +50,7 @@ The `ApiResponse` class provides methods for setting various HTTP status codes:
 ### Success Message Methods
 
 | Method            | Description                          |
-|-------------------|--------------------------------------|
+| ----------------- | ------------------------------------ |
 | `getSuccess()`    | Sets a "get successfully" message    |
 | `storeSuccess()`  | Sets a "stored successfully" message |
 | `updateSuccess()` | Sets a "update successfully" message |
@@ -59,7 +59,7 @@ The `ApiResponse` class provides methods for setting various HTTP status codes:
 ### Response Methods
 
 | Method                                                      | Description                           |
-|-------------------------------------------------------------|---------------------------------------|
+| ----------------------------------------------------------- | ------------------------------------- |
 | `send()`                                                    | Sends the response as a JsonResponse  |
 | `paginatedSuccessfully(mixed $data, array $paginationData)` | Sends a successful paginated response |
 | `createdSuccessfully(mixed $data = null)`                   | Sends a successful creation response  |
@@ -70,7 +70,7 @@ The `ApiResponse` class provides methods for setting various HTTP status codes:
 ### Utility Methods
 
 | Method                                                   | Description                                           |
-|----------------------------------------------------------|-------------------------------------------------------|
+| -------------------------------------------------------- | ----------------------------------------------------- |
 | `create()`                                               | Creates a new instance of the ApiResponse class       |
 | `when($condition, Closure $then, ?Closure $else = null)` | Conditionally applies transformations to the response |
 | `formatPaginateData(LengthAwarePaginator $data)`         | Formats pagination data for paginated responses       |

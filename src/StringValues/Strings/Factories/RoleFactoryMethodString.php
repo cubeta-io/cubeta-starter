@@ -15,11 +15,11 @@ class RoleFactoryMethodString extends MethodString
             $methodName,
             [],
             "return \$this->afterCreating(function(User \$user){\$user->assignRole(RoleEnum::{$caseName}->value);})",
-            "public",
-            "UserFactory",
+            'public',
+            'UserFactory',
             [
                 new PhpImportString("\App\Enums\RoleEnum"),
-                new PhpImportString(config('cubeta-starter.model_namespace') . "\\User")
+                new PhpImportString(config('cubeta-starter.model_namespace').'\\User'),
             ]
         );
     }

@@ -119,12 +119,12 @@ the translatable cast accept data as arrays and as json strings so the following
 
 ```php
 $post = \App\Models\Post::create([
-    "title" => '{"en" : "english title" , "ar" : "arabic title"}' , 
+    "title" => '{"en" : "english title" , "ar" : "arabic title"}' ,
     // the rest of the columns
 ]);
 
 $post = \App\Models\Post::create([
-    "title" => ["en" => "english title" , "ar" => "arabic title"], 
+    "title" => ["en" => "english title" , "ar" => "arabic title"],
     // the rest of the columns
 ]);
 ```
@@ -132,8 +132,8 @@ $post = \App\Models\Post::create([
 in addition to that you can set values directly to the translatable object like this :
 
 ```php
-$post->title->en = "new english title" ; 
-$post->title->ar = "new arabic title" ; 
+$post->title->en = "new english title" ;
+$post->title->ar = "new arabic title" ;
 $post->save();
 ```
 
@@ -157,5 +157,5 @@ the translatable serializer class provide a faker method, so you could use it li
 ```php
 \App\Serializers\Translatable::fake('word') ; // fake()->word() but one for each defined locale
 \App\Serializers\Translatable::fake('firstName') ;
-.... 
+....
 ```

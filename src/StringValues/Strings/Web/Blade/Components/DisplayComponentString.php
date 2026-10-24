@@ -4,28 +4,17 @@ namespace Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components;
 
 class DisplayComponentString
 {
-    private string $tag;
-
     /**
      * @var array{array{key:string , value:string}}
      */
     private array $attributes = [];
 
+    private string $tag;
+
     public function __construct(string $tag, array $attributes = [])
     {
         $this->tag = $tag;
         $this->attributes = $attributes;
-    }
-
-    public function translationKey(string $translationKey): self
-    {
-        foreach ($this->attributes as &$attribute) {
-            if (($attribute['key'] ?? null) === 'label') {
-                $attribute['value'] = "{{ trans('site.{$translationKey}') }}";
-            }
-        }
-
-        return $this;
     }
 
     public function __toString(): string
@@ -51,5 +40,16 @@ class DisplayComponentString
                         $renderedAttributes
                     />
                 </div>";
+    }
+
+    public function translationKey(string $translationKey): self
+    {
+        foreach ($this->attributes as &$attribute) {
+            if (($attribute['key'] ?? null) === 'label') {
+                $attribute['value'] = "{{ trans('site.{$translationKey}') }}";
+            }
+        }
+
+        return $this;
     }
 }

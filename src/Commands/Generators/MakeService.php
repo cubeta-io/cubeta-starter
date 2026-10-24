@@ -15,7 +15,7 @@ class MakeService extends BaseCommand
 
     public function getHelp(): string
     {
-        return <<<HELP
+        return <<<'HELP'
           Generates a Service class (Repository pattern, paired with a Repository) for the
           given model.
 
@@ -27,10 +27,10 @@ class MakeService extends BaseCommand
 
     public function handle(): void
     {
-        $modelName = $this->argument('name') ?? $this->askForModelName("Model");
+        $modelName = $this->argument('name') ?? $this->askForModelName('Model');
         $override = $this->askForOverride();
 
-        $generator = new GeneratorFactory("service");
+        $generator = new GeneratorFactory('service');
         $generator->make(fileName: $modelName, override: $override);
     }
 }

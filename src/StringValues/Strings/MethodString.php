@@ -6,16 +6,7 @@ use Illuminate\Support\Arr;
 
 class MethodString
 {
-    public string $name;
-    public string $visibility;
-    public array $parameters;
     public array $body;
-    public ?string $returnType;
-
-    /**
-     * @var PhpImportString[]
-     */
-    public array $imports = [];
 
     /**
      * @var DocBlockPropertyString[]
@@ -23,12 +14,20 @@ class MethodString
     public array $docBlocs = [];
 
     /**
-     * @param string $name
-     * @param array $parameters
-     * @param array|string $body
-     * @param string $visibility
-     * @param string|null $returnType
-     * @param PhpImportString[] $imports
+     * @var PhpImportString[]
+     */
+    public array $imports = [];
+
+    public string $name;
+
+    public array $parameters;
+
+    public ?string $returnType;
+
+    public string $visibility;
+
+    /**
+     * @param PhpImportString[]        $imports
      * @param DocBlockPropertyString[] $docBlocs
      */
     public function __construct(string $name, array $parameters, array|string $body, string $visibility = 'public', ?string $returnType = null, array $imports = [], array $docBlocs = [])
@@ -50,7 +49,7 @@ class MethodString
 
     public function __toString(): string
     {
-        $parameters = "";
+        $parameters = '';
         foreach ($this->parameters as $name => $type) {
             $name = trim($name);
             $type = trim($type);
@@ -58,23 +57,23 @@ class MethodString
         }
 
         $body = array_reduce($this->body, function ($carry, $item) {
-            if (!str_ends_with($item, ";")) {
+            if (! str_ends_with($item, ';')) {
                 return "$carry\n$item;";
             }
 
             return "$carry\n$item";
         });
 
-        $comment = "";
+        $comment = '';
 
         if (count($this->docBlocs) > 0) {
             $comment =
-                "/**\n" .
+                "/**\n".
                 array_reduce(
                     $this->docBlocs,
-                    fn(string|null $c, DocBlockPropertyString $docBloc) => ($c ?? "") . "\n *" . $docBloc
+                    fn (?string $c, DocBlockPropertyString $docBloc) => ($c ?? '')."\n *".$docBloc
                 )
-                . "\n*/";
+                ."\n*/";
         }
 
         if ($this->returnType) {

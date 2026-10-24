@@ -3,8 +3,8 @@
 namespace Cubeta\CubetaStarter\Stub\Builders\Factories;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
 use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
+use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
 
 /**
  * @method self modelNamespace(string $modelNamespace)
@@ -14,6 +14,14 @@ class FactoryStubBuilder extends ClassStubBuilder
 {
     private array $rows = [];
 
+    protected function getStubPropertyArray(): array
+    {
+        return [
+            ...parent::getStubPropertyArray(),
+            '{{rows}}' => implode("\n", $this->rows),
+        ];
+    }
+
     protected function stubPath(): string
     {
         return CubePath::stubPath('Factories/Factory.stub');
@@ -21,19 +29,12 @@ class FactoryStubBuilder extends ClassStubBuilder
 
     public function row(FakeMethodString $faker): static
     {
-        if (!is_null($faker->import)){
+        if (! is_null($faker->import)) {
             $this->import($faker->import);
         }
 
         $this->rows[] = "{$faker} ,";
-        return $this;
-    }
 
-    protected function getStubPropertyArray(): array
-    {
-        return [
-            ...parent::getStubPropertyArray(),
-            '{{rows}}' => implode("\n", $this->rows),
-        ];
+        return $this;
     }
 }

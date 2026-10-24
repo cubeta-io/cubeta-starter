@@ -2,16 +2,16 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
+use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\BladeControllerGenerator;
 use Cubeta\CubetaStarter\Generators\Sources\WebControllers\InertiaReactTSController;
-use Cubeta\CubetaStarter\Settings\Settings;
 
 class ControllerGenerator extends AbstractGenerator
 {
-    public static string $key = "controller";
+    public static string $key = 'controller';
 
     public function run(): void
     {

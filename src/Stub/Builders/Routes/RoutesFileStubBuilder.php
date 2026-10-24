@@ -2,14 +2,27 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Routes;
 
-use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Modules\Routes;
-use Cubeta\CubetaStarter\Stub\Contracts\PhpFileStubBuilder;
 use Illuminate\Support\Arr;
+use Cubeta\CubetaStarter\Modules\Routes;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Stub\Contracts\PhpFileStubBuilder;
 
 class RoutesFileStubBuilder extends PhpFileStubBuilder
 {
     private array $routes = [];
+
+    protected function getStubPropertyArray(): array
+    {
+        return [
+            ...$this->stubProperties,
+            '{{routes}}' => implode(PHP_EOL, $this->routes),
+        ];
+    }
+
+    protected function stubPath(): string
+    {
+        return CubePath::stubPath('Routes/RoutesFile.stub');
+    }
 
     public function init(): void
     {
@@ -18,7 +31,7 @@ class RoutesFileStubBuilder extends PhpFileStubBuilder
     }
 
     /**
-     * @param Routes|Routes[] $route
+     * @param  Routes|Routes[] $route
      * @return $this
      */
     public function route(Routes|array $route): static
@@ -27,19 +40,7 @@ class RoutesFileStubBuilder extends PhpFileStubBuilder
         $this->routes = array_map(function (Routes $route) {
             return $route->toString();
         }, $this->routes);
+
         return $this;
-    }
-
-    protected function stubPath(): string
-    {
-        return CubePath::stubPath('Routes/RoutesFile.stub');
-    }
-
-    protected function getStubPropertyArray(): array
-    {
-        return [
-            ...$this->stubProperties,
-            '{{routes}}' => implode(PHP_EOL, $this->routes),
-        ];
     }
 }

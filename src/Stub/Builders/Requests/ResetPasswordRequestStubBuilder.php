@@ -7,7 +7,6 @@ use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 
 class ResetPasswordRequestStubBuilder extends ClassStubBuilder
 {
-
     protected function stubPath(): string
     {
         return CubePath::stubPath('Requests/ResetPasswordRequest.stub');

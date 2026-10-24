@@ -1,8 +1,7 @@
 <?php
 
-use Cubeta\CubetaStarter\App\Http\Controllers\GeneratorController;
-use Cubeta\CubetaStarter\App\Http\Controllers\RenderAppropriateViewController;
 use Illuminate\Support\Facades\Route;
+use Cubeta\CubetaStarter\App\Http\Controllers\GeneratorController;
 
 Route::prefix('/cubeta-starter')->name('cubeta.starter.')->group(function () {
     Route::view('/settings', 'CubetaStarter::settings')->name('settings');

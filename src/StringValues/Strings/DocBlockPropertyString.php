@@ -6,18 +6,18 @@ use Illuminate\Support\Arr;
 
 class DocBlockPropertyString
 {
-    public string $name;
-    public ?string $type;
-    public string $tag;
     public array $imports = [];
 
+    public string $name;
+
+    public string $tag;
+
+    public ?string $type;
+
     /**
-     * @param string                                 $name
-     * @param string|null                            $type
-     * @param string                                 $tag
      * @param PhpImportString[]|PhpImportString|null $imports
      */
-    public function __construct(string $name, ?string $type = null, string $tag = "property", null|array|PhpImportString $imports = [])
+    public function __construct(string $name, ?string $type = null, string $tag = 'property', null|array|PhpImportString $imports = [])
     {
         $this->name = $name;
         $this->type = $type;
@@ -25,10 +25,9 @@ class DocBlockPropertyString
         $this->tag = $tag;
     }
 
-
     public function __toString(): string
     {
-        if ($this->tag == "property") {
+        if ($this->tag == 'property') {
             return "@$this->tag $this->type \$$this->name";
         }
 

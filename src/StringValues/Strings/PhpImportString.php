@@ -11,9 +11,9 @@ class PhpImportString
      */
     public function __construct(string $classFullName)
     {
-        $this->classFullName = str_starts_with($classFullName, "\\")
+        $this->classFullName = str_starts_with($classFullName, '\\')
             ? str($classFullName)
-                ->replaceFirst("\\", "")
+                ->replaceFirst('\\', '')
                 ->toString()
             : $classFullName;
     }

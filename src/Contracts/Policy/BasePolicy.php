@@ -25,7 +25,7 @@ class BasePolicy
      */
     public function create(User $user): bool
     {
-        return (bool)($user->can('store ' . $this->modelName));
+        return (bool) ($user->can('store '.$this->modelName));
     }
 
     /**
@@ -33,7 +33,7 @@ class BasePolicy
      */
     public function delete(User $user): bool
     {
-        return (bool)($user->can('delete ' . $this->modelName));
+        return (bool) ($user->can('delete '.$this->modelName));
     }
 
     /**
@@ -41,7 +41,7 @@ class BasePolicy
      */
     public function update(User $user): bool
     {
-        return (bool)($user->can('update ' . $this->modelName));
+        return (bool) ($user->can('update '.$this->modelName));
     }
 
     /**
@@ -49,7 +49,7 @@ class BasePolicy
      */
     public function view(User $user): bool
     {
-        return (bool)($user->can('show ' . $this->modelName));
+        return (bool) ($user->can('show '.$this->modelName));
     }
 
     /**
@@ -57,6 +57,6 @@ class BasePolicy
      */
     public function viewAny(User $user): bool
     {
-        return (bool)($user->can('index ' . $this->modelName));
+        return (bool) ($user->can('index '.$this->modelName));
     }
 }

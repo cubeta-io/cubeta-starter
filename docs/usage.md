@@ -45,7 +45,7 @@ file will target .
 The seven parameters are :
 
 | parameter                                       | type                                                |
-|-------------------------------------------------|-----------------------------------------------------|
+| ----------------------------------------------- | --------------------------------------------------- |
 | Model name                                      | `string`                                            |
 | Table columns and their types                   | `array[colName:string => colType:string]`           |
 | The model relations                             | `array[relationName:string => relationType:string]` |
@@ -131,28 +131,28 @@ project
 1- run this command : `php artisan create:actor` so an output will appear :
 
 ```shell
-What Is The Actor Name ? i.e:admin , customer , ... :    
+What Is The Actor Name ? i.e:admin , customer , ... :
 > student
 ```
 
 just put the name for this actor and press enter so the following output will appear :
 
 ```shell
-Does This Actor Has A Specific Permissions You Want o Specify ? (student) (yes/no) [no]:   
+Does This Actor Has A Specific Permissions You Want o Specify ? (student) (yes/no) [no]:
 ```
 
 Now the command asking if you would like to specify permissions for this role so just type in like this :
 
 ```shell
- Does This Actor Has A Specific Permissions You Want o Specify ? (student) (yes/no) [no]:                                                   
+ Does This Actor Has A Specific Permissions You Want o Specify ? (student) (yes/no) [no]:
  > yes
 ```
 
 Now just enter the permissions like this :
 
 ```shell
-What Are (student) Permissions ?                                                                                                           
-Write As Many Permissions You Want Just Keep Between Every Permissions And The Another A Comma i.e : can-read,can-index,can-edit:           
+What Are (student) Permissions ?
+Write As Many Permissions You Want Just Keep Between Every Permissions And The Another A Comma i.e : can-read,can-index,can-edit:
  > index,create,update,delete
 ```
 
@@ -162,17 +162,17 @@ to
 specify the container for that file)
 
 ```shell
- What Is The Container Type For This Operation :  [api]:                                                                                    
-  [0] api                                                                                                                                   
-  [1] web                                                                                                                                   
-  [2] both                                                                                                                                  
- > 0 
+ What Is The Container Type For This Operation :  [api]:
+  [0] api
+  [1] web
+  [2] both
+ > 0
 ```
 
 Now this question will appear :
 
 ```shell
-Do You Want To Create Authentication Api Controller For This Actor ? (yes/no) [yes]:                                                       
+Do You Want To Create Authentication Api Controller For This Actor ? (yes/no) [yes]:
  > yes
 ```
 
@@ -181,7 +181,7 @@ by confirming you are generating Authentication controller for your actor .
 The last question is :
 
 ```shell
-Do You Want To Create Authentication Api Controller For This Actor ? (yes/no) [yes]:                                                       
+Do You Want To Create Authentication Api Controller For This Actor ? (yes/no) [yes]:
  > yes
 ```
 
@@ -204,7 +204,7 @@ Now you will notice that the there is multiple files generated and some changes 
 > so be careful
 
 > [!NOTE]
-> this command works with the generated files of these commands :  `cubeta:install permissions` , `cubeta:install auth`
+> this command works with the generated files of these commands : `cubeta:install permissions` , `cubeta:install auth`
 > so make sure that you follow their steps before start adding actors
 
 If you do a little check on `app/Enums/RoleEnum.php` you'll find that your actor has been added to it as a native enum case.
@@ -271,7 +271,7 @@ or if you want to extend its logic and save the **BaseAuthController** register 
 public function register(AuthRegisterRequest $request)
 {
     // add your specific logic here ...
-  
+
     return parent::register($request);
 }
 ```
@@ -339,8 +339,8 @@ The `ValidTranslatableJson` validation rule will make sure that the received jso
 
 ```json
 {
-    "en": "name",
-    "fr": "nom"
+  "en": "name",
+  "fr": "nom"
 }
 ```
 
@@ -348,14 +348,14 @@ and not something like this for example
 
 ```json
 [
-    {
-        "en": "name",
-        "fr": [
-            {
-                "ar": "اسم"
-            }
-        ]
-    }
+  {
+    "en": "name",
+    "fr": [
+      {
+        "ar": "اسم"
+      }
+    ]
+  }
 ]
 ```
 
@@ -391,7 +391,7 @@ then it will re-ask you if you have another has many related model just do the s
 
 4 - this output will come next :
 
-```shell 
+```shell
 Does (<YourModelName>) model related with another model by many to many relation ? (yes/no) [no]:
  > yes
 ```
@@ -431,7 +431,6 @@ this command will generate the product model with a corresponding resource and c
 
 > [!NOTE]
 > when not providing an option to the command it will generate the model and all its related files as we said before
-
 
 **the available options for these commands are :**
 

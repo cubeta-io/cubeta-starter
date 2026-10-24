@@ -4,12 +4,11 @@ namespace Cubeta\CubetaStarter\Enums;
 
 enum FrontendTypeEnum: string
 {
-    case BLADE = "Blade";
-    case REACT_TS = "React & Typescript";
-    case NONE = "None";
-
     public static function getAllValues(): array
     {
-        return array_column(self::cases() , 'value');
+        return array_column(self::cases(), 'value');
     }
+    case BLADE = 'Blade';
+    case NONE = 'None';
+    case REACT_TS = 'React & Typescript';
 }

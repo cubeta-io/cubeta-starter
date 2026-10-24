@@ -13,17 +13,17 @@ class HtmlTableHeaderString
         $this->header = $header;
     }
 
-    public function translationKey(string $translationKey): self
-    {
-        $this->translationKey = $translationKey;
-
-        return $this;
-    }
-
     public function __toString(): string
     {
         return $this->translationKey
             ? "<th>{{ trans('site.{$this->translationKey}') }}</th>"
             : "<th>$this->header</th>";
+    }
+
+    public function translationKey(string $translationKey): self
+    {
+        $this->translationKey = $translationKey;
+
+        return $this;
     }
 }

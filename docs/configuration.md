@@ -23,7 +23,7 @@ The real defaults are shown below.
 ### Project Settings
 
 | Option                                       | Description                                                                                                  | Default                                                          |
-|----------------------------------------------|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
 | `project_name`                               | The name of your project, used for naming the Postman collection                                             | `'CubetaStarter'`                                                |
 | `version`                                    | The version segment of the generated code structure (used in namespaces/paths, e.g. `App\Http\Resources\v1`) | `'v1'`                                                           |
 | `project_url`                                | Your project's public URL, used in the Postman collection                                                    | `null` (falls back to `http://localhost/{project_name}/public/`) |
@@ -33,7 +33,7 @@ The real defaults are shown below.
 ### Localization Settings
 
 | Option              | Description                                | Default  |
-|---------------------|--------------------------------------------|----------|
+| ------------------- | ------------------------------------------ | -------- |
 | `available_locales` | Array of locales your application supports | `['en']` |
 | `default_locale`    | The default locale for your application    | `'en'`   |
 
@@ -101,8 +101,8 @@ with `join_paths(...)`). These control where generated files are placed:
 
 > [!NOTE]
 > The `version` value is woven into generated namespaces and paths. For example, with `version => 'v1'` a resource is
-generated as `App\Http\Resources\v1\ProductResource`. Base classes such as `BaseRepository` and `BaseService` are placed
-under a `Contracts` sub-namespace of their configured namespace.
+> generated as `App\Http\Resources\v1\ProductResource`. Base classes such as `BaseRepository` and `BaseService` are placed
+> under a `Contracts` sub-namespace of their configured namespace.
 
 ## Media Settings
 
@@ -115,12 +115,12 @@ commands; to (re)publish it on its own:
 php artisan vendor:publish --tag=cubeta-starter-config
 ```
 
-| Option                                 | Description                                           | Default                                                                                          |
-|----------------------------------------|-------------------------------------------------------|--------------------------------------------------------------------------------------------------|
-| `disks.public`                         | The filesystem disk public media is stored on         | `env('MEDIA_PUBLIC_DISK')`, else `MEDIA_DISK`, else `public` when `FILESYSTEM_DISK` is `local`, else `FILESYSTEM_DISK` |
-| `disks.private`                        | The filesystem disk private media is stored on        | `env('MEDIA_PRIVATE_DISK')`, else `MEDIA_DISK`, else `local` when `FILESYSTEM_DISK` is `local` or `public`, else `FILESYSTEM_DISK` |
-| `temporary_url_ttl`                    | Minutes a signed URL for a private file stays valid   | `env('MEDIA_TEMPORARY_URL_TTL', 5)`                                                              |
-| `prefixes.public` / `prefixes.private` | Path prefixes that separate public and private files  | `'public'` / `'private'`                                                                         |
+| Option                                 | Description                                          | Default                                                                                                                            |
+| -------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `disks.public`                         | The filesystem disk public media is stored on        | `env('MEDIA_PUBLIC_DISK')`, else `MEDIA_DISK`, else `public` when `FILESYSTEM_DISK` is `local`, else `FILESYSTEM_DISK`             |
+| `disks.private`                        | The filesystem disk private media is stored on       | `env('MEDIA_PRIVATE_DISK')`, else `MEDIA_DISK`, else `local` when `FILESYSTEM_DISK` is `local` or `public`, else `FILESYSTEM_DISK` |
+| `temporary_url_ttl`                    | Minutes a signed URL for a private file stays valid  | `env('MEDIA_TEMPORARY_URL_TTL', 5)`                                                                                                |
+| `prefixes.public` / `prefixes.private` | Path prefixes that separate public and private files | `'public'` / `'private'`                                                                                                           |
 
 > [!NOTE]
 > Set `MEDIA_DISK` to use one disk for both public and private media, for example a single S3 bucket. In that case

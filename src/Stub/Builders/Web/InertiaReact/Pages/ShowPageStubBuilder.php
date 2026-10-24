@@ -3,8 +3,8 @@
 namespace Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 use Cubeta\CubetaStarter\Stub\Contracts\TypescriptFileBuilder;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
 
 /**
  * @method self modelName(string $name)
@@ -16,19 +16,25 @@ class ShowPageStubBuilder extends TypescriptFileBuilder
     /**
      * @var ReactTsDisplayComponentString[]
      */
-    private array $smallFields = [];
+    private array $bigFields = [];
+
     /**
      * @var ReactTsDisplayComponentString[]
      */
-    private array $bigFields = [];
+    private array $smallFields = [];
 
-    public function smallField(ReactTsDisplayComponentString $field): static
+    protected function getStubPropertyArray(): array
     {
-        $this->smallFields[] = $field;
-        if (count($field->imports) > 0) {
-            $this->import($field->imports);
-        }
-        return $this;
+        return [
+            ...parent::getStubPropertyArray(),
+            '{{small_fields}}' => implode("\n", $this->smallFields),
+            '{{big_fields}}'   => implode("\n", $this->bigFields),
+        ];
+    }
+
+    protected function stubPath(): string
+    {
+        return CubePath::stubPath('/Web/InertiaReact/Pages/Show.stub');
     }
 
     public function bigField(ReactTsDisplayComponentString $field): static
@@ -37,20 +43,17 @@ class ShowPageStubBuilder extends TypescriptFileBuilder
         if (count($field->imports) > 0) {
             $this->import($field->imports);
         }
+
         return $this;
     }
 
-    protected function stubPath(): string
+    public function smallField(ReactTsDisplayComponentString $field): static
     {
-        return CubePath::stubPath('/Web/InertiaReact/Pages/Show.stub');
-    }
+        $this->smallFields[] = $field;
+        if (count($field->imports) > 0) {
+            $this->import($field->imports);
+        }
 
-    protected function getStubPropertyArray(): array
-    {
-        return [
-            ...parent::getStubPropertyArray(),
-            '{{small_fields}}' => implode("\n", $this->smallFields),
-            "{{big_fields}}" => implode("\n", $this->bigFields),
-        ];
+        return $this;
     }
 }

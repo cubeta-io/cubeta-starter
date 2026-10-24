@@ -6,23 +6,23 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 
 class DataTableColumnObjectString
 {
-    public ?string $name = null;
+    /** @var TsImportString[] */
+    public array $imports = [];
 
     public ?string $label = null;
 
-    public bool $translatable = false;
-
-    public bool $sortable = false;
+    public ?string $name = null;
 
     public ?string $render = null;
 
-    /** @var TsImportString[] */
-    public array $imports = [];
+    public bool $sortable = false;
+
+    public bool $translatable = false;
 
     public ?string $translationKey;
 
     /**
-     * @param  TsImportString[]  $imports
+     * @param TsImportString[] $imports
      */
     public function __construct(?string $name, ?string $label, bool $translatable = false, bool $sortable = true, ?string $render = null, array $imports = [], ?string $translationKey = null)
     {

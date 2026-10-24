@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
+use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
 
 class MakeTest extends BaseCommand
 {
@@ -33,19 +33,19 @@ class MakeTest extends BaseCommand
 
     public function handle(): void
     {
-        $modelName = $this->argument('name') ?? $this->askForModelName("Model");
+        $modelName = $this->argument('name') ?? $this->askForModelName('Model');
         $attributes = $this->argument('attributes') ?? null;
 
-        if (!$attributes) {
-            [$attributes, ,] = $this->askForModelAttributes(true);
+        if (! $attributes) {
+            [$attributes] = $this->askForModelAttributes(true);
         } else {
             $attributes = $this->resolveAttributes($attributes);
         }
 
-        $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors("Model"));
+        $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors('Model'));
 
-        $generator = new GeneratorFactory("test");
+        $generator = new GeneratorFactory('test');
         $override = $this->askForOverride();
-        $generator->make(fileName: $modelName, attributes: $attributes, actor: $actor , override: $override);
+        $generator->make(fileName: $modelName, attributes: $attributes, actor: $actor, override: $override);
     }
 }

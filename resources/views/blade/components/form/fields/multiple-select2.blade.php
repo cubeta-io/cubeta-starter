@@ -41,8 +41,7 @@
         {{ $selected->{$optionInnerText} }}
       </option>
     @endif
-    <!--End Of Handling Preselected Options-->
-    {{ $slot }}
+    <!--End Of Handling Preselected Options--> {{ $slot }}
   </select>
 
   @error ($name)

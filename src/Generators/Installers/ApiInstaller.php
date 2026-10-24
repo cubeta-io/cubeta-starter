@@ -2,62 +2,30 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
-use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
-use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Illuminate\Http\Request;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Illuminate\Support\Facades\Artisan;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\Helpers\PackageManager;
-use Cubeta\CubetaStarter\Logs\CubeLog;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Cubeta\CubetaStarter\Helpers\PackageManager;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
-use Cubeta\CubetaStarter\Stub\Builders\Exceptions\ExceptionHandlerStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Routes\RoutesFileStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Tests\MainTestCaseStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Traits\TestHelpersStubBuilder;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
-use Illuminate\Foundation\Configuration\Exceptions;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
+use Cubeta\CubetaStarter\Stub\Builders\Exceptions\ExceptionHandlerStubBuilder;
 
 class ApiInstaller extends AbstractGenerator
 {
     use RouteBinding;
 
-    public static string $key = "install-api";
+    public static string $key = 'install-api';
 
     public string $type = 'installer';
-
-    public function run(): void
-    {
-        PackageManager::composerInstall("maatwebsite/excel");
-        $this->installValidationPackages();
-
-        $this->publishBaseRepository();
-        $this->publishBaseService();
-        $this->publishMakableTrait();
-        $this->publishHasMediaTrait();
-
-        Artisan::call("vendor:publish", ['--force' => $this->override, "--tag" => "cubeta-starter-api"]);
-        CubeLog::add(Artisan::output());
-
-        $this->publishTestTools();
-
-        $this->addApiRouteFile();
-        $this->addAndRegisterAuthenticateMiddleware($this->override);
-        $this->addRouteFile('public', version: $this->version, override: $this->override);
-        $this->addRouteFile('protected', version: $this->version, middlewares: ["authenticated:api"], override: $this->override);
-        $this->registerExceptionsHandler();
-
-        FileUtils::registerMiddleware(
-            "'locale' => AcceptedLanguagesMiddleware::class",
-            MiddlewareArrayGroupEnum::ALIAS,
-            new PhpImportString("App\\Http\\Middleware\\AcceptedLanguagesMiddleware")
-        );
-
-        $this->registerHelpersFile();
-
-        Settings::make()->setInstalledApi();
-    }
 
     private function addApiRouteFile(): void
     {
@@ -67,26 +35,30 @@ class ApiInstaller extends AbstractGenerator
             ->generate($apiFilePath, $this->override);
 
         $bootstrapPath = CubePath::make('/bootstrap/app.php');
-        if (!$bootstrapPath->exist()) {
-            CubeLog::notFound($bootstrapPath->fullPath, "Installing api tools");
+        if (! $bootstrapPath->exist()) {
+            CubeLog::notFound($bootstrapPath->fullPath, 'Installing api tools');
+
             return;
         }
 
         $bootstrapContent = $bootstrapPath->getContent();
         $newRouteFile = "api: __DIR__.'/../routes/api.php'";
         $pattern = '/->\s*withRouting\s*\(\s*(.*?)\s*\)\s*/s';
-        if (!preg_match($pattern, $bootstrapContent, $matches)) {
-            CubeLog::failedAppending($newRouteFile, $bootstrapPath->fullPath, "Installing api tools");
+        if (! preg_match($pattern, $bootstrapContent, $matches)) {
+            CubeLog::failedAppending($newRouteFile, $bootstrapPath->fullPath, 'Installing api tools');
+
             return;
         }
 
-        if (!isset($matches[1])) {
-            CubeLog::failedAppending($newRouteFile, $bootstrapPath->fullPath, "Installing api tools");
+        if (! isset($matches[1])) {
+            CubeLog::failedAppending($newRouteFile, $bootstrapPath->fullPath, 'Installing api tools');
+
             return;
         }
 
         if (FileUtils::contentExistsInString($matches[1], $newRouteFile)) {
-            CubeLog::contentAlreadyExists($newRouteFile, $bootstrapPath->fullPath, "Installing api tools");
+            CubeLog::contentAlreadyExists($newRouteFile, $bootstrapPath->fullPath, 'Installing api tools');
+
             return;
         }
 
@@ -104,18 +76,35 @@ class ApiInstaller extends AbstractGenerator
         CubeLog::contentAppended($newRouteFile, $bootstrapPath->fullPath);
     }
 
+    private function publishTestTools(): void
+    {
+        $testHelpersPath = CubePath::make(config('cubeta-starter.trait_path').'/TestHelpers.php');
+        TestHelpersStubBuilder::make()
+            ->traitsNamespace(config('cubeta-starter.trait_namespace'))
+            ->modelsNamespace(config('cubeta-starter.model_namespace'))
+            ->resourcesNamespace(config('cubeta-starter.resource_namespace'))
+            ->generate($testHelpersPath, $this->override);
+
+        $mainTestCasePath = CubePath::make('/tests/Contracts/MainTestCase.php');
+        MainTestCaseStubBuilder::make()
+            ->modelsNamespace(config('cubeta-starter.model_namespace'))
+            ->traitsNamespace(config('cubeta-starter.trait_namespace'))
+            ->generate($mainTestCasePath, $this->override);
+    }
+
     public function registerExceptionsHandler(): bool
     {
         $handlerPath = CubePath::make('app/Exceptions/Handler.php');
 
-        if (!ExceptionHandlerStubBuilder::make()->generate($handlerPath, $this->override)) {
+        if (! ExceptionHandlerStubBuilder::make()->generate($handlerPath, $this->override)) {
             return false;
         }
 
-        $bootstrapPath = CubePath::make("/bootstrap/app.php");
+        $bootstrapPath = CubePath::make('/bootstrap/app.php');
 
-        if (!$bootstrapPath->exist()) {
-            CubeLog::notFound($bootstrapPath->fullPath, "Registering Exception Handler");
+        if (! $bootstrapPath->exist()) {
+            CubeLog::notFound($bootstrapPath->fullPath, 'Registering Exception Handler');
+
             return false;
         }
 
@@ -128,22 +117,24 @@ class ApiInstaller extends AbstractGenerator
             });
         }';
 
-
         $pattern = '/->\s*withExceptions\s*\((.*?)\)->(.*?)create\(\)\s*;/s';
-        if (!preg_match($pattern, $bootstrapContent, $matches)) {
-            CubeLog::failedAppending($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
+        if (! preg_match($pattern, $bootstrapContent, $matches)) {
+            CubeLog::failedAppending($handler, $bootstrapPath->fullPath, 'Registering Exception Handler');
+
             return false;
         }
 
         if (empty($matches[1])) {
-            CubeLog::failedAppending($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
+            CubeLog::failedAppending($handler, $bootstrapPath->fullPath, 'Registering Exception Handler');
+
             return false;
         }
 
         $exceptionsFunction = $matches[1];
 
         if (FileUtils::contentExistsInString($exceptionsFunction, $handler)) {
-            CubeLog::contentAlreadyExists($handler, $bootstrapPath->fullPath, "Registering Exception Handler");
+            CubeLog::contentAlreadyExists($handler, $bootstrapPath->fullPath, 'Registering Exception Handler');
+
             return false;
         }
 
@@ -158,7 +149,6 @@ class ApiInstaller extends AbstractGenerator
         CubeLog::contentAppended($handler, $bootstrapPath->fullPath);
         $bootstrapPath->format();
 
-
         FileUtils::addImportStatement(new PhpImportString("App\Exceptions\Handler"), $bootstrapPath);
         FileUtils::addImportStatement(new PhpImportString(Exceptions::class), $bootstrapPath);
         FileUtils::addImportStatement(new PhpImportString(Request::class), $bootstrapPath);
@@ -166,19 +156,35 @@ class ApiInstaller extends AbstractGenerator
         return true;
     }
 
-    private function publishTestTools(): void
+    public function run(): void
     {
-        $testHelpersPath = CubePath::make(config('cubeta-starter.trait_path') . '/TestHelpers.php');
-        TestHelpersStubBuilder::make()
-            ->traitsNamespace(config('cubeta-starter.trait_namespace'))
-            ->modelsNamespace(config('cubeta-starter.model_namespace'))
-            ->resourcesNamespace(config('cubeta-starter.resource_namespace'))
-            ->generate($testHelpersPath, $this->override);
+        PackageManager::composerInstall('maatwebsite/excel');
+        $this->installValidationPackages();
 
-        $mainTestCasePath = CubePath::make('/tests/Contracts/MainTestCase.php');
-        MainTestCaseStubBuilder::make()
-            ->modelsNamespace(config('cubeta-starter.model_namespace'))
-            ->traitsNamespace(config('cubeta-starter.trait_namespace'))
-            ->generate($mainTestCasePath, $this->override);
+        $this->publishBaseRepository();
+        $this->publishBaseService();
+        $this->publishMakableTrait();
+        $this->publishHasMediaTrait();
+
+        Artisan::call('vendor:publish', ['--force' => $this->override, '--tag' => 'cubeta-starter-api']);
+        CubeLog::add(Artisan::output());
+
+        $this->publishTestTools();
+
+        $this->addApiRouteFile();
+        $this->addAndRegisterAuthenticateMiddleware($this->override);
+        $this->addRouteFile('public', version: $this->version, override: $this->override);
+        $this->addRouteFile('protected', version: $this->version, middlewares: ['authenticated:api'], override: $this->override);
+        $this->registerExceptionsHandler();
+
+        FileUtils::registerMiddleware(
+            "'locale' => AcceptedLanguagesMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            new PhpImportString('App\\Http\\Middleware\\AcceptedLanguagesMiddleware')
+        );
+
+        $this->registerHelpersFile();
+
+        Settings::make()->setInstalledApi();
     }
 }

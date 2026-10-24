@@ -2,16 +2,18 @@
 
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
-use Cubeta\CubetaStarter\Commands\BaseCommand;
-use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Commands\BaseCommand;
+use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeWebController extends BaseCommand
 {
-    protected CubeTable $tableObject;
+    protected array $additionalRoutes = [];
 
     protected $description = 'Create a new web (blade or Inertia/React) controller for a model';
+
+    protected string $rawColumns = '';
 
     protected $signature = 'create:web-controller
         {name? : The name of the model, e.g. Post }
@@ -20,6 +22,8 @@ class MakeWebController extends BaseCommand
         {nullables? : nullable columns, format "field,field2,..." }
         {actor? : the actor allowed to use the generated routes, or "none" }
         {--force : overwrite the existing controller instead of skipping/prompting }';
+
+    protected CubeTable $tableObject;
 
     public function getHelp(): string
     {
@@ -36,16 +40,12 @@ class MakeWebController extends BaseCommand
           HELP;
     }
 
-    protected string $rawColumns = "";
-
-    protected array $additionalRoutes = [];
-
     public function handle(): void
     {
-        $modelName = $this->argument('name') ?? $this->askForModelName("Model");
+        $modelName = $this->argument('name') ?? $this->askForModelName('Model');
         $attributes = $this->argument('attributes') ?? null;
 
-        if (!$attributes) {
+        if (! $attributes) {
             [$attributes, , $nullables] = $this->askForModelAttributes(false, true);
         } else {
             $attributes = $this->resolveAttributes($attributes);
@@ -54,13 +54,13 @@ class MakeWebController extends BaseCommand
         $relations = $this->argument('relations') ?? ($this->askForRelations($modelName) ?? []);
         $relations = $this->resolveRelations($relations);
 
-        $nulls = $this->resolveList($this->argument("nullables") ?? ($nullables ?? []));
+        $nulls = $this->resolveList($this->argument('nullables') ?? ($nullables ?? []));
 
-        $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors("Model"));
+        $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors('Model'));
 
         $override = $this->askForOverride();
 
-        $generator = new GeneratorFactory("controller");
+        $generator = new GeneratorFactory('controller');
         $generator->make(
             fileName: $modelName,
             attributes: $attributes,

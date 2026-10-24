@@ -6,12 +6,6 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 
 class ReactTsDisplayComponentString
 {
-    public string $tag;
-
-    public string $label;
-
-    public string $value;
-
     public array $attributes;
 
     /**
@@ -19,10 +13,16 @@ class ReactTsDisplayComponentString
      */
     public array $imports = [];
 
+    public string $label;
+
+    public string $tag;
+
     public ?string $translationKey;
 
+    public string $value;
+
     /**
-     * @param  TsImportString[]  $imports
+     * @param TsImportString[] $imports
      */
     public function __construct(
         string $tag,

@@ -15,7 +15,7 @@ consistent format and can be easily customized based on specific needs.
 ### Properties
 
 | Property | Type  | Description                          |
-|----------|-------|--------------------------------------|
+| -------- | ----- | ------------------------------------ |
 | `$model` | Model | The model associated with the import |
 
 ### Constructor

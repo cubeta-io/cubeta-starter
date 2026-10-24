@@ -17,26 +17,25 @@
   </div>
 </div>
 
-@push("scripts")
+@push ("scripts")
   <script type="module">
     const handleLocalizedForm = () => {
       const radioButtons = document.querySelectorAll(
-        "input[name=\"selected-language\"]",
+        'input[name="selected-language"]',
       );
       if (radioButtons.length <= 0) {
         return;
       }
-      const translatableInputs =
-        document.querySelectorAll(".translatable");
+      const translatableInputs = document.querySelectorAll(".translatable");
       if (translatableInputs.length <= 0) {
         return;
       }
 
-      radioButtons.forEach(function(radioButton) {
-        radioButton.addEventListener("change", function() {
+      radioButtons.forEach(function (radioButton) {
+        radioButton.addEventListener("change", function () {
           const selectedLanguage = this.value; // Get the value of the selected radio button
 
-          translatableInputs.forEach(function(input) {
+          translatableInputs.forEach(function (input) {
             const inputName = input.name;
             const languageCode = inputName.match(/\[(.*?)]/)[1]; // Extract language code from the input name
 

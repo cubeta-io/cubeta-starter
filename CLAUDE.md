@@ -8,26 +8,26 @@ Cubeta Starter (`cubeta/cubeta-starter`) is a Laravel package that automates the
 - Artisan commands (`create:model`, `create:controller`, etc.) for terminal-driven generation.
 - A Repository + Service design pattern for generated code.
 - Support for multiple output targets:
-    - API-only backends (controllers, resources, routes, Postman collections, feature tests).
-    - Blade/Bootstrap/jQuery web stacks.
-    - Inertia.js + React + TypeScript + Tailwind web stacks.
+  - API-only backends (controllers, resources, routes, Postman collections, feature tests).
+  - Blade/Bootstrap/jQuery web stacks.
+  - Inertia.js + React + TypeScript + Tailwind web stacks.
 - Optional add-ons: authentication, roles/permissions, translatable JSON attributes, bulk actions, Excel import/export bases.
 
 The package does not run as a standalone application. It is loaded by a host Laravel app through `CubetaStarterServiceProvider` and publishes code into that app's directories.
 
 ## Technology Stack
 
-| Layer | Technology | Notes |
-|-------|------------|-------|
-| Language | PHP 8.x | Package source is pure PHP. |
-| Framework | Laravel 12.x | The package requires `laravel/framework ^v12.0.0` and `illuminate/support ^v12.0.0`. |
-| Package tooling | `spatie/laravel-package-tools` | Used for service-provider configuration, config files and command registration. |
-| CLI prompts | `laravel/prompts` | Interactive command questions. |
-| Frontend (dev assets) | React 19, TypeScript 5.8, Vite 6, Tailwind CSS 4 | Only used for generated Inertia stacks and the package's own JS/CSS resources. |
-| Frontend formatting | Prettier 3 + `prettier-plugin-blade` + `prettier-plugin-tailwindcss` | Used for generated Blade/TSX files. |
-| PHP formatting | Laravel Pint | Preset: `laravel` with `no_unused_imports` disabled. |
-| Testing | PHPUnit via `orchestra/testbench` | Configured in `phpunit.xml`. |
-| Optional runtime deps (dev) | `maatwebsite/excel`, `inertiajs/inertia-laravel`, `tightenco/ziggy` | Only installed in the package dev environment; the host app installs matching packages via the installer commands. |
+| Layer                       | Technology                                                           | Notes                                                                                                              |
+| --------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Language                    | PHP 8.x                                                              | Package source is pure PHP.                                                                                        |
+| Framework                   | Laravel 12.x                                                         | The package requires `laravel/framework ^v12.0.0` and `illuminate/support ^v12.0.0`.                               |
+| Package tooling             | `spatie/laravel-package-tools`                                       | Used for service-provider configuration, config files and command registration.                                    |
+| CLI prompts                 | `laravel/prompts`                                                    | Interactive command questions.                                                                                     |
+| Frontend (dev assets)       | React 19, TypeScript 5.8, Vite 6, Tailwind CSS 4                     | Only used for generated Inertia stacks and the package's own JS/CSS resources.                                     |
+| Frontend formatting         | Prettier 3 + `prettier-plugin-blade` + `prettier-plugin-tailwindcss` | Used for generated Blade/TSX files.                                                                                |
+| PHP formatting              | Laravel Pint                                                         | Preset: `laravel` with `no_unused_imports` disabled.                                                               |
+| Testing                     | PHPUnit via `orchestra/testbench`                                    | Configured in `phpunit.xml`.                                                                                       |
+| Optional runtime deps (dev) | `maatwebsite/excel`, `inertiajs/inertia-laravel`, `tightenco/ziggy`  | Only installed in the package dev environment; the host app installs matching packages via the installer commands. |
 
 ## Project Structure
 
@@ -131,9 +131,9 @@ npx prettier --write .
 - Loads the GUI views from `src/Resources/views` under the namespace `CubetaStarter`.
 - Registers GUI routes from `src/Routes/ui-routes.php` only in the `local` environment.
 - Defines publish groups:
-    - `cubeta-starter-web` — Blade stack assets and base classes.
-    - `cubeta-starter-api` — API base classes.
-    - `react-ts` — Inertia + React + TypeScript stack assets and config files.
+  - `cubeta-starter-web` — Blade stack assets and base classes.
+  - `cubeta-starter-api` — API base classes.
+  - `react-ts` — Inertia + React + TypeScript stack assets and config files.
 
 ### Generator Engine
 

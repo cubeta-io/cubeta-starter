@@ -2,45 +2,41 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Dtos;
 
+use Illuminate\Support\Arr;
 use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoCastString;
 use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
-use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
-use Illuminate\Support\Arr;
 
 /**
  * @method self modelName(string $modelName)
  */
 class DtoStubBuilder extends ClassStubBuilder
 {
-    private array $rules = [];
-
     private array $casts = [];
 
     private array $dtoProperties = [];
 
-    /**
-     * @param  PropertyValidationRuleString[]|PropertyValidationRuleString  $rule
-     * @return $this
-     */
-    public function rule(array|PropertyValidationRuleString $rule): static
+    private array $rules = [];
+
+    protected function getStubPropertyArray(): array
     {
-        /** @var PropertyValidationRuleString[] $rule */
-        $rule = Arr::wrap($rule);
-        foreach ($rule as $item) {
-            if ($item->imports) {
-                $this->import($item->imports);
-            }
-        }
+        return [
+            ...parent::getStubPropertyArray(),
+            '{{properties}}' => implode("\n\n    ", $this->dtoProperties),
+            '{{rules}}'      => implode(",\n            ", $this->rules),
+            '{{casts}}'      => implode(",\n            ", $this->casts),
+        ];
+    }
 
-        $this->rules = array_merge($rule, $this->rules);
-
-        return $this;
+    protected function stubPath(): string
+    {
+        return CubePath::stubPath('Dtos/Dto.stub');
     }
 
     /**
-     * @param  DtoCastString[]|DtoCastString  $cast
+     * @param  DtoCastString[]|DtoCastString $cast
      * @return $this
      */
     public function cast(array|DtoCastString $cast): static
@@ -59,7 +55,7 @@ class DtoStubBuilder extends ClassStubBuilder
     }
 
     /**
-     * @param  DtoPropertyString[]|DtoPropertyString  $property
+     * @param  DtoPropertyString[]|DtoPropertyString $property
      * @return $this
      */
     public function dtoProperty(array|DtoPropertyString $property): static
@@ -77,18 +73,22 @@ class DtoStubBuilder extends ClassStubBuilder
         return $this;
     }
 
-    protected function stubPath(): string
+    /**
+     * @param  PropertyValidationRuleString[]|PropertyValidationRuleString $rule
+     * @return $this
+     */
+    public function rule(array|PropertyValidationRuleString $rule): static
     {
-        return CubePath::stubPath('Dtos/Dto.stub');
-    }
+        /** @var PropertyValidationRuleString[] $rule */
+        $rule = Arr::wrap($rule);
+        foreach ($rule as $item) {
+            if ($item->imports) {
+                $this->import($item->imports);
+            }
+        }
 
-    protected function getStubPropertyArray(): array
-    {
-        return [
-            ...parent::getStubPropertyArray(),
-            '{{properties}}' => implode("\n\n    ", $this->dtoProperties),
-            '{{rules}}' => implode(",\n            ", $this->rules),
-            '{{casts}}' => implode(",\n            ", $this->casts),
-        ];
+        $this->rules = array_merge($rule, $this->rules);
+
+        return $this;
     }
 }

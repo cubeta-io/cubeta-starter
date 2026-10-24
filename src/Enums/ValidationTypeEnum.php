@@ -7,21 +7,18 @@ namespace Cubeta\CubetaStarter\Enums;
  */
 enum ValidationTypeEnum: string
 {
-    case FORM_REQUEST = 'FormRequest';
-    case DTO = 'DTO';
-    case BOTH = 'Both';
+    /**
+     * the generated controllers can depend on one validation class only
+     * so when both of them are generated the form request is the used one
+     */
+    public function controllersUseDto(): bool
+    {
+        return $this == self::DTO;
+    }
 
     public static function getAllValues(): array
     {
         return array_column(self::cases(), 'value');
-    }
-
-    /**
-     * does the current type require generating a form request class
-     */
-    public function hasFormRequest(): bool
-    {
-        return $this != self::DTO;
     }
 
     /**
@@ -33,11 +30,13 @@ enum ValidationTypeEnum: string
     }
 
     /**
-     * the generated controllers can depend on one validation class only
-     * so when both of them are generated the form request is the used one
+     * does the current type require generating a form request class
      */
-    public function controllersUseDto(): bool
+    public function hasFormRequest(): bool
     {
-        return $this == self::DTO;
+        return $this != self::DTO;
     }
+    case BOTH = 'Both';
+    case DTO = 'DTO';
+    case FORM_REQUEST = 'FormRequest';
 }

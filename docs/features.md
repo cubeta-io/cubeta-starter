@@ -13,12 +13,14 @@ php artisan create:model Product
 ```
 
 This command will interactively prompt you for:
+
 - Model properties (table columns)
 - Data types for each property
 - Nullable and unique constraints
 - Relationships with other models
 
 The generated model includes:
+
 - Proper attribute casting
 - Relationship methods
 - Searchable columns configuration
@@ -33,6 +35,7 @@ php artisan create:model Product
 ```
 
 This generates:
+
 - Model class
 - Migration file
 - Factory for testing
@@ -57,6 +60,7 @@ php artisan create:model Product --web_controller
 ```
 
 This creates:
+
 - Web controller with CRUD methods
 - Blade views for listing, creating, editing, and viewing
 - Form components with validation
@@ -69,6 +73,7 @@ php artisan create:model Product --web_controller
 ```
 
 With the React stack selected, this generates:
+
 - Web controller for Inertia
 - React components for CRUD operations
 - TypeScript interfaces
@@ -87,6 +92,7 @@ Cubeta Starter implements the Repository pattern to separate data access logic:
 - Repositories handle database operations, file storage, and query optimization
 
 Example repository usage:
+
 ```php
 // Repositories are singletons — obtain them via make()
 $repository = ProductRepository::make();
@@ -107,6 +113,7 @@ Services encapsulate business logic:
 - Controllers remain thin by delegating to services
 
 Example service usage:
+
 ```php
 // Services are singletons too — obtain them via make()
 $service = ProductService::make();
@@ -128,6 +135,7 @@ php artisan create:actor
 The command is interactive — it asks for the actor name (e.g. `admin`, `customer`), its permissions, and the container (api/web/both), then generates the role and its auth flow.
 
 This creates:
+
 - Role definitions
 - Authentication controllers for each actor
 - Separate login/registration flows
@@ -223,6 +231,7 @@ php artisan create:test Product
 The command takes a **model name** (Product, Post, etc.), not a test class name.
 
 Features:
+
 - Tests for all CRUD operations
 - Authentication testing
 - Validation testing

@@ -1,14 +1,9 @@
 {
   "trailingComma": "all",
-  "plugins": [
-    "prettier-plugin-blade",
-    "prettier-plugin-tailwindcss"
-  ],
+  "plugins": ["prettier-plugin-blade", "prettier-plugin-tailwindcss"],
   "overrides": [
     {
-      "files": [
-        "*.blade.php"
-      ],
+      "files": ["*.blade.php"],
       "options": {
         "parser": "blade",
         "embeddedLanguageFormatting": "auto"

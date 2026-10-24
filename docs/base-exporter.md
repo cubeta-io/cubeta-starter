@@ -12,7 +12,7 @@ handling large datasets efficiently.
 ### Properties
 
 | Property       | Type                    | Description                                   |
-|----------------|-------------------------|-----------------------------------------------|
+| -------------- | ----------------------- | --------------------------------------------- |
 | `$collection`  | array\|Collection\|null | The data collection to be exported            |
 | `$model`       | Model\|null             | The model associated with the export          |
 | `$requestCols` | array\|null             | Optional columns to include in the export     |
@@ -99,7 +99,7 @@ To export data to an Excel file, you can use the `export()` method in a reposito
 public function export(Request $request)
 {
     $ids = $request->ids ?? [];
-    
+
     return $this->categoryService->export($ids);
 }
 

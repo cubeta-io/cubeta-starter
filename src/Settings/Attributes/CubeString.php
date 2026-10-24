@@ -2,37 +2,55 @@
 
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
-
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
-use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
-use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
-use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
-use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
+use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript\DataTableColumnString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
 
-class CubeString extends CubeStringable implements HasFakeMethod,
-    HasMigrationColumn,
-    HasPropertyValidationRule,
-    HasBladeInputComponent,
-    HasDatatableColumnString,
-    HasHtmlTableHeader,
-    HasDataTableColumnObjectString
+class CubeString extends CubeStringable implements HasBladeInputComponent, HasDataTableColumnObjectString, HasDatatableColumnString, HasFakeMethod, HasHtmlTableHeader, HasMigrationColumn, HasPropertyValidationRule
 {
+    public function datatableColumnObject(?string $actor = null): DataTableColumnObjectString
+    {
+        return new DataTableColumnObjectString(
+            $this->name,
+            $this->labelNaming(),
+            false,
+            true,
+        );
+    }
+
+    public function dataTableColumnString(): DataTableColumnString
+    {
+        return new DataTableColumnString(
+            $this->name,
+        );
+    }
+
     public function fakeMethod(): FakeMethodString
     {
-        $isUnique = $this->unique ? "->unique()" : "";
+        $isUnique = $this->unique ? '->unique()' : '';
         $fakeMethod = $this->guessStringMethod();
+
         return new FakeMethodString(
             $this->name,
             "fake(){$isUnique}->{$fakeMethod}()",
+        );
+    }
+
+    public function htmlTableHeader(): HtmlTableHeaderString
+    {
+        return new HtmlTableHeaderString(
+            $this->labelNaming(),
         );
     }
 
@@ -40,7 +58,7 @@ class CubeString extends CubeStringable implements HasFakeMethod,
     {
         return new MigrationColumnString(
             $this->columnNaming(),
-            "string",
+            'string',
             $this->nullable,
             $this->unique
         );
@@ -67,30 +85,6 @@ class CubeString extends CubeStringable implements HasFakeMethod,
         return new PropertyValidationRuleString(
             $this->name,
             $rules
-        );
-    }
-
-    public function dataTableColumnString(): DataTableColumnString
-    {
-        return new DataTableColumnString(
-            $this->name,
-        );
-    }
-
-    public function htmlTableHeader(): HtmlTableHeaderString
-    {
-        return new HtmlTableHeaderString(
-            $this->labelNaming(),
-        );
-    }
-
-    public function datatableColumnObject(?string $actor = null): DataTableColumnObjectString
-    {
-        return new DataTableColumnObjectString(
-            $this->name,
-            $this->labelNaming(),
-            false,
-            true,
         );
     }
 }

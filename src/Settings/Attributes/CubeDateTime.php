@@ -2,27 +2,106 @@
 
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
+use JetBrains\PhpStorm\ExpectedValues;
 use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
-use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
 use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelCastColumn;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
+use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Tests\HasTestAdditionalFactoryData;
+use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Strings\Tests\TestAdditionalFactoryDataString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
 use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
-use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
-use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
-use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
-use Cubeta\CubetaStarter\StringValues\Strings\Tests\TestAdditionalFactoryDataString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
-use JetBrains\PhpStorm\ExpectedValues;
 
-class CubeDateTime extends CubeDateable implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn, HasPropertyValidationRule, HasResourcePropertyString, HasTestAdditionalFactoryData, HasBladeInputComponent, HasReactTsInputString
+class CubeDateTime extends CubeDateable implements HasBladeInputComponent, HasFakeMethod, HasMigrationColumn, HasModelCastColumn, HasPropertyValidationRule, HasReactTsInputString, HasResourcePropertyString, HasTestAdditionalFactoryData
 {
+    public function bladeDisplayComponent(): DisplayComponentString
+    {
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
+        $modelVariable = $table->variableNaming();
+        $label = $this->labelNaming();
+
+        return new DisplayComponentString(
+            'x-small-text-field',
+            [
+                [
+                    'key'   => ':value',
+                    'value' => "\${$modelVariable}->{$this->name}?->format('Y-m-d H:i')",
+                ],
+                [
+                    'key'   => 'label',
+                    'value' => $label,
+                ],
+            ]
+        );
+    }
+
+    public function bladeInputComponent(string $formType = 'store', ?string $actor = null): InputComponentString
+    {
+        $attributes = [];
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
+
+        if ($formType == 'update') {
+            $attributes[] = [
+                'key'   => ':value',
+                'value' => "\${$table?->variableNaming()}->{$this->name}",
+            ];
+        }
+
+        return new InputComponentString(
+            'datetime-local',
+            'x-input',
+            $this->name,
+            $this->isRequired,
+            $this->titleNaming(),
+            $attributes,
+        );
+    }
+
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = 'store', ?string $actor = null): TsxInputComponentString
+    {
+        $attributes = [
+            [
+                'key'   => 'type',
+                'value' => '"datetime-local"',
+            ],
+            [
+                'key'   => 'onChange',
+                'value' => "(e) => setData(\"{$this->name}\", e.target?.value?.replace('T', ' '))",
+            ],
+            [
+                'key'   => 'className',
+                'value' => '"appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden"',
+            ],
+        ];
+
+        if ($formType == 'update') {
+            $attributes[] = [
+                'key'   => 'defaultValue',
+                'value' => "{$this->table()->variableNaming()}.{$this->name}",
+            ];
+        }
+
+        return new TsxInputComponentString(
+            'Input',
+            $this->name,
+            $this->labelNaming(),
+            $this->isRequired,
+            $attributes,
+            [
+                new TsImportString('Input', '@/components/form/fields/input'),
+            ]
+        );
+    }
+
     public function propertyValidationRule(): PropertyValidationRuleString
     {
         return new PropertyValidationRuleString(
@@ -49,84 +128,6 @@ class CubeDateTime extends CubeDateable implements HasFakeMethod, HasMigrationCo
             $this->name,
             'now()->format("Y-m-d H:i")',
             []
-        );
-    }
-
-    public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
-    {
-        $attributes = [];
-        $table = $this->table() ?? CubeTable::create($this->parentTableName);
-
-        if ($formType == "update") {
-            $attributes[] = [
-                'key' => ':value',
-                'value' => "\${$table?->variableNaming()}->{$this->name}"
-            ];
-        }
-
-        return new InputComponentString(
-            "datetime-local",
-            "x-input",
-            $this->name,
-            $this->isRequired,
-            $this->titleNaming(),
-            $attributes,
-        );
-    }
-
-    public function bladeDisplayComponent(): DisplayComponentString
-    {
-        $table = $this->table() ?? CubeTable::create($this->parentTableName);
-        $modelVariable = $table->variableNaming();
-        $label = $this->labelNaming();
-        return new DisplayComponentString(
-            "x-small-text-field",
-            [
-                [
-                    "key" => ":value",
-                    "value" => "\${$modelVariable}->{$this->name}?->format('Y-m-d H:i')"
-                ],
-                [
-                    "key" => 'label',
-                    'value' => $label
-                ]
-            ]
-        );
-    }
-
-    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
-    {
-        $attributes = [
-            [
-                'key' => 'type',
-                'value' => '"datetime-local"'
-            ],
-            [
-                'key' => 'onChange',
-                'value' => "(e) => setData(\"{$this->name}\", e.target?.value?.replace('T', ' '))"
-            ],
-            [
-                'key' => 'className',
-                'value' => '"appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden"'
-            ]
-        ];
-
-        if ($formType == "update") {
-            $attributes[] = [
-                'key' => 'defaultValue',
-                'value' => "{$this->table()->variableNaming()}.{$this->name}"
-            ];
-        }
-
-        return new TsxInputComponentString(
-            "Input",
-            $this->name,
-            $this->labelNaming(),
-            $this->isRequired,
-            $attributes,
-            [
-                new TsImportString("Input", "@/components/form/fields/input")
-            ]
         );
     }
 }

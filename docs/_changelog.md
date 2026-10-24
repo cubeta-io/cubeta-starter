@@ -179,16 +179,16 @@ breaking change, so we made it a major version.
 
 1. You can now choose how the generated code validates the incoming requests data. While installing
    (`php artisan cubeta:install api` , `web` or `react-ts`) or from the GUI settings page you pick one of:
-    - `FormRequest` : the classic Laravel form requests (the default, and what previous versions always generated)
-    - `DTO` : validated DTOs built on top of [wendelladriel/laravel-validated-dto](https://github.com/WendellAdriel/laravel-validated-dto)
-    - `Both` : generate both classes
-   Your choice is stored in `cubeta-starter.config.json` under `validation_type` , so every later generation follows it.
+   - `FormRequest` : the classic Laravel form requests (the default, and what previous versions always generated)
+   - `DTO` : validated DTOs built on top of [wendelladriel/laravel-validated-dto](https://github.com/WendellAdriel/laravel-validated-dto)
+   - `Both` : generate both classes
+     Your choice is stored in `cubeta-starter.config.json` under `validation_type` , so every later generation follows it.
 2. Introducing the DTO generator, which creates a
    `App\DTOs\<version>\<Model>\StoreUpdate<Model>DTO` class extending `ValidatedDTO` with:
-    - the same validation rules the form request gets
-    - typed properties inferred from the column types (`int` , `float` , `bool` , `string` , `UploadedFile`),
-      nullable columns being nullable and defaulting to `null`
-    - casts for the castable columns (`IntegerCast` , `FloatCast` , `BooleanCast` , `StringCast`)
+   - the same validation rules the form request gets
+   - typed properties inferred from the column types (`int` , `float` , `bool` , `string` , `UploadedFile`),
+     nullable columns being nullable and defaulting to `null`
+   - casts for the castable columns (`IntegerCast` , `FloatCast` , `BooleanCast` , `StringCast`)
 3. Introducing the `create:dto` command and a matching `--dto` option for `create:model` , alongside the existing
    `create:request` / `--request` .
 4. `wendelladriel/laravel-validated-dto` is now installed for you by the api , web and react-ts installers whenever the
@@ -209,12 +209,12 @@ breaking change, so we made it a major version.
 
 1. Introducing a new `FilepondInput` file field for the React/Inertia dashboard, built on top of
    `FilePond`, which replaces the previous plain file `Input` used for file columns. It comes with:
-    - Drag-and-drop uploads with image previews and file posters
-    - Single or multiple file selection via the `isMultiple` prop
-    - Accepted file-type restrictions via the `acceptedFileTypes` prop (defaults to common image types)
-    - Automatic hydration of existing `Media` values on edit forms, so already-uploaded files show up in
-      the field
-    - Standard field styling, label and validation error handling consistent with the other form fields
+   - Drag-and-drop uploads with image previews and file posters
+   - Single or multiple file selection via the `isMultiple` prop
+   - Accepted file-type restrictions via the `acceptedFileTypes` prop (defaults to common image types)
+   - Automatic hydration of existing `Media` values on edit forms, so already-uploaded files show up in
+     the field
+   - Standard field styling, label and validation error handling consistent with the other form fields
 2. File columns now generate the `FilepondInput` component instead of a basic file input, and edit forms
    pre-fill the field with the current media.
 3. The required FilePond plugins (image preview, file poster, file-type validation and EXIF orientation)
@@ -227,12 +227,12 @@ breaking change, so we made it a major version.
 
 1. Introducing a brand-new rich-text editor for the React/Inertia dashboard built on top of `Tiptap`, replacing the
    previous editor setup. The editor ships with a full toolbar out of the box:
-    - Text formatting: bold, italic, text color and font family
-    - Block elements: headings (H1–H6), blockquotes, bullet and ordered lists, horizontal rules
-    - Rich content: links, images (by URL), tables, YouTube embeds and multi-column layouts
-    - A live footer showing character and word counts
-    - Debounced auto-save so content is committed to the form without an explicit save on every keystroke
-    - An `extraButtons` prop so you can inject your own toolbar buttons with access to the editor instance
+   - Text formatting: bold, italic, text color and font family
+   - Block elements: headings (H1–H6), blockquotes, bullet and ordered lists, horizontal rules
+   - Rich content: links, images (by URL), tables, YouTube embeds and multi-column layouts
+   - A live footer showing character and word counts
+   - Debounced auto-save so content is committed to the form without an explicit save on every keystroke
+   - An `extraButtons` prop so you can inject your own toolbar buttons with access to the editor instance
 2. Introducing the `TextEditor` form field that wraps the Tiptap editor with the standard field styling, label, required
    indicator and validation error handling used across the other form fields.
 3. Introducing the `TranslatableTextEditor` component for rich-text content that needs to be translated across multiple
@@ -364,9 +364,9 @@ version update
    tables data, and it is a first step on the next feature which is (presets handling) .
 5. we've added `create:example` command for those who are trying to se what the package capable of , this command will
    give you three option :
-    - the first one is to create the Category model which has many products
-    - the second one is to create the Product model which related to brands by many to many relation
-    - finally the brands model
+   - the first one is to create the Category model which has many products
+   - the second one is to create the Product model which related to brands by many to many relation
+   - finally the brands model
 6. we've tried to not generate a code that use a relation to a table not defined yet and then when it is defined we add
    the proper code (you can check that by running the command : `php artisan create:example` and generate the product
    before the category) .

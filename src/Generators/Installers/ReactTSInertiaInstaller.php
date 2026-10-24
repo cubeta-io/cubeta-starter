@@ -2,22 +2,22 @@
 
 namespace Cubeta\CubetaStarter\Generators\Installers;
 
-use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
-use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
-use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Modules\Views;
+use Cubeta\CubetaStarter\Modules\Routes;
+use Cubeta\CubetaStarter\Stub\Publisher;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Helpers\FileUtils;
-use Cubeta\CubetaStarter\Helpers\PackageManager;
-use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Modules\Routes;
-use Cubeta\CubetaStarter\Modules\Views;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
+use Cubeta\CubetaStarter\Helpers\PackageManager;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Enums\MiddlewareArrayGroupEnum;
 use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Components\NavMainStubBuilder;
 use Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Components\SidebarStubBuilder;
-use Cubeta\CubetaStarter\Stub\Publisher;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
 
 class ReactTSInertiaInstaller extends AbstractGenerator
 {
@@ -27,50 +27,15 @@ class ReactTSInertiaInstaller extends AbstractGenerator
 
     public string $type = 'installer';
 
-    public function run(): void
+    private function generateSidebar(): void
     {
-        if (! Settings::make()->installedWebPackages()) {
-            CubeLog::error('Install React TS and Inertia packages first by running [php artisan cubeta:install react-ts-packages] and try again');
+        NavMainStubBuilder::make()
+            ->indexRoute(Routes::dashboardPage(Settings::make()->installedWebAuth())->name)
+            ->generate(CubePath::make('resources/js/components/dashboard/sidebar/nav-main.tsx'), $this->override);
 
-            return;
-        }
-
-        $this->installValidationPackages();
-
-        $this->publishTsConfig();
-        $this->installInertia();
-        $this->installShadcn();
-        $this->publishLocalizedUiComponents();
-
-        $this->publishBaseRepository();
-        $this->publishBaseService();
-        $this->publishMakableTrait();
-        $this->publishHasMediaTrait();
-
-        $this->addAndRegisterAuthenticateMiddleware($this->override);
-
-        $this->addSetLocalRoute();
-        $this->addRouteFile(actor: 'public', container: ContainerType::WEB, version: $this->version);
-        $this->addRouteFile(actor: 'protected', container: ContainerType::WEB, version: $this->version, middlewares: ['authenticated:web']);
-        FileUtils::registerMiddleware(
-            "'locale' => AcceptedLanguagesMiddleware::class",
-            MiddlewareArrayGroupEnum::ALIAS,
-            new PhpImportString('App\\Http\\Middleware\\AcceptedLanguagesMiddleware')
-        );
-        FileUtils::registerMiddleware(
-            'HandleInertiaRequests::class',
-            MiddlewareArrayGroupEnum::WEB,
-            new PhpImportString('App\\Http\\Middleware\\HandleInertiaRequests')
-        );
-
-        $this->generateHomePage();
-        $this->addIndexPageRoute();
-        $this->generateSidebar();
-
-        $this->registerHelpersFile();
-
-        Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
-        Settings::make()->setInstalledWeb();
+        SidebarStubBuilder::make()
+            ->indexRoute(Routes::dashboardPage(Settings::make()->installedWebAuth())->name)
+            ->generate(CubePath::make('resources/js/components/dashboard/sidebar/app-sidebar.tsx'), $this->override);
     }
 
     private function installInertia(): void
@@ -95,23 +60,22 @@ class ReactTSInertiaInstaller extends AbstractGenerator
         CubeLog::success('Your Frontend Stack Has Been Set To '.FrontendTypeEnum::REACT_TS->value);
     }
 
+    private function publishLocalizedUiComponents(): void
+    {
+        foreach (['breadcrumb', 'dialog', 'sheet', 'sidebar'] as $component) {
+            Publisher::make()
+                ->source(dirname(__DIR__, 3)."/resources/js/inertia/components/ui/{$component}.tsx")
+                ->destination(CubePath::make("resources/js/components/ui/{$component}.tsx"))
+                ->publish(true);
+        }
+    }
+
     public function generateHomePage(): void
     {
         Publisher::make()
             ->source(CubePath::stubPath('Web/InertiaReact/Pages/Dashboard.stub'))
             ->destination(Views::dashboard()->path)
             ->publish($this->override);
-    }
-
-    private function generateSidebar(): void
-    {
-        NavMainStubBuilder::make()
-            ->indexRoute(Routes::dashboardPage(Settings::make()->installedWebAuth())->name)
-            ->generate(CubePath::make('resources/js/components/dashboard/sidebar/nav-main.tsx'), $this->override);
-
-        SidebarStubBuilder::make()
-            ->indexRoute(Routes::dashboardPage(Settings::make()->installedWebAuth())->name)
-            ->generate(CubePath::make('resources/js/components/dashboard/sidebar/app-sidebar.tsx'), $this->override);
     }
 
     public function installShadcn(): void
@@ -170,13 +134,49 @@ class ReactTSInertiaInstaller extends AbstractGenerator
             ->publish($this->override);
     }
 
-    private function publishLocalizedUiComponents(): void
+    public function run(): void
     {
-        foreach (['breadcrumb', 'dialog', 'sheet', 'sidebar'] as $component) {
-            Publisher::make()
-                ->source(dirname(__DIR__, 3)."/resources/js/inertia/components/ui/{$component}.tsx")
-                ->destination(CubePath::make("resources/js/components/ui/{$component}.tsx"))
-                ->publish(true);
+        if (! Settings::make()->installedWebPackages()) {
+            CubeLog::error('Install React TS and Inertia packages first by running [php artisan cubeta:install react-ts-packages] and try again');
+
+            return;
         }
+
+        $this->installValidationPackages();
+
+        $this->publishTsConfig();
+        $this->installInertia();
+        $this->installShadcn();
+        $this->publishLocalizedUiComponents();
+
+        $this->publishBaseRepository();
+        $this->publishBaseService();
+        $this->publishMakableTrait();
+        $this->publishHasMediaTrait();
+
+        $this->addAndRegisterAuthenticateMiddleware($this->override);
+
+        $this->addSetLocalRoute();
+        $this->addRouteFile(actor: 'public', container: ContainerType::WEB, version: $this->version);
+        $this->addRouteFile(actor: 'protected', container: ContainerType::WEB, version: $this->version, middlewares: ['authenticated:web']);
+        FileUtils::registerMiddleware(
+            "'locale' => AcceptedLanguagesMiddleware::class",
+            MiddlewareArrayGroupEnum::ALIAS,
+            new PhpImportString('App\\Http\\Middleware\\AcceptedLanguagesMiddleware')
+        );
+        FileUtils::registerMiddleware(
+            'HandleInertiaRequests::class',
+            MiddlewareArrayGroupEnum::WEB,
+            new PhpImportString('App\\Http\\Middleware\\HandleInertiaRequests')
+        );
+
+        $this->generateHomePage();
+        $this->addIndexPageRoute();
+        $this->generateSidebar();
+
+        $this->registerHelpersFile();
+
+        Settings::make()->setFrontendType(FrontendTypeEnum::REACT_TS);
+        Settings::make()->setInstalledWeb();
     }
 }

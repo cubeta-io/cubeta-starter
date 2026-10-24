@@ -17,17 +17,17 @@ The package does not run as a standalone application. It is loaded by a host Lar
 
 ## Technology Stack
 
-| Layer | Technology | Notes |
-|-------|------------|-------|
-| Language | PHP 8.x | Package source is pure PHP. |
-| Framework | Laravel 12.x | The package requires `laravel/framework ^v12.0.0` and `illuminate/support ^v12.0.0`. |
-| Package tooling | `spatie/laravel-package-tools` | Used for service-provider configuration, config files and command registration. |
-| CLI prompts | `laravel/prompts` | Interactive command questions. |
-| Frontend (dev assets) | React 19, TypeScript 5.8, Vite 6, Tailwind CSS 4 | Only used for generated Inertia stacks and the package's own JS/CSS resources. |
-| Frontend formatting | Prettier 3 + `prettier-plugin-blade` + `prettier-plugin-tailwindcss` | Used for generated Blade/TSX files. |
-| PHP formatting | Laravel Pint | Preset: `laravel` with `no_unused_imports` disabled. |
-| Testing | PHPUnit via `orchestra/testbench` | Configured in `phpunit.xml`. |
-| Optional runtime deps (dev) | `maatwebsite/excel`, `inertiajs/inertia-laravel`, `tightenco/ziggy` | Only installed in the package dev environment; the host app installs matching packages via the installer commands. |
+| Layer                       | Technology                                                           | Notes                                                                                                              |
+| --------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Language                    | PHP 8.x                                                              | Package source is pure PHP.                                                                                        |
+| Framework                   | Laravel 12.x                                                         | The package requires `laravel/framework ^v12.0.0` and `illuminate/support ^v12.0.0`.                               |
+| Package tooling             | `spatie/laravel-package-tools`                                       | Used for service-provider configuration, config files and command registration.                                    |
+| CLI prompts                 | `laravel/prompts`                                                    | Interactive command questions.                                                                                     |
+| Frontend (dev assets)       | React 19, TypeScript 5.8, Vite 6, Tailwind CSS 4                     | Only used for generated Inertia stacks and the package's own JS/CSS resources.                                     |
+| Frontend formatting         | Prettier 3 + `prettier-plugin-blade` + `prettier-plugin-tailwindcss` | Used for generated Blade/TSX files.                                                                                |
+| PHP formatting              | Laravel Pint                                                         | Preset: `laravel` with `no_unused_imports` disabled.                                                               |
+| Testing                     | PHPUnit via `orchestra/testbench`                                    | Configured in `phpunit.xml`.                                                                                       |
+| Optional runtime deps (dev) | `maatwebsite/excel`, `inertiajs/inertia-laravel`, `tightenco/ziggy`  | Only installed in the package dev environment; the host app installs matching packages via the installer commands. |
 
 ## Project Structure
 

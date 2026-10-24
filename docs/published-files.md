@@ -12,37 +12,37 @@ in `vendor/`.
 
 ### Configuration
 
-| File                        | Purpose                                                                                                                               |
-|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| `config/cubeta-starter.php` | Package configuration — paths, namespaces, locales, version. See [Configuration](configuration.md)                                    |
+| File                        | Purpose                                                                                                                                |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `config/cubeta-starter.php` | Package configuration — paths, namespaces, locales, version. See [Configuration](configuration.md)                                     |
 | `config/media.php`          | File-storage configuration — public/private disks, signed URL TTL, path prefixes. See [Configuration](configuration.md#media-settings) |
-| `pint.json`                 | Laravel Pint formatting preset                                                                                                        |
+| `pint.json`                 | Laravel Pint formatting preset                                                                                                         |
 
 ### Core Modules
 
 | File                          | Purpose                                                                                             |
-|-------------------------------|-----------------------------------------------------------------------------------------------------|
+| ----------------------------- | --------------------------------------------------------------------------------------------------- |
 | `app/Modules/ApiResponse.php` | Standardized API response builder. Used via the `rest()` helper. See [ApiResponse](api-response.md) |
 | `app/Helpers/helpers.php`     | Global helper functions, including `rest()`                                                         |
 
 ### Base Classes (Repository + Service pattern)
 
 | File                                            | Purpose                                                                                                                                   |
-|-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `app/Repositories/Contracts/BaseRepository.php` | Abstract repository with CRUD, search, filtering, ordering, pagination, and Excel import/export. See [BaseRepository](base-repository.md) |
 | `app/Services/Contracts/BaseService.php`        | Abstract service delegating to a repository. See [BaseService](base-service.md)                                                           |
 
 ### Resources
 
 | File                                                              | Purpose                                                                                 |
-|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `app/Http/Resources/BaseResource/BaseResource.php`                | Base JSON resource all generated resources extend. See [BaseResource](base-resource.md) |
 | `app/Http/Resources/BaseResource/AnonymousResourceCollection.php` | Custom collection wrapper for consistent pagination formatting                          |
 
 ### Casts & Serializers
 
 | File                                  | Purpose                                                                                                                  |
-|---------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | `app/Casts/Translatable.php`          | Eloquent cast for translatable (multi-locale) columns                                                                    |
 | `app/Casts/MediaCast.php`             | Eloquent cast for file/media columns — handles storage and cleanup                                                       |
 | `app/Serializers/Translatable.php`    | Value object for reading/writing localized strings (`$model->title->en`). See [Translatable](translatable-serializer.md) |
@@ -51,27 +51,27 @@ in `vendor/`.
 ### Validation Rules
 
 | File                                  | Purpose                                                                  |
-|---------------------------------------|--------------------------------------------------------------------------|
+| ------------------------------------- | ------------------------------------------------------------------------ |
 | `app/Rules/ValidTranslatableJson.php` | Ensures translatable input is flat JSON matching your configured locales |
 | `app/Rules/MediaValidationRule.php`   | Validates uploaded files                                                 |
 
 ### Excel Import/Export
 
 | File                         | Purpose                                                                |
-|------------------------------|------------------------------------------------------------------------|
+| ---------------------------- | ---------------------------------------------------------------------- |
 | `app/Excel/BaseExporter.php` | Base exporter used by `export()`. See [BaseExporter](base-exporter.md) |
 | `app/Excel/BaseImporter.php` | Base importer used by `import()`. See [BaseImporter](base-importer.md) |
 
 ### Bulk Actions
 
 | File                                | Purpose                                                                                       |
-|-------------------------------------|-----------------------------------------------------------------------------------------------|
+| ----------------------------------- | --------------------------------------------------------------------------------------------- |
 | `app/BulkAction/BaseBulkAction.php` | Base class for bulk operations on multiple records. See [BaseBulkAction](base-bulk-action.md) |
 
 ### Middleware & Controllers
 
 | File                                                  | Purpose                                                                                                        |
-|-------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `app/Http/Middleware/AcceptedLanguagesMiddleware.php` | Sets the app locale from the `Accept-Language` header. Registered as the `locale` alias in `bootstrap/app.php` |
 | `app/Http/Controllers/ApiController.php`              | Base API controller (api install)                                                                              |
 | `app/Http/Controllers/WebController.php`              | Base web controller (web install)                                                                              |
@@ -84,7 +84,7 @@ in `vendor/`.
 The Blade stack also publishes:
 
 | File                                             | Purpose                                                                      |
-|--------------------------------------------------|------------------------------------------------------------------------------|
+| ------------------------------------------------ | ---------------------------------------------------------------------------- |
 | `app/Providers/CubetaStarterServiceProvider.php` | Registers the published Blade components. Added to `bootstrap/providers.php` |
 | `resources/views/components/*`                   | Reusable Blade form and layout components                                    |
 | `resources/views/includes/*`                     | Shared Blade partials                                                        |
@@ -100,7 +100,7 @@ The Blade stack also publishes:
 The Inertia/React/TypeScript stack publishes a full dashboard toolkit under `resources/js/`:
 
 | Path                                                                           | Purpose                                                          |
-|--------------------------------------------------------------------------------|------------------------------------------------------------------|
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
 | `resources/js/components/dashboard/*`                                          | Dashboard shell components                                       |
 | `resources/js/components/datatable/*`                                          | Data table with sorting, search, and pagination                  |
 | `resources/js/components/form/*`                                               | Form field components (inputs, selects, file uploads, etc.)      |
@@ -120,7 +120,7 @@ It also publishes the same casts, serializers, rules, base resource, `ApiRespons
 See [Usage → Install Auth Command](usage.md#install-auth-command) for the full list. In summary:
 
 | File                                              | Purpose                                                   |
-|---------------------------------------------------|-----------------------------------------------------------|
+| ------------------------------------------------- | --------------------------------------------------------- |
 | `app/Http/Controllers/.../BaseAuthController.php` | Base authentication controller you extend per actor       |
 | `app/Http/Requests/AuthRequests/*`                | Login, register, reset-password, and update-user requests |
 | `app/Http/Resources/UserResource.php`             | User JSON resource                                        |
@@ -138,7 +138,7 @@ This command installs [`spatie/laravel-permission`](https://spatie.be/docs/larav
 its own files under `app/`. See [Permissions Usage](permissions-usage.md).
 
 | Effect                                                             | Purpose                                                                                             |
-|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
 | `spatie/laravel-permission` added via Composer                     | Provides the `Role`/`Permission` models and the roles/permissions API                               |
 | Spatie's own migrations and `config/permission.php`                | Published via `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"` |
 | `Spatie\Permission\Traits\HasRoles` added to `app/Models/User.php` | Gives the `User` model `assignRole`, `hasRole`, and the rest of Spatie's API                        |
@@ -153,6 +153,6 @@ its own files under `app/`. See [Permissions Usage](permissions-usage.md).
 
 > [!NOTE]
 > Separate from `config/cubeta-starter.php`, a `cubeta-starter.config.json` file is created at your **project root**
-after the first generation. It records your generated tables, chosen frontend stack, and which features you've
-installed. The package reads it to power the GUI and make smarter generation decisions. Keep it in version control;
-don't edit it by hand.
+> after the first generation. It records your generated tables, chosen frontend stack, and which features you've
+> installed. The package reads it to power the GUI and make smarter generation decisions. Keep it in version control;
+> don't edit it by hand.

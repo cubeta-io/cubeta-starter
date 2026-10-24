@@ -12,12 +12,8 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "paths": {
-      "@/*": [
-        "./resources/js/inertia/*"
-      ],
-      "ziggy-js": [
-        "./vendor/tightenco/ziggy"
-      ]
+      "@/*": ["./resources/js/inertia/*"],
+      "ziggy-js": ["./vendor/tightenco/ziggy"]
     }
   },
   "include": [

@@ -3,49 +3,118 @@
 namespace Cubeta\CubetaStarter\Traits;
 
 use Carbon\Carbon;
-use Cubeta\CubetaStarter\Helpers\Naming;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
+use Cubeta\CubetaStarter\Helpers\Naming;
 
 /**
  * Provides naming conventions for various components such as variables, routes, models, tables, etc.
  */
 trait NamingConventions
 {
-    /**
-     * @var string
-     */
     public string $usedString;
 
     /**
-     * @param string|null $name
-     * @return string
+     * @return array{true:string , false:string}
      */
+    public function booleanLabels(): array
+    {
+        if (Str::contains($this->name, 'is_')) {
+            $base = Str::replace('is_', '', $this->name);
+
+            return [
+                'true'  => Str::title($base),
+                'false' => 'Not'.' '.Str::title($base),
+            ];
+        } else {
+            return [
+                'true'  => Str::title($this->name),
+                'false' => 'Not'.' '.Str::title($this->name),
+            ];
+        }
+    }
+
+    public function columnNaming(?string $name = null): string
+    {
+        return Naming::column($name ?? $this->usedString);
+    }
+
+    public function getControllerName(): string
+    {
+        return $this->modelNaming().'Controller';
+    }
+
+    public function getDtoName(): string
+    {
+        return 'StoreUpdate'.$this->modelNaming().'DTO';
+    }
+
+    public function getFactoryName(): string
+    {
+        return $this->modelNaming().'Factory';
+    }
+
+    public function getMigrationName(bool $withoutDate = false): string
+    {
+        if ($withoutDate) {
+            return 'create_'.$this->tableNaming().'_table';
+        }
+        $date = Carbon::now()->subSecond()->format('Y_m_d_His');
+
+        return "{$date}_create_".$this->tableNaming().'_table';
+    }
+
+    public function getRepositoryName(): string
+    {
+        return $this->modelNaming().'Repository';
+    }
+
+    public function getRequestName(): string
+    {
+        return 'StoreUpdate'.$this->modelNaming().'Request';
+    }
+
+    public function getResourceName(): string
+    {
+        return $this->modelNaming().'Resource';
+    }
+
+    public function getSeederName(): string
+    {
+        return $this->modelNaming().'Seeder';
+    }
+
+    public function getServiceName(): string
+    {
+        return $this->modelNaming().'Service';
+    }
+
+    public function getTestName(): string
+    {
+        return $this->modelNaming().'Test';
+    }
+
     public function idVariable(?string $name = null): string
     {
         return $name
-            ? $this->variableNaming($name) . "Id"
-            : $this->variableNaming() . "Id";
+            ? $this->variableNaming($name).'Id'
+            : $this->variableNaming().'Id';
     }
 
-    /**
-     *  return the variable name from the model name
-     *  if string provided, the result will be base on the given string else on the modelName property of the class
-     * @param string|null $name
-     * @return string
-     */
-    public function variableNaming(?string $name = null): string
+    public function keyName(): string
     {
-        return $name
-            ? Str::singular(Str::camel($name))
-            : Str::singular(Str::camel($this->usedString));
+        return str($this->usedString)
+            ->snake()
+            ->singular()
+            ->lower()
+            ->append('_id')
+            ->snake()
+            ->toString();
     }
 
     /**
      * return the lower case and the plural in kebab case of the input string
      * or for the model name if a string isn't provided
-     * @param string|null $name
-     * @return string
      */
     public function lowerPluralKebabNaming(?string $name = null): string
     {
@@ -63,14 +132,34 @@ trait NamingConventions
     }
 
     /**
-     * return the name based on name convention for routes for a given string if provided or to the model name if not
-     * provided
+     * return the name based on name convention for models
      */
-    public function routeUrlNaming(?string $name = null): string
+    public function modelNaming(?string $name = null): string
     {
-        return $name
-            ? $this->lowerPluralKebabNaming($name)
-            : $this->lowerPluralKebabNaming($this->usedString);
+        return Naming::model($name ?? $this->usedString);
+    }
+
+    /**
+     * return the name based on name convention for relation functions in the models for a given string if provided or
+     * to the model name if not provided
+     */
+    public function relationMethodNaming(?string $name = null, bool $singular = true): string
+    {
+        if (! $name) {
+            $name = $this->usedString;
+        }
+
+        if ($singular) {
+            return str($name)
+                ->camel()
+                ->singular()
+                ->toString();
+        }
+
+        return str($name)
+            ->camel()
+            ->plural()
+            ->toString();
     }
 
     /**
@@ -84,89 +173,23 @@ trait NamingConventions
             : str_replace('-', '.', $this->lowerPluralKebabNaming($this->usedString));
     }
 
-    /**
-     * return the name based on name convention for relation functions in the models for a given string if provided or
-     * to the model name if not provided
-     * @param string|null $name
-     * @param bool $singular
-     * @return string
-     */
-    public function relationMethodNaming(?string $name = null, bool $singular = true): string
+    public function routeParameterNaming(): Stringable
     {
-        if (!$name) {
-            $name = $this->usedString;
-        }
-
-        if ($singular) {
-            return str($name)
-                ->camel()
-                ->singular()
-                ->toString();
-        }
-        return str($name)
-            ->camel()
-            ->plural()
-            ->toString();
+        return str($this->usedString)
+            ->snake()
+            ->singular()
+            ->lower();
     }
 
     /**
-     * @param string|null $name
-     * @return string
+     * return the name based on name convention for routes for a given string if provided or to the model name if not
+     * provided
      */
-    public function viewNaming(?string $name = null): string
+    public function routeUrlNaming(?string $name = null): string
     {
         return $name
             ? $this->lowerPluralKebabNaming($name)
             : $this->lowerPluralKebabNaming($this->usedString);
-    }
-
-    /**
-     * @param string|null $name
-     * @return string
-     */
-    public function titleNaming(?string $name = null): string
-    {
-
-        return $name
-            ? Str::headline($name)
-            : Str::headline($this->usedString);
-    }
-
-    /**
-     * @return string
-     */
-    public function getResourceName(): string
-    {
-        return $this->modelNaming() . "Resource";
-    }
-
-    /**
-     * return the name based on name convention for models
-     */
-    public function modelNaming(?string $name = null): string
-    {
-        return Naming::model($name ?? $this->usedString);
-    }
-
-    /**
-     * @return string
-     */
-    public function getControllerName(): string
-    {
-        return $this->modelNaming() . "Controller";
-    }
-
-    /**
-     * @param bool $withoutDate
-     * @return string
-     */
-    public function getMigrationName(bool $withoutDate = false): string
-    {
-        if ($withoutDate) {
-            return "create_" . $this->tableNaming() . "_table";
-        }
-        $date = Carbon::now()->subSecond()->format('Y_m_d_His');
-        return "{$date}_create_" . $this->tableNaming() . "_table";
     }
 
     /**
@@ -177,103 +200,29 @@ trait NamingConventions
         return Naming::table($name ?? $this->usedString);
     }
 
-    /**
-     * @return string
-     */
-    public function getRequestName(): string
+    public function titleNaming(?string $name = null): string
     {
-        return 'StoreUpdate' . $this->modelNaming() . 'Request';
+
+        return $name
+            ? Str::headline($name)
+            : Str::headline($this->usedString);
     }
 
     /**
-     * @return string
+     *  return the variable name from the model name
+     *  if string provided, the result will be base on the given string else on the modelName property of the class
      */
-    public function getDtoName(): string
+    public function variableNaming(?string $name = null): string
     {
-        return 'StoreUpdate' . $this->modelNaming() . 'DTO';
+        return $name
+            ? Str::singular(Str::camel($name))
+            : Str::singular(Str::camel($this->usedString));
     }
 
-    /**
-     * @return string
-     */
-    public function getFactoryName(): string
+    public function viewNaming(?string $name = null): string
     {
-        return $this->modelNaming() . "Factory";
-    }
-
-    /**
-     * @return string
-     */
-    public function getRepositoryName(): string
-    {
-        return $this->modelNaming() . "Repository";
-    }
-
-    /**
-     * @return string
-     */
-    public function getServiceName(): string
-    {
-        return $this->modelNaming() . "Service";
-    }
-
-    /**
-     * @return string
-     */
-    public function getSeederName(): string
-    {
-        return $this->modelNaming() . "Seeder";
-    }
-
-    /**
-     * @return string
-     */
-    public function getTestName(): string
-    {
-        return $this->modelNaming() . "Test";
-    }
-
-    /**
-     * @return string
-     */
-    public function keyName(): string
-    {
-        return str($this->usedString)
-            ->snake()
-            ->singular()
-            ->lower()
-            ->append("_id")
-            ->snake()
-            ->toString();
-    }
-
-    public function columnNaming(string $name = null): string
-    {
-        return Naming::column($name ?? $this->usedString);
-    }
-
-    /**
-     * @return array{true:string , false:string}
-     */
-    public function booleanLabels(): array
-    {
-        if (Str::contains($this->name, 'is_')) {
-            $base = Str::replace('is_', '', $this->name);
-            return [
-                'true' => Str::title($base),
-                'false' => 'Not' . " " . Str::title($base),
-            ];
-        } else return [
-            'true' => Str::title($this->name),
-            'false' => 'Not' . " " . Str::title($this->name),
-        ];
-    }
-
-    public function routeParameterNaming(): Stringable
-    {
-        return str($this->usedString)
-            ->snake()
-            ->singular()
-            ->lower();
+        return $name
+            ? $this->lowerPluralKebabNaming($name)
+            : $this->lowerPluralKebabNaming($this->usedString);
     }
 }

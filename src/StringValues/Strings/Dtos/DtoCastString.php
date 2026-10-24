@@ -6,8 +6,6 @@ use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 
 class DtoCastString
 {
-    public string $name;
-
     /**
      * the cast instantiation string e.g. : new StringCast()
      */
@@ -18,8 +16,10 @@ class DtoCastString
      */
     public ?array $imports = null;
 
+    public string $name;
+
     /**
-     * @param  PhpImportString[]|null  $imports
+     * @param PhpImportString[]|null $imports
      */
     public function __construct(string $name, string $cast, ?array $imports = null)
     {

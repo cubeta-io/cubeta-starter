@@ -2,21 +2,22 @@
 
 namespace Cubeta\CubetaStarter\Commands\Installers;
 
-use Cubeta\CubetaStarter\Commands\BaseCommand;
-use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Enums\ValidationTypeEnum;
-use Cubeta\CubetaStarter\Generators\GeneratorFactory;
-use Cubeta\CubetaStarter\Generators\Installers\ApiInstaller;
-use Cubeta\CubetaStarter\Generators\Installers\AuthInstaller;
-use Cubeta\CubetaStarter\Generators\Installers\BladePackagesInstaller;
-use Cubeta\CubetaStarter\Generators\Installers\PermissionsInstaller;
-use Cubeta\CubetaStarter\Generators\Installers\ReactTSInertiaInstaller;
-use Cubeta\CubetaStarter\Generators\Installers\ReactTsPackagesInstaller;
-use Cubeta\CubetaStarter\Generators\Installers\WebInstaller;
-use Cubeta\CubetaStarter\Settings\Settings;
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\warning;
+
+use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Commands\BaseCommand;
+use Cubeta\CubetaStarter\Enums\ValidationTypeEnum;
+use Cubeta\CubetaStarter\Generators\GeneratorFactory;
+use Cubeta\CubetaStarter\Generators\Installers\ApiInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\WebInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\AuthInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\PermissionsInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\BladePackagesInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\ReactTSInertiaInstaller;
+use Cubeta\CubetaStarter\Generators\Installers\ReactTsPackagesInstaller;
 
 class Installer extends BaseCommand
 {
@@ -31,7 +32,7 @@ class Installer extends BaseCommand
 
     public function getHelp(): string
     {
-        return <<<HELP
+        return <<<'HELP'
           One-time stack setup for the host Laravel app. Run once per plugin before generating
           model files that depend on it:
 
@@ -55,15 +56,16 @@ class Installer extends BaseCommand
         $plugin = $this->argument('name');
         $plugins = ['api', 'web', 'web-packages', 'auth', 'permissions', 'react-ts', 'react-ts-packages'];
 
-        if (!$plugin) {
-            $plugin = select("What you want to install ?", $plugins);
+        if (! $plugin) {
+            $plugin = select('What you want to install ?', $plugins);
         }
 
         $version = $this->argument('version');
 
-        if (!in_array($plugin, $plugins)) {
-            error("Invalid Input");
-            warning("Installed Plugin Should Be One Of The Following : " . collect($plugins)->toJson());
+        if (! in_array($plugin, $plugins)) {
+            error('Invalid Input');
+            warning('Installed Plugin Should Be One Of The Following : '.collect($plugins)->toJson());
+
             return;
         }
 
@@ -78,34 +80,35 @@ class Installer extends BaseCommand
         $override = $this->askForOverride();
 
         switch ($plugin) {
-            case "api" :
+            case 'api':
                 $gen = new GeneratorFactory(ApiInstaller::$key);
                 break;
-            case "web" :
+            case 'web':
                 $container = ContainerType::WEB;
                 $gen = new GeneratorFactory(WebInstaller::$key);
                 break;
-            case "web-packages" :
+            case 'web-packages':
                 $container = ContainerType::WEB;
                 $gen = new GeneratorFactory(BladePackagesInstaller::$key);
                 break;
-            case "permissions" :
+            case 'permissions':
                 $gen = new GeneratorFactory(PermissionsInstaller::$key);
                 break;
-            case "auth" :
+            case 'auth':
                 $container = $this->argument('container') ?? $this->askForContainer();
                 $gen = new GeneratorFactory(AuthInstaller::$key);
                 break;
-            case "react-ts" :
+            case 'react-ts':
                 $container = ContainerType::WEB;
                 $gen = new GeneratorFactory(ReactTSInertiaInstaller::$key);
                 break;
-            case "react-ts-packages":
+            case 'react-ts-packages':
                 $container = ContainerType::WEB;
                 $gen = new GeneratorFactory(ReactTsPackagesInstaller::$key);
                 break;
-            default :
-                error("Invalid Installer Factory Key");
+            default:
+                error('Invalid Installer Factory Key');
+
                 return;
         }
 

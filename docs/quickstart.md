@@ -27,6 +27,7 @@ php artisan cubeta:install api
 ```
 
 This installs:
+
 - API route structure
 - Base classes (Repository, Service, Resource, ApiResponse)
 - Middleware for localization
@@ -71,6 +72,7 @@ is_available:boolean
 ```
 
 This single command generates:
+
 - ✅ Model class with casts, searchable arrays, and scopes
 - ✅ Migration file
 - ✅ Factory with realistic fake data

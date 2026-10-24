@@ -7,14 +7,16 @@ use Cubeta\CubetaStarter\Logs\CubeInfo;
 class SuccessGenerating extends CubeInfo
 {
     private $fileName;
+
     private $filePath;
+
     public function __construct(string $fileName, string $filePath, ?string $context = null)
     {
         $this->fileName = $fileName;
         $this->filePath = $filePath;
         parent::__construct(
-            "($fileName) Generated Successfully\n\rPath : [$filePath]"
-            , $context
+            "($fileName) Generated Successfully\n\rPath : [$filePath]",
+            $context
         );
     }
 
@@ -27,8 +29,9 @@ class SuccessGenerating extends CubeInfo
                         Path : [{$this->filePath}]
                     </div>
                 ";
-        $msg .= $this->context ? "<div class='w-100'><span class='bg-success-light'>Context</span> : {$this->context}</div>" : "";
-        $msg .= "</div>";
+        $msg .= $this->context ? "<div class='w-100'><span class='bg-success-light'>Context</span> : {$this->context}</div>" : '';
+        $msg .= '</div>';
+
         return $msg;
     }
 }

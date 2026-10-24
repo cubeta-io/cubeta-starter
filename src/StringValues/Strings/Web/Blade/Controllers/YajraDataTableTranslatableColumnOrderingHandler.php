@@ -20,10 +20,11 @@ class YajraDataTableTranslatableColumnOrderingHandler
     public function __toString(): string
     {
         if (count($this->config) == 0) {
-            $columns = "";
+            $columns = '';
         } else {
             $columns = implode(",\n", $this->config);
         }
+
         return "\$query = \$this->orderTranslatableColumns(\$query, [\n$columns\n]);";
     }
 }

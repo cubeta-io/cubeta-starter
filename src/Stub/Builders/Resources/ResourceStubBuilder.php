@@ -2,11 +2,10 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Resources;
 
-use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
-use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
-use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
 use Illuminate\Support\Arr;
+use Cubeta\CubetaStarter\Helpers\CubePath;
+use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
+use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
 
 /**
  * @method self modelNamespace(string $modelNamespace)
@@ -17,6 +16,19 @@ class ResourceStubBuilder extends ClassStubBuilder
     /** @var ResourcePropertyString[] */
     private array $resourceFields = [];
 
+    protected function getStubPropertyArray(): array
+    {
+        return [
+            ...parent::getStubPropertyArray(),
+            '{{resource_fields}}' => implode(",\n", $this->resourceFields),
+        ];
+    }
+
+    protected function stubPath(): string
+    {
+        return CubePath::stubPath('Resources/Resource.stub');
+    }
+
     public function resourceField(array|ResourcePropertyString $resourceField): static
     {
         /** @var ResourcePropertyString[] $resourceField */
@@ -26,19 +38,7 @@ class ResourceStubBuilder extends ClassStubBuilder
         }
 
         $this->resourceFields = array_merge($resourceField, $this->resourceFields);
+
         return $this;
-    }
-
-    protected function stubPath(): string
-    {
-        return CubePath::stubPath('Resources/Resource.stub');
-    }
-
-    protected function getStubPropertyArray(): array
-    {
-        return [
-            ...parent::getStubPropertyArray(),
-            '{{resource_fields}}' => implode(",\n", $this->resourceFields),
-        ];
     }
 }

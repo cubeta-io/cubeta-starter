@@ -7,8 +7,10 @@ use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 class PropertyValidationRuleString
 {
     /**
-     * @var string
+     * @var PhpImportString[]
      */
+    public ?array $imports = null;
+
     public string $name;
 
     /**
@@ -17,12 +19,6 @@ class PropertyValidationRuleString
     public array $rules = [];
 
     /**
-     * @var PhpImportString[]
-     */
-    public ?array $imports = null;
-
-    /**
-     * @param string                 $name
      * @param ValidationRuleString[] $rules
      * @param PhpImportString[]      $imports
      */
@@ -40,7 +36,7 @@ class PropertyValidationRuleString
 
     public function __toString(): string
     {
-        $rules = "";
+        $rules = '';
 
         foreach ($this->rules as $rule) {
             $rules .= "$rule, ";

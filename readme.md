@@ -1,4 +1,4 @@
-# Cubeta Starter  :
+# Cubeta Starter :
 
 cubeta-starter is a developer-centric package designed to streamline CRUD operations effortlessly. It boasts a
 dependency-free setup, allowing you to choose between using it as a core part of your project or as a convenient dev

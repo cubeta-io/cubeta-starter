@@ -2,46 +2,49 @@
 
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
-use Cubeta\CubetaStarter\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\Settings\CubeTable;
-use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
-use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
-use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
-use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
-use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
-use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
-use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
-use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
-use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ExpectedValues;
+use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Contracts\Dtos\HasDtoCast;
 use Cubeta\CubetaStarter\StringValues\Strings\Dtos\DtoCastString;
-use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
+use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
+use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
+use Cubeta\CubetaStarter\StringValues\Strings\Factories\FakeMethodString;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
+use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Requests\HasPropertyValidationRule;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString as TsxInputComponentString;
 
-class CubeStringable extends CubeAttribute implements
-    HasFakeMethod,
-    HasMigrationColumn,
-    HasDocBlockProperty,
-    HasPropertyValidationRule,
-    HasBladeInputComponent,
-    HasInterfacePropertyString,
-    HasReactTsInputString,
-    HasReactTsDisplayComponentString,
-    HasDtoCast
+class CubeStringable extends CubeAttribute implements HasBladeInputComponent, HasDocBlockProperty, HasDtoCast, HasFakeMethod, HasInterfacePropertyString, HasMigrationColumn, HasPropertyValidationRule, HasReactTsDisplayComponentString, HasReactTsInputString
 {
-    public function fakeMethod(): FakeMethodString
+    protected function getInputType(): string
     {
-        return new FakeMethodString($this->name, "fake()->word()");
+        if (str_contains($this->name, 'email')) {
+            $type = 'email';
+        } elseif (str_contains($this->name, 'password')) {
+            $type = 'password';
+        } elseif (str($this->name)->contains(['phone', 'phone_number', 'home_number', 'work_number', 'tel', 'telephone'])) {
+            $type = 'tel';
+        } elseif (str_contains($this->name, 'url')) {
+            $type = 'url';
+        } else {
+            $type = 'text';
+        }
+
+        return $type;
     }
 
     protected function guessStringMethod(): string
@@ -68,36 +71,142 @@ class CubeStringable extends CubeAttribute implements
         }
 
         return match ($name) {
-            'name', 'username', 'first_name', 'last_name', 'user_name' => "firstName",
-            'email' => "email",
-            'phone' => "phoneNumber",
-            'lat' => "latitude",
-            'lng' => "longitude",
-            'address' => "address",
-            'street' => "streetName",
-            'city' => "city",
-            'country' => "country",
-            'postcode' => "postcode",
-            'gender' => "randomElement(['male' , 'female'])",
-            default => "word"
+            'name', 'username', 'first_name', 'last_name', 'user_name' => 'firstName',
+            'email'    => 'email',
+            'phone'    => 'phoneNumber',
+            'lat'      => 'latitude',
+            'lng'      => 'longitude',
+            'address'  => 'address',
+            'street'   => 'streetName',
+            'city'     => 'city',
+            'country'  => 'country',
+            'postcode' => 'postcode',
+            'gender'   => "randomElement(['male' , 'female'])",
+            default    => 'word'
         };
+    }
+
+    public function bladeInputComponent(string $formType = 'store', ?string $actor = null): InputComponentString
+    {
+        $attributes = [];
+        $table = $this->table() ?? CubeTable::create($this->parentTableName);
+
+        if ($formType == 'update') {
+            $attributes[] = [
+                'key'   => ':value',
+                'value' => "\${$table?->variableNaming()}->{$this->name}",
+            ];
+        }
+
+        $type = $this->getInputType();
+
+        return new InputComponentString(
+            $type,
+            'x-input',
+            $this->name,
+            $this->isRequired,
+            $this->titleNaming(),
+            $attributes
+        );
+    }
+
+    public function displayComponentString(): ReactTsDisplayComponentString
+    {
+        $modelVariable = $this->table()->variableNaming();
+        $nullable = $this->nullable ? '?' : '';
+
+        return new ReactTsDisplayComponentString(
+            'DetailItem',
+            $this->labelNaming(),
+            "{$modelVariable}{$nullable}.{$this->name}",
+            [
+                new TsImportString('DetailItem', '@/components/ui/detail-item'),
+            ]
+        );
+    }
+
+    public function docBlockProperty(): DocBlockPropertyString
+    {
+        return new DocBlockPropertyString(
+            $this->name,
+            str('string')
+                ->when($this->nullable, fn ($str) => $str->append('|null'))
+                ->toString()
+        );
+    }
+
+    public function dtoCast(): DtoCastString
+    {
+        return new DtoCastString(
+            $this->name,
+            'new StringCast()',
+            [new PhpImportString('WendellAdriel\ValidatedDTO\Casting\StringCast')]
+        );
+    }
+
+    public function fakeMethod(): FakeMethodString
+    {
+        return new FakeMethodString($this->name, 'fake()->word()');
+    }
+
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = 'store', ?string $actor = null): TsxInputComponentString
+    {
+        $attributes = [
+            [
+                'key'   => 'type',
+                'value' => "'{$this->getInputType()}'",
+            ],
+            [
+                'key'   => 'onChange',
+                'value' => "(e) => setData(\"{$this->name}\", e.target?.value)",
+            ],
+        ];
+
+        if ($formType == 'update') {
+            $attributes[] = [
+                'key'   => 'defaultValue',
+                'value' => "{$this->table()->variableNaming()}.{$this->name}",
+            ];
+        }
+
+        return new TsxInputComponentString(
+            'Input',
+            $this->name,
+            $this->labelNaming(),
+            $this->isRequired,
+            $attributes,
+            [
+                new TsImportString('Input', '@/components/form/fields/input'),
+            ]
+        );
+    }
+
+    public function interfacePropertyString(): InterfacePropertyString
+    {
+        return new InterfacePropertyString(
+            $this->name,
+            'string',
+            $this->nullable,
+        );
+    }
+
+    public function isEmail(): bool
+    {
+        return str($this->name)->contains('email');
+    }
+
+    public function isPassword(): bool
+    {
+        return str($this->name)->contains('password');
     }
 
     public function migrationColumn(): MigrationColumnString
     {
         return new MigrationColumnString(
             $this->columnNaming(),
-            "string",
+            'string',
             $this->nullable,
             $this->unique
-        );
-    }
-
-    public function docBlockProperty(): DocBlockPropertyString
-    {
-        return new DocBlockPropertyString($this->name, str("string")
-            ->when($this->nullable, fn($str) => $str->append("|null"))
-            ->toString()
         );
     }
 
@@ -109,120 +218,6 @@ class CubeStringable extends CubeAttribute implements
                 ...$this->uniqueOrNullableValidationRules(),
                 new ValidationRuleString('string'),
             ]
-        );
-    }
-
-    public function isPassword(): bool
-    {
-        return str($this->name)->contains('password');
-    }
-
-    public function isEmail(): bool
-    {
-        return str($this->name)->contains('email');
-    }
-
-    public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
-    {
-        $attributes = [];
-        $table = $this->table() ?? CubeTable::create($this->parentTableName);
-
-        if ($formType == "update") {
-            $attributes[] = [
-                'key' => ':value',
-                'value' => "\${$table?->variableNaming()}->{$this->name}"
-            ];
-        }
-
-        $type = $this->getInputType();
-
-        return new InputComponentString(
-            $type,
-            "x-input",
-            $this->name,
-            $this->isRequired,
-            $this->titleNaming(),
-            $attributes
-        );
-    }
-
-    public function interfacePropertyString(): InterfacePropertyString
-    {
-        return new InterfacePropertyString(
-            $this->name,
-            "string",
-            $this->nullable,
-        );
-    }
-
-    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): TsxInputComponentString
-    {
-        $attributes = [
-            [
-                'key' => 'type',
-                'value' => "'{$this->getInputType()}'",
-            ],
-            [
-                'key' => 'onChange',
-                'value' => "(e) => setData(\"{$this->name}\", e.target?.value)"
-            ]
-        ];
-
-        if ($formType == "update") {
-            $attributes[] = [
-                'key' => 'defaultValue',
-                'value' => "{$this->table()->variableNaming()}.{$this->name}"
-            ];
-        }
-
-        return new TsxInputComponentString(
-            "Input",
-            $this->name,
-            $this->labelNaming(),
-            $this->isRequired,
-            $attributes,
-            [
-                new TsImportString("Input", "@/components/form/fields/input")
-            ]
-        );
-    }
-
-    protected function getInputType(): string
-    {
-        if (str_contains($this->name, "email")) {
-            $type = "email";
-        } elseif (str_contains($this->name, "password")) {
-            $type = "password";
-        } elseif (str($this->name)->contains(['phone', 'phone_number', 'home_number', 'work_number', 'tel', 'telephone'])) {
-            $type = "tel";
-        } elseif (str_contains($this->name, "url")) {
-            $type = "url";
-        } else {
-            $type = "text";
-        }
-        return $type;
-    }
-
-    public function displayComponentString(): ReactTsDisplayComponentString
-    {
-        $modelVariable = $this->table()->variableNaming();
-        $nullable = $this->nullable ? "?" : "";
-        return new ReactTsDisplayComponentString(
-            "DetailItem",
-            $this->labelNaming(),
-            "{$modelVariable}{$nullable}.{$this->name}",
-            [
-                new TsImportString("DetailItem", "@/components/ui/detail-item")
-            ]
-        );
-    }
-
-    public function dtoCast(): DtoCastString
-    {
-        return new DtoCastString(
-            $this->name,
-            "new StringCast()",
-            [new PhpImportString('WendellAdriel\ValidatedDTO\Casting\StringCast')]
         );
     }
 }

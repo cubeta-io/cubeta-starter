@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Helpers\ClassUtils;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
 use Cubeta\CubetaStarter\Stub\Builders\Seeders\SeederStubBuilder;
 
 class SeederGenerator extends AbstractGenerator
@@ -20,7 +20,7 @@ class SeederGenerator extends AbstractGenerator
 
         ClassUtils::callInDatabaseSeeder(
             $this->table->getSeederName(),
-            $this->table->getSeederClassString() . "::class"
+            $this->table->getSeederClassString().'::class'
         );
     }
 }

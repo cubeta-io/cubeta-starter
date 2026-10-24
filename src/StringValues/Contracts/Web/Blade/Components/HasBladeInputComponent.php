@@ -8,8 +8,6 @@ interface HasBladeInputComponent
 {
     /**
      * @param "store"|"update" $formType
-     * @param string|null      $actor
-     * @return InputComponentString
      */
-    public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString;
+    public function bladeInputComponent(string $formType = 'store', ?string $actor = null): InputComponentString;
 }

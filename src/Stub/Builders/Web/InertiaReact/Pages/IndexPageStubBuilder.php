@@ -3,8 +3,8 @@
 namespace Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Pages;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 use Cubeta\CubetaStarter\Stub\Contracts\TypescriptFileBuilder;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
 
 /**
  * @method self modelName(string $name)
@@ -23,11 +23,12 @@ class IndexPageStubBuilder extends TypescriptFileBuilder
      */
     private array $columns = [];
 
-    public function column(DataTableColumnObjectString $column)
+    protected function getStubPropertyArray(): array
     {
-        $this->columns[] = $column;
-        $this->import($column->imports);
-        return $this;
+        return [
+            ...parent::getStubPropertyArray(),
+            '{{columns}}' => implode(",\n", $this->columns).',',
+        ];
     }
 
     protected function stubPath(): string
@@ -35,11 +36,11 @@ class IndexPageStubBuilder extends TypescriptFileBuilder
         return CubePath::stubPath('Web/InertiaReact/Pages/Index.stub');
     }
 
-    protected function getStubPropertyArray(): array
+    public function column(DataTableColumnObjectString $column)
     {
-        return [
-            ...parent::getStubPropertyArray(),
-            "{{columns}}" => implode(",\n", $this->columns) . ",",
-        ];
+        $this->columns[] = $column;
+        $this->import($column->imports);
+
+        return $this;
     }
 }

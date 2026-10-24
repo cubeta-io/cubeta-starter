@@ -2,17 +2,41 @@
 
 namespace Cubeta\CubetaStarter\Generators;
 
-use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Logs\CubeError;
-use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Settings\Settings;
 use Error;
-use Mockery\Exception;
 use Throwable;
+use Mockery\Exception;
+use Cubeta\CubetaStarter\Logs\CubeLog;
+use Cubeta\CubetaStarter\Logs\CubeError;
+use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\Enums\ContainerType;
 
 class GeneratorFactory
 {
     private ?string $source;
+
+    public function __construct(?string $source = null)
+    {
+        $this->source = $source;
+    }
+
+    public static function getAllGeneratorsKeys(): array
+    {
+        $validationType = Settings::make()->getValidationType();
+
+        return [
+            Sources\MigrationGenerator::$key,
+            Sources\ModelGenerator::$key,
+            ...($validationType->hasFormRequest() ? [Sources\RequestGenerator::$key] : []),
+            ...($validationType->hasDto() ? [Sources\DtoGenerator::$key] : []),
+            Sources\ResourceGenerator::$key,
+            Sources\FactoryGenerator::$key,
+            Sources\SeederGenerator::$key,
+            Sources\RepositoryGenerator::$key,
+            Sources\ServiceGenerator::$key,
+            Sources\ControllerGenerator::$key,
+            Sources\TestGenerator::$key,
+        ];
+    }
 
     public function independentFromContainer(): array
     {
@@ -35,89 +59,40 @@ class GeneratorFactory
         ];
     }
 
-    public function __construct(?string $source = null)
-    {
-        $this->source = $source;
-    }
-
-    public static function notNeedForRelations(): array
-    {
-        return [
-            Sources\RequestGenerator::$key,
-            Sources\DtoGenerator::$key,
-            Sources\SeederGenerator::$key,
-            Sources\RepositoryGenerator::$key,
-            Sources\ServiceGenerator::$key,
-        ];
-    }
-
-    public static function noNeedForColumns(): array
-    {
-        return [
-            Sources\SeederGenerator::$key,
-            Sources\RepositoryGenerator::$key,
-            Sources\ServiceGenerator::$key,
-        ];
-    }
-
-    public static function getAllGeneratorsKeys(): array
-    {
-        $validationType = Settings::make()->getValidationType();
-
-        return [
-            Sources\MigrationGenerator::$key,
-            Sources\ModelGenerator::$key,
-            ...($validationType->hasFormRequest() ? [Sources\RequestGenerator::$key] : []),
-            ...($validationType->hasDto() ? [Sources\DtoGenerator::$key] : []),
-            Sources\ResourceGenerator::$key,
-            Sources\FactoryGenerator::$key,
-            Sources\SeederGenerator::$key,
-            Sources\RepositoryGenerator::$key,
-            Sources\ServiceGenerator::$key,
-            Sources\ControllerGenerator::$key,
-            Sources\TestGenerator::$key,
-        ];
-    }
-
-    public function setSource(string $source): static
-    {
-        $this->source = $source;
-        return $this;
-    }
-
     public function make(
-        string  $fileName = "",
-        array   $attributes = [],
-        array   $relations = [],
-        array   $nullables = [],
-        array   $uniques = [],
+        string $fileName = '',
+        array $attributes = [],
+        array $relations = [],
+        array $nullables = [],
+        array $uniques = [],
         ?string $actor = null,
-        string  $generatedFor = ContainerType::API,
-        bool    $override = false,
-        string  $version = 'v1'
-    ): void
-    {
-        if (!$this->source) {
-            throw new Exception("Undefined Generator Factory Key Please Provide One");
+        string $generatedFor = ContainerType::API,
+        bool $override = false,
+        string $version = 'v1'
+    ): void {
+        if (! $this->source) {
+            throw new Exception('Undefined Generator Factory Key Please Provide One');
         }
 
         $settings = Settings::make();
 
         if (
             ContainerType::isWeb($generatedFor)
-            && !$settings->installedWeb()
-            && !in_array($this->source, $this->independentFromContainer())
+            && ! $settings->installedWeb()
+            && ! in_array($this->source, $this->independentFromContainer())
         ) {
-            CubeLog::add(new CubeError("Install Web tools by running [php artisan cubeta:install web && php artisan cubeta:install web-packages] or [php artisan cubeta:install react-ts && php artisan cubeta:install react-ts-packages] and try again"));
+            CubeLog::add(new CubeError('Install Web tools by running [php artisan cubeta:install web && php artisan cubeta:install web-packages] or [php artisan cubeta:install react-ts && php artisan cubeta:install react-ts-packages] and try again'));
+
             return;
         }
 
         if (
             ContainerType::isApi($generatedFor)
-            && !$settings->installedApi()
-            && !in_array($this->source, $this->independentFromContainer())
+            && ! $settings->installedApi()
+            && ! in_array($this->source, $this->independentFromContainer())
         ) {
-            CubeLog::add(new CubeError("Install Api tools by running [php artisan cubeta:install api] and try again"));
+            CubeLog::add(new CubeError('Install Api tools by running [php artisan cubeta:install api] and try again'));
+
             return;
         }
 
@@ -239,22 +214,51 @@ class GeneratorFactory
                 version: $version,
                 override: $override,
             ),
-            Installers\ApiInstaller::$key => new Installers\ApiInstaller(version: $version , override: $override),
-            Installers\WebInstaller::$key => new Installers\WebInstaller(version: $version, override: $override),
-            Installers\BladePackagesInstaller::$key => new Installers\BladePackagesInstaller(override: $override),
-            Installers\PermissionsInstaller::$key => new Installers\PermissionsInstaller(generatedFor: $generatedFor, version: $version, override: $override),
-            Installers\ReactTSInertiaInstaller::$key => new Installers\ReactTSInertiaInstaller(override: $override),
+            Installers\ApiInstaller::$key             => new Installers\ApiInstaller(version: $version, override: $override),
+            Installers\WebInstaller::$key             => new Installers\WebInstaller(version: $version, override: $override),
+            Installers\BladePackagesInstaller::$key   => new Installers\BladePackagesInstaller(override: $override),
+            Installers\PermissionsInstaller::$key     => new Installers\PermissionsInstaller(generatedFor: $generatedFor, version: $version, override: $override),
+            Installers\ReactTSInertiaInstaller::$key  => new Installers\ReactTSInertiaInstaller(override: $override),
             Installers\ReactTsPackagesInstaller::$key => new Installers\ReactTsPackagesInstaller(override: $override),
-            default => throw new Error("Not supported generator {$this->source} "),
+            default                                   => throw new Error("Not supported generator {$this->source} "),
         };
         try {
             $generator->run($override);
         } catch (Exception $exception) {
             CubeLog::add($exception);
+
             return;
         } catch (Throwable $e) {
             CubeLog::add($e);
+
             return;
         }
+    }
+
+    public static function noNeedForColumns(): array
+    {
+        return [
+            Sources\SeederGenerator::$key,
+            Sources\RepositoryGenerator::$key,
+            Sources\ServiceGenerator::$key,
+        ];
+    }
+
+    public static function notNeedForRelations(): array
+    {
+        return [
+            Sources\RequestGenerator::$key,
+            Sources\DtoGenerator::$key,
+            Sources\SeederGenerator::$key,
+            Sources\RepositoryGenerator::$key,
+            Sources\ServiceGenerator::$key,
+        ];
+    }
+
+    public function setSource(string $source): static
+    {
+        $this->source = $source;
+
+        return $this;
     }
 }

@@ -2,14 +2,16 @@
 
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
-use Cubeta\CubetaStarter\Commands\BaseCommand;
+use Cubeta\CubetaStarter\Settings\Settings;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
-use Cubeta\CubetaStarter\Settings\Settings;
 
 class MakeModel extends BaseCommand
 {
+    protected bool $useGui = false;
+
     public $description = 'Create a new model, and optionally its migration, request/dto, resource, factory, seeder, repository, service, controller and test';
 
     public $signature = 'create:model
@@ -33,104 +35,36 @@ class MakeModel extends BaseCommand
         {--test : only generate the feature test }
         {--force : overwrite existing files instead of skipping/prompting }';
 
-    protected bool $useGui = false;
-
-    public function getHelp(): string
-    {
-        return <<<HELP
-          Generates an Eloquent model and, by default, every file that goes with it: migration,
-          form request and/or DTO, api resource, factory, seeder, repository, service, controller
-          and feature test. Pass one or more of the --migration/--request/--dto/--resource/--factory/
-          --seeder/--repository/--service/--controller/--web_controller/--test flags to generate only
-          a subset instead.
-
-          {$this->argumentFormatsHelp()}
-
-          Examples:
-            php artisan create:model Post
-            php artisan create:model Post "title:string,body:text,category_id:key" "" "slug" "comments:hasMany" none api --force --no-interaction
-            php artisan create:model Post "title:string,body:text" "" "" "" none api --migration --factory --force --no-interaction
-          HELP;
-    }
-
-    public function handle(): void
-    {
-        $options = $this->options();
-        $modelName = $this->argument('name') ?? $this->askForModelName("Model");
-        $attributes = $this->argument('attributes') ?? null;
-
-        if (!$attributes) {
-            [$attributes, $uniques, $nullables] = $this->askForModelAttributes(true, true);
-        } else {
-            $attributes = $this->resolveAttributes($attributes);
-        }
-
-        $relations = $this->argument('relations') ?? ($this->askForRelations($modelName) ?? []);
-        $relations = $this->resolveRelations($relations);
-
-        $unique = $this->resolveList($this->argument('uniques') ?? ($uniques ?? []));
-
-        $nulls = $this->resolveList($this->argument("nullables") ?? ($nullables ?? []));
-
-        $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors("Model") ?? 'none');
-
-        $container = $this->argument('container') ?? ($this->askForContainer() ?? ContainerType::API);
-
-        $generator = new GeneratorFactory("model");
-
-        $override = $this->askForOverride();
-
-        $generator->make(
-            fileName: $modelName,
-            attributes: $attributes,
-            relations: $relations, nullables: $nulls,
-            uniques: $unique,
-            actor: $actor,
-            override: $override
-        );
-
-        $this->callAppropriateCommand(
-            $modelName,
-            $options,
-            $actor, $attributes,
-            $relations,
-            $nulls,
-            $unique,
-            $container,
-            $override
-        );
-    }
-
     /**
      * call to command base on the option flag
      */
     public function callAppropriateCommand(string $name, $options, string $actor, array $attributes = [], array $relations = [], array $nullables = [], array $uniques = [], string $container = ContainerType::API, bool $override = false): void
     {
         $options = array_filter($options, function ($value, $index) {
-            return $value !== false && $value !== null && $index != "force";
+            return $value !== false && $value !== null && $index != 'force';
         }, ARRAY_FILTER_USE_BOTH);
 
-        if (!count($options)) {
+        if (! count($options)) {
             $result = 'all';
         } else {
             foreach ($options as $key => $option) {
                 $result = match ($key) {
-                    'migration' => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, 'uniques' => $uniques, '--force' => $override]),
-                    'request' => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container, '--force' => $override]),
-                    'dto' => $this->call('create:dto', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container, '--force' => $override]),
-                    'resource' => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'container' => $container, '--force' => $override]),
-                    'factory' => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'uniques' => $uniques, '--force' => $override]),
-                    'seeder' => $this->call('create:seeder', ['name' => $name, '--force' => $override]),
-                    'repository' => $this->call('create:repository', ['name' => $name, '--force' => $override]),
-                    'service' => $this->call('create:service', ['name' => $name, '--force' => $override]),
-                    'controller' => $this->call('create:controller', ['name' => $name, 'actor' => $actor, '--force' => $override]),
+                    'migration'      => $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, 'uniques' => $uniques, '--force' => $override]),
+                    'request'        => $this->call('create:request', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container, '--force' => $override]),
+                    'dto'            => $this->call('create:dto', ['name' => $name, 'attributes' => $attributes, 'nullables' => $nullables, 'uniques' => $uniques, 'container' => $container, '--force' => $override]),
+                    'resource'       => $this->call('create:resource', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'container' => $container, '--force' => $override]),
+                    'factory'        => $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'uniques' => $uniques, '--force' => $override]),
+                    'seeder'         => $this->call('create:seeder', ['name' => $name, '--force' => $override]),
+                    'repository'     => $this->call('create:repository', ['name' => $name, '--force' => $override]),
+                    'service'        => $this->call('create:service', ['name' => $name, '--force' => $override]),
+                    'controller'     => $this->call('create:controller', ['name' => $name, 'actor' => $actor, '--force' => $override]),
                     'web_controller' => $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, '--force' => $override]),
-                    'test' => $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, '--force' => $override]),
+                    'test'           => $this->call('create:test', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, '--force' => $override]),
                 };
             }
         }
 
-        if (!isset($result) || $result === 'all') {
+        if (! isset($result) || $result === 'all') {
             $this->call('create:migration', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, 'uniques' => $uniques, '--force' => $override]);
             $this->call('create:factory', ['name' => $name, 'attributes' => $attributes, 'relations' => $relations, 'uniques' => $uniques, '--force' => $override]);
             $this->call('create:seeder', ['name' => $name, '--force' => $override]);
@@ -162,5 +96,73 @@ class MakeModel extends BaseCommand
                 $this->call('create:web-controller', ['name' => $name, 'actor' => $actor, 'attributes' => $attributes, 'relations' => $relations, 'nullables' => $nullables, '--force' => $override]);
             }
         }
+    }
+
+    public function getHelp(): string
+    {
+        return <<<HELP
+          Generates an Eloquent model and, by default, every file that goes with it: migration,
+          form request and/or DTO, api resource, factory, seeder, repository, service, controller
+          and feature test. Pass one or more of the --migration/--request/--dto/--resource/--factory/
+          --seeder/--repository/--service/--controller/--web_controller/--test flags to generate only
+          a subset instead.
+
+          {$this->argumentFormatsHelp()}
+
+          Examples:
+            php artisan create:model Post
+            php artisan create:model Post "title:string,body:text,category_id:key" "" "slug" "comments:hasMany" none api --force --no-interaction
+            php artisan create:model Post "title:string,body:text" "" "" "" none api --migration --factory --force --no-interaction
+          HELP;
+    }
+
+    public function handle(): void
+    {
+        $options = $this->options();
+        $modelName = $this->argument('name') ?? $this->askForModelName('Model');
+        $attributes = $this->argument('attributes') ?? null;
+
+        if (! $attributes) {
+            [$attributes, $uniques, $nullables] = $this->askForModelAttributes(true, true);
+        } else {
+            $attributes = $this->resolveAttributes($attributes);
+        }
+
+        $relations = $this->argument('relations') ?? ($this->askForRelations($modelName) ?? []);
+        $relations = $this->resolveRelations($relations);
+
+        $unique = $this->resolveList($this->argument('uniques') ?? ($uniques ?? []));
+
+        $nulls = $this->resolveList($this->argument('nullables') ?? ($nullables ?? []));
+
+        $actor = $this->argument('actor') ?? ($this->askForGeneratedFileActors('Model') ?? 'none');
+
+        $container = $this->argument('container') ?? ($this->askForContainer() ?? ContainerType::API);
+
+        $generator = new GeneratorFactory('model');
+
+        $override = $this->askForOverride();
+
+        $generator->make(
+            fileName: $modelName,
+            attributes: $attributes,
+            relations: $relations,
+            nullables: $nulls,
+            uniques: $unique,
+            actor: $actor,
+            override: $override
+        );
+
+        $this->callAppropriateCommand(
+            $modelName,
+            $options,
+            $actor,
+            $attributes,
+            $relations,
+            $nulls,
+            $unique,
+            $container,
+            $override
+        );
     }
 }

@@ -28,6 +28,6 @@ class ControllerStubBuilder extends ClassStubBuilder
 {
     protected function stubPath(): string
     {
-        return CubePath::stubPath("Web/InertiaReact/Controllers/Controller.stub");
+        return CubePath::stubPath('Web/InertiaReact/Controllers/Controller.stub');
     }
 }

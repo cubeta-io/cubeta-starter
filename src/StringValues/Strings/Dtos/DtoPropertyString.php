@@ -6,19 +6,19 @@ use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 
 class DtoPropertyString
 {
-    public string $name;
-
-    public string $type;
-
-    public bool $nullable;
-
     /**
      * @var PhpImportString[]|null
      */
     public ?array $imports = null;
 
+    public string $name;
+
+    public bool $nullable;
+
+    public string $type;
+
     /**
-     * @param  PhpImportString[]|null  $imports
+     * @param PhpImportString[]|null $imports
      */
     public function __construct(string $name, string $type, bool $nullable = false, ?array $imports = null)
     {

@@ -1,4 +1,4 @@
-@props([
+@props ([
     "label",
     "value",
 ])
@@ -8,8 +8,8 @@
 @endphp
 
 @foreach (config("cubeta-starter.available_locales") as $lang)
-    <x-long-text-field
-        label="{{ $label }} : {{ strtoupper($lang) }}"
-        :value="$value[$lang] ?? ''"
-    />
+  <x-long-text-field
+    label="{{ $label }} : {{ strtoupper($lang) }}"
+    :value="$value[$lang] ?? ''"
+  />
 @endforeach

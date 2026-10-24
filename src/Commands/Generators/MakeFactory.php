@@ -31,10 +31,10 @@ class MakeFactory extends BaseCommand
 
     public function handle(): void
     {
-        $modelName = $this->argument('name') ?? $this->askForModelName("Factory");
+        $modelName = $this->argument('name') ?? $this->askForModelName('Factory');
         $attributes = $this->argument('attributes') ?? null;
 
-        if (!$attributes) {
+        if (! $attributes) {
             [$attributes, $uniques] = $this->askForModelAttributes(true);
         } else {
             $attributes = $this->resolveAttributes($attributes);
@@ -44,7 +44,7 @@ class MakeFactory extends BaseCommand
         $relations = $this->resolveRelations($relations);
         $uniques = $this->resolveList($this->argument('uniques') ?? ($uniques ?? []));
 
-        $generator = new GeneratorFactory("factory");
+        $generator = new GeneratorFactory('factory');
         $override = $this->askForOverride();
 
         $generator->make(fileName: $modelName, attributes: $attributes, relations: $relations, uniques: $uniques, override: $override);

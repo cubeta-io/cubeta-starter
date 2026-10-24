@@ -2,13 +2,12 @@
 
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
-use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeRequest extends BaseCommand
 {
-
     public $description = 'Create a new form request for a model';
 
     public $signature = 'create:request
@@ -34,11 +33,11 @@ class MakeRequest extends BaseCommand
 
     public function handle(): void
     {
-        $modelName = $this->argument('name') ?? $this->askForModelName("Model");
+        $modelName = $this->argument('name') ?? $this->askForModelName('Model');
         $attributes = $this->argument('attributes') ?? null;
         $container = $this->argument('container') ?? ($this->askForContainer() ?? ContainerType::API);
 
-        if (!$attributes) {
+        if (! $attributes) {
             [$attributes, $uniques, $nullables] = $this->askForModelAttributes(true, true);
         } else {
             $attributes = $this->resolveAttributes($attributes);
@@ -46,11 +45,11 @@ class MakeRequest extends BaseCommand
 
         $unique = $this->resolveList($this->argument('uniques') ?? ($uniques ?? []));
 
-        $nulls = $this->resolveList($this->argument("nullables") ?? ($nullables ?? []));
+        $nulls = $this->resolveList($this->argument('nullables') ?? ($nullables ?? []));
 
         $override = $this->askForOverride();
 
-        $generator = new GeneratorFactory("request");
+        $generator = new GeneratorFactory('request');
         $generator->make(
             fileName: $modelName,
             attributes: $attributes,

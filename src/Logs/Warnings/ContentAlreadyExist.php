@@ -2,15 +2,15 @@
 
 namespace Cubeta\CubetaStarter\Logs\Warnings;
 
-use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeWarning;
 
 class ContentAlreadyExist extends CubeWarning
 {
     private string $content;
+
     private string $filePath;
 
-    public function __construct(string $content, string $filePath = null, ?string $context = null)
+    public function __construct(string $content, ?string $filePath = null, ?string $context = null)
     {
         $this->content = $content;
         $this->filePath = $filePath;
@@ -36,8 +36,9 @@ class ContentAlreadyExist extends CubeWarning
                         Already Exists In : [{$this->filePath}]
                     </div>
                 ";
-        $msg .= $this->context ? "<div class='w-100'><span class='bg-warning-light'>Context</span> : {$this->context}</div>" : "";
-        $msg .= "</div>";
+        $msg .= $this->context ? "<div class='w-100'><span class='bg-warning-light'>Context</span> : {$this->context}</div>" : '';
+        $msg .= '</div>';
+
         return $msg;
     }
 }

@@ -7,7 +7,6 @@ use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeRepository extends BaseCommand
 {
-
     public $description = 'Create a new repository class for a model';
 
     public $signature = 'create:repository
@@ -16,7 +15,7 @@ class MakeRepository extends BaseCommand
 
     public function getHelp(): string
     {
-        return <<<HELP
+        return <<<'HELP'
           Generates a Repository class (Repository pattern, paired with a Service) for the
           given model.
 
@@ -26,12 +25,11 @@ class MakeRepository extends BaseCommand
           HELP;
     }
 
-
     public function handle(): void
     {
-        $modelName = $this->argument('name') ?? $this->askForModelName("Repository");
+        $modelName = $this->argument('name') ?? $this->askForModelName('Repository');
 
-        $generator = new GeneratorFactory("repository");
+        $generator = new GeneratorFactory('repository');
         $override = $this->askForOverride();
         $generator->make(fileName: $modelName, override: $override);
     }

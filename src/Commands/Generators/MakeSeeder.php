@@ -7,7 +7,6 @@ use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeSeeder extends BaseCommand
 {
-
     public $description = 'Create a new seeder for a model';
 
     public $signature = 'create:seeder
@@ -16,7 +15,7 @@ class MakeSeeder extends BaseCommand
 
     public function getHelp(): string
     {
-        return <<<HELP
+        return <<<'HELP'
           Generates a Seeder class that uses the model's factory to seed the database.
 
           Examples:
@@ -27,10 +26,10 @@ class MakeSeeder extends BaseCommand
 
     public function handle(): void
     {
-        $modelName =  $this->argument('name') ?? $this->askForModelName("Model");;
+        $modelName = $this->argument('name') ?? $this->askForModelName('Model');
         $override = $this->askForOverride();
 
-        $generator = new GeneratorFactory("seeder");
+        $generator = new GeneratorFactory('seeder');
         $generator->make(fileName: $modelName, override: $override);
     }
 }

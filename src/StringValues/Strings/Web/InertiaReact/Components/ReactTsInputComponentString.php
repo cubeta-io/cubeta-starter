@@ -6,28 +6,28 @@ use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
 
 class ReactTsInputComponentString
 {
-    private string $tag;
-
-    private string $name;
-
-    private ?string $label;
-
-    private bool $required;
-
-    public ?string $translationKey;
-
     /**
      * @var array{array{key:string , value:string}}
      */
     private array $attributes = [];
+
+    private ?string $label;
+
+    private string $name;
+
+    private bool $required;
+
+    private string $tag;
 
     /**
      * @var TsImportString[]
      */
     public array $imports = [];
 
+    public ?string $translationKey;
+
     /**
-     * @param  TsImportString[]  $imports
+     * @param TsImportString[] $imports
      */
     public function __construct(string $tag, string $name, ?string $label = null, bool $required = false, array $attributes = [], array $imports = [], ?string $translationKey = null)
     {

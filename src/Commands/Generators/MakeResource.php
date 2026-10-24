@@ -2,8 +2,8 @@
 
 namespace Cubeta\CubetaStarter\Commands\Generators;
 
-use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Commands\BaseCommand;
 use Cubeta\CubetaStarter\Generators\GeneratorFactory;
 
 class MakeResource extends BaseCommand
@@ -33,11 +33,11 @@ class MakeResource extends BaseCommand
 
     public function handle(): void
     {
-        $modelName = $this->argument('name') ?? $this->askForModelName("Model");
+        $modelName = $this->argument('name') ?? $this->askForModelName('Model');
         $attributes = $this->argument('attributes') ?? null;
 
-        if (!$attributes) {
-            [$attributes, ,] = $this->askForModelAttributes(true);
+        if (! $attributes) {
+            [$attributes] = $this->askForModelAttributes(true);
         } else {
             $attributes = $this->resolveAttributes($attributes);
         }
@@ -49,7 +49,7 @@ class MakeResource extends BaseCommand
 
         $override = $this->askForOverride();
 
-        $generator = new GeneratorFactory("resource");
+        $generator = new GeneratorFactory('resource');
         $generator->make(fileName: $modelName, attributes: $attributes, relations: $relations, generatedFor: $container, override: $override);
     }
 }

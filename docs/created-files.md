@@ -36,6 +36,7 @@ the corresponding created migration will match the types of the columns you ente
 > [!NOTE]
 > columns of type key will be placed on the migration file as a `foreignIdFor` columns with these
 > attributes :
+>
 > 1. constrained
 > 2. cascadeOnDelete
 
@@ -54,16 +55,16 @@ files exporting and importing methods `(export , import , getImportExample)`
 
 each model property will have this rules : `required|PropertyType` unless this :
 
-| property name	                                                                                          | rules                                       |
-|:-------------------------------------------------------------------------------------------------------|---------------------------------------------|
-| name,first_name ,last_name	                                                                             | required,string ,min:3 ,max:255             |
+| property name                                                                                          | rules                                       |
+| :----------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| name,first_name ,last_name                                                                             | required,string ,min:3 ,max:255             |
 | email                                                                                                  | required,string,max:255 ,email              |
 | password                                                                                               | required,string,max:255 ,min:6 ,confirmed   |
-| phone , phone_number , number	                                                                          | required,string,max:255 ,min:6              |
+| phone , phone_number , number                                                                          | required,string,max:255 ,min:6              |
 | any word ends with `_at` (started_at , ends_at , … , any type that seems to be a date type)            | required,date                               |
 | any word starts with `is_` (is_original , is_available , …. , any type that seems to be boolean value) | required,boolean                            |
 | any word ends with `_id` (user_id , product_id , …. , any type that seems to be foreign key)           | required,integer,exists:parent table,id     |
-| columns with file type	                                                                                 | nullable,image,mimes:jpeg,png,jpg,max:2048  |
+| columns with file type                                                                                 | nullable,image,mimes:jpeg,png,jpg,max:2048  |
 | columns with text type                                                                                 | nullable ,string                            |
 | columns with translatable type                                                                         | required , json , new ValidTranslatableJson |
 
@@ -94,7 +95,7 @@ public function store(StoreUpdateProductDTO $dto)
 
 > [!NOTE]
 > When the validation type is `Both`, both classes are generated but the generated controllers depend on the form
-request.
+> request.
 
 ## Resources
 
@@ -110,7 +111,7 @@ more [BaseResource class is explained here](base-resource.md#baseresource).
 the created factory fill the database according to this :
 
 | Model Property Type                     | Faker Line                                                                                                                                                                             |
-|-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | integer\|bigInteger\|unsignedBigInteger | fake()->numberBetween(1,2000)                                                                                                                                                          |
 | key type columns                        | a factory for the related model                                                                                                                                                        |
 | translatable type column                | json_encode(["en":fake()->word()]) in fact the array inside the `json_encode` method will be a fake word for each available locale you defined in the `cubeta-starter.php` config file |
@@ -123,7 +124,7 @@ the created factory fill the database according to this :
 if the property is not in those types then this will be applied according to its name:
 
 | Property Name                                                                                            | The Applied Faker                                 |
-|----------------------------------------------------------------------------------------------------------|---------------------------------------------------|
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
 | any word ends with `_at` (started_at , ends_at , ... , any type that seems to be a date type)            | fake()->date()                                    |
 | any word starts with `_is` (is_original , is_available , .... , any type that seems to be boolean value) | fake()->boolean()                                 |
 | any word ends with `_id` (user_id , product_id , .... , any type that seems to be foreign key)           | \App\Models\ _**Related Model Class**_::factory() |
@@ -213,9 +214,8 @@ work and see if they are good for you, or you have to create another ones .
 the generated postman collection will have HTTP requests grouped by your model name .
 it has two variables for the whole collection :
 
-1. **{{local}}** :  this will be generated as we mentioned before from the value you defined in the config.
+1. **{{local}}** : this will be generated as we mentioned before from the value you defined in the config.
 2. **{{locale}}** : this will represent the accept-language header in all the generated requests
 
 when generating another postman collection assuming that you've already generated one it will not replace the older one
 it will just add a new group of requests to the previous one .
-

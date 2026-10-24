@@ -2,29 +2,29 @@
 
 namespace Cubeta\CubetaStarter\Generators\Sources;
 
-use Cubeta\CubetaStarter\Enums\ContainerType;
-use Cubeta\CubetaStarter\Generators\AbstractGenerator;
-use Cubeta\CubetaStarter\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\StringValues\Contracts\Tests\HasTestAdditionalFactoryData;
-use Cubeta\CubetaStarter\Stub\Builders\Tests\TestStubBuilder;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
 use Illuminate\Support\Str;
+use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
+use Cubeta\CubetaStarter\Generators\AbstractGenerator;
+use Cubeta\CubetaStarter\Stub\Builders\Tests\TestStubBuilder;
+use Cubeta\CubetaStarter\StringValues\Contracts\Tests\HasTestAdditionalFactoryData;
 
 class TestGenerator extends AbstractGenerator
 {
     use RouteBinding;
 
-    public static string $key = "test";
+    public static string $key = 'test';
 
     public function run(bool $override = false): void
     {
         if ($this->generatedFor == ContainerType::API) {
             return;
         }
-        $baseRouteName = $this->table->resourceRoute($this->actor)->name . '.';
+        $baseRouteName = $this->table->resourceRoute($this->actor)->name.'.';
         $testPath = $this->table->getTestPath();
 
-        $actor = str($this->actor ?? "none")->lower()->singular()->toString();
+        $actor = str($this->actor ?? 'none')->lower()->singular()->toString();
         $builder = TestStubBuilder::make()
             ->namespace($this->table->getTestNamespace($this->actor, false, true))
             ->resourceNamespace($this->table->getResourceNameSpace(false))
@@ -36,8 +36,8 @@ class TestGenerator extends AbstractGenerator
             ->methodModelName(Str::snake($this->table->modelName));
 
         $this->table->attributes()
-            ->filter(fn(CubeAttribute $att) => $att instanceof HasTestAdditionalFactoryData)
-            ->each(fn(HasTestAdditionalFactoryData $att) => $builder->additionalFactoryData($att->testAdditionalFactoryData()));
+            ->filter(fn (CubeAttribute $att) => $att instanceof HasTestAdditionalFactoryData)
+            ->each(fn (HasTestAdditionalFactoryData $att) => $builder->additionalFactoryData($att->testAdditionalFactoryData()));
 
         $builder->generate($testPath, $this->override);
     }

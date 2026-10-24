@@ -18,7 +18,7 @@ use Tests\TestCase;
 class MainTestCase extends TestCase
 {
     use TestHelpers;
-    
+
     // Methods for testing CRUD operations
 }
 ```
@@ -27,13 +27,13 @@ class MainTestCase extends TestCase
 
 When extending the `MainTestCase` class, you should define the following properties in your test class:
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `$model` | string | The fully qualified class name of the model being tested |
-| `$resource` | string | The fully qualified class name of the resource being tested |
-| `$userType` | string | The type of user to authenticate as (e.g., 'admin', 'user', 'none') |
-| `$baseUrl` | string | The base URL for the routes being tested |
-| `$relations` | array | An array of relations to load with the model |
+| Property     | Type   | Description                                                         |
+| ------------ | ------ | ------------------------------------------------------------------- |
+| `$model`     | string | The fully qualified class name of the model being tested            |
+| `$resource`  | string | The fully qualified class name of the resource being tested         |
+| `$userType`  | string | The type of user to authenticate as (e.g., 'admin', 'user', 'none') |
+| `$baseUrl`   | string | The base URL for the routes being tested                            |
+| `$relations` | array  | An array of relations to load with the model                        |
 
 ## Available Methods
 
@@ -46,10 +46,12 @@ public function deleteTest(array $additionalFactoryData = [], bool $ownership = 
 ```
 
 #### Parameters:
+
 - `$additionalFactoryData` (array): Optional data to pass to the model factory
 - `$ownership` (bool): Determines if the action has to be on the authenticated user's data
 
 #### What it tests:
+
 1. Attempting to delete a resource with an invalid ID
 2. If `$ownership` is true, attempting to delete another user's resource
 3. Successfully deleting a resource
@@ -64,10 +66,12 @@ public function indexTest(array $additionalFactoryData = [], bool $ownership = f
 ```
 
 #### Parameters:
+
 - `$additionalFactoryData` (array): Optional data to pass to the model factory
 - `$ownership` (bool): Determines if the action has to be on the authenticated user's data
 
 #### What it tests:
+
 1. Requesting the index when no resources exist
 2. If `$ownership` is true, attempting to list another user's resources
 3. Successfully listing resources
@@ -82,10 +86,12 @@ public function showTest(array $additionalFactoryData = [], bool $ownership = fa
 ```
 
 #### Parameters:
+
 - `$additionalFactoryData` (array): Optional data to pass to the model factory
 - `$ownership` (bool): Determines if the action has to be on the authenticated user's data
 
 #### What it tests:
+
 1. Attempting to show a resource with an invalid ID
 2. If `$ownership` is true, attempting to show another user's resource
 3. Successfully showing a resource
@@ -100,10 +106,12 @@ public function storeTest(array $additionalAttributes = [], mixed $requestParams
 ```
 
 #### Parameters:
+
 - `$additionalAttributes` (array): Optional data to pass to the model factory
 - `$requestParams` (mixed): Optional parameters to include in the request URL
 
 #### What it tests:
+
 1. Successfully creating a resource with the provided attributes
 2. Verifying the resource is created in the database
 3. Verifying resource transformation
@@ -117,11 +125,13 @@ public function updateTest(array $attributes = [], array $additionalFactoryData 
 ```
 
 #### Parameters:
+
 - `$attributes` (array): Data to use for the update request
 - `$additionalFactoryData` (array): Optional data to pass to the model factory
 - `$ownership` (bool): Determines if the action has to be on the authenticated user's data
 
 #### What it tests:
+
 1. Attempting to update a resource with an invalid ID
 2. If `$ownership` is true, attempting to update another user's resource
 3. Successfully updating a resource
@@ -133,10 +143,12 @@ public function updateTest(array $attributes = [], array $additionalFactoryData 
 The `MainTestCase` class uses the `TestHelpers` trait, which provides numerous helper methods for testing. Some of the most commonly used methods include:
 
 ### Authentication Methods
+
 - `login(string $email, string $password)`: Logs in a user with the given credentials
 - `signIn($type)`: Signs in a user of the specified type
 
 ### Response Assertion Methods
+
 - `statusOk()`: Asserts that the response has a 200 status code
 - `statusNotFound()`: Asserts that the response has a 404 status code
 - `statusBadRequest()`: Asserts that the response has a 400 status code
@@ -145,22 +157,26 @@ The `MainTestCase` class uses the `TestHelpers` trait, which provides numerous h
 - `statusValidationError()`: Asserts that the response has a 422 status code
 
 ### Data Preparation Methods
+
 - `dataResource(mixed $data)`: Sets the expected data resource
 - `data(mixed $data)`: Sets the expected data
 - `noData()`: Sets the expected data to null
 
 ### Success State Helpers
+
 - `getSuccess()`: Sets up expectations for a successful GET request
 - `storeSuccess()`: Sets up expectations for a successful POST request
 - `updateSuccess()`: Sets up expectations for a successful PUT request
 - `deleteSuccess()`: Sets up expectations for a successful DELETE request
 
 ### Pagination Helpers
+
 - `paginate(int $total)`: Sets up expectations for paginated data
 - `emptyPagination()`: Sets up expectations for empty paginated data
 - `unPaginate()`: Sets up expectations for unpaginated data
 
 ### Other Helpers
+
 - `requestPathHook(string $routeName)`: Sets the request path for the test
 - `multiple()`: Indicates that multiple resources are expected
 - `single()`: Indicates that a single resource is expected

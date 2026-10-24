@@ -2,9 +2,9 @@
 
 namespace Cubeta\CubetaStarter\Stub\Builders\Web\Blade\Controllers;
 
+use Illuminate\Support\Arr;
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
-use Illuminate\Support\Arr;
 
 /**
  * @method self requestNamespace(string $requestNamespace)
@@ -32,15 +32,12 @@ class ControllerStubBuilder extends ClassStubBuilder
 {
     private array $additionalColumns = [];
 
-    /**
-     * @param string|string[] $additionalColumn
-     * @return static
-     */
-    public function additionalColumn(string|array $additionalColumn): static
+    protected function getStubPropertyArray(): array
     {
-        $additionalColumn = Arr::wrap($additionalColumn);
-        $this->additionalColumns = array_merge($additionalColumn, $this->additionalColumns);
-        return $this;
+        return [
+            ...parent::getStubPropertyArray(),
+            '{{additional_columns}}' => implode("\n", $this->additionalColumns),
+        ];
     }
 
     protected function stubPath(): string
@@ -48,11 +45,14 @@ class ControllerStubBuilder extends ClassStubBuilder
         return CubePath::stubPath('Web/Blade/Controllers/Controller.stub');
     }
 
-    protected function getStubPropertyArray(): array
+    /**
+     * @param string|string[] $additionalColumn
+     */
+    public function additionalColumn(string|array $additionalColumn): static
     {
-        return [
-            ...parent::getStubPropertyArray(),
-            "{{additional_columns}}" => implode("\n", $this->additionalColumns)
-        ];
+        $additionalColumn = Arr::wrap($additionalColumn);
+        $this->additionalColumns = array_merge($additionalColumn, $this->additionalColumns);
+
+        return $this;
     }
 }

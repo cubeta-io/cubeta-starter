@@ -4,6 +4,7 @@ namespace Cubeta\CubetaStarter\Traits;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
 use Cubeta\CubetaStarter\Settings\Settings;
+
 use function Illuminate\Filesystem\join_paths;
 
 /**
@@ -13,27 +14,124 @@ use function Illuminate\Filesystem\join_paths;
  */
 trait HasPathAndNamespace
 {
-    /**
-     * @return CubePath
-     */
-    public function getModelPath(): CubePath
+    public function getApiControllerClassString(): string
     {
-        return CubePath::make(config('cubeta-starter.model_path') . "/{$this->modelNaming()}.php");
+        return '\\'.config('cubeta-starter.api_controller_namespace')."\\$this->version\\{$this->getControllerName()}";
     }
 
-    /**
-     * @return string
-     */
+    public function getApiControllerNameSpace($withStart = true): string
+    {
+        return ($withStart ? '\\' : '').config('cubeta-starter.api_controller_namespace')."\\$this->version";
+    }
+
+    public function getApiControllerPath(): CubePath
+    {
+        return CubePath::make(config('cubeta-starter.api_controller_path')."/$this->version/{$this->getControllerName()}.php");
+    }
+
+    public function getDtoClassString(): string
+    {
+        return '\\'.config('cubeta-starter.dto_namespace')."\\{$this->version}\\{$this->modelNaming()}\\{$this->getDtoName()}";
+    }
+
+    public function getDtoNameSpace(bool $withStart = true, bool $prefixOnly = false): string
+    {
+        return $prefixOnly
+            ? ($withStart ? '\\' : '').config('cubeta-starter.dto_namespace')."\\{$this->version}\\{$this->modelNaming()}"
+            : ($withStart ? '\\' : '').config('cubeta-starter.dto_namespace')."\\{$this->version}\\{$this->modelNaming()}\\{$this->getDtoName()}";
+    }
+
+    public function getDtoPath(): CubePath
+    {
+        return CubePath::make(config('cubeta-starter.dto_path')."/{$this->version}/{$this->modelNaming()}/{$this->getDtoName()}.php");
+    }
+
+    public function getFactoryClassString(): string
+    {
+        return '\\'.config('cubeta-starter.factory_namespace')."\\{$this->getFactoryName()}";
+    }
+
+    public function getFactoryPath(): CubePath
+    {
+        return CubePath::make(config('cubeta-starter.factory_path')."/{$this->getFactoryName()}.php");
+    }
+
+    public function getMigrationPath(): CubePath
+    {
+        return CubePath::make(config('cubeta-starter.migration_path')."/{$this->getMigrationName()}.php");
+    }
+
     public function getModelClassString(): string
     {
-        return "\\" . config('cubeta-starter.model_namespace') . "\\{$this->modelNaming()}";
+        return '\\'.config('cubeta-starter.model_namespace')."\\{$this->modelNaming()}";
     }
 
     public function getModelNameSpace(bool $withStart = true, bool $prefixOnly = false): string
     {
         return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.model_namespace')
-            : ($withStart ? "\\" : "") . config('cubeta-starter.model_namespace') . "\\" . $this->modelNaming();
+            ? ($withStart ? '\\' : '').config('cubeta-starter.model_namespace')
+            : ($withStart ? '\\' : '').config('cubeta-starter.model_namespace').'\\'.$this->modelNaming();
+    }
+
+    public function getModelPath(): CubePath
+    {
+        return CubePath::make(config('cubeta-starter.model_path')."/{$this->modelNaming()}.php");
+    }
+
+    public function getRepositoryClassString(): string
+    {
+        return '\\'.config('cubeta-starter.repository_namespace')."\\{$this->getRepositoryName()}";
+    }
+
+    public function getRepositoryNameSpace(bool $withStart = true, bool $prefixOnly = false): string
+    {
+        return $prefixOnly
+            ? ($withStart ? '\\' : '').config('cubeta-starter.repository_namespace')
+            : ($withStart ? '\\' : '').config('cubeta-starter.repository_namespace').'\\'.$this->getRepositoryName();
+    }
+
+    public function getRepositoryPath(): CubePath
+    {
+        return CubePath::make(config('cubeta-starter.repository_path')."/{$this->getRepositoryName()}.php");
+    }
+
+    public function getRequestClassString(): string
+    {
+        return '\\'.config('cubeta-starter.request_namespace')."\\{$this->version}\\{$this->modelNaming()}\\{$this->getRequestName()}";
+    }
+
+    public function getRequestNameSpace(bool $withStart = true, bool $prefixOnly = false): string
+    {
+        return $prefixOnly
+            ? ($withStart ? '\\' : '').config('cubeta-starter.request_namespace')."\\{$this->version}\\{$this->modelNaming()}"
+            : ($withStart ? '\\' : '').config('cubeta-starter.request_namespace')."\\{$this->version}\\{$this->modelNaming()}\\{$this->getRequestName()}";
+    }
+
+    public function getRequestPath(): CubePath
+    {
+        return CubePath::make(config('cubeta-starter.request_path')."/{$this->version}/{$this->modelNaming()}/{$this->getRequestName()}.php");
+    }
+
+    public function getResourceClassString(): string
+    {
+        return '\\'.config('cubeta-starter.resource_namespace')."\\{$this->version}\\{$this->getResourceName()}";
+    }
+
+    public function getResourceNameSpace(bool $withStart = true, bool $prefixOnly = false): string
+    {
+        return $prefixOnly
+            ? ($withStart ? '\\' : '').config('cubeta-starter.resource_namespace')."\\{$this->version}"
+            : ($withStart ? '\\' : '').config('cubeta-starter.resource_namespace')."\\{$this->version}\\{$this->getResourceName()}";
+    }
+
+    public function getResourcePath(): CubePath
+    {
+        return CubePath::make(config('cubeta-starter.resource_path')."/{$this->version}/{$this->getResourceName()}.php");
+    }
+
+    public function getSeederClassString(): string
+    {
+        return '\\'.config('cubeta-starter.seeder_namespace')."\\{$this->getSeederName()}";
     }
 
     public function getSeederNameSpace(): string
@@ -41,100 +139,78 @@ trait HasPathAndNamespace
         return config('cubeta-starter.seeder_namespace');
     }
 
-    /**
-     * @return CubePath
-     */
-    public function getApiControllerPath(): CubePath
+    public function getSeederPath(): CubePath
     {
-        return CubePath::make(config('cubeta-starter.api_controller_path') . "/$this->version/{$this->getControllerName()}.php");
+        return CubePath::make(config('cubeta-starter.seeder_path')."/{$this->getSeederName()}.php");
     }
 
-    /**
-     * @return string
-     */
-    public function getApiControllerClassString(): string
-    {
-        return "\\" . config('cubeta-starter.api_controller_namespace') . "\\$this->version\\{$this->getControllerName()}";
-    }
-
-    public function getApiControllerNameSpace($withStart = true): string
-    {
-        return ($withStart ? "\\" : "") . config('cubeta-starter.api_controller_namespace') . "\\$this->version";
-    }
-
-    /**
-     * @return CubePath
-     */
-    public function getWebControllerPath(): CubePath
-    {
-        return CubePath::make(config('cubeta-starter.web_controller_path') . "/$this->version/{$this->getControllerName()}.php");
-    }
-
-    public function getWebControllerNameSpace(bool $withStart = true, bool $prefixOnly = false): string
+    public function getServiceNamespace(bool $withStart = true, bool $prefixOnly = false): string
     {
         return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.web_controller_namespace') . "\\$this->version"
-            : ($withStart ? "\\" : "") . config('cubeta-starter.web_controller_namespace') . "\\$this->version\\{$this->getControllerName()}";
+            ? ($withStart ? '\\' : '').config('cubeta-starter.service_namespace')."\\{$this->version}\\{$this->modelNaming()}"
+            : ($withStart ? '\\' : '').config('cubeta-starter.service_namespace')."\\{$this->version}\\{$this->modelNaming()}\\{$this->getServiceName()}";
     }
 
-    /**
-     * @return string
-     */
-    public function getWebControllerClassString(): string
+    public function getServicePath(): CubePath
     {
-        return "\\" . config('cubeta-starter.web_controller_namespace') . "\\{$this->getControllerName()}";
+        return CubePath::make(config('cubeta-starter.service_path')."/{$this->version}/{$this->modelNaming()}/{$this->getServiceName()}.php");
     }
 
-    /**
-     * @return CubePath
-     */
-    public function getRequestPath(): CubePath
+    public function getTestClassString(?string $actor = null): string
     {
-        return CubePath::make(config('cubeta-starter.request_path') . "/{$this->version}/{$this->modelNaming()}/{$this->getRequestName()}.php");
+        if (empty($actor) || $actor == 'none') {
+            return '\\'.config('cubeta-starter.test_namespace')."\\{$this->getTestName()}";
+        }
+
+        $actor = str($actor)->studly()->singular();
+
+        return '\\'.config('cubeta-starter.test_namespace')."\\$actor\\{$this->getTestName()}";
     }
 
-    /**
-     * @return string
-     */
-    public function getRequestClassString(): string
+    public function getTestNamespace(?string $actor = null, bool $withStart = true, bool $prefixOnly = false): string
     {
-        return "\\" . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getRequestName()}";
-    }
+        if (empty($actor) || $actor == 'none') {
+            return $prefixOnly
+                ? ($withStart ? '\\' : '').config('cubeta-starter.test_namespace')
+                : ($withStart ? '\\' : '').config('cubeta-starter.test_namespace').'\\'.$this->getTestName();
+        }
 
-    public function getRequestNameSpace(bool $withStart = true, bool $prefixOnly = false): string
-    {
+        $actor = str($actor)->studly()->singular();
+
         return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}"
-            : ($withStart ? "\\" : "") . config('cubeta-starter.request_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getRequestName()}";
+            ? ($withStart ? '\\' : '').config('cubeta-starter.test_namespace')."\\$actor"
+            : ($withStart ? '\\' : '').config('cubeta-starter.test_namespace')."\\$actor\\".$this->getTestName();
+    }
+
+    public function getTestPath(?string $actor = null): CubePath
+    {
+        if (empty($actor) || $actor == 'none') {
+            return CubePath::make(config('cubeta-starter.test_path')."/{$this->getTestName()}.php");
+        }
+
+        $actor = str($actor)->studly()->singular();
+
+        return CubePath::make(config('cubeta-starter.test_path')."/$actor/{$this->getTestName()}.php");
+    }
+
+    public function getTSModelPath(): CubePath
+    {
+        return CubePath::make(join_paths('resources/js/models/', str($this->modelNaming())->kebab()->lower().'.ts'));
     }
 
     /**
-     * @return CubePath
+     * how the generated controllers get the validated data from the injected validation class
      */
-    public function getDtoPath(): CubePath
+    public function getValidatedDataString(): string
     {
-        return CubePath::make(config('cubeta-starter.dto_path') . "/{$this->version}/{$this->modelNaming()}/{$this->getDtoName()}.php");
-    }
-
-    /**
-     * @return string
-     */
-    public function getDtoClassString(): string
-    {
-        return "\\" . config('cubeta-starter.dto_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getDtoName()}";
-    }
-
-    public function getDtoNameSpace(bool $withStart = true, bool $prefixOnly = false): string
-    {
-        return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.dto_namespace') . "\\{$this->version}\\{$this->modelNaming()}"
-            : ($withStart ? "\\" : "") . config('cubeta-starter.dto_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getDtoName()}";
+        return Settings::make()->getValidationType()->controllersUseDto()
+            ? '$dto->toArray()'
+            : '$request->validated()';
     }
 
     /**
      * the name of the validation class used by the generated controllers
      * it depends on the chosen validation type within the settings file
-     * @return string
      */
     public function getValidationClassName(): string
     {
@@ -145,8 +221,6 @@ trait HasPathAndNamespace
 
     /**
      * the namespace of the validation class used by the generated controllers
-     * @param bool $withStart
-     * @return string
      */
     public function getValidationNameSpace(bool $withStart = true): string
     {
@@ -157,186 +231,33 @@ trait HasPathAndNamespace
 
     /**
      * the variable name of the injected validation class within the generated controllers
-     * @return string
      */
     public function getValidationVariableName(): string
     {
         return Settings::make()->getValidationType()->controllersUseDto()
-            ? "dto"
-            : "request";
+            ? 'dto'
+            : 'request';
     }
 
-    /**
-     * how the generated controllers get the validated data from the injected validation class
-     * @return string
-     */
-    public function getValidatedDataString(): string
+    public function getWebControllerClassString(): string
     {
-        return Settings::make()->getValidationType()->controllersUseDto()
-            ? "\$dto->toArray()"
-            : "\$request->validated()";
+        return '\\'.config('cubeta-starter.web_controller_namespace')."\\{$this->getControllerName()}";
     }
 
-    /**
-     * @return CubePath
-     */
-    public function getResourcePath(): CubePath
-    {
-        return CubePath::make(config('cubeta-starter.resource_path') . "/{$this->version}/{$this->getResourceName()}.php");
-    }
-
-    /**
-     * @return string
-     */
-    public function getResourceClassString(): string
-    {
-        return "\\" . config('cubeta-starter.resource_namespace') . "\\{$this->version}\\{$this->getResourceName()}";
-    }
-
-    public function getResourceNameSpace(bool $withStart = true, bool $prefixOnly = false): string
+    public function getWebControllerNameSpace(bool $withStart = true, bool $prefixOnly = false): string
     {
         return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.resource_namespace') . "\\{$this->version}"
-            : ($withStart ? "\\" : "") . config('cubeta-starter.resource_namespace') . "\\{$this->version}\\{$this->getResourceName()}";
+            ? ($withStart ? '\\' : '').config('cubeta-starter.web_controller_namespace')."\\$this->version"
+            : ($withStart ? '\\' : '').config('cubeta-starter.web_controller_namespace')."\\$this->version\\{$this->getControllerName()}";
     }
 
-    /**
-     * @return CubePath
-     */
-    public function getFactoryPath(): CubePath
+    public function getWebControllerPath(): CubePath
     {
-        return CubePath::make(config('cubeta-starter.factory_path') . "/{$this->getFactoryName()}.php");
-    }
-
-    /**
-     * @return string
-     */
-    public function getFactoryClassString(): string
-    {
-        return "\\" . config('cubeta-starter.factory_namespace') . "\\{$this->getFactoryName()}";
-    }
-
-    /**
-     * @return CubePath
-     */
-    public function getSeederPath(): CubePath
-    {
-        return CubePath::make(config('cubeta-starter.seeder_path') . "/{$this->getSeederName()}.php");
-    }
-
-    /**
-     * @return string
-     */
-    public function getSeederClassString(): string
-    {
-        return "\\" . config('cubeta-starter.seeder_namespace') . "\\{$this->getSeederName()}";
-    }
-
-    /**
-     * @return CubePath
-     */
-    public function getRepositoryPath(): CubePath
-    {
-        return CubePath::make(config('cubeta-starter.repository_path') . "/{$this->getRepositoryName()}.php");
-    }
-
-    /**
-     * @param bool $withStart
-     * @param bool $prefixOnly
-     * @return string
-     */
-    public function getRepositoryNameSpace(bool $withStart = true, bool $prefixOnly = false): string
-    {
-        return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.repository_namespace')
-            : ($withStart ? "\\" : "") . config('cubeta-starter.repository_namespace') . "\\" . $this->getRepositoryName();
-    }
-
-    public function getRepositoryClassString(): string
-    {
-        return "\\" . config('cubeta-starter.repository_namespace') . "\\{$this->getRepositoryName()}";
-    }
-
-    /**
-     * @return CubePath
-     */
-    public function getServicePath(): CubePath
-    {
-        return CubePath::make(config('cubeta-starter.service_path') . "/{$this->version}/{$this->modelNaming()}/{$this->getServiceName()}.php");
-    }
-
-    /**
-     * @param bool $withStart
-     * @param bool $prefixOnly
-     * @return string
-     */
-    public function getServiceNamespace(bool $withStart = true, bool $prefixOnly = false): string
-    {
-        return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelNaming()}"
-            : ($withStart ? "\\" : "") . config('cubeta-starter.service_namespace') . "\\{$this->version}\\{$this->modelNaming()}\\{$this->getServiceName()}";
-    }
-
-    public function getTestNamespace(?string $actor = null, bool $withStart = true, bool $prefixOnly = false): string
-    {
-        if (empty($actor) || $actor == 'none') {
-            return $prefixOnly
-                ? ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace')
-                : ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace') . "\\" . $this->getTestName();
-        }
-
-        $actor = str($actor)->studly()->singular();
-        return $prefixOnly
-            ? ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace') . "\\$actor"
-            : ($withStart ? "\\" : "") . config('cubeta-starter.test_namespace') . "\\$actor\\" . $this->getTestName();
-    }
-
-    /**
-     * @param string|null $actor
-     * @return CubePath
-     */
-    public function getTestPath(?string $actor = null): CubePath
-    {
-        if (empty($actor) || $actor == 'none') {
-            return CubePath::make(config('cubeta-starter.test_path') . "/{$this->getTestName()}.php");
-        }
-
-        $actor = str($actor)->studly()->singular();
-        return CubePath::make(config('cubeta-starter.test_path') . "/$actor/{$this->getTestName()}.php");
-    }
-
-    /**
-     * @param string|null $actor
-     * @return string
-     */
-    public function getTestClassString(?string $actor = null): string
-    {
-        if (empty($actor) || $actor == 'none') {
-            return "\\" . config('cubeta-starter.test_namespace') . "\\{$this->getTestName()}";
-        }
-
-        $actor = str($actor)->studly()->singular();
-        return "\\" . config('cubeta-starter.test_namespace') . "\\$actor\\{$this->getTestName()}";
-    }
-
-    /**
-     * @return CubePath
-     */
-    public function getMigrationPath(): CubePath
-    {
-        return CubePath::make(config('cubeta-starter.migration_path') . "/{$this->getMigrationName()}.php");
-    }
-
-    /**
-     * @return CubePath
-     */
-    public function getTSModelPath(): CubePath
-    {
-        return CubePath::make(join_paths("resources/js/models/", str($this->modelNaming())->kebab()->lower() . ".ts"));
+        return CubePath::make(config('cubeta-starter.web_controller_path')."/$this->version/{$this->getControllerName()}.php");
     }
 
     public function tsModelImportPath(): string
     {
-        return "@/models/" . str($this->modelNaming())->kebab()->lower();
+        return '@/models/'.str($this->modelNaming())->kebab()->lower();
     }
 }

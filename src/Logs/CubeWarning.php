@@ -4,31 +4,14 @@ namespace Cubeta\CubetaStarter\Logs;
 
 class CubeWarning
 {
-    protected string $message;
     protected ?string $context;
 
-    /**
-     * @param string $message
-     * @param string|null $context
-     */
+    protected string $message;
+
     public function __construct(string $message, ?string $context = null)
     {
         $this->message = $message;
         $this->context = $context;
-    }
-
-    public function getMessage(): string
-    {
-        $msg = "Warning : {$this->message}";
-
-        if ($this->context) $msg .= "\n\rContext : {$this->context}";
-
-        return $msg;
-    }
-
-    public function warning(): string
-    {
-        return $this->message;
     }
 
     public function getHtml(): string
@@ -37,8 +20,25 @@ class CubeWarning
         <span  style='position: absolute; top: -25%; left: 1%' class='bg-warning rounded-2 p-1 fw-bold text-black'>Warning</span>
                     <div class='w-100'>{$this->message}</div>
                 ";
-        $msg .= $this->context ? "<div class='w-100'><span class='bg-warning-light'>Context</span> : {$this->context}</div>" : "";
-        $msg .= "</div>";
+        $msg .= $this->context ? "<div class='w-100'><span class='bg-warning-light'>Context</span> : {$this->context}</div>" : '';
+        $msg .= '</div>';
+
         return $msg;
+    }
+
+    public function getMessage(): string
+    {
+        $msg = "Warning : {$this->message}";
+
+        if ($this->context) {
+            $msg .= "\n\rContext : {$this->context}";
+        }
+
+        return $msg;
+    }
+
+    public function warning(): string
+    {
+        return $this->message;
     }
 }

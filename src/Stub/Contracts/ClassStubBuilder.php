@@ -2,63 +2,52 @@
 
 namespace Cubeta\CubetaStarter\Stub\Contracts;
 
-use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
-use Cubeta\CubetaStarter\StringValues\Strings\MethodString;
 use Cubeta\CubetaStarter\StringValues\Strings\TraitString;
+use Cubeta\CubetaStarter\StringValues\Strings\MethodString;
+use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 
 abstract class ClassStubBuilder extends StubBuilder
 {
-    protected string $namespace = "";
-    protected array $traits = [];
-    protected array $properties = [];
-    protected array $methods = [];
     protected array $dockBlock = [];
 
-    /**
-     * @param TraitString|TraitString[] $trait
-     * @return $this
-     */
-    public function trait(TraitString|array $trait): static
-    {
-        if (is_array($trait)) {
-            foreach ($trait as $singleTrait) {
-                if ($singleTrait->import) {
-                    $this->import($singleTrait->import);
-                }
-            }
+    protected array $methods = [];
 
-            $this->traits = array_merge($trait, $this->traits);
-        } else {
-            $this->traits[] = $trait;
-            if ($trait->import) {
-                $this->import($trait->import);
-            }
+    protected string $namespace = '';
+
+    protected array $properties = [];
+
+    protected array $traits = [];
+
+    protected function getStubPropertyArray(): array
+    {
+        $methods = '';
+        foreach ($this->methods as $method) {
+            $methods .= $method."\n\n";
         }
 
-        $this->traits = collect($this->traits)
-            ->unique(fn(TraitString $trait) => $trait->traitName)
+        return [
+            '{{namespace}}' => $this->namespace,
+            '{{traits}}'    => array_reduce($this->traits, fn ($carry, TraitString $trait) => "$carry\n$trait"),
+            '{{methods}}'   => $methods,
+            '{{doc_block}}' => implode("\n * ", $this->dockBlock),
+            ...$this->stubProperties,
+        ];
+    }
+
+    public function dockBlock(DocBlockPropertyString $property): static
+    {
+        $this->dockBlock[] = $property;
+        $this->import($property->imports);
+
+        $this->dockBlock = collect($this->dockBlock)
+            ->unique(fn (DocBlockPropertyString $property) => $property->name)
             ->toArray();
 
         return $this;
     }
 
     /**
-     * @param string|array $property
-     * @return $this
-     */
-    public function property(array|string $property): static
-    {
-        if (is_array($property)) {
-            $this->properties = array_merge($property, $this->properties);
-        } else {
-            $this->properties[] = $property;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param MethodString|MethodString[] $method
+     * @param  MethodString|MethodString[] $method
      * @return $this
      */
     public function method(MethodString|array $method): static
@@ -85,37 +74,52 @@ abstract class ClassStubBuilder extends StubBuilder
         return $this;
     }
 
-    public function dockBlock(DocBlockPropertyString $property): static
-    {
-        $this->dockBlock[] = $property;
-        $this->import($property->imports);
-
-        $this->dockBlock = collect($this->dockBlock)
-            ->unique(fn(DocBlockPropertyString $property) => $property->name)
-            ->toArray();
-
-        return $this;
-    }
-
     public function namespace(string $namespace): static
     {
         $this->namespace = $namespace;
+
         return $this;
     }
 
-    protected function getStubPropertyArray(): array
+    /**
+     * @return $this
+     */
+    public function property(array|string $property): static
     {
-        $methods = "";
-        foreach ($this->methods as $method) {
-            $methods .= $method . "\n\n";
+        if (is_array($property)) {
+            $this->properties = array_merge($property, $this->properties);
+        } else {
+            $this->properties[] = $property;
         }
 
-        return [
-            '{{namespace}}' => $this->namespace,
-            '{{traits}}' => array_reduce($this->traits, fn($carry, TraitString $trait) => "$carry\n$trait"),
-            '{{methods}}' => $methods,
-            '{{doc_block}}' => implode("\n * ", $this->dockBlock),
-            ...$this->stubProperties,
-        ];
+        return $this;
+    }
+
+    /**
+     * @param  TraitString|TraitString[] $trait
+     * @return $this
+     */
+    public function trait(TraitString|array $trait): static
+    {
+        if (is_array($trait)) {
+            foreach ($trait as $singleTrait) {
+                if ($singleTrait->import) {
+                    $this->import($singleTrait->import);
+                }
+            }
+
+            $this->traits = array_merge($trait, $this->traits);
+        } else {
+            $this->traits[] = $trait;
+            if ($trait->import) {
+                $this->import($trait->import);
+            }
+        }
+
+        $this->traits = collect($this->traits)
+            ->unique(fn (TraitString $trait) => $trait->traitName)
+            ->toArray();
+
+        return $this;
     }
 }

@@ -6,15 +6,12 @@ use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 
 class CastColumnString
 {
-    public string $keyName;
-    public string $type;
     public ?PhpImportString $import = null;
 
-    /**
-     * @param string               $keyName
-     * @param string               $type
-     * @param PhpImportString|null $import
-     */
+    public string $keyName;
+
+    public string $type;
+
     public function __construct(string $keyName, string $type, ?PhpImportString $import = null)
     {
         $this->keyName = $keyName;

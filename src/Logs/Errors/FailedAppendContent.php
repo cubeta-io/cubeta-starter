@@ -2,22 +2,22 @@
 
 namespace Cubeta\CubetaStarter\Logs\Errors;
 
-use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeError;
 
 class FailedAppendContent extends CubeError
 {
     private string $content;
+
     private string $filePath;
 
-    public function __construct(string $content, string $filePath = null, ?string $context = null)
+    public function __construct(string $content, ?string $filePath = null, ?string $context = null)
     {
         $this->content = $content;
         $this->filePath = $filePath;
 
         parent::__construct(
-            message: "Failed To Append The Following Content :" .
-            "\n\r```\n\r{$content}\n\r```" .
+            message: 'Failed To Append The Following Content :'.
+            "\n\r```\n\r{$content}\n\r```".
             "\n\rTo : [$filePath]",
             happenedWhen: $context
         );
@@ -38,8 +38,9 @@ class FailedAppendContent extends CubeError
                         To : [{$this->filePath}]
                      </div>
                 ";
-        $msg .= $this->happenedWhen ? "<div class='w-100'><span class='bg-danger-light'>Happened When</span> : {$this->happenedWhen}</div>" : "";
-        $msg .= "</div>";
+        $msg .= $this->happenedWhen ? "<div class='w-100'><span class='bg-danger-light'>Happened When</span> : {$this->happenedWhen}</div>" : '';
+        $msg .= '</div>';
+
         return $msg;
     }
 }

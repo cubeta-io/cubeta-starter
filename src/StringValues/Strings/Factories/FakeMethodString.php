@@ -6,9 +6,11 @@ use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 
 class FakeMethodString
 {
-    public string $key;
-    public string $value;
     public ?PhpImportString $import;
+
+    public string $key;
+
+    public string $value;
 
     public function __construct(string $key, string $value, ?PhpImportString $import = null)
     {

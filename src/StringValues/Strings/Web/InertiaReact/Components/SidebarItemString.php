@@ -4,9 +4,9 @@ namespace Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components;
 
 class SidebarItemString
 {
-    private string $title;
-
     private string $routeName;
+
+    private string $title;
 
     public function __construct(string $title, string $routeName)
     {

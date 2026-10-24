@@ -2,22 +2,19 @@
 
 namespace Cubeta\CubetaStarter\Modules;
 
-use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Settings\Settings;
+use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\Enums\FrontendTypeEnum;
 
 class Views
 {
-    public readonly string $name;
     public readonly string $fileName;
+
+    public readonly string $name;
+
     public readonly CubePath $path;
 
-    /**
-     * @param string   $name
-     * @param string   $fileName
-     * @param CubePath $path
-     */
     public function __construct(string $name, string $fileName, CubePath $path)
     {
         $this->name = $name;
@@ -25,25 +22,58 @@ class Views
         $this->path = $path;
     }
 
-
-    public static function index(CubeTable $model, ?string $actor = null): self
+    private static function getAuthView(string $name): Views
     {
-        $viewName = config('views-names.index');
+        $frontendType = Settings::make()->getFrontendType();
+        $extension = $frontendType == FrontendTypeEnum::REACT_TS
+            ? 'tsx'
+            : 'blade.php';
+        $resourcePath = $frontendType == FrontendTypeEnum::REACT_TS
+            ? 'resources/js/pages'
+            : 'resources/views';
 
-        list($name, $path) = self::getPathAndViewName($actor, $model, $viewName);
+        $path = "{$resourcePath}/".$name.".$extension";
 
         return new self(
-            $name,
-            config('views-names.index'),
-            $path
+            name: $name,
+            fileName: $name,
+            path: CubePath::make($path),
         );
+    }
+
+    private static function getPathAndViewName(?string $actor, CubeTable $model, mixed $viewName): array
+    {
+        $frontendType = Settings::make()->getFrontendType();
+        $extension = $frontendType == FrontendTypeEnum::REACT_TS
+            ? 'tsx'
+            : 'blade.php';
+
+        $resourcePath = $frontendType == FrontendTypeEnum::REACT_TS
+            ? 'resources/js/pages'
+            : 'resources/views';
+
+        $nameSeparator = $frontendType == FrontendTypeEnum::REACT_TS
+            ? '/'
+            : '.';
+
+        $name = ! empty($actor) && $actor != 'none'
+            ? "dashboard{$nameSeparator}{$actor}{$nameSeparator}{$model->viewNaming()}{$nameSeparator}{$viewName}"
+            : "dashboard{$nameSeparator}{$model->viewNaming()}{$nameSeparator}{$viewName}";
+
+        $path = CubePath::make(
+            ! empty($actor) && $actor != 'none'
+                ? "$resourcePath/dashboard/$actor/{$model->viewNaming()}/$viewName.{$extension}"
+                : "$resourcePath/dashboard/{$model->viewNaming()}/$viewName.{$extension}"
+        );
+
+        return [$name, $path];
     }
 
     public static function create(CubeTable $model, ?string $actor = null): self
     {
         $viewName = config('views-names.create');
 
-        list($name, $path) = self::getPathAndViewName($actor, $model, $viewName);
+        [$name, $path] = self::getPathAndViewName($actor, $model, $viewName);
 
         return new self(
             $name,
@@ -52,11 +82,28 @@ class Views
         );
     }
 
+    public static function dashboard(): Views
+    {
+        $frontendType = Settings::make()->getFrontendType();
+        $extension = $frontendType == FrontendTypeEnum::REACT_TS
+            ? 'tsx'
+            : 'blade.php';
+        $resourcePath = $frontendType == FrontendTypeEnum::REACT_TS
+            ? 'resources/js/pages'
+            : 'resources/views';
+
+        return new self(
+            name: 'index',
+            fileName: "index.$extension",
+            path: CubePath::make("$resourcePath/index.$extension"),
+        );
+    }
+
     public static function edit(CubeTable $model, ?string $actor = null): self
     {
         $viewName = config('views-names.edit');
 
-        list($name, $path) = self::getPathAndViewName($actor, $model, $viewName);
+        [$name, $path] = self::getPathAndViewName($actor, $model, $viewName);
 
         return new self(
             $name,
@@ -65,44 +112,22 @@ class Views
         );
     }
 
-    public static function show(CubeTable $model, ?string $actor = null): self
+    public static function forgetPassword(): Views
     {
-        $viewName = config('views-names.show');
+        return self::getAuthView(config('views-names.forget-password'));
+    }
 
-        list($name, $path) = self::getPathAndViewName($actor, $model, $viewName);
+    public static function index(CubeTable $model, ?string $actor = null): self
+    {
+        $viewName = config('views-names.index');
+
+        [$name, $path] = self::getPathAndViewName($actor, $model, $viewName);
 
         return new self(
             $name,
-            config('views-names.show'),
+            config('views-names.index'),
             $path
         );
-    }
-
-    private static function getPathAndViewName(?string $actor, CubeTable $model, mixed $viewName): array
-    {
-        $frontendType = Settings::make()->getFrontendType();
-        $extension = $frontendType == FrontendTypeEnum::REACT_TS
-            ? "tsx"
-            : "blade.php";
-
-        $resourcePath = $frontendType == FrontendTypeEnum::REACT_TS
-            ? "resources/js/pages"
-            : "resources/views";
-
-        $nameSeparator = $frontendType == FrontendTypeEnum::REACT_TS
-            ? "/"
-            : ".";
-
-        $name = !empty($actor) && $actor != 'none'
-            ? "dashboard{$nameSeparator}{$actor}{$nameSeparator}{$model->viewNaming()}{$nameSeparator}{$viewName}"
-            : "dashboard{$nameSeparator}{$model->viewNaming()}{$nameSeparator}{$viewName}";
-
-        $path = CubePath::make(
-            !empty($actor) && $actor != 'none'
-                ? "$resourcePath/dashboard/$actor/{$model->viewNaming()}/$viewName.{$extension}"
-                : "$resourcePath/dashboard/{$model->viewNaming()}/$viewName.{$extension}"
-        );
-        return array($name, $path);
     }
 
     public static function login(): Views
@@ -115,19 +140,9 @@ class Views
         return self::getAuthView(config('views-names.register'));
     }
 
-    public static function forgetPassword(): Views
-    {
-        return self::getAuthView(config('views-names.forget-password'));
-    }
-
     public static function resetPassword(): Views
     {
         return self::getAuthView(config('views-names.reset-password'));
-    }
-
-    public static function userDetails(): Views
-    {
-        return self::getAuthView(config('views-names.user-details'));
     }
 
     public static function resetPasswordCodeForm(): Views
@@ -135,38 +150,21 @@ class Views
         return self::getAuthView(config('views-names.reset-password-code-form'));
     }
 
-    private static function getAuthView(string $name): Views
+    public static function show(CubeTable $model, ?string $actor = null): self
     {
-        $frontendType = Settings::make()->getFrontendType();
-        $extension = $frontendType == FrontendTypeEnum::REACT_TS
-            ? "tsx"
-            : "blade.php";
-        $resourcePath = $frontendType == FrontendTypeEnum::REACT_TS
-            ? "resources/js/pages"
-            : "resources/views";
+        $viewName = config('views-names.show');
 
-        $path = "{$resourcePath}/" . $name . ".$extension";
+        [$name, $path] = self::getPathAndViewName($actor, $model, $viewName);
 
         return new self(
-            name: $name,
-            fileName: $name,
-            path: CubePath::make($path),
+            $name,
+            config('views-names.show'),
+            $path
         );
     }
 
-    public static function dashboard(): Views
+    public static function userDetails(): Views
     {
-        $frontendType = Settings::make()->getFrontendType();
-        $extension = $frontendType == FrontendTypeEnum::REACT_TS
-            ? "tsx"
-            : "blade.php";
-        $resourcePath = $frontendType == FrontendTypeEnum::REACT_TS
-            ? "resources/js/pages"
-            : "resources/views";
-        return new self(
-            name: "index",
-            fileName: "index.$extension",
-            path: CubePath::make("$resourcePath/index.$extension"),
-        );
+        return self::getAuthView(config('views-names.user-details'));
     }
 }

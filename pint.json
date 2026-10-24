@@ -1,6 +1,50 @@
 {
   "preset": "laravel",
+  "notName": ["*.blade.php"],
   "rules": {
-    "no_unused_imports": false
+    "no_unused_imports": true,
+    "method_chaining_indentation": true,
+    "method_argument_space": {
+      "on_multiline": "ensure_fully_multiline"
+    },
+    "ordered_class_elements": {
+      "order": [
+        "use_trait",
+        "constant_private",
+        "constant_protected",
+        "constant_public",
+        "property_private",
+        "property_protected",
+        "property_public",
+        "method_protected_abstract",
+        "method_public_abstract",
+        "__invoke",
+        "__get",
+        "__set",
+        "__call",
+        "__callStatic",
+        "construct",
+        "method_private",
+        "method_protected",
+        "method_public"
+      ],
+      "sort_algorithm": "alpha"
+    },
+    "ordered_imports": {
+      "sort_algorithm": "length"
+    },
+    "align_multiline_comment": {
+      "comment_type": "all_multiline"
+    },
+    "phpdoc_align": {
+      "align": "vertical"
+    },
+    "phpdoc_indent": true,
+    "binary_operator_spaces": {
+      "default": "single_space",
+      "operators": {
+        "=>": "align_single_space_minimal"
+      }
+    }
   }
 }

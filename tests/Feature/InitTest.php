@@ -9,7 +9,7 @@ class InitTest extends TestCase
     /**
      * @test
      */
-    public function myFirstTest()
+    public function my_first_test()
     {
         $this->assertTrue(true);
     }

@@ -7,6 +7,7 @@ Cubeta Starter is a powerful Laravel package designed to accelerate your develop
 ## Who is it for?
 
 This package is ideal for:
+
 - Laravel developers looking to speed up their development process
 - Teams that want to maintain consistent code structure across projects
 - Developers who prefer to focus on business logic rather than boilerplate code

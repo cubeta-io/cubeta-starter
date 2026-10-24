@@ -2,300 +2,45 @@
 
 namespace Cubeta\CubetaStarter\Settings\Relations;
 
-use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use JetBrains\PhpStorm\ExpectedValues;
+use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Enums\ContainerType;
+use Cubeta\CubetaStarter\Traits\RouteBinding;
+use Cubeta\CubetaStarter\Enums\ColumnTypeEnum;
+use Cubeta\CubetaStarter\Settings\CubeRelation;
+use Cubeta\CubetaStarter\Settings\CubeAttribute;
 use Cubeta\CubetaStarter\Enums\RelationsTypeEnum;
 use Cubeta\CubetaStarter\Settings\Attributes\CubeKey;
-use Cubeta\CubetaStarter\Settings\CubeAttribute;
-use Cubeta\CubetaStarter\Settings\CubeRelation;
-use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
 use Cubeta\CubetaStarter\StringValues\Contracts\HasDocBlockProperty;
-use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelRelationMethod;
-use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
-use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
 use Cubeta\CubetaStarter\StringValues\Strings\Models\ModelRelationString;
-use Cubeta\CubetaStarter\StringValues\Strings\PhpImportString;
-use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\YajraDataTableRelationLinkColumnRenderer;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript\DataTableColumnString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelRelationMethod;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\TsImportString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
+use Cubeta\CubetaStarter\StringValues\Strings\Resources\ResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Resources\HasResourcePropertyString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasHtmlTableHeader;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript\DataTableColumnString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeInputComponent;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Components\HasBladeDisplayComponent;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Javascript\HasDatatableColumnString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsInputString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
-use Cubeta\CubetaStarter\Traits\RouteBinding;
-use JetBrains\PhpStorm\ExpectedValues;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsInputComponentString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\DataTableColumnObjectString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasInterfacePropertyString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Components\ReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Typescript\HasDataTableColumnObjectString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\InertiaReact\Components\HasReactTsDisplayComponentString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Controllers\YajraDataTableRelationLinkColumnRenderer;
+use Cubeta\CubetaStarter\StringValues\Contracts\Web\Blade\Controllers\HasYajraDataTableRelationLinkColumnRenderer;
 
-
-class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
-    HasDocBlockProperty,
-    HasResourcePropertyString,
-    HasInterfacePropertyString,
-    HasReactTsInputString,
-    HasReactTsDisplayComponentString,
-    HasDataTableColumnObjectString,
-    HasBladeInputComponent,
-    HasDatatableColumnString,
-    HasHtmlTableHeader,
-    HasBladeDisplayComponent,
-    HasYajraDataTableRelationLinkColumnRenderer
+class CubeBelongsTo extends CubeRelation implements HasBladeDisplayComponent, HasBladeInputComponent, HasDataTableColumnObjectString, HasDatatableColumnString, HasDocBlockProperty, HasHtmlTableHeader, HasInterfacePropertyString, HasModelRelationMethod, HasReactTsDisplayComponentString, HasReactTsInputString, HasResourcePropertyString, HasYajraDataTableRelationLinkColumnRenderer
 {
     use RouteBinding;
-
-    public function modelRelationMethod(): ModelRelationString
-    {
-        return new ModelRelationString(
-            $this->relationModel,
-            RelationsTypeEnum::BelongsTo,
-        );
-    }
-
-    public function docBlockProperty(): DocBlockPropertyString
-    {
-        return new DocBlockPropertyString(
-            $this->method(),
-            "$this->relationModel|null",
-            imports: new PhpImportString($this->getModelNameSpace())
-        );
-    }
-
-    public function resourcePropertyString(): ResourcePropertyString
-    {
-        return new ResourcePropertyString(
-            str($this->method())->snake()->toString(),
-            "{$this->getResourceName()}::make(\$this->whenLoaded('{$this->relationMethodNaming()}'))",
-            [
-                new PhpImportString($this->getResourceNameSpace(false))
-            ]
-        );
-    }
-
-    public function interfacePropertyString(): InterfacePropertyString
-    {
-        $modelName = $this->modelNaming();
-        return new InterfacePropertyString(
-            str($this->method())->snake()->toString(),
-            $modelName,
-            true,
-            new TsImportString(
-                $modelName,
-                $this->tsModelImportPath()
-            )
-        );
-    }
-
-    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = "store", ?string $actor = null): ReactTsInputComponentString
-    {
-        $modelName = $this->modelNaming();
-        $relatedModel = $this->parentModel();
-        $column = $relatedModel
-            ->attributes()
-            ->filter(fn(CubeAttribute $att) => $att->isKey() && $att->modelNaming() == $modelName)
-            ->first() ?? CubeKey::factory($this->key, ColumnTypeEnum::KEY->value, parentTableName: $relatedModel->tableNaming());
-        $dataRoute = CubeTable::create($modelName)->dataRoute($actor)->name;
-
-        $attributes = [
-            [
-                'key' => 'api',
-                'value' => "(page, search) => Http.make<{$modelName}[]>().get(route(\"$dataRoute\"),{page:page,search:search})"
-            ],
-            [
-                'key' => 'getDataArray',
-                'value' => '(response) => response?.data ?? []',
-            ],
-            [
-                'key' => 'getIsLast',
-                'value' => '(data) => data?.paginate?.is_last_page ?? false',
-            ],
-            [
-                'key' => 'getTotalPages',
-                'value' => '(data) => data?.paginate?.total_pages ?? 0',
-            ],
-            [
-                'key' => 'onChange',
-                'value' => "(v) => setData(\"$this->key\", v?.value)",
-            ],
-            $this->relationModel()->titleable()->isTranslatable()
-                ? [
-                'key' => 'getOptionLabel',
-                'value' => "(data) => translate(data.{$this->relationModel()->titleable()->name})"
-            ] : [
-                'key' => 'optionLabel',
-                'value' => "\"{$this->relationModel()->titleable()->name}\""
-            ],
-            [
-                'key' => 'optionValue',
-                'value' => '"id"',
-            ],
-        ];
-
-        if ($formType == "update") {
-            $attributes[] = [
-                'key' => 'defaultValue',
-                'value' => "{$relatedModel->variableNaming()}?.{$this->relationKeyNaming()}"
-            ];
-        }
-
-        $imports = [
-            new TsImportString("ApiResponse", "@/modules/http/api-response"),
-            new TsImportString("Http", "@/modules/http/http"),
-            new TsImportString($modelName, $this->tsModelImportPath()),
-            new TsImportString("ApiSelect", "@/components/form/fields/select/api-select"),
-        ];
-
-        if ($relatedModel->titleable()->isTranslatable()) {
-            $imports[] = new TsImportString("translate", "@/models/translatable", false);
-        }
-
-        return new ReactTsInputComponentString(
-            "ApiSelect",
-            $this->key,
-            $modelName,
-            $column->isRequired,
-            $attributes,
-            $imports
-        );
-    }
-
-    public function displayComponentString(?string $actor = null): ReactTsDisplayComponentString
-    {
-        $parentModel = $this->parentModel();
-        $column = $this->relationModel()->titleable();
-        $showRoute = $this->relationModel()->showRoute($actor, ContainerType::WEB)->name;
-        $viewValue = $column->isTranslatable()
-            ? "translate({$parentModel->variableNaming()}?.{$this->relationMethodNaming()}?.{$column->name})"
-            : "{$parentModel->variableNaming()}?.{$this->relationMethodNaming()}?.{$column->name}";
-
-        $imports = [
-            new TsImportString("DetailItem", "@/components/ui/detail-item"),
-            new TsImportString("DetailItemValue", "@/components/ui/detail-item-value", false),
-            new TsImportString("Button", "@/components/ui/button", false),
-            new TsImportString("Link", "@inertiajs/react", false),
-        ];
-
-        if ($column->isTranslatable()) {
-            $imports[] = new TsImportString("translate", "@/models/translatable", false);
-        }
-
-        return new ReactTsDisplayComponentString(
-            "DetailItem",
-            $this->titleNaming(),
-            "<Link href={route(\"$showRoute\", {$parentModel->variableNaming()}.{$this->key})}>
-                <Button>
-                    <DetailItemValue value={{$viewValue}} />
-                </Button>
-            </Link>",
-            $imports,
-        );
-    }
-
-    public function datatableColumnObject(?string $actor = null): DataTableColumnObjectString
-    {
-        $column = $this->relationModel()->titleable();
-        $showRoute = $this->relationModel()->showRoute($actor, ContainerType::WEB)->name;
-        $viewValue = $column->isTranslatable()
-            ? "translate(record?.{$this->method()}?.{$column->name})"
-            : "record?.{$this->method()}?.{$column->name}";
-
-        $imports = [
-            new TsImportString("Button", "@/components/ui/button", false),
-            new TsImportString("Link", "@inertiajs/react", false),
-        ];
-
-        if ($column->isTranslatable()) {
-            $imports[] = new TsImportString("translate", "@/models/translatable", false);
-        }
-
-        return new DataTableColumnObjectString(
-            $this->relationMethodNaming() . "." . $column->name,
-            "{$this->modelNaming()} {$column->titleNaming()}",
-            $column->isTranslatable(),
-            false,
-            "return (record?.{$this->key} && <Link className=\"hover:text-primary underline\"
-                        href={route(\"$showRoute\" , record?.{$this->key})}>
-                        <Button size={\"sm\"}>
-                            {{$viewValue}}
-                        </Button>
-                    </Link>)",
-            $imports,
-        );
-    }
-
-    public function bladeInputComponent(string $formType = "store", ?string $actor = null): InputComponentString
-    {
-        $attributes = [];
-        $table = $this->parentModel();
-
-        if ($formType == "update") {
-            $attributes[] = [
-                'key' => ':selected',
-                'value' => "\${$table->variableNaming()}->{$this->method()}"
-            ];
-        }
-
-        $relatedMode = $this->relationModel();
-        $select2Route = $relatedMode->allPaginatedJson($actor)->name;
-
-        return new InputComponentString(
-            "number",
-            "x-select2",
-            $this->keyName(),
-            !($table->getAttribute($this->keyName())?->nullable === true),
-            $relatedMode->titleNaming(),
-            [
-                ...$attributes,
-                [
-                    'key' => 'api',
-                    'value' => "{{route('{$select2Route}')}}"
-                ],
-                [
-                    'key' => 'option-value',
-                    'value' => 'id'
-                ],
-                [
-                    'key' => 'option-inner-text',
-                    'value' => $relatedMode->titleable()->name,
-                ],
-                $relatedMode->titleable()->isTranslatable() ? [
-                    'key' => 'translatable',
-                    'value' => null
-                ] : [
-                    'key' => '',
-                    'value' => null
-                ]
-            ]
-        );
-    }
-
-    public function dataTableColumnString(): DataTableColumnString
-    {
-        $relatedTable = $this->relationModel();
-        $column = $relatedTable->titleable();
-
-        $usedName = $this->method() . "." . $column->name;
-        return new DataTableColumnString(
-            $usedName,
-        );
-    }
-
-    public function htmlTableHeader(): HtmlTableHeaderString
-    {
-        return new HtmlTableHeaderString(
-            $this->titleNaming(),
-        );
-    }
 
     public function bladeDisplayComponent(): DisplayComponentString
     {
@@ -309,18 +54,268 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
         $modelVariable = $table->variableNaming();
 
         return new DisplayComponentString(
-            $column->isTranslatable() ? "x-translatable-small-text-field" : "x-small-text-field",
+            $column->isTranslatable() ? 'x-translatable-small-text-field' : 'x-small-text-field',
             [
                 [
-                    "key" => ":value",
-                    "value" => $column->isTranslatable()
+                    'key'   => ':value',
+                    'value' => $column->isTranslatable()
                         ? "\${$modelVariable}->{$relationName}?->{$column->name}?->toJson()"
-                        : "\${$modelVariable}->{$relationName}?->{$column->name}"
+                        : "\${$modelVariable}->{$relationName}?->{$column->name}",
                 ],
                 [
-                    "key" => 'label',
-                    'value' => $label
-                ]
+                    'key'   => 'label',
+                    'value' => $label,
+                ],
+            ]
+        );
+    }
+
+    public function bladeInputComponent(string $formType = 'store', ?string $actor = null): InputComponentString
+    {
+        $attributes = [];
+        $table = $this->parentModel();
+
+        if ($formType == 'update') {
+            $attributes[] = [
+                'key'   => ':selected',
+                'value' => "\${$table->variableNaming()}->{$this->method()}",
+            ];
+        }
+
+        $relatedMode = $this->relationModel();
+        $select2Route = $relatedMode->allPaginatedJson($actor)->name;
+
+        return new InputComponentString(
+            'number',
+            'x-select2',
+            $this->keyName(),
+            ! ($table->getAttribute($this->keyName())?->nullable === true),
+            $relatedMode->titleNaming(),
+            [
+                ...$attributes,
+                [
+                    'key'   => 'api',
+                    'value' => "{{route('{$select2Route}')}}",
+                ],
+                [
+                    'key'   => 'option-value',
+                    'value' => 'id',
+                ],
+                [
+                    'key'   => 'option-inner-text',
+                    'value' => $relatedMode->titleable()->name,
+                ],
+                $relatedMode->titleable()->isTranslatable() ? [
+                    'key'   => 'translatable',
+                    'value' => null,
+                ] : [
+                    'key'   => '',
+                    'value' => null,
+                ],
+            ]
+        );
+    }
+
+    public function datatableColumnObject(?string $actor = null): DataTableColumnObjectString
+    {
+        $column = $this->relationModel()->titleable();
+        $showRoute = $this->relationModel()->showRoute($actor, ContainerType::WEB)->name;
+        $viewValue = $column->isTranslatable()
+            ? "translate(record?.{$this->method()}?.{$column->name})"
+            : "record?.{$this->method()}?.{$column->name}";
+
+        $imports = [
+            new TsImportString('Button', '@/components/ui/button', false),
+            new TsImportString('Link', '@inertiajs/react', false),
+        ];
+
+        if ($column->isTranslatable()) {
+            $imports[] = new TsImportString('translate', '@/models/translatable', false);
+        }
+
+        return new DataTableColumnObjectString(
+            $this->relationMethodNaming().'.'.$column->name,
+            "{$this->modelNaming()} {$column->titleNaming()}",
+            $column->isTranslatable(),
+            false,
+            "return (record?.{$this->key} && <Link className=\"hover:text-primary underline\"
+                        href={route(\"$showRoute\" , record?.{$this->key})}>
+                        <Button size={\"sm\"}>
+                            {{$viewValue}}
+                        </Button>
+                    </Link>)",
+            $imports,
+        );
+    }
+
+    public function dataTableColumnString(): DataTableColumnString
+    {
+        $relatedTable = $this->relationModel();
+        $column = $relatedTable->titleable();
+
+        $usedName = $this->method().'.'.$column->name;
+
+        return new DataTableColumnString(
+            $usedName,
+        );
+    }
+
+    public function displayComponentString(?string $actor = null): ReactTsDisplayComponentString
+    {
+        $parentModel = $this->parentModel();
+        $column = $this->relationModel()->titleable();
+        $showRoute = $this->relationModel()->showRoute($actor, ContainerType::WEB)->name;
+        $viewValue = $column->isTranslatable()
+            ? "translate({$parentModel->variableNaming()}?.{$this->relationMethodNaming()}?.{$column->name})"
+            : "{$parentModel->variableNaming()}?.{$this->relationMethodNaming()}?.{$column->name}";
+
+        $imports = [
+            new TsImportString('DetailItem', '@/components/ui/detail-item'),
+            new TsImportString('DetailItemValue', '@/components/ui/detail-item-value', false),
+            new TsImportString('Button', '@/components/ui/button', false),
+            new TsImportString('Link', '@inertiajs/react', false),
+        ];
+
+        if ($column->isTranslatable()) {
+            $imports[] = new TsImportString('translate', '@/models/translatable', false);
+        }
+
+        return new ReactTsDisplayComponentString(
+            'DetailItem',
+            $this->titleNaming(),
+            "<Link href={route(\"$showRoute\", {$parentModel->variableNaming()}.{$this->key})}>
+                <Button>
+                    <DetailItemValue value={{$viewValue}} />
+                </Button>
+            </Link>",
+            $imports,
+        );
+    }
+
+    public function docBlockProperty(): DocBlockPropertyString
+    {
+        return new DocBlockPropertyString(
+            $this->method(),
+            "$this->relationModel|null",
+            imports: new PhpImportString($this->getModelNameSpace())
+        );
+    }
+
+    public function htmlTableHeader(): HtmlTableHeaderString
+    {
+        return new HtmlTableHeaderString(
+            $this->titleNaming(),
+        );
+    }
+
+    public function inputComponent(#[ExpectedValues(values: ['store', 'update'])] string $formType = 'store', ?string $actor = null): ReactTsInputComponentString
+    {
+        $modelName = $this->modelNaming();
+        $relatedModel = $this->parentModel();
+        $column = $relatedModel
+            ->attributes()
+            ->filter(fn (CubeAttribute $att) => $att->isKey() && $att->modelNaming() == $modelName)
+            ->first() ?? CubeKey::factory($this->key, ColumnTypeEnum::KEY->value, parentTableName: $relatedModel->tableNaming());
+        $dataRoute = CubeTable::create($modelName)->dataRoute($actor)->name;
+
+        $attributes = [
+            [
+                'key'   => 'api',
+                'value' => "(page, search) => Http.make<{$modelName}[]>().get(route(\"$dataRoute\"),{page:page,search:search})",
+            ],
+            [
+                'key'   => 'getDataArray',
+                'value' => '(response) => response?.data ?? []',
+            ],
+            [
+                'key'   => 'getIsLast',
+                'value' => '(data) => data?.paginate?.is_last_page ?? false',
+            ],
+            [
+                'key'   => 'getTotalPages',
+                'value' => '(data) => data?.paginate?.total_pages ?? 0',
+            ],
+            [
+                'key'   => 'onChange',
+                'value' => "(v) => setData(\"$this->key\", v?.value)",
+            ],
+            $this->relationModel()->titleable()->isTranslatable()
+                ? [
+                    'key'   => 'getOptionLabel',
+                    'value' => "(data) => translate(data.{$this->relationModel()->titleable()->name})",
+                ] : [
+                    'key'   => 'optionLabel',
+                    'value' => "\"{$this->relationModel()->titleable()->name}\"",
+                ],
+            [
+                'key'   => 'optionValue',
+                'value' => '"id"',
+            ],
+        ];
+
+        if ($formType == 'update') {
+            $attributes[] = [
+                'key'   => 'defaultValue',
+                'value' => "{$relatedModel->variableNaming()}?.{$this->relationKeyNaming()}",
+            ];
+        }
+
+        $imports = [
+            new TsImportString('ApiResponse', '@/modules/http/api-response'),
+            new TsImportString('Http', '@/modules/http/http'),
+            new TsImportString($modelName, $this->tsModelImportPath()),
+            new TsImportString('ApiSelect', '@/components/form/fields/select/api-select'),
+        ];
+
+        if ($relatedModel->titleable()->isTranslatable()) {
+            $imports[] = new TsImportString('translate', '@/models/translatable', false);
+        }
+
+        return new ReactTsInputComponentString(
+            'ApiSelect',
+            $this->key,
+            $modelName,
+            $column->isRequired,
+            $attributes,
+            $imports
+        );
+    }
+
+    public function interfacePropertyString(): InterfacePropertyString
+    {
+        $modelName = $this->modelNaming();
+
+        return new InterfacePropertyString(
+            str($this->method())->snake()->toString(),
+            $modelName,
+            true,
+            new TsImportString(
+                $modelName,
+                $this->tsModelImportPath()
+            )
+        );
+    }
+
+    public function keyName(): string
+    {
+        return $this->key;
+    }
+
+    public function modelRelationMethod(): ModelRelationString
+    {
+        return new ModelRelationString(
+            $this->relationModel,
+            RelationsTypeEnum::BelongsTo,
+        );
+    }
+
+    public function resourcePropertyString(): ResourcePropertyString
+    {
+        return new ResourcePropertyString(
+            str($this->method())->snake()->toString(),
+            "{$this->getResourceName()}::make(\$this->whenLoaded('{$this->relationMethodNaming()}'))",
+            [
+                new PhpImportString($this->getResourceNameSpace(false)),
             ]
         );
     }
@@ -328,10 +323,5 @@ class CubeBelongsTo extends CubeRelation implements HasModelRelationMethod,
     public function yajraDataTableAdditionalColumnRenderer(string $actor): YajraDataTableRelationLinkColumnRenderer
     {
         return new YajraDataTableRelationLinkColumnRenderer($this->key, $actor);
-    }
-
-    public function keyName(): string
-    {
-        return $this->key;
     }
 }

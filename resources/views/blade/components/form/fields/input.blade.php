@@ -1,4 +1,4 @@
-@props([
+@props ([
     "label",
     "name" => null,
     "value" => null,
@@ -13,9 +13,7 @@
 @endphp
 
 <div id="{{ $name }}_input_container" class="w-100">
-  <label for="{{ $name }}" class="form-label">
-    {{ $label }}
-  </label>
+  <label for="{{ $name }}" class="form-label"> {{ $label }} </label>
   @if ($type == "datetime-local")
     <input
       class="{{ $class }} @error($name) is-invalid @enderror"
@@ -44,23 +42,21 @@
     />
   @endif
 
-  @error($name)
-  <div class="invalid-feedback">{{ $message }}</div>
+  @error ($name)
+    <div class="invalid-feedback">{{ $message }}</div>
   @enderror
 </div>
-@push("scripts")
+@push ("scripts")
   <script type="module">
-    const $datetimeInput = $('#{{ $name }}');
-    const $hiddenInput = $('#{{ $name }}_formatted');
+    const $datetimeInput = $("#{{ $name }}");
+    const $hiddenInput = $("#{{ $name }}_formatted");
 
     // Update the hidden input with the formatted value on form submission
-    $datetimeInput.closest('form').on('submit', function () {
+    $datetimeInput.closest("form").on("submit", function () {
       const inputValue = $datetimeInput.val(); // Original value
       if (inputValue) {
         // Format as "Y-m-d H:i"
-        const formattedValue = inputValue
-          .replace('T', ' ')
-          .slice(0, 16);
+        const formattedValue = inputValue.replace("T", " ").slice(0, 16);
         $hiddenInput.val(formattedValue); // Update hidden input
       }
     });

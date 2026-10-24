@@ -2,28 +2,30 @@
 
 namespace Cubeta\CubetaStarter\Helpers;
 
-use Cubeta\CubetaStarter\Logs\CubeError;
+use Illuminate\Support\Str;
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\Logs\CubeError;
+use Cubeta\CubetaStarter\Settings\CubeTable;
 use Cubeta\CubetaStarter\Logs\Errors\NotFound;
 use Cubeta\CubetaStarter\Logs\Info\ContentAppended;
-use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\Logs\Warnings\ContentNotFound;
-use Cubeta\CubetaStarter\Settings\CubeTable;
+use Cubeta\CubetaStarter\Logs\Errors\FailedAppendContent;
+use Cubeta\CubetaStarter\Logs\Warnings\ContentAlreadyExist;
 use Cubeta\CubetaStarter\StringValues\Strings\DocBlockPropertyString;
-use Illuminate\Support\Str;
 
 class ClassUtils
 {
     public static function addMethodToClass(CubePath $classPath, string $methodName, string $methodDeclaration): void
     {
-        if (!$classPath->exist()) {
+        if (! $classPath->exist()) {
             CubeLog::notFound($classPath->fullPath, "Trying To Add The Method : ($methodName) To $classPath->fileName");
+
             return;
         }
 
         if (ClassUtils::isMethodDefined($classPath, $methodName)) {
             CubeLog::contentAlreadyExists("$methodName Method", $classPath->fullPath, "Trying To Add The Method : ($methodName) To $classPath->fileName");
+
             return;
         }
 
@@ -31,13 +33,380 @@ class ClassUtils
     }
 
     /**
-     * @param CubePath $filePath
-     * @param string   $functionName
-     * @return bool
+     * this method adds code to the data method of the BladeController to add new column to it
      */
+    public static function addNewColumnToTheReturnedYajraColumns(string $code, CubePath $controllerPath): bool
+    {
+        if (! $controllerPath->exist()) {
+            return false;
+        }
+
+        if (FileUtils::contentExistInFile($controllerPath, $code)) {
+            return false;
+        }
+
+        $content = $controllerPath->getContent();
+
+        $pattern = '/public\s*function\s*data\s*\(\s*\)\s*\{\s*(.*?)DataTables\s*::\s*eloquent\((.*?)\)(.*?)\s*}/s';
+
+        if (! preg_match($pattern, $content, $matches)) {
+            return false;
+        }
+
+        if (empty($matches[3])) {
+            return false;
+        }
+
+        $content = str_replace($matches[3], "\n$code{$matches[3]}", $content);
+        $controllerPath->putContent($content);
+        $controllerPath->format();
+
+        return true;
+    }
+
+    public static function addNewColumnToYajraRawColumnsInController(string $colName, CubePath $controllerPath): bool
+    {
+        if (! $controllerPath->exist()) {
+            return false;
+        }
+
+        $pattern = '/return (.*?)->\s*rawColumns\s*\(\s*\[(.*?)]\s*\)/s';
+
+        $content = $controllerPath->getContent();
+
+        if (! preg_match($pattern, $content, $matches)) {
+            return false;
+        }
+
+        if (! isset($matches[2])) {
+            return false;
+        }
+
+        $colName = "'$colName'";
+
+        if (FileUtils::contentExistsInString($matches[2], $colName)) {
+            return false;
+        }
+
+        $newCols = FileUtils::removeRepeatedCommas($matches[2].",$colName", false);
+        $content = preg_replace_callback($pattern, function ($matches) use ($newCols) {
+            return "return $matches[1]->rawColumns([$newCols])";
+        }, $content);
+        $controllerPath->putContent($content);
+        $controllerPath->format();
+
+        return true;
+    }
+
+    public static function addNewRelationsToWithMethod(CubePath $filePath, CubeTable $table, array $additionalRelations): bool
+    {
+        if (! $filePath->exist()) {
+            CubeLog::add(new NotFound($filePath->fullPath, 'Trying To Add [ '.implode(' , ', $additionalRelations).' ] To The With Method'));
+
+            return false;
+        }
+
+        $content = $filePath->getContent();
+
+        $pattern = "/$table->modelName::.*?->with\((.*?)\)/s";
+
+        // Callback function to add relations
+        $callback = function ($matches) use ($additionalRelations) {
+            $withMethod = $matches[0];
+
+            foreach ($additionalRelations as $key => $relation) {
+                if (str_contains($withMethod, $relation)) {
+                    unset($additionalRelations[$key]);
+                }
+            }
+            $newRelations = '';
+            foreach ($additionalRelations as $additionalRelation) {
+                if ($additionalRelation != null and strlen(trim($additionalRelation)) > 0) {
+                    $newRelations .= "'$additionalRelation' , ";
+                }
+            }
+            $result = str_replace('with([', "with([$newRelations, ", $withMethod);
+            $filtered = preg_replace('/\\s*,\\s*,/', '', $result);
+
+            return preg_replace('/\\[\\s*,\\s*/', '[', $filtered);
+        };
+
+        // Perform the replacement
+        $updated = preg_replace_callback($pattern, $callback, $content);
+
+        if (! $updated) {
+            CubeLog::add(new CubeError(
+                message: "No Match Found To Add New Relations To with() Method In [$filePath->fullPath] \n",
+                happenedWhen: 'Trying To Add [ '.implode(' , ', $additionalRelations).' ] To The With Method'
+            ));
+
+            return false;
+        }
+
+        $filePath->putContent($updated);
+        CubeLog::add(new ContentAppended(implode(' , ', $additionalRelations), $filePath->fullPath));
+
+        $filePath->format();
+
+        return true;
+    }
+
+    public static function addRelationsToControllerRelationsProperty(CubePath $controllerPath, array $relations = []): bool
+    {
+        if (! $controllerPath->exist()) {
+            CubeLog::notFound($controllerPath->fullPath, 'Adding new relations to the loaded relation in the controller');
+
+            return false;
+        }
+
+        $fileContent = $controllerPath->getContent();
+
+        $pattern = '/\$this\s*->\s*relations\s*=\s*\[(.*?)]/s';
+        if (! preg_match($pattern, $fileContent, $matches)) {
+            CubeLog::failedAppending(
+                '[]',
+                $controllerPath->fullPath,
+                'Adding new relations to the loaded relation in the controller'
+            );
+
+            return false;
+        }
+
+        $loadedRelations = $matches[1];
+        foreach ($relations as $relation) {
+            if (! FileUtils::isInPhpArrayString($loadedRelations, $relation)) {
+                $loadedRelations .= ",\"$relation\",";
+            }
+        }
+        $loadedRelations = preg_replace('/\s*,\s*,\s*/', ',', $loadedRelations);
+        if (Str::startsWith($loadedRelations, ',')) {
+            $loadedRelations = FileUtils::replaceFirstMatch($loadedRelations, ',', '');
+        }
+        $newContent = preg_replace($pattern, '$this->relations = ['.$loadedRelations.']', $fileContent);
+        $controllerPath->putContent($newContent);
+        CubeLog::contentAppended(implode(',', $relations), $controllerPath->fullPath);
+        $controllerPath->format();
+
+        return true;
+    }
+
+    /**
+     * @param CubePath $classPath the path of the class you want to add to it
+     * @param string   $content   the content you want to add
+     */
+    public static function addToClass(CubePath $classPath, string $content): void
+    {
+        if (! $classPath->exist()) {
+            CubeLog::add(new NotFound(
+                $classPath->fullPath,
+                "Trying To Add The Following Content:\n $content \n To $classPath->fileName"
+            ));
+
+            return;
+        }
+        $currentContent = $classPath->getContent();
+
+        // Find the position of the closing curly brace
+        $closingBracePosition = strrpos($currentContent, '}');
+
+        if ($closingBracePosition !== false) {
+            // Insert the string above the closing curly brace
+            $updatedContent = substr_replace(
+                $currentContent,
+                $content.PHP_EOL,
+                $closingBracePosition,
+                0
+            );
+
+            $classPath->putContent($updatedContent);
+
+            CubeLog::add(new ContentAppended($content, $classPath->fullPath));
+
+            $classPath->format();
+        } else {
+            CubeLog::add(new ContentNotFound(
+                'Closing curly brace',
+                $classPath->fullPath,
+                "Trying To Add The Following Content:\n $content \n To $classPath->fileName"
+            ));
+        }
+    }
+
+    public static function addToClassDocBlock(DocBlockPropertyString $property, CubePath $classPath): bool
+    {
+        if (! $classPath->exist()) {
+            return false;
+        }
+
+        $fileContent = $classPath->getContent();
+        $classDocBlock = null;
+
+        foreach (token_get_all($fileContent) as $token) {
+            if (! is_array($token)) {
+                continue;
+            }
+
+            if ($token[0] === T_DOC_COMMENT) {
+                $classDocBlock = $token[1];
+            }
+
+            if ($token[0] === T_CLASS) {
+                break;
+            }
+        }
+
+        if (! $classDocBlock || FileUtils::contentExistsInString($classDocBlock, "$property")) {
+            return false;
+        }
+
+        $newDocBlock = preg_replace(
+            '/\s*\*\/$/',
+            "\n * $property\n */",
+            rtrim($classDocBlock)
+        );
+
+        if (! $newDocBlock) {
+            return false;
+        }
+
+        $fileContent = str_replace($classDocBlock, $newDocBlock, $fileContent);
+        $classPath->putContent($fileContent);
+
+        foreach ($property->imports as $import) {
+            FileUtils::addImportStatement($import, $classPath);
+        }
+
+        $classPath->format();
+        CubeLog::contentAppended($property, $classPath);
+
+        return true;
+    }
+
+    public static function addToMethodReturnArray(CubePath $classPath, string $methodName, string $content): bool
+    {
+        if (! $classPath->exist()) {
+            CubeLog::add(new NotFound(
+                $classPath->fullPath,
+                "Adding The Following Content \n $content \n To The Returned Array Of The Method : [$methodName]"
+            ));
+
+            return false;
+        }
+
+        if (! self::isMethodDefined($classPath, $methodName)) {
+            CubeLog::add(new ContentNotFound(
+                "$methodName Method",
+                $classPath->fullPath,
+                "Adding The Following Content \n $content \n To The Returned Array Of The Method : [$methodName]"
+            ));
+
+            return false;
+        }
+
+        $fileContent = $classPath->getContent();
+
+        // this pattern search for the method then match its return statement that returns an array
+        $pattern = '/public\s*(static)?\s*function\s+'.preg_quote($methodName, '/').'\s*\((.*?)\)\s*:?(.*?)\{\s*(.*?)\s*return\s*\[(.*?)]\s*;\s*}/s'; //
+
+        if (preg_match($pattern, $fileContent, $matches)) {
+
+            if (! isset($matches[5])) {
+                CubeLog::add(new FailedAppendContent(
+                    $content,
+                    $classPath->fullPath,
+                    "Adding The Following Content\n$content\nTo The Returned Array Of The Method : [$methodName]"
+                ));
+
+                return false;
+            }
+            $returnArray = $matches[5];
+
+            if (FileUtils::contentExistsInString($returnArray, $content)) {
+                CubeLog::add(new ContentAlreadyExist(
+                    $content,
+                    $classPath->fullPath,
+                    "Adding The Following Content\n$content\nTo The Returned Array Of The Method : [$methodName]"
+                ));
+
+                return false;
+            }
+
+            $fileContent = preg_replace_callback($pattern, function ($matches) use ($content, $methodName) {
+                $returnArray = $matches[5].",\n".$content;
+                $returnArray = FileUtils::fixArrayOrObjectCommas($returnArray);
+
+                return 'public '.($matches[1] ? 'static ' : '').'function '.$methodName.'('.$matches[2].')'.($matches[3] ? ':'.$matches[3] : '')." \n{\n".$matches[4]." return [\n".$returnArray."\n];\n}";
+            }, $fileContent);
+            $fileContent = str_replace($matches[5], $returnArray, $fileContent);
+            $classPath->putContent($fileContent);
+
+            CubeLog::add(new ContentAppended($content, $classPath->fullPath));
+            $classPath->format();
+
+            return true;
+        } else {
+            CubeLog::add(new CubeError(
+                message: "Failed To Get A Match For A Method Called ($methodName) And Return An Array In [{$classPath->fullPath}]",
+                happenedWhen: "Adding The Following Content \n $content \n To The Returned Array Of The Method : [$methodName]"
+            ));
+
+            return false;
+        }
+    }
+
+    /**
+     * Ensures that a specific seeder class call is added to the `DatabaseSeeder` file within the `run` method.
+     * If it does not already exist, it appends the seeder class call to the list of existing seeders or creates the
+     * seeder call if it's missing entirely.
+     */
+    public static function callInDatabaseSeeder(string $seederName, string $seederCall): void
+    {
+        $dbSeederPath = CubePath::make('database/seeders/DatabaseSeeder.php');
+
+        if (! $dbSeederPath->exist()) {
+            return;
+        }
+        $seederContent = $dbSeederPath->getContent();
+        $pattern = '/public\s*function\s*run\s*\(\s*\)\s*(?::\s*void)?\s*\{(.*?)\$this\s*->\s*call\(\s*\[(.*?)]\s*\);(.*?)}/s';
+        if (preg_match($pattern, $seederContent, $matches)) {
+            $exactMatch = $matches[2] ?? null;
+            if (str($exactMatch)->contains($seederName)) {
+                return;
+            }
+
+            if (! empty($exactMatch)) {
+                if (str($exactMatch)->trim()->endsWith(',')) {
+                    $replace = "$exactMatch\n$seederCall,\n";
+                } else {
+                    $replace = "$exactMatch,\n$seederCall,\n";
+                }
+
+                $seederContent = str_replace($exactMatch, $replace, $seederContent);
+                $dbSeederPath->putContent($seederContent);
+                CubeLog::contentAppended($seederCall, $dbSeederPath->fullPath);
+                $dbSeederPath->format();
+
+                return;
+            }
+        }
+
+        $pattern = '/public\s*function\s*run\s*\(\s*\)\s*(?::\s*void)?\s*\{(.*?)}/s';
+        if (preg_match($pattern, $seederContent, $matches)) {
+            $exactMatch = $matches[1] ?? null;
+            if (! empty($exactMatch)) {
+                $newContent = "\$this->call([\n$seederCall,\n]);\n";
+                $replace = "$exactMatch\n$newContent";
+                $seederContent = str_replace($exactMatch, $replace, $seederContent);
+                $dbSeederPath->putContent($seederContent);
+                CubeLog::contentAppended($newContent, $dbSeederPath->fullPath);
+                $dbSeederPath->format();
+            }
+        }
+    }
+
     public static function isMethodDefined(CubePath $filePath, string $functionName): bool
     {
-        if (!$filePath->exist()) {
+        if (! $filePath->exist()) {
             return false; // File doesn't exist
         }
 
@@ -58,364 +427,5 @@ class ClassUtils
         }
 
         return false; // Function isn't found in the file
-    }
-
-    /**
-     * @param CubePath $classPath the path of the class you want to add to it
-     * @param string   $content   the content you want to add
-     * @return void
-     */
-    public static function addToClass(CubePath $classPath, string $content): void
-    {
-        if (!$classPath->exist()) {
-            CubeLog::add(new NotFound(
-                $classPath->fullPath,
-                "Trying To Add The Following Content:\n $content \n To $classPath->fileName"
-            ));
-            return;
-        }
-        $currentContent = $classPath->getContent();
-
-        // Find the position of the closing curly brace
-        $closingBracePosition = strrpos($currentContent, '}');
-
-        if ($closingBracePosition !== false) {
-            // Insert the string above the closing curly brace
-            $updatedContent = substr_replace(
-                $currentContent,
-                $content . PHP_EOL,
-                $closingBracePosition,
-                0
-            );
-
-            $classPath->putContent($updatedContent);
-
-            CubeLog::add(new ContentAppended($content, $classPath->fullPath));
-
-            $classPath->format();
-        } else {
-            CubeLog::add(new ContentNotFound(
-                "Closing curly brace",
-                $classPath->fullPath,
-                "Trying To Add The Following Content:\n $content \n To $classPath->fileName"
-            ));
-        }
-    }
-
-    public static function addToMethodReturnArray(CubePath $classPath, string $methodName, string $content): bool
-    {
-        if (!$classPath->exist()) {
-            CubeLog::add(new NotFound(
-                $classPath->fullPath,
-                "Adding The Following Content \n $content \n To The Returned Array Of The Method : [$methodName]"
-            ));
-            return false;
-        }
-
-        if (!self::isMethodDefined($classPath, $methodName)) {
-            CubeLog::add(new ContentNotFound(
-                "$methodName Method",
-                $classPath->fullPath,
-                "Adding The Following Content \n $content \n To The Returned Array Of The Method : [$methodName]"
-            ));
-            return false;
-        }
-
-        $fileContent = $classPath->getContent();
-
-        // this pattern search for the method then match its return statement that returns an array
-        $pattern = '/public\s*(static)?\s*function\s+' . preg_quote($methodName, '/') . '\s*\((.*?)\)\s*:?(.*?)\{\s*(.*?)\s*return\s*\[(.*?)]\s*;\s*}/s';//
-
-        if (preg_match($pattern, $fileContent, $matches)) {
-
-            if (!isset($matches[5])) {
-                CubeLog::add(new FailedAppendContent($content,
-                    $classPath->fullPath,
-                    "Adding The Following Content\n$content\nTo The Returned Array Of The Method : [$methodName]"
-                ));
-                return false;
-            }
-            $returnArray = $matches[5];
-
-            if (FileUtils::contentExistsInString($returnArray, $content)) {
-                CubeLog::add(new ContentAlreadyExist(
-                    $content,
-                    $classPath->fullPath,
-                    "Adding The Following Content\n$content\nTo The Returned Array Of The Method : [$methodName]"
-                ));
-                return false;
-            }
-
-            $fileContent = preg_replace_callback($pattern, function ($matches) use ($content, $methodName) {
-                $returnArray = $matches[5] . ",\n" . $content;
-                $returnArray = FileUtils::fixArrayOrObjectCommas($returnArray);
-                return 'public ' . ($matches[1] ? 'static ' : '') . 'function ' . $methodName . '(' . $matches[2] . ')' . ($matches[3] ? ':' . $matches[3] : '') . " \n{\n" . $matches[4] . " return [\n" . $returnArray . "\n];\n}";
-            }, $fileContent);
-            $fileContent = str_replace($matches[5], $returnArray, $fileContent);
-            $classPath->putContent($fileContent);
-
-            CubeLog::add(new ContentAppended($content, $classPath->fullPath));
-            $classPath->format();
-
-            return true;
-        } else {
-            CubeLog::add(new CubeError(
-                message: "Failed To Get A Match For A Method Called ($methodName) And Return An Array In [{$classPath->fullPath}]",
-                happenedWhen: "Adding The Following Content \n $content \n To The Returned Array Of The Method : [$methodName]"
-            ));
-            return false;
-        }
-    }
-
-    public static function addNewRelationsToWithMethod(CubePath $filePath, CubeTable $table, array $additionalRelations): bool
-    {
-        if (!$filePath->exist()) {
-            CubeLog::add(new NotFound($filePath->fullPath, "Trying To Add [ " . implode(" , ", $additionalRelations) . " ] To The With Method"));
-            return false;
-        }
-
-        $content = $filePath->getContent();
-
-        $pattern = "/$table->modelName::.*?->with\((.*?)\)/s";
-
-        // Callback function to add relations
-        $callback = function ($matches) use ($additionalRelations) {
-            $withMethod = $matches[0];
-
-            foreach ($additionalRelations as $key => $relation) {
-                if (str_contains($withMethod, $relation)) {
-                    unset($additionalRelations[$key]);
-                }
-            }
-            $newRelations = "";
-            foreach ($additionalRelations as $additionalRelation) {
-                if ($additionalRelation != null and strlen(trim($additionalRelation)) > 0) {
-                    $newRelations .= "'$additionalRelation' , ";
-                }
-            }
-            $result = str_replace('with([', "with([$newRelations, ", $withMethod);
-            $filtered = preg_replace('/\\s*,\\s*,/', "", $result);
-            return preg_replace('/\\[\\s*,\\s*/', "[", $filtered);
-        };
-
-        // Perform the replacement
-        $updated = preg_replace_callback($pattern, $callback, $content);
-
-        if (!$updated) {
-            CubeLog::add(new CubeError(
-                message: "No Match Found To Add New Relations To with() Method In [$filePath->fullPath] \n",
-                happenedWhen: "Trying To Add [ " . implode(" , ", $additionalRelations) . " ] To The With Method"
-            ));
-            return false;
-        }
-
-        $filePath->putContent($updated);
-        CubeLog::add(new ContentAppended(implode(" , ", $additionalRelations), $filePath->fullPath));
-
-        $filePath->format();
-
-        return true;
-    }
-
-    public static function addToClassDocBlock(DocBlockPropertyString $property, CubePath $classPath): bool
-    {
-        if (!$classPath->exist()) {
-            return false;
-        }
-
-        $fileContent = $classPath->getContent();
-        $classDocBlock = null;
-
-        foreach (token_get_all($fileContent) as $token) {
-            if (!is_array($token)) {
-                continue;
-            }
-
-            if ($token[0] === T_DOC_COMMENT) {
-                $classDocBlock = $token[1];
-            }
-
-            if ($token[0] === T_CLASS) {
-                break;
-            }
-        }
-
-        if (!$classDocBlock || FileUtils::contentExistsInString($classDocBlock, "$property")) {
-            return false;
-        }
-
-        $newDocBlock = preg_replace(
-            '/\s*\*\/$/',
-            "\n * $property\n */",
-            rtrim($classDocBlock)
-        );
-
-        if (!$newDocBlock) {
-            return false;
-        }
-
-        $fileContent = str_replace($classDocBlock, $newDocBlock, $fileContent);
-        $classPath->putContent($fileContent);
-
-        foreach ($property->imports as $import) {
-            FileUtils::addImportStatement($import, $classPath);
-        }
-
-        $classPath->format();
-        CubeLog::contentAppended($property, $classPath);
-        return true;
-    }
-
-    /**
-     * this method adds code to the data method of the BladeController to add new column to it
-     */
-    public static function addNewColumnToTheReturnedYajraColumns(string $code, CubePath $controllerPath): bool
-    {
-        if (!$controllerPath->exist()) {
-            return false;
-        }
-
-        if (FileUtils::contentExistInFile($controllerPath, $code)) {
-            return false;
-        }
-
-        $content = $controllerPath->getContent();
-
-        $pattern = '/public\s*function\s*data\s*\(\s*\)\s*\{\s*(.*?)DataTables\s*::\s*eloquent\((.*?)\)(.*?)\s*}/s';
-
-        if (!preg_match($pattern, $content, $matches)) {
-            return false;
-        }
-
-        if (empty($matches[3])) {
-            return false;
-        }
-
-        $content = str_replace($matches[3], "\n$code{$matches[3]}", $content);
-        $controllerPath->putContent($content);
-        $controllerPath->format();
-        return true;
-    }
-
-    public static function addNewColumnToYajraRawColumnsInController(string $colName, CubePath $controllerPath): bool
-    {
-        if (!$controllerPath->exist()) {
-            return false;
-        }
-
-        $pattern = '/return (.*?)->\s*rawColumns\s*\(\s*\[(.*?)]\s*\)/s';
-
-        $content = $controllerPath->getContent();
-
-        if (!preg_match($pattern, $content, $matches)) {
-            return false;
-        }
-
-        if (!isset($matches[2])) {
-            return false;
-        }
-
-        $colName = "'$colName'";
-
-        if (FileUtils::contentExistsInString($matches[2], $colName)) {
-            return false;
-        }
-
-        $newCols = FileUtils::removeRepeatedCommas($matches[2] . ",$colName", false);
-        $content = preg_replace_callback($pattern, function ($matches) use ($newCols) {
-            return "return $matches[1]->rawColumns([$newCols])";
-        }, $content);
-        $controllerPath->putContent($content);
-        $controllerPath->format();
-        return true;
-    }
-
-    public static function addRelationsToControllerRelationsProperty(CubePath $controllerPath, array $relations = []): bool
-    {
-        if (!$controllerPath->exist()) {
-            CubeLog::notFound($controllerPath->fullPath, "Adding new relations to the loaded relation in the controller");
-            return false;
-        }
-
-        $fileContent = $controllerPath->getContent();
-
-        $pattern = '/\$this\s*->\s*relations\s*=\s*\[(.*?)]/s';
-        if (!preg_match($pattern, $fileContent, $matches)) {
-            CubeLog::failedAppending(
-                "[]",
-                $controllerPath->fullPath,
-                "Adding new relations to the loaded relation in the controller"
-            );
-            return false;
-        }
-
-        $loadedRelations = $matches[1];
-        foreach ($relations as $relation) {
-            if (!FileUtils::isInPhpArrayString($loadedRelations, $relation)) {
-                $loadedRelations .= ",\"$relation\",";
-            }
-        }
-        $loadedRelations = preg_replace('/\s*,\s*,\s*/', ',', $loadedRelations);
-        if (Str::startsWith($loadedRelations, ',')) {
-            $loadedRelations = FileUtils::replaceFirstMatch($loadedRelations, ',', '');
-        }
-        $newContent = preg_replace($pattern, '$this->relations = [' . $loadedRelations . ']', $fileContent);
-        $controllerPath->putContent($newContent);
-        CubeLog::contentAppended(implode(",", $relations), $controllerPath->fullPath);
-        $controllerPath->format();
-
-        return true;
-    }
-
-    /**
-     * Ensures that a specific seeder class call is added to the `DatabaseSeeder` file within the `run` method.
-     * If it does not already exist, it appends the seeder class call to the list of existing seeders or creates the
-     * seeder call if it's missing entirely.
-     * @param string $seederName
-     * @param string $seederCall
-     * @return void
-     */
-    public static function callInDatabaseSeeder(string $seederName, string $seederCall): void
-    {
-        $dbSeederPath = CubePath::make('database/seeders/DatabaseSeeder.php');
-
-        if (!$dbSeederPath->exist()) {
-            return;
-        }
-        $seederContent = $dbSeederPath->getContent();
-        $pattern = '/public\s*function\s*run\s*\(\s*\)\s*(?::\s*void)?\s*\{(.*?)\$this\s*->\s*call\(\s*\[(.*?)]\s*\);(.*?)}/s';
-        if (preg_match($pattern, $seederContent, $matches)) {
-            $exactMatch = $matches[2] ?? null;
-            if (str($exactMatch)->contains($seederName)) {
-                return;
-            }
-
-            if (!empty($exactMatch)) {
-                if (str($exactMatch)->trim()->endsWith(',')) {
-                    $replace = "$exactMatch\n$seederCall,\n";
-                } else {
-                    $replace = "$exactMatch,\n$seederCall,\n";
-                }
-
-                $seederContent = str_replace($exactMatch, $replace, $seederContent);
-                $dbSeederPath->putContent($seederContent);
-                CubeLog::contentAppended($seederCall, $dbSeederPath->fullPath);
-                $dbSeederPath->format();
-                return;
-            }
-        }
-
-        $pattern = '/public\s*function\s*run\s*\(\s*\)\s*(?::\s*void)?\s*\{(.*?)}/s';
-        if (preg_match($pattern, $seederContent, $matches)) {
-            $exactMatch = $matches[1] ?? null;
-            if (!empty($exactMatch)) {
-                $newContent = "\$this->call([\n$seederCall,\n]);\n";
-                $replace = "$exactMatch\n$newContent";
-                $seederContent = str_replace($exactMatch, $replace, $seederContent);
-                $dbSeederPath->putContent($seederContent);
-                CubeLog::contentAppended($newContent, $dbSeederPath->fullPath);
-                $dbSeederPath->format();
-            }
-        }
     }
 }

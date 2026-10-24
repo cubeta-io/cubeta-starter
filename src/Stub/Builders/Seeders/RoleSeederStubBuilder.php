@@ -10,14 +10,14 @@ use Cubeta\CubetaStarter\Stub\Contracts\ClassStubBuilder;
  */
 class RoleSeederStubBuilder extends ClassStubBuilder
 {
+    protected function stubPath(): string
+    {
+        return CubePath::stubPath('Seeders/RoleSeeder.stub');
+    }
+
     public function init(): void
     {
         $this->namespace(config('cubeta-starter.seeder_namespace'))
             ->modelNamespace(config('cubeta-starter.model_namespace'));
-    }
-
-    protected function stubPath(): string
-    {
-        return CubePath::stubPath('Seeders/RoleSeeder.stub');
     }
 }

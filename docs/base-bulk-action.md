@@ -17,8 +17,9 @@ concrete bulk action classes for specific models or queries.
 
 ### Constructor
 
-- **public function __construct(Builder|QueryBuilder $query, Request $request)**
-    - Initializes the bulk action with a query or model instance and the current request.
+- **public function \__construct(Builder|QueryBuilder $query, Request $request)**
+  - Initializes the bulk action with a query or model instance and the current request.
+
 ---
 
 ## Methods
@@ -68,7 +69,7 @@ protected function validateRequestData(array $rules = []): true
 Validates the request data against the specified rules.
 
 - **Parameters:**
-    - `$rules`: Array of validation rules.
+  - `$rules`: Array of validation rules.
 - **Returns:** `true` if validation passes.
 
 ---
@@ -82,7 +83,7 @@ protected function delete($item): void
 Deletes a single item (demonstration method).
 
 - **Parameters:**
-    - `$item`: The item to delete.
+  - `$item`: The item to delete.
 
 ---
 
@@ -112,4 +113,4 @@ class UserBulkAction extends BaseBulkAction
 
 - This class is designed to be extended for specific bulk actions.
 - Define custom bulk actions by adding entries to the `$actions` array.
-- Override the `delete` method or add new methods to implement specific bulk actions. 
+- Override the `delete` method or add new methods to implement specific bulk actions.

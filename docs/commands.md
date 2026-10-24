@@ -21,7 +21,7 @@ php artisan cubeta:install {name} {version=v1} {--force}
 ```
 
 | Argument  | Description                                                                                  |
-|-----------|----------------------------------------------------------------------------------------------|
+| --------- | -------------------------------------------------------------------------------------------- |
 | `name`    | One of: `api`, `web`, `web-packages`, `auth`, `permissions`, `react-ts`, `react-ts-packages` |
 | `version` | The version segment for generated structure (default: `v1`)                                  |
 | `--force` | Overwrite existing files                                                                     |
@@ -29,7 +29,7 @@ php artisan cubeta:install {name} {version=v1} {--force}
 **Available stacks & features:**
 
 | Command                            | What it installs                                                                                                                                                                   |
-|------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cubeta:install api`               | API base classes (Repository, Service, Resource, ApiResponse), localization middleware, helpers, and the API route structure                                                       |
 | `cubeta:install web`               | Blade base classes, Blade components, web controller base, layout, and the web route structure                                                                                     |
 | `cubeta:install web-packages`      | Frontend npm packages for the Blade stack (Bootstrap, jQuery, etc.)                                                                                                                |
@@ -67,7 +67,7 @@ php artisan create:model Product --controller --resource
 ```
 
 | Option             | Generates                                                 |
-|--------------------|-----------------------------------------------------------|
+| ------------------ | --------------------------------------------------------- |
 | `--migration`      | Migration file                                            |
 | `--request`        | Form request with validation                              |
 | `--dto`            | Validated DTO (`wendelladriel/laravel-validated-dto`)     |
@@ -82,7 +82,7 @@ php artisan create:model Product --controller --resource
 
 > [!TIP]
 > The GUI cannot generate a subset of files the way `--options` can; use it via the "full generation" page or generate
-each file individually.
+> each file individually.
 
 ---
 
@@ -199,7 +199,7 @@ Fully interactive. Adds an actor (role) to your project — prompts for the acto
 
 > [!NOTE]
 > `create:actor` requires the permissions feature (`cubeta:install permissions`) and, for an auth controller, the auth
-feature (`cubeta:install auth`).
+> feature (`cubeta:install auth`).
 
 ---
 
@@ -208,7 +208,7 @@ feature (`cubeta:install auth`).
 Most `create:*` commands draw from the same set of parameters. You'll only be asked for the ones a given command needs:
 
 | Parameter  | Type                                  | Meaning                                       |
-|------------|---------------------------------------|-----------------------------------------------|
+| ---------- | ------------------------------------- | --------------------------------------------- |
 | Model name | `string`                              | The model the generated file targets          |
 | Attributes | `array[colName => colType]`           | Table columns and their types                 |
 | Relations  | `array[relationName => relationType]` | Model relationships                           |
@@ -219,4 +219,4 @@ Most `create:*` commands draw from the same set of parameters. You'll only be as
 
 > [!TIP]
 > You rarely type these as raw arguments — just run the command and answer the prompts. The package handles Laravel
-naming conventions for you (e.g. `products` → `Product`).
+> naming conventions for you (e.g. `products` → `Product`).

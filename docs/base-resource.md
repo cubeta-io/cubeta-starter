@@ -14,7 +14,7 @@ consistent format and can be easily extended with additional data when needed.
 ### Properties
 
 | Property     | Type  | Description                                                          |
-|--------------|-------|----------------------------------------------------------------------|
+| ------------ | ----- | -------------------------------------------------------------------- |
 | `$additions` | array | Stores additional data to be included in the resource response       |
 | `$detailed`  | bool  | Flag to indicate if the resource should include detailed information |
 | `$data`      | mixed | The underlying data being transformed                                |
@@ -90,7 +90,7 @@ class CategoryResource extends BaseResource
                 'meta_description' => $this->meta_description,
             ])
         ];
-        
+
         return $data;
     }
 }
@@ -123,8 +123,8 @@ transform the category model.
 > The `ApiResponse` class or the `rest()` helper function will use the Laravel name convention to guess the propper
 > resource class, so when you need to use a custom resource class within the response, you need to provide the resource
 > to the `data` method instead of just providing the model or the models collection
-> this can be done like this : ` return rest()->data(CustomeCategoryResource::make($category))->ok()->send() ` **OR**
-> like this : ` return rest()->data(CustomeCategoryResource::collection($categories))->ok()->send() `
+> this can be done like this : `return rest()->data(CustomeCategoryResource::make($category))->ok()->send()` **OR**
+> like this : `return rest()->data(CustomeCategoryResource::collection($categories))->ok()->send()`
 
 ### Adding Extra Data to Resources
 
@@ -143,6 +143,7 @@ You can mark a resource as detailed using the `detailed()` method:
 CategoryResource::make($category)->detailed();
 CategoryResource::collection($categories)->detailed();
 ```
+
 ## Benefits of Using BaseResource
 
 ### 1. Consistent API Response Format

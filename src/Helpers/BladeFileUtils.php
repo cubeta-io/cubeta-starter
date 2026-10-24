@@ -3,50 +3,13 @@
 namespace Cubeta\CubetaStarter\Helpers;
 
 use Cubeta\CubetaStarter\Logs\CubeLog;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\InputComponentString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\HtmlTableHeaderString;
 use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Javascript\DataTableColumnString;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\Blade\Components\DisplayComponentString;
 
 class BladeFileUtils
 {
-    public static function addToNewInputToForm(InputComponentString $inputComponentString, CubePath $pagePath): bool
-    {
-        if (! $pagePath->exist()) {
-            return false;
-        }
-
-        $content = $pagePath->getContent();
-
-        $pattern = '#<x-form(.*?)>(.*?)<div(.*?)class\s*=\s*([\'"])row([\'"])(.*?)>(.*?)</x-form>#s';
-
-        if (! preg_match($pattern, $content, $matches)) {
-            CubeLog::failedAppending($inputComponentString, $pagePath);
-
-            return false;
-        }
-
-        if (! isset($matches[0])) {
-            CubeLog::failedAppending($inputComponentString, $pagePath);
-
-            return false;
-        }
-
-        if (FileUtils::contentExistsInString($matches[7], $inputComponentString)) {
-            CubeLog::contentAlreadyExists($inputComponentString, $pagePath, "Adding new input to [$pagePath->fullPath]");
-
-            return false;
-        }
-
-        $newContent = "$inputComponentString\n$matches[7]";
-        $content = str_replace($matches[7], $newContent, $content);
-        $pagePath->putContent($content);
-        $pagePath->format();
-        CubeLog::contentAppended($inputComponentString, $pagePath);
-
-        return true;
-    }
-
     public static function addColumnToDataTable(CubePath $filePath, DataTableColumnString $columnObject, HtmlTableHeaderString $columnHeader): bool
     {
         if (! $filePath->exist()) {
@@ -156,6 +119,43 @@ class BladeFileUtils
         $content = str_replace($matches[9], $matches[9]."\n$string", $content);
         $showPagePath->putContent($content);
         $showPagePath->format();
+
+        return true;
+    }
+
+    public static function addToNewInputToForm(InputComponentString $inputComponentString, CubePath $pagePath): bool
+    {
+        if (! $pagePath->exist()) {
+            return false;
+        }
+
+        $content = $pagePath->getContent();
+
+        $pattern = '#<x-form(.*?)>(.*?)<div(.*?)class\s*=\s*([\'"])row([\'"])(.*?)>(.*?)</x-form>#s';
+
+        if (! preg_match($pattern, $content, $matches)) {
+            CubeLog::failedAppending($inputComponentString, $pagePath);
+
+            return false;
+        }
+
+        if (! isset($matches[0])) {
+            CubeLog::failedAppending($inputComponentString, $pagePath);
+
+            return false;
+        }
+
+        if (FileUtils::contentExistsInString($matches[7], $inputComponentString)) {
+            CubeLog::contentAlreadyExists($inputComponentString, $pagePath, "Adding new input to [$pagePath->fullPath]");
+
+            return false;
+        }
+
+        $newContent = "$inputComponentString\n$matches[7]";
+        $content = str_replace($matches[7], $newContent, $content);
+        $pagePath->putContent($content);
+        $pagePath->format();
+        CubeLog::contentAppended($inputComponentString, $pagePath);
 
         return true;
     }

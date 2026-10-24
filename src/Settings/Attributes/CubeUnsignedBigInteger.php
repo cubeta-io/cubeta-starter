@@ -2,13 +2,13 @@
 
 namespace Cubeta\CubetaStarter\Settings\Attributes;
 
-use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
-use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
-use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelCastColumn;
-use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
 use Cubeta\CubetaStarter\StringValues\Strings\Models\CastColumnString;
-use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Factories\HasFakeMethod;
+use Cubeta\CubetaStarter\StringValues\Contracts\Models\HasModelCastColumn;
 use Cubeta\CubetaStarter\StringValues\Strings\Requests\ValidationRuleString;
+use Cubeta\CubetaStarter\StringValues\Contracts\Migrations\HasMigrationColumn;
+use Cubeta\CubetaStarter\StringValues\Strings\Migrations\MigrationColumnString;
+use Cubeta\CubetaStarter\StringValues\Strings\Requests\PropertyValidationRuleString;
 
 class CubeUnsignedBigInteger extends CubeNumeric implements HasFakeMethod, HasMigrationColumn, HasModelCastColumn
 {
@@ -16,7 +16,7 @@ class CubeUnsignedBigInteger extends CubeNumeric implements HasFakeMethod, HasMi
     {
         return new MigrationColumnString(
             $this->columnNaming(),
-            "unsignedBigInteger",
+            'unsignedBigInteger',
             $this->nullable,
             $this->unique
         );
@@ -26,7 +26,7 @@ class CubeUnsignedBigInteger extends CubeNumeric implements HasFakeMethod, HasMi
     {
         return new CastColumnString(
             $this->name,
-            "integer"
+            'integer'
         );
     }
 

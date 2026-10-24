@@ -2,12 +2,12 @@
 
 namespace Cubeta\CubetaStarter\Logs\Info;
 
-use Cubeta\CubetaStarter\Helpers\FileUtils;
 use Cubeta\CubetaStarter\Logs\CubeInfo;
 
 class ContentRemoved extends CubeInfo
 {
     private string $content;
+
     private string $filePath;
 
     public function __construct(string $content, string $filePath)
@@ -36,8 +36,9 @@ class ContentRemoved extends CubeInfo
                         Has Been Removed Successfully From : [{$this->filePath}]
                     </div>
                 ";
-        $msg .= $this->context ? "<div class='w-100'><span class='bg-success-light'>Context</span> : {$this->context}</div>" : "";
-        $msg .= "</div>";
+        $msg .= $this->context ? "<div class='w-100'><span class='bg-success-light'>Context</span> : {$this->context}</div>" : '';
+        $msg .= '</div>';
+
         return $msg;
     }
 }

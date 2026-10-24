@@ -3,8 +3,8 @@
 namespace Cubeta\CubetaStarter\Stub\Builders\Web\InertiaReact\Typescript;
 
 use Cubeta\CubetaStarter\Helpers\CubePath;
-use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 use Cubeta\CubetaStarter\Stub\Contracts\TypescriptFileBuilder;
+use Cubeta\CubetaStarter\StringValues\Strings\Web\InertiaReact\Typescript\InterfacePropertyString;
 
 /**
  * @method self modelName(string $modelName)
@@ -16,14 +16,12 @@ class TsInterfaceStubBuilder extends TypescriptFileBuilder
      */
     private array $properties = [];
 
-    public function property(InterfacePropertyString $property): static
+    protected function getStubPropertyArray(): array
     {
-        $this->properties[] = $property;
-        if ($property->import) {
-            $this->import($property->import);
-        }
-        $this->properties = collect($this->properties)->unique(fn(InterfacePropertyString $item) => $item->name)->toArray();
-        return $this;
+        return [
+            ...parent::getStubPropertyArray(),
+            '{{properties}}' => implode("\n", $this->properties),
+        ];
     }
 
     protected function stubPath(): string
@@ -31,11 +29,14 @@ class TsInterfaceStubBuilder extends TypescriptFileBuilder
         return CubePath::stubPath('Web/InertiaReact/Typescript/Interface.stub');
     }
 
-    protected function getStubPropertyArray(): array
+    public function property(InterfacePropertyString $property): static
     {
-        return [
-            ...parent::getStubPropertyArray(),
-            "{{properties}}" => implode("\n", $this->properties),
-        ];
+        $this->properties[] = $property;
+        if ($property->import) {
+            $this->import($property->import);
+        }
+        $this->properties = collect($this->properties)->unique(fn (InterfacePropertyString $item) => $item->name)->toArray();
+
+        return $this;
     }
 }

@@ -32,10 +32,10 @@ class MakeMigration extends BaseCommand
 
     public function handle(): void
     {
-        $modelName = $this->argument('name') ?? $this->askForModelName("Migration");
+        $modelName = $this->argument('name') ?? $this->askForModelName('Migration');
         $attributes = $this->argument('attributes') ?? null;
 
-        if (!$attributes) {
+        if (! $attributes) {
             [$attributes, $uniques, $nullables] = $this->askForModelAttributes(true, true);
         } else {
             $attributes = $this->resolveAttributes($attributes);
@@ -46,9 +46,9 @@ class MakeMigration extends BaseCommand
 
         $unique = $this->resolveList($this->argument('uniques') ?? ($uniques ?? []));
 
-        $nulls = $this->resolveList($this->argument("nullables") ?? ($nullables ?? []));
+        $nulls = $this->resolveList($this->argument('nullables') ?? ($nullables ?? []));
 
-        $generator = new GeneratorFactory("migration");
+        $generator = new GeneratorFactory('migration');
 
         $override = $this->askForOverride();
 
